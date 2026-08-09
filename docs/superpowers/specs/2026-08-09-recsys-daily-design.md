@@ -31,8 +31,8 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 
 - 不运行常驻后端服务
 - 不使用关系型数据库、Vector DB 或 Graph DB
-- 不在 Git、缓存或 Pages artifact 中永久保存论文 PDF、提取全文或全文 HTML
-- 不在详情页嵌入 PDF、镜像全文或提供站内全文阅读器
+- 不在 Git、缓存或 Pages artifact 中永久保存论文 PDF、博客原始 HTML 或任何提取全文
+- 不在详情页嵌入 PDF、镜像论文/博客全文或提供站内全文阅读器
 - 不建设复杂 RAG、聊天机器人或用户登录系统
 - 不把知识图谱作为严格事实库或学术结论依据
 - 不自动绕过来源站点的访问限制
@@ -73,7 +73,7 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 | 不存在有效状态 | 当前时间减 5 年 | 当前时间减 3 年 |
 | 存在有效状态 | `last_success_at - 48 小时` | `last_success_at - 7 天` |
 
-每次运行统一使用论文最多 100 篇、博客最多 50 篇、深度解读论文最多 8 篇和 LLM 最多 32 次调用作为安全上限。日更通常不会触及这些上限；冷启动用它们防止长时间范围产生不受控的 API 请求。两种运行的唯一业务差异是时间范围。
+每次运行统一使用论文最多 100 篇、博客最多 50 篇，并从元数据初排结果中各取最多 16 篇进行临时全文解读，再分别重排出目标 8 篇。冷启动和日更使用完全相同的候选数、深读数和筛选代码，两种运行的唯一业务差异是时间范围。LLM 不设置每次运行调用次数上限；安全边界由候选数量、单请求 1M context、串行调用、有限重试和工作流 5 小时总超时共同提供。
 
 ### 4.2 成功条件
 
@@ -318,14 +318,15 @@ flowchart LR
     B --> C["抓取 arXiv / OpenReview / RSS"]
     C --> D["标准化、去重、规则预筛"]
     D --> E["LLM 批量相关性分析与摘要"]
-    E --> F["论文和博客各选目标 8 篇"]
-    F --> G["临时解析入选论文 PDF"]
-    G --> H["LLM 生成结构化深度解读"]
-    H --> I["生成详情、日报和轻量图谱"]
-    I --> J["Schema 校验与 Docker 测试"]
-    J --> K["Astro 静态构建"]
-    K --> L["部署 GitHub Pages"]
-    L --> M["提交 data 与 state"]
+    E --> F["论文和博客各初选 Top 16"]
+    F --> G["临时解析 PDF / RSS 全文 / 公开文章 HTML"]
+    G --> H["LLM 逐篇生成结构化深度解读"]
+    H --> I["依据深读结果各重排出目标 8 篇"]
+    I --> J["生成详情、日报和轻量图谱"]
+    J --> K["Schema 校验与 Docker 测试"]
+    K --> L["Astro 静态构建"]
+    L --> M["部署 GitHub Pages"]
+    M --> N["提交 data 与 state"]
 ```
 
 ### 7.1 去重键
@@ -349,48 +350,65 @@ flowchart LR
 - 发布时间和新颖度
 - 与历史推荐的重复惩罚
 
-每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容多次调用模型。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
+每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析。初排后，论文和博客各取 Top 16 进入全文深读；若不足 16 篇则全部进入。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
 
-最终分数示意：
+元数据初排分数示意：
 
 ```text
-score = 0.30 * topic_relevance
-      + 0.25 * scenario_relevance
-      + 0.15 * source_quality
-      + 0.15 * novelty
-      + 0.10 * practical_value
-      + 0.05 * recency
+metadata_score = 0.30 * topic_relevance
+               + 0.25 * scenario_relevance
+               + 0.15 * source_quality
+               + 0.15 * novelty
+               + 0.10 * practical_value
+               + 0.05 * recency
+
+final_score = 0.55 * metadata_score
+            + 0.20 * evidence_quality
+            + 0.15 * business_transferability
+            + 0.10 * technical_depth
 ```
 
-权重由 `config/settings.yaml` 调整。
+权重由 `config/settings.yaml` 调整。相同分数使用发布日期、source ID 和 stable ID 做确定性 tie-break，保证 fixtures 与重复运行结果稳定。
 
-### 7.3 论文深度解读
+### 7.3 论文与博客全文深度解读
 
-全文处理只发生在论文完成排序之后，每次最多处理最终入选的 8 篇论文。它是统一管道中的固定阶段，不为冷启动建立另一套流程。
+全文处理发生在元数据初排之后、最终推荐之前。每次最多处理 Top 16 论文和 Top 16 博客，深读结果参与最终重排，而不是只给已入选内容补充详情。该阶段是统一管道的固定部分，不为冷启动建立另一套流程。
 
-处理规则：
+论文处理规则：
 
 1. 只访问来源提供的公开 PDF URL，不尝试绕过登录、付费墙或访问控制
 2. PDF 串行下载到 runner 临时目录，单篇最大 20 MB、最多 80 页
 3. 提取文本后按 section heading 识别 Abstract、Introduction、Method、Experiments、Results、Limitations 和 Conclusion
-4. 输入超过模型预算时优先保留上述核心章节，最多向 LLM 提交 60,000 个字符，不进行 OCR
-5. 每篇论文单独调用一次 LLM，生成最多约 12,000 个字符的中文结构化解读
-6. 无论成功或失败，都在 `finally` 阶段删除 PDF 和提取文本；它们不得进入 cache、artifact 或 Git
+4. 不进行 OCR；输入超过模型 context 预算时，按章节重要性和 token 数裁剪，而不是使用固定字符数截断
+5. 每篇论文单独调用一次 LLM，生成中文结构化解读
 
-结构化深度解读包括：
+博客处理规则：
 
-- 研究问题与背景
-- 核心贡献
-- Method / Model Architecture
-- Datasets、Baselines、Metrics 和关键实验结果
-- 局限性与适用边界
+1. 优先使用 RSS/Atom 中的 `content:encoded` 或 Atom `content`；若 Feed 只有 excerpt，再访问 canonical URL 的公开文章 HTML
+2. 不绕过登录、付费墙、robots 或其他访问控制；被限制、拒绝或条款不允许自动抓取时直接降级
+3. HTML 单篇最大 5 MB，使用 `trafilatura` 提取正文、标题和 heading，忽略脚本、样式、图片及导航区域
+4. 同一域名并发为 1，带可识别 User-Agent，并使用请求间隔、`Retry-After` 和有限退避重试
+5. 每篇博客单独调用一次 LLM，生成中文结构化解读
+
+两类内容都遵循以下规则：
+
+- 单次 LLM 输入使用 token-aware budgeting：1M context 中预留 output 与 prompt/schema 空间，其余预算用于全文；超长内容优先保留摘要、架构、方法、实验/结果、限制和结论等高价值段落
+- 无论成功、降级或异常中断，都在 `finally` 阶段删除 PDF、原始 HTML 和提取文本；它们不得进入 cache、日志、artifact 或 Git
+- Top 16 候选的结构化深度解读与全文指纹写入 canonical item；未来遇到相同来源修订和指纹时可复用解读，无需再次抓取全文
+- 只保存转述后的结构化分析和短证据定位，不保存长段原文
+
+共同解读字段包括：
+
+- 问题背景、核心贡献与主要方法
+- 证据强度、关键结果、局限性与适用边界
 - 对文字流、语聊、直播间、好友推荐的业务启示
 - 相关工作和知识图谱关系
-- 证据引用，只保存 section 名和 PDF page number，不复制长段原文
 
-如果公开 PDF 不存在、下载失败、超过限制或无法提取文本，则使用摘要生成较短解读，并写入 `analysis_basis: abstract_fallback`。正常完成 PDF 临时解析时写入 `analysis_basis: pdf_text`。详情页必须明确显示分析依据，不能把摘要降级结果冒充 PDF 深度解读。
+论文额外包括 Datasets、Baselines、Metrics、实验设计和关键 findings；博客额外包括 System Context、Architecture / Implementation、Production Constraints、Engineering Trade-offs、线上结果与可复用经验。论文证据只保存 section 名和 PDF page number；博客证据只保存 heading 或 section 名，不复制长段原文。
 
-下载必须带可识别的 User-Agent 并遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此系统只串行处理最终入选的最多 8 篇，不抓取候选全集。论文内容不在本站再发布；arXiv 与 OpenReview 的具体许可信息仍随 item 保存并链接到原站。
+论文正常解析写入 `analysis_basis: pdf_text`，失败时使用摘要生成较短解读并写入 `abstract_fallback`。博客使用 Feed 全文时写入 `rss_full_content`，成功提取公开网页正文时写入 `article_html`，失败时使用 excerpt 生成较短解读并写入 `excerpt_fallback`。详情页必须明确显示分析依据，不能把降级结果冒充全文深读。
+
+所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此系统只串行处理初排 Top 16 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；具体许可信息随 item 保存，并始终链接到原站。
 
 ## 8. LLM 与 API 限制
 
@@ -403,9 +421,11 @@ llm:
   model_env: LLM_MODEL
   concurrency: 1
   batch_size: 8
-  timeout_seconds: 60
+  timeout_seconds: 600
   retries: 3
-  max_calls_per_run: 32
+  context_window_tokens: 1000000
+  reserved_prompt_tokens: 8000
+  reserved_output_tokens: 16000
 ```
 
 NVIDIA NIM 的默认部署值可设为：
@@ -440,15 +460,20 @@ limits:
   retry_attempts: 3
   max_papers_per_run: 100
   max_blogs_per_run: 50
-  max_pdf_downloads_per_run: 8
+  deep_reading_candidates_per_type: 16
+  max_pdf_downloads_per_run: 16
+  max_blog_fulltext_fetches_per_run: 16
   pdf_download_concurrency: 1
+  blog_download_concurrency_per_domain: 1
+  blog_min_interval_seconds_per_domain: 2
   max_pdf_bytes: 20971520
   max_pdf_pages: 80
-  max_fulltext_input_chars: 60000
-  max_deep_reading_output_chars: 12000
+  max_blog_html_bytes: 5242880
 ```
 
-每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用 LLM，最多约 19 次正常调用；最终入选的 8 篇论文各使用 1 次深度解读调用，因此首次运行通常最多约 27 次正常调用。总上限设置为 32，为有限重试保留空间。日更因候选较少通常使用更少调用，两种运行使用相同批处理代码和相同的每次运行上限。
+每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用 LLM，满额时约 19 次正常调用；Top 16 论文和 Top 16 博客各使用 1 次深度解读调用，因此冷启动满额时通常约 51 次正常调用。日更因候选较少且可复用未变更的既有深读结果，通常调用更少。系统不设置 LLM 每次运行调用次数上限；单请求 context 预算、候选数量、并发 1、有限重试和 5 小时 job timeout 是实际边界。
+
+`context_window_tokens: 1000000` 是面向目标 NIM 模型的兼容配置。发送请求前必须读取模型配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。模型实际 context 小于 1M 时配置校验必须失败或显式改小，不能在服务端静默截断全文。
 
 如果 LLM 个别批次失败，允许降级使用英文摘要截断和规则标签，但每次运行都要求至少 90% 候选完成结构化分析；最终进入当日推荐的条目必须 100% 拥有可展示摘要，否则不进入推荐。该规则不区分首次运行和日更。
 
@@ -485,7 +510,7 @@ limits:
 └── scripts/dev.ps1
 ```
 
-`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。约 16 条/日意味着单月通常不超过 500 个文件，远低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异。
+`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 16 论文和 Top 16 博客保存或更新结构化深读记录，单月通常不超过约 1,000 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 8 篇推荐的深读候选也保留结构化结果，以供后续重排复用。
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
@@ -495,14 +520,15 @@ limits:
 
 ```yaml
 storage:
-  max_item_bytes: 65536
+  target_item_bytes: 16384
+  max_item_bytes: 32768
   max_blog_excerpt_chars: 4000
   warn_repository_data_mb: 500
   warn_pages_artifact_mb: 500
   fail_pages_artifact_mb: 900
 ```
 
-单条记录超限时截断非核心 excerpt，但不截断标题、作者、标识符、链接和结构化标签。Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
+结构化深读以约 16 KB/条为目标；32 条/日的理论新增量约 187 MB/年，实际日更不足 32 条且已有指纹可复用时会更低。单条超过 32 KB 时先压缩冗余解释和非核心 excerpt，但不截断标题、作者、标识符、链接、结论和结构化标签。仓库数据达到 500 MB 时在运行报告中告警，提示用户降低深读候选数或迁移历史归档；Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
 
 [GitHub Repository limits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits) 当前建议单个目录不超过 3,000 个条目；[GitHub large-file guidance](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github) 建议仓库最好保持在 1 GB 以下。[GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) 要求发布站点不超过 1 GB。该结构以年月分片并排除生成物，目标是让正常运行多年后仍保持在建议范围内。
 
@@ -522,6 +548,7 @@ storage:
   "tasks": ["link_prediction", "ranking"],
   "methods": ["graph_neural_network"],
   "relevance_score": 0.92,
+  "content_fingerprint": "sha256:...",
   "graph_relations": [],
   "deep_reading": {
     "analysis_basis": "pdf_text",
@@ -548,6 +575,8 @@ storage:
 }
 ```
 
+博客 item 使用相同公共字段，但 `analysis_basis` 为 `rss_full_content`、`article_html` 或 `excerpt_fallback`，深读分支保存 `system_context_zh`、`architecture_zh`、`implementation_zh`、`production_constraints_zh`、`tradeoffs_zh`、`results_zh` 和 `lessons_zh`。博客证据定位使用 heading/section，不使用 PDF page。JSON Schema 使用按 `kind` 区分的 `oneOf` 约束，避免把论文实验字段强加给博客。
+
 ## 10. 静态站点
 
 前端使用 Astro + TypeScript，输出纯静态文件：
@@ -573,7 +602,18 @@ storage:
 - 原文、arXiv、OpenReview 或 DOI 外部链接；不在站内嵌入 PDF
 - “LLM 生成，可能存在错误”的明确提示
 
-博客详情页展示原始 Feed excerpt、中文总结、业务适用性、标签、相关内容和原文外链，不复制或镜像博客全文。
+博客详情页展示：
+
+- 原始标题、Feed excerpt 和中文一句话结论
+- System Context、Architecture / Implementation 与关键技术方案
+- Production Constraints、Engineering Trade-offs、线上结果和可复用经验
+- 局限性、适用边界和对四类业务场景的启示
+- heading/section 级证据定位
+- `rss_full_content`、`article_html` 或 `excerpt_fallback` 分析依据标记
+- 标签、相关论文/博客和原文外链
+- “LLM 生成，可能存在错误”的明确提示
+
+详情页只展示结构化转述，不复制、镜像或缓存博客全文。
 
 ## 11. 轻量交互知识图谱
 
@@ -695,9 +735,15 @@ Python 单元测试覆盖：
 - 确定性评分
 - LLM JSON 解析和降级
 - 深度解读 Schema 和 `analysis_basis` 标记
+- 论文和博客各 Top 16 深读、基于深读结果重排并最终各选目标 8 篇
 - PDF 数量、大小、页数、下载超时和串行限制
 - PDF 无法下载或解析时的 `abstract_fallback`
-- 成功、失败和异常中断后临时 PDF/全文清理
+- RSS/Atom 全文优先、公开 HTML 正文提取、大小限制和同域串行限速
+- 博客正文受限、下载或解析失败时的 `excerpt_fallback`
+- 1M context 的 token-aware budgeting、prompt/output 预留和模型能力校验
+- 不存在 LLM 每次运行调用次数上限，同时重试次数仍然有界
+- 博客正文净化、prompt-injection 隔离、URL 重定向后重新校验
+- 成功、失败和异常中断后临时 PDF、HTML 与提取全文清理
 - `data/` 与 Pages artifact 中不存在 PDF、提取全文或全文 HTML
 - `429`、`Retry-After` 与重试边界
 - 冷启动失败不写状态
@@ -711,6 +757,7 @@ Python 单元测试覆盖：
 - 某个可选 RSS 失败
 - 没有博客但有论文
 - 论文或博客不足 8 篇
+- Top 16 深读候选中的部分全文抓取失败并正确降级
 - LLM 部分批次失败
 
 前端验证以 Astro build、链接检查和关键页面快照为主，不引入浏览器测试集群。
@@ -718,9 +765,12 @@ Python 单元测试覆盖：
 ## 15. 安全、合规和可观测性
 
 - 只保存公开元数据、摘要、短 excerpt 和 LLM 结构化深度解读，不镜像或嵌入受版权保护的全文
-- 只对最终入选的最多 8 篇论文临时下载公开 PDF，遵守来源访问规则并串行限速
-- 临时 PDF 和提取文本不进入 Git、cache、日志或 Pages artifact
-- 深度解读使用转述和 section/page 引用，不发布长段原文
+- 只对初排 Top 16 论文临时下载公开 PDF；博客优先使用 Feed 全文，必要时最多访问 Top 16 篇公开文章 HTML
+- 论文和博客抓取都遵守来源访问规则、robots 与站点条款，不绕过登录、付费墙或反自动化限制
+- RSS、PDF 和 HTML 一律视为不可信输入；只允许公开 `https`/`http` URL，每次重定向后重新解析并拒绝 loopback、私网和 link-local 地址
+- HTML 不执行脚本；LLM prompt 明确把正文包裹为只读资料并忽略其中指令，输出仍须通过严格 JSON Schema 校验
+- 临时 PDF、原始 HTML 和提取文本不进入 Git、cache、日志或 Pages artifact
+- 深度解读使用转述和 section/page 或 heading/section 引用，不发布长段原文
 - 每个页面保留原始来源链接和发布时间
 - 遵循各 API 的使用政策、分页规则和请求间隔
 - 不把 Secret 写入日志、缓存、artifact 或静态页面
@@ -745,7 +795,9 @@ Python 单元测试覆盖：
 12. GitHub Pages 部署不依赖任何常驻服务器
 13. canonical item 按类型和年月分文件保存，日报只引用 item ID，构建产物和原始响应不进入 Git
 14. 主工作流 `timeout-minutes` 为 300，Pages artifact 达到 500 MB 时告警且必须小于 900 MB
-15. 每日入选论文拥有结构化深度解读；PDF 和提取全文只存在于 runner 临时目录，详情页不保存、不镜像且不嵌入原始 PDF
+15. 每次运行从论文和博客元数据初排结果中各取最多 16 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 16 篇时处理全部候选
+16. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、原始 HTML 和提取全文只存在于 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
+17. LLM 不设置每次运行调用次数上限，单请求按 1M context 做 token-aware budgeting，串行调用、有限重试并受 5 小时工作流总超时约束
 
 ## 17. 后续可选增强
 
