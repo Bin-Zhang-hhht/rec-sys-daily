@@ -66,7 +66,7 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 
 ### 4.1 单工作流判定
 
-冷启动和日常更新由同一个 `daily.yml`、同一个 Python CLI 包和同一套三阶段处理逻辑完成。生产 job 分别调用阶段子命令，本地 `run` 只是依次编排这些相同阶段；代码不接受独立的 cold-start/daily 模式参数，只根据 `data/state.json` 计算查询起始时间：
+冷启动和日常更新由同一个 `daily.yml`、同一个 Python CLI 包和同一套四阶段处理逻辑完成。前三个数据处理阶段由 Python 命令完成，最后一个网站构建与部署阶段由 Node/Astro 完成；冷启动和日更不接受独立模式参数，只根据 `data/state.json` 计算查询起始时间：
 
 | 状态 | 论文起始时间 | 博客起始时间 |
 | --- | --- | --- |
@@ -302,16 +302,15 @@ methods:
 
 ## 7. 数据管道
 
-管道采用单个 Python 包和一个 CLI。生产工作流调用明确的阶段命令，本地 `run` 命令按相同顺序完成端到端编排：
+数据管道采用单个 Python 包和一个 CLI。生产工作流调用明确的阶段命令，本地 `run` 命令只编排 Python 数据阶段并产出待发布数据包；网站构建由独立的 Node/Astro 容器消费该数据包：
 
 ```text
 python -m recsys_daily run
 python -m recsys_daily collect-filter --output <dir>
 python -m recsys_daily deep-read --kind paper --input <dir> --output <dir>
 python -m recsys_daily deep-read --kind blog --input <dir> --output <dir>
-python -m recsys_daily rank-publish --input <dir>
+python -m recsys_daily rank-integrate --input <dir> --output <dir>
 python -m recsys_daily test-fixtures
-python -m recsys_daily build-data
 ```
 
 处理阶段：
@@ -320,8 +319,9 @@ python -m recsys_daily build-data
 flowchart LR
     A["Job 1：收集、过滤与初排"] --> B1["Job 2A：论文全文与视觉阅读"]
     A --> B2["Job 2B：博客全文阅读"]
-    B1 --> C["Job 3：精排、整合与发布"]
+    B1 --> C["Job 3：精排与数据整合"]
     B2 --> C
+    C --> D["Job 4：Astro 构建与 Pages 部署"]
 
     subgraph S1["Stage 1"]
       A
@@ -332,6 +332,9 @@ flowchart LR
     end
     subgraph S3["Stage 3"]
       C
+    end
+    subgraph S4["Stage 4"]
+      D
     end
 ```
 
@@ -539,12 +542,13 @@ NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 r
 │   └── runs/
 │       └── YYYY/MM/<run-id>.json
 ├── pipeline/
+│   ├── Dockerfile
 │   ├── recsys_daily/
 │   └── tests/
 ├── site/
+│   ├── Dockerfile
 │   └── Astro static site
 ├── fixtures/
-├── Dockerfile
 ├── compose.yaml
 └── scripts/dev.ps1
 ```
@@ -710,15 +714,15 @@ storage:
 
 ## 12. Docker 与本地开发
 
-整个项目使用单个应用镜像，不启动数据库或其他 Compose 服务。镜像包含 Python pipeline 和 Node/Astro build 环境。
+项目不启动数据库或常驻 Compose 服务，但按技术栈使用两个独立镜像：`pipeline/Dockerfile` 只包含 Python、正文提取和 LLM/VLM 客户端；`site/Dockerfile` 只包含 Node、pnpm 和 Astro。两个镜像通过结构化 publish bundle 交接，不共享 Python 或 Node 运行时。
 
 PowerShell 本地命令：
 
 ```powershell
-docker compose build
-docker compose run --rm app test
-docker compose run --rm app build
-docker compose run --rm app run
+docker compose build pipeline site
+docker compose run --rm pipeline test-fixtures
+docker compose run --rm pipeline run --output /workspace/publish-bundle
+docker compose run --rm site build
 ```
 
 便捷脚本：
@@ -729,7 +733,7 @@ docker compose run --rm app run
 .\scripts\dev.ps1 run
 ```
 
-测试默认使用 `fixtures/`，不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 被 `.gitignore` 排除。
+`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。`dev.ps1 run` 先运行 pipeline 生成数据包，再运行 site build；`dev.ps1 test` 分别执行 Python fixtures 和 Astro fixture build。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
 
 ## 13. GitHub Actions
 
@@ -741,11 +745,11 @@ docker compose run --rm app run
 
 执行：
 
-1. 构建 Docker image
-2. 运行 Python 单元测试
-3. 使用 fixtures 运行端到端 pipeline
-4. 验证 JSON Schema
-5. 构建 Astro 静态站点
+1. 构建 `pipeline/Dockerfile`
+2. 运行 Python 单元测试、fixtures 端到端数据管道和 JSON Schema 校验
+3. 构建 `site/Dockerfile`
+4. 使用 pipeline fixture publish bundle 构建 Astro 静态站点
+5. 执行前端类型检查、链接检查和 Pages artifact 大小检查
 
 ### 13.2 daily.yml
 
@@ -754,7 +758,7 @@ docker compose run --rm app run
 - 每日定时运行，默认北京时间 08:23（UTC 00:23），避开整点高峰
 - `workflow_dispatch` 手动运行
 
-生产 workflow 分为三个逻辑阶段和四个物理 job；每个 job 都使用同一个 Dockerfile，并通过 GitHub Actions layer cache 避免重复构建完整镜像。
+生产 workflow 分为四个逻辑阶段和五个物理 job。前三个数据阶段的业务命令在 `pipeline/Dockerfile` 镜像内运行；最后的网站构建命令在 `site/Dockerfile` 镜像内运行。checkout、artifact 上传下载、Pages 部署和 Git 提交由 GitHub runner 上的官方 action 或宿主步骤负责，不要求业务镜像安装另一套技术栈。两个镜像分别使用 GitHub Actions layer cache，不把 Python/PDF 依赖带入前端镜像，也不把 Node/Astro 依赖带入数据镜像。
 
 #### Job 1：collect-filter
 
@@ -780,29 +784,41 @@ Artifact 只包含 `manifest.json`、`papers.jsonl` 和 `blogs.jsonl`。`manifes
 
 两个全文 runner 各自并发为 1、最短请求间隔 4 秒，合计目标不超过 30 RPM。论文和博客固定并行可以为两类内容分别获得最多 5 小时执行时间，同时不引入候选分片、动态 matrix 或其他复杂调度。
 
-#### Job 3：rank-integrate-publish
+#### Job 3：rank-integrate
 
-- job ID 为 `rank_integrate_publish`，依赖 `needs: [collect_filter, deep_read]`
-- `timeout-minutes: 180`
+- job ID 为 `rank_integrate`，依赖 `needs: [collect_filter, deep_read]`
+- `timeout-minutes: 120`
+- 使用 `pipeline/Dockerfile`，保持仓库只读权限
 - 下载三个结构化 artifact，并验证 `run_id`、commit、state/config hash 和 schema version 一致
-- 执行 `python -m recsys_daily rank-publish --input /workspace/stages`
+- 执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-bundle`
 - 基于已经包含视觉证据的论文深读和博客深读各精排目标 8 篇
-- 生成 canonical items、日报、详情页、图谱和运行报告
-- 在容器内执行完整测试、Schema 校验与 Astro build
-- 上传并部署 Pages artifact
-- 部署成功后提交 `data/` 和最终 `state.json`
+- 生成待提交的 canonical items、日报、运行报告、图谱关系和 pending `state.json`
+- 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
+- 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 1`
 
-只有该 job 授予 `contents: write`、`pages: write` 和 `id-token: write`。原始 PDF、TeX、HTML、提取全文或关键页面图片不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选与分析结果。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
+Publish bundle 只包含 `manifest.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。它不包含 HTML 页面、搜索索引、`graph.json` 或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
+
+#### Job 4：build-deploy
+
+- job ID 为 `build_deploy`，依赖 `needs: rank_integrate`
+- `timeout-minutes: 60`
+- 使用 `site/Dockerfile`，下载 `publish-bundle-<run-id>` 并再次验证 manifest
+- `site/Dockerfile` 使用 `pnpm install --frozen-lockfile` 构建依赖层；job 在该镜像内先执行前端类型检查和 `pnpm build`，再对生成站点执行链接检查
+- 从 `pending-data/` 派生详情页、归档页、搜索索引、交互图谱和 `graph.json`
+- 验证 Pages artifact 不超过配置的大小边界，然后上传并部署
+- Pages 部署成功后，将 `pending-data/` 暂存为仓库 `data/`，并在同一个 Git commit 中提交 canonical 数据和最终 `state.json`
+
+只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、TeX、HTML、提取全文或关键页面图片不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
 
 工作流公共设置：
 
 - `concurrency.group: recsys-daily`
 - `cancel-in-progress: false`
-- 各 job 的 timeout 均低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限；官方还规定单次 workflow 最长 35 天，而本系统的理论墙钟上限约为 `2 + max(5, 5) + 3 = 10` 小时，也低于每日调度间隔
-- Job 1 失败时不启动全文 job；任一全文 job 失败时不启动正式发布；任一失败都不写 `state.json`
+- 各 job 的 timeout 均低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限；官方还规定单次 workflow 最长 35 天，而本系统的理论墙钟上限约为 `2 + max(5, 5) + 2 + 1 = 10` 小时，也低于每日调度间隔
+- Job 1 失败时不启动全文 job；任一全文 job 失败时不启动精排；精排失败时不启动网站构建；网站构建或部署失败时不提交 pending 数据；任一失败都不写正式 `state.json`
 - GitHub UI 重新运行失败 job 时可复用同一 workflow 中仍有效的成功 artifact，并以相同 manifest 防止跨批次混用
 
-如果 Pages 部署成功但数据提交失败，下次仍会重试同一批次。站点可能暂时已有内容，但仓库状态不会被错误标为完成。
+前端检查、构建或部署失败时只需重新运行 `build_deploy`，直接复用 publish bundle，不重新抓取内容或调用 LLM。如果 Pages 部署成功但数据提交失败，下次仍会重试同一批次；站点可能暂时已有内容，但仓库状态不会被错误标为完成。
 
 ## 14. 测试策略
 
@@ -828,6 +844,8 @@ Python 单元测试覆盖：
 - 不存在 LLM 每次运行调用次数上限，同时重试次数仍然有界
 - 两个全文 runner 固定并行、每 worker 并发 1、合计目标 30 RPM 和硬上限 40 RPM；重试同样经过限流器
 - stage manifest 的 run/commit/state/config/schema 校验，以及跨 job artifact 不匹配时拒绝发布
+- `rank_integrate` 只生成结构化 publish bundle，`build_deploy` 只能从该 bundle 派生页面、搜索索引和图谱构建产物
+- pipeline/site 两个 Docker 镜像的依赖边界，以及 publish bundle 中不存在 Astro `dist`、搜索索引或 `graph.json`
 - 博客正文净化、prompt-injection 隔离、URL 重定向后重新校验
 - 成功、失败和异常中断后临时 TeX、PDF、关键页面图片、HTML 与提取全文清理
 - `data/`、跨 job artifact 与 Pages artifact 中不存在 TeX、PDF、关键页面图片、提取全文或全文 HTML
@@ -845,10 +863,11 @@ Python 单元测试覆盖：
 - 论文或博客不足 8 篇
 - Top 16 深读候选中的部分全文抓取失败并正确降级
 - LLM 部分批次失败
-- collect-filter、论文深读、博客深读或 rank-publish 任一 job 失败时都不写状态
+- collect-filter、论文深读、博客深读、rank-integrate、site build 或 Pages deploy 任一步骤失败时都不写正式状态
+- 前端失败后只重跑 `build_deploy` 并复用 publish bundle，不再次触发 LLM fixture 调用
 - 成功 artifact 在只重跑失败 job 时可复用，且不同 run 的 artifact 不会混用
 
-前端验证以 Astro build、链接检查和关键页面快照为主，不引入浏览器测试集群。
+前端验证以独立 site image 的类型检查、Astro build、链接检查和关键页面快照为主，不引入浏览器测试集群。
 
 ## 15. 安全、合规和可观测性
 
@@ -879,17 +898,17 @@ Python 单元测试覆盖：
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
 8. 站点包含日报、详情、归档和可交互轻量图谱
 9. 图谱默认内容节点不超过 80，历史增长不会导致页面无限臃肿
-10. 本地测试和构建完全通过 Docker 完成
-11. GitHub Actions 使用同一 Dockerfile，并对 API 限流、429 和失败重试有测试覆盖
+10. 本地测试和构建完全通过 Docker 完成，pipeline 与 site 使用两个独立镜像并通过 publish bundle 交接
+11. GitHub Actions 的数据 job 使用 `pipeline/Dockerfile`、网站 job 使用 `site/Dockerfile`，并对 API 限流、429 和失败重试有测试覆盖
 12. GitHub Pages 部署不依赖任何常驻服务器
 13. canonical item 按类型和年月分文件保存，日报只引用 item ID，构建产物和原始响应不进入 Git
-14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read 和 rank-integrate-publish 三个逻辑阶段；job timeout 分别为 120、300 和 180 分钟，单 job 不超过 5 小时，理论墙钟上限约 10 小时
+14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、rank-integrate 和 build-deploy 四个逻辑阶段，共五个物理 job；job timeout 分别为 120、300、120 和 60 分钟，单 job 不超过 5 小时，理论墙钟上限约 10 小时
 15. 每次运行从论文和博客元数据初排结果中各取最多 16 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 16 篇时处理全部候选
 16. Top 16 论文在全文 runner 中检测关键页面；存在关键页面的论文恰好调用一次 VLM，单次调用包含全部识别出的关键页面且不设应用级页数上限；无关键页面不调用并标记 `not_required`，视觉失败或无关键页面不阻断文本深读
 17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；source archive、PDF、关键页面图片、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
 18. 默认文本模型为 NVIDIA Nemotron 3 Super、视觉模型为 NVIDIA Nemotron 3 Nano Omni；DeepSeek V4 Flash 作为显式可切换接口保留，但运行中不自动混用 provider
 19. 模型不设置每次运行调用次数上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行且总目标 30 RPM、硬上限 40 RPM、每 worker 并发 1、有限重试
-20. 任一 stage/job 失败都不写 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，并在发布前验证 manifest 一致性
+20. 任一 stage/job 失败都不写正式 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，并在发布前验证 manifest 一致性；前端失败可只重跑 `build_deploy`，不重新调用 LLM
 
 ## 17. 后续可选增强
 
