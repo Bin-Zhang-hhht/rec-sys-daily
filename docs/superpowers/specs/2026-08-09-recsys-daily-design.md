@@ -44,12 +44,12 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 
 | 内容类型 | 每日数量 | 规则 |
 | --- | ---: | --- |
-| 学术论文 | 目标 8 篇 | 优先新论文；不足时扩大候选时间窗，但不填充低相关或重复论文 |
+| 学术论文 | 目标 8 篇 | 优先新论文；不足时允许少于 8 篇，不填充低相关或重复论文 |
 | 技术博客 | 目标 8 篇 | 优先未推荐的近期文章；不足时允许少于 8 篇，不为凑数降低阈值 |
 
 因此每日页面最多展示 16 条新推荐。
 
-论文候选默认取最近 36 小时；若不足 8 篇，则逐步扩大到最近 7 天，并优先选择尚未出现在历史日报中的论文。博客候选默认取最近 7 天；若不足 8 篇，则逐步扩大到最近 30 天，并只选择尚未出现在历史日报中的文章。任一类型仍不足时允许少于 8 篇，并在运行报告中记录原因。
+系统按日运行。存在成功状态时，论文从 `last_success_at - 48 小时` 开始查询，博客从 `last_success_at - 7 天` 开始查询；重叠窗口用于容忍来源延迟和偶发漏跑，历史日报去重保证内容不会被重复推荐。任一类型不足 8 篇时允许少于 8 篇，并在运行报告中记录原因。
 
 每条推荐至少包含：
 
@@ -61,21 +61,22 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 - 推荐理由与相关性分数
 - LLM 生成状态和失败降级标记
 
-## 4. 冷启动与日更状态机
+## 4. 统一工作流与时间窗口
 
-### 4.1 自动冷启动
+### 4.1 单工作流判定
 
-第一次定时运行时，如果仓库中不存在有效的 `data/state.json`，工作流自动进入冷启动：
+冷启动和日常更新由同一个 `daily.yml`、同一个 CLI 命令和同一套处理阶段完成。代码不接受独立的 cold-start/daily 模式参数，只根据 `data/state.json` 计算查询起始时间：
 
-- 学术论文：最近 5 年，最多 100 篇
-- 技术博客：最近 3 年，最多 50 篇
-- 总抓取上限：150 篇/条
+| 状态 | 论文起始时间 | 博客起始时间 |
+| --- | --- | --- |
+| 不存在有效状态 | 当前时间减 5 年 | 当前时间减 3 年 |
+| 存在有效状态 | `last_success_at - 48 小时` | `last_success_at - 7 天` |
 
-时间范围和数量上限使用与日更相同的抓取接口和数据 Schema，只改变配置参数。
+每次运行统一使用论文最多 100 篇、博客最多 50 篇和 LLM 最多 25 次调用作为安全上限。日更通常不会触及这些上限；冷启动用它们防止长时间范围产生不受控的 API 请求。两种运行的唯一业务差异是时间范围。
 
 ### 4.2 成功条件
 
-冷启动数据先写入临时工作目录。只有以下步骤全部成功后，才提交正式数据和 `data/state.json`：
+所有待发布数据先写入临时工作目录。每次运行只有在以下步骤全部成功后，才提交正式数据和新的 `data/state.json`：
 
 1. 必需来源完成抓取
 2. 数据去重和 Schema 校验通过
@@ -85,13 +86,13 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 6. 静态站点构建通过
 7. GitHub Pages 部署成功
 
-如果任一关键步骤失败，不提交 `state.json`。GitHub-hosted runner 结束后临时文件自然消失，下次定时运行仍会自动冷启动。
+如果任一关键步骤失败，不提交新的 `state.json`。首次运行失败后，下次定时运行仍使用 5 年/3 年时间范围；日更失败后，下次运行仍从上一次成功时间回溯，不会跳过失败期间的内容。
 
-博客 RSS 属于可选来源，单个 Feed 暂时失败只记录警告，避免某个公司博客故障导致冷启动永远无法完成。来源配置仍支持将特定 Feed 标为 `required: true`。
+博客 RSS 属于可选来源，单个 Feed 暂时失败只记录警告，避免某个公司博客故障导致整个工作流永远无法完成。来源配置仍支持将特定 Feed 标为 `required: true`。RSS 通常只返回近期条目，因此首次运行的“近 3 年、最多 50 篇”是接受范围和安全上限，不保证每个 Feed 都能回溯到 3 年前。
 
 ### 4.3 后续日更
 
-存在有效状态后进入增量模式：
+存在有效状态后，同一管道使用增量时间窗口：
 
 - 根据来源游标、发布日期和内容 ID 拉取新增候选
 - 使用 arXiv ID、OpenReview ID、Canonical URL、DOI 和标准化标题去重
@@ -303,7 +304,7 @@ methods:
 管道采用单个 Python 包和一个 CLI：
 
 ```text
-python -m recsys_daily pipeline --mode auto
+python -m recsys_daily run
 python -m recsys_daily test-fixtures
 python -m recsys_daily build-data
 ```
@@ -312,11 +313,11 @@ python -m recsys_daily build-data
 
 ```mermaid
 flowchart LR
-    A["读取 YAML 与 state"] --> B["判断 cold-start / daily"]
+    A["读取 YAML 与 state"] --> B["计算各来源时间窗口"]
     B --> C["抓取 arXiv / OpenReview / RSS"]
     C --> D["标准化、去重、规则预筛"]
     D --> E["LLM 批量相关性分析与摘要"]
-    E --> F["论文选 10，博客选至多 5"]
+    E --> F["论文和博客各选目标 8 篇"]
     F --> G["生成详情、日报和轻量图谱"]
     G --> H["Schema 校验与 Docker 测试"]
     H --> I["Astro 静态构建"]
@@ -345,7 +346,7 @@ flowchart LR
 - 发布时间和新颖度
 - 与历史推荐的重复惩罚
 
-日更默认只把排名最高的约 16 篇论文候选和 16 篇博客候选交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容多次调用模型。
+每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容多次调用模型。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
 
 最终分数示意：
 
@@ -373,9 +374,7 @@ llm:
   batch_size: 8
   timeout_seconds: 60
   retries: 3
-  max_calls:
-    cold_start: 25
-    daily: 5
+  max_calls_per_run: 25
 ```
 
 NVIDIA NIM 的默认部署值可设为：
@@ -408,11 +407,13 @@ limits:
   arxiv_min_interval_seconds: 3
   request_timeout_seconds: 45
   retry_attempts: 3
+  max_papers_per_run: 100
+  max_blogs_per_run: 50
 ```
 
-冷启动 150 条内容按每批 8 条调用 LLM，通常约 19 次调用；日更最多处理约 32 条 shortlist，通常不超过 4 次调用。
+每次运行最多处理 150 条内容，按每批 8 条调用 LLM，最多约 19 次正常调用；日更因候选较少通常只需要少量批次。两种运行使用相同批处理代码和相同的每次运行上限。
 
-如果 LLM 个别批次失败，允许降级使用英文摘要截断和规则标签，但必须达到配置的最低成功率。冷启动默认要求至少 90% 内容完成结构化分析；日更推荐条目必须 100% 拥有可展示摘要，否则不进入当天推荐。
+如果 LLM 个别批次失败，允许降级使用英文摘要截断和规则标签，但每次运行都要求至少 90% 候选完成结构化分析；最终进入当日推荐的条目必须 100% 拥有可展示摘要，否则不进入推荐。该规则不区分首次运行和日更。
 
 ## 9. 数据模型与仓库结构
 
@@ -428,12 +429,14 @@ limits:
 ├── data/
 │   ├── state.json
 │   ├── items/
-│   │   └── <stable-id>.json
+│   │   ├── papers/
+│   │   │   └── YYYY/MM/<stable-id>.json
+│   │   └── blogs/
+│   │       └── YYYY/MM/<stable-id>.json
 │   ├── digests/
-│   │   └── YYYY-MM-DD.json
-│   ├── graph.json
+│   │   └── YYYY/MM/YYYY-MM-DD.json
 │   └── runs/
-│       └── YYYY-MM-DD.json
+│       └── YYYY/MM/<run-id>.json
 ├── pipeline/
 │   ├── recsys_daily/
 │   └── tests/
@@ -445,7 +448,26 @@ limits:
 └── scripts/dev.ps1
 ```
 
-`data/items` 是归一化后的来源事实和 LLM 派生字段。RSS/API 原始响应不提交到 Git，以避免仓库膨胀。
+`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。约 16 条/日意味着单月通常不超过 500 个文件，远低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异。
+
+日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
+
+以下内容不提交 Git：RSS/API 原始响应、PDF、图片副本、完整 LLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、搜索索引和 `graph.json`。图谱、搜索索引、详情页和归档页都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。
+
+存储保护规则：
+
+```yaml
+storage:
+  max_item_bytes: 32768
+  max_blog_excerpt_chars: 4000
+  warn_repository_data_mb: 500
+  warn_pages_artifact_mb: 500
+  fail_pages_artifact_mb: 900
+```
+
+单条记录超限时截断非核心 excerpt，但不截断标题、作者、标识符、链接和结构化标签。Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
+
+[GitHub Repository limits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits) 当前建议单个目录不超过 3,000 个条目；[GitHub large-file guidance](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github) 建议仓库最好保持在 1 GB 以下。[GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) 要求发布站点不超过 1 GB。该结构以年月分片并排除生成物，目标是让正常运行多年后仍保持在建议范围内。
 
 单条内容的核心 Schema：
 
@@ -545,7 +567,7 @@ PowerShell 本地命令：
 docker compose build
 docker compose run --rm app test
 docker compose run --rm app build
-docker compose run --rm app pipeline --mode auto
+docker compose run --rm app run
 ```
 
 便捷脚本：
@@ -553,12 +575,14 @@ docker compose run --rm app pipeline --mode auto
 ```powershell
 .\scripts\dev.ps1 test
 .\scripts\dev.ps1 build
-.\scripts\dev.ps1 pipeline
+.\scripts\dev.ps1 run
 ```
 
 测试默认使用 `fixtures/`，不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 被 `.gitignore` 排除。
 
 ## 13. GitHub Actions
+
+`daily.yml` 是唯一访问真实来源、调用 LLM、写入数据并部署 Pages 的运行工作流。`verify.yml` 只使用 fixtures 做代码验证，不承担冷启动或日更，因此不会复制生产管道逻辑。
 
 ### 13.1 verify.yml
 
@@ -576,14 +600,14 @@ docker compose run --rm app pipeline --mode auto
 
 触发条件：
 
-- 每日定时运行，默认北京时间约 08:30
+- 每日定时运行，默认北京时间 08:23（UTC 00:23），避开整点高峰
 - `workflow_dispatch` 手动运行
 
 执行顺序：
 
-1. Checkout 完整仓库历史
+1. 浅克隆默认分支；当前工作树已包含生成所需的全部 canonical data
 2. 构建或恢复 Docker layer cache
-3. 容器内执行 `pipeline --mode auto`
+3. 容器内执行唯一命令 `python -m recsys_daily run`
 4. 容器内执行测试和站点构建
 5. 上传 Pages artifact
 6. 部署 GitHub Pages
@@ -593,7 +617,7 @@ docker compose run --rm app pipeline --mode auto
 
 - `concurrency.group: recsys-daily`
 - `cancel-in-progress: false`
-- 主 job `timeout-minutes: 60`
+- 主 job `timeout-minutes: 300`，即 5 小时；低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限并保留 1 小时余量
 - 最小权限原则
 - Pages deploy 使用 `pages: write` 和 `id-token: write`
 - 数据提交只授予 `contents: write`
@@ -632,17 +656,17 @@ Python 单元测试覆盖：
 - 每个页面保留原始来源链接和发布时间
 - 遵循各 API 的使用政策、分页规则和请求间隔
 - 不把 Secret 写入日志、缓存、artifact 或静态页面
-- 每次运行写 `data/runs/YYYY-MM-DD.json`，记录来源成功/失败、候选数量、推荐数量、LLM 调用量和告警
+- 每次运行写 `data/runs/YYYY/MM/<run-id>.json`，记录来源成功/失败、候选数量、推荐数量、LLM 调用量和告警
 - 页面展示生成模型和生成时间，但不暴露 API Key、内部请求头或完整 prompt
 
 ## 16. 验收标准
 
 首个版本完成时必须满足：
 
-1. 空仓库状态下第一次 scheduled/manual auto 运行能自动冷启动
+1. 空仓库状态下第一次 scheduled/manual 运行能自动使用冷启动时间范围
 2. 冷启动论文限制为近 5 年最多 100 篇，博客限制为近 3 年最多 50 篇
 3. 冷启动关键失败时远端仓库不存在完成状态
-4. 后续运行自动进入日更
+4. 后续每日运行自动使用增量时间范围，冷启动和日更除时间范围外共用同一套处理逻辑和安全上限
 5. 每日论文和博客各目标 8 篇；候选不足时允许少于 8 篇，但不使用低相关或重复内容填充
 6. 每条推荐拥有中文一句话摘要并保留关键英文术语
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
@@ -651,6 +675,8 @@ Python 单元测试覆盖：
 10. 本地测试和构建完全通过 Docker 完成
 11. GitHub Actions 使用同一 Dockerfile，并对 API 限流、429 和失败重试有测试覆盖
 12. GitHub Pages 部署不依赖任何常驻服务器
+13. canonical item 按类型和年月分文件保存，日报只引用 item ID，构建产物和原始响应不进入 Git
+14. 主工作流 `timeout-minutes` 为 300，Pages artifact 达到 500 MB 时告警且必须小于 900 MB
 
 ## 17. 后续可选增强
 
