@@ -371,7 +371,7 @@ final_score = 0.55 * metadata_score
 2. 只访问 arXiv 提供的公开地址，不尝试绕过登录、付费墙或访问控制；首版不下载或解析 TeX source
 3. PDF 串行下载到 runner 临时目录，单篇最大 20 MB、最多 80 页；提取后按 section heading 识别 Abstract、Introduction、Method、Experiments、Results、Limitations 和 Conclusion
 4. 本地规则根据 Figure/Table caption、页面图片和章节位置识别所有关键页面，包括 Overview、Architecture、Main Results、Ablation 和 Case Study
-5. 检测到关键页面时，每篇论文恰好调用一次 VLM；应用层不设置关键页面数量上限，将识别出的全部关键页面放入同一请求。没有关键页面时不发起零图片调用。通用客户端只受所配置 endpoint 的 context、HTTP payload 和图像格式等真实协议约束，不按固定页数丢弃页面
+5. 检测到关键页面时，每篇论文恰好调用一次 VLM；应用层不设置关键页面数量上限，将识别出的全部关键页面放入同一请求。没有关键页面时不发起零图片调用。视觉请求只受所配置 invoke URL 的 context、HTTP payload 和图像格式等真实协议约束，不按固定页数丢弃页面
 6. VLM 输出页面级 Architecture、Table、Chart 和视觉限制证据；没有关键页面时标记 `not_required`，VLM 失败时标记 `unavailable`，两种情况都继续文本深读且不因缺少图片降低论文分数
 7. 每篇论文再调用一次文本 LLM，将全文与 VLM 结构化证据合并为中文深度解读；输入超过文本模型 context 预算时按章节重要性和 token 数裁剪，不进行扫描版 OCR
 
@@ -405,50 +405,49 @@ final_score = 0.55 * metadata_score
 
 ## 8. LLM 与 API 限制
 
-### 8.1 OpenAI-compatible 模型接口
+### 8.1 文本 OpenAI-compatible 接口与独立视觉接口
 
 ```yaml
 models:
-  active_text_profile: nvidia_super
-  active_vision_profile: nvidia_omni
+  text:
+    active_profile: nvidia_super
+    profiles:
+      nvidia_super:
+        base_url_env: NVIDIA_BASE_URL
+        api_key_env: NVIDIA_API_KEY
+        model: nvidia/nemotron-3-super-120b-a12b
+        context_window_tokens: 1000000
 
-  profiles:
-    nvidia_super:
-      endpoint_env: NVIDIA_CHAT_COMPLETIONS_URL
-      api_key_env: NVIDIA_API_KEY
-      model: nvidia/nemotron-3-super-120b-a12b
-      context_window_tokens: 1000000
+      nvidia_ultra:
+        base_url_env: NVIDIA_BASE_URL
+        api_key_env: NVIDIA_API_KEY
+        model: nvidia/nemotron-3-ultra-550b-a55b
+        context_window_tokens: 1000000
 
-    nvidia_ultra:
-      endpoint_env: NVIDIA_CHAT_COMPLETIONS_URL
-      api_key_env: NVIDIA_API_KEY
-      model: nvidia/nemotron-3-ultra-550b-a55b
-      context_window_tokens: 1000000
+      deepseek_v4_flash:
+        base_url_env: DEEPSEEK_BASE_URL
+        api_key_env: DEEPSEEK_API_KEY
+        model: deepseek-v4-flash
+        context_window_tokens: 1000000
 
-    deepseek_v4_flash:
-      endpoint_env: DEEPSEEK_CHAT_COMPLETIONS_URL
-      api_key_env: DEEPSEEK_API_KEY
-      model: deepseek-v4-flash
-      context_window_tokens: 1000000
-
-    nvidia_omni:
-      endpoint_env: NVIDIA_CHAT_COMPLETIONS_URL
-      api_key_env: NVIDIA_API_KEY
-      model: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-      context_window_tokens: 262144
-      max_requests_per_paper: 1
-      include_all_detected_key_pages: true
-      request_defaults:
-        max_tokens: 65536
-        reasoning_budget: 16384
-        stream: false
-        temperature: 0.6
-        top_p: 0.95
-
-  text_defaults:
     reserved_prompt_tokens: 8000
     reserved_output_tokens: 16000
     batch_size: 8
+
+  vision:
+    profile: nvidia_omni
+    invoke_url_env: NVIDIA_VLM_INVOKE_URL
+    api_key_env: NVIDIA_API_KEY
+    model: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
+    context_window_tokens: 262144
+    max_requests_per_paper: 1
+    include_all_detected_key_pages: true
+    request_defaults:
+      max_tokens: 65536
+      reasoning_budget: 16384
+      stream: false
+      temperature: 0.6
+      top_p: 0.95
 
   common:
     concurrency_per_worker: 1
@@ -456,22 +455,23 @@ models:
     retries: 3
 ```
 
-默认 endpoint 环境变量为：
+默认 URL 环境变量为：
 
 ```text
-NVIDIA_CHAT_COMPLETIONS_URL=https://integrate.api.nvidia.com/v1/chat/completions
-DEEPSEEK_CHAT_COMPLETIONS_URL=https://api.deepseek.com/chat/completions
+NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+NVIDIA_VLM_INVOKE_URL=https://integrate.api.nvidia.com/v1/chat/completions
 ```
 
-代码只实现一个同步的 OpenAI-compatible Chat Completions 客户端，通过 `requests.post` 向当前 profile 的完整 endpoint 发送请求。NVIDIA Nemotron 3 Super、Nemotron 3 Ultra 和 DeepSeek V4 Flash 使用同一文本调用路径；切换模型只修改 `active_text_profile`。视觉 profile 独立配置，首版默认使用 NVIDIA Nemotron 3 Nano Omni。系统不自动 failover，也不在一次运行中自动混用文本 profile。canonical item 记录实际 profile、model 和生成时间。
+文本模型只实现一个薄的 OpenAI-compatible wrapper：使用 `OpenAI(base_url=<active profile base_url>, api_key=...)`，再调用 `client.chat.completions.create(...)`。NVIDIA Nemotron 3 Super、Nemotron 3 Ultra 和 DeepSeek V4 Flash 使用同一文本路径；OpenAI SDK 根据 base URL 访问 Chat Completions，配置中不手工追加 `/chat/completions`。切换文本模型只修改 `models.text.active_profile`。系统不自动 failover，也不在一次运行中自动混用文本 profile。
 
-客户端统一发送 `Authorization: Bearer <API_KEY>`、`Content-Type: application/json` 和 `Accept: application/json`，固定 `stream: false`。实现不建设 provider adapter、模型能力发现或自动参数探测；启动时只校验 active profile 的必需配置，context 和请求参数以 YAML 为准。文本结构化输出由同一 prompt 与 JSON Schema 校验约束。
+视觉模型不复用文本 wrapper。它使用 `requests.post` 直接调用完整的 `NVIDIA_VLM_INVOKE_URL`，发送 `Authorization: Bearer <API_KEY>`、`Content-Type: application/json` 和 `Accept: application/json`。VLM 固定 `stream: false`，请求体按 NVIDIA 接口显式组装。文本与视觉路径只共用超时、重试、限流和日志脱敏策略，不共享调用函数。
 
-VLM 请求遵循 NVIDIA 官方 Chat Completions 多模态格式：`messages[0].content` 是一个数组，先放 `{"type":"text","text":"..."}`，再为每个关键页面追加一个 `{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}`。所有检测到的关键页面进入同一次请求；请求体合并 profile 中的 `max_tokens`、`reasoning_budget`、`stream`、`temperature` 和 `top_p`。只读取 `choices[0].message.content` 作为待校验结果，不保存或记录 `reasoning_content`。API Key 只存在 GitHub Actions Secrets 中，绝不写入仓库、Docker image 或构建产物。[NVIDIA 模型页](https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning)同时给出了托管 endpoint 参数和 `image_url` 多图片格式。
+VLM 请求遵循 NVIDIA 官方 Chat Completions 多模态格式：`messages[0].content` 是一个数组，先放 `{"type":"text","text":"..."}`，再为每个关键页面追加一个 `{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}`。所有检测到的关键页面进入同一次请求；请求体合并 `models.vision.request_defaults` 中的 `max_tokens`、`reasoning_budget`、`stream`、`temperature` 和 `top_p`。只读取 `choices[0].message.content` 作为待校验结果，不保存或记录 `reasoning_content`。canonical item 分别记录实际文本 profile、视觉 profile、model 和生成时间。实现不建设 provider adapter、模型能力发现或自动参数探测；API Key 只存在 GitHub Actions Secrets 中。[NVIDIA 模型页](https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning)给出了该托管 invoke URL、请求参数和 `image_url` 多图片格式。
 
 ### 8.2 限流和恢复
 
-统一 HTTP 客户端负责：
+文本 wrapper 和视觉 requests 调用共用同一组请求策略：
 
 - 固定超时
 - 最多 3 次有限重试
@@ -826,7 +826,7 @@ Python 单元与集成测试覆盖：
 
 - YAML 配置、手动切换 active text profile、冷启动/日更时间窗口和数量上限
 - arXiv Atom 与 RSS/Atom 标准化、稳定 ID 去重和确定性评分
-- 单一 OpenAI-compatible 客户端的文本 JSON 解析、NVIDIA VLM 多 `image_url` payload、请求参数以及忽略 reasoning trace
+- 文本 OpenAI-compatible wrapper 的 profile 切换与 JSON 解析；独立 NVIDIA VLM `requests.post` 路径的多 `image_url` payload、请求参数以及忽略 reasoning trace
 - `429/5xx`、`Retry-After`、最多 3 次重试、每 worker 并发 1 和 NVIDIA 40 RPM 边界
 - `arXiv HTML → PDF text → Abstract` 与博客 `Feed full content → article HTML → excerpt` 降级链
 - Top 16 深读、最终各 8 篇、深读 Schema、正文/视觉依据和图谱节点裁剪
@@ -883,6 +883,6 @@ Python 单元与集成测试覆盖：
 19. 模型不设置每次运行调用次数上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行且总目标 30 RPM、硬上限 40 RPM、每 worker 并发 1、有限重试
 20. 任一 stage/job 失败都不写正式 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，不重新调用 LLM
 21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv HTML → PDF text → Abstract`，不实现 OpenReview 或 TeX source
-22. 模型层只有一个同步 OpenAI-compatible Chat Completions 客户端；NVIDIA VLM 使用单请求多 `image_url`，默认 `max_tokens: 65536`、`reasoning_budget: 16384`、`temperature: 0.6`、`top_p: 0.95` 和 `stream: false`
+22. 文本模型使用一个同步 OpenAI-compatible wrapper，NVIDIA 与 DeepSeek 分别配置 base URL；视觉模型使用独立完整 invoke URL 和 `requests.post`，单请求包含多个 `image_url`，默认 `max_tokens: 65536`、`reasoning_budget: 16384`、`temperature: 0.6`、`top_p: 0.95` 和 `stream: false`
 23. 首版不生成或提供站点全文搜索；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
 24. 自动化测试控制在约 15–20 个高价值测试和五组端到端 fixtures，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
