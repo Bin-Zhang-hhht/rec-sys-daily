@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recsys-daily"
+version = "0.1.0"
+description = "Daily recommendation-systems research pipeline"
+requires-python = ">=3.12"
+dependencies = [
+    "feedparser",
+    "openai",
+    "pydantic>=2",
+    "PyMuPDF",
+    "python-dateutil",
+    "PyYAML",
+    "requests",
+    "trafilatura",
+    "typer",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+include = ["recsys_daily*"]

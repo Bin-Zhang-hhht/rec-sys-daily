@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.git
+.worktrees
+.superpowers
+work
+**/__pycache__
+**/.pytest_cache
+**/.venv
+site/node_modules
+site/dist

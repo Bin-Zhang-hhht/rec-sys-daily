@@ -1,0 +1,17 @@
+services:
+  pipeline:
+    build:
+      context: .
+      dockerfile: pipeline/Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./work/publish-bundle:/workspace/publish-bundle
+    entrypoint: ["python", "-m", "recsys_daily"]
+
+  site:
+    build:
+      context: ./site
+    volumes:
+      - ./work/publish-bundle:/workspace/publish-bundle
