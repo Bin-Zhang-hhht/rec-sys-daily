@@ -31,7 +31,7 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 
 - 不运行常驻后端服务
 - 不使用关系型数据库、Vector DB 或 Graph DB
-- 不在 Git、缓存或 Pages artifact 中永久保存论文 PDF、TeX source archive、关键页面图片、博客原始 HTML 或任何提取全文
+- 不下载或解析 TeX source archive；不在 Git、缓存或 Pages artifact 中永久保存论文 PDF、关键页面图片、博客原始 HTML 或任何提取全文
 - 不在详情页嵌入 PDF、镜像论文/博客全文或提供站内全文阅读器
 - 不建设复杂 RAG、聊天机器人或用户登录系统
 - 不把知识图谱作为严格事实库或学术结论依据
@@ -96,7 +96,7 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 存在有效状态后，同一管道使用增量时间窗口：
 
 - 根据来源游标、发布日期和内容 ID 拉取新增候选
-- 使用 arXiv ID、OpenReview ID、Canonical URL、DOI 和标准化标题去重
+- 使用 arXiv ID、Canonical URL、DOI 和标准化标题去重
 - 从候选中分别生成论文目标 8 篇、博客目标 8 篇
 - 无新博客时仍正常发布论文日报
 - 未产生任何新内容时只记录成功运行，不生成空日报
@@ -108,13 +108,12 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 | 来源 | 接口 | 作用 | 必需 |
 | --- | --- | --- | --- |
 | arXiv | 官方 Atom API | RecSys、IR、ML、Social Network、Multimedia 等论文主来源 | 是 |
-| OpenReview | 官方 API v2 | ICLR、NeurIPS Workshop、RecSys Workshop 等投稿和会议内容 | 是 |
 
-arXiv RSS 不作为独立论文来源启用，以免和 Atom API 重复。Atom API 能提供更完整的查询、分页和去重字段。
+首版学术来源只支持 arXiv。arXiv RSS 不作为独立论文来源启用，以免和 Atom API 重复；Atom API 提供查询、分页和稳定 ID。
 
 ### 5.2 高质量 RSS/Atom 来源
 
-以下地址已通过站点链接或 Feed 内容类型进行核验。核心来源默认启用；扩展来源同样可以默认启用，但使用更严格的关键词和 LLM 相关性阈值。
+以下地址已通过站点链接或 Feed 内容类型进行核验。核心来源和次级来源默认启用；次级来源使用更严格的关键词和 LLM 相关性阈值。
 
 #### 核心来源
 
@@ -126,7 +125,7 @@ arXiv RSS 不作为独立论文来源启用，以免和 Atom API 重复。Atom A
 | `pinterest_engineering` | Pinterest Engineering | `https://medium.com/feed/pinterest-engineering` | Home Feed、Retrieval、Ranking、Graph、Ads | 1.00 |
 | `discord_engineering` | Discord Engineering | `https://discord.com/blog/rss.xml` | 语聊、房间/社区、好友关系、Entity Embedding | 0.95 |
 
-#### 扩展来源
+#### 次级来源
 
 | ID | 来源 | Feed URL | 主要覆盖场景 | 默认权重 |
 | --- | --- | --- | --- | ---: |
@@ -134,17 +133,6 @@ arXiv RSS 不作为独立论文来源启用，以免和 Atom API 重复。Atom A
 | `etsy_codeascraft` | Etsy Code as Craft | `https://www.etsy.com/codeascraft/rss` | Search、Ads、Recs、买家画像 | 0.90 |
 | `google_research` | Google Research | `https://research.google/blog/rss/` | IR、ML、LLM、Graph 等研究进展 | 0.85 |
 | `nvidia_developer` | NVIDIA Developer Blog | `https://developer.nvidia.com/blog/feed/` | GPU RecSys、推理优化、NIM 和 LLM 基础设施 | 0.80 |
-
-#### 默认关闭的候选来源
-
-这些来源质量高，但内容面过宽。保留在配置示例中，用户可自行启用：
-
-| ID | 来源 | Feed URL |
-| --- | --- | --- |
-| `aws_ml_blog` | AWS Machine Learning Blog | `https://aws.amazon.com/blogs/machine-learning/feed/` |
-| `microsoft_research` | Microsoft Research | `https://www.microsoft.com/en-us/research/feed/` |
-
-ACM RecSys 官方站点和 LinkedIn Engineering 内容很相关，但当前不把未稳定确认的 RSS 端点放入默认配置。后续可以增加 `web_page` 适配器，或在确认官方 Feed 后仅修改 YAML，不需要改动主流程。
 
 ### 5.3 RSS 配置示例
 
@@ -154,12 +142,6 @@ ACM RecSys 官方站点和 LinkedIn Engineering 内容很相关，但当前不�
 academic:
   - id: arxiv
     kind: arxiv
-    enabled: true
-    required: true
-    weight: 1.0
-
-  - id: openreview
-    kind: openreview
     enabled: true
     required: true
     weight: 1.0
@@ -342,7 +324,7 @@ flowchart LR
 
 按优先级使用：
 
-1. arXiv ID / OpenReview Forum ID
+1. arXiv ID
 2. DOI
 3. Canonical URL
 4. 标准化标题哈希
@@ -354,7 +336,7 @@ flowchart LR
 为减少 LLM 调用，先做确定性预筛：
 
 - 主题词、场景词、任务词匹配
-- arXiv category / OpenReview venue
+- arXiv category
 - 来源质量权重
 - 发布时间和新颖度
 - 与历史推荐的重复惩罚
@@ -385,11 +367,11 @@ final_score = 0.55 * metadata_score
 
 论文处理规则：
 
-1. 按 `arXiv HTML → 安全解析 TeX source → PDF text → Abstract` 的顺序获取正文；OpenReview 没有统一原稿格式时从 PDF text 开始
-2. 只访问来源提供的公开地址，不尝试绕过登录、付费墙或访问控制；TeX archive 只读取受限扩展名和 `\\input`/`\\include` 关系，不编译、不执行任何 TeX 命令
+1. 按 `arXiv HTML → PDF text → Abstract` 的顺序获取正文
+2. 只访问 arXiv 提供的公开地址，不尝试绕过登录、付费墙或访问控制；首版不下载或解析 TeX source
 3. PDF 串行下载到 runner 临时目录，单篇最大 20 MB、最多 80 页；提取后按 section heading 识别 Abstract、Introduction、Method、Experiments、Results、Limitations 和 Conclusion
 4. 本地规则根据 Figure/Table caption、页面图片和章节位置识别所有关键页面，包括 Overview、Architecture、Main Results、Ablation 和 Case Study
-5. 检测到关键页面时，每篇论文恰好调用一次 VLM；应用层不设置关键页面数量上限，将识别出的全部关键页面放入同一请求。没有关键页面时不发起零图片调用。provider adapter 只受模型 context、HTTP payload 和图像格式等真实协议约束，不按固定页数丢弃页面
+5. 检测到关键页面时，每篇论文恰好调用一次 VLM；应用层不设置关键页面数量上限，将识别出的全部关键页面放入同一请求。没有关键页面时不发起零图片调用。通用客户端只受所配置 endpoint 的 context、HTTP payload 和图像格式等真实协议约束，不按固定页数丢弃页面
 6. VLM 输出页面级 Architecture、Table、Chart 和视觉限制证据；没有关键页面时标记 `not_required`，VLM 失败时标记 `unavailable`，两种情况都继续文本深读且不因缺少图片降低论文分数
 7. 每篇论文再调用一次文本 LLM，将全文与 VLM 结构化证据合并为中文深度解读；输入超过文本模型 context 预算时按章节重要性和 token 数裁剪，不进行扫描版 OCR
 
@@ -404,8 +386,8 @@ final_score = 0.55 * metadata_score
 两类内容都遵循以下规则：
 
 - 单次 LLM 输入使用 token-aware budgeting：1M context 中预留 output 与 prompt/schema 空间，其余预算用于全文；超长内容优先保留摘要、架构、方法、实验/结果、限制和结论等高价值段落
-- 无论成功、降级或异常中断，都在 `finally` 阶段删除 source archive、PDF、关键页面图片、原始 HTML 和提取文本；它们不得进入 cache、日志、artifact 或 Git
-- Top 16 候选的结构化深度解读与全文指纹写入 canonical item；未来遇到相同来源修订和指纹时可复用解读，无需再次抓取全文
+- 无论成功、降级或异常中断，都在 `finally` 阶段删除 PDF、关键页面图片、原始 HTML 和提取文本；它们不得进入 cache、日志、artifact 或 Git
+- Top 16 候选的结构化深度解读与全文指纹写入 canonical item；遇到相同来源修订和指纹时直接复用解读，无需再次抓取全文
 - 只保存转述后的结构化分析和短证据定位，不保存长段原文
 
 共同解读字段包括：
@@ -417,7 +399,7 @@ final_score = 0.55 * metadata_score
 
 论文额外包括 Datasets、Baselines、Metrics、实验设计和关键 findings；博客额外包括 System Context、Architecture / Implementation、Production Constraints、Engineering Trade-offs、线上结果与可复用经验。论文证据只保存 section 名和 PDF page number；博客证据只保存 heading 或 section 名，不复制长段原文。
 
-论文正文依据分别写入 `analysis_basis: arxiv_html`、`tex_source`、`pdf_text` 或 `abstract_fallback`，视觉状态独立写入 `visual_analysis.status: completed | not_required | unavailable`，避免组合枚举。博客使用 Feed 全文时写入 `rss_full_content`，成功提取公开网页正文时写入 `article_html`，失败时使用 excerpt 生成较短解读并写入 `excerpt_fallback`。详情页必须明确显示正文和视觉分析依据，不能把降级结果冒充全文深读。
+论文正文依据分别写入 `analysis_basis: arxiv_html`、`pdf_text` 或 `abstract_fallback`，视觉状态独立写入 `visual_analysis.status: completed | not_required | unavailable`，避免组合枚举。博客使用 Feed 全文时写入 `rss_full_content`，成功提取公开网页正文时写入 `article_html`，失败时使用 excerpt 生成较短解读并写入 `excerpt_fallback`。详情页必须明确显示正文和视觉分析依据，不能把降级结果冒充全文深读。
 
 所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此论文 runner 内只串行处理初排 Top 16 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；具体许可信息随 item 保存，并始终链接到原站。
 
@@ -427,48 +409,65 @@ final_score = 0.55 * metadata_score
 
 ```yaml
 models:
-  text:
-    provider: nvidia
-    base_url_env: NVIDIA_BASE_URL
-    api_key_env: NVIDIA_API_KEY
-    model: nvidia/nemotron-3-super-120b-a12b
-    context_window_tokens: 1000000
-    reserved_prompt_tokens: 8000
-    reserved_output_tokens: 16000
-    concurrency_per_worker: 1
-    batch_size: 8
-    timeout_seconds: 600
-    retries: 3
+  active_text_profile: nvidia_super
+  active_vision_profile: nvidia_omni
 
-  vision:
-    provider: nvidia
-    base_url_env: NVIDIA_BASE_URL
-    api_key_env: NVIDIA_API_KEY
-    model: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-    context_window_tokens: 262144
-    max_requests_per_paper: 1
-    include_all_detected_key_pages: true
-    timeout_seconds: 600
-    retries: 3
+  profiles:
+    nvidia_super:
+      endpoint_env: NVIDIA_CHAT_COMPLETIONS_URL
+      api_key_env: NVIDIA_API_KEY
+      model: nvidia/nemotron-3-super-120b-a12b
+      context_window_tokens: 1000000
 
-  alternatives:
+    nvidia_ultra:
+      endpoint_env: NVIDIA_CHAT_COMPLETIONS_URL
+      api_key_env: NVIDIA_API_KEY
+      model: nvidia/nemotron-3-ultra-550b-a55b
+      context_window_tokens: 1000000
+
     deepseek_v4_flash:
-      provider: deepseek
-      base_url: https://api.deepseek.com
+      endpoint_env: DEEPSEEK_CHAT_COMPLETIONS_URL
       api_key_env: DEEPSEEK_API_KEY
       model: deepseek-v4-flash
       context_window_tokens: 1000000
+
+    nvidia_omni:
+      endpoint_env: NVIDIA_CHAT_COMPLETIONS_URL
+      api_key_env: NVIDIA_API_KEY
+      model: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
+      context_window_tokens: 262144
+      max_requests_per_paper: 1
+      include_all_detected_key_pages: true
+      request_defaults:
+        max_tokens: 65536
+        reasoning_budget: 16384
+        stream: false
+        temperature: 0.6
+        top_p: 0.95
+
+  text_defaults:
+    reserved_prompt_tokens: 8000
+    reserved_output_tokens: 16000
+    batch_size: 8
+
+  common:
+    concurrency_per_worker: 1
+    timeout_seconds: 600
+    retries: 3
 ```
 
-NVIDIA NIM 的默认部署值为：
+默认 endpoint 环境变量为：
 
 ```text
-NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
+NVIDIA_CHAT_COMPLETIONS_URL=https://integrate.api.nvidia.com/v1/chat/completions
+DEEPSEEK_CHAT_COMPLETIONS_URL=https://api.deepseek.com/chat/completions
 ```
 
-首版默认完全基于 NVIDIA：Nemotron 3 Super 负责候选分析、全文解读、精排与中文生成，Nemotron 3 Nano Omni 负责论文视觉证据。DeepSeek V4 Flash 只作为显式可切换的 alternative provider；系统不因超时、`429` 或输出质量自动混用模型。切换模型只改配置，canonical item 记录实际 `provider`、`model`、thinking 设置和生成时间，保证结果可追踪。
+代码只实现一个同步的 OpenAI-compatible Chat Completions 客户端，通过 `requests.post` 向当前 profile 的完整 endpoint 发送请求。NVIDIA Nemotron 3 Super、Nemotron 3 Ultra 和 DeepSeek V4 Flash 使用同一文本调用路径；切换模型只修改 `active_text_profile`。视觉 profile 独立配置，首版默认使用 NVIDIA Nemotron 3 Nano Omni。系统不自动 failover，也不在一次运行中自动混用文本 profile。canonical item 记录实际 profile、model 和生成时间。
 
-代码暴露 `TextModelProvider` 与 `VisionModelProvider` 两个接口。NVIDIA 和 DeepSeek 共享 OpenAI-compatible 基础客户端，各 adapter 只处理 reasoning 参数、JSON mode、错误格式和能力发现差异。启动时验证所配置 endpoint 的模型存在、context 能力满足配置且必要模态可用。API Key 只存在 GitHub Actions Secrets 中，绝不写入仓库、Docker image 或构建产物。
+客户端统一发送 `Authorization: Bearer <API_KEY>`、`Content-Type: application/json` 和 `Accept: application/json`，固定 `stream: false`。实现不建设 provider adapter、模型能力发现或自动参数探测；启动时只校验 active profile 的必需配置，context 和请求参数以 YAML 为准。文本结构化输出由同一 prompt 与 JSON Schema 校验约束。
+
+VLM 请求遵循 NVIDIA 官方 Chat Completions 多模态格式：`messages[0].content` 是一个数组，先放 `{"type":"text","text":"..."}`，再为每个关键页面追加一个 `{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}`。所有检测到的关键页面进入同一次请求；请求体合并 profile 中的 `max_tokens`、`reasoning_budget`、`stream`、`temperature` 和 `top_p`。只读取 `choices[0].message.content` 作为待校验结果，不保存或记录 `reasoning_content`。API Key 只存在 GitHub Actions Secrets 中，绝不写入仓库、Docker image 或构建产物。[NVIDIA 模型页](https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning)同时给出了托管 endpoint 参数和 `image_url` 多图片格式。
 
 ### 8.2 限流和恢复
 
@@ -514,7 +513,7 @@ NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 r
 
 每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用文本 LLM，满额时约 19 次正常调用；Top 16 论文最多各使用 1 次 VLM（仅在检测到关键页面时）并各使用 1 次文本深读，Top 16 博客各使用 1 次文本深读，因此冷启动满额时最多约 67 次正常调用。日更因候选较少且可复用未变更的既有深读结果，通常调用更少。系统不设置模型每次运行调用次数上限；单请求 context、候选数量、40 RPM、每 worker 并发 1、有限重试和各 job timeout 是实际边界。
 
-文本模型按 1M context 配置，VLM 按其独立的 262,144 context 配置。发送请求前必须读取模型配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。模型实际 context 小于配置值时校验必须失败或显式改小，不能在服务端静默截断。VLM 的“全部关键页面”没有应用级页数上限，但仍必须满足 endpoint 的 context、payload 和图像协议；adapter 在一次请求内编码所有关键页面并在超出真实协议能力时返回明确的 `unavailable`，不得静默丢页或拆成多次调用。
+文本模型按 profile 中的 1M context 配置，VLM 按其独立的 262,144 context 配置。发送请求前必须读取配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。首版不从 endpoint 自动发现 context；配置维护者必须使用服务端真实值，服务端拒绝超限请求时必须显式失败或降级，不能静默截断。VLM 的“全部关键页面”没有应用级页数上限，但仍必须满足 endpoint 的 context、payload 和图像协议；客户端在一次请求内编码所有关键页面并在超出真实协议能力时返回明确的 `unavailable`，不得静默丢页或拆成多次调用。
 
 如果 LLM 个别批次失败，允许降级使用英文摘要截断和规则标签，但每次运行都要求至少 90% 候选完成结构化分析；最终进入当日推荐的条目必须 100% 拥有可展示摘要，否则不进入推荐。该规则不区分首次运行和日更。
 
@@ -557,7 +556,7 @@ NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 r
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
-以下内容不提交 Git：RSS/API 原始响应、TeX source archive、PDF、PDF 提取全文、全文 HTML、关键页面图片、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、搜索索引和 `graph.json`。图谱、搜索索引、详情页和归档页都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。Git 只保存模型生成的结构化深度解读、视觉观察及其分析依据。
+以下内容不提交 Git：RSS/API 原始响应、PDF、PDF 提取全文、全文 HTML、关键页面图片、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist` 和 `graph.json`。图谱、详情页和归档页都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。首版不生成全文搜索索引。Git 只保存模型生成的结构化深度解读、视觉观察及其分析依据。
 
 存储保护规则：
 
@@ -597,7 +596,7 @@ storage:
     "analysis_basis": "pdf_text",
     "visual_analysis": {
       "status": "completed",
-      "provider": "nvidia",
+      "profile": "nvidia_omni",
       "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
       "pages": [2, 6, 7, 9],
       "architecture_zh": "架构图的结构化解释。",
@@ -621,7 +620,7 @@ storage:
     ]
   },
   "llm": {
-    "provider": "nvidia",
+    "profile": "nvidia_super",
     "model": "configured-model",
     "generated_at": "2026-08-09T00:00:00Z",
     "degraded": false
@@ -629,7 +628,7 @@ storage:
 }
 ```
 
-论文 `analysis_basis` 为 `arxiv_html`、`tex_source`、`pdf_text` 或 `abstract_fallback`；`visual_analysis.status` 为 `completed`、`not_required` 或 `unavailable`，只有 `completed` 必须包含 provider、model、pages 和视觉 findings。博客 item 使用相同公共字段，但 `analysis_basis` 为 `rss_full_content`、`article_html` 或 `excerpt_fallback`，深读分支保存 `system_context_zh`、`architecture_zh`、`implementation_zh`、`production_constraints_zh`、`tradeoffs_zh`、`results_zh` 和 `lessons_zh`。博客证据定位使用 heading/section，不使用 PDF page。JSON Schema 使用按 `kind` 区分的 `oneOf` 约束，避免把论文实验字段强加给博客。
+论文 `analysis_basis` 为 `arxiv_html`、`pdf_text` 或 `abstract_fallback`；`visual_analysis.status` 为 `completed`、`not_required` 或 `unavailable`，只有 `completed` 必须包含 profile、model、pages 和视觉 findings。博客 item 使用相同公共字段，但 `analysis_basis` 为 `rss_full_content`、`article_html` 或 `excerpt_fallback`，深读分支保存 `system_context_zh`、`architecture_zh`、`implementation_zh`、`production_constraints_zh`、`tradeoffs_zh`、`results_zh` 和 `lessons_zh`。博客证据定位使用 heading/section，不使用 PDF page。JSON Schema 使用按 `kind` 区分的 `oneOf` 约束，避免把论文实验字段强加给博客。
 
 ## 10. 静态站点
 
@@ -650,11 +649,11 @@ storage:
 - Datasets、Baselines、Metrics 与关键实验结果
 - 局限性、适用边界和业务启示
 - section/page 级证据引用
-- `arxiv_html`、`tex_source`、`pdf_text` 或 `abstract_fallback` 正文依据，以及 `completed`、`not_required` 或 `unavailable` 视觉状态
+- `arxiv_html`、`pdf_text` 或 `abstract_fallback` 正文依据，以及 `completed`、`not_required` 或 `unavailable` 视觉状态
 - 视觉模型对 Architecture、Table 和 Chart 的页面级结构化观察与限制说明
 - 场景、任务和方法标签
 - 与当前内容相邻的论文/博客
-- 原文、arXiv、OpenReview 或 DOI 外部链接；不在站内嵌入 PDF
+- 原文、arXiv 或 DOI 外部链接；不在站内嵌入 PDF
 - “LLM 生成，可能存在错误”的明确提示
 
 博客详情页展示：
@@ -693,7 +692,7 @@ storage:
 交互功能：
 
 - 平移、缩放和拖动
-- 按关键词搜索
+- 在当前已加载图谱节点中按标题或标签搜索；不提供站点全文搜索
 - 按时间、场景、目标、任务和方法筛选
 - 点击节点高亮一跳邻居
 - 侧边栏展示摘要和详情页链接
@@ -748,8 +747,7 @@ docker compose run --rm site build
 1. 构建 `pipeline/Dockerfile`
 2. 运行 Python 单元测试、fixtures 端到端数据管道和 JSON Schema 校验
 3. 构建 `site/Dockerfile`
-4. 使用 pipeline fixture publish bundle 构建 Astro 静态站点
-5. 执行前端类型检查、链接检查和 Pages artifact 大小检查
+4. 使用 pipeline fixture publish bundle 执行一次 Astro production build，并检查 Pages artifact 大小
 
 ### 13.2 daily.yml
 
@@ -770,7 +768,7 @@ docker compose run --rm site build
 - 执行 `python -m recsys_daily collect-filter --output /workspace/stage-1`
 - 上传 `stage-1-<run-id>` artifact，`retention-days: 1`
 
-Artifact 只包含 `manifest.json`、`papers.jsonl` 和 `blogs.jsonl`。`manifest.json` 保存 `run_id`、触发 commit、state hash、config hash 和 schema version；不包含原始 API/RSS 响应或全文。
+Artifact 只包含 `manifest.json`、`papers.jsonl` 和 `blogs.jsonl`。为减少协调代码，`manifest.json` 只保存 `run_id` 和 `schema_version`；不计算 commit、state 或 config hash，也不包含原始 API/RSS 响应或全文。
 
 #### Job 2：deep-read
 
@@ -789,26 +787,26 @@ Artifact 只包含 `manifest.json`、`papers.jsonl` 和 `blogs.jsonl`。`manifes
 - job ID 为 `rank_integrate`，依赖 `needs: [collect_filter, deep_read]`
 - `timeout-minutes: 120`
 - 使用 `pipeline/Dockerfile`，保持仓库只读权限
-- 下载三个结构化 artifact，并验证 `run_id`、commit、state/config hash 和 schema version 一致
+- 下载三个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致
 - 执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-bundle`
 - 基于已经包含视觉证据的论文深读和博客深读各精排目标 8 篇
 - 生成待提交的 canonical items、日报、运行报告、图谱关系和 pending `state.json`
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
 - 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 1`
 
-Publish bundle 只包含 `manifest.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。它不包含 HTML 页面、搜索索引、`graph.json` 或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
+Publish bundle 只包含 `manifest.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。它不包含 HTML 页面、`graph.json` 或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
 
 #### Job 4：build-deploy
 
 - job ID 为 `build_deploy`，依赖 `needs: rank_integrate`
 - `timeout-minutes: 60`
 - 使用 `site/Dockerfile`，下载 `publish-bundle-<run-id>` 并再次验证 manifest
-- `site/Dockerfile` 使用 `pnpm install --frozen-lockfile` 构建依赖层；job 在该镜像内先执行前端类型检查和 `pnpm build`，再对生成站点执行链接检查
-- 从 `pending-data/` 派生详情页、归档页、搜索索引、交互图谱和 `graph.json`
+- `site/Dockerfile` 使用 `pnpm install --frozen-lockfile` 构建依赖层；job 在该镜像内执行 `pnpm build`
+- 从 `pending-data/` 派生详情页、归档页、交互图谱和 `graph.json`
 - 验证 Pages artifact 不超过配置的大小边界，然后上传并部署
 - Pages 部署成功后，将 `pending-data/` 暂存为仓库 `data/`，并在同一个 Git commit 中提交 canonical 数据和最终 `state.json`
 
-只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、TeX、HTML、提取全文或关键页面图片不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
+只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、HTML、提取全文或关键页面图片不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
 
 工作流公共设置：
 
@@ -816,68 +814,43 @@ Publish bundle 只包含 `manifest.json` 和 `pending-data/`；后者与最终 `
 - `cancel-in-progress: false`
 - 各 job 的 timeout 均低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限；官方还规定单次 workflow 最长 35 天，而本系统的理论墙钟上限约为 `2 + max(5, 5) + 2 + 1 = 10` 小时，也低于每日调度间隔
 - Job 1 失败时不启动全文 job；任一全文 job 失败时不启动精排；精排失败时不启动网站构建；网站构建或部署失败时不提交 pending 数据；任一失败都不写正式 `state.json`
-- GitHub UI 重新运行失败 job 时可复用同一 workflow 中仍有效的成功 artifact，并以相同 manifest 防止跨批次混用
+- GitHub UI 重新运行失败 job 时可复用同一 workflow 中仍有效的成功 artifact；精确 artifact 名称、当前 workflow run 和 manifest `run_id` 共同防止跨批次混用
 
 前端检查、构建或部署失败时只需重新运行 `build_deploy`，直接复用 publish bundle，不重新抓取内容或调用 LLM。如果 Pages 部署成功但数据提交失败，下次仍会重试同一批次；站点可能暂时已有内容，但仓库状态不会被错误标为完成。
 
 ## 14. 测试策略
 
-Python 单元测试覆盖：
+首版把自动化测试控制在约 15–20 个高价值测试，不建设 provider capability 测试、浏览器测试集群、页面快照或大量错误组合矩阵。运行期失败策略不变，只压缩重复测试代码。
 
-- YAML 配置校验
-- 冷启动/日更状态判断
-- 时间窗口和数量上限
-- 多来源标准化与去重
-- 确定性评分
-- NVIDIA 默认 provider、DeepSeek V4 Flash alternative provider、显式切换和实际模型审计字段
-- OpenAI-compatible adapter 的 reasoning/JSON 差异、模型能力发现、JSON 解析和降级
-- 深度解读 Schema 和 `analysis_basis` 标记
-- 论文和博客各 Top 16 深读、基于深读结果重排并最终各选目标 8 篇
-- 论文的 arXiv HTML、TeX source、PDF text 与 Abstract 降级顺序；TeX 安全解压且从不编译
-- 存在关键页面的论文恰好一次 VLM 调用；无关键页面时不调用并标记 `not_required`；超过 5 个关键页面时仍在同一请求中全部传入，不存在应用级页数上限
-- `visual_analysis` 的 `completed`、`not_required`、`unavailable` 状态，以及视觉失败不降低无图论文分数
-- PDF 数量、大小、页数、下载超时和串行限制
-- PDF 无法下载或解析时的 `abstract_fallback`
-- RSS/Atom 全文优先、公开 HTML 正文提取、大小限制和同域串行限速
-- 博客正文受限、下载或解析失败时的 `excerpt_fallback`
-- 1M context 的 token-aware budgeting、prompt/output 预留和模型能力校验
-- 不存在 LLM 每次运行调用次数上限，同时重试次数仍然有界
-- 两个全文 runner 固定并行、每 worker 并发 1、合计目标 30 RPM 和硬上限 40 RPM；重试同样经过限流器
-- stage manifest 的 run/commit/state/config/schema 校验，以及跨 job artifact 不匹配时拒绝发布
-- `rank_integrate` 只生成结构化 publish bundle，`build_deploy` 只能从该 bundle 派生页面、搜索索引和图谱构建产物
-- pipeline/site 两个 Docker 镜像的依赖边界，以及 publish bundle 中不存在 Astro `dist`、搜索索引或 `graph.json`
-- 博客正文净化、prompt-injection 隔离、URL 重定向后重新校验
-- 成功、失败和异常中断后临时 TeX、PDF、关键页面图片、HTML 与提取全文清理
-- `data/`、跨 job artifact 与 Pages artifact 中不存在 TeX、PDF、关键页面图片、提取全文或全文 HTML
-- `429`、`Retry-After` 与重试边界
-- 冷启动失败不写状态
-- 图谱节点上限和裁剪
+Python 单元与集成测试覆盖：
 
-端到端 fixtures 覆盖：
+- YAML 配置、手动切换 active text profile、冷启动/日更时间窗口和数量上限
+- arXiv Atom 与 RSS/Atom 标准化、稳定 ID 去重和确定性评分
+- 单一 OpenAI-compatible 客户端的文本 JSON 解析、NVIDIA VLM 多 `image_url` payload、请求参数以及忽略 reasoning trace
+- `429/5xx`、`Retry-After`、最多 3 次重试、每 worker 并发 1 和 NVIDIA 40 RPM 边界
+- `arXiv HTML → PDF text → Abstract` 与博客 `Feed full content → article HTML → excerpt` 降级链
+- Top 16 深读、最终各 8 篇、深读 Schema、正文/视觉依据和图谱节点裁剪
+- PDF、关键页面图片、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
+- manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
 
-- 首次 cold-start 成功
-- cold-start 中途失败
-- 后续 daily 增量
-- 某个可选 RSS 失败
-- 没有博客但有论文
-- 论文或博客不足 8 篇
-- Top 16 深读候选中的部分全文抓取失败并正确降级
-- LLM 部分批次失败
-- collect-filter、论文深读、博客深读、rank-integrate、site build 或 Pages deploy 任一步骤失败时都不写正式状态
-- 前端失败后只重跑 `build_deploy` 并复用 publish bundle，不再次触发 LLM fixture 调用
-- 成功 artifact 在只重跑失败 job 时可复用，且不同 run 的 artifact 不会混用
+端到端 fixtures 只保留五组：
 
-前端验证以独立 site image 的类型检查、Astro build、链接检查和关键页面快照为主，不引入浏览器测试集群。
+1. 首次 cold-start 成功并生成 publish bundle
+2. 后续 daily 增量、历史去重和状态推进
+3. 可选 RSS 失败、正文抓取失败和 LLM 部分失败时按既有规则降级
+4. 参数化注入 collect/deep-read/rank/site/deploy 失败，验证都不写正式 `state.json`
+5. pipeline fixture bundle 能完成 Astro production build、图谱生成和 Pages artifact 大小检查
+
+前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build 是首版前端验收门槛。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
 
 ## 15. 安全、合规和可观测性
 
 - 只保存公开元数据、摘要、短 excerpt 和 LLM 结构化深度解读，不镜像或嵌入受版权保护的全文
-- 只对初排 Top 16 论文临时访问公开 HTML/TeX/PDF；博客优先使用 Feed 全文，必要时最多访问 Top 16 篇公开文章 HTML
+- 只对初排 Top 16 论文临时访问公开 arXiv HTML/PDF；博客优先使用 Feed 全文，必要时最多访问 Top 16 篇公开文章 HTML
 - 论文和博客抓取都遵守来源访问规则、robots 与站点条款，不绕过登录、付费墙或反自动化限制
 - RSS、PDF 和 HTML 一律视为不可信输入；只允许公开 `https`/`http` URL，每次重定向后重新解析并拒绝 loopback、私网和 link-local 地址
-- TeX source archive 同样视为不可信输入，限制压缩包与解压后大小、文件扩展名、路径和 symlink，且永不编译或执行
 - HTML 不执行脚本；LLM prompt 明确把正文包裹为只读资料并忽略其中指令，输出仍须通过严格 JSON Schema 校验
-- 临时 source archive、PDF、关键页面图片、原始 HTML 和提取文本不进入 Git、cache、日志、跨 job artifact 或 Pages artifact
+- 临时 PDF、关键页面图片、原始 HTML 和提取文本不进入 Git、cache、日志、跨 job artifact 或 Pages artifact
 - 深度解读使用转述和 section/page 或 heading/section 引用，不发布长段原文
 - 每个页面保留原始来源链接和发布时间
 - 遵循各 API 的使用政策、分页规则和请求间隔
@@ -905,18 +878,11 @@ Python 单元测试覆盖：
 14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、rank-integrate 和 build-deploy 四个逻辑阶段，共五个物理 job；job timeout 分别为 120、300、120 和 60 分钟，单 job 不超过 5 小时，理论墙钟上限约 10 小时
 15. 每次运行从论文和博客元数据初排结果中各取最多 16 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 16 篇时处理全部候选
 16. Top 16 论文在全文 runner 中检测关键页面；存在关键页面的论文恰好调用一次 VLM，单次调用包含全部识别出的关键页面且不设应用级页数上限；无关键页面不调用并标记 `not_required`，视觉失败或无关键页面不阻断文本深读
-17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；source archive、PDF、关键页面图片、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
-18. 默认文本模型为 NVIDIA Nemotron 3 Super、视觉模型为 NVIDIA Nemotron 3 Nano Omni；DeepSeek V4 Flash 作为显式可切换接口保留，但运行中不自动混用 provider
+17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、关键页面图片、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
+18. 默认文本 profile 为 NVIDIA Nemotron 3 Super、视觉 profile 为 NVIDIA Nemotron 3 Nano Omni；NVIDIA Ultra 与 DeepSeek V4 Flash 可通过 YAML 手动切换，但运行中不自动混用文本 profile
 19. 模型不设置每次运行调用次数上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行且总目标 30 RPM、硬上限 40 RPM、每 worker 并发 1、有限重试
-20. 任一 stage/job 失败都不写正式 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，并在发布前验证 manifest 一致性；前端失败可只重跑 `build_deploy`，不重新调用 LLM
-
-## 17. 后续可选增强
-
-不纳入首版，但保留扩展接口：
-
-- LinkedIn Engineering、Twitch、YouTube 等网页来源适配器
-- 邮件、Telegram、Slack 或飞书推送
-- 用户收藏、评分和个性化 reranking
-- 扫描版 PDF OCR、公式级符号解析和跨图表数值校验
-- 向量搜索和问答
-- OPML 导入/导出
+20. 任一 stage/job 失败都不写正式 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，不重新调用 LLM
+21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv HTML → PDF text → Abstract`，不实现 OpenReview 或 TeX source
+22. 模型层只有一个同步 OpenAI-compatible Chat Completions 客户端；NVIDIA VLM 使用单请求多 `image_url`，默认 `max_tokens: 65536`、`reasoning_budget: 16384`、`temperature: 0.6`、`top_p: 0.95` 和 `stream: false`
+23. 首版不生成或提供站点全文搜索；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
+24. 自动化测试控制在约 15–20 个高价值测试和五组端到端 fixtures，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
