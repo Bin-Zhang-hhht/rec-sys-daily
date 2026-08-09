@@ -1,0 +1,34 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Agent and implementation workspaces
+.worktrees/
+.superpowers/sdd/
+work/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+pipeline/.venv/
+
+# Node and Astro
+node_modules/
+site/node_modules/
+dist/
+site/dist/
+.astro/
+site/.astro/
+
+# Tool output
+coverage/
+*.log
+
+# Operating systems
+.DS_Store
+Thumbs.db

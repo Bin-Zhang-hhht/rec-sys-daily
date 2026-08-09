@@ -229,32 +229,39 @@ blogs:
 
 ## 6. 用户可编辑主题配置
 
-主题、场景、任务和方法都由 `config/topics.yaml` 控制。用户增加新方向时无需修改代码。
+主题、场景、任务和方法都由 `config/topics.yaml` 控制。该文件同时是抓取词表、LLM 标签约束、搜索筛选项和知识图谱分类节点的唯一配置来源；用户增加新方向时无需修改代码。
 
 ```yaml
 targets:
   - id: content
     name_zh: 内容推荐
+    name_en: Content Recommendation
     terms: [content recommendation, item recommendation]
   - id: user
     name_zh: 用户推荐
+    name_en: User Recommendation
     terms: [user recommendation, people recommendation]
   - id: room
     name_zh: 房间推荐
+    name_en: Room Recommendation
     terms: [room recommendation, live room recommendation]
 
 scenarios:
   - id: text_feed
     name_zh: 文字流
+    name_en: Text Feed
     terms: [feed ranking, news feed, post recommendation]
   - id: voice_chat
     name_zh: 语聊
+    name_en: Voice Chat
     terms: [voice chat, social audio, listener matching]
   - id: livestream
     name_zh: 直播间
+    name_en: Livestream
     terms: [live streaming, live room, host recommendation]
   - id: friend_recommendation
     name_zh: 好友推荐
+    name_en: Friend Recommendation
     terms:
       - people you may know
       - friend recommendation
@@ -263,24 +270,65 @@ scenarios:
       - link prediction
 
 tasks:
-  - retrieval
-  - ranking
-  - reranking
-  - user_matching
-  - link_prediction
-  - multi_objective_optimization
+  - id: retrieval
+    name_zh: 召回
+    name_en: Retrieval
+    terms: [candidate retrieval, candidate generation]
+  - id: ranking
+    name_zh: 排序
+    name_en: Ranking
+    terms: [recommendation ranking, learning to rank]
+  - id: reranking
+    name_zh: 重排
+    name_en: Re-ranking
+    terms: [reranking, slate optimization]
+  - id: user_matching
+    name_zh: 用户匹配
+    name_en: User Matching
+    terms: [user matching, people matching]
+  - id: link_prediction
+    name_zh: 链路预测
+    name_en: Link Prediction
+    terms: [link prediction, social link prediction]
+  - id: multi_objective_optimization
+    name_zh: 多目标优化
+    name_en: Multi-objective Optimization
+    terms: [multi-objective recommendation, multi-objective optimization]
 
 methods:
-  - collaborative_filtering
-  - two_tower
-  - sequence_modeling
-  - graph_neural_network
-  - reinforcement_learning
-  - large_language_model
-  - multi_task_learning
+  - id: collaborative_filtering
+    name_zh: 协同过滤
+    name_en: Collaborative Filtering
+    terms: [collaborative filtering, matrix factorization]
+  - id: two_tower
+    name_zh: 双塔模型
+    name_en: Two-Tower Model
+    terms: [two-tower model, dual encoder]
+  - id: sequence_modeling
+    name_zh: 序列建模
+    name_en: Sequence Modeling
+    terms: [sequential recommendation, sequence modeling]
+  - id: graph_neural_network
+    name_zh: 图神经网络
+    name_en: Graph Neural Network
+    terms: [graph neural network, graph learning, GNN]
+  - id: reinforcement_learning
+    name_zh: 强化学习
+    name_en: Reinforcement Learning
+    terms: [reinforcement learning, bandit recommendation]
+  - id: large_language_model
+    name_zh: 大语言模型
+    name_en: Large Language Model
+    terms: [LLM for recommendation, generative recommendation]
+  - id: multi_task_learning
+    name_zh: 多任务学习
+    name_en: Multi-task Learning
+    terms: [multi-task learning, multi-task recommendation]
 ```
 
-系统启动时验证 ID 唯一性、字段完整性和引用关系。配置错误会使构建明确失败，不会静默忽略。
+四类条目统一使用 `id`、`name_zh`、`name_en` 和 `terms`，避免前端硬编码标签或根据 ID 猜测展示名称。系统启动时验证 ID 唯一性、字段完整性和引用关系；canonical item 中的每个标签都必须引用这里已声明的 ID。配置错误会使构建明确失败，不会静默忽略。
+
+`rank-integrate` 将本次运行实际使用的配置标准化为 `publish-bundle/taxonomy.json`。该小文件只保留四类条目的 ID、中文名、英文名和配置顺序，不包含抓取词表；Astro 使用它生成搜索筛选项和图谱分类标签。这样重跑 `build_deploy` 时仍使用与数据处理阶段完全一致的分类快照，网站构建不需要再次解析 YAML。
 
 ## 7. 数据管道
 
@@ -556,7 +604,7 @@ NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 r
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
-以下内容不提交 Git：RSS/API 原始响应、PDF、PDF 提取全文、全文 HTML、关键页面图片、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist` 和 `graph.json`。图谱、详情页和归档页都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。首版不生成全文搜索索引。Git 只保存模型生成的结构化深度解读、视觉观察及其分析依据。
+以下内容不提交 Git：RSS/API 原始响应、PDF、PDF 提取全文、全文 HTML、关键页面图片、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、`graph.json` 和 Pagefind 索引。图谱、详情页、归档页和搜索索引都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。搜索只索引站内详情页已经公开的元数据、摘要和结构化深度解读，不索引、复制或保存论文 PDF 文本与博客原始全文。Git 只保存模型生成的结构化深度解读、视觉观察及其分析依据。
 
 存储保护规则：
 
@@ -632,12 +680,13 @@ storage:
 
 ## 10. 静态站点
 
-前端使用 Astro + TypeScript，输出纯静态文件：
+前端使用 Astro + TypeScript + Tailwind CSS 4，输出纯静态文件。Tailwind 通过官方推荐的 Vite plugin 接入，不使用已废弃的 `@astrojs/tailwind`；首版不安装 React，搜索和图谱交互分别使用原生 TypeScript 驱动 Pagefind 与 Cytoscape.js。Astro 只为明确包含客户端脚本的页面输出 JavaScript，详情、归档和关于页面保持静态 HTML。
 
 - `/`：当天简报，论文和博客各目标 8 篇
 - `/papers/<id>/`：论文详情页
 - `/articles/<id>/`：博客详情页
 - `/archive/`：按日期和标签浏览历史日报
+- `/search/`：站内内容搜索和配置驱动筛选
 - `/graph/`：轻量交互知识图谱
 - `/about/`：配置范围、来源和免责声明
 
@@ -669,6 +718,23 @@ storage:
 
 详情页只展示结构化转述，不复制、镜像或缓存博客全文。
 
+### 10.1 搜索页
+
+搜索使用 Pagefind Extended 在 `astro build` 完成后对静态 HTML 建立索引。`<html lang="zh-CN">` 用于启用中文界面和中文分词；npm 提供的 extended binary 同时支持中文分词与页面中的英文术语。只把论文和博客详情页的主内容标记为 `data-pagefind-body`，首页、日报、归档、图谱和导航不进入索引，避免同一条内容出现多个重复结果。
+
+搜索页面的职责边界如下：
+
+- `taxonomy.json` 生成 `targets`、`scenarios`、`tasks` 和 `methods` 四组筛选项，按 YAML 顺序显示 `name_zh name_en`
+- 内容类型 `kind: paper | blog`、发布年份 `published_year` 和构建时计算的 `age: 7d | 30d | 365d` 属于系统字段，不写入 `topics.yaml`；年份用于历史定位，age bucket 用于最近一周、一月和一年筛选
+- 每个详情页把 canonical item 的分类 ID 写入 Pagefind filter attribute；显示名称只来自 taxonomy，不在页面脚本中维护第二份映射
+- 同一筛选组内的多选采用 OR，不同筛选组之间采用 AND
+- Pagefind 加载后读取实际 filter counts，零结果配置项保留但置灰，当前条件下的可用数量随搜索结果更新
+- 默认按相关性返回结果；时间筛选只限制结果集合，不复制一套归档查询逻辑
+
+初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。用户首次聚焦搜索框或操作筛选项时才动态 `import("/pagefind/pagefind.js")` 并初始化；输入使用 Pagefind 的约 300 ms debounced search。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载。
+
+[Astro Tailwind 文档](https://docs.astro.build/en/guides/styling/#tailwind)规定 Astro 5.2+ 使用 Tailwind 4 Vite plugin；[Astro framework components](https://docs.astro.build/en/guides/framework-components/)说明未使用 `client:*` 的框架组件不会下发客户端 runtime，但本项目当前交互规模不需要 React island。[Pagefind Search API](https://pagefind.app/docs/api/)支持聚焦时初始化、debounced search 和逐条加载结果数据，[Pagefind filtering API](https://pagefind.app/docs/js-api-filtering/)提供筛选及动态数量，[Pagefind multilingual search](https://pagefind.app/docs/multilingual/)说明 extended release 的中文分词能力。
+
 ## 11. 轻量交互知识图谱
 
 图谱使用 Cytoscape.js，仅加载构建时生成的静态 JSON。
@@ -692,7 +758,7 @@ storage:
 交互功能：
 
 - 平移、缩放和拖动
-- 在当前已加载图谱节点中按标题或标签搜索；不提供站点全文搜索
+- 在当前已加载图谱节点中按标题或标签快速定位；站内全局内容检索统一跳转 `/search/`，图谱页不重复加载 Pagefind
 - 按时间、场景、目标、任务和方法筛选
 - 点击节点高亮一跳邻居
 - 侧边栏展示摘要和详情页链接
@@ -713,7 +779,7 @@ storage:
 
 ## 12. Docker 与本地开发
 
-项目不启动数据库或常驻 Compose 服务，但按技术栈使用两个独立镜像：`pipeline/Dockerfile` 只包含 Python、正文提取和 LLM/VLM 客户端；`site/Dockerfile` 只包含 Node、pnpm 和 Astro。两个镜像通过结构化 publish bundle 交接，不共享 Python 或 Node 运行时。
+项目不启动数据库或常驻 Compose 服务，但按技术栈使用两个独立镜像：`pipeline/Dockerfile` 只包含 Python、正文提取和 LLM/VLM 客户端；`site/Dockerfile` 只包含 Node、pnpm、Astro、Tailwind、Pagefind 和前端依赖。两个镜像通过结构化 publish bundle 交接，不共享 Python 或 Node 运行时。
 
 PowerShell 本地命令：
 
@@ -732,7 +798,9 @@ docker compose run --rm site build
 .\scripts\dev.ps1 run
 ```
 
-`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。`dev.ps1 run` 先运行 pipeline 生成数据包，再运行 site build；`dev.ps1 test` 分别执行 Python fixtures 和 Astro fixture build。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
+`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。`dev.ps1 run` 先运行 pipeline 生成数据包，再运行 site build；`dev.ps1 test` 分别执行 Python fixtures 和 Astro + Pagefind fixture build。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
+
+Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依赖、Docker 镜像或 GitHub Actions；项目构建和运行不依赖任何 MCP 服务。
 
 ## 13. GitHub Actions
 
@@ -747,7 +815,7 @@ docker compose run --rm site build
 1. 构建 `pipeline/Dockerfile`
 2. 运行 Python 单元测试、fixtures 端到端数据管道和 JSON Schema 校验
 3. 构建 `site/Dockerfile`
-4. 使用 pipeline fixture publish bundle 执行一次 Astro production build，并检查 Pages artifact 大小
+4. 使用 pipeline fixture publish bundle 执行一次 Astro + Pagefind production build，检查图谱、搜索索引和 Pages artifact 大小
 
 ### 13.2 daily.yml
 
@@ -790,19 +858,20 @@ Artifact 只包含 `manifest.json`、`papers.jsonl` 和 `blogs.jsonl`。为减�
 - 下载三个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致
 - 执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-bundle`
 - 基于已经包含视觉证据的论文深读和博客深读各精排目标 8 篇
-- 生成待提交的 canonical items、日报、运行报告、图谱关系和 pending `state.json`
+- 生成待提交的 canonical items、日报、运行报告、图谱关系、pending `state.json` 和本次配置的 `taxonomy.json` 快照
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
 - 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 1`
 
-Publish bundle 只包含 `manifest.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。它不包含 HTML 页面、`graph.json` 或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
+Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。`taxonomy.json` 是本次运行使用的 `topics.yaml` 标准化只读快照，只服务于网站构建，不提交到 `data/`。Publish bundle 不包含 HTML 页面、`graph.json`、Pagefind 索引或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
 
 #### Job 4：build-deploy
 
 - job ID 为 `build_deploy`，依赖 `needs: rank_integrate`
 - `timeout-minutes: 60`
 - 使用 `site/Dockerfile`，下载 `publish-bundle-<run-id>` 并再次验证 manifest
-- `site/Dockerfile` 使用 `pnpm install --frozen-lockfile` 构建依赖层；job 在该镜像内执行 `pnpm build`
-- 从 `pending-data/` 派生详情页、归档页、交互图谱和 `graph.json`
+- `site/Dockerfile` 使用 `pnpm install --frozen-lockfile` 构建依赖层；Pagefind 固定在 `pnpm-lock.yaml`，运行时不下载 `latest`
+- job 在该镜像内执行 `pnpm build`：先运行 Astro production build，从 `pending-data/` 和 `taxonomy.json` 派生详情页、搜索页、归档页、交互图谱和 `graph.json`，再对 `dist` 运行 Pagefind Extended
+- Pagefind 只索引详情页主内容，并输出按需加载的 runtime、支持中英文术语的索引、filters 和 metadata 到 `dist/pagefind/`
 - 验证 Pages artifact 不超过配置的大小边界，然后上传并部署
 - Pages 部署成功后，将 `pending-data/` 暂存为仓库 `data/`，并在同一个 Git commit 中提交 canonical 数据和最终 `state.json`
 
@@ -824,7 +893,7 @@ Publish bundle 只包含 `manifest.json` 和 `pending-data/`；后者与最终 `
 
 Python 单元与集成测试覆盖：
 
-- YAML 配置、手动切换 active text profile、冷启动/日更时间窗口和数量上限
+- YAML 配置、四类主题对象和引用校验、`taxonomy.json` 标准化快照、手动切换 active text profile、冷启动/日更时间窗口和数量上限
 - arXiv Atom 与 RSS/Atom 标准化、稳定 ID 去重和确定性评分
 - 文本 OpenAI-compatible wrapper 的 profile 切换与 JSON 解析；独立 NVIDIA VLM `requests.post` 路径的多 `image_url` payload、请求参数以及忽略 reasoning trace
 - `429/5xx`、`Retry-After`、最多 3 次重试、每 worker 并发 1 和 NVIDIA 40 RPM 边界
@@ -839,9 +908,9 @@ Python 单元与集成测试覆盖：
 2. 后续 daily 增量、历史去重和状态推进
 3. 可选 RSS 失败、正文抓取失败和 LLM 部分失败时按既有规则降级
 4. 参数化注入 collect/deep-read/rank/site/deploy 失败，验证都不写正式 `state.json`
-5. pipeline fixture bundle 能完成 Astro production build、图谱生成和 Pages artifact 大小检查
+5. pipeline fixture bundle 能完成 Astro + Pagefind production build、图谱生成、中文搜索索引与 filter metadata 生成，以及 Pages artifact 大小检查
 
-前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build 是首版前端验收门槛。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
+前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build、Pagefind build 和 fixture 产物存在性检查是首版前端验收门槛，不额外建设搜索浏览器测试。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
 
 ## 15. 安全、合规和可观测性
 
@@ -869,7 +938,7 @@ Python 单元与集成测试覆盖：
 5. 每日论文和博客各目标 8 篇；候选不足时允许少于 8 篇，但不使用低相关或重复内容填充
 6. 每条推荐拥有中文一句话摘要并保留关键英文术语
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
-8. 站点包含日报、详情、归档和可交互轻量图谱
+8. 站点包含日报、详情、归档、按需加载的站内内容搜索和可交互轻量图谱；搜索筛选项由 `topics.yaml` 自动生成
 9. 图谱默认内容节点不超过 80，历史增长不会导致页面无限臃肿
 10. 本地测试和构建完全通过 Docker 完成，pipeline 与 site 使用两个独立镜像并通过 publish bundle 交接
 11. GitHub Actions 的数据 job 使用 `pipeline/Dockerfile`、网站 job 使用 `site/Dockerfile`，并对 API 限流、429 和失败重试有测试覆盖
@@ -884,5 +953,5 @@ Python 单元与集成测试覆盖：
 20. 任一 stage/job 失败都不写正式 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，不重新调用 LLM
 21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv HTML → PDF text → Abstract`，不实现 OpenReview 或 TeX source
 22. 文本模型使用一个同步 OpenAI-compatible wrapper，NVIDIA 与 DeepSeek 分别配置 base URL；视觉模型使用独立完整 invoke URL 和 `requests.post`，单请求包含多个 `image_url`，默认 `max_tokens: 65536`、`reasoning_budget: 16384`、`temperature: 0.6`、`top_p: 0.95` 和 `stream: false`
-23. 首版不生成或提供站点全文搜索；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
+23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
 24. 自动化测试控制在约 15–20 个高价值测试和五组端到端 fixtures，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
