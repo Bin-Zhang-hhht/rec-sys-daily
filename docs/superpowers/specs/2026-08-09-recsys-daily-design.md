@@ -31,7 +31,8 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 
 - 不运行常驻后端服务
 - 不使用关系型数据库、Vector DB 或 Graph DB
-- 不下载和解析论文 PDF 全文
+- 不在 Git、缓存或 Pages artifact 中永久保存论文 PDF、提取全文或全文 HTML
+- 不在详情页嵌入 PDF、镜像全文或提供站内全文阅读器
 - 不建设复杂 RAG、聊天机器人或用户登录系统
 - 不把知识图谱作为严格事实库或学术结论依据
 - 不自动绕过来源站点的访问限制
@@ -72,7 +73,7 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 | 不存在有效状态 | 当前时间减 5 年 | 当前时间减 3 年 |
 | 存在有效状态 | `last_success_at - 48 小时` | `last_success_at - 7 天` |
 
-每次运行统一使用论文最多 100 篇、博客最多 50 篇和 LLM 最多 25 次调用作为安全上限。日更通常不会触及这些上限；冷启动用它们防止长时间范围产生不受控的 API 请求。两种运行的唯一业务差异是时间范围。
+每次运行统一使用论文最多 100 篇、博客最多 50 篇、深度解读论文最多 8 篇和 LLM 最多 32 次调用作为安全上限。日更通常不会触及这些上限；冷启动用它们防止长时间范围产生不受控的 API 请求。两种运行的唯一业务差异是时间范围。
 
 ### 4.2 成功条件
 
@@ -318,11 +319,13 @@ flowchart LR
     C --> D["标准化、去重、规则预筛"]
     D --> E["LLM 批量相关性分析与摘要"]
     E --> F["论文和博客各选目标 8 篇"]
-    F --> G["生成详情、日报和轻量图谱"]
-    G --> H["Schema 校验与 Docker 测试"]
-    H --> I["Astro 静态构建"]
-    I --> J["部署 GitHub Pages"]
-    J --> K["提交 data 与 state"]
+    F --> G["临时解析入选论文 PDF"]
+    G --> H["LLM 生成结构化深度解读"]
+    H --> I["生成详情、日报和轻量图谱"]
+    I --> J["Schema 校验与 Docker 测试"]
+    J --> K["Astro 静态构建"]
+    K --> L["部署 GitHub Pages"]
+    L --> M["提交 data 与 state"]
 ```
 
 ### 7.1 去重键
@@ -361,6 +364,34 @@ score = 0.30 * topic_relevance
 
 权重由 `config/settings.yaml` 调整。
 
+### 7.3 论文深度解读
+
+全文处理只发生在论文完成排序之后，每次最多处理最终入选的 8 篇论文。它是统一管道中的固定阶段，不为冷启动建立另一套流程。
+
+处理规则：
+
+1. 只访问来源提供的公开 PDF URL，不尝试绕过登录、付费墙或访问控制
+2. PDF 串行下载到 runner 临时目录，单篇最大 20 MB、最多 80 页
+3. 提取文本后按 section heading 识别 Abstract、Introduction、Method、Experiments、Results、Limitations 和 Conclusion
+4. 输入超过模型预算时优先保留上述核心章节，最多向 LLM 提交 60,000 个字符，不进行 OCR
+5. 每篇论文单独调用一次 LLM，生成最多约 12,000 个字符的中文结构化解读
+6. 无论成功或失败，都在 `finally` 阶段删除 PDF 和提取文本；它们不得进入 cache、artifact 或 Git
+
+结构化深度解读包括：
+
+- 研究问题与背景
+- 核心贡献
+- Method / Model Architecture
+- Datasets、Baselines、Metrics 和关键实验结果
+- 局限性与适用边界
+- 对文字流、语聊、直播间、好友推荐的业务启示
+- 相关工作和知识图谱关系
+- 证据引用，只保存 section 名和 PDF page number，不复制长段原文
+
+如果公开 PDF 不存在、下载失败、超过限制或无法提取文本，则使用摘要生成较短解读，并写入 `analysis_basis: abstract_fallback`。正常完成 PDF 临时解析时写入 `analysis_basis: pdf_text`。详情页必须明确显示分析依据，不能把摘要降级结果冒充 PDF 深度解读。
+
+下载必须带可识别的 User-Agent 并遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此系统只串行处理最终入选的最多 8 篇，不抓取候选全集。论文内容不在本站再发布；arXiv 与 OpenReview 的具体许可信息仍随 item 保存并链接到原站。
+
 ## 8. LLM 与 API 限制
 
 ### 8.1 OpenAI-compatible 配置
@@ -374,7 +405,7 @@ llm:
   batch_size: 8
   timeout_seconds: 60
   retries: 3
-  max_calls_per_run: 25
+  max_calls_per_run: 32
 ```
 
 NVIDIA NIM 的默认部署值可设为：
@@ -409,9 +440,15 @@ limits:
   retry_attempts: 3
   max_papers_per_run: 100
   max_blogs_per_run: 50
+  max_pdf_downloads_per_run: 8
+  pdf_download_concurrency: 1
+  max_pdf_bytes: 20971520
+  max_pdf_pages: 80
+  max_fulltext_input_chars: 60000
+  max_deep_reading_output_chars: 12000
 ```
 
-每次运行最多处理 150 条内容，按每批 8 条调用 LLM，最多约 19 次正常调用；日更因候选较少通常只需要少量批次。两种运行使用相同批处理代码和相同的每次运行上限。
+每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用 LLM，最多约 19 次正常调用；最终入选的 8 篇论文各使用 1 次深度解读调用，因此首次运行通常最多约 27 次正常调用。总上限设置为 32，为有限重试保留空间。日更因候选较少通常使用更少调用，两种运行使用相同批处理代码和相同的每次运行上限。
 
 如果 LLM 个别批次失败，允许降级使用英文摘要截断和规则标签，但每次运行都要求至少 90% 候选完成结构化分析；最终进入当日推荐的条目必须 100% 拥有可展示摘要，否则不进入推荐。该规则不区分首次运行和日更。
 
@@ -452,13 +489,13 @@ limits:
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
-以下内容不提交 Git：RSS/API 原始响应、PDF、图片副本、完整 LLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、搜索索引和 `graph.json`。图谱、搜索索引、详情页和归档页都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。
+以下内容不提交 Git：RSS/API 原始响应、PDF、PDF 提取全文、全文 HTML、图片副本、完整 LLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、搜索索引和 `graph.json`。图谱、搜索索引、详情页和归档页都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。Git 只保存 LLM 生成的结构化深度解读及其分析依据。
 
 存储保护规则：
 
 ```yaml
 storage:
-  max_item_bytes: 32768
+  max_item_bytes: 65536
   max_blog_excerpt_chars: 4000
   warn_repository_data_mb: 500
   warn_pages_artifact_mb: 500
@@ -486,6 +523,23 @@ storage:
   "methods": ["graph_neural_network"],
   "relevance_score": 0.92,
   "graph_relations": [],
+  "deep_reading": {
+    "analysis_basis": "pdf_text",
+    "problem_zh": "研究问题与背景。",
+    "contributions_zh": ["核心贡献。"],
+    "method_zh": "方法与模型结构。",
+    "experiments": {
+      "datasets": [],
+      "baselines": [],
+      "metrics": [],
+      "findings_zh": []
+    },
+    "limitations_zh": [],
+    "business_implications_zh": [],
+    "evidence_refs": [
+      {"section": "Experiments", "page": 6}
+    ]
+  },
   "llm": {
     "model": "configured-model",
     "generated_at": "2026-08-09T00:00:00Z",
@@ -505,15 +559,21 @@ storage:
 - `/graph/`：轻量交互知识图谱
 - `/about/`：配置范围、来源和免责声明
 
-详情页展示：
+论文详情页展示：
 
 - 原始标题和中文一句话结论
-- 原始摘要/Feed excerpt
-- 业务适用性说明
+- 原始摘要
+- 研究问题、核心贡献和 Method / Model Architecture
+- Datasets、Baselines、Metrics 与关键实验结果
+- 局限性、适用边界和业务启示
+- section/page 级证据引用
+- `pdf_text` 或 `abstract_fallback` 分析依据标记
 - 场景、任务和方法标签
 - 与当前内容相邻的论文/博客
-- 原文、arXiv、OpenReview 或 DOI 链接
+- 原文、arXiv、OpenReview 或 DOI 外部链接；不在站内嵌入 PDF
 - “LLM 生成，可能存在错误”的明确提示
+
+博客详情页展示原始 Feed excerpt、中文总结、业务适用性、标签、相关内容和原文外链，不复制或镜像博客全文。
 
 ## 11. 轻量交互知识图谱
 
@@ -634,6 +694,11 @@ Python 单元测试覆盖：
 - 多来源标准化与去重
 - 确定性评分
 - LLM JSON 解析和降级
+- 深度解读 Schema 和 `analysis_basis` 标记
+- PDF 数量、大小、页数、下载超时和串行限制
+- PDF 无法下载或解析时的 `abstract_fallback`
+- 成功、失败和异常中断后临时 PDF/全文清理
+- `data/` 与 Pages artifact 中不存在 PDF、提取全文或全文 HTML
 - `429`、`Retry-After` 与重试边界
 - 冷启动失败不写状态
 - 图谱节点上限和裁剪
@@ -652,7 +717,10 @@ Python 单元测试覆盖：
 
 ## 15. 安全、合规和可观测性
 
-- 只保存公开元数据、摘要和短 excerpt，不镜像受版权保护的全文
+- 只保存公开元数据、摘要、短 excerpt 和 LLM 结构化深度解读，不镜像或嵌入受版权保护的全文
+- 只对最终入选的最多 8 篇论文临时下载公开 PDF，遵守来源访问规则并串行限速
+- 临时 PDF 和提取文本不进入 Git、cache、日志或 Pages artifact
+- 深度解读使用转述和 section/page 引用，不发布长段原文
 - 每个页面保留原始来源链接和发布时间
 - 遵循各 API 的使用政策、分页规则和请求间隔
 - 不把 Secret 写入日志、缓存、artifact 或静态页面
@@ -677,6 +745,7 @@ Python 单元测试覆盖：
 12. GitHub Pages 部署不依赖任何常驻服务器
 13. canonical item 按类型和年月分文件保存，日报只引用 item ID，构建产物和原始响应不进入 Git
 14. 主工作流 `timeout-minutes` 为 300，Pages artifact 达到 500 MB 时告警且必须小于 900 MB
+15. 每日入选论文拥有结构化深度解读；PDF 和提取全文只存在于 runner 临时目录，详情页不保存、不镜像且不嵌入原始 PDF
 
 ## 17. 后续可选增强
 
@@ -685,6 +754,6 @@ Python 单元测试覆盖：
 - LinkedIn Engineering、Twitch、YouTube 等网页来源适配器
 - 邮件、Telegram、Slack 或飞书推送
 - 用户收藏、评分和个性化 reranking
-- PDF 全文解析与引用定位
+- OCR、图表理解和公式级解析
 - 向量搜索和问答
 - OPML 导入/导出
