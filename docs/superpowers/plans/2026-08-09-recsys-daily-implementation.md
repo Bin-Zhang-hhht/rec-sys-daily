@@ -62,7 +62,7 @@ def test_example_contains_no_secret_value() -> None:
 
 - [ ] **Step 3: Run the test and confirm it fails because foundation files do not exist**
 
-Run: `docker compose run --rm pipeline pytest tests/test_environment_contract.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_environment_contract.py -q`
 
 Expected: FAIL before the repository foundation is complete.
 
@@ -74,7 +74,7 @@ Expected: FAIL before the repository foundation is complete.
 
 Run: `docker compose build pipeline`
 
-Run: `docker compose run --rm pipeline pytest tests/test_environment_contract.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_environment_contract.py -q`
 
 Expected: PASS.
 
@@ -122,7 +122,7 @@ def test_duplicate_topic_id_is_rejected(tmp_path):
 
 - [ ] **Step 2: Run the focused tests and confirm missing imports fail**
 
-Run: `docker compose run --rm pipeline pytest tests/test_config.py tests/test_schemas.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_config.py tests/test_schemas.py -q`
 
 Expected: FAIL because config and schema modules are absent.
 
@@ -132,7 +132,7 @@ Use Pydantic discriminators on `kind`. Validate all item taxonomy references aga
 
 - [ ] **Step 4: Run config and schema tests**
 
-Run: `docker compose run --rm pipeline pytest tests/test_config.py tests/test_schemas.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_config.py tests/test_schemas.py -q`
 
 Expected: PASS.
 
@@ -181,7 +181,7 @@ def test_prefilter_caps_and_tie_breaks_deterministically(candidates, config):
 
 - [ ] **Step 2: Confirm the focused tests fail**
 
-Run: `docker compose run --rm pipeline pytest tests/test_collect.py tests/test_filtering.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_collect.py tests/test_filtering.py -q`
 
 Expected: FAIL because collection functions are absent.
 
@@ -191,7 +191,7 @@ Allow only HTTP(S), resolve every redirect target, and reject loopback, private,
 
 - [ ] **Step 4: Run collection tests**
 
-Run: `docker compose run --rm pipeline pytest tests/test_collect.py tests/test_filtering.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_collect.py tests/test_filtering.py -q`
 
 Expected: PASS without network access.
 
@@ -240,7 +240,7 @@ def test_retry_reacquires_limiter(fake_clock):
 
 - [ ] **Step 2: Confirm model tests fail**
 
-Run: `docker compose run --rm pipeline pytest tests/test_llm.py tests/test_rate_limit.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_llm.py tests/test_rate_limit.py -q`
 
 Expected: FAIL because clients and limiter are absent.
 
@@ -250,7 +250,7 @@ Use `OpenAI(base_url=..., api_key=...).chat.completions.create(...)` for text. U
 
 - [ ] **Step 4: Run model tests**
 
-Run: `docker compose run --rm pipeline pytest tests/test_llm.py tests/test_rate_limit.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_llm.py tests/test_rate_limit.py -q`
 
 Expected: PASS with fake clients and no API keys.
 
@@ -297,7 +297,7 @@ def test_temporary_source_files_are_removed_on_failure(tmp_path, services, failu
 
 - [ ] **Step 2: Confirm deep-reading tests fail**
 
-Run: `docker compose run --rm pipeline pytest tests/test_deep_read.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_deep_read.py -q`
 
 Expected: FAIL because deep-reading functions are absent.
 
@@ -307,7 +307,7 @@ Use arXiv HTML, then PyMuPDF text extraction, then abstract. Detect critical pag
 
 - [ ] **Step 4: Run deep-reading tests**
 
-Run: `docker compose run --rm pipeline pytest tests/test_deep_read.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_deep_read.py -q`
 
 Expected: PASS.
 
@@ -357,7 +357,7 @@ def test_digest_references_ids_and_caps_each_kind(bundle_path):
 
 - [ ] **Step 2: Confirm integration tests fail**
 
-Run: `docker compose run --rm pipeline pytest tests/test_integrate.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_integrate.py -q`
 
 Expected: FAIL because integration functions are absent.
 
@@ -367,7 +367,7 @@ Validate manifests before reading results. Write all files to a temporary siblin
 
 - [ ] **Step 4: Run integration tests**
 
-Run: `docker compose run --rm pipeline pytest tests/test_integrate.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_integrate.py -q`
 
 Expected: PASS.
 
@@ -412,7 +412,7 @@ def test_fixture_failure_does_not_write_canonical_state(runner, tmp_path):
 
 - [ ] **Step 2: Confirm CLI tests fail**
 
-Run: `docker compose run --rm pipeline pytest tests/test_cli.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_cli.py -q`
 
 Expected: FAIL because the CLI is absent.
 
@@ -422,7 +422,7 @@ Expected: FAIL because the CLI is absent.
 
 - [ ] **Step 4: Run the complete Python suite and fixture command**
 
-Run: `docker compose run --rm pipeline pytest tests -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests -q`
 
 Run: `docker compose run --rm pipeline test-fixtures`
 
@@ -579,7 +579,7 @@ def test_daily_workflow_permissions_and_timeouts(repo_root):
 
 - [ ] **Step 2: Confirm workflow tests fail before YAML exists**
 
-Run: `docker compose run --rm pipeline pytest tests/test_workflows.py -q`
+Run: `docker compose run --rm --entrypoint pytest pipeline tests/test_workflows.py -q`
 
 Expected: FAIL because workflow files are absent.
 
