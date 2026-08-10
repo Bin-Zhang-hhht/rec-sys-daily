@@ -410,7 +410,7 @@ final_score = 0.55 * metadata_score
             + 0.10 * technical_depth
 ```
 
-权重由 `config/settings.yaml` 调整。相同分数使用发布日期、source ID 和 stable ID 做确定性 tie-break，保证 fixtures 与重复运行结果稳定。
+权重由 `config/settings.yaml` 调整。相同分数使用发布日期、source ID 和 stable ID 做确定性 tie-break，保证运行时生成的测试场景与重复运行结果稳定。
 
 ### 7.3 论文与博客全文深度解读
 
@@ -606,7 +606,6 @@ NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 r
 ├── site/
 │   ├── Dockerfile
 │   └── Astro static site
-├── fixtures/
 ├── compose.yaml
 └── scripts/dev.ps1
 ```
@@ -809,13 +808,13 @@ docker compose run --rm site build
 .\scripts\dev.ps1 run
 ```
 
-`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。`dev.ps1 run` 先运行 pipeline 生成数据包，再运行 site build；`dev.ps1 test` 分别执行 Python fixtures 和 Astro + Pagefind fixture build。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
+`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。`dev.ps1 run` 先运行 pipeline 生成数据包，再运行 site build；`dev.ps1 test` 分别执行 Python 运行时生成的离线场景和 Astro + Pagefind 测试 bundle build。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
 
 Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依赖、Docker 镜像或 GitHub Actions；项目构建和运行不依赖任何 MCP 服务。
 
 ## 13. GitHub Actions
 
-`daily.yml` 是唯一访问真实来源、调用 LLM、写入数据并部署 Pages 的运行工作流。`verify.yml` 只使用 fixtures 做代码验证，不承担冷启动或日更，因此不会复制生产管道逻辑。
+`daily.yml` 是唯一访问真实来源、调用 LLM、写入数据并部署 Pages 的运行工作流。`verify.yml` 只使用测试运行时生成的合成输入做代码验证，不承担冷启动或日更，因此不会复制生产管道逻辑。
 
 ### 13.1 verify.yml
 
@@ -824,9 +823,9 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 执行：
 
 1. 构建 `pipeline/Dockerfile`
-2. 运行 Python 单元测试、fixtures 端到端数据管道和 JSON Schema 校验
+2. 运行 Python 单元测试、运行时生成的端到端场景和 JSON Schema 校验
 3. 构建 `site/Dockerfile`
-4. 使用 pipeline fixture publish bundle 执行一次 Astro + Pagefind production build，检查图谱、搜索索引和 Pages artifact 大小
+4. 使用 pipeline 动态生成的测试 publish bundle 执行一次 Astro + Pagefind production build，检查图谱、搜索索引和 Pages artifact 大小
 
 ### 13.2 daily.yml
 
@@ -932,15 +931,15 @@ Python 单元与集成测试覆盖：
 - PDF、关键页面图片、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
 - manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
 
-端到端 fixtures 只保留五组：
+端到端测试只保留五组运行时生成的场景：
 
 1. 首次 cold-start 成功并生成完整 publish bundle
 2. 后续 daily 增量保留历史 canonical data，合并历史推荐 ID 并推进状态
 3. 可选 RSS 失败、第二次 Feed 抓取失败、正文抓取失败和 LLM 部分失败时按既有规则降级
 4. 参数化注入 collect/deep-read/rank/site/deploy 失败，验证都不写正式 `state.json`
-5. pipeline fixture bundle 能完成 Astro + Pagefind production build、图谱生成、中文搜索索引与 filter metadata 生成，以及按 RunReport 快照执行 Pages artifact 大小检查
+5. pipeline 动态生成的测试 bundle 能完成 Astro + Pagefind production build、图谱生成、中文搜索索引与 filter metadata 生成，以及按 RunReport 快照执行 Pages artifact 大小检查
 
-前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build、Pagefind build 和 fixture 产物存在性检查是首版前端验收门槛，不额外建设搜索浏览器测试。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
+前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build、Pagefind build 和动态测试产物存在性检查是首版前端验收门槛，不额外建设搜索浏览器测试。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
 
 ## 15. 安全、合规和可观测性
 
@@ -984,7 +983,7 @@ Python 单元与集成测试覆盖：
 21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv HTML → PDF text → Abstract`，不实现 OpenReview 或 TeX source
 22. 文本模型使用一个同步 OpenAI-compatible wrapper，NVIDIA 与 DeepSeek 分别配置 base URL；视觉模型使用独立完整 invoke URL 和 `requests.post`，单请求包含多个 `image_url`，默认 `max_tokens: 65536`、`reasoning_budget: 16384`、`temperature: 0.6`、`top_p: 0.95` 和 `stream: false`
 23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
-24. 自动化测试控制在约 15–20 个高价值测试和五组端到端 fixtures，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
+24. 自动化测试控制在约 15–20 个高价值测试和五组运行时生成的端到端场景，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
 
 ## 17. 已批准修复设计（2026-08-10）
 
@@ -1009,4 +1008,8 @@ Python 单元与集成测试覆盖：
 5. `TextClient`、`VisionClient`、正文抓取、excerpt 限制、存储告警和图谱裁剪都必须
    消费对应 YAML 配置；重复的业务常量只允许存在于配置校验的架构不变量中。
 6. 测试必须覆盖真实的 Stage 1 metadata、二次 Feed 抓取缓存、历史 bundle、状态
-   合并、降级和 site build；仅检查 fixture 目录存在不算端到端验证。
+   合并、降级和 site build；仅检查场景名称存在不算端到端验证。
+7. 仓库不提交 `fixtures/` 目录。Atom、RSS、HTML、fake model 响应、历史 state 和
+   五组端到端场景由测试辅助模块在临时目录中确定性生成；`test-fixtures` 命令保留
+   现有名称但只读取这些运行时生成的数据。Dockerfile 不复制 fixture 资产，CI 不从
+   外部下载测试数据，也不需要真实 API Key。
