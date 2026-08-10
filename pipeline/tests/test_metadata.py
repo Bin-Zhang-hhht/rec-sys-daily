@@ -1,0 +1,79 @@
+from datetime import UTC, datetime
+from pathlib import Path
+
+from recsys_daily.collect import Candidate, stable_id
+from recsys_daily.config import load_config
+from recsys_daily.metadata import analyze_metadata, metadata_json_schema
+
+
+ROOT = Path(__file__).parents[2]
+CONFIG = load_config(ROOT)
+NOW = datetime(2026, 8, 10, tzinfo=UTC)
+
+
+def candidate(identifier: str, excerpt: str = "short excerpt") -> Candidate:
+    return Candidate(
+        kind="paper",
+        source_id="arxiv",
+        title=f"{identifier} recommendation ranking",
+        url=f"https://arxiv.org/abs/{identifier}",
+        published_at=NOW,
+        excerpt=excerpt,
+        arxiv_id=identifier,
+        metadata_score=0.8,
+    )
+
+
+def test_metadata_schema_uses_configured_taxonomy_enums() -> None:
+    schema = metadata_json_schema(CONFIG.topics)
+    assert schema["properties"]["items"]["items"]["properties"]["targets"]["items"]["enum"] == [
+        entry.id for entry in CONFIG.topics.targets
+    ]
+
+
+def test_metadata_analysis_batches_and_validates_ids() -> None:
+    calls: list[tuple[object, object]] = []
+    values = [candidate(f"2608.0{index:04d}") for index in range(CONFIG.models.text.batch_size + 1)]
+
+    def complete(messages, schema):
+        calls.append((messages, schema))
+        batch_ids = [line.split("id: ", 1)[1].splitlines()[0] for line in messages[0]["content"].split("\n\n") if line.startswith("id: ")]
+        return {
+            "items": [
+                {
+                    "id": item_id,
+                    "summary_zh": "summary",
+                    "targets": [CONFIG.topics.targets[0].id],
+                    "scenarios": [CONFIG.topics.scenarios[0].id],
+                    "tasks": [CONFIG.topics.tasks[0].id],
+                    "methods": [CONFIG.topics.methods[0].id],
+                    "relevance_score": 0.91,
+                    "graph_relations": [],
+                    "degraded": False,
+                }
+                for item_id in batch_ids
+            ]
+        }
+
+    result = analyze_metadata(values, CONFIG, complete)
+    assert len(calls) == 2
+    assert result.llm_calls == 2
+    assert result.success_rate == 1
+    assert result.degraded_count == 0
+    assert [item.id for item in result.items] == [stable_id(item) for item in values]
+
+
+def test_metadata_failure_uses_only_matching_config_labels_and_marks_degraded() -> None:
+    result = analyze_metadata(
+        [candidate("2608.09999", "English abstract about two tower retrieval")],
+        CONFIG,
+        lambda *_: (_ for _ in ()).throw(RuntimeError("model down")),
+    )
+    item = result.items[0]
+    assert item.degraded is True
+    assert item.summary_zh == "English abstract about two tower retrieval"
+    assert set(item.targets) <= {entry.id for entry in CONFIG.topics.targets}
+    assert set(item.scenarios) <= {entry.id for entry in CONFIG.topics.scenarios}
+    assert set(item.tasks) <= {entry.id for entry in CONFIG.topics.tasks}
+    assert set(item.methods) <= {entry.id for entry in CONFIG.topics.methods}
+    assert "two_tower" not in item.methods

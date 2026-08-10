@@ -119,6 +119,20 @@ class BlogReading(ArtifactModel):
     evidence_refs: list[BlogEvidenceRef] = Field(default_factory=list)
 
 
+class Stage1Metadata(ArtifactModel):
+    """Transient metadata produced for a bounded Stage 1 candidate batch."""
+
+    id: str = Field(min_length=1)
+    summary_zh: str | None = None
+    targets: list[str] = Field(default_factory=list)
+    scenarios: list[str] = Field(default_factory=list)
+    tasks: list[str] = Field(default_factory=list)
+    methods: list[str] = Field(default_factory=list)
+    relevance_score: float = Field(default=0, ge=0, le=1)
+    graph_relations: list[GraphRelation] = Field(default_factory=list)
+    degraded: bool = False
+
+
 class ItemBase(ArtifactModel):
     id: str = Field(min_length=1)
     title: str = Field(min_length=1)
