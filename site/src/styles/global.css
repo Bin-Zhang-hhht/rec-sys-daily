@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  font-family: "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  background: #f6f7f9;
+  color: #172033;
+}
+
+body { margin: 0; }
+a { color: #0b5cad; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.prose-lite p { line-height: 1.75; }
+.tag { border: 1px solid #c9d3df; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.78rem; }

@@ -1,0 +1,21 @@
+---
+import "../styles/global.css";
+const { title = "RecSys Daily" } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="border-b border-slate-200 bg-white">
+      <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 text-sm">
+        <a href="/" class="font-semibold text-slate-900">RecSys Daily</a>
+        <div class="flex gap-4"><a href="/archive/">归档</a><a href="/search/">搜索</a><a href="/graph/">图谱</a><a href="/about/">关于</a></div>
+      </nav>
+    </header>
+    <main class="mx-auto max-w-6xl px-5 py-8"><slot /></main>
+  </body>
+</html>

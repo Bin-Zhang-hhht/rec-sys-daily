@@ -1,0 +1,11 @@
+---
+import type { Item, Taxonomy } from "../lib/data";
+const { item, taxonomy } = Astro.props as { item: Item; taxonomy: Taxonomy };
+const href = item.kind === "paper" ? `/papers/${item.id}/` : `/articles/${item.id}/`;
+---
+<article class="border border-slate-200 bg-white p-5 shadow-sm">
+  <div class="mb-2 flex items-center justify-between text-xs text-slate-500"><span>{item.kind === "paper" ? "Paper" : "Engineering Blog"}</span><time datetime={item.published_at}>{item.published_at.slice(0, 10)}</time></div>
+  <h3 class="text-lg font-semibold"><a href={href}>{item.title}</a></h3>
+  <p class="prose-lite mt-2 text-sm text-slate-700">{item.summary_zh}</p>
+  <div class="mt-4 flex flex-wrap gap-2">{item.targets.map(id => <span class="tag">{taxonomy.targets.find(x => x.id === id)?.name_zh ?? id}</span>)}{item.tasks.map(id => <span class="tag">{taxonomy.tasks.find(x => x.id === id)?.name_zh ?? id}</span>)}</div>
+</article>
