@@ -2,7 +2,7 @@
 
 日期：2026-08-09
 
-状态：待最终评审
+状态：已批准修复设计，待实现
 
 部署目标：GitHub Pages
 
@@ -225,7 +225,10 @@ blogs:
     weight: 0.80
 ```
 
-每个 Feed 每天只拉取一次，并保存 `ETag`、`Last-Modified` 和最近成功时间。支持 RSS 2.0 与 Atom，Canonical URL 相同的文章只保留一条。
+每个 Feed 在 `collect-filter` 中拉取一次并保存 `ETag`、`Last-Modified` 和最近成功
+时间；blog deep-read runner 可以为入选来源再拉取一次以恢复不能跨 job 传递的 Feed
+全文，因此每个来源每次运行总计最多两次请求。两个阶段都支持 RSS 2.0 与 Atom，
+Canonical URL 相同的文章只保留一条。
 
 ## 6. 用户可编辑主题配置
 
@@ -431,6 +434,14 @@ final_score = 0.55 * metadata_score
 4. 同一域名并发为 1，带可识别 User-Agent，并使用请求间隔、`Retry-After` 和有限退避重试
 5. 每篇博客单独调用一次 LLM，生成中文结构化解读
 
+由于博客全文不能进入 Stage 1 artifact，而 `deep-read --kind blog` 运行在独立
+runner，blog deep-read runner 可以按 `source_id` 对每个已启用 Feed 最多再次抓取
+一次。它只在进程内缓存第二次响应，按 stable ID、canonical URL 或标准化标题匹配
+Stage 1 候选，并优先使用匹配条目的 `content:encoded` 或 Atom `content`。第二次
+Feed 抓取失败、没有全文或无法匹配时，继续使用公开文章 HTML，再降级到 excerpt。
+该行为由 `limits.rss_requests_per_run_per_source` 控制，生产默认值为 2；Feed
+原文仍不得进入跨 job artifact、日志、canonical item 或 Pages artifact。
+
 两类内容都遵循以下规则：
 
 - 单次 LLM 输入使用 token-aware budgeting：1M context 中预留 output 与 prompt/schema 空间，其余预算用于全文；超长内容优先保留摘要、架构、方法、实验/结果、限制和结论等高价值段落
@@ -540,7 +551,7 @@ limits:
   nvidia_parallel_workers: 2
   nvidia_concurrency_per_worker: 1
   nvidia_min_interval_seconds_per_worker: 4
-  rss_requests_per_run_per_source: 1
+  rss_requests_per_run_per_source: 2
   arxiv_min_interval_seconds: 3
   request_timeout_seconds: 45
   retry_attempts: 3
@@ -836,7 +847,12 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 - 执行 `python -m recsys_daily collect-filter --output /workspace/stage-1`
 - 上传 `stage-1-<run-id>` artifact，`retention-days: 1`
 
-Artifact 只包含 `manifest.json`、`papers.jsonl`、`blogs.jsonl` 和结构化的 `source-states.json`。其中 `source-states.json` 只保存来源游标、`ETag`、`Last-Modified` 和最近成功时间，不包含原始 API/RSS 响应或全文。为减少协调代码，`manifest.json` 只保存 `run_id` 和 `schema_version`；不计算 commit、state 或 config hash。
+Artifact 只包含 `manifest.json`、`papers.jsonl`、`blogs.jsonl`、结构化的
+`source-states.json` 和 `stage-report.json`。其中 `source-states.json` 只保存来源
+游标、`ETag`、`Last-Modified` 和最近成功时间；`stage-report.json` 只保存来源状态、
+告警、metadata LLM 调用次数、成功率和降级计数。两者都不包含原始 API/RSS 响应或
+全文。为减少协调代码，`manifest.json` 仍只保存 `run_id` 和 `schema_version`；不计算
+commit、state 或 config hash。
 
 #### Job 2：deep-read
 
@@ -863,6 +879,18 @@ Artifact 只包含 `manifest.json`、`papers.jsonl`、`blogs.jsonl` 和结构化
 - 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 1`
 
 Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。`taxonomy.json` 是本次运行使用的 `topics.yaml` 标准化只读快照，只服务于网站构建，不提交到 `data/`。Publish bundle 不包含 HTML 页面、`graph.json`、Pagefind 索引或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
+
+`pending-data/` 是完整的待发布 `data/` 树，而不是只有本次新增内容的 overlay：
+`rank-integrate` 从只读仓库 `data/` 复制并校验既有 `items/`、`digests/` 和 `runs/`，
+再覆盖本次运行产生的同路径结构化 JSON。正式部署成功后，整个 pending tree 才会
+提升为仓库 `data/`。复制过程只允许文档化的 JSON 路径，拒绝 PDF、HTML、TXT、未知
+扩展名和未声明目录，防止历史工作目录污染 Pages artifact。
+
+每次 `RunReport` 还保存本次构建需要的配置快照，例如 `graph_max_content_nodes`、
+`graph_recent_days`、`warn_pages_artifact_mb`、`fail_pages_artifact_mb`、
+`warn_repository_data_mb` 和存储大小阈值。Astro 和 Pages artifact 校验只读取该
+快照，不重新解析 `settings.yaml`，保证重跑 `build_deploy` 使用与数据阶段一致的
+配置。
 
 #### Job 4：build-deploy
 
@@ -898,17 +926,19 @@ Python 单元与集成测试覆盖：
 - 文本 OpenAI-compatible wrapper 的 profile 切换与 JSON 解析；独立 NVIDIA VLM `requests.post` 路径的多 `image_url` payload、请求参数以及忽略 reasoning trace
 - `429/5xx`、`Retry-After`、最多 3 次重试、每 worker 并发 1 和 NVIDIA 40 RPM 边界
 - `arXiv HTML → PDF text → Abstract` 与博客 `Feed full content → article HTML → excerpt` 降级链
+- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；模型失败时规则标签不得依赖固定 topic ID
 - Top 16 深读、最终各 8 篇、深读 Schema、正文/视觉依据和图谱节点裁剪
+- 完整 pending data tree、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
 - PDF、关键页面图片、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
 - manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
 
 端到端 fixtures 只保留五组：
 
-1. 首次 cold-start 成功并生成 publish bundle
-2. 后续 daily 增量、历史去重和状态推进
-3. 可选 RSS 失败、正文抓取失败和 LLM 部分失败时按既有规则降级
+1. 首次 cold-start 成功并生成完整 publish bundle
+2. 后续 daily 增量保留历史 canonical data，合并历史推荐 ID 并推进状态
+3. 可选 RSS 失败、第二次 Feed 抓取失败、正文抓取失败和 LLM 部分失败时按既有规则降级
 4. 参数化注入 collect/deep-read/rank/site/deploy 失败，验证都不写正式 `state.json`
-5. pipeline fixture bundle 能完成 Astro + Pagefind production build、图谱生成、中文搜索索引与 filter metadata 生成，以及 Pages artifact 大小检查
+5. pipeline fixture bundle 能完成 Astro + Pagefind production build、图谱生成、中文搜索索引与 filter metadata 生成，以及按 RunReport 快照执行 Pages artifact 大小检查
 
 前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build、Pagefind build 和 fixture 产物存在性检查是首版前端验收门槛，不额外建设搜索浏览器测试。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
 
@@ -955,3 +985,28 @@ Python 单元与集成测试覆盖：
 22. 文本模型使用一个同步 OpenAI-compatible wrapper，NVIDIA 与 DeepSeek 分别配置 base URL；视觉模型使用独立完整 invoke URL 和 `requests.post`，单请求包含多个 `image_url`，默认 `max_tokens: 65536`、`reasoning_budget: 16384`、`temperature: 0.6`、`top_p: 0.95` 和 `stream: false`
 23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
 24. 自动化测试控制在约 15–20 个高价值测试和五组端到端 fixtures，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
+
+## 17. 已批准修复设计（2026-08-10）
+
+本节记录对当前实现的批准修复，作为本设计其余章节的具体执行补充：
+
+1. `collect-filter` 必须使用当前 text profile 按 `models.text.batch_size` 批量生成
+   `summary_zh`、四类 taxonomy 标签、`relevance_score`、`graph_relations` 和分析
+   状态。模型 JSON Schema 的标签枚举从 `topics.yaml` 动态生成；不得在整合阶段
+   使用 `content`、`text_feed`、`ranking` 或 `two_tower` 等固定默认值。模型批次
+   失败时只能使用当前词表生成规则标签并标记 degraded；没有可展示摘要或完整标签
+   的条目不得进入最终日报。
+2. `deep-read --kind blog` 在独立 runner 中按来源缓存第二次 Feed 抓取，默认每个
+   来源每次运行最多 2 次请求；Feed 全文只在进程内使用，随后按既有 HTML/excerpt
+   降级链处理并清理临时内容。
+3. `rank-integrate` 必须基于只读仓库 data 生成完整 pending tree，且用稳定去重
+   合并 previous/current `recommended_item_ids`。正式 state 仍只在 Pages 部署成功
+   后提升。
+4. `RunReport` 必须记录站点构建和存储告警所需的配置快照；Node/Astro 和构建校验
+   从该快照读取图谱节点/时间限制、item 大小和 Pages artifact 阈值。Stage 1 的
+   来源状态、告警、metadata LLM 调用次数、成功率和降级计数通过结构化的
+   `stage-report.json` 传给 `rank-integrate`，再合并进最终 RunReport。
+5. `TextClient`、`VisionClient`、正文抓取、excerpt 限制、存储告警和图谱裁剪都必须
+   消费对应 YAML 配置；重复的业务常量只允许存在于配置校验的架构不变量中。
+6. 测试必须覆盖真实的 Stage 1 metadata、二次 Feed 抓取缓存、历史 bundle、状态
+   合并、降级和 site build；仅检查 fixture 目录存在不算端到端验证。
