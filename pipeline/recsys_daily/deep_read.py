@@ -29,6 +29,7 @@ class DeepReadServices:
     max_pdf_bytes: int = 20 * 1024 * 1024
     max_pdf_pages: int = 80
     max_html_bytes: int = 5 * 1024 * 1024
+    domain_limiter: Any | None = None
     vision_profile: str = "nvidia_omni"
     vision_model: str = "configured-vision-model"
 
@@ -51,7 +52,7 @@ def _cleanup(paths: list[Path]) -> None:
 
 def _body_from_html(content: ContentServices, html: str) -> str:
     extractor = getattr(content, "extract_html", None) or content.extract_article
-    return str(extractor(html) or html).strip()
+    return str(extractor(html) or "").strip()
 
 
 def _arxiv_identifier(candidate: Candidate) -> str | None:
@@ -158,7 +159,17 @@ def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogRead
             basis = "rss_full_content"
         if not body and services.content.fetch_article_html is not None:
             try:
-                html = services.content.fetch_article_html(candidate)
+                if services.domain_limiter is not None:
+                    acquire = getattr(services.domain_limiter, "acquire", services.domain_limiter)
+                    acquire(candidate.url or "")
+                fetch_article = services.content.fetch_article_html
+                try:
+                    html = fetch_article(candidate, services.max_html_bytes)  # type: ignore[call-arg]
+                except TypeError as first_error:
+                    try:
+                        html = fetch_article(candidate)
+                    except TypeError:
+                        raise first_error
                 _write_temp(services.temporary_root, f"{stable_id(candidate)}.html", html, paths)
                 body = services.content.extract_article(html).strip()
                 if body:

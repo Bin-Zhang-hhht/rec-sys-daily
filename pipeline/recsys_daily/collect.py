@@ -189,7 +189,9 @@ def _entry_feed_content(entry: Any) -> str | None:
         for part in value:
             if isinstance(part, dict) and part.get("value"):
                 return str(part["value"]).strip() or None
-    if value:
+    elif isinstance(value, dict) and value.get("value"):
+        return str(value["value"]).strip() or None
+    elif value:
         return str(value).strip() or None
     for name in ("content:encoded", "content_encoded"):
         value = _entry_value(entry, name)

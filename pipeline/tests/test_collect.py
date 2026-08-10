@@ -5,7 +5,7 @@ import socket
 
 import pytest
 
-from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, collect_candidates, parse_blog_feed, stable_id
+from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, _entry_feed_content, collect_candidates, parse_blog_feed, stable_id
 from recsys_daily.config import SourcesConfig, load_config
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
 from recsys_daily.schemas import SourceState, State
@@ -172,3 +172,7 @@ def test_blog_feed_preserves_content_encoded_for_full_reading() -> None:
     candidates = parse_blog_feed(payload, source_id="example")
 
     assert candidates[0].feed_content == "<h1>Architecture</h1><p>Full implementation details.</p>"
+
+
+def test_feed_content_falls_through_empty_atom_content_to_encoded_value() -> None:
+    assert _entry_feed_content({"content": [{"value": ""}], "content_encoded": "<p>Full body</p>"}) == "<p>Full body</p>"

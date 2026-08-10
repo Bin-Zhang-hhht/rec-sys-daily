@@ -69,17 +69,15 @@ def test_vision_builds_single_multimage_request_and_ignores_reasoning(monkeypatc
     assert [part["image_url"]["url"] for part in payload["messages"][0]["content"][1:]] == ["data:image/png;base64,a", "data:image/png;base64,b"]
 
 
-def test_token_budget_selects_complete_high_importance_sections() -> None:
+def test_token_budget_fails_instead_of_silently_dropping_sections() -> None:
     budget = TokenBudget(context_window_tokens=100, prompt_tokens=10, schema_tokens=10, output_tokens=20)
     sections = [
         {"heading": "low", "text": "x" * 240, "importance": 1},
         {"heading": "high", "text": "y" * 80, "importance": 10},
     ]
 
-    result = budget.fit_sections(sections)
-
-    assert "high" in result
-    assert "low" not in result
+    with pytest.raises(ValueError, match="omitted|fit"):
+        budget.fit_sections(sections)
 
 
 def test_token_budget_fails_when_one_section_cannot_fit() -> None:

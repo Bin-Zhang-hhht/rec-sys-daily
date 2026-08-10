@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import threading
+import time
 from typing import Callable
+from urllib.parse import urlsplit
 
 import fitz
 import trafilatura
@@ -18,8 +21,53 @@ class PageText:
     text: str
 
 
+class DomainRateLimiter:
+    """Serialize article fetches and pace requests independently per hostname."""
+
+    def __init__(
+        self,
+        min_interval_seconds: float = 2.0,
+        *,
+        clock: Callable[[], float] = time.monotonic,
+        sleeper: Callable[[float], None] = time.sleep,
+    ) -> None:
+        if min_interval_seconds <= 0:
+            raise ValueError("min_interval_seconds must be positive")
+        self.min_interval_seconds = float(min_interval_seconds)
+        self._clock = clock
+        self._sleeper = sleeper
+        self._last: dict[str, float] = {}
+        self._lock = threading.Lock()
+
+    def acquire(self, url: str) -> None:
+        try:
+            hostname = urlsplit(url).hostname
+        except ValueError as exc:
+            raise ValueError("blog URL is malformed") from exc
+        if not hostname:
+            raise ValueError("blog URL has no hostname")
+        hostname = hostname.casefold().rstrip(".")
+        with self._lock:
+            now = self._clock()
+            last = self._last.get(hostname)
+            if last is not None:
+                wait = self.min_interval_seconds - (now - last)
+                if wait > 0:
+                    self._sleeper(wait)
+                    now = self._clock()
+            self._last[hostname] = now
+
+
 def fetch_bytes(url: str, max_bytes: int, *, timeout: float = 45) -> bytes:
     response = fetch_public_url(url, timeout=timeout)
+    declared_size = response.headers.get("Content-Length")
+    if declared_size:
+        try:
+            declared_bytes = int(declared_size)
+        except (TypeError, ValueError):
+            declared_bytes = None
+        if declared_bytes is not None and declared_bytes > max_bytes:
+            raise ValueError(f"content exceeds {max_bytes} bytes")
     content = bytes(response.content)
     if len(content) > max_bytes:
         raise ValueError(f"content exceeds {max_bytes} bytes")

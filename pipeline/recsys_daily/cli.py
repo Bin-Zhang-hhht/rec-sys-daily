@@ -15,10 +15,10 @@ import typer
 from .artifacts import write_json, write_jsonl
 from .collect import Candidate, collect_candidates, stable_id
 from .config import AppConfig, load_config
-from .content import ContentServices
+from .content import ContentServices, DomainRateLimiter
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
-from .llm import TextClient, VisionClient
+from .llm import TextClient, TokenBudget, VisionClient
 from .prompts import json_messages
 from .rate_limit import RateLimiter
 from .schemas import BlogItem, PaperItem, SourceState
@@ -180,10 +180,17 @@ def _real_services(
     shared_limiter = limiter or _full_read_limiter(config)
     text_client = TextClient.from_config(config.models, limiter=shared_limiter)
     vision_client = VisionClient.from_config(config.models, limiter=shared_limiter)
+    profile = config.models.text.active()
 
     def text_reader(kind: str, body: str, context: dict[str, Any]) -> dict[str, Any]:
         prompt = f"Return strict JSON for a {kind} recommendation-system deep reading. Context: {context}"
-        return text_client.complete_json(json_messages(prompt, [body]), {"type": "object"})
+        budget = TokenBudget(
+            context_window_tokens=profile.context_window_tokens,
+            reserved_prompt_tokens=config.models.text.reserved_prompt_tokens,
+            reserved_output_tokens=config.models.text.reserved_output_tokens,
+        )
+        bounded_body = budget.fit_sections([{"heading": "source material", "text": body, "importance": 1}])
+        return text_client.complete_json(json_messages(prompt, [bounded_body]), {"type": "object"})
 
     def vision_reader(paths: list[Path]) -> dict[str, Any]:
         images = ["data:image/png;base64," + base64.b64encode(path.read_bytes()).decode("ascii") for path in paths]
@@ -197,6 +204,7 @@ def _real_services(
         max_pdf_bytes=config.settings.limits.max_pdf_bytes,
         max_pdf_pages=config.settings.limits.max_pdf_pages,
         max_html_bytes=config.settings.limits.max_blog_html_bytes,
+        domain_limiter=DomainRateLimiter(config.settings.limits.blog_min_interval_seconds_per_domain),
         vision_profile=config.models.vision.profile,
         vision_model=config.models.vision.model,
     )

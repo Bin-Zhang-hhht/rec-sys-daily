@@ -76,12 +76,20 @@ class TokenBudget:
             rendered = f"{heading}\n{text}".strip() if heading else text
             normalized.append((importance, index, rendered))
         selected: list[tuple[int, str]] = []
+        omitted: list[str] = []
         used = 0
         for importance, index, rendered in sorted(normalized, key=lambda item: (-item[0], item[1])):
             needed = self._tokens(rendered)
             if needed <= self.available_tokens - used:
                 selected.append((index, rendered))
                 used += needed
+            else:
+                # Keep source text out of exception messages and logs.
+                omitted.append(f"section-{index}")
+        if omitted:
+            labels = ", ".join(omitted[:3])
+            suffix = "..." if len(omitted) > 3 else ""
+            raise ValueError(f"token budget cannot fit all sections; omitted: {labels}{suffix}")
         if normalized and not selected:
             raise ValueError("section cannot fit token budget")
         return "\n\n".join(rendered for _, rendered in sorted(selected))
