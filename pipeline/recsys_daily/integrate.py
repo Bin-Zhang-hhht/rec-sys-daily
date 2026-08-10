@@ -41,13 +41,50 @@ def _manifest(path: Path) -> Manifest:
     return Manifest.model_validate(read_json(path / "manifest.json"))
 
 
-def _items(path: Path, kind: str, taxonomy: Any) -> list[ContentItem]:
-    candidates = [path / "items.jsonl", path / f"{kind}s.jsonl", path / f"{kind}.jsonl"]
+def _stage_values(path: Path, kind: str) -> list[dict[str, Any]]:
+    candidates = [
+        path / "items.jsonl",
+        path / f"{kind}s.jsonl",
+        path / f"{kind}.jsonl",
+        path / f"{kind}-deep-readings.json",
+    ]
     source = next((candidate for candidate in candidates if candidate.exists()), None)
     if source is None:
         raise ValueError(f"missing {kind} deep-reading artifact in {path}")
+    if source.suffix == ".jsonl":
+        return read_jsonl(source)
+    document = read_json(source)
+    values = document.get("items", document)
+    if not isinstance(values, list) or not all(isinstance(value, dict) for value in values):
+        raise ValueError(f"deep-reading artifact must contain item objects: {source}")
+    return values
+
+
+def _candidate_metadata(stage1: Path) -> dict[str, dict[str, Any]]:
+    metadata: dict[str, dict[str, Any]] = {}
+    for kind in ("paper", "blog"):
+        for value in _stage_values(stage1, kind) if any((stage1 / name).exists() for name in ("items.jsonl", f"{kind}s.jsonl", f"{kind}.jsonl", f"{kind}-deep-readings.json")) else []:
+            identifier = value.get("id")
+            if identifier:
+                metadata[str(identifier)] = value
+    return metadata
+
+
+def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, Any]]) -> list[ContentItem]:
     parsed: list[ContentItem] = []
-    for value in read_jsonl(source):
+    for value in _stage_values(path, kind):
+        if "title" not in value or "published_at" not in value:
+            base = dict(metadata.get(str(value.get("id", "")), {}))
+            base.update(value)
+            value = base
+        if "source" not in value and value.get("source_id"):
+            value["source"] = value["source_id"]
+        value.setdefault("summary_zh", value.get("excerpt") or value.get("title") or "")
+        value.setdefault("authors", [])
+        value.setdefault("targets", ["content"])
+        value.setdefault("scenarios", ["text_feed"])
+        value.setdefault("tasks", ["ranking"])
+        value.setdefault("methods", ["two_tower"])
         item_type = PaperItem if kind == "paper" else BlogItem
         parsed.append(item_type.model_validate(value, context={"taxonomy": taxonomy}))
     return parsed
@@ -91,8 +128,9 @@ def integrate(
     if any(manifest.schema_version != schema_version for manifest in stage_manifests[1:]):
         raise ValueError("stage manifests must use the same schema_version")
 
-    paper_items = _items(stages.paper, "paper", config.topics)
-    blog_items = _items(stages.blog, "blog", config.topics)
+    metadata = _candidate_metadata(stages.stage1)
+    paper_items = _items(stages.paper, "paper", config.topics, metadata)
+    blog_items = _items(stages.blog, "blog", config.topics, metadata)
     all_items = [*paper_items, *blog_items]
     item_ids = [item.id for item in all_items]
     if len(item_ids) != len(set(item_ids)):
