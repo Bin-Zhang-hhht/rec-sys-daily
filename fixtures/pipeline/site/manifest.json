@@ -1,0 +1,5 @@
+{
+  "case": "site",
+  "description": "The fixture publish bundle builds Astro, Pagefind, and a pruned graph artifact.",
+  "expected": "pages-artifact"
+}

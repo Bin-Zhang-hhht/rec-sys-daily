@@ -1,0 +1,215 @@
+name: RecSys Daily
+
+"on":
+  schedule:
+    - cron: "23 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recsys-daily
+  cancel-in-progress: false
+
+env:
+  IMAGE_TAG: recsys-daily-${{ github.run_id }}
+
+jobs:
+  collect_filter:
+    name: Collect and filter candidates
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build pipeline image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: pipeline/Dockerfile
+          tags: ${{ env.IMAGE_TAG }}-pipeline
+          load: true
+          cache-from: type=gha,scope=pipeline
+          cache-to: type=gha,mode=max,scope=pipeline
+      - name: Collect and filter
+        env:
+          NVIDIA_BASE_URL: ${{ secrets.NVIDIA_BASE_URL }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          NVIDIA_VLM_INVOKE_URL: ${{ secrets.NVIDIA_VLM_INVOKE_URL }}
+        run: |
+          mkdir -p stage-1 data
+          docker run --rm \
+            -e NVIDIA_BASE_URL -e NVIDIA_API_KEY \
+            -e DEEPSEEK_BASE_URL -e DEEPSEEK_API_KEY \
+            -e NVIDIA_VLM_INVOKE_URL \
+            -v "$PWD/stage-1:/workspace/stage-1" \
+            -v "$PWD/data:/workspace/data:ro" \
+            "${IMAGE_TAG}-pipeline" collect-filter --output /workspace/stage-1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stage-1-${{ github.run_id }}
+          path: stage-1
+          if-no-files-found: error
+          retention-days: 1
+
+  deep_read:
+    name: Deep read (${{ matrix.kind }})
+    needs: collect_filter
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      max-parallel: 2
+      matrix:
+        kind: [paper, blog]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: stage-1-${{ github.run_id }}
+          path: stage-1
+      - uses: docker/setup-buildx-action@v3
+      - name: Build pipeline image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: pipeline/Dockerfile
+          tags: ${{ env.IMAGE_TAG }}-pipeline
+          load: true
+          cache-from: type=gha,scope=pipeline
+          cache-to: type=gha,mode=max,scope=pipeline
+      - name: Deep read selected kind
+        env:
+          NVIDIA_BASE_URL: ${{ secrets.NVIDIA_BASE_URL }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          NVIDIA_VLM_INVOKE_URL: ${{ secrets.NVIDIA_VLM_INVOKE_URL }}
+        run: |
+          mkdir -p "deep-reading-${{ matrix.kind }}"
+          docker run --rm \
+            -e NVIDIA_BASE_URL -e NVIDIA_API_KEY \
+            -e DEEPSEEK_BASE_URL -e DEEPSEEK_API_KEY \
+            -e NVIDIA_VLM_INVOKE_URL \
+            -v "$PWD/stage-1:/workspace/stage-1:ro" \
+            -v "$PWD/deep-reading-${{ matrix.kind }}:/workspace/deep-reading" \
+            "${IMAGE_TAG}-pipeline" deep-read --kind "${{ matrix.kind }}" --input /workspace/stage-1 --output /workspace/deep-reading
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deep-reading-${{ matrix.kind }}-${{ github.run_id }}
+          path: deep-reading-${{ matrix.kind }}
+          if-no-files-found: error
+          retention-days: 1
+
+  rank_integrate:
+    name: Rank and integrate publish bundle
+    needs: [collect_filter, deep_read]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: stage-1-${{ github.run_id }}
+          path: stages/stage-1
+      - uses: actions/download-artifact@v4
+        with:
+          name: deep-reading-paper-${{ github.run_id }}
+          path: stages/deep-reading-paper
+      - uses: actions/download-artifact@v4
+        with:
+          name: deep-reading-blog-${{ github.run_id }}
+          path: stages/deep-reading-blog
+      - uses: docker/setup-buildx-action@v3
+      - name: Build pipeline image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: pipeline/Dockerfile
+          tags: ${{ env.IMAGE_TAG }}-pipeline
+          load: true
+          cache-from: type=gha,scope=pipeline
+          cache-to: type=gha,mode=max,scope=pipeline
+      - name: Rank and integrate
+        run: |
+          mkdir -p publish-bundle data
+          docker run --rm \
+            -v "$PWD/stages:/workspace/stages:ro" \
+            -v "$PWD/publish-bundle:/workspace/publish-bundle" \
+            -v "$PWD/data:/workspace/data:ro" \
+            "${IMAGE_TAG}-pipeline" rank-integrate --input /workspace/stages --output /workspace/publish-bundle
+      - name: Validate publish bundle manifest
+        run: |
+          test "$(find publish-bundle -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tr '\n' ' ')" = "manifest.json pending-data taxonomy.json "
+          python -c 'import json; m=json.load(open("publish-bundle/manifest.json")); assert m["run_id"], m'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: publish-bundle-${{ github.run_id }}
+          path: publish-bundle
+          if-no-files-found: error
+          retention-days: 1
+
+  build_deploy:
+    name: Build, deploy Pages, and promote data
+    needs: rank_integrate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: publish-bundle-${{ github.run_id }}
+          path: publish-bundle
+      - uses: docker/setup-buildx-action@v3
+      - name: Build site image
+        uses: docker/build-push-action@v6
+        with:
+          context: site
+          file: site/Dockerfile
+          tags: ${{ env.IMAGE_TAG }}-site
+          load: true
+          cache-from: type=gha,scope=site
+          cache-to: type=gha,mode=max,scope=site
+      - name: Validate downloaded manifest
+        run: python -c 'import json; m=json.load(open("publish-bundle/manifest.json")); assert m["run_id"] and m["schema_version"] == "1", m'
+      - name: Build Astro and Pagefind output
+        run: |
+          mkdir -p pages-dist
+          docker run --rm \
+            -v "$PWD/publish-bundle:/workspace/publish-bundle:ro" \
+            -v "$PWD/pages-dist:/workspace/site/dist" \
+            "${IMAGE_TAG}-site"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-dist
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Promote pending data after deployment
+        run: |
+          test -f publish-bundle/pending-data/state.json
+          mkdir -p data
+          cp -R publish-bundle/pending-data/. data/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m "data: publish daily recommendation bundle"
+            git push
+          fi
