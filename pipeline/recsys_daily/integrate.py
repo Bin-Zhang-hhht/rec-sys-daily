@@ -105,7 +105,7 @@ def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, A
         if not item_id:
             raise ValueError(f"candidate id is required in {path}")
         if item_id not in metadata:
-            raise ValueError(f"deep-reading candidate id is not present in stage-1: {item_id}")
+            raise ValueError(f"deep-reading id/candidate id is not present in stage-1: {item_id}")
         if "title" not in value or "published_at" not in value:
             base = dict(metadata[item_id])
             base.update(value)
@@ -150,7 +150,7 @@ def _load_previous_state(value: State | dict[str, Any] | None) -> State | None:
 def _write_item(root: Path, item: PaperItem | BlogItem, max_item_bytes: int) -> None:
     encoded = (json.dumps(item.model_dump(mode="json"), ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
     if len(encoded) > max_item_bytes:
-        raise ValueError(f"item exceeds configured size limit: {item.id} ({len(encoded)} > {max_item_bytes})")
+        raise ValueError(f"item exceeds configured size limit (max_item_bytes): {item.id} ({len(encoded)} > {max_item_bytes})")
     kind_dir = "papers" if item.kind == "paper" else "blogs"
     path = root / "items" / kind_dir / f"{item.published_at.year:04d}" / f"{item.published_at.month:02d}" / f"{item.id}.json"
     write_json(path, item.model_dump(mode="json"))
