@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Example Engineering</title>
+    <link>https://engineering.example.com/</link>
+    <description>Synthetic fixture feed.</description>
+    <item>
+      <guid isPermaLink="false">example-ranking-2026</guid>
+      <title>How We Improved Feed Ranking</title>
+      <link>https://engineering.example.com/posts/feed-ranking?utm_source=rss</link>
+      <pubDate>Sun, 09 Aug 2026 08:30:00 +0000</pubDate>
+      <description><![CDATA[<p>Practical <strong>feed ranking</strong> lessons for content recommendation.</p>]]></description>
+      <author>engineer@example.com (Example Engineer)</author>
+    </item>
+  </channel>
+</rss>

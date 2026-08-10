@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <id>http://export.arxiv.org/api/query</id>
+  <title>arXiv Query Results</title>
+  <updated>2026-08-10T00:00:00Z</updated>
+  <entry>
+    <id>http://arxiv.org/abs/2608.01234v2</id>
+    <updated>2026-08-09T12:00:00Z</updated>
+    <published>2026-08-09T12:00:00Z</published>
+    <title>Two-Tower Retrieval for Content Recommendation</title>
+    <summary>We study candidate retrieval for content recommendation with a Two-Tower Model.</summary>
+    <author><name>Ada Lovelace</name></author>
+    <author><name>Grace Hopper</name></author>
+    <link href="https://arxiv.org/abs/2608.01234v2" rel="alternate" type="text/html" />
+    <arxiv:primary_category term="cs.IR" />
+    <category term="cs.IR" scheme="http://arxiv.org/schemas/atom" />
+    <arxiv:doi>10.1234/RECSYS.2608.01234</arxiv:doi>
+  </entry>
+</feed>
