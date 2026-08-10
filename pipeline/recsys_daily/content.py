@@ -68,6 +68,13 @@ def render_pages(pdf_path: Path, pages: list[int], directory: Path) -> list[Path
     return rendered
 
 
+def fetch_article_html(candidate: object, max_bytes: int = 5 * 1024 * 1024) -> str:
+    url = getattr(candidate, "url", None)
+    if not url:
+        raise ValueError("blog candidate has no public URL")
+    return fetch_text(str(url), max_bytes)
+
+
 @dataclass
 class ContentServices:
     """Dependency-injection point for network, extraction, and rendering work."""
@@ -85,10 +92,3 @@ class ContentServices:
 def arxiv_urls(arxiv_id: str) -> tuple[str, str]:
     identifier = arxiv_id.removeprefix("arXiv:").removesuffix(".pdf").removesuffix(".html")
     return f"https://arxiv.org/html/{identifier}", f"https://arxiv.org/pdf/{identifier}.pdf"
-
-
-def fetch_article_html(candidate: object, max_bytes: int = 5 * 1024 * 1024) -> str:
-    url = getattr(candidate, "url", None)
-    if not url:
-        raise ValueError("blog candidate has no public URL")
-    return fetch_text(str(url), max_bytes)
