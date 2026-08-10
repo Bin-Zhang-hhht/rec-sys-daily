@@ -80,3 +80,25 @@ def test_flattened_model_configuration_is_rejected(tmp_path: Path) -> None:
     _write_yaml(path, data)
     with pytest.raises(ValueError, match="models.yaml"):
         load_config(tmp_path)
+
+
+def test_model_environment_references_must_be_identifiers(tmp_path: Path) -> None:
+    _write_config(tmp_path)
+    path = tmp_path / "config/models.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["models"]["text"]["profiles"]["nvidia_super"]["base_url_env"] = "https://example.com/v1"
+    _write_yaml(path, data)
+
+    with pytest.raises(ValueError, match="base_url_env"):
+        load_config(tmp_path)
+
+
+def test_text_and_vision_environment_references_match_their_profiles(tmp_path: Path) -> None:
+    _write_config(tmp_path)
+    path = tmp_path / "config/models.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["models"]["text"]["profiles"]["nvidia_super"]["api_key_env"] = "DEEPSEEK_API_KEY"
+    _write_yaml(path, data)
+
+    with pytest.raises(ValueError, match="nvidia_super"):
+        load_config(tmp_path)

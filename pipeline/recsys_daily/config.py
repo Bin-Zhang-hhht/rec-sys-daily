@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, PositiveFloat, PositiveInt, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PositiveFloat, PositiveInt, field_validator, model_validator
 
 
 class StrictModel(BaseModel):
@@ -77,6 +78,13 @@ class TextProfile(StrictModel):
     model: str = Field(min_length=1)
     context_window_tokens: PositiveInt
 
+    @field_validator("base_url_env", "api_key_env")
+    @classmethod
+    def environment_variable_name(cls, value: str) -> str:
+        if not re.fullmatch(r"[A-Z][A-Z0-9_]*", value):
+            raise ValueError("environment reference must be an environment-variable identifier")
+        return value
+
 
 class TextModels(StrictModel):
     active_profile: str = Field(min_length=1)
@@ -89,6 +97,15 @@ class TextModels(StrictModel):
     def active_profile_exists(self) -> "TextModels":
         if self.active_profile not in self.profiles:
             raise ValueError("unknown active text profile")
+        expected_references = {
+            "nvidia_super": ("NVIDIA_BASE_URL", "NVIDIA_API_KEY"),
+            "nvidia_ultra": ("NVIDIA_BASE_URL", "NVIDIA_API_KEY"),
+            "deepseek_v4_flash": ("DEEPSEEK_BASE_URL", "DEEPSEEK_API_KEY"),
+        }
+        for profile_name, expected in expected_references.items():
+            profile = self.profiles.get(profile_name)
+            if profile and (profile.base_url_env, profile.api_key_env) != expected:
+                raise ValueError(f"{profile_name} must use its documented environment references")
         return self
 
     def active(self) -> TextProfile:
@@ -112,6 +129,19 @@ class VisionModels(StrictModel):
     max_requests_per_paper: Literal[1]
     include_all_detected_key_pages: Literal[True]
     request_defaults: VisionRequestDefaults
+
+    @field_validator("invoke_url_env", "api_key_env")
+    @classmethod
+    def environment_variable_name(cls, value: str) -> str:
+        if not re.fullmatch(r"[A-Z][A-Z0-9_]*", value):
+            raise ValueError("environment reference must be an environment-variable identifier")
+        return value
+
+    @model_validator(mode="after")
+    def documented_environment_references(self) -> "VisionModels":
+        if self.invoke_url_env != "NVIDIA_VLM_INVOKE_URL" or self.api_key_env != "NVIDIA_API_KEY":
+            raise ValueError("vision must use NVIDIA_VLM_INVOKE_URL and NVIDIA_API_KEY")
+        return self
 
 
 class ModelCommon(StrictModel):

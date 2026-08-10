@@ -1,10 +1,10 @@
-from datetime import UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
 from recsys_daily.config import TopicEntry, TopicTaxonomy
-from recsys_daily.schemas import BlogItem, ContentItem, Manifest, PaperItem, State
+from recsys_daily.schemas import BlogItem, ContentItem, LLMMetadata, Manifest, PaperItem, RunReport, SourceState, State
 
 
 def _taxonomy() -> TopicTaxonomy:
@@ -71,3 +71,18 @@ def test_manifest_serialization_is_stage_minimal() -> None:
 
 def test_generated_timestamps_are_utc() -> None:
     assert State().updated_at.tzinfo is UTC
+
+
+@pytest.mark.parametrize("timestamp", [datetime(2026, 8, 10), datetime(2026, 8, 10, tzinfo=timezone(timedelta(hours=8)))])
+def test_artifact_timestamps_require_utc(timestamp: datetime) -> None:
+    taxonomy = {"taxonomy": _taxonomy()}
+    with pytest.raises(ValidationError, match="UTC"):
+        LLMMetadata(profile="profile", model="model", generated_at=timestamp)
+    with pytest.raises(ValidationError, match="UTC"):
+        PaperItem.model_validate(_item() | {"published_at": timestamp}, context=taxonomy)
+    with pytest.raises(ValidationError, match="UTC"):
+        RunReport(run_id="run", started_at=timestamp, completed_at=timestamp)
+    with pytest.raises(ValidationError, match="UTC"):
+        SourceState(last_success_at=timestamp)
+    with pytest.raises(ValidationError, match="UTC"):
+        State(last_success_at=timestamp, updated_at=timestamp)

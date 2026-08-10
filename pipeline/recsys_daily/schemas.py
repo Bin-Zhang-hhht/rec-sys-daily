@@ -5,13 +5,22 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from typing import Annotated, Any, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from .config import TopicTaxonomy
 
 
 def utc_now() -> datetime:
     return datetime.now(UTC)
+
+
+def require_utc(timestamp: datetime) -> datetime:
+    if timestamp.tzinfo is None or timestamp.utcoffset() != UTC.utcoffset(timestamp):
+        raise ValueError("timestamp must be timezone-aware UTC")
+    return timestamp
+
+
+UtcDatetime = Annotated[datetime, AfterValidator(require_utc)]
 
 
 class ArtifactModel(BaseModel):
@@ -29,7 +38,7 @@ class GraphRelation(ArtifactModel):
 class LLMMetadata(ArtifactModel):
     profile: str = Field(min_length=1)
     model: str = Field(min_length=1)
-    generated_at: datetime = Field(default_factory=utc_now)
+    generated_at: UtcDatetime = Field(default_factory=utc_now)
     degraded: bool = False
 
 
@@ -110,7 +119,7 @@ class ItemBase(ArtifactModel):
     summary_zh: str = Field(min_length=1)
     source: str = Field(min_length=1)
     url: str = Field(pattern=r"^https?://")
-    published_at: datetime
+    published_at: UtcDatetime
     authors: list[str]
     targets: list[str]
     scenarios: list[str]
@@ -170,8 +179,8 @@ class SourceRunStatus(ArtifactModel):
 
 class RunReport(ArtifactModel):
     run_id: str = Field(min_length=1)
-    started_at: datetime
-    completed_at: datetime | None = None
+    started_at: UtcDatetime
+    completed_at: UtcDatetime | None = None
     sources: list[SourceRunStatus] = Field(default_factory=list)
     paper_candidates: int = Field(default=0, ge=0)
     blog_candidates: int = Field(default=0, ge=0)
@@ -185,15 +194,15 @@ class SourceState(ArtifactModel):
     cursor: str | None = None
     etag: str | None = None
     last_modified: str | None = None
-    last_success_at: datetime | None = None
+    last_success_at: UtcDatetime | None = None
 
 
 class State(ArtifactModel):
     schema_version: str = "1"
-    last_success_at: datetime | None = None
+    last_success_at: UtcDatetime | None = None
     sources: dict[str, SourceState] = Field(default_factory=dict)
     recommended_item_ids: list[str] = Field(default_factory=list)
-    updated_at: datetime = Field(default_factory=utc_now)
+    updated_at: UtcDatetime = Field(default_factory=utc_now)
 
 
 class Manifest(ArtifactModel):
