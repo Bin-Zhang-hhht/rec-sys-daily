@@ -328,7 +328,13 @@ def rank_integrate(input: Path = typer.Option(...), output: Path = typer.Option(
     config = load_config(repository)
     state_path = repository / "data" / "state.json"
     state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
-    integrate(StageInputs(input / "stage-1", input / "deep-reading-paper", input / "deep-reading-blog"), output, config, state)
+    integrate(
+        StageInputs(input / "stage-1", input / "deep-reading-paper", input / "deep-reading-blog"),
+        output,
+        config,
+        state,
+        repository_data=repository / "data",
+    )
 
 
 @app.command("run")

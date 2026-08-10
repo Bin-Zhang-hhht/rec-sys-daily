@@ -7,7 +7,7 @@ import pytest
 from recsys_daily.config import load_config
 from recsys_daily.integrate import StageInputs, integrate, load_digest
 from recsys_daily.ranking import rank_items
-from recsys_daily.schemas import PaperItem, SourceState, State
+from recsys_daily.schemas import PaperItem, SourceState, StageReport, State
 
 
 ROOT = Path(__file__).parents[2]
@@ -73,13 +73,14 @@ def fixture_stages(tmp_path: Path, *, paper_run_id: str = "run-1", blog_run_id: 
     (stage1 / "manifest.json").write_text(json.dumps({"run_id": paper_run_id, "schema_version": "1"}), encoding="utf-8")
     candidates = [_paper(f"paper-{i}", 1 - i / 20) for i in range(10)] + [_blog(f"blog-{i}", 1 - i / 20) for i in range(10)]
     (stage1 / "items.jsonl").write_text(
-        "".join(json.dumps({key: value for key, value in item.items() if key not in {"deep_reading", "relevance_score"}}) + "\n" for item in candidates),
+        "".join(json.dumps({**{key: value for key, value in item.items() if key not in {"deep_reading"}}, "graph_relations": [], "degraded": False}) + "\n" for item in candidates),
         encoding="utf-8",
     )
     (stage1 / "source-states.json").write_text(
         json.dumps({"arxiv": SourceState(last_success_at=PUBLISHED_AT).model_dump(mode="json")}),
         encoding="utf-8",
     )
+    (stage1 / "stage-report.json").write_text(json.dumps(StageReport().model_dump(mode="json")), encoding="utf-8")
     _write_stage(tmp_path / "paper", paper_run_id, "paper", [_paper(f"paper-{i}", 1 - i / 20) for i in range(10)])
     _write_stage(tmp_path / "blog", blog_run_id, "blog", [_blog(f"blog-{i}", 1 - i / 20) for i in range(10)])
     return StageInputs(stage1=stage1, paper=tmp_path / "paper", blog=tmp_path / "blog")
@@ -199,7 +200,7 @@ def test_structured_analysis_success_rate_is_enforced(tmp_path: Path) -> None:
 
 def test_item_size_limit_is_enforced_before_publish(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
-    paper_path = stages.paper / "items.jsonl"
+    paper_path = stages.stage1 / "items.jsonl"
     lines = paper_path.read_text(encoding="utf-8").splitlines()
     value = json.loads(lines[0])
     value["summary_zh"] = "x" * (CONFIG.settings.storage.max_item_bytes + 1)
@@ -209,3 +210,62 @@ def test_item_size_limit_is_enforced_before_publish(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="item exceeds configured size"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
     assert not (tmp_path / "bundle").exists()
+
+
+def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    stages = fixture_stages(run_root)
+    data = tmp_path / "data"
+    historical_item = data / "items" / "papers" / "2025" / "01" / "historical-paper.json"
+    historical_digest = data / "digests" / "2025" / "01" / "2025-01-02.json"
+    historical_run = data / "runs" / "2025" / "01" / "historical-run.json"
+    for path, value in (
+        (historical_item, {"id": "historical-paper"}),
+        (historical_digest, {"papers": [{"item_id": "historical-paper"}]}),
+        (historical_run, {"run_id": "historical-run"}),
+    ):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(value), encoding="utf-8")
+
+    bundle = integrate(
+        stages,
+        tmp_path / "bundle",
+        CONFIG,
+        state=State(recommended_item_ids=["historical-paper", "paper-0"]),
+        repository_data=data,
+    )
+    pending = bundle.path / "pending-data"
+    assert (pending / "items/papers/2025/01/historical-paper.json").exists()
+    assert (pending / "digests/2025/01/2025-01-02.json").exists()
+    assert (pending / "runs/2025/01/historical-run.json").exists()
+    state = json.loads((pending / "state.json").read_text(encoding="utf-8"))
+    assert state["recommended_item_ids"][:2] == ["historical-paper", "paper-0"]
+    report_path = next((pending / "runs").rglob("run-1.json"))
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["config_snapshot"]["graph_recent_days"] == CONFIG.settings.graph_recent_days
+    assert report["stage_report"]["metadata_llm_success_rate"] == 1.0
+
+
+def test_integrate_rejects_unsupported_repository_data_transactionally(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    stages = fixture_stages(run_root)
+    data = tmp_path / "data"
+    invalid = data / "items" / "papers" / "2025" / "01" / "source.txt"
+    invalid.parent.mkdir(parents=True, exist_ok=True)
+    invalid.write_text("not json", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unsupported file"):
+        integrate(stages, tmp_path / "bundle", CONFIG, repository_data=data)
+    assert not (tmp_path / "bundle").exists()
+
+
+def test_integrate_rejects_low_stage_metadata_success_rate(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    (stages.stage1 / "stage-report.json").write_text(
+        json.dumps(StageReport(metadata_llm_success_rate=0.5).model_dump(mode="json")),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="metadata analysis success rate"):
+        integrate(stages, tmp_path / "bundle", CONFIG)
