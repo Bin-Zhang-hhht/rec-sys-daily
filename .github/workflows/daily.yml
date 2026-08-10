@@ -49,7 +49,7 @@ jobs:
             -e NVIDIA_VLM_INVOKE_URL \
             -v "$PWD/stage-1:/workspace/stage-1" \
             -v "$PWD/data:/workspace/data:ro" \
-            "${IMAGE_TAG}-pipeline" collect-filter --output /workspace/stage-1
+            "${IMAGE_TAG}-pipeline" collect-filter --output /workspace/stage-1 --root /workspace
       - uses: actions/upload-artifact@v4
         with:
           name: stage-1-${{ github.run_id }}
@@ -99,7 +99,7 @@ jobs:
             -e NVIDIA_VLM_INVOKE_URL \
             -v "$PWD/stage-1:/workspace/stage-1:ro" \
             -v "$PWD/deep-reading-${{ matrix.kind }}:/workspace/deep-reading" \
-            "${IMAGE_TAG}-pipeline" deep-read --kind "${{ matrix.kind }}" --input /workspace/stage-1 --output /workspace/deep-reading
+            "${IMAGE_TAG}-pipeline" deep-read --kind "${{ matrix.kind }}" --input /workspace/stage-1 --output /workspace/deep-reading --root /workspace
       - uses: actions/upload-artifact@v4
         with:
           name: deep-reading-${{ matrix.kind }}-${{ github.run_id }}
@@ -145,7 +145,7 @@ jobs:
             -v "$PWD/stages:/workspace/stages:ro" \
             -v "$PWD/publish-bundle:/workspace/publish-bundle" \
             -v "$PWD/data:/workspace/data:ro" \
-            "${IMAGE_TAG}-pipeline" rank-integrate --input /workspace/stages --output /workspace/publish-bundle
+            "${IMAGE_TAG}-pipeline" rank-integrate --input /workspace/stages --output /workspace/publish-bundle --root /workspace
       - name: Validate publish bundle manifest
         run: |
           test "$(find publish-bundle -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tr '\n' ' ')" = "manifest.json pending-data taxonomy.json "
