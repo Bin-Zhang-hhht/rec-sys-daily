@@ -13,8 +13,10 @@ from recsys_daily.state import compute_query_windows, query_window
 
 
 ROOT = Path(__file__).parents[2]
-FIXTURES = ROOT / "fixtures" / "sources"
 NOW = datetime(2026, 8, 10, 0, 0, tzinfo=UTC)
+
+ARXIV_ATOM = """<?xml version='1.0'?><feed xmlns='http://www.w3.org/2005/Atom'><entry><id>http://arxiv.org/abs/2608.01234v2</id><updated>2026-08-09T12:00:00Z</updated><published>2026-08-09T12:00:00Z</published><title>Two-Tower Retrieval for Content Recommendation</title><summary>We study candidate retrieval for content recommendation with a Two-Tower Model.</summary><author><name>Ada Lovelace</name></author><author><name>Grace Hopper</name></author><link href='https://arxiv.org/abs/2608.01234v2' rel='alternate'/><category term='cs.IR'/></entry></feed>"""
+BLOG_RSS = """<?xml version='1.0'?><rss version='2.0'><channel><item><guid>example-ranking-2026</guid><title>How We Improved Feed Ranking</title><link>https://engineering.example.com/posts/feed-ranking?utm_source=rss</link><pubDate>Sun, 09 Aug 2026 08:30:00 +0000</pubDate><description>Practical feed ranking lessons.</description><author>engineer@example.com (Example Engineer)</author></item></channel></rss>"""
 
 
 def _public_resolver(host: str, port: int, *_args: object) -> list[tuple[object, ...]]:
@@ -85,8 +87,8 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
     def fetcher(url: str, headers: dict[str, str]) -> FeedResponse:
         calls.append((url, headers))
         if "export.arxiv.org" in url:
-            return FeedResponse(200, (FIXTURES / "arxiv.atom").read_bytes(), {"ETag": '"arxiv-v1"'})
-        return FeedResponse(200, (FIXTURES / "blog.rss").read_bytes(), {"Last-Modified": "Sun, 09 Aug 2026 08:30:00 GMT"})
+            return FeedResponse(200, ARXIV_ATOM.encode(), {"ETag": '"arxiv-v1"'})
+        return FeedResponse(200, BLOG_RSS.encode(), {"Last-Modified": "Sun, 09 Aug 2026 08:30:00 GMT"})
 
     state = State(sources={
         "arxiv": SourceState(etag='"old-arxiv"'),
@@ -140,7 +142,7 @@ def test_optional_feed_failure_is_a_warning_but_required_failure_stops_collectio
 
     def arxiv_only(url: str, _headers: dict[str, str]) -> FeedResponse:
         if "export.arxiv.org" in url:
-            return FeedResponse(200, (FIXTURES / "arxiv.atom").read_bytes(), {})
+            return FeedResponse(200, ARXIV_ATOM.encode(), {})
         raise RuntimeError("offline")
 
     result = collect_candidates(_config(), now=NOW, fetcher=arxiv_only, resolver=_public_resolver)

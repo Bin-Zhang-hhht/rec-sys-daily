@@ -24,6 +24,7 @@ from .prompts import json_messages
 from .rate_limit import RateLimiter
 from .security import fetch_public_url
 from .schemas import BlogItem, PaperItem, SourceRunStatus, SourceState, Stage1Metadata, StageReport
+from .testing_fixtures import run_fixture_scenarios
 from .filtering import prefilter
 
 
@@ -120,8 +121,8 @@ def _fixture_candidates(now: datetime) -> list[Candidate]:
 
 class _FixtureContent:
     def __init__(self, root: Path) -> None:
-        self.paper_html = (root / "fixtures" / "content" / "paper.html").read_text(encoding="utf-8")
-        self.article_html = (root / "fixtures" / "content" / "article.html").read_text(encoding="utf-8")
+        self.paper_html = "<article><h1>Runtime paper</h1><p>Two-Tower retrieval.</p></article>"
+        self.article_html = "<article><h1>Runtime article</h1><p>Feed ranking.</p></article>"
 
     def fetch_text(self, _url: str, _limit: int) -> str:
         return self.paper_html
@@ -360,17 +361,7 @@ def run_pipeline(output: Path = typer.Option(...), root: Path = typer.Option(Pat
 
 
 @app.command("test-fixtures")
-def test_fixtures(case: str = typer.Option("cold-start"), work: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
-    repository = _root(root)
-    config = load_config(repository)
-    if case == "failures":
-        raise typer.ClickException("fixture failure injected before canonical promotion")
-    now = datetime(2026, 8, 10, tzinfo=UTC)
-    run_id = f"fixture-{case}"
-    stage_one = work / "stage-1"
-    candidates = _fixture_candidates(now)
-    _write_stage_one(stage_one, run_id, candidates)
-    services = _fixture_services(repository, work)
-    _run_deep_read("paper", stage_one, work / "deep-reading-paper", services, run_id)
-    _run_deep_read("blog", stage_one, work / "deep-reading-blog", services, run_id)
-    integrate(StageInputs(stage_one, work / "deep-reading-paper", work / "deep-reading-blog"), work / "publish-bundle", config, state=None)
+def test_fixtures(case: str = typer.Option("all"), work: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
+    results = run_fixture_scenarios(work, case=case, repository_root=_root(root))
+    if case != "all" and results.get(case.replace("_", "-")) is None:
+        raise typer.ClickException(f"fixture scenario did not complete: {case}")

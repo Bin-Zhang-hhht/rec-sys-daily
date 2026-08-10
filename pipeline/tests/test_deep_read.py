@@ -12,8 +12,10 @@ from recsys_daily.deep_read import DeepReadServices, deep_read, deep_read_blog, 
 
 
 ROOT = Path(__file__).parents[2]
-FIXTURES = ROOT / "fixtures" / "content"
 NOW = datetime(2026, 8, 10, tzinfo=UTC)
+
+PAPER_HTML = "<html><body><article><h1>Two-Tower Retrieval</h1><h2>Method</h2><p>Two towers retrieve content.</p></article></body></html>"
+ARTICLE_HTML = "<html><body><article><h1>Feed Ranking</h1><h2>Architecture</h2><p>Bounded article content.</p></article></body></html>"
 
 
 def _paper() -> Candidate:
@@ -147,7 +149,7 @@ def test_paper_keeps_pdf_text_when_visual_page_detection_fails(tmp_path: Path) -
 
 
 def test_paper_without_critical_pages_skips_vision_and_uses_arxiv_html(tmp_path: Path) -> None:
-    content = FakeContent(tmp_path, html=(FIXTURES / "paper.html").read_text(encoding="utf-8"))
+    content = FakeContent(tmp_path, html=PAPER_HTML)
     vision_calls: list[list[Path]] = []
 
     reading = deep_read_paper(_paper(), _services(tmp_path, content, vision=lambda pages: vision_calls.append(pages) or {}))
@@ -174,7 +176,7 @@ def test_paper_html_extraction_failure_does_not_send_raw_html_to_text_reader(tmp
 
 
 def test_blog_falls_back_from_article_to_excerpt_and_cleans_raw_html_on_text_failure(tmp_path: Path) -> None:
-    content = FakeContent(tmp_path, article=(FIXTURES / "article.html").read_text(encoding="utf-8"))
+    content = FakeContent(tmp_path, article=ARTICLE_HTML)
     services = _services(tmp_path, content, text=lambda *_args: (_ for _ in ()).throw(RuntimeError("text unavailable")))
 
     with pytest.raises(RuntimeError, match="text unavailable"):

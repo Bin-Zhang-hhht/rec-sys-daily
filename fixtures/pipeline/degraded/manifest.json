@@ -1,5 +1,0 @@
-{
-  "case": "degraded",
-  "description": "Optional RSS and content or model failures use the documented warning and fallback states.",
-  "expected": "fallback-with-warning"
-}

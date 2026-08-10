@@ -56,7 +56,7 @@ def test_verify_workflow_is_fixture_only_and_builds_both_images() -> None:
     assert "retention-days: 1" not in text
 
 
-def test_five_fixture_groups_are_present() -> None:
-    expected = {"cold-start", "daily", "degraded", "failures", "site"}
-    actual = {path.name for path in (ROOT / "fixtures" / "pipeline").iterdir() if path.is_dir()}
-    assert actual == expected
+def test_verify_workflow_uses_runtime_scenarios() -> None:
+    text = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
+    assert "fixtures/**" not in text
+    assert "test-fixtures --case all" in text

@@ -1,5 +1,0 @@
-{
-  "case": "failures",
-  "description": "Injected collect, deep-read, rank, site, or deploy failures never promote canonical state.",
-  "expected": "non-zero-without-state-write"
-}

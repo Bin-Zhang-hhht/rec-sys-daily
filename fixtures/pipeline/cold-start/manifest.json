@@ -1,5 +1,0 @@
-{
-  "case": "cold-start",
-  "description": "Offline first run uses the five-year paper and three-year blog windows.",
-  "expected": "publish-bundle"
-}

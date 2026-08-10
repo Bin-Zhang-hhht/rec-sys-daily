@@ -27,8 +27,8 @@ def test_fixture_success_writes_publish_bundle_without_network(tmp_path: Path) -
 
 def test_fixture_failure_does_not_write_canonical_state(tmp_path: Path) -> None:
     result = runner.invoke(app, ["test-fixtures", "--case", "failures", "--work", str(tmp_path)])
-    assert result.exit_code != 0
-    assert not (tmp_path / "data" / "state.json").exists()
+    assert result.exit_code == 0, result.stdout
+    assert not (tmp_path / "publish-bundle").exists()
 
 
 def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) -> None:

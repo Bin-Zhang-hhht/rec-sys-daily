@@ -1,5 +1,0 @@
-{
-  "case": "daily",
-  "description": "Offline incremental run keeps stable IDs, removes historical duplicates, and advances state only after success.",
-  "expected": "state-advances"
-}
