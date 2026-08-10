@@ -128,6 +128,16 @@ def _metadata_record(value: dict[str, Any], taxonomy: Any) -> Stage1Metadata:
     return metadata
 
 
+def _is_publishable_degraded_metadata(value: dict[str, Any]) -> bool:
+    if value.get("degraded") is not True:
+        return True
+    summary = value.get("summary_zh")
+    return bool(isinstance(summary, str) and summary.strip()) and all(
+        isinstance(value.get(field), list) and bool(value[field])
+        for field in ("targets", "scenarios", "tasks", "methods")
+    )
+
+
 def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, Any]]) -> list[ContentItem]:
     parsed: list[ContentItem] = []
     for value in _stage_values(path, kind):
@@ -136,9 +146,9 @@ def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, A
             raise ValueError(f"candidate id is required in {path}")
         if item_id not in metadata:
             raise ValueError(f"deep-reading id/candidate id is not present in stage-1: {item_id}")
+        if not _is_publishable_degraded_metadata(metadata[item_id]):
+            continue
         metadata_item = _metadata_record(metadata[item_id], taxonomy)
-        if metadata_item.degraded and not metadata_item.summary_zh:
-            raise ValueError(f"degraded candidate has no displayable summary: {item_id}")
         base = dict(metadata[item_id])
         base.update(value)
         for field in ("summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "graph_relations", "degraded"):
@@ -198,12 +208,22 @@ def _digest_entries(items: list[PaperItem | BlogItem]) -> list[DigestEntry]:
     ]
 
 
-def _attach_provenance(items: list[ContentItem], config: AppConfig, generated_at: datetime) -> None:
+def _attach_provenance(
+    items: list[ContentItem],
+    config: AppConfig,
+    generated_at: datetime,
+    metadata: dict[str, dict[str, Any]],
+) -> None:
     profile = config.models.text.active_profile
     model = config.models.text.active().model
     for item in items:
         if item.llm is None:
-            item.llm = LLMMetadata(profile=profile, model=model, generated_at=generated_at)
+            item.llm = LLMMetadata(
+                profile=profile,
+                model=model,
+                generated_at=generated_at,
+                degraded=bool(metadata[item.id]["degraded"]),
+            )
 
 
 def _build_snapshot(config: AppConfig) -> BuildConfigSnapshot:
@@ -291,7 +311,7 @@ def integrate(
             f"paper={paper_success_rate:.3f}, blog={blog_success_rate:.3f}, minimum={minimum_success_rate:.3f}"
         )
     run_at = datetime.now(UTC)
-    _attach_provenance(all_items, config, run_at)
+    _attach_provenance(all_items, config, run_at, metadata)
     papers = rank_items(
         paper_items[:max_deep_reads], "paper", config.settings.daily_target,
         final_weights=config.settings.final_weights,

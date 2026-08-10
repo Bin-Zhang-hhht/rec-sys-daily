@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 import json
 from pathlib import Path
@@ -12,10 +12,10 @@ from typing import Any
 from .artifacts import write_json, write_jsonl
 from .collect import Candidate, stable_id
 from .config import AppConfig, load_config
-from .content import ContentServices, PageText
+from .content import BlogFeedCache, ContentServices, PageText
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
-from .schemas import StageReport, State
+from .schemas import SourceRunStatus, StageReport, State
 
 
 PAPER_HTML = """<!doctype html><html><body><article><h1>Two-Tower Retrieval for Content Recommendation</h1><h2>Method</h2><p>The model uses two towers.</p></article></body></html>"""
@@ -33,6 +33,17 @@ class FixtureScenarioResult:
     historical_item_count: int
     stage_report: dict[str, Any]
     promoted_state: dict[str, Any] | None
+    failure_injections: dict[str, "FailureInjectionEvidence"] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class FailureInjectionEvidence:
+    failure_point: str
+    state_path: Path
+    state_before: bytes
+    state_after: bytes
+    promoted: bool
+    completed_boundaries: tuple[str, ...]
 
 
 def _candidate(kind: str, index: int, now: datetime) -> Candidate:
@@ -67,9 +78,10 @@ def _metadata(candidate: Candidate, config: AppConfig, *, degraded: bool = False
 
 
 class _FixtureContent:
-    def __init__(self) -> None:
+    def __init__(self, *, exercise_blog_fallbacks: bool = False) -> None:
         self.paper_html = PAPER_HTML
         self.article_html = ARTICLE_HTML
+        self.exercise_blog_fallbacks = exercise_blog_fallbacks
 
     def fetch_text(self, _url: str, _limit: int) -> str:
         return self.paper_html
@@ -92,12 +104,14 @@ class _FixtureContent:
     def feed_content(self, _candidate: Candidate) -> str | None:
         return None
 
-    def fetch_article_html(self, _candidate: Candidate, _limit: int | None = None) -> str:
+    def fetch_article_html(self, candidate: Candidate, _limit: int | None = None) -> str:
+        if self.exercise_blog_fallbacks and int(candidate.url.rsplit("-", 1)[-1]) % 4 == 3:
+            raise RuntimeError("fixture article unavailable; excerpt fallback is expected")
         return self.article_html
 
 
-def _fixture_services(work: Path) -> DeepReadServices:
-    content = _FixtureContent()
+def _fixture_services(work: Path, *, exercise_blog_fallbacks: bool = False) -> DeepReadServices:
+    content = _FixtureContent(exercise_blog_fallbacks=exercise_blog_fallbacks)
 
     def text_reader(kind: str, _body: str, _context: dict[str, Any]) -> dict[str, Any]:
         if kind == "paper":
@@ -115,7 +129,7 @@ def _fixture_services(work: Path) -> DeepReadServices:
             "evidence_refs": [{"heading": "Architecture"}],
         }
 
-    return DeepReadServices(
+    services = DeepReadServices(
         content=ContentServices(
             fetch_text=content.fetch_text,
             fetch_bytes=content.fetch_bytes,
@@ -130,6 +144,15 @@ def _fixture_services(work: Path) -> DeepReadServices:
         text_reader=text_reader,
         vision_reader=lambda _pages: {},
     )
+    if exercise_blog_fallbacks:
+        def failed_second_feed(_source_id: str, _url: str) -> bytes:
+            raise RuntimeError("fixture second Feed unavailable")
+
+        services.blog_feed_content = BlogFeedCache(
+            {"meta_engineering": "https://engineering.example.com/feed"},
+            failed_second_feed,
+        ).get
+    return services
 
 
 def _write_sources(root: Path) -> None:
@@ -145,12 +168,22 @@ def _write_sources(root: Path) -> None:
         path.write_text(value, encoding="utf-8")
 
 
-def _write_stage(root: Path, candidates: list[Candidate], config: AppConfig, run_id: str, *, report: StageReport) -> Path:
+def _write_stage(
+    root: Path,
+    candidates: list[Candidate],
+    config: AppConfig,
+    run_id: str,
+    *,
+    report: StageReport,
+    metadata_overrides: dict[str, dict[str, Any]] | None = None,
+) -> Path:
     stage = root / "stage-1"
     stage.mkdir(parents=True, exist_ok=True)
     write_json(stage / "manifest.json", {"run_id": run_id, "schema_version": "1"})
     docs = []
     for candidate in candidates:
+        metadata = _metadata(candidate, config)
+        metadata.update((metadata_overrides or {}).get(stable_id(candidate), {}))
         value = {
             "kind": candidate.kind,
             "source_id": candidate.source_id,
@@ -165,7 +198,7 @@ def _write_stage(root: Path, candidates: list[Candidate], config: AppConfig, run
             "source_entry_id": candidate.source_entry_id,
             "source_weight": candidate.source_weight,
             "source_scenarios": list(candidate.source_scenarios),
-            **_metadata(candidate, config, degraded=any(item.id == stable_id(candidate) and item.degraded for item in [])),
+            **metadata,
         }
         docs.append(value)
     for kind in ("paper", "blog"):
@@ -175,10 +208,14 @@ def _write_stage(root: Path, candidates: list[Candidate], config: AppConfig, run
     return stage
 
 
-def _run_pipeline(root: Path, config: AppConfig, candidates: list[Candidate], run_id: str, *, state: State | None = None, repository_data: Path | None = None, report: StageReport | None = None) -> FixtureScenarioResult:
-    report = report or StageReport(metadata_llm_calls=1, metadata_llm_success_rate=1.0)
-    stage = _write_stage(root, candidates, config, run_id, report=report)
-    services = _fixture_services(root)
+def _write_deep_stages(
+    root: Path,
+    stage: Path,
+    run_id: str,
+    *,
+    exercise_blog_fallbacks: bool = False,
+) -> dict[str, Path]:
+    services = _fixture_services(root, exercise_blog_fallbacks=exercise_blog_fallbacks)
     deep_dirs: dict[str, Path] = {}
     for kind in ("paper", "blog"):
         input_dir = root / f"candidate-input-{kind}"
@@ -190,6 +227,29 @@ def _run_pipeline(root: Path, config: AppConfig, candidates: list[Candidate], ru
         write_json(output / "manifest.json", {"run_id": run_id, "schema_version": "1"})
         shutil.rmtree(input_dir, ignore_errors=True)
         deep_dirs[kind] = output
+    return deep_dirs
+
+
+def _run_pipeline(
+    root: Path,
+    config: AppConfig,
+    candidates: list[Candidate],
+    run_id: str,
+    *,
+    state: State | None = None,
+    repository_data: Path | None = None,
+    report: StageReport | None = None,
+    metadata_overrides: dict[str, dict[str, Any]] | None = None,
+    exercise_blog_fallbacks: bool = False,
+) -> FixtureScenarioResult:
+    report = report or StageReport(metadata_llm_calls=1, metadata_llm_success_rate=1.0)
+    stage = _write_stage(root, candidates, config, run_id, report=report, metadata_overrides=metadata_overrides)
+    deep_dirs = _write_deep_stages(
+        root,
+        stage,
+        run_id,
+        exercise_blog_fallbacks=exercise_blog_fallbacks,
+    )
     bundle = integrate(StageInputs(stage, deep_dirs["paper"], deep_dirs["blog"]), root / "publish-bundle", config, state=state, repository_data=repository_data)
     pending_state = json.loads((bundle.path / "pending-data/state.json").read_text(encoding="utf-8"))
     historical_count = len(list((bundle.path / "pending-data/items").rglob("*.json"))) - len(candidates)
@@ -204,6 +264,74 @@ def _run_pipeline(root: Path, config: AppConfig, candidates: list[Candidate], ru
     )
 
 
+class _InjectedFailure(RuntimeError):
+    pass
+
+
+def _inject_failure(failure_point: str, current_boundary: str) -> None:
+    if failure_point == current_boundary:
+        raise _InjectedFailure(current_boundary)
+
+
+def _run_failure_injection(
+    root: Path,
+    config: AppConfig,
+    candidates: list[Candidate],
+    failure_point: str,
+) -> FailureInjectionEvidence:
+    state_path = root / "data/state.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    seed = State(schema_version="1", recommended_item_ids=["seed-item"])
+    write_json(state_path, seed.model_dump(mode="json"))
+    state_before = state_path.read_bytes()
+    completed: list[str] = []
+    promoted = False
+    try:
+        _inject_failure(failure_point, "collect")
+        stage = _write_stage(
+            root,
+            candidates,
+            config,
+            f"fixture-failure-{failure_point}",
+            report=StageReport(metadata_llm_calls=1, metadata_llm_success_rate=1.0),
+        )
+        completed.append("collect")
+
+        _inject_failure(failure_point, "deep-read")
+        deep_dirs = _write_deep_stages(root, stage, f"fixture-failure-{failure_point}")
+        completed.append("deep-read")
+
+        _inject_failure(failure_point, "rank")
+        bundle = integrate(
+            StageInputs(stage, deep_dirs["paper"], deep_dirs["blog"]),
+            root / "publish-bundle",
+            config,
+            state=seed,
+        )
+        completed.append("rank")
+
+        _inject_failure(failure_point, "site")
+        if {path.name for path in bundle.path.iterdir()} != {"manifest.json", "taxonomy.json", "pending-data"}:
+            raise ValueError("fixture site verification found an invalid publish bundle")
+        completed.append("site")
+
+        _inject_failure(failure_point, "deploy")
+        state_path.write_bytes((bundle.path / "pending-data/state.json").read_bytes())
+        promoted = True
+        completed.append("deploy")
+    except _InjectedFailure as error:
+        if str(error) != failure_point:
+            raise
+    return FailureInjectionEvidence(
+        failure_point=failure_point,
+        state_path=state_path,
+        state_before=state_before,
+        state_after=state_path.read_bytes(),
+        promoted=promoted,
+        completed_boundaries=tuple(completed),
+    )
+
+
 def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -> FixtureScenarioResult:
     root = work / "generated" / name
     if root.exists():
@@ -213,10 +341,12 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
     now = datetime(2026, 8, 10, tzinfo=UTC)
     if name == "failures":
         seed = {"schema_version": "1", "recommended_item_ids": ["seed-item"]}
-        data_state = root / "data/state.json"
-        data_state.parent.mkdir(parents=True, exist_ok=True)
-        write_json(data_state, seed)
-        return FixtureScenarioResult(name, root, None, seed, 0, {"warnings": ["collect", "deep-read", "rank", "site", "deploy"]}, seed)
+        candidates = [_candidate("paper", 0, now), _candidate("blog", 0, now)]
+        failures = {
+            failure_point: _run_failure_injection(root / failure_point, config, candidates, failure_point)
+            for failure_point in ("collect", "deep-read", "rank", "site", "deploy")
+        }
+        return FixtureScenarioResult(name, root, None, seed, 0, {}, None, failures)
     if name == "daily":
         data = root / "repository-data"
         historical = data / "items/papers/2025/01/historical-paper.json"
@@ -225,7 +355,27 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
         return _run_pipeline(root, config, [_candidate("paper", 0, now), _candidate("blog", 0, now)], "fixture-daily", state=State(recommended_item_ids=["historical-paper"]), repository_data=data)
     if name == "degraded":
         candidates = [_candidate("paper" if index % 2 == 0 else "blog", index, now) for index in range(100)]
-        return _run_pipeline(root, config, candidates, "fixture-degraded", report=StageReport(metadata_llm_calls=13, metadata_llm_success_rate=12 / 13, metadata_degraded_count=8, warnings=["optional Feed failed", "second Feed failed", "article extraction fallback"]))
+        metadata_overrides = {
+            stable_id(candidate): {"degraded": True}
+            for candidate in candidates[:8]
+        }
+        metadata_overrides[stable_id(candidates[0])]["summary_zh"] = None
+        metadata_overrides[stable_id(candidates[1])]["methods"] = []
+        return _run_pipeline(
+            root,
+            config,
+            candidates,
+            "fixture-degraded",
+            report=StageReport(
+                sources=[SourceRunStatus(source_id="meta_engineering", success=False, warning="optional Feed failed")],
+                metadata_llm_calls=13,
+                metadata_llm_success_rate=12 / 13,
+                metadata_degraded_count=8,
+                warnings=["optional Feed failed", "second Feed failed", "article extraction fallback"],
+            ),
+            metadata_overrides=metadata_overrides,
+            exercise_blog_fallbacks=True,
+        )
     return _run_pipeline(root, config, [_candidate("paper", 0, now), _candidate("blog", 0, now)], f"fixture-{name}")
 
 

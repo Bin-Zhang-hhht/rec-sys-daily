@@ -23,7 +23,7 @@ from .metadata import MetadataResult, analyze_metadata
 from .prompts import json_messages
 from .rate_limit import RateLimiter
 from .security import fetch_public_url
-from .schemas import BlogItem, PaperItem, SourceRunStatus, SourceState, Stage1Metadata, StageReport
+from .schemas import SourceRunStatus, SourceState, Stage1Metadata, StageReport
 from .testing_fixtures import run_fixture_scenarios
 from .filtering import prefilter
 
@@ -86,102 +86,6 @@ def _collection_stage_report(config: AppConfig, result: Any, metadata: MetadataR
         metadata_llm_calls=metadata.llm_calls,
         metadata_llm_success_rate=metadata.success_rate,
         metadata_degraded_count=metadata.degraded_count,
-    )
-
-
-def _fixture_candidates(now: datetime) -> list[Candidate]:
-    return [
-        Candidate(
-            kind="paper",
-            source_id="arxiv",
-            title="Two-Tower Retrieval for Content Recommendation",
-            url="https://arxiv.org/abs/2608.01234",
-            published_at=now,
-            authors=("Ada Lovelace",),
-            excerpt="A fixture paper about retrieval and ranking.",
-            arxiv_id="2608.01234",
-            categories=("cs.IR",),
-            source_weight=1.0,
-            metadata_score=0.95,
-        ),
-        Candidate(
-            kind="blog",
-            source_id="meta_engineering",
-            title="How We Improved Feed Ranking",
-            url="https://engineering.example.com/posts/feed-ranking",
-            published_at=now,
-            authors=("Example Engineer",),
-            excerpt="A fixture engineering article about feed ranking.",
-            source_weight=1.0,
-            source_scenarios=("text_feed",),
-            metadata_score=0.90,
-        ),
-    ]
-
-
-class _FixtureContent:
-    def __init__(self, root: Path) -> None:
-        self.paper_html = "<article><h1>Runtime paper</h1><p>Two-Tower retrieval.</p></article>"
-        self.article_html = "<article><h1>Runtime article</h1><p>Feed ranking.</p></article>"
-
-    def fetch_text(self, _url: str, _limit: int) -> str:
-        return self.paper_html
-
-    def fetch_bytes(self, _url: str, _limit: int) -> bytes:
-        raise RuntimeError("fixture paper PDF is intentionally unavailable")
-
-    def extract_pdf(self, _path: Path, _max_pages: int) -> tuple[str, list[Any]]:
-        raise RuntimeError("fixture paper PDF is intentionally unavailable")
-
-    def critical_pages(self, _pages: list[Any]) -> list[int]:
-        return []
-
-    def render_pages(self, _path: Path, _pages: list[int], _directory: Path) -> list[Path]:
-        return []
-
-    def extract_article(self, html: str) -> str:
-        return html.replace("<", " ").replace(">", " ")
-
-    def feed_content(self, candidate: Candidate) -> str | None:
-        return candidate.excerpt
-
-    def fetch_article_html(self, _candidate: Candidate) -> str:
-        return self.article_html
-
-
-def _fixture_services(root: Path, work: Path) -> DeepReadServices:
-    content = _FixtureContent(root)
-
-    def text_reader(kind: str, _body: str, _context: dict[str, Any]) -> dict[str, Any]:
-        if kind == "paper":
-            return {
-                "problem_zh": "验证候选召回效果。",
-                "contributions_zh": ["提供 fixture 结构化分析。"],
-                "method_zh": "Two-Tower Retrieval",
-                "experiments": {"datasets": ["FixtureSet"], "metrics": ["Recall@20"]},
-                "evidence_refs": [{"section": "Method", "page": 1}],
-            }
-        return {
-            "system_context_zh": "内容流排序服务。",
-            "architecture_zh": "召回后进行排序。",
-            "implementation_zh": "使用离线特征。",
-            "evidence_refs": [{"heading": "Architecture"}],
-        }
-
-    return DeepReadServices(
-        content=ContentServices(
-            fetch_text=content.fetch_text,
-            fetch_bytes=content.fetch_bytes,
-            extract_pdf=content.extract_pdf,
-            critical_pages=content.critical_pages,
-            render_pages=content.render_pages,
-            extract_article=content.extract_article,
-            feed_content=content.feed_content,
-            fetch_article_html=content.fetch_article_html,
-        ),
-        temporary_root=work / "temporary",
-        text_reader=text_reader,
-        vision_reader=lambda _pages: {"architecture_zh": "fixture architecture"},
     )
 
 
