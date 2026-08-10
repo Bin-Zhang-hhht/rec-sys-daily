@@ -107,6 +107,30 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
     assert result.source_states["arxiv"].etag == '"arxiv-v1"'
 
 
+def test_collect_passes_configured_excerpt_limit() -> None:
+    config = load_config(ROOT)
+    storage = config.settings.storage.model_copy(update={"max_blog_excerpt_chars": 7})
+    settings = config.settings.model_copy(update={"storage": storage})
+    blog_source = config.sources.blogs[0].model_copy(update={"url": "https://example.test/feed"})
+    academic = config.sources.academic[0].model_copy(update={"enabled": False})
+    config = config.model_copy(update={"settings": settings, "sources": SourcesConfig(academic=[academic], blogs=[blog_source])})
+    payload = b"""
+    <rss version='2.0'><channel><item>
+      <guid>short-feed-item</guid><title>Feed Ranking</title>
+      <link>https://example.test/item</link>
+      <pubDate>Mon, 10 Aug 2026 00:00:00 +0000</pubDate>
+      <description>long excerpt value</description>
+    </item></channel></rss>
+    """
+
+    def fetcher(_url: str, _headers: dict[str, str]) -> FeedResponse:
+        return FeedResponse(200, payload, {})
+
+    result = collect_candidates(config, now=NOW, fetcher=fetcher, resolver=_public_resolver)
+    blog = next(item for item in result.candidates if item.kind == "blog")
+    assert len(blog.excerpt) <= 7
+
+
 def test_optional_feed_failure_is_a_warning_but_required_failure_stops_collection() -> None:
     def fail_fetcher(_url: str, _headers: dict[str, str]) -> FeedResponse:
         raise RuntimeError("offline")

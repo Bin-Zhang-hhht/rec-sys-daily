@@ -15,7 +15,7 @@ import typer
 from .artifacts import write_json, write_jsonl
 from .collect import Candidate, collect_candidates, stable_id
 from .config import AppConfig, load_config
-from .content import ContentServices, DomainRateLimiter
+from .content import ContentServices, DomainRateLimiter, fetch_article_html as fetch_article_html_request, fetch_bytes as fetch_bytes_request, fetch_text as fetch_text_request
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
 from .llm import TextClient, TokenBudget, VisionClient
@@ -218,8 +218,25 @@ def _real_services(
         images = ["data:image/png;base64," + base64.b64encode(path.read_bytes()).decode("ascii") for path in paths]
         return vision_client.analyze("Analyze all detected key pages and return strict JSON.", images)
 
+    request_timeout = config.settings.limits.request_timeout_seconds
+    max_pdf_bytes = config.settings.limits.max_pdf_bytes
+    max_blog_html_bytes = config.settings.limits.max_blog_html_bytes
+
+    def configured_fetch_text(url: str, limit: int) -> str:
+        return fetch_text_request(url, min(limit, max_pdf_bytes), timeout=request_timeout)
+
+    def configured_fetch_bytes(url: str, limit: int) -> bytes:
+        return fetch_bytes_request(url, min(limit, max_pdf_bytes), timeout=request_timeout)
+
+    def configured_fetch_article_html(candidate: Candidate, limit: int | None = None) -> str:
+        return fetch_article_html_request(candidate, min(limit or max_blog_html_bytes, max_blog_html_bytes), timeout=request_timeout)
+
     return DeepReadServices(
-        content=ContentServices(),
+        content=ContentServices(
+            fetch_text=configured_fetch_text,
+            fetch_bytes=configured_fetch_bytes,
+            fetch_article_html=configured_fetch_article_html,
+        ),
         temporary_root=work / "temporary",
         text_reader=text_reader,
         vision_reader=vision_reader,

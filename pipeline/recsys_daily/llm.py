@@ -120,8 +120,8 @@ class TextClient:
         environ: Mapping[str, str] | None = None,
         *,
         limiter: RateLimiter | Callable[[], None] | None = None,
-        timeout_seconds: int = 600,
-        retries: int = 3,
+        timeout_seconds: int | None = None,
+        retries: int | None = None,
         sleeper: Callable[[float], None] = time.sleep,
     ) -> "TextClient":
         env = os.environ if environ is None else environ
@@ -183,8 +183,8 @@ class VisionClient:
         environ: Mapping[str, str] | None = None,
         *,
         limiter: RateLimiter | Callable[[], None] | None = None,
-        timeout_seconds: int = 600,
-        retries: int = 3,
+        timeout_seconds: int | None = None,
+        retries: int | None = None,
         sleeper: Callable[[float], None] = time.sleep,
     ) -> "VisionClient":
         env = os.environ if environ is None else environ

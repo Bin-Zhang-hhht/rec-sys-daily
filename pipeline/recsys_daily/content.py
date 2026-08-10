@@ -116,11 +116,11 @@ def render_pages(pdf_path: Path, pages: list[int], directory: Path) -> list[Path
     return rendered
 
 
-def fetch_article_html(candidate: object, max_bytes: int = 5 * 1024 * 1024) -> str:
+def fetch_article_html(candidate: object, max_bytes: int = 5 * 1024 * 1024, *, timeout: float = 45) -> str:
     url = getattr(candidate, "url", None)
     if not url:
         raise ValueError("blog candidate has no public URL")
-    return fetch_text(str(url), max_bytes)
+    return fetch_text(str(url), max_bytes, timeout=timeout)
 
 
 @dataclass

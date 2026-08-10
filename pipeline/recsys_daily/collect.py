@@ -256,7 +256,14 @@ def parse_arxiv_atom(payload: bytes | str, *, source_id: str = "arxiv", source_w
     return candidates
 
 
-def parse_blog_feed(payload: bytes | str, *, source_id: str, source_weight: float = 1.0, scenarios: tuple[str, ...] = ()) -> list[Candidate]:
+def parse_blog_feed(
+    payload: bytes | str,
+    *,
+    source_id: str,
+    source_weight: float = 1.0,
+    scenarios: tuple[str, ...] = (),
+    excerpt_limit: int = 4_000,
+) -> list[Candidate]:
     parsed = feedparser.parse(payload)
     if getattr(parsed, "bozo", False) and not parsed.entries:
         raise ValueError("invalid RSS/Atom feed")
@@ -271,7 +278,7 @@ def parse_blog_feed(payload: bytes | str, *, source_id: str, source_weight: floa
         doi = normalize_doi(_entry_value(entry, "doi"))
         candidates.append(Candidate(
             kind="blog", source_id=source_id, title=title, url=url, published_at=published_at,
-            authors=_authors(entry), excerpt=_entry_excerpt(entry), source_entry_id=entry_id,
+            authors=_authors(entry), excerpt=_entry_excerpt(entry, excerpt_limit), source_entry_id=entry_id,
             feed_content=_entry_feed_content(entry), doi=doi, source_weight=source_weight, source_scenarios=scenarios,
         ))
     return candidates
@@ -367,7 +374,13 @@ def collect_candidates(
                 continue
             if not 200 <= response.status_code < 300:
                 raise RuntimeError(f"HTTP {response.status_code}")
-            parsed_candidates = parse_arxiv_atom(response.content, source_id=source.id, source_weight=source.weight) if source.kind == "arxiv" else parse_blog_feed(response.content, source_id=source.id, source_weight=source.weight, scenarios=tuple(source.scenarios))
+            parsed_candidates = parse_arxiv_atom(response.content, source_id=source.id, source_weight=source.weight) if source.kind == "arxiv" else parse_blog_feed(
+                response.content,
+                source_id=source.id,
+                source_weight=source.weight,
+                scenarios=tuple(source.scenarios),
+                excerpt_limit=config.settings.storage.max_blog_excerpt_chars,
+            )
             lower_bound = window.papers_since if source.kind == "arxiv" else window.blogs_since
             for candidate in parsed_candidates:
                 if not lower_bound <= candidate.published_at <= current:

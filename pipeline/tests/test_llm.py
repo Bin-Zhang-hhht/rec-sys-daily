@@ -35,6 +35,16 @@ def test_text_client_uses_active_profile_and_parses_json(monkeypatch: pytest.Mon
     assert "reasoning_content" not in result
 
 
+def test_text_and_vision_clients_use_model_common_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:
+    config = load_config(__import__("pathlib").Path(__file__).parents[2])
+    models = config.models.model_copy(update={"common": config.models.common.model_copy(update={"timeout_seconds": 17, "retries": 2})})
+    monkeypatch.setattr("recsys_daily.llm.OpenAI", lambda **kwargs: SimpleNamespace())
+    text = TextClient.from_config(models, environ={"NVIDIA_BASE_URL": "https://example.test/v1", "NVIDIA_API_KEY": "key"})
+    vision = VisionClient.from_config(models, {"NVIDIA_VLM_INVOKE_URL": "https://example.test/v1/chat/completions", "NVIDIA_API_KEY": "key"})
+    assert (text.timeout_seconds, text.retries) == (17, 2)
+    assert (vision.timeout_seconds, vision.retries) == (17, 2)
+
+
 def test_vision_builds_single_multimage_request_and_ignores_reasoning(monkeypatch: pytest.MonkeyPatch) -> None:
     config = load_config(__import__("pathlib").Path(__file__).parents[2])
     observed: dict[str, object] = {}
