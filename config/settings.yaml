@@ -1,0 +1,45 @@
+daily_target: 8
+structured_analysis_min_success_rate: 0.90
+metadata_weights:
+  topic_relevance: 0.30
+  scenario_relevance: 0.25
+  source_quality: 0.15
+  novelty: 0.15
+  practical_value: 0.10
+  recency: 0.05
+final_weights:
+  metadata_score: 0.55
+  evidence_quality: 0.20
+  business_transferability: 0.15
+  technical_depth: 0.10
+limits:
+  http_concurrency: 2
+  nvidia_hard_rpm: 40
+  nvidia_target_rpm: 30
+  nvidia_parallel_workers: 2
+  nvidia_concurrency_per_worker: 1
+  nvidia_min_interval_seconds_per_worker: 4
+  rss_requests_per_run_per_source: 1
+  arxiv_min_interval_seconds: 3
+  request_timeout_seconds: 45
+  retry_attempts: 3
+  max_papers_per_run: 100
+  max_blogs_per_run: 50
+  deep_reading_candidates_per_type: 16
+  max_pdf_downloads_per_run: 16
+  max_blog_fulltext_fetches_per_run: 16
+  pdf_download_concurrency: 1
+  blog_download_concurrency_per_domain: 1
+  blog_min_interval_seconds_per_domain: 2
+  max_pdf_bytes: 20971520
+  max_pdf_pages: 80
+  max_blog_html_bytes: 5242880
+graph_max_content_nodes: 80
+graph_recent_days: 90
+storage:
+  target_item_bytes: 16384
+  max_item_bytes: 32768
+  max_blog_excerpt_chars: 4000
+  warn_repository_data_mb: 500
+  warn_pages_artifact_mb: 500
+  fail_pages_artifact_mb: 900

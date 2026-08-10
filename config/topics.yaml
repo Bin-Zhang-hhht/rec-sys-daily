@@ -1,0 +1,84 @@
+targets:
+  - id: content
+    name_zh: 内容推荐
+    name_en: Content Recommendation
+    terms: [content recommendation, item recommendation]
+  - id: user
+    name_zh: 用户推荐
+    name_en: User Recommendation
+    terms: [user recommendation, people recommendation]
+  - id: room
+    name_zh: 房间推荐
+    name_en: Room Recommendation
+    terms: [room recommendation, live room recommendation]
+scenarios:
+  - id: text_feed
+    name_zh: 文字流
+    name_en: Text Feed
+    terms: [feed ranking, news feed, post recommendation]
+  - id: voice_chat
+    name_zh: 语聊
+    name_en: Voice Chat
+    terms: [voice chat, social audio, listener matching]
+  - id: livestream
+    name_zh: 直播间
+    name_en: Livestream
+    terms: [live streaming, live room, host recommendation]
+  - id: friend_recommendation
+    name_zh: 好友推荐
+    name_en: Friend Recommendation
+    terms: [people you may know, friend recommendation, follow recommendation, social recommendation, link prediction]
+tasks:
+  - id: retrieval
+    name_zh: 召回
+    name_en: Retrieval
+    terms: [candidate retrieval, candidate generation]
+  - id: ranking
+    name_zh: 排序
+    name_en: Ranking
+    terms: [recommendation ranking, learning to rank]
+  - id: reranking
+    name_zh: 重排
+    name_en: Re-ranking
+    terms: [reranking, slate optimization]
+  - id: user_matching
+    name_zh: 用户匹配
+    name_en: User Matching
+    terms: [user matching, people matching]
+  - id: link_prediction
+    name_zh: 链路预测
+    name_en: Link Prediction
+    terms: [link prediction, social link prediction]
+  - id: multi_objective_optimization
+    name_zh: 多目标优化
+    name_en: Multi-objective Optimization
+    terms: [multi-objective recommendation, multi-objective optimization]
+methods:
+  - id: collaborative_filtering
+    name_zh: 协同过滤
+    name_en: Collaborative Filtering
+    terms: [collaborative filtering, matrix factorization]
+  - id: two_tower
+    name_zh: 双塔模型
+    name_en: Two-Tower Model
+    terms: [two-tower model, dual encoder]
+  - id: sequence_modeling
+    name_zh: 序列建模
+    name_en: Sequence Modeling
+    terms: [sequential recommendation, sequence modeling]
+  - id: graph_neural_network
+    name_zh: 图神经网络
+    name_en: Graph Neural Network
+    terms: [graph neural network, graph learning, GNN]
+  - id: reinforcement_learning
+    name_zh: 强化学习
+    name_en: Reinforcement Learning
+    terms: [reinforcement learning, bandit recommendation]
+  - id: large_language_model
+    name_zh: 大语言模型
+    name_en: Large Language Model
+    terms: [LLM for recommendation, generative recommendation]
+  - id: multi_task_learning
+    name_zh: 多任务学习
+    name_en: Multi-task Learning
+    terms: [multi-task learning, multi-task recommendation]

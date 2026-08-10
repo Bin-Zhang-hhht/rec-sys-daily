@@ -1,0 +1,75 @@
+academic:
+  - id: arxiv
+    kind: arxiv
+    enabled: true
+    required: true
+    weight: 1.0
+blogs:
+  - id: meta_engineering
+    kind: rss
+    name: Meta Engineering
+    url: https://engineering.fb.com/feed/
+    enabled: true
+    required: false
+    weight: 1.0
+    scenarios: [text_feed, livestream, friend_recommendation]
+  - id: netflix_techblog
+    kind: rss
+    name: Netflix TechBlog
+    url: https://netflixtechblog.com/feed
+    enabled: true
+    required: false
+    weight: 1.0
+    scenarios: [text_feed, livestream]
+  - id: spotify_engineering
+    kind: rss
+    name: Spotify Engineering
+    url: https://engineering.atspotify.com/feed/
+    enabled: true
+    required: false
+    weight: 1.0
+    scenarios: [voice_chat]
+  - id: pinterest_engineering
+    kind: rss
+    name: Pinterest Engineering
+    url: https://medium.com/feed/pinterest-engineering
+    enabled: true
+    required: false
+    weight: 1.0
+    scenarios: [text_feed]
+  - id: discord_engineering
+    kind: rss
+    name: Discord Engineering
+    url: https://discord.com/blog/rss.xml
+    enabled: true
+    required: false
+    weight: 0.95
+    scenarios: [voice_chat, friend_recommendation]
+  - id: airbnb_tech
+    kind: rss
+    name: Airbnb Engineering & Data Science
+    url: https://airbnb.tech/feed/
+    enabled: true
+    required: false
+    weight: 0.90
+  - id: etsy_codeascraft
+    kind: rss
+    name: Etsy Code as Craft
+    url: https://www.etsy.com/codeascraft/rss
+    enabled: true
+    required: false
+    weight: 0.90
+  - id: google_research
+    kind: rss
+    name: Google Research
+    url: https://research.google/blog/rss/
+    enabled: true
+    required: false
+    weight: 0.85
+  - id: nvidia_developer
+    kind: rss
+    name: NVIDIA Developer Blog
+    url: https://developer.nvidia.com/blog/feed/
+    enabled: true
+    required: false
+    weight: 0.80

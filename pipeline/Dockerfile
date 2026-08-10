@@ -4,6 +4,7 @@ WORKDIR /workspace/pipeline
 
 COPY .gitignore /workspace/.gitignore
 COPY .env.example /workspace/.env.example
+COPY config /workspace/config
 COPY pipeline/pyproject.toml ./
 COPY pipeline/recsys_daily ./recsys_daily
 COPY pipeline/tests ./tests
