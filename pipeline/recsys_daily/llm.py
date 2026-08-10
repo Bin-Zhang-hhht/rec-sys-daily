@@ -215,7 +215,11 @@ class VisionClient:
         def operation() -> dict[str, Any]:
             response = (self._post or requests.post)(
                 self.invoke_url,
-                headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
                 json=payload,
                 timeout=self.timeout_seconds,
             )

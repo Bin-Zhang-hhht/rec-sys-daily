@@ -60,6 +60,7 @@ def test_vision_builds_single_multimage_request_and_ignores_reasoning(monkeypatc
 
     assert result == {"status": "ok"}
     assert observed["url"] == "https://example.test/v1/chat/completions"
+    assert observed["headers"]["Accept"] == "application/json"
     payload = observed["json"]
     assert payload["max_tokens"] == 65536
     assert payload["reasoning_budget"] == 16384
