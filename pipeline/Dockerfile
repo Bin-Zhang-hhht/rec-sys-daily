@@ -7,6 +7,7 @@ COPY .env.example /workspace/.env.example
 COPY config /workspace/config
 COPY pipeline/pyproject.toml ./
 COPY pipeline/Dockerfile ./Dockerfile
+COPY site/.dockerignore /workspace/site/.dockerignore
 COPY pipeline/recsys_daily ./recsys_daily
 COPY pipeline/tests ./tests
 

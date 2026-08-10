@@ -62,3 +62,16 @@ def test_verify_workflow_uses_runtime_scenarios() -> None:
     text = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
     assert "fixtures/**" not in text
     assert "test-fixtures --case all" in text
+
+
+def test_site_docker_context_excludes_host_dependencies_and_build_outputs() -> None:
+    pipeline_dockerfile = (ROOT / "pipeline" / "Dockerfile").read_text(encoding="utf-8")
+    path = ROOT / "site" / ".dockerignore"
+    ignored = {
+        line.strip()
+        for line in (path.read_text(encoding="utf-8").splitlines() if path.exists() else [])
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+
+    assert "COPY site/.dockerignore /workspace/site/.dockerignore" in pipeline_dockerfile
+    assert {"node_modules", ".astro", "dist"} <= ignored
