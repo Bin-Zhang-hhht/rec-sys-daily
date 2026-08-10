@@ -15,7 +15,7 @@ from .config import AppConfig, load_config
 from .content import BlogFeedCache, ContentServices, PageText
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
-from .schemas import SourceRunStatus, StageReport, State
+from .schemas import BuildConfigSnapshot, RunReport, SourceRunStatus, StageReport, State
 
 
 PAPER_HTML = """<!doctype html><html><body><article><h1>Two-Tower Retrieval for Content Recommendation</h1><h2>Method</h2><p>The model uses two towers.</p></article></body></html>"""
@@ -332,6 +332,56 @@ def _run_failure_injection(
     )
 
 
+def _seed_historical_repository(data: Path, config: AppConfig) -> State:
+    published_at = datetime(2025, 1, 2, tzinfo=UTC)
+    item = {
+        "id": "historical-paper",
+        "kind": "paper",
+        "source": "arxiv",
+        "title": "Historical Recommendation Paper",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": published_at.isoformat().replace("+00:00", "Z"),
+        "authors": ["Historical Author"],
+        "summary_zh": "历史推荐论文摘要。",
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {
+            "analysis_basis": "abstract_fallback",
+            "visual_analysis": {"status": "not_required"},
+        },
+    }
+    write_json(data / "items/papers/2025/01/historical-paper.json", item)
+    write_json(data / "digests/2025/01/2025-01-02.json", {
+        "date": "2025-01-02",
+        "papers": [{"item_id": "historical-paper", "recommendation_reason_zh": "历史推荐", "rank": 1}],
+        "blogs": [],
+    })
+    storage = config.settings.storage
+    snapshot = BuildConfigSnapshot(
+        graph_max_content_nodes=config.settings.graph_max_content_nodes,
+        graph_recent_days=config.settings.graph_recent_days,
+        target_item_bytes=storage.target_item_bytes,
+        max_item_bytes=storage.max_item_bytes,
+        max_blog_excerpt_chars=storage.max_blog_excerpt_chars,
+        warn_repository_data_mb=storage.warn_repository_data_mb,
+        warn_pages_artifact_mb=storage.warn_pages_artifact_mb,
+        fail_pages_artifact_mb=storage.fail_pages_artifact_mb,
+    )
+    report = RunReport(
+        run_id="historical-run",
+        started_at=published_at,
+        completed_at=published_at,
+        config_snapshot=snapshot,
+        stage_report=StageReport(),
+    )
+    write_json(data / "runs/2025/01/historical-run.json", report.model_dump(mode="json"))
+    state = State(last_success_at=published_at, recommended_item_ids=["historical-paper"], updated_at=published_at)
+    write_json(data / "state.json", state.model_dump(mode="json"))
+    return state
+
+
 def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -> FixtureScenarioResult:
     root = work / "generated" / name
     if root.exists():
@@ -349,10 +399,8 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
         return FixtureScenarioResult(name, root, None, seed, 0, {}, None, failures)
     if name == "daily":
         data = root / "repository-data"
-        historical = data / "items/papers/2025/01/historical-paper.json"
-        historical.parent.mkdir(parents=True, exist_ok=True)
-        write_json(historical, {"id": "historical-paper", "kind": "paper", "title": "Historical Paper"})
-        return _run_pipeline(root, config, [_candidate("paper", 0, now), _candidate("blog", 0, now)], "fixture-daily", state=State(recommended_item_ids=["historical-paper"]), repository_data=data)
+        state = _seed_historical_repository(data, config)
+        return _run_pipeline(root, config, [_candidate("paper", 0, now), _candidate("blog", 0, now)], "fixture-daily", state=state, repository_data=data)
     if name == "degraded":
         candidates = [_candidate("paper" if index % 2 == 0 else "blog", index, now) for index in range(100)]
         metadata_overrides = {

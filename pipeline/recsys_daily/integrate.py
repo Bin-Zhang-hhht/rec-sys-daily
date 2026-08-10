@@ -138,7 +138,21 @@ def _is_publishable_degraded_metadata(value: dict[str, Any]) -> bool:
     )
 
 
-def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, Any]]) -> list[ContentItem]:
+def _validate_blog_excerpt(item: ContentItem, excerpt_limit: int) -> None:
+    if isinstance(item, BlogItem) and item.excerpt is not None and len(item.excerpt) > excerpt_limit:
+        raise ValueError(
+            "blog excerpt exceeds configured max_blog_excerpt_chars: "
+            f"{item.id} ({len(item.excerpt)} > {excerpt_limit})"
+        )
+
+
+def _items(
+    path: Path,
+    kind: str,
+    taxonomy: Any,
+    metadata: dict[str, dict[str, Any]],
+    excerpt_limit: int,
+) -> list[ContentItem]:
     parsed: list[ContentItem] = []
     for value in _stage_values(path, kind):
         item_id = str(value.get("id", ""))
@@ -165,7 +179,9 @@ def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, A
         if kind == "paper":
             value.pop("excerpt", None)
         item_type = PaperItem if kind == "paper" else BlogItem
-        parsed.append(item_type.model_validate(value, context={"taxonomy": taxonomy}))
+        item = item_type.model_validate(value, context={"taxonomy": taxonomy})
+        _validate_blog_excerpt(item, excerpt_limit)
+        parsed.append(item)
     return parsed
 
 
@@ -241,24 +257,70 @@ def _build_snapshot(config: AppConfig) -> BuildConfigSnapshot:
     )
 
 
-def _copy_repository_data(repository_data: Path | None, pending: Path) -> None:
+def _validate_historical_json(source: Path, relative: Path, config: AppConfig) -> None:
+    parts = relative.parts
+    try:
+        value = read_json(source)
+        if parts[0] == "items":
+            item_type = PaperItem if parts[1] == "papers" else BlogItem
+            item = item_type.model_validate(value, context={"taxonomy": config.topics})
+            expected_kind = "paper" if parts[1] == "papers" else "blog"
+            if item.kind != expected_kind or item.id != source.stem:
+                raise ValueError("item kind or stable ID does not match its canonical path")
+            if (f"{item.published_at.year:04d}", f"{item.published_at.month:02d}") != parts[2:4]:
+                raise ValueError("item publication date does not match its canonical path")
+            _validate_blog_excerpt(item, config.settings.storage.max_blog_excerpt_chars)
+        elif parts[0] == "digests":
+            digest = Digest.model_validate(value)
+            if (f"{digest.date.year:04d}", f"{digest.date.month:02d}", f"{digest.date.isoformat()}.json") != parts[1:4]:
+                raise ValueError("digest date does not match its canonical path")
+        else:
+            report = RunReport.model_validate(value)
+            if (f"{report.started_at.year:04d}", f"{report.started_at.month:02d}") != parts[1:3]:
+                raise ValueError("run start date does not match its canonical path")
+            if report.run_id != source.stem:
+                raise ValueError("run ID does not match its canonical path")
+    except Exception as exc:
+        raise ValueError(f"invalid historical canonical JSON {relative.as_posix()}: {exc}") from exc
+
+
+def _copy_repository_data(repository_data: Path | None, pending: Path, config: AppConfig) -> None:
     if repository_data is None or not repository_data.exists():
         return
-    for source in repository_data.rglob("*"):
+    for source in sorted(repository_data.rglob("*")):
         if not source.is_file():
             continue
         relative = source.relative_to(repository_data)
+        if relative == Path("state.json"):
+            continue
         parts = relative.parts
         allowed = False
-        if len(parts) >= 3 and parts[0] == "items" and parts[1] in {"papers", "blogs"}:
-            allowed = source.suffix == ".json"
-        elif len(parts) == 4 and parts[0] in {"digests", "runs"} and re.fullmatch(r"\d{4}", parts[1]) and re.fullmatch(r"\d{2}", parts[2]):
-            allowed = source.suffix == ".json"
+        if len(parts) == 5 and parts[0] == "items" and parts[1] in {"papers", "blogs"}:
+            allowed = source.suffix == ".json" and bool(re.fullmatch(r"\d{4}", parts[2])) and bool(re.fullmatch(r"(?:0[1-9]|1[0-2])", parts[3]))
+        elif len(parts) == 4 and parts[0] in {"digests", "runs"}:
+            allowed = source.suffix == ".json" and bool(re.fullmatch(r"\d{4}", parts[1])) and bool(re.fullmatch(r"(?:0[1-9]|1[0-2])", parts[2]))
         if not allowed:
             raise ValueError(f"repository data contains an unsupported file: {relative}")
+        _validate_historical_json(source, relative, config)
         destination = pending / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
+
+
+def _validate_pending_digest_references(pending: Path) -> None:
+    item_ids = {
+        "papers": {path.stem for path in (pending / "items" / "papers").rglob("*.json")},
+        "blogs": {path.stem for path in (pending / "items" / "blogs").rglob("*.json")},
+    }
+    for digest_path in sorted((pending / "digests").rglob("*.json")):
+        digest = Digest.model_validate(read_json(digest_path))
+        for kind in ("papers", "blogs"):
+            for entry in getattr(digest, kind):
+                if entry.item_id not in item_ids[kind]:
+                    relative = digest_path.relative_to(pending).as_posix()
+                    raise ValueError(
+                        f"digest references missing canonical item: {relative} -> {entry.item_id}"
+                    )
 
 
 def integrate(
@@ -285,8 +347,9 @@ def integrate(
             f"{stage_report.metadata_llm_success_rate:.3f} < {config.settings.structured_analysis_min_success_rate:.3f}"
         )
     source_states = _source_states(stages.stage1)
-    paper_items = _items(stages.paper, "paper", config.topics, metadata)
-    blog_items = _items(stages.blog, "blog", config.topics, metadata)
+    excerpt_limit = config.settings.storage.max_blog_excerpt_chars
+    paper_items = _items(stages.paper, "paper", config.topics, metadata, excerpt_limit)
+    blog_items = _items(stages.blog, "blog", config.topics, metadata, excerpt_limit)
     all_items = [*paper_items, *blog_items]
     item_ids = [item.id for item in all_items]
     if len(item_ids) != len(set(item_ids)):
@@ -359,13 +422,14 @@ def integrate(
         pending = temp_path / "pending-data"
         write_json(temp_path / "manifest.json", manifest.model_dump())
         write_json(temp_path / "taxonomy.json", config.topics.to_public_snapshot())
-        _copy_repository_data(repository_data, pending)
+        _copy_repository_data(repository_data, pending, config)
         for item in all_items:
             _write_item(pending, item, config.settings.storage.max_item_bytes)
         digest_path = pending / "digests" / f"{digest.date.year:04d}" / f"{digest.date.month:02d}" / f"{digest.date.isoformat()}.json"
         write_json(digest_path, digest.model_dump(mode="json"))
         report_path = pending / "runs" / f"{run_at.year:04d}" / f"{run_at.month:02d}" / f"{run_id}.json"
         write_json(report_path, report.model_dump(mode="json"))
+        _validate_pending_digest_references(pending)
         write_json(pending / "state.json", pending_state.model_dump(mode="json"))
         pending_bytes = sum(path.stat().st_size for path in pending.rglob("*") if path.is_file())
         warn_bytes = report.config_snapshot.warn_repository_data_mb * 1024 * 1024

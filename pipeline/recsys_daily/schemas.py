@@ -174,7 +174,7 @@ class PaperItem(ItemBase):
 class BlogItem(ItemBase):
     kind: Literal["blog"]
     deep_reading: BlogReading
-    excerpt: str | None = Field(default=None, max_length=4_000)
+    excerpt: str | None = None
 
 
 ContentItem = Annotated[Union[PaperItem, BlogItem], Field(discriminator="kind")]

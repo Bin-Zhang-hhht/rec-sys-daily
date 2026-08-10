@@ -77,3 +77,18 @@ def test_metadata_failure_uses_only_matching_config_labels_and_marks_degraded() 
     assert set(item.tasks) <= {entry.id for entry in CONFIG.topics.tasks}
     assert set(item.methods) <= {entry.id for entry in CONFIG.topics.methods}
     assert "two_tower" not in item.methods
+
+
+def test_metadata_fallback_uses_configured_excerpt_limit() -> None:
+    storage = CONFIG.settings.storage.model_copy(update={"max_blog_excerpt_chars": 5_000})
+    settings = CONFIG.settings.model_copy(update={"storage": storage})
+    config = CONFIG.model_copy(update={"settings": settings})
+    excerpt = "x" * 4_500
+
+    result = analyze_metadata(
+        [candidate("2608.08888", excerpt)],
+        config,
+        lambda *_: (_ for _ in ()).throw(RuntimeError("model down")),
+    )
+
+    assert result.items[0].summary_zh == excerpt

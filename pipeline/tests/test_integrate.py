@@ -7,7 +7,7 @@ import pytest
 from recsys_daily.config import load_config
 from recsys_daily.integrate import StageInputs, integrate, load_digest
 from recsys_daily.ranking import rank_items
-from recsys_daily.schemas import PaperItem, SourceState, StageReport, State
+from recsys_daily.schemas import BuildConfigSnapshot, PaperItem, RunReport, SourceState, StageReport, State
 
 
 ROOT = Path(__file__).parents[2]
@@ -220,10 +220,23 @@ def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_pa
     historical_item = data / "items" / "papers" / "2025" / "01" / "historical-paper.json"
     historical_digest = data / "digests" / "2025" / "01" / "2025-01-02.json"
     historical_run = data / "runs" / "2025" / "01" / "historical-run.json"
+    historical_item_value = _paper("historical-paper", 0.5)
+    historical_item_value["published_at"] = "2025-01-02T00:00:00Z"
+    snapshot = BuildConfigSnapshot(
+        graph_max_content_nodes=CONFIG.settings.graph_max_content_nodes,
+        graph_recent_days=CONFIG.settings.graph_recent_days,
+        target_item_bytes=CONFIG.settings.storage.target_item_bytes,
+        max_item_bytes=CONFIG.settings.storage.max_item_bytes,
+        max_blog_excerpt_chars=CONFIG.settings.storage.max_blog_excerpt_chars,
+        warn_repository_data_mb=CONFIG.settings.storage.warn_repository_data_mb,
+        warn_pages_artifact_mb=CONFIG.settings.storage.warn_pages_artifact_mb,
+        fail_pages_artifact_mb=CONFIG.settings.storage.fail_pages_artifact_mb,
+    )
     for path, value in (
-        (historical_item, {"id": "historical-paper"}),
-        (historical_digest, {"papers": [{"item_id": "historical-paper"}]}),
-        (historical_run, {"run_id": "historical-run"}),
+        (historical_item, historical_item_value),
+        (historical_digest, {"date": "2025-01-02", "papers": [{"item_id": "historical-paper", "recommendation_reason_zh": "历史推荐", "rank": 1}], "blogs": []}),
+        (historical_run, RunReport(run_id="historical-run", started_at=datetime(2025, 1, 2, tzinfo=UTC), config_snapshot=snapshot, stage_report=StageReport()).model_dump(mode="json")),
+        (data / "state.json", State(recommended_item_ids=["historical-paper"]).model_dump(mode="json")),
     ):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(value), encoding="utf-8")
@@ -245,6 +258,55 @@ def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_pa
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["config_snapshot"]["graph_recent_days"] == CONFIG.settings.graph_recent_days
     assert report["stage_report"]["metadata_llm_success_rate"] == 1.0
+
+
+def test_integrate_rejects_invalid_historical_json_transactionally(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    stages = fixture_stages(run_root)
+    invalid = tmp_path / "data/items/papers/2025/01/invalid.json"
+    invalid.parent.mkdir(parents=True)
+    invalid.write_text(json.dumps({"id": "invalid"}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="historical|canonical"):
+        integrate(stages, tmp_path / "bundle", CONFIG, repository_data=tmp_path / "data")
+
+    assert not (tmp_path / "bundle").exists()
+
+
+def test_integrate_rejects_historical_digest_with_missing_item_transactionally(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    stages = fixture_stages(run_root)
+    digest = tmp_path / "data/digests/2025/01/2025-01-02.json"
+    digest.parent.mkdir(parents=True)
+    digest.write_text(
+        json.dumps({
+            "date": "2025-01-02",
+            "papers": [{"item_id": "missing-paper", "recommendation_reason_zh": "历史推荐", "rank": 1}],
+            "blogs": [],
+        }),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="digest references missing canonical item"):
+        integrate(stages, tmp_path / "bundle", CONFIG, repository_data=tmp_path / "data")
+
+    assert not (tmp_path / "bundle").exists()
+
+
+def test_integrate_enforces_configured_blog_excerpt_limit(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    stage_path = stages.stage1 / "items.jsonl"
+    values = [json.loads(line) for line in stage_path.read_text(encoding="utf-8").splitlines()]
+    next(item for item in values if item["kind"] == "blog")["excerpt"] = "12345678"
+    stage_path.write_text("\n".join(json.dumps(item) for item in values) + "\n", encoding="utf-8")
+    storage = CONFIG.settings.storage.model_copy(update={"max_blog_excerpt_chars": 7})
+    settings = CONFIG.settings.model_copy(update={"storage": storage})
+    config = CONFIG.model_copy(update={"settings": settings})
+
+    with pytest.raises(ValueError, match="max_blog_excerpt_chars"):
+        integrate(stages, tmp_path / "bundle", config)
 
 
 def test_integrate_rejects_unsupported_repository_data_transactionally(tmp_path: Path) -> None:

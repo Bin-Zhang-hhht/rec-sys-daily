@@ -72,7 +72,7 @@ def _matches(text: str, terms: Sequence[str]) -> bool:
     return any(term.strip().casefold() in normalized for term in terms if term and term.strip())
 
 
-def _fallback(candidate: Candidate, taxonomy: TopicTaxonomy) -> Stage1Metadata:
+def _fallback(candidate: Candidate, taxonomy: TopicTaxonomy, excerpt_limit: int) -> Stage1Metadata:
     text = " ".join((candidate.title, candidate.excerpt, *candidate.categories, *candidate.source_scenarios))
 
     def selected(category: str) -> list[str]:
@@ -85,7 +85,7 @@ def _fallback(candidate: Candidate, taxonomy: TopicTaxonomy) -> Stage1Metadata:
     excerpt = candidate.excerpt.strip()
     return Stage1Metadata(
         id=stable_id(candidate),
-        summary_zh=excerpt[:4000] or None,
+        summary_zh=excerpt[:excerpt_limit] or None,
         targets=selected("targets"),
         scenarios=selected("scenarios"),
         tasks=selected("tasks"),
@@ -130,7 +130,7 @@ def analyze_metadata(
             successes += 1
         except Exception:
             for candidate in batch:
-                item = _fallback(candidate, config.topics)
+                item = _fallback(candidate, config.topics, config.settings.storage.max_blog_excerpt_chars)
                 all_items[item.id] = item
                 degraded += 1
     ordered = [all_items[stable_id(candidate)] for candidate in candidates if stable_id(candidate) in all_items]
