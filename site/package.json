@@ -1,6 +1,7 @@
 {
   "name": "recsys-daily-site",
   "private": true,
+  "packageManager": "pnpm@11.21.0",
   "type": "module",
   "scripts": {
     "build": "astro build && pagefind --site dist --output-subdir pagefind && node scripts/verify-build.mjs",

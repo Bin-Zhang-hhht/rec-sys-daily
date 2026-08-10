@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { verifyBuild } from "./verify-build.mjs";
@@ -38,4 +38,19 @@ test("verifyBuild uses report graph and artifact thresholds", () => {
 test("verifyBuild accepts a bundle within configured limits", () => {
   const root = makeBundle({ graph_max_content_nodes: 2 });
   assert.equal(verifyBuild(root).snapshot.graph_max_content_nodes, 2);
+});
+
+test("site image pins pnpm and approves only required dependency builds", () => {
+  const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+  const workspace = readFileSync(new URL("../pnpm-workspace.yaml", import.meta.url), "utf8");
+  const dockerfile = readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
+
+  assert.equal(packageJson.packageManager, "pnpm@11.21.0");
+  const workspaceLines = workspace.split(/\r?\n/);
+  for (const dependency of ["'@tailwindcss/oxide'", "esbuild", "sharp"]) {
+    assert.ok(workspaceLines.includes(`  ${dependency}: true`));
+  }
+  const configCopy = dockerfile.indexOf("COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./");
+  assert.ok(configCopy >= 0);
+  assert.ok(configCopy < dockerfile.indexOf("RUN pnpm install --frozen-lockfile"));
 });
