@@ -37,16 +37,23 @@ def validate_public_url(url: str, *, resolver: Resolver | None = None) -> str:
     """Validate scheme and every DNS result, including direct IP literals."""
     if not isinstance(url, str) or len(url) > 2_048:
         raise PublicUrlError("URL is missing or too long")
-    parsed = urlsplit(url)
+    try:
+        parsed = urlsplit(url)
+    except ValueError as exc:
+        raise PublicUrlError("URL is malformed") from exc
     if parsed.scheme.lower() not in {"http", "https"}:
         raise PublicUrlError("only http and https URLs are allowed")
-    if parsed.username or parsed.password or not parsed.hostname:
+    try:
+        hostname = parsed.hostname
+    except ValueError as exc:
+        raise PublicUrlError("URL has a malformed hostname") from exc
+    if parsed.username or parsed.password or not hostname:
         raise PublicUrlError("URL must contain a public hostname without credentials")
     try:
         port = parsed.port or (443 if parsed.scheme.lower() == "https" else 80)
     except ValueError as exc:
         raise PublicUrlError("URL has an invalid port") from exc
-    host = parsed.hostname.rstrip(".")
+    host = hostname.rstrip(".")
     try:
         literal = ipaddress.ip_address(host)
     except ValueError:

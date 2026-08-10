@@ -5,11 +5,11 @@ import socket
 
 import pytest
 
-from recsys_daily.collect import Candidate, FeedResponse, collect_candidates, stable_id
+from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, collect_candidates, stable_id
 from recsys_daily.config import SourcesConfig, load_config
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
 from recsys_daily.schemas import SourceState, State
-from recsys_daily.state import query_window
+from recsys_daily.state import compute_query_windows, query_window
 
 
 ROOT = Path(__file__).parents[2]
@@ -28,12 +28,14 @@ def _config():
 
 
 def test_query_window_uses_cold_start_and_incremental_offsets() -> None:
-    cold = query_window(None, now=NOW)
+    cold = compute_query_windows(None, now=NOW)
     state = State(last_success_at=datetime(2026, 8, 9, 0, 0, tzinfo=UTC))
     incremental = query_window(state, now=NOW)
 
     assert cold.papers_since == datetime(2021, 8, 10, 0, 0, tzinfo=UTC)
     assert cold.blogs_since == datetime(2023, 8, 10, 0, 0, tzinfo=UTC)
+    assert cold.paper_start == cold.papers_since
+    assert cold.blog_start == cold.blogs_since
     assert incremental.papers_since == datetime(2026, 8, 7, 0, 0, tzinfo=UTC)
     assert incremental.blogs_since == datetime(2026, 8, 2, 0, 0, tzinfo=UTC)
 
@@ -55,10 +57,17 @@ def test_stable_id_prefers_arxiv_doi_url_then_title() -> None:
         excerpt="short abstract",
     )
 
-    assert stable_id(replace(base, arxiv_id="arXiv:2608.01234v2")) == "arxiv-2608.01234v2"
+    assert stable_id(replace(base, arxiv_id="arXiv:2608.01234v2")) == "arxiv-2608.01234"
     assert stable_id(replace(base, doi="https://doi.org/10.1234/Example.DOI")).startswith("doi-10.1234-")
     assert stable_id(base).startswith("url-")
     assert stable_id(replace(base, url=None)).startswith("title-")
+
+
+def test_arxiv_query_encodes_submitted_date_window() -> None:
+    config = load_config(ROOT)
+    url = _arxiv_url(config, query_window(None, now=NOW))
+    assert "submittedDate" in url
+    assert "from=" not in url
 
 
 def test_stable_ids_deduplicate_only_identical_normalized_identity_keys() -> None:
@@ -91,7 +100,7 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
     assert {candidate.kind for candidate in result.candidates} == {"paper", "blog"}
     paper = next(candidate for candidate in result.candidates if candidate.kind == "paper")
     blog = next(candidate for candidate in result.candidates if candidate.kind == "blog")
-    assert stable_id(paper) == "arxiv-2608.01234v2"
+    assert stable_id(paper) == "arxiv-2608.01234"
     assert paper.authors == ("Ada Lovelace", "Grace Hopper")
     assert blog.url == "https://engineering.example.com/posts/feed-ranking"
     assert len(blog.excerpt) <= _config().settings.storage.max_blog_excerpt_chars
@@ -121,6 +130,11 @@ def test_public_url_validation_rejects_non_public_addresses() -> None:
     with pytest.raises(PublicUrlError):
         validate_public_url("ftp://example.com/feed", resolver=_public_resolver)
     assert validate_public_url("https://public.example/feed", resolver=_public_resolver) == "https://public.example/feed"
+
+
+def test_public_url_validation_wraps_malformed_urls() -> None:
+    with pytest.raises(PublicUrlError):
+        validate_public_url("http://[::1/feed")
 
 
 def test_fetch_revalidates_every_redirect_target() -> None:

@@ -51,7 +51,7 @@ def _score(candidate: Candidate, config: AppConfig, history_ids: set[str], now: 
     )
 
 
-def _sort_key(candidate: Candidate) -> tuple[float, float, str, str]:
+def deterministic_sort_key(candidate: Candidate) -> tuple[float, float, str, str]:
     return (-candidate.metadata_score, -candidate.published_at.timestamp(), candidate.source_id, stable_id(candidate))
 
 
@@ -73,8 +73,8 @@ def prefilter(
         scored = replace(candidate, metadata_score=score)
         key = stable_id(scored)
         previous = unique.get(key)
-        if previous is None or _sort_key(scored) < _sort_key(previous):
+        if previous is None or deterministic_sort_key(scored) < deterministic_sort_key(previous):
             unique[key] = scored
-    papers = sorted((item for item in unique.values() if item.kind == "paper"), key=_sort_key)[: config.settings.limits.max_papers_per_run]
-    blogs = sorted((item for item in unique.values() if item.kind == "blog"), key=_sort_key)[: config.settings.limits.max_blogs_per_run]
-    return sorted([*papers, *blogs], key=_sort_key)
+    papers = sorted((item for item in unique.values() if item.kind == "paper"), key=deterministic_sort_key)[: config.settings.limits.max_papers_per_run]
+    blogs = sorted((item for item in unique.values() if item.kind == "blog"), key=deterministic_sort_key)[: config.settings.limits.max_blogs_per_run]
+    return sorted([*papers, *blogs], key=deterministic_sort_key)

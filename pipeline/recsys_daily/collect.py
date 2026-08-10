@@ -116,6 +116,7 @@ def _candidate_arxiv_id(candidate: Candidate) -> str | None:
         value = match.group(1) if match else ""
     value = re.sub(r"^arxiv:\s*", "", value, flags=re.I).strip()
     value = re.sub(r"\.(?:pdf|html)$", "", value, flags=re.I)
+    value = re.sub(r"v\d+$", "", value, flags=re.I)
     return value.replace("/", "-") or None
 
 
@@ -267,9 +268,19 @@ def _header(headers: Mapping[str, str], name: str) -> str | None:
 
 def _arxiv_url(config: AppConfig, window: QueryWindow) -> str:
     terms = [term for category in (config.topics.targets, config.topics.scenarios, config.topics.tasks, config.topics.methods) for entry in category for term in entry.terms]
-    query = " OR ".join(f'all:"{term}"' for term in dict.fromkeys(terms)) or 'all:"recommendation"'
-    params = {"search_query": query, "start": 0, "max_results": config.settings.limits.max_papers_per_run, "sortBy": "submittedDate", "sortOrder": "descending", "from": window.papers_since.date().isoformat()}
-    from urllib.parse import urlencode
+    term_query = " OR ".join(f'all:"{term}"' for term in dict.fromkeys(terms)) or 'all:"recommendation"'
+    submitted_window = (
+        f"submittedDate:[{window.papers_since:%Y%m%d%H%M} TO "
+        f"{window.until:%Y%m%d%H%M}]"
+    )
+    query = f"({term_query}) AND {submitted_window}"
+    params = {
+        "search_query": query,
+        "start": 0,
+        "max_results": config.settings.limits.max_papers_per_run,
+        "sortBy": "submittedDate",
+        "sortOrder": "descending",
+    }
     return "https://export.arxiv.org/api/query?" + urlencode(params)
 
 

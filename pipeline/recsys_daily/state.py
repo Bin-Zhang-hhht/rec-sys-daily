@@ -27,6 +27,14 @@ class QueryWindow:
     def blog_since(self) -> datetime:
         return self.blogs_since
 
+    @property
+    def paper_start(self) -> datetime:
+        return self.papers_since
+
+    @property
+    def blog_start(self) -> datetime:
+        return self.blogs_since
+
 
 def _valid_state(value: State | dict[str, Any] | None) -> State | None:
     if value is None:
@@ -63,5 +71,6 @@ def query_window(state: State | dict[str, Any] | None, *, now: datetime | None =
     return QueryWindow(papers_since=papers_since, blogs_since=blogs_since, until=current)
 
 
+compute_query_windows = query_window
 compute_query_window = query_window
 get_query_window = query_window

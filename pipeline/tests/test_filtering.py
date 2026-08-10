@@ -3,7 +3,7 @@ from pathlib import Path
 
 from recsys_daily.collect import Candidate, stable_id
 from recsys_daily.config import load_config
-from recsys_daily.filtering import prefilter
+from recsys_daily.filtering import deterministic_sort_key, prefilter
 from recsys_daily.schemas import State
 
 
@@ -50,3 +50,4 @@ def test_prefilter_uses_stable_tie_breakers() -> None:
     result = prefilter([higher_source, lower_source], config, State(), now=NOW)
 
     assert [candidate.source_id for candidate in result] == ["airbnb_tech", "meta_engineering"]
+    assert result == sorted(result, key=deterministic_sort_key)
