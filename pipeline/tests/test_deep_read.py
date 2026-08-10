@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from recsys_daily.collect import Candidate
-from recsys_daily.content import PageText
+from recsys_daily.content import BlogFeedCache, PageText
 from recsys_daily.deep_read import DeepReadServices, deep_read, deep_read_blog, deep_read_paper
 
 
@@ -246,3 +246,40 @@ def test_deep_read_caps_input_to_top_sixteen(tmp_path: Path) -> None:
 
     payload = json.loads((output_dir / "blog-deep-readings.json").read_text(encoding="utf-8"))
     assert len(payload["items"]) == 16
+
+
+def test_blog_deep_read_fetches_each_source_feed_once_and_reuses_content(tmp_path: Path) -> None:
+    payload = """
+    <rss version='2.0' xmlns:content='http://purl.org/rss/1.0/modules/content/'><channel><item>
+      <guid>feed-ranking</guid><title>How We Improved Feed Ranking</title>
+      <link>https://engineering.example.com/posts/feed-ranking</link>
+      <pubDate>Mon, 10 Aug 2026 00:00:00 +0000</pubDate>
+      <content:encoded><![CDATA[<p>Full feed implementation.</p>]]></content:encoded>
+    </item></channel></rss>
+    """
+    calls: list[tuple[str, str]] = []
+    cache = BlogFeedCache(
+        source_urls={"example": "https://example.test/feed"},
+        fetch_feed=lambda source_id, url: calls.append((source_id, url)) or payload,
+    )
+    content = FakeContent(tmp_path)
+    services = _services(tmp_path, content, text=_blog_analysis)
+    services.blog_feed_content = cache.get
+
+    assert deep_read_blog(_blog(), services).analysis_basis == "rss_full_content"
+    assert deep_read_blog(_blog(), services).analysis_basis == "rss_full_content"
+    assert calls == [("example", "https://example.test/feed")]
+
+
+def test_blog_second_feed_failure_uses_article_or_excerpt(tmp_path: Path) -> None:
+    cache = BlogFeedCache(
+        source_urls={"example": "https://example.test/feed"},
+        fetch_feed=lambda *_args: (_ for _ in ()).throw(RuntimeError("feed down")),
+    )
+    content = FakeContent(tmp_path, article="<p>Article fallback</p>")
+    services = _services(tmp_path, content, text=_blog_analysis)
+    services.blog_feed_content = cache.get
+
+    reading = deep_read_blog(_blog(), services)
+
+    assert reading.analysis_basis == "article_html"

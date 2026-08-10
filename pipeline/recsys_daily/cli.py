@@ -15,13 +15,14 @@ import typer
 from .artifacts import write_json, write_jsonl
 from .collect import Candidate, collect_candidates, stable_id
 from .config import AppConfig, load_config
-from .content import ContentServices, DomainRateLimiter, fetch_article_html as fetch_article_html_request, fetch_bytes as fetch_bytes_request, fetch_text as fetch_text_request
+from .content import BlogFeedCache, ContentServices, DomainRateLimiter, fetch_article_html as fetch_article_html_request, fetch_bytes as fetch_bytes_request, fetch_text as fetch_text_request
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
 from .llm import TextClient, TokenBudget, VisionClient
 from .metadata import MetadataResult, analyze_metadata
 from .prompts import json_messages
 from .rate_limit import RateLimiter
+from .security import fetch_public_url
 from .schemas import BlogItem, PaperItem, SourceRunStatus, SourceState, Stage1Metadata, StageReport
 from .filtering import prefilter
 
@@ -231,6 +232,17 @@ def _real_services(
     def configured_fetch_article_html(candidate: Candidate, limit: int | None = None) -> str:
         return fetch_article_html_request(candidate, min(limit or max_blog_html_bytes, max_blog_html_bytes), timeout=request_timeout)
 
+    source_urls = {source.id: source.url for source in config.sources.blogs if source.enabled}
+
+    def fetch_blog_feed(_source_id: str, url: str) -> bytes:
+        return fetch_public_url(url, timeout=request_timeout).content
+
+    blog_feed_cache = BlogFeedCache(
+        source_urls,
+        fetch_blog_feed,
+        max_requests_per_source=max(1, config.settings.limits.rss_requests_per_run_per_source - 1),
+    )
+
     return DeepReadServices(
         content=ContentServices(
             fetch_text=configured_fetch_text,
@@ -246,6 +258,7 @@ def _real_services(
         domain_limiter=DomainRateLimiter(config.settings.limits.blog_min_interval_seconds_per_domain),
         vision_profile=config.models.vision.profile,
         vision_model=config.models.vision.model,
+        blog_feed_content=blog_feed_cache.get,
     )
 
 

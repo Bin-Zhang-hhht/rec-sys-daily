@@ -32,6 +32,7 @@ class DeepReadServices:
     domain_limiter: Any | None = None
     vision_profile: str = "nvidia_omni"
     vision_model: str = "configured-vision-model"
+    blog_feed_content: Callable[[Candidate], str | None] | None = None
 
 
 def _write_temp(root: Path, name: str, payload: bytes | str, paths: list[Path]) -> Path:
@@ -154,6 +155,8 @@ def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogRead
     basis = "excerpt_fallback"
     try:
         feed_body = services.content.feed_content(candidate)
+        if not feed_body and services.blog_feed_content is not None:
+            feed_body = services.blog_feed_content(candidate)
         if feed_body:
             body = str(feed_body).strip()
             basis = "rss_full_content"

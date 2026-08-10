@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import threading
 import time
+from collections.abc import Mapping
 from typing import Callable
 from urllib.parse import urlsplit
 
@@ -13,6 +14,7 @@ import fitz
 import trafilatura
 
 from .security import fetch_public_url
+from .collect import Candidate, normalize_title, normalize_url, parse_blog_feed, stable_id
 
 
 @dataclass(frozen=True)
@@ -121,6 +123,62 @@ def fetch_article_html(candidate: object, max_bytes: int = 5 * 1024 * 1024, *, t
     if not url:
         raise ValueError("blog candidate has no public URL")
     return fetch_text(str(url), max_bytes, timeout=timeout)
+
+
+def parse_source_feed(payload: bytes | str, source_id: str) -> list[Candidate]:
+    return parse_blog_feed(payload, source_id=source_id)
+
+
+class BlogFeedCache:
+    """Process-local second-feed cache; source payloads never reach disk."""
+
+    def __init__(
+        self,
+        source_urls: Mapping[str, str],
+        fetch_feed: Callable[[str, str], bytes | str],
+        parse_feed: Callable[[bytes | str, str], list[Candidate]] = parse_source_feed,
+        max_requests_per_source: int = 1,
+    ) -> None:
+        if max_requests_per_source < 1:
+            raise ValueError("max_requests_per_source must be positive")
+        self._source_urls = dict(source_urls)
+        self._fetch_feed = fetch_feed
+        self._parse_feed = parse_feed
+        self._max_requests_per_source = max_requests_per_source
+        self._attempts: dict[str, int] = {}
+        self._content_by_id: dict[str, str] = {}
+        self._content_by_url: dict[str, str] = {}
+        self._content_by_title: dict[str, str] = {}
+
+    def get(self, candidate: Candidate) -> str | None:
+        source_id = candidate.source_id
+        if source_id not in self._source_urls:
+            return None
+        keys = (stable_id(candidate), normalize_url(candidate.url), normalize_title(candidate.title))
+        for key, values in zip(("id", "url", "title"), keys):
+            if not values:
+                continue
+            store = {"id": self._content_by_id, "url": self._content_by_url, "title": self._content_by_title}[key]
+            if values in store:
+                return store[values]
+        if self._attempts.get(source_id, 0) >= self._max_requests_per_source:
+            return None
+        self._attempts[source_id] = self._attempts.get(source_id, 0) + 1
+        try:
+            candidates = self._parse_feed(self._fetch_feed(source_id, self._source_urls[source_id]), source_id)
+        except Exception:
+            return None
+        for parsed in candidates:
+            body = (parsed.feed_content or "").strip()
+            if not body:
+                continue
+            self._content_by_id[stable_id(parsed)] = body
+            if parsed.url:
+                normalized_url = normalize_url(parsed.url)
+                if normalized_url:
+                    self._content_by_url[normalized_url] = body
+            self._content_by_title[normalize_title(parsed.title)] = body
+        return self.get(candidate)
 
 
 @dataclass
