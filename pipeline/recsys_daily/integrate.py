@@ -62,11 +62,15 @@ def _stage_values(path: Path, kind: str) -> list[dict[str, Any]]:
 
 def _candidate_metadata(stage1: Path) -> dict[str, dict[str, Any]]:
     metadata: dict[str, dict[str, Any]] = {}
-    for kind in ("paper", "blog"):
-        for value in _stage_values(stage1, kind) if any((stage1 / name).exists() for name in ("items.jsonl", f"{kind}s.jsonl", f"{kind}.jsonl", f"{kind}-deep-readings.json")) else []:
-            identifier = value.get("id")
-            if identifier:
-                metadata[str(identifier)] = value
+    for name in ("items.jsonl", "papers.jsonl", "blogs.jsonl", "paper-candidates.json", "blog-candidates.json", "candidates.json"):
+        source = stage1 / name
+        if not source.exists():
+            continue
+        values = read_jsonl(source) if source.suffix == ".jsonl" else read_json(source).get("items", read_json(source).get("candidates", []))
+        if isinstance(values, list):
+            for value in values:
+                if isinstance(value, dict) and value.get("id"):
+                    metadata[str(value["id"])] = value
     return metadata
 
 
@@ -80,11 +84,16 @@ def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, A
         if "source" not in value and value.get("source_id"):
             value["source"] = value["source_id"]
         value.setdefault("summary_zh", value.get("excerpt") or value.get("title") or "")
+        value.setdefault("relevance_score", value.get("metadata_score", 0.0))
         value.setdefault("authors", [])
         value.setdefault("targets", ["content"])
         value.setdefault("scenarios", ["text_feed"])
         value.setdefault("tasks", ["ranking"])
         value.setdefault("methods", ["two_tower"])
+        for key in ("source_id", "source_entry_id", "arxiv_id", "doi", "categories", "source_weight", "source_scenarios", "metadata_score"):
+            value.pop(key, None)
+        if kind == "paper":
+            value.pop("excerpt", None)
         item_type = PaperItem if kind == "paper" else BlogItem
         parsed.append(item_type.model_validate(value, context={"taxonomy": taxonomy}))
     return parsed
