@@ -836,7 +836,7 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 - 执行 `python -m recsys_daily collect-filter --output /workspace/stage-1`
 - 上传 `stage-1-<run-id>` artifact，`retention-days: 1`
 
-Artifact 只包含 `manifest.json`、`papers.jsonl` 和 `blogs.jsonl`。为减少协调代码，`manifest.json` 只保存 `run_id` 和 `schema_version`；不计算 commit、state 或 config hash，也不包含原始 API/RSS 响应或全文。
+Artifact 只包含 `manifest.json`、`papers.jsonl`、`blogs.jsonl` 和结构化的 `source-states.json`。其中 `source-states.json` 只保存来源游标、`ETag`、`Last-Modified` 和最近成功时间，不包含原始 API/RSS 响应或全文。为减少协调代码，`manifest.json` 只保存 `run_id` 和 `schema_version`；不计算 commit、state 或 config hash。
 
 #### Job 2：deep-read
 

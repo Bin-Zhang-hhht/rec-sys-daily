@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+import json
 import shutil
 import tempfile
 from pathlib import Path
@@ -20,6 +21,7 @@ from .schemas import (
     Manifest,
     PaperItem,
     RunReport,
+    SourceState,
     State,
 )
 
@@ -66,19 +68,45 @@ def _candidate_metadata(stage1: Path) -> dict[str, dict[str, Any]]:
         source = stage1 / name
         if not source.exists():
             continue
-        values = read_jsonl(source) if source.suffix == ".jsonl" else read_json(source).get("items", read_json(source).get("candidates", []))
+        document = None if source.suffix == ".jsonl" else read_json(source)
+        values = read_jsonl(source) if source.suffix == ".jsonl" else document.get("items", document.get("candidates", []))
         if isinstance(values, list):
             for value in values:
-                if isinstance(value, dict) and value.get("id"):
-                    metadata[str(value["id"])] = value
+                if not isinstance(value, dict):
+                    raise ValueError(f"candidate artifact contains a non-object value: {source}")
+                if not value.get("id"):
+                    raise ValueError(f"candidate id is required: {source}")
+                candidate_id = str(value["id"])
+                if candidate_id in metadata:
+                    raise ValueError(f"duplicate candidate id in stage-1: {candidate_id}")
+                metadata[candidate_id] = value
     return metadata
+
+
+def _source_states(stage1: Path) -> dict[str, SourceState]:
+    for name in ("source-states.json", "source_states.json"):
+        source = stage1 / name
+        if source.exists():
+            document = read_json(source)
+            result: dict[str, SourceState] = {}
+            for source_id, value in document.items():
+                if not isinstance(value, dict):
+                    raise ValueError(f"source state must be an object: {source_id}")
+                result[str(source_id)] = SourceState.model_validate(value)
+            return result
+    return {}
 
 
 def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, Any]]) -> list[ContentItem]:
     parsed: list[ContentItem] = []
     for value in _stage_values(path, kind):
+        item_id = str(value.get("id", ""))
+        if not item_id:
+            raise ValueError(f"candidate id is required in {path}")
+        if item_id not in metadata:
+            raise ValueError(f"deep-reading candidate id is not present in stage-1: {item_id}")
         if "title" not in value or "published_at" not in value:
-            base = dict(metadata.get(str(value.get("id", "")), {}))
+            base = dict(metadata[item_id])
             base.update(value)
             value = base
         if "source" not in value and value.get("source_id"):
@@ -99,13 +127,29 @@ def _items(path: Path, kind: str, taxonomy: Any, metadata: dict[str, dict[str, A
     return parsed
 
 
+def _structured_success_rate(
+    metadata: dict[str, dict[str, Any]],
+    items: list[ContentItem],
+    kind: str,
+    max_deep_reads: int,
+) -> float:
+    expected = [item_id for item_id, value in metadata.items() if value.get("kind") == kind][:max_deep_reads]
+    if not expected:
+        return 1.0
+    successful = {item.id for item in items if item.kind == kind}
+    return len(set(expected) & successful) / len(expected)
+
+
 def _load_previous_state(value: State | dict[str, Any] | None) -> State | None:
     if value is None:
         return None
     return value if isinstance(value, State) else State.model_validate(value)
 
 
-def _write_item(root: Path, item: PaperItem | BlogItem) -> None:
+def _write_item(root: Path, item: PaperItem | BlogItem, max_item_bytes: int) -> None:
+    encoded = (json.dumps(item.model_dump(mode="json"), ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    if len(encoded) > max_item_bytes:
+        raise ValueError(f"item exceeds configured size limit: {item.id} ({len(encoded)} > {max_item_bytes})")
     kind_dir = "papers" if item.kind == "paper" else "blogs"
     path = root / "items" / kind_dir / f"{item.published_at.year:04d}" / f"{item.published_at.month:02d}" / f"{item.id}.json"
     write_json(path, item.model_dump(mode="json"))
@@ -138,6 +182,7 @@ def integrate(
         raise ValueError("stage manifests must use the same schema_version")
 
     metadata = _candidate_metadata(stages.stage1)
+    source_states = _source_states(stages.stage1)
     paper_items = _items(stages.paper, "paper", config.topics, metadata)
     blog_items = _items(stages.blog, "blog", config.topics, metadata)
     all_items = [*paper_items, *blog_items]
@@ -155,8 +200,22 @@ def integrate(
                 raise ValueError(f"unknown graph relation target: {relation.target_id}")
 
     max_deep_reads = config.settings.limits.deep_reading_candidates_per_type
-    papers = rank_items(paper_items[:max_deep_reads], "paper", config.settings.daily_target)
-    blogs = rank_items(blog_items[:max_deep_reads], "blog", config.settings.daily_target)
+    paper_success_rate = _structured_success_rate(metadata, paper_items, "paper", max_deep_reads)
+    blog_success_rate = _structured_success_rate(metadata, blog_items, "blog", max_deep_reads)
+    minimum_success_rate = config.settings.structured_analysis_min_success_rate
+    if paper_success_rate < minimum_success_rate or blog_success_rate < minimum_success_rate:
+        raise ValueError(
+            "structured analysis success rate below configured minimum: "
+            f"paper={paper_success_rate:.3f}, blog={blog_success_rate:.3f}, minimum={minimum_success_rate:.3f}"
+        )
+    papers = rank_items(
+        paper_items[:max_deep_reads], "paper", config.settings.daily_target,
+        final_weights=config.settings.final_weights,
+    )
+    blogs = rank_items(
+        blog_items[:max_deep_reads], "blog", config.settings.daily_target,
+        final_weights=config.settings.final_weights,
+    )
     run_at = datetime.now(UTC)
     digest = Digest(date=run_at.date(), papers=_digest_entries(papers), blogs=_digest_entries(blogs))
     previous = _load_previous_state(state)
@@ -164,7 +223,7 @@ def integrate(
     pending_state = State(
         schema_version=previous.schema_version if previous else schema_version,
         last_success_at=run_at,
-        sources=previous.sources if previous else {},
+        sources={**(previous.sources if previous else {}), **source_states},
         recommended_item_ids=recommended_ids,
         updated_at=run_at,
     )
@@ -176,6 +235,7 @@ def integrate(
         blog_candidates=len(blog_items),
         paper_recommendations=len(papers),
         blog_recommendations=len(blogs),
+        structured_analysis_success_rate=min(paper_success_rate, blog_success_rate),
     )
     manifest = Manifest(run_id=run_id, schema_version=schema_version)
 
@@ -189,7 +249,7 @@ def integrate(
         write_json(temp_path / "manifest.json", manifest.model_dump())
         write_json(temp_path / "taxonomy.json", config.topics.to_public_snapshot())
         for item in all_items:
-            _write_item(pending, item)
+            _write_item(pending, item, config.settings.storage.max_item_bytes)
         digest_path = pending / "digests" / f"{digest.date.year:04d}" / f"{digest.date.month:02d}" / f"{digest.date.isoformat()}.json"
         write_json(digest_path, digest.model_dump(mode="json"))
         report_path = pending / "runs" / f"{run_at.year:04d}" / f"{run_at.month:02d}" / f"{run_id}.json"

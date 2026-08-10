@@ -31,6 +31,10 @@ class Candidate:
     published_at: datetime
     authors: tuple[str, ...] = ()
     excerpt: str = ""
+    # Feed content is retained only while candidates stay in the process.  It
+    # is deliberately omitted from cross-stage artifacts because raw source
+    # text must not be persisted.
+    feed_content: str | None = field(default=None, repr=False, compare=False)
     source_entry_id: str | None = None
     arxiv_id: str | None = None
     doi: str | None = None
@@ -178,6 +182,22 @@ def _entry_excerpt(entry: Any, limit: int = 4_000) -> str:
     return _bounded_text(" ".join(values), limit)
 
 
+def _entry_feed_content(entry: Any) -> str | None:
+    """Return RSS/Atom full content without copying it into the excerpt."""
+    value = _entry_value(entry, "content")
+    if isinstance(value, list):
+        for part in value:
+            if isinstance(part, dict) and part.get("value"):
+                return str(part["value"]).strip() or None
+    if value:
+        return str(value).strip() or None
+    for name in ("content:encoded", "content_encoded"):
+        value = _entry_value(entry, name)
+        if value:
+            return str(value).strip() or None
+    return None
+
+
 def _authors(entry: Any) -> tuple[str, ...]:
     values: list[str] = []
     for author in _entry_value(entry, "authors", []) or []:
@@ -250,7 +270,7 @@ def parse_blog_feed(payload: bytes | str, *, source_id: str, source_weight: floa
         candidates.append(Candidate(
             kind="blog", source_id=source_id, title=title, url=url, published_at=published_at,
             authors=_authors(entry), excerpt=_entry_excerpt(entry), source_entry_id=entry_id,
-            doi=doi, source_weight=source_weight, source_scenarios=scenarios,
+            feed_content=_entry_feed_content(entry), doi=doi, source_weight=source_weight, source_scenarios=scenarios,
         ))
     return candidates
 

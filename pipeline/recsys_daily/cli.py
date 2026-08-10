@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 import base64
 import json
 from pathlib import Path
+import shutil
 from typing import Any
 
 import typer
@@ -19,7 +20,8 @@ from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
 from .llm import TextClient, VisionClient
 from .prompts import json_messages
-from .schemas import BlogItem, PaperItem
+from .rate_limit import RateLimiter
+from .schemas import BlogItem, PaperItem, SourceState
 from .filtering import prefilter
 
 
@@ -36,6 +38,9 @@ def _root(root: Path | None = None) -> Path:
 
 def _candidate_document(candidate: Candidate) -> dict[str, Any]:
     value = asdict(candidate)
+    # Full RSS content is process-local input and must never cross a stage
+    # boundary or enter a retained artifact.
+    value.pop("feed_content", None)
     value["id"] = stable_id(candidate)
     value["published_at"] = candidate.published_at.astimezone(UTC).isoformat().replace("+00:00", "Z")
     for key in ("authors", "categories", "source_scenarios"):
@@ -43,12 +48,21 @@ def _candidate_document(candidate: Candidate) -> dict[str, Any]:
     return value
 
 
-def _write_stage_one(output: Path, run_id: str, candidates: list[Candidate]) -> None:
+def _write_stage_one(
+    output: Path,
+    run_id: str,
+    candidates: list[Candidate],
+    source_states: dict[str, SourceState] | None = None,
+) -> None:
     output.mkdir(parents=True, exist_ok=True)
     write_json(output / "manifest.json", {"run_id": run_id, "schema_version": "1"})
     for kind in ("paper", "blog"):
         values = [_candidate_document(candidate) for candidate in candidates if candidate.kind == kind]
         write_jsonl(output / f"{kind}s.jsonl", values)
+    write_json(
+        output / "source-states.json",
+        {source_id: state.model_dump(mode="json") for source_id, state in (source_states or {}).items()},
+    )
 
 
 def _fixture_candidates(now: datetime) -> list[Candidate]:
@@ -147,9 +161,25 @@ def _fixture_services(root: Path, work: Path) -> DeepReadServices:
     )
 
 
-def _real_services(config: AppConfig, root: Path, work: Path) -> DeepReadServices:
-    text_client = TextClient.from_config(config.models)
-    vision_client = VisionClient.from_config(config.models)
+def _full_read_limiter(config: AppConfig) -> RateLimiter:
+    limits = config.settings.limits
+    return RateLimiter(
+        target_rpm=limits.nvidia_target_rpm,
+        hard_rpm=limits.nvidia_hard_rpm,
+        min_interval_seconds=limits.nvidia_min_interval_seconds_per_worker,
+    )
+
+
+def _real_services(
+    config: AppConfig,
+    root: Path,
+    work: Path,
+    *,
+    limiter: RateLimiter | None = None,
+) -> DeepReadServices:
+    shared_limiter = limiter or _full_read_limiter(config)
+    text_client = TextClient.from_config(config.models, limiter=shared_limiter)
+    vision_client = VisionClient.from_config(config.models, limiter=shared_limiter)
 
     def text_reader(kind: str, body: str, context: dict[str, Any]) -> dict[str, Any]:
         prompt = f"Return strict JSON for a {kind} recommendation-system deep reading. Context: {context}"
@@ -172,17 +202,28 @@ def _real_services(config: AppConfig, root: Path, work: Path) -> DeepReadService
     )
 
 
-def _run_deep_read(kind: str, stage_one: Path, output: Path, services: DeepReadServices, run_id: str) -> None:
+def _run_deep_read(
+    kind: str,
+    stage_one: Path,
+    output: Path,
+    services: DeepReadServices,
+    run_id: str,
+    *,
+    max_candidates: int = 16,
+) -> None:
     candidates = [
         json.loads(line)
         for line in (stage_one / f"{kind}s.jsonl").read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
     input_dir = output / "candidate-input"
-    input_dir.mkdir(parents=True, exist_ok=True)
-    (input_dir / f"{kind}-candidates.json").write_text(json.dumps(candidates, ensure_ascii=False), encoding="utf-8")
-    deep_read(kind, input_dir, output, services=services)
-    write_json(output / "manifest.json", {"run_id": run_id, "schema_version": "1"})
+    try:
+        input_dir.mkdir(parents=True, exist_ok=True)
+        (input_dir / f"{kind}-candidates.json").write_text(json.dumps(candidates, ensure_ascii=False), encoding="utf-8")
+        deep_read(kind, input_dir, output, services=services, max_candidates=max_candidates)
+        write_json(output / "manifest.json", {"run_id": run_id, "schema_version": "1"})
+    finally:
+        shutil.rmtree(input_dir, ignore_errors=True)
 
 
 @app.command("collect-filter")
@@ -193,7 +234,7 @@ def collect_filter(output: Path = typer.Option(...), root: Path = typer.Option(P
     state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
     result = collect_candidates(config, state)
     candidates = prefilter(result.candidates, config, state)
-    _write_stage_one(output, datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"), candidates)
+    _write_stage_one(output, datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"), candidates, result.source_states)
 
 
 @app.command("deep-read")
@@ -201,7 +242,14 @@ def deep_read_command(kind: str = typer.Option(...), input: Path = typer.Option(
     repository = _root(root)
     config = load_config(repository)
     manifest = json.loads((input / "manifest.json").read_text(encoding="utf-8"))
-    _run_deep_read(kind, input, output, _real_services(config, repository, output), manifest["run_id"])
+    _run_deep_read(
+        kind,
+        input,
+        output,
+        _real_services(config, repository, output),
+        manifest["run_id"],
+        max_candidates=config.settings.limits.deep_reading_candidates_per_type,
+    )
 
 
 @app.command("rank-integrate")
@@ -220,8 +268,18 @@ def run_pipeline(output: Path = typer.Option(...), root: Path = typer.Option(Pat
     collect_filter(work / "stage-1", repository)
     manifest = json.loads((work / "stage-1" / "manifest.json").read_text(encoding="utf-8"))
     config = load_config(repository)
-    _run_deep_read("paper", work / "stage-1", work / "deep-reading-paper", _real_services(config, repository, work), manifest["run_id"])
-    _run_deep_read("blog", work / "stage-1", work / "deep-reading-blog", _real_services(config, repository, work), manifest["run_id"])
+    limiter = _full_read_limiter(config)
+    max_candidates = config.settings.limits.deep_reading_candidates_per_type
+    _run_deep_read(
+        "paper", work / "stage-1", work / "deep-reading-paper",
+        _real_services(config, repository, work, limiter=limiter), manifest["run_id"],
+        max_candidates=max_candidates,
+    )
+    _run_deep_read(
+        "blog", work / "stage-1", work / "deep-reading-blog",
+        _real_services(config, repository, work, limiter=limiter), manifest["run_id"],
+        max_candidates=max_candidates,
+    )
     rank_integrate(work, output, repository)
 
 
@@ -240,4 +298,3 @@ def test_fixtures(case: str = typer.Option("cold-start"), work: Path = typer.Opt
     _run_deep_read("paper", stage_one, work / "deep-reading-paper", services, run_id)
     _run_deep_read("blog", stage_one, work / "deep-reading-blog", services, run_id)
     integrate(StageInputs(stage_one, work / "deep-reading-paper", work / "deep-reading-blog"), work / "publish-bundle", config, state=None)
-

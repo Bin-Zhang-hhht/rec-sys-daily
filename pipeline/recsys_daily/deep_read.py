@@ -125,14 +125,20 @@ def deep_read_paper(candidate: Candidate, services: DeepReadServices) -> PaperRe
                     if body:
                         basis = "pdf_text"
                         _write_temp(services.temporary_root, f"{stable_id(candidate)}.txt", body, paths)
-                    page_numbers = services.content.critical_pages(page_texts)
-                    page_paths = services.content.render_pages(pdf_path, page_numbers, services.temporary_root)
-                    paths.extend(page_paths)
-                    visual = _visual_analysis(services, page_paths, page_numbers)
                 except Exception:
                     body = ""
                     basis = "abstract_fallback"
                     visual = VisualAnalysis(status="not_required")
+                else:
+                    # Text extraction is useful even if visual page handling
+                    # fails; only the visual branch should become unavailable.
+                    try:
+                        page_numbers = services.content.critical_pages(page_texts)
+                        page_paths = services.content.render_pages(pdf_path, page_numbers, services.temporary_root)
+                        paths.extend(page_paths)
+                        visual = _visual_analysis(services, page_paths, page_numbers)
+                    except Exception:
+                        visual = VisualAnalysis(status="unavailable")
         if not body:
             body = candidate.excerpt or candidate.title
         payload = services.text_reader("paper", body, {"analysis_basis": basis, "visual_analysis": visual.model_dump()})
@@ -169,6 +175,9 @@ def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogRead
 
 def _candidate_from_dict(value: Mapping[str, Any]) -> Candidate:
     data = dict(value)
+    # The stable ID is an artifact identity field, not a Candidate dataclass
+    # constructor argument; it is recomputed from the normalized identity.
+    data.pop("id", None)
     published = data.get("published_at")
     if isinstance(published, str):
         data["published_at"] = datetime.fromisoformat(published.replace("Z", "+00:00"))
@@ -178,9 +187,18 @@ def _candidate_from_dict(value: Mapping[str, Any]) -> Candidate:
     return Candidate(**data)
 
 
-def deep_read(kind: str, input_dir: Path, output_dir: Path, *, services: DeepReadServices | None = None) -> Path:
+def deep_read(
+    kind: str,
+    input_dir: Path,
+    output_dir: Path,
+    *,
+    services: DeepReadServices | None = None,
+    max_candidates: int = 16,
+) -> Path:
     if kind not in {"paper", "blog"}:
         raise ValueError("kind must be paper or blog")
+    if max_candidates < 0:
+        raise ValueError("max_candidates must be non-negative")
     source = input_dir / f"{kind}-candidates.json"
     if not source.exists():
         source = input_dir / "candidates.json"
@@ -191,10 +209,9 @@ def deep_read(kind: str, input_dir: Path, output_dir: Path, *, services: DeepRea
     if services is None:
         raise DeepReadError("deep_read requires injected services")
     readings = []
-    for value in values:
+    kind_values = [value for value in values if isinstance(value, dict) and value.get("kind") == kind]
+    for value in kind_values[:max_candidates]:
         candidate = _candidate_from_dict(value)
-        if candidate.kind != kind:
-            continue
         reading = deep_read_paper(candidate, services) if kind == "paper" else deep_read_blog(candidate, services)
         readings.append({"id": stable_id(candidate), "kind": kind, "deep_reading": reading.model_dump(mode="json")})
     output_dir.mkdir(parents=True, exist_ok=True)

@@ -135,6 +135,17 @@ def test_paper_falls_back_to_pdf_calls_vision_once_with_all_critical_pages_and_c
     assert list(tmp_path.iterdir()) == []
 
 
+def test_paper_keeps_pdf_text_when_visual_page_detection_fails(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path)
+    content.critical_pages = lambda _pages: (_ for _ in ()).throw(RuntimeError("page detection unavailable"))  # type: ignore[method-assign]
+
+    reading = deep_read_paper(_paper(), _services(tmp_path, content))
+
+    assert reading.analysis_basis == "pdf_text"
+    assert reading.visual_analysis.status == "unavailable"
+    assert list(tmp_path.iterdir()) == []
+
+
 def test_paper_without_critical_pages_skips_vision_and_uses_arxiv_html(tmp_path: Path) -> None:
     content = FakeContent(tmp_path, html=(FIXTURES / "paper.html").read_text(encoding="utf-8"))
     vision_calls: list[list[Path]] = []
@@ -179,3 +190,29 @@ def test_blog_uses_feed_content_before_article_and_directory_artifact_excludes_r
     assert "Full feed content" not in payload
     assert "Short feed excerpt" not in payload
     assert content.article_calls == 0
+
+
+def test_deep_read_caps_input_to_top_sixteen(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path)
+    services = _services(tmp_path, content, text=_blog_analysis)
+    input_dir = tmp_path / "input"
+    output_dir = tmp_path / "output"
+    input_dir.mkdir()
+    candidates = [
+        {
+            "kind": "blog",
+            "source_id": "example",
+            "title": f"Feed Ranking {index}",
+            "url": f"https://engineering.example.com/posts/{index}",
+            "published_at": "2026-08-10T00:00:00Z",
+            "authors": ["Example Engineer"],
+            "excerpt": "Short excerpt",
+        }
+        for index in range(20)
+    ]
+    (input_dir / "blog-candidates.json").write_text(json.dumps(candidates), encoding="utf-8")
+
+    deep_read("blog", input_dir, output_dir, services=services)
+
+    payload = json.loads((output_dir / "blog-deep-readings.json").read_text(encoding="utf-8"))
+    assert len(payload["items"]) == 16

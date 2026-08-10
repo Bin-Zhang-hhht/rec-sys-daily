@@ -187,6 +187,7 @@ class RunReport(ArtifactModel):
     paper_recommendations: int = Field(default=0, ge=0)
     blog_recommendations: int = Field(default=0, ge=0)
     llm_calls: int = Field(default=0, ge=0)
+    structured_analysis_success_rate: float = Field(default=1.0, ge=0, le=1)
     warnings: list[str] = Field(default_factory=list)
 
 

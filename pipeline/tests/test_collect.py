@@ -5,7 +5,7 @@ import socket
 
 import pytest
 
-from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, collect_candidates, stable_id
+from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, collect_candidates, parse_blog_feed, stable_id
 from recsys_daily.config import SourcesConfig, load_config
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
 from recsys_daily.schemas import SourceState, State
@@ -153,3 +153,22 @@ def test_fetch_revalidates_every_redirect_target() -> None:
     with pytest.raises(PublicUrlError):
         fetch_public_url("https://public.example/feed", resolver=_public_resolver, request=request)
     assert calls == ["https://public.example/feed"]
+
+
+def test_blog_feed_preserves_content_encoded_for_full_reading() -> None:
+    payload = """
+    <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+      <channel><item>
+        <guid>full-feed-1</guid>
+        <title>Full Feed Article</title>
+        <link>https://example.com/full-feed</link>
+        <pubDate>Mon, 10 Aug 2026 00:00:00 +0000</pubDate>
+        <description>Short excerpt</description>
+        <content:encoded><![CDATA[<h1>Architecture</h1><p>Full implementation details.</p>]]></content:encoded>
+      </item></channel>
+    </rss>
+    """
+
+    candidates = parse_blog_feed(payload, source_id="example")
+
+    assert candidates[0].feed_content == "<h1>Architecture</h1><p>Full implementation details.</p>"

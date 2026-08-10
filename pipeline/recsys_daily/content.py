@@ -85,7 +85,7 @@ class ContentServices:
     critical_pages: Callable[[list[PageText]], list[int]] = critical_pages
     render_pages: Callable[[Path, list[int], Path], list[Path]] = render_pages
     extract_article: Callable[[str], str] = extract_article
-    feed_content: Callable[[object], str | None] = lambda _candidate: None
+    feed_content: Callable[[object], str | None] = lambda candidate: getattr(candidate, "feed_content", None)
     fetch_article_html: Callable[[object], str] | None = fetch_article_html
 
 
