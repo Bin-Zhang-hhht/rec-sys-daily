@@ -57,6 +57,8 @@ def test_verify_workflow_is_fixture_only_and_builds_both_images() -> None:
 
 
 def test_verify_workflow_uses_runtime_scenarios() -> None:
+    dockerfile = (ROOT / "pipeline" / "Dockerfile").read_text(encoding="utf-8")
+    assert "COPY fixtures" not in dockerfile
     text = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
     assert "fixtures/**" not in text
     assert "test-fixtures --case all" in text

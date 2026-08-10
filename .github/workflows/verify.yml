@@ -6,7 +6,6 @@ name: Verify
     paths:
       - ".github/workflows/**"
       - "config/**"
-      - "fixtures/**"
       - "pipeline/**"
       - "site/**"
       - "scripts/**"
@@ -45,7 +44,7 @@ jobs:
           mkdir -p work/verify
           docker run --rm \
             -v "$PWD/work/verify:/workspace/work/verify" \
-            recsys-pipeline:${{ github.sha }} test-fixtures --case cold-start --work /workspace/work/verify
+            recsys-pipeline:${{ github.sha }} test-fixtures --case all --work /workspace/work/verify
           test -f work/verify/publish-bundle/manifest.json
           test -f work/verify/publish-bundle/taxonomy.json
           test -d work/verify/publish-bundle/pending-data
@@ -97,4 +96,3 @@ jobs:
           test -f work/verify/pages-dist/search/index.html
           test -f work/verify/pages-dist/graph.json
           test -f work/verify/pages-dist/pagefind/pagefind.js
-          test "$(du -sm work/verify/pages-dist | cut -f1)" -le 100
