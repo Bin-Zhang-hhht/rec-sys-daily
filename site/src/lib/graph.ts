@@ -1,4 +1,4 @@
-import type { Item, Taxonomy } from "./data";
+import type { BuildConfigSnapshot, Item, Taxonomy } from "./data";
 
 export type GraphNode = {
   data: {
@@ -36,16 +36,16 @@ function contentNodeId(item: Item) {
   return item.id;
 }
 
-function contentScore(item: Item, now: number) {
+function contentScore(item: Item, now: number, recentDays: number) {
   const ageDays = Math.max(0, (now - Date.parse(item.published_at)) / 86_400_000);
-  const recentBoost = ageDays <= 90 ? 1 : 0;
+  const recentBoost = ageDays <= recentDays ? 1 : 0;
   return recentBoost * 2 + item.relevance_score + (item.graph_relations?.length ?? 0) * 0.03;
 }
 
-export function buildGraph(items: Item[], taxonomy: Taxonomy, now = Date.now()): GraphDocument {
+export function buildGraph(items: Item[], taxonomy: Taxonomy, now: number, snapshot: BuildConfigSnapshot): GraphDocument {
   const visible = [...items]
-    .sort((a, b) => contentScore(b, now) - contentScore(a, now) || Date.parse(b.published_at) - Date.parse(a.published_at) || a.id.localeCompare(b.id))
-    .slice(0, 80);
+    .sort((a, b) => contentScore(b, now, snapshot.graph_recent_days) - contentScore(a, now, snapshot.graph_recent_days) || Date.parse(b.published_at) - Date.parse(a.published_at) || a.id.localeCompare(b.id))
+    .slice(0, snapshot.graph_max_content_nodes);
   const visibleIds = new Set(visible.map(contentNodeId));
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];

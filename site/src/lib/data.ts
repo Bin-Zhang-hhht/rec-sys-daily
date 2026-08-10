@@ -11,6 +11,17 @@ export type Item = {
 };
 export type DigestEntry = { item_id: string; recommendation_reason_zh: string; rank: number };
 export type Digest = { date: string; papers: DigestEntry[]; blogs: DigestEntry[] };
+export type BuildConfigSnapshot = {
+  graph_max_content_nodes: number;
+  graph_recent_days: number;
+  target_item_bytes: number;
+  max_item_bytes: number;
+  max_blog_excerpt_chars: number;
+  warn_repository_data_mb: number;
+  warn_pages_artifact_mb: number;
+  fail_pages_artifact_mb: number;
+};
+export type RunReport = { run_id: string; config_snapshot: BuildConfigSnapshot; stage_report: Record<string, unknown> };
 
 const defaultRoot = "/workspace/publish-bundle";
 
@@ -38,6 +49,35 @@ function itemFiles(root: string): string[] {
   return output;
 }
 
+function runReportFiles(root: string): string[] {
+  const base = path.join(root, "pending-data", "runs");
+  if (!fs.existsSync(base)) return [];
+  const output: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(file); else if (entry.name.endsWith(".json")) output.push(file);
+    }
+  };
+  walk(base);
+  return output.sort();
+}
+
+function validateSnapshot(value: unknown): BuildConfigSnapshot {
+  if (!value || typeof value !== "object") throw new Error("run report config_snapshot is missing");
+  const snapshot = value as Record<string, unknown>;
+  const fields: (keyof BuildConfigSnapshot)[] = [
+    "graph_max_content_nodes", "graph_recent_days", "target_item_bytes", "max_item_bytes",
+    "max_blog_excerpt_chars", "warn_repository_data_mb", "warn_pages_artifact_mb", "fail_pages_artifact_mb",
+  ];
+  for (const field of fields) {
+    if (typeof snapshot[field] !== "number" || !Number.isFinite(snapshot[field]) || snapshot[field] <= 0) {
+      throw new Error(`run report config_snapshot.${field} is invalid`);
+    }
+  }
+  return snapshot as BuildConfigSnapshot;
+}
+
 export function loadBundle(root?: string) {
   const base = bundleRoot(root);
   const taxonomy = readJson<Taxonomy>(path.join(base, "taxonomy.json"));
@@ -55,8 +95,12 @@ export function loadBundle(root?: string) {
   }
   const digests = digestFiles.sort().map(file => readJson<Digest>(file));
   const latestDigest = digests.at(-1) ?? { date: "", papers: [], blogs: [] };
+  const reportFiles = runReportFiles(base);
+  if (!reportFiles.length) throw new Error("publish bundle has no RunReport");
+  const runReport = readJson<RunReport>(reportFiles.at(-1)!);
+  const buildConfig = validateSnapshot(runReport.config_snapshot);
   const byId = new Map(items.map(item => [item.id, item]));
-  return { root: base, taxonomy, items, byId, digests, latestDigest };
+  return { root: base, taxonomy, items, byId, digests, latestDigest, runReport, buildConfig };
 }
 
 export function taxonomyName(taxonomy: Taxonomy, group: keyof Taxonomy, id: string) {

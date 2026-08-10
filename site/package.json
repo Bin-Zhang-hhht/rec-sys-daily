@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "astro build && pagefind --site dist --output-subdir pagefind && node scripts/verify-build.mjs"
+    "build": "astro build && pagefind --site dist --output-subdir pagefind && node scripts/verify-build.mjs",
+    "test:build-contract": "node --test scripts/verify-build.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "4.1.7",
