@@ -33,7 +33,7 @@ def _write_config(root: Path) -> None:
         "structured_analysis_min_success_rate": .90,
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
-        "limits": {"http_concurrency": 2, "nvidia_hard_rpm": 40, "nvidia_target_rpm": 30, "nvidia_parallel_workers": 2, "nvidia_concurrency_per_worker": 1, "nvidia_min_interval_seconds_per_worker": 4, "rss_requests_per_run_per_source": 1, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 16, "max_pdf_downloads_per_run": 16, "max_blog_fulltext_fetches_per_run": 16, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_pdf_bytes": 20_971_520, "max_pdf_pages": 80, "max_blog_html_bytes": 5_242_880},
+        "limits": {"http_concurrency": 2, "nvidia_hard_rpm": 40, "nvidia_target_rpm": 30, "nvidia_parallel_workers": 2, "nvidia_concurrency_per_worker": 1, "nvidia_min_interval_seconds_per_worker": 4, "rss_requests_per_run_per_source": 2, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 16, "max_pdf_downloads_per_run": 16, "max_blog_fulltext_fetches_per_run": 16, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_pdf_bytes": 20_971_520, "max_pdf_pages": 80, "max_blog_html_bytes": 5_242_880},
         "graph_max_content_nodes": 80,
         "graph_recent_days": 90,
         "storage": {"target_item_bytes": 16_384, "max_item_bytes": 32_768, "max_blog_excerpt_chars": 4_000, "warn_repository_data_mb": 500, "warn_pages_artifact_mb": 500, "fail_pages_artifact_mb": 900},
@@ -51,6 +51,12 @@ def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> Non
     config = load_config(tmp_path)
     assert config.models.text.active_profile == "nvidia_super"
     assert config.settings.limits.nvidia_target_rpm == 30
+    assert config.settings.limits.rss_requests_per_run_per_source == 2
+
+
+def test_repository_rss_request_limit_is_two() -> None:
+    config = load_config(Path(__file__).parents[2])
+    assert config.settings.limits.rss_requests_per_run_per_source == 2
 
 
 def test_duplicate_taxonomy_ids_are_rejected(tmp_path: Path) -> None:

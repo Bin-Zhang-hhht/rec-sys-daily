@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from typing import Annotated, Any, Literal, Union
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, PositiveInt, PrivateAttr, model_validator
 
 from .config import TopicTaxonomy
 
@@ -184,9 +184,30 @@ class SourceRunStatus(ArtifactModel):
     warning: str | None = None
 
 
+class BuildConfigSnapshot(ArtifactModel):
+    graph_max_content_nodes: int = Field(ge=1)
+    graph_recent_days: PositiveInt
+    target_item_bytes: PositiveInt
+    max_item_bytes: PositiveInt
+    max_blog_excerpt_chars: PositiveInt
+    warn_repository_data_mb: PositiveInt
+    warn_pages_artifact_mb: PositiveInt
+    fail_pages_artifact_mb: PositiveInt
+
+
+class StageReport(ArtifactModel):
+    sources: list[SourceRunStatus] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    metadata_llm_calls: int = Field(default=0, ge=0)
+    metadata_llm_success_rate: float = Field(default=1.0, ge=0, le=1)
+    metadata_degraded_count: int = Field(default=0, ge=0)
+
+
 class RunReport(ArtifactModel):
     run_id: str = Field(min_length=1)
     started_at: UtcDatetime
+    config_snapshot: BuildConfigSnapshot
+    stage_report: StageReport
     completed_at: UtcDatetime | None = None
     sources: list[SourceRunStatus] = Field(default_factory=list)
     paper_candidates: int = Field(default=0, ge=0)

@@ -4,7 +4,18 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 
 from recsys_daily.config import TopicEntry, TopicTaxonomy
-from recsys_daily.schemas import BlogItem, ContentItem, LLMMetadata, Manifest, PaperItem, RunReport, SourceState, State
+from recsys_daily.schemas import (
+    BlogItem,
+    BuildConfigSnapshot,
+    ContentItem,
+    LLMMetadata,
+    Manifest,
+    PaperItem,
+    RunReport,
+    SourceState,
+    StageReport,
+    State,
+)
 
 
 def _taxonomy() -> TopicTaxonomy:
@@ -73,15 +84,47 @@ def test_generated_timestamps_are_utc() -> None:
     assert State().updated_at.tzinfo is UTC
 
 
+def test_run_report_carries_config_and_stage_snapshots() -> None:
+    snapshot = BuildConfigSnapshot(
+        graph_max_content_nodes=80,
+        graph_recent_days=90,
+        target_item_bytes=16_384,
+        max_item_bytes=32_768,
+        max_blog_excerpt_chars=4_000,
+        warn_repository_data_mb=500,
+        warn_pages_artifact_mb=500,
+        fail_pages_artifact_mb=900,
+    )
+    report = RunReport(
+        run_id="run",
+        started_at=datetime(2026, 8, 10, tzinfo=UTC),
+        config_snapshot=snapshot,
+        stage_report=StageReport(),
+    )
+    assert report.config_snapshot.graph_recent_days == 90
+    assert report.stage_report.metadata_llm_calls == 0
+
+
 @pytest.mark.parametrize("timestamp", [datetime(2026, 8, 10), datetime(2026, 8, 10, tzinfo=timezone(timedelta(hours=8)))])
 def test_artifact_timestamps_require_utc(timestamp: datetime) -> None:
     taxonomy = {"taxonomy": _taxonomy()}
+    snapshot = BuildConfigSnapshot(
+        graph_max_content_nodes=80,
+        graph_recent_days=90,
+        target_item_bytes=16_384,
+        max_item_bytes=32_768,
+        max_blog_excerpt_chars=4_000,
+        warn_repository_data_mb=500,
+        warn_pages_artifact_mb=500,
+        fail_pages_artifact_mb=900,
+    )
+    stage_report = StageReport()
     with pytest.raises(ValidationError, match="UTC"):
         LLMMetadata(profile="profile", model="model", generated_at=timestamp)
     with pytest.raises(ValidationError, match="UTC"):
         PaperItem.model_validate(_item() | {"published_at": timestamp}, context=taxonomy)
     with pytest.raises(ValidationError, match="UTC"):
-        RunReport(run_id="run", started_at=timestamp, completed_at=timestamp)
+        RunReport(run_id="run", started_at=timestamp, completed_at=timestamp, config_snapshot=snapshot, stage_report=stage_report)
     with pytest.raises(ValidationError, match="UTC"):
         SourceState(last_success_at=timestamp)
     with pytest.raises(ValidationError, match="UTC"):

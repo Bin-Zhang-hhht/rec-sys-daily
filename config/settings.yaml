@@ -19,7 +19,7 @@ limits:
   nvidia_parallel_workers: 2
   nvidia_concurrency_per_worker: 1
   nvidia_min_interval_seconds_per_worker: 4
-  rss_requests_per_run_per_source: 1
+  rss_requests_per_run_per_source: 2
   arxiv_min_interval_seconds: 3
   request_timeout_seconds: 45
   retry_attempts: 3

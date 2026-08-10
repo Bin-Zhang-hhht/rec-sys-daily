@@ -191,7 +191,7 @@ class Limits(StrictModel):
     nvidia_parallel_workers: Literal[2]
     nvidia_concurrency_per_worker: Literal[1]
     nvidia_min_interval_seconds_per_worker: Literal[4]
-    rss_requests_per_run_per_source: Literal[1]
+    rss_requests_per_run_per_source: Literal[2]
     arxiv_min_interval_seconds: PositiveInt
     request_timeout_seconds: PositiveInt
     retry_attempts: PositiveInt
@@ -229,7 +229,7 @@ class Settings(StrictModel):
     metadata_weights: ScoreWeights
     final_weights: FinalScoreWeights
     limits: Limits
-    graph_max_content_nodes: Literal[80]
+    graph_max_content_nodes: PositiveInt
     graph_recent_days: PositiveInt
     storage: StorageSettings
 
