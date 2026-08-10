@@ -1,0 +1,181 @@
+from __future__ import annotations
+
+from datetime import UTC, datetime
+import json
+from pathlib import Path
+
+import pytest
+
+from recsys_daily.collect import Candidate
+from recsys_daily.content import PageText
+from recsys_daily.deep_read import DeepReadServices, deep_read, deep_read_blog, deep_read_paper
+
+
+ROOT = Path(__file__).parents[2]
+FIXTURES = ROOT / "fixtures" / "content"
+NOW = datetime(2026, 8, 10, tzinfo=UTC)
+
+
+def _paper() -> Candidate:
+    return Candidate(
+        kind="paper",
+        source_id="arxiv",
+        title="Two-Tower Retrieval for Content Recommendation",
+        url="https://arxiv.org/abs/2608.01234",
+        published_at=NOW,
+        authors=("Ada Lovelace",),
+        excerpt="An abstract fallback that must not be persisted.",
+        arxiv_id="2608.01234",
+    )
+
+
+def _blog() -> Candidate:
+    return Candidate(
+        kind="blog",
+        source_id="example",
+        title="How We Improved Feed Ranking",
+        url="https://engineering.example.com/posts/feed-ranking",
+        published_at=NOW,
+        authors=("Example Engineer",),
+        excerpt="Short feed excerpt that must not be persisted.",
+    )
+
+
+def _paper_analysis(*_args: object) -> dict[str, object]:
+    return {
+        "problem_zh": "解决内容推荐中的候选召回问题。",
+        "contributions_zh": ["提出双塔召回模型。"],
+        "method_zh": "使用独立的用户和内容编码器。",
+        "experiments": {"datasets": ["FixtureSet"], "metrics": ["Recall@20"]},
+        "evidence_refs": [{"section": "Method", "page": 2}],
+    }
+
+
+def _blog_analysis(*_args: object) -> dict[str, object]:
+    return {
+        "system_context_zh": "内容流排序服务。",
+        "architecture_zh": "候选召回后进行排序。",
+        "implementation_zh": "通过离线特征和在线服务协同实现。",
+        "evidence_refs": [{"heading": "Architecture"}],
+    }
+
+
+class FakeContent:
+    def __init__(self, tmp_path: Path, *, html: str | None = None, article: str | None = None, pages: list[int] | None = None) -> None:
+        self.tmp_path = tmp_path
+        self.html = html
+        self.article = article
+        self.pages = pages or []
+        self.pdf_calls = 0
+        self.article_calls = 0
+
+    def fetch_text(self, _url: str, _limit: int) -> str:
+        if self.html is None:
+            raise RuntimeError("HTML unavailable")
+        return self.html
+
+    def fetch_bytes(self, _url: str, _limit: int) -> bytes:
+        self.pdf_calls += 1
+        return b"fixture pdf"
+
+    def extract_pdf(self, _path: Path, _max_pages: int) -> tuple[str, list[PageText]]:
+        return (
+            "Abstract\nFixture extracted PDF text.\nMethod\nTwo towers.\nResults\nStrong Recall.",
+            [PageText(page=2, text="Figure 1 Architecture"), PageText(page=5, text="Table 1 Main Results")],
+        )
+
+    def critical_pages(self, _pages: list[PageText]) -> list[int]:
+        return list(self.pages)
+
+    def render_pages(self, _pdf: Path, pages: list[int], directory: Path) -> list[Path]:
+        results = []
+        for page in pages:
+            path = directory / f"page-{page}.png"
+            path.write_bytes(b"png")
+            results.append(path)
+        return results
+
+    def feed_content(self, _candidate: Candidate) -> str | None:
+        return None
+
+    def fetch_article_html(self, _candidate: Candidate) -> str:
+        self.article_calls += 1
+        if self.article is None:
+            raise RuntimeError("article unavailable")
+        return self.article
+
+    def extract_article(self, html: str) -> str:
+        return "Architecture\n" + html.replace("<", " ").replace(">", " ")
+
+
+def _services(tmp_path: Path, content: FakeContent, *, vision=None, text=_paper_analysis) -> DeepReadServices:
+    return DeepReadServices(
+        content=content,
+        temporary_root=tmp_path,
+        text_reader=text,
+        vision_reader=vision or (lambda _pages: {"architecture_zh": "页面展示双塔架构。"}),
+        max_pdf_bytes=20 * 1024 * 1024,
+        max_pdf_pages=80,
+        max_html_bytes=5 * 1024 * 1024,
+    )
+
+
+def test_paper_falls_back_to_pdf_calls_vision_once_with_all_critical_pages_and_cleans_files(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, pages=[2, 5])
+    vision_calls: list[list[Path]] = []
+    services = _services(tmp_path, content, vision=lambda pages: vision_calls.append(pages) or {"architecture_zh": "双塔架构。"})
+
+    reading = deep_read_paper(_paper(), services)
+
+    assert reading.analysis_basis == "pdf_text"
+    assert reading.visual_analysis.status == "completed"
+    assert reading.visual_analysis.pages == [2, 5]
+    assert len(vision_calls) == 1
+    assert [path.name for path in vision_calls[0]] == ["page-2.png", "page-5.png"]
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_paper_without_critical_pages_skips_vision_and_uses_arxiv_html(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, html=(FIXTURES / "paper.html").read_text(encoding="utf-8"))
+    vision_calls: list[list[Path]] = []
+
+    reading = deep_read_paper(_paper(), _services(tmp_path, content, vision=lambda pages: vision_calls.append(pages) or {}))
+
+    assert reading.analysis_basis == "arxiv_html"
+    assert reading.visual_analysis.status == "not_required"
+    assert content.pdf_calls == 0
+    assert vision_calls == []
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_blog_falls_back_from_article_to_excerpt_and_cleans_raw_html_on_text_failure(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, article=(FIXTURES / "article.html").read_text(encoding="utf-8"))
+    services = _services(tmp_path, content, text=lambda *_args: (_ for _ in ()).throw(RuntimeError("text unavailable")))
+
+    with pytest.raises(RuntimeError, match="text unavailable"):
+        deep_read_blog(_blog(), services)
+
+    assert content.article_calls == 1
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_blog_uses_feed_content_before_article_and_directory_artifact_excludes_raw_source(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path)
+    content.feed_content = lambda _candidate: "Full feed content that must not be persisted."  # type: ignore[method-assign]
+    services = _services(tmp_path, content, text=_blog_analysis)
+    input_dir = tmp_path / "input"
+    output_dir = tmp_path / "output"
+    input_dir.mkdir()
+    (input_dir / "blog-candidates.json").write_text(json.dumps([{
+        "kind": "blog", "source_id": "example", "title": _blog().title, "url": _blog().url,
+        "published_at": "2026-08-10T00:00:00Z", "authors": ["Example Engineer"],
+        "excerpt": _blog().excerpt,
+    }]), encoding="utf-8")
+
+    deep_read("blog", input_dir, output_dir, services=services)
+
+    payload = (output_dir / "blog-deep-readings.json").read_text(encoding="utf-8")
+    assert "rss_full_content" in payload
+    assert "Full feed content" not in payload
+    assert "Short feed excerpt" not in payload
+    assert content.article_calls == 0
