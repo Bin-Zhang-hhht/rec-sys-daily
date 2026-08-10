@@ -90,6 +90,9 @@ class PaperExperiments(ArtifactModel):
 class PaperReading(ArtifactModel):
     analysis_basis: Literal["arxiv_html", "pdf_text", "abstract_fallback"]
     visual_analysis: VisualAnalysis
+    evidence_quality: float | None = Field(default=None, ge=0, le=1)
+    business_transferability: float | None = Field(default=None, ge=0, le=1)
+    technical_depth: float | None = Field(default=None, ge=0, le=1)
     problem_zh: str | None = None
     contributions_zh: list[str] = Field(default_factory=list)
     method_zh: str | None = None
@@ -101,6 +104,9 @@ class PaperReading(ArtifactModel):
 
 class BlogReading(ArtifactModel):
     analysis_basis: Literal["rss_full_content", "article_html", "excerpt_fallback"]
+    evidence_quality: float | None = Field(default=None, ge=0, le=1)
+    business_transferability: float | None = Field(default=None, ge=0, le=1)
+    technical_depth: float | None = Field(default=None, ge=0, le=1)
     system_context_zh: str | None = None
     architecture_zh: str | None = None
     implementation_zh: str | None = None
@@ -126,6 +132,7 @@ class ItemBase(ArtifactModel):
     tasks: list[str]
     methods: list[str]
     relevance_score: float = Field(default=0, ge=0, le=1)
+    final_score: float = Field(default=0, ge=0, le=1)
     content_fingerprint: str | None = None
     graph_relations: list[GraphRelation] = Field(default_factory=list)
     llm: LLMMetadata | None = None

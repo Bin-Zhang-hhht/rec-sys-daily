@@ -6,7 +6,8 @@ import pytest
 
 from recsys_daily.config import load_config
 from recsys_daily.integrate import StageInputs, integrate, load_digest
-from recsys_daily.schemas import SourceState, State
+from recsys_daily.ranking import rank_items
+from recsys_daily.schemas import PaperItem, SourceState, State
 
 
 ROOT = Path(__file__).parents[2]
@@ -105,6 +106,64 @@ def test_digest_references_ids_and_caps_each_kind(tmp_path: Path) -> None:
     item_paths = list((bundle.path / "pending-data" / "items").rglob("*.json"))
     item_ids = {json.loads(path.read_text(encoding="utf-8"))["id"] for path in item_paths}
     assert {entry.item_id for entry in digest.papers + digest.blogs} <= item_ids
+
+
+def test_source_states_are_carried_into_pending_state_and_provenance_is_recorded(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    (stages.stage1 / "source-states.json").write_text(
+        json.dumps({"arxiv": SourceState(etag='"new"', last_success_at=PUBLISHED_AT).model_dump(mode="json")}),
+        encoding="utf-8",
+    )
+    previous = State(sources={"blog": SourceState(etag='"old"')})
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=previous)
+    state = json.loads((bundle.path / "pending-data" / "state.json").read_text(encoding="utf-8"))
+    assert state["sources"]["arxiv"]["etag"] == '"new"'
+    assert state["sources"]["blog"]["etag"] == '"old"'
+    item_path = next((bundle.path / "pending-data" / "items").rglob("*.json"))
+    item = json.loads(item_path.read_text(encoding="utf-8"))
+    assert item["llm"]["profile"] == CONFIG.models.text.active_profile
+    assert item["llm"]["model"] == CONFIG.models.text.active().model
+
+
+def test_deep_read_ids_must_belong_to_stage_one_candidates(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    paper_path = stages.paper / "items.jsonl"
+    value = json.loads(paper_path.read_text(encoding="utf-8").splitlines()[0])
+    value["id"] = "unknown-paper"
+    paper_path.write_text(json.dumps(value) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="deep-reading id"):
+        integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+
+def test_final_ranking_uses_configured_deep_read_dimensions() -> None:
+    low = PaperItem.model_validate(_paper("low", 0.95), context={"taxonomy": CONFIG.topics})
+    high_data = _paper("high", 0.60)
+    high_data["deep_reading"] = {
+        "analysis_basis": "pdf_text",
+        "visual_analysis": {"status": "not_required"},
+        "evidence_quality": 1.0,
+        "business_transferability": 1.0,
+        "technical_depth": 1.0,
+    }
+    high = PaperItem.model_validate(high_data, context={"taxonomy": CONFIG.topics})
+    assert rank_items([low, high], "paper", 8, final_weights=CONFIG.settings.final_weights)[0].id == "high"
+
+
+def test_integration_rejects_low_structured_analysis_rate(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    stage_items = [json.loads(line) for line in (stages.paper / "items.jsonl").read_text(encoding="utf-8").splitlines()]
+    (stages.paper / "items.jsonl").write_text(json.dumps(stage_items[0]) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="structured analysis success rate"):
+        integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+
+def test_integration_rejects_item_over_storage_limit(tmp_path: Path) -> None:
+    storage = CONFIG.settings.storage.model_copy(update={"max_item_bytes": 100})
+    settings = CONFIG.settings.model_copy(update={"storage": storage})
+    config = CONFIG.model_copy(update={"settings": settings})
+    with pytest.raises(ValueError, match="max_item_bytes"):
+        integrate(fixture_stages(tmp_path), tmp_path / "bundle", config, state=None)
 
 
 def test_source_states_are_promoted_into_pending_state(tmp_path: Path) -> None:

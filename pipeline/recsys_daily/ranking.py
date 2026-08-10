@@ -13,16 +13,25 @@ def _bounded_count(values: Iterable[object], denominator: int = 3) -> float:
 
 
 def _evidence_quality(item: PaperItem | BlogItem) -> float:
+    explicit = getattr(item.deep_reading, "evidence_quality", None)
+    if explicit is not None:
+        return explicit
     references = item.deep_reading.evidence_refs
     visual = getattr(getattr(item.deep_reading, "visual_analysis", None), "status", None)
     return min(1.0, len(references) / 3 + (0.25 if visual == "completed" else 0.0))
 
 
 def _business_transferability(item: PaperItem | BlogItem) -> float:
+    explicit = getattr(item.deep_reading, "business_transferability", None)
+    if explicit is not None:
+        return explicit
     return _bounded_count(item.deep_reading.business_implications_zh)
 
 
 def _technical_depth(item: PaperItem | BlogItem) -> float:
+    explicit = getattr(item.deep_reading, "technical_depth", None)
+    if explicit is not None:
+        return explicit
     reading = item.deep_reading
     if item.kind == "paper":
         experiments = reading.experiments
@@ -37,12 +46,14 @@ def _technical_depth(item: PaperItem | BlogItem) -> float:
 
 
 def _final_score(item: PaperItem | BlogItem, weights: FinalScoreWeights) -> float:
-    return (
+    score = (
         weights.metadata_score * item.relevance_score
         + weights.evidence_quality * _evidence_quality(item)
         + weights.business_transferability * _business_transferability(item)
         + weights.technical_depth * _technical_depth(item)
     )
+    item.final_score = max(0.0, min(1.0, score))
+    return item.final_score
 
 
 def rank_items(

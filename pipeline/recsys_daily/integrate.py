@@ -19,6 +19,7 @@ from .schemas import (
     Digest,
     DigestEntry,
     Manifest,
+    LLMMetadata,
     PaperItem,
     RunReport,
     SourceState,
@@ -166,6 +167,14 @@ def _digest_entries(items: list[PaperItem | BlogItem]) -> list[DigestEntry]:
     ]
 
 
+def _attach_provenance(items: list[ContentItem], config: AppConfig, generated_at: datetime) -> None:
+    profile = config.models.text.active_profile
+    model = config.models.text.active().model
+    for item in items:
+        if item.llm is None:
+            item.llm = LLMMetadata(profile=profile, model=model, generated_at=generated_at)
+
+
 def integrate(
     stages: StageInputs,
     output: Path,
@@ -208,6 +217,8 @@ def integrate(
             "structured analysis success rate below configured minimum: "
             f"paper={paper_success_rate:.3f}, blog={blog_success_rate:.3f}, minimum={minimum_success_rate:.3f}"
         )
+    run_at = datetime.now(UTC)
+    _attach_provenance(all_items, config, run_at)
     papers = rank_items(
         paper_items[:max_deep_reads], "paper", config.settings.daily_target,
         final_weights=config.settings.final_weights,
@@ -216,7 +227,6 @@ def integrate(
         blog_items[:max_deep_reads], "blog", config.settings.daily_target,
         final_weights=config.settings.final_weights,
     )
-    run_at = datetime.now(UTC)
     digest = Digest(date=run_at.date(), papers=_digest_entries(papers), blogs=_digest_entries(blogs))
     previous = _load_previous_state(state)
     recommended_ids = [entry.item_id for entry in [*digest.papers, *digest.blogs]]
