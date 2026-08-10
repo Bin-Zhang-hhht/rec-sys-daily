@@ -1,11 +1,19 @@
 import type { GraphDocument, GraphNode } from "../lib/graph";
 
-type CytoscapeFactory = (options: Record<string, unknown>) => {
-  on: (event: string, selector: string, handler: (event: { target: { data: (key?: string) => unknown } }) => void) => void;
-  elements: () => { removeClass: (name: string) => void; filter: (predicate: (element: { data: (key?: string) => unknown }) => boolean) => { addClass?: (name: string) => void } };
-  nodes: () => { forEach: (handler: (node: { data: (key?: string) => unknown; addClass: (name: string) => void; removeClass: (name: string) => void }) => void) => void };
+type CytoscapeNode = {
+  data: (key?: string) => unknown;
+  addClass: (name: string) => void;
+  removeClass: (name: string) => void;
+};
+
+type CytoscapeInstance = {
+  on: (event: string, selector: string, handler: (event: { target: CytoscapeNode }) => void) => void;
+  elements: () => { removeClass: (name: string) => void; filter: (predicate: (element: CytoscapeNode) => boolean) => { addClass?: (name: string) => void } };
+  nodes: () => { forEach: (handler: (node: CytoscapeNode) => void) => void };
   fit: () => void;
 };
+
+type CytoscapeFactory = (options: Record<string, unknown>) => CytoscapeInstance;
 
 const canvas = document.querySelector<HTMLElement>("#graph-canvas");
 const status = document.querySelector<HTMLElement>("#graph-status");
@@ -71,7 +79,7 @@ if (canvas && status && query && details && filters) {
         if (!text) return;
         const matches = searchable.filter(node => `${node.data.label} ${(node.data.tags ?? []).join(" ")}`.toLocaleLowerCase().includes(text));
         for (const node of matches) {
-          const found = cy.elements().filter((element: any) => element.data("id") === node.data.id);
+          const found = cy.elements().filter(element => element.data("id") === node.data.id);
           found.addClass?.("search-hit");
         }
       });

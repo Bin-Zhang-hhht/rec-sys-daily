@@ -16,35 +16,23 @@ let timer: number | undefined;
 if (input && form && resultsElement && status && more) {
   const ensurePagefind = async () => {
     if (pagefind) return pagefind;
-    // @ts-expect-error Pagefind writes this runtime into dist during the site build.
-    loading ??= import(/* @vite-ignore */ "/pagefind/pagefind.js") as Promise<PagefindApi>;
+    // Pagefind writes this runtime into dist after Astro has emitted HTML.
+    const runtimePath = "/pagefind/" + "pagefind.js";
+    loading ??= import(/* @vite-ignore */ runtimePath) as Promise<PagefindApi>;
     pagefind = await loading;
     return pagefind;
   };
   const selectedFilters = () => {
-    const filters: Record<string, string[]> = {};
+    const values: Record<string, string[]> = {};
     for (const checkbox of form.querySelectorAll<HTMLInputElement>("input[data-filter]:checked")) {
       const group = checkbox.dataset.filter;
-      if (group) (filters[group] ??= []).push(checkbox.value);
+      if (group) (values[group] ??= []).push(checkbox.value);
     }
     for (const select of form.querySelectorAll<HTMLSelectElement>("select[data-filter]")) {
       const group = select.dataset.filter;
-      if (group && select.value) filters[group] = [select.value];
+      if (group && select.value) values[group] = [select.value];
     }
-    return Object.fromEntries(Object.entries(filters).map(([key, values]) => [key, values.length === 1 ? values[0] : values]));
-  };
-  const render = async () => {
-    const api = await ensurePagefind();
-    const query = input.value.trim();
-    const response = await api.search(query, { filters: selectedFilters() });
-    currentResults = response.results;
-    shown = 0;
-    resultsElement.replaceChildren();
-    await appendResults();
-    const total = response.unfilteredResultCount ?? currentResults.length;
-    status.textContent = `${total} 条结果`;
-    more.classList.toggle("hidden", shown >= currentResults.length);
-    await updateFilterCounts(api, response.filters);
+    return Object.fromEntries(Object.entries(values).map(([key, selected]) => [key, selected.length === 1 ? selected[0] : selected]));
   };
   const appendResults = async () => {
     const fragment = document.createDocumentFragment();
@@ -69,6 +57,18 @@ if (input && form && resultsElement && status && more) {
       const checkbox = element.parentElement?.querySelector<HTMLInputElement>("input");
       if (checkbox) checkbox.disabled = count === 0 && !checkbox.checked;
     }
+  };
+  const render = async () => {
+    const api = await ensurePagefind();
+    const response = await api.search(input.value.trim(), { filters: selectedFilters() });
+    currentResults = response.results;
+    shown = 0;
+    resultsElement.replaceChildren();
+    await appendResults();
+    const total = response.unfilteredResultCount ?? currentResults.length;
+    status.textContent = `${total} 条结果`;
+    more.classList.toggle("hidden", shown >= currentResults.length);
+    await updateFilterCounts(api, response.filters);
   };
   const schedule = () => { window.clearTimeout(timer); timer = window.setTimeout(() => void render(), 300); };
   input.addEventListener("focus", () => { void render(); }, { once: true });

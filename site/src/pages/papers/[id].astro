@@ -4,10 +4,7 @@ import { loadBundle, taxonomyName } from "../../lib/data";
 export function getStaticPaths() { const data = loadBundle(); return data.items.filter(item => item.kind === "paper").map(item => ({ params: { id: item.id }, props: { item, data } })); }
 const { item, data } = Astro.props;
 const reading = item.deep_reading;
-function ageBucket(value: string) {
-  const days = Math.max(0, (Date.now() - Date.parse(value)) / 86400000);
-  return days <= 7 ? "7d" : days <= 30 ? "30d" : days <= 365 ? "365d" : "older";
-}
+function ageBucket(value: string) { const days = Math.max(0, (Date.now() - Date.parse(value)) / 86400000); return days <= 7 ? "7d" : days <= 30 ? "30d" : days <= 365 ? "365d" : "older"; }
 const labels = [...item.targets.map(id => taxonomyName(data.taxonomy, "targets", id)?.name_zh ?? id), ...item.scenarios.map(id => taxonomyName(data.taxonomy, "scenarios", id)?.name_zh ?? id), ...item.tasks.map(id => taxonomyName(data.taxonomy, "tasks", id)?.name_zh ?? id), ...item.methods.map(id => taxonomyName(data.taxonomy, "methods", id)?.name_zh ?? id)];
 ---
 <BaseLayout title={`${item.title} · RecSys Daily`}>
