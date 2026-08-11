@@ -32,11 +32,14 @@ in a run.
    A download failure is retryable on a later attempt and does not consume a
    global PDF-download quota.
 3. Request a MinerU upload URL through `POST /api/v4/file-urls/batch` with the
-   configured `MINERU_API_KEY`, upload the PDF to the returned presigned URL,
-   and use the resulting task ID.
-4. Poll `GET /api/v4/extract/task/{task_id}` until `state=done`, or until the
-   configured MinerU polling deadline is reached. Download `full_zip_url` and
-   read `full.md` from the ZIP in memory or a temporary file.
+   configured `MINERU_API_KEY`. Record the returned `batch_id`, upload the PDF
+   to the corresponding presigned URL in `file_urls`, and keep the request
+   `data_id` for result matching.
+4. Poll `GET /api/v4/extract-results/batch/{batch_id}` and select the
+   `data.extract_result` entry matching the request `data_id`. Continue while
+   its state is `waiting-file`, `pending`, `running`, or `converting`; stop on
+   `done`, `failed`, or the configured polling deadline. On `done`, download
+   `full_zip_url` and read `full.md` from the ZIP in memory or a temporary file.
 5. Send the bounded MinerU Markdown to the existing structured text reader.
    MinerU Markdown is evidence only and is never persisted in an artifact.
 6. On PDF download, upload, poll, ZIP, or Markdown failures, use the candidate
@@ -57,9 +60,9 @@ in a run.
   transient `429` and `5xx` responses, honors `Retry-After`, and uses the
   configured timeout. The candidate loop is finite because each selected
   candidate is processed once per run.
-- MinerU polling uses a bounded deadline and interval from configuration. A
-  terminal MinerU failure or deadline expiry produces abstract fallback rather
-  than a hanging worker.
+- MinerU batch polling uses a bounded deadline and interval from configuration.
+  A terminal MinerU failure, a missing matching `data_id`, or deadline expiry
+  produces abstract fallback rather than a hanging worker.
 
 ## Configuration
 
