@@ -17,6 +17,7 @@ import feedparser
 from dateutil import parser as date_parser
 
 from .config import AppConfig, AcademicSource, BlogSource
+from .rate_limit import DomainRateLimiter
 from .schemas import SourceState, State
 from .security import Resolver, PublicUrlError, fetch_public_url, validate_public_url
 from .state import QueryWindow, query_window
@@ -321,6 +322,9 @@ def _default_fetcher(
     timeout: float,
     max_attempts: int,
     user_agent: str,
+    attempt_limiter: Callable[[], None],
+    backoff_seconds: float,
+    max_delay_seconds: float,
 ) -> FeedResponse:
     response = fetch_public_url(
         url,
@@ -329,6 +333,9 @@ def _default_fetcher(
         resolver=resolver,
         max_attempts=max_attempts,
         user_agent=user_agent,
+        attempt_limiter=attempt_limiter,
+        backoff_seconds=backoff_seconds,
+        max_delay_seconds=max_delay_seconds,
     )
     return FeedResponse(response.status_code, response.content, response.headers, response.url)
 
@@ -363,16 +370,9 @@ def collect_candidates(
     window = query_window(state, now=now)
     state_value = _validated_state(state)
     current = window.until
-    fetch = fetcher or (
-        lambda url, headers: _default_fetcher(
-            url,
-            headers,
-            resolver=resolver,
-            timeout=config.settings.limits.request_timeout_seconds,
-            max_attempts=config.settings.limits.retry_attempts,
-            user_agent=config.settings.request_user_agent,
-        )
-    )
+    limits = config.settings.limits
+    arxiv_limiter = DomainRateLimiter(limits.arxiv_min_interval_seconds)
+    blog_limiter = DomainRateLimiter(limits.blog_min_interval_seconds_per_domain)
     all_candidates: list[Candidate] = []
     warnings: list[str] = []
     source_states: dict[str, SourceState] = {}
@@ -387,7 +387,21 @@ def collect_candidates(
         url = _arxiv_url(config, window) if source.kind == "arxiv" else source.url
         try:
             validate_public_url(url, resolver=resolver)
-            response = fetch(url, headers)
+            if fetcher is not None:
+                response = fetcher(url, headers)
+            else:
+                limiter = arxiv_limiter if source.kind == "arxiv" else blog_limiter
+                response = _default_fetcher(
+                    url,
+                    headers,
+                    resolver=resolver,
+                    timeout=limits.request_timeout_seconds,
+                    max_attempts=limits.retry_attempts,
+                    user_agent=config.settings.request_user_agent,
+                    attempt_limiter=lambda limiter=limiter, url=url: limiter.acquire(url),
+                    backoff_seconds=limits.retry_backoff_seconds,
+                    max_delay_seconds=limits.retry_max_delay_seconds,
+                )
             if response.status_code == 304:
                 source_states[source.id] = SourceState(
                     cursor=source_state.cursor if source_state else None,

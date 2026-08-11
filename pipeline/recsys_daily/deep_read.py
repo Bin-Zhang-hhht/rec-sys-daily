@@ -162,9 +162,6 @@ def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogRead
             basis = "rss_full_content"
         if not body and services.content.fetch_article_html is not None:
             try:
-                if services.domain_limiter is not None:
-                    acquire = getattr(services.domain_limiter, "acquire", services.domain_limiter)
-                    acquire(candidate.url or "")
                 fetch_article = services.content.fetch_article_html
                 try:
                     html = fetch_article(candidate, services.max_html_bytes)  # type: ignore[call-arg]

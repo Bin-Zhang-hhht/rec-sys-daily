@@ -4,16 +4,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-import threading
-import time
 from collections.abc import Mapping
 from typing import Callable
-from urllib.parse import urlsplit
 
 import fitz
 import trafilatura
 
 from .security import fetch_public_url
+from .rate_limit import DomainRateLimiter, RateLimiter
 from .collect import Candidate, normalize_title, normalize_url, parse_blog_feed, stable_id
 
 
@@ -23,43 +21,6 @@ class PageText:
     text: str
 
 
-class DomainRateLimiter:
-    """Serialize article fetches and pace requests independently per hostname."""
-
-    def __init__(
-        self,
-        min_interval_seconds: float = 2.0,
-        *,
-        clock: Callable[[], float] = time.monotonic,
-        sleeper: Callable[[float], None] = time.sleep,
-    ) -> None:
-        if min_interval_seconds <= 0:
-            raise ValueError("min_interval_seconds must be positive")
-        self.min_interval_seconds = float(min_interval_seconds)
-        self._clock = clock
-        self._sleeper = sleeper
-        self._last: dict[str, float] = {}
-        self._lock = threading.Lock()
-
-    def acquire(self, url: str) -> None:
-        try:
-            hostname = urlsplit(url).hostname
-        except ValueError as exc:
-            raise ValueError("blog URL is malformed") from exc
-        if not hostname:
-            raise ValueError("blog URL has no hostname")
-        hostname = hostname.casefold().rstrip(".")
-        with self._lock:
-            now = self._clock()
-            last = self._last.get(hostname)
-            if last is not None:
-                wait = self.min_interval_seconds - (now - last)
-                if wait > 0:
-                    self._sleeper(wait)
-                    now = self._clock()
-            self._last[hostname] = now
-
-
 def fetch_bytes(
     url: str,
     max_bytes: int,
@@ -67,8 +28,19 @@ def fetch_bytes(
     timeout: float = 45,
     max_attempts: int = 3,
     user_agent: str | None = None,
+    attempt_limiter: RateLimiter | Callable[[], None] | None = None,
+    backoff_seconds: float = 1.0,
+    max_delay_seconds: float = 30.0,
 ) -> bytes:
-    response = fetch_public_url(url, timeout=timeout, max_attempts=max_attempts, user_agent=user_agent)
+    response = fetch_public_url(
+        url,
+        timeout=timeout,
+        max_attempts=max_attempts,
+        user_agent=user_agent,
+        attempt_limiter=attempt_limiter,
+        backoff_seconds=backoff_seconds,
+        max_delay_seconds=max_delay_seconds,
+    )
     declared_size = response.headers.get("Content-Length")
     if declared_size:
         try:
@@ -90,6 +62,9 @@ def fetch_text(
     timeout: float = 45,
     max_attempts: int = 3,
     user_agent: str | None = None,
+    attempt_limiter: RateLimiter | Callable[[], None] | None = None,
+    backoff_seconds: float = 1.0,
+    max_delay_seconds: float = 30.0,
 ) -> str:
     return fetch_bytes(
         url,
@@ -97,6 +72,9 @@ def fetch_text(
         timeout=timeout,
         max_attempts=max_attempts,
         user_agent=user_agent,
+        attempt_limiter=attempt_limiter,
+        backoff_seconds=backoff_seconds,
+        max_delay_seconds=max_delay_seconds,
     ).decode("utf-8", errors="replace")
 
 
@@ -145,6 +123,9 @@ def fetch_article_html(
     timeout: float = 45,
     max_attempts: int = 3,
     user_agent: str | None = None,
+    attempt_limiter: RateLimiter | Callable[[], None] | None = None,
+    backoff_seconds: float = 1.0,
+    max_delay_seconds: float = 30.0,
 ) -> str:
     url = getattr(candidate, "url", None)
     if not url:
@@ -155,6 +136,9 @@ def fetch_article_html(
         timeout=timeout,
         max_attempts=max_attempts,
         user_agent=user_agent,
+        attempt_limiter=attempt_limiter,
+        backoff_seconds=backoff_seconds,
+        max_delay_seconds=max_delay_seconds,
     )
 
 

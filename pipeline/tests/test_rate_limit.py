@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 import pytest
 
 from recsys_daily.rate_limit import RateLimiter, RetryableHTTPError, request_with_retries
@@ -86,3 +88,67 @@ def test_transport_errors_retry_with_exponential_backoff() -> None:
     assert calls == 3
     assert acquired == 3
     assert sleeps == [0.5, 1.0]
+
+
+def test_numeric_retry_after_is_clamped_to_max_delay() -> None:
+    sleeps: list[float] = []
+    calls = 0
+
+    def operation() -> str:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise RetryableHTTPError(503, retry_after=10_000)
+        return "ok"
+
+    assert request_with_retries(
+        operation,
+        sleeper=sleeps.append,
+        max_attempts=2,
+        max_delay_seconds=7,
+    ) == "ok"
+    assert sleeps == [7]
+
+
+def test_http_date_retry_after_is_clamped_to_max_delay(monkeypatch: pytest.MonkeyPatch) -> None:
+    sleeps: list[float] = []
+    calls = 0
+    monkeypatch.setattr("recsys_daily.rate_limit.time.time", lambda: 0)
+
+    def operation() -> str:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            retry_at = datetime(2099, 1, 1, tzinfo=UTC).strftime("%a, %d %b %Y %H:%M:%S GMT")
+            raise RetryableHTTPError(503, retry_after=retry_at)  # type: ignore[arg-type]
+        return "ok"
+
+    assert request_with_retries(
+        operation,
+        sleeper=sleeps.append,
+        max_attempts=2,
+        max_delay_seconds=5,
+    ) == "ok"
+    assert sleeps == [5]
+
+
+def test_exponential_backoff_is_clamped_to_max_delay() -> None:
+    sleeps: list[float] = []
+    calls = 0
+
+    def operation() -> str:
+        nonlocal calls
+        calls += 1
+        if calls < 4:
+            raise ConnectionError("offline")
+        return "ok"
+
+    assert request_with_retries(
+        operation,
+        sleeper=sleeps.append,
+        max_attempts=4,
+        retry_on_exceptions=(ConnectionError,),
+        backoff_seconds=4,
+        max_delay_seconds=6,
+    ) == "ok"
+    assert sleeps == [4, 6, 6]

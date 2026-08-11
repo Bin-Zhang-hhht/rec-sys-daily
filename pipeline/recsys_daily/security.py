@@ -9,7 +9,7 @@ import time
 
 import requests
 
-from .rate_limit import request_with_retries
+from .rate_limit import RateLimiter, request_with_retries
 
 
 class PublicUrlError(ValueError):
@@ -113,6 +113,9 @@ def fetch_public_url(
     max_attempts: int = 3,
     user_agent: str | None = None,
     sleeper: Callable[[float], None] = time.sleep,
+    attempt_limiter: RateLimiter | Callable[[], None] | None = None,
+    backoff_seconds: float = 1.0,
+    max_delay_seconds: float = 30.0,
 ) -> requests.Response:
     """Fetch a public URL with bounded retries and redirect revalidation."""
     request_headers = dict(headers or {})
@@ -129,6 +132,9 @@ def fetch_public_url(
             max_redirects=max_redirects,
         ),
         sleeper=sleeper,
+        limiter=attempt_limiter,
         max_attempts=max_attempts,
         retry_on_exceptions=(requests.ConnectionError, requests.Timeout),
+        backoff_seconds=backoff_seconds,
+        max_delay_seconds=max_delay_seconds,
     )

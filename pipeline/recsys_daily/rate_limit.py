@@ -7,6 +7,7 @@ import time
 from collections.abc import Callable
 from email.utils import parsedate_to_datetime
 from typing import TypeVar
+from urllib.parse import urlsplit
 
 T = TypeVar("T")
 
@@ -14,7 +15,7 @@ T = TypeVar("T")
 class RetryableHTTPError(RuntimeError):
     """HTTP failure carrying the response status and optional server delay."""
 
-    def __init__(self, status_code: int, message: str | None = None, retry_after: float | None = None) -> None:
+    def __init__(self, status_code: int, message: str | None = None, retry_after: float | str | None = None) -> None:
         self.status_code = int(status_code)
         self.retry_after = retry_after
         super().__init__(message or f"HTTP {self.status_code}")
@@ -55,6 +56,43 @@ class RateLimiter:
             self._last_acquired = now
 
 
+class DomainRateLimiter:
+    """Pace requests independently per hostname."""
+
+    def __init__(
+        self,
+        min_interval_seconds: float = 2.0,
+        *,
+        clock: Callable[[], float] = time.monotonic,
+        sleeper: Callable[[float], None] = time.sleep,
+    ) -> None:
+        if min_interval_seconds <= 0:
+            raise ValueError("min_interval_seconds must be positive")
+        self.min_interval_seconds = float(min_interval_seconds)
+        self._clock = clock
+        self._sleeper = sleeper
+        self._last: dict[str, float] = {}
+        self._lock = threading.Lock()
+
+    def acquire(self, url: str) -> None:
+        try:
+            hostname = urlsplit(url).hostname
+        except ValueError as exc:
+            raise ValueError("URL is malformed") from exc
+        if not hostname:
+            raise ValueError("URL has no hostname")
+        hostname = hostname.casefold().rstrip(".")
+        with self._lock:
+            now = self._clock()
+            last = self._last.get(hostname)
+            if last is not None:
+                wait = self.min_interval_seconds - (now - last)
+                if wait > 0:
+                    self._sleeper(wait)
+                    now = self._clock()
+            self._last[hostname] = now
+
+
 def _status_code(error: Exception) -> int | None:
     status = getattr(error, "status_code", None)
     if status is None:
@@ -91,6 +129,7 @@ def request_with_retries(
     max_attempts: int = 3,
     retry_on_exceptions: tuple[type[Exception], ...] = (),
     backoff_seconds: float = 1.0,
+    max_delay_seconds: float = 30.0,
 ) -> T:
     """Run an operation, retrying selected failures and pacing every attempt."""
 
@@ -98,6 +137,8 @@ def request_with_retries(
         raise ValueError("max_attempts must be positive")
     if backoff_seconds < 0:
         raise ValueError("backoff_seconds must not be negative")
+    if max_delay_seconds <= 0:
+        raise ValueError("max_delay_seconds must be positive")
     acquire = limiter.acquire if hasattr(limiter, "acquire") else limiter
     for attempt in range(max_attempts):
         if acquire is not None:
@@ -114,5 +155,6 @@ def request_with_retries(
             if not retryable or attempt == max_attempts - 1:
                 raise
             delay = _retry_after(error)
-            sleeper(delay if delay is not None else backoff_seconds * (2**attempt))
+            delay = delay if delay is not None else backoff_seconds * (2**attempt)
+            sleeper(min(delay, max_delay_seconds))
     raise RuntimeError("unreachable")

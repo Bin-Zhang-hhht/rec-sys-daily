@@ -24,6 +24,8 @@ limits:
   arxiv_min_interval_seconds: 3
   request_timeout_seconds: 45
   retry_attempts: 3
+  retry_backoff_seconds: 1
+  retry_max_delay_seconds: 30
   max_papers_per_run: 100
   max_blogs_per_run: 50
   deep_reading_candidates_per_type: 16

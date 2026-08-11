@@ -15,13 +15,13 @@ import typer
 from .artifacts import write_json, write_jsonl
 from .collect import Candidate, collect_candidates, stable_id
 from .config import AppConfig, load_config
-from .content import BlogFeedCache, ContentServices, DomainRateLimiter, fetch_article_html as fetch_article_html_request, fetch_bytes as fetch_bytes_request, fetch_text as fetch_text_request
+from .content import BlogFeedCache, ContentServices, fetch_article_html as fetch_article_html_request, fetch_bytes as fetch_bytes_request, fetch_text as fetch_text_request
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
 from .llm import TextClient, TokenBudget, VisionClient
 from .metadata import MetadataResult, analyze_metadata
 from .prompts import json_messages
-from .rate_limit import RateLimiter
+from .rate_limit import DomainRateLimiter, RateLimiter
 from .security import fetch_public_url
 from .schemas import SourceRunStatus, SourceState, Stage1Metadata, StageReport
 from .testing_fixtures import run_fixture_scenarios
@@ -126,9 +126,13 @@ def _real_services(
 
     request_timeout = config.settings.limits.request_timeout_seconds
     retry_attempts = config.settings.limits.retry_attempts
+    retry_backoff_seconds = config.settings.limits.retry_backoff_seconds
+    retry_max_delay_seconds = config.settings.limits.retry_max_delay_seconds
     request_user_agent = config.settings.request_user_agent
     max_pdf_bytes = config.settings.limits.max_pdf_bytes
     max_blog_html_bytes = config.settings.limits.max_blog_html_bytes
+    arxiv_limiter = DomainRateLimiter(config.settings.limits.arxiv_min_interval_seconds)
+    blog_limiter = DomainRateLimiter(config.settings.limits.blog_min_interval_seconds_per_domain)
 
     def configured_fetch_text(url: str, limit: int) -> str:
         return fetch_text_request(
@@ -137,6 +141,9 @@ def _real_services(
             timeout=request_timeout,
             max_attempts=retry_attempts,
             user_agent=request_user_agent,
+            attempt_limiter=lambda: arxiv_limiter.acquire(url),
+            backoff_seconds=retry_backoff_seconds,
+            max_delay_seconds=retry_max_delay_seconds,
         )
 
     def configured_fetch_bytes(url: str, limit: int) -> bytes:
@@ -146,6 +153,9 @@ def _real_services(
             timeout=request_timeout,
             max_attempts=retry_attempts,
             user_agent=request_user_agent,
+            attempt_limiter=lambda: arxiv_limiter.acquire(url),
+            backoff_seconds=retry_backoff_seconds,
+            max_delay_seconds=retry_max_delay_seconds,
         )
 
     def configured_fetch_article_html(candidate: Candidate, limit: int | None = None) -> str:
@@ -155,6 +165,9 @@ def _real_services(
             timeout=request_timeout,
             max_attempts=retry_attempts,
             user_agent=request_user_agent,
+            attempt_limiter=lambda: blog_limiter.acquire(candidate.url or ""),
+            backoff_seconds=retry_backoff_seconds,
+            max_delay_seconds=retry_max_delay_seconds,
         )
 
     source_urls = {source.id: source.url for source in config.sources.blogs if source.enabled}
@@ -165,6 +178,9 @@ def _real_services(
             timeout=request_timeout,
             max_attempts=retry_attempts,
             user_agent=request_user_agent,
+            attempt_limiter=lambda: blog_limiter.acquire(url),
+            backoff_seconds=retry_backoff_seconds,
+            max_delay_seconds=retry_max_delay_seconds,
         ).content
 
     blog_feed_cache = BlogFeedCache(
@@ -185,7 +201,6 @@ def _real_services(
         max_pdf_bytes=config.settings.limits.max_pdf_bytes,
         max_pdf_pages=config.settings.limits.max_pdf_pages,
         max_html_bytes=config.settings.limits.max_blog_html_bytes,
-        domain_limiter=DomainRateLimiter(config.settings.limits.blog_min_interval_seconds_per_domain),
         vision_profile=config.models.vision.profile,
         vision_model=config.models.vision.model,
         blog_feed_content=blog_feed_cache.get,

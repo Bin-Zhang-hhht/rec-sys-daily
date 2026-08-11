@@ -192,7 +192,12 @@ def test_fetch_public_url_retries_transport_failures_and_sets_user_agent() -> No
         is_permanent_redirect = False
 
     calls: list[dict[str, object]] = []
+    acquired = 0
     attempts = iter([requests.ConnectionError("tls eof"), Response()])
+
+    def acquire() -> None:
+        nonlocal acquired
+        acquired += 1
 
     def request(_url: str, **kwargs: object) -> Response:
         calls.append(kwargs)
@@ -208,11 +213,15 @@ def test_fetch_public_url_retries_transport_failures_and_sets_user_agent() -> No
         max_attempts=2,
         user_agent="RecSysDaily/test",
         sleeper=lambda _: None,
+        attempt_limiter=acquire,
+        backoff_seconds=0.25,
+        max_delay_seconds=4,
     )
 
     assert response.status_code == 200
     assert calls[0]["headers"] == {"User-Agent": "RecSysDaily/test"}
     assert len(calls) == 2
+    assert acquired == 2
 
 
 def test_fetch_public_url_preserves_explicit_user_agent() -> None:
@@ -247,6 +256,17 @@ def test_collect_retries_source_http_503_with_configured_network_options(monkeyp
     config = config.model_copy(update={"sources": SourcesConfig(academic=[academic], blogs=[blog])})
     attempts = 0
     seen_headers: list[dict[str, str]] = []
+    limiter_intervals: list[float] = []
+    limiter_calls: list[str] = []
+
+    class FakeDomainLimiter:
+        def __init__(self, min_interval_seconds: float) -> None:
+            limiter_intervals.append(min_interval_seconds)
+
+        def acquire(self, url: str) -> None:
+            limiter_calls.append(url)
+
+    monkeypatch.setattr(collect, "DomainRateLimiter", FakeDomainLimiter)
 
     class Response:
         is_redirect = False
@@ -271,6 +291,8 @@ def test_collect_retries_source_http_503_with_configured_network_options(monkeyp
     def configured_fetch(url: str, **kwargs: object) -> requests.Response:
         assert kwargs["max_attempts"] == config.settings.limits.retry_attempts
         assert kwargs["user_agent"] == config.settings.request_user_agent
+        assert kwargs["backoff_seconds"] == config.settings.limits.retry_backoff_seconds
+        assert kwargs["max_delay_seconds"] == config.settings.limits.retry_max_delay_seconds
         return original_fetch(url, request=request, sleeper=lambda _: None, **kwargs)
 
     monkeypatch.setattr(collect, "fetch_public_url", configured_fetch)
@@ -278,6 +300,11 @@ def test_collect_retries_source_http_503_with_configured_network_options(monkeyp
     result = collect_candidates(config, now=NOW, resolver=_public_resolver)
 
     assert attempts == 2
+    assert limiter_intervals == [
+        config.settings.limits.arxiv_min_interval_seconds,
+        config.settings.limits.blog_min_interval_seconds_per_domain,
+    ]
+    assert limiter_calls == [blog.url, blog.url]
     assert seen_headers[0]["User-Agent"] == config.settings.request_user_agent
     assert result.warnings == []
 
