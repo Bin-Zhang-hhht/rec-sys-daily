@@ -230,3 +230,30 @@ def test_real_services_threads_source_retry_timing_and_attempt_limiters(monkeypa
         (13, blog.url),
         (13, blog.url),
     ]
+
+
+def test_real_services_uses_kind_specific_deep_read_schema(monkeypatch, tmp_path: Path) -> None:
+    import recsys_daily.cli as cli
+
+    config = load_config(Path(__file__).parents[2])
+    calls: list[tuple[object, object]] = []
+
+    class FakeText:
+        def complete_json(self, messages: object, schema: object) -> dict[str, object]:
+            calls.append((messages, schema))
+            return {}
+
+    class FakeVision:
+        def analyze(self, *_args: object) -> dict[str, object]:
+            return {}
+
+    monkeypatch.setattr(cli.TextClient, "from_config", lambda *args, **kwargs: FakeText())
+    monkeypatch.setattr(cli.VisionClient, "from_config", lambda *args, **kwargs: FakeVision())
+    services = _real_services(config, Path(__file__).parents[2], tmp_path)
+    services.text_reader("paper", "paper source", {"analysis_basis": "abstract_fallback"})
+    services.text_reader("blog", "blog source", {"analysis_basis": "excerpt_fallback"})
+
+    assert calls[0][1]["properties"]["analysis_basis"]["enum"] == ["arxiv_html", "pdf_text", "abstract_fallback"]
+    assert calls[1][1]["properties"]["analysis_basis"]["enum"] == ["rss_full_content", "article_html", "excerpt_fallback"]
+    assert calls[0][0][0]["role"] == "system"
+    assert "source_documents" in json.loads(calls[0][0][1]["content"])

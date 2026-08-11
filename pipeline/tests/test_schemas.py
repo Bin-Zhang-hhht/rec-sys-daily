@@ -15,6 +15,8 @@ from recsys_daily.schemas import (
     SourceState,
     StageReport,
     State,
+    blog_reading_json_schema,
+    paper_reading_json_schema,
 )
 
 
@@ -74,6 +76,19 @@ def test_completed_visual_analysis_requires_provenance_and_finding() -> None:
     data["deep_reading"]["visual_analysis"] = {"status": "completed", "profile": "vision", "model": "model", "pages": [1]}  # type: ignore[index]
     with pytest.raises(ValidationError, match="visual finding"):
         PaperItem.model_validate(data, context={"taxonomy": _taxonomy()})
+
+
+def test_deep_reading_response_schemas_are_strict_and_evidence_bearing() -> None:
+    paper = paper_reading_json_schema()
+    blog = blog_reading_json_schema()
+    assert paper["additionalProperties"] is False
+    assert blog["additionalProperties"] is False
+    assert paper["properties"]["analysis_basis"]["enum"] == ["arxiv_html", "pdf_text", "abstract_fallback"]
+    assert blog["properties"]["analysis_basis"]["enum"] == ["rss_full_content", "article_html", "excerpt_fallback"]
+    assert "problem_zh" in paper["required"]
+    assert "system_context_zh" in blog["required"]
+    assert paper["properties"]["evidence_refs"]["minItems"] >= 1
+    assert blog["properties"]["evidence_refs"]["minItems"] >= 1
 
 
 def test_manifest_serialization_is_stage_minimal() -> None:

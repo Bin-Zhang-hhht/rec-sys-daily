@@ -157,9 +157,25 @@ def test_paper_without_critical_pages_skips_vision_and_uses_arxiv_html(tmp_path:
 
     assert reading.analysis_basis == "arxiv_html"
     assert reading.visual_analysis.status == "not_required"
-    assert content.pdf_calls == 0
+    assert content.pdf_calls == 1
     assert vision_calls == []
     assert list(tmp_path.iterdir()) == []
+
+
+def test_paper_rejects_empty_model_analysis(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, html=PAPER_HTML)
+    services = _services(tmp_path, content, text=lambda *_args: {})
+
+    with pytest.raises(ValueError, match="meaningful|problem"):
+        deep_read_paper(_paper(), services)
+
+
+def test_blog_rejects_empty_model_analysis(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, article=ARTICLE_HTML)
+    services = _services(tmp_path, content, text=lambda *_args: {})
+
+    with pytest.raises(ValueError, match="meaningful|system_context"):
+        deep_read_blog(_blog(), services)
 
 
 def test_paper_html_extraction_failure_does_not_send_raw_html_to_text_reader(tmp_path: Path) -> None:
