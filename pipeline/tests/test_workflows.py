@@ -62,7 +62,7 @@ def test_verify_workflow_uses_runtime_scenarios() -> None:
     assert "COPY fixtures" not in dockerfile
     text = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
     assert "fixtures/**" not in text
-    assert "test-fixtures --case all" in text
+    assert "test-fixtures --case all --work /workspace/work/verify" in text
 
 
 def test_site_docker_context_excludes_host_dependencies_and_build_outputs() -> None:

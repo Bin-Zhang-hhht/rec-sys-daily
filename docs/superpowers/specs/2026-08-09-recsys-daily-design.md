@@ -797,7 +797,7 @@ PowerShell 本地命令：
 
 ```powershell
 docker compose build pipeline site
-docker compose run --rm pipeline test-fixtures
+docker compose run --rm pipeline test-fixtures --case all --work /workspace/publish-bundle
 docker compose run --rm pipeline run --output /workspace/publish-bundle
 docker compose run --rm site build
 ```
