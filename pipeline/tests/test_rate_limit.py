@@ -57,3 +57,32 @@ def test_unauthorized_error_is_not_retried() -> None:
     with pytest.raises(RetryableHTTPError):
         request_with_retries(operation, limiter=lambda: None, sleeper=lambda _: None, max_attempts=3)
     assert calls == 1
+
+
+def test_transport_errors_retry_with_exponential_backoff() -> None:
+    calls = 0
+    acquired = 0
+    sleeps: list[float] = []
+
+    def acquire() -> None:
+        nonlocal acquired
+        acquired += 1
+
+    def operation() -> str:
+        nonlocal calls
+        calls += 1
+        if calls < 3:
+            raise ConnectionError("tls eof")
+        return "ok"
+
+    assert request_with_retries(
+        operation,
+        limiter=acquire,
+        sleeper=sleeps.append,
+        max_attempts=3,
+        retry_on_exceptions=(ConnectionError,),
+        backoff_seconds=0.5,
+    ) == "ok"
+    assert calls == 3
+    assert acquired == 3
+    assert sleeps == [0.5, 1.0]

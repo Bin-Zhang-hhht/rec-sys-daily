@@ -313,8 +313,23 @@ def _arxiv_url(config: AppConfig, window: QueryWindow) -> str:
     return "https://export.arxiv.org/api/query?" + urlencode(params)
 
 
-def _default_fetcher(url: str, headers: Mapping[str, str], *, resolver: Resolver | None, timeout: float) -> FeedResponse:
-    response = fetch_public_url(url, headers=headers, timeout=timeout, resolver=resolver)
+def _default_fetcher(
+    url: str,
+    headers: Mapping[str, str],
+    *,
+    resolver: Resolver | None,
+    timeout: float,
+    max_attempts: int,
+    user_agent: str,
+) -> FeedResponse:
+    response = fetch_public_url(
+        url,
+        headers=headers,
+        timeout=timeout,
+        resolver=resolver,
+        max_attempts=max_attempts,
+        user_agent=user_agent,
+    )
     return FeedResponse(response.status_code, response.content, response.headers, response.url)
 
 
@@ -348,7 +363,16 @@ def collect_candidates(
     window = query_window(state, now=now)
     state_value = _validated_state(state)
     current = window.until
-    fetch = fetcher or (lambda url, headers: _default_fetcher(url, headers, resolver=resolver, timeout=config.settings.limits.request_timeout_seconds))
+    fetch = fetcher or (
+        lambda url, headers: _default_fetcher(
+            url,
+            headers,
+            resolver=resolver,
+            timeout=config.settings.limits.request_timeout_seconds,
+            max_attempts=config.settings.limits.retry_attempts,
+            user_agent=config.settings.request_user_agent,
+        )
+    )
     all_candidates: list[Candidate] = []
     warnings: list[str] = []
     source_states: dict[str, SourceState] = {}

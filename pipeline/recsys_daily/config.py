@@ -225,6 +225,7 @@ class StorageSettings(StrictModel):
 
 class Settings(StrictModel):
     daily_target: Literal[8]
+    request_user_agent: str = Field(min_length=1)
     structured_analysis_min_success_rate: float = Field(ge=0, le=1)
     metadata_weights: ScoreWeights
     final_weights: FinalScoreWeights

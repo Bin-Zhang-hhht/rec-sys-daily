@@ -4,7 +4,9 @@ from pathlib import Path
 import socket
 
 import pytest
+import requests
 
+from recsys_daily import collect
 from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, _entry_feed_content, collect_candidates, parse_blog_feed, stable_id
 from recsys_daily.config import SourcesConfig, load_config
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
@@ -179,6 +181,105 @@ def test_fetch_revalidates_every_redirect_target() -> None:
     with pytest.raises(PublicUrlError):
         fetch_public_url("https://public.example/feed", resolver=_public_resolver, request=request)
     assert calls == ["https://public.example/feed"]
+
+
+def test_fetch_public_url_retries_transport_failures_and_sets_user_agent() -> None:
+    class Response:
+        status_code = 200
+        content = b"ok"
+        headers: dict[str, str] = {}
+        is_redirect = False
+        is_permanent_redirect = False
+
+    calls: list[dict[str, object]] = []
+    attempts = iter([requests.ConnectionError("tls eof"), Response()])
+
+    def request(_url: str, **kwargs: object) -> Response:
+        calls.append(kwargs)
+        value = next(attempts)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    response = fetch_public_url(
+        "https://public.example/feed",
+        resolver=_public_resolver,
+        request=request,
+        max_attempts=2,
+        user_agent="RecSysDaily/test",
+        sleeper=lambda _: None,
+    )
+
+    assert response.status_code == 200
+    assert calls[0]["headers"] == {"User-Agent": "RecSysDaily/test"}
+    assert len(calls) == 2
+
+
+def test_fetch_public_url_preserves_explicit_user_agent() -> None:
+    class Response:
+        status_code = 200
+        content = b"ok"
+        headers: dict[str, str] = {}
+        is_redirect = False
+        is_permanent_redirect = False
+
+    calls: list[dict[str, object]] = []
+
+    def request(_url: str, **kwargs: object) -> Response:
+        calls.append(kwargs)
+        return Response()
+
+    fetch_public_url(
+        "https://public.example/feed",
+        headers={"user-agent": "Explicit/2.0"},
+        resolver=_public_resolver,
+        request=request,
+        user_agent="RecSysDaily/test",
+    )
+
+    assert calls[0]["headers"] == {"user-agent": "Explicit/2.0"}
+
+
+def test_collect_retries_source_http_503_with_configured_network_options(monkeypatch: pytest.MonkeyPatch) -> None:
+    config = _config()
+    academic = config.sources.academic[0].model_copy(update={"enabled": False})
+    blog = config.sources.blogs[0]
+    config = config.model_copy(update={"sources": SourcesConfig(academic=[academic], blogs=[blog])})
+    attempts = 0
+    seen_headers: list[dict[str, str]] = []
+
+    class Response:
+        is_redirect = False
+        is_permanent_redirect = False
+
+        def __init__(self, status_code: int, content: bytes = b"") -> None:
+            self.status_code = status_code
+            self.content = content
+            self.headers: dict[str, str] = {}
+            self.url = blog.url
+
+    def request(_url: str, **kwargs: object) -> Response:
+        nonlocal attempts
+        attempts += 1
+        seen_headers.append(dict(kwargs["headers"]))  # type: ignore[arg-type]
+        if attempts == 1:
+            return Response(503)
+        return Response(200, BLOG_RSS.encode())
+
+    original_fetch = fetch_public_url
+
+    def configured_fetch(url: str, **kwargs: object) -> requests.Response:
+        assert kwargs["max_attempts"] == config.settings.limits.retry_attempts
+        assert kwargs["user_agent"] == config.settings.request_user_agent
+        return original_fetch(url, request=request, sleeper=lambda _: None, **kwargs)
+
+    monkeypatch.setattr(collect, "fetch_public_url", configured_fetch)
+
+    result = collect_candidates(config, now=NOW, resolver=_public_resolver)
+
+    assert attempts == 2
+    assert seen_headers[0]["User-Agent"] == config.settings.request_user_agent
+    assert result.warnings == []
 
 
 def test_blog_feed_preserves_content_encoded_for_full_reading() -> None:

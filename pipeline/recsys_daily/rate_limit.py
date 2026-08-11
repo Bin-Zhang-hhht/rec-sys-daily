@@ -89,11 +89,15 @@ def request_with_retries(
     limiter: RateLimiter | Callable[[], None] | None = None,
     sleeper: Callable[[float], None] = time.sleep,
     max_attempts: int = 3,
+    retry_on_exceptions: tuple[type[Exception], ...] = (),
+    backoff_seconds: float = 1.0,
 ) -> T:
-    """Run an operation, retrying only 429/5xx and pacing every attempt."""
+    """Run an operation, retrying selected failures and pacing every attempt."""
 
     if max_attempts < 1:
         raise ValueError("max_attempts must be positive")
+    if backoff_seconds < 0:
+        raise ValueError("backoff_seconds must not be negative")
     acquire = limiter.acquire if hasattr(limiter, "acquire") else limiter
     for attempt in range(max_attempts):
         if acquire is not None:
@@ -102,10 +106,13 @@ def request_with_retries(
             return operation()
         except Exception as error:
             status = _status_code(error)
-            retryable = status == 429 or (status is not None and 500 <= status <= 599)
+            retryable = (
+                status == 429
+                or (status is not None and 500 <= status <= 599)
+                or isinstance(error, retry_on_exceptions)
+            )
             if not retryable or attempt == max_attempts - 1:
                 raise
             delay = _retry_after(error)
-            if delay is not None:
-                sleeper(delay)
+            sleeper(delay if delay is not None else backoff_seconds * (2**attempt))
     raise RuntimeError("unreachable")

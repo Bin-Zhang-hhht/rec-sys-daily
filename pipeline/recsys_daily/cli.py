@@ -125,22 +125,47 @@ def _real_services(
         return vision_client.analyze("Analyze all detected key pages and return strict JSON.", images)
 
     request_timeout = config.settings.limits.request_timeout_seconds
+    retry_attempts = config.settings.limits.retry_attempts
+    request_user_agent = config.settings.request_user_agent
     max_pdf_bytes = config.settings.limits.max_pdf_bytes
     max_blog_html_bytes = config.settings.limits.max_blog_html_bytes
 
     def configured_fetch_text(url: str, limit: int) -> str:
-        return fetch_text_request(url, min(limit, max_pdf_bytes), timeout=request_timeout)
+        return fetch_text_request(
+            url,
+            min(limit, max_pdf_bytes),
+            timeout=request_timeout,
+            max_attempts=retry_attempts,
+            user_agent=request_user_agent,
+        )
 
     def configured_fetch_bytes(url: str, limit: int) -> bytes:
-        return fetch_bytes_request(url, min(limit, max_pdf_bytes), timeout=request_timeout)
+        return fetch_bytes_request(
+            url,
+            min(limit, max_pdf_bytes),
+            timeout=request_timeout,
+            max_attempts=retry_attempts,
+            user_agent=request_user_agent,
+        )
 
     def configured_fetch_article_html(candidate: Candidate, limit: int | None = None) -> str:
-        return fetch_article_html_request(candidate, min(limit or max_blog_html_bytes, max_blog_html_bytes), timeout=request_timeout)
+        return fetch_article_html_request(
+            candidate,
+            min(limit or max_blog_html_bytes, max_blog_html_bytes),
+            timeout=request_timeout,
+            max_attempts=retry_attempts,
+            user_agent=request_user_agent,
+        )
 
     source_urls = {source.id: source.url for source in config.sources.blogs if source.enabled}
 
     def fetch_blog_feed(_source_id: str, url: str) -> bytes:
-        return fetch_public_url(url, timeout=request_timeout).content
+        return fetch_public_url(
+            url,
+            timeout=request_timeout,
+            max_attempts=retry_attempts,
+            user_agent=request_user_agent,
+        ).content
 
     blog_feed_cache = BlogFeedCache(
         source_urls,

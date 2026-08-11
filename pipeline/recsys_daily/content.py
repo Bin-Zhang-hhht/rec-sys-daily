@@ -60,8 +60,15 @@ class DomainRateLimiter:
             self._last[hostname] = now
 
 
-def fetch_bytes(url: str, max_bytes: int, *, timeout: float = 45) -> bytes:
-    response = fetch_public_url(url, timeout=timeout)
+def fetch_bytes(
+    url: str,
+    max_bytes: int,
+    *,
+    timeout: float = 45,
+    max_attempts: int = 3,
+    user_agent: str | None = None,
+) -> bytes:
+    response = fetch_public_url(url, timeout=timeout, max_attempts=max_attempts, user_agent=user_agent)
     declared_size = response.headers.get("Content-Length")
     if declared_size:
         try:
@@ -76,8 +83,21 @@ def fetch_bytes(url: str, max_bytes: int, *, timeout: float = 45) -> bytes:
     return content
 
 
-def fetch_text(url: str, max_bytes: int, *, timeout: float = 45) -> str:
-    return fetch_bytes(url, max_bytes, timeout=timeout).decode("utf-8", errors="replace")
+def fetch_text(
+    url: str,
+    max_bytes: int,
+    *,
+    timeout: float = 45,
+    max_attempts: int = 3,
+    user_agent: str | None = None,
+) -> str:
+    return fetch_bytes(
+        url,
+        max_bytes,
+        timeout=timeout,
+        max_attempts=max_attempts,
+        user_agent=user_agent,
+    ).decode("utf-8", errors="replace")
 
 
 def extract_article(html: str) -> str:
@@ -118,11 +138,24 @@ def render_pages(pdf_path: Path, pages: list[int], directory: Path) -> list[Path
     return rendered
 
 
-def fetch_article_html(candidate: object, max_bytes: int = 5 * 1024 * 1024, *, timeout: float = 45) -> str:
+def fetch_article_html(
+    candidate: object,
+    max_bytes: int = 5 * 1024 * 1024,
+    *,
+    timeout: float = 45,
+    max_attempts: int = 3,
+    user_agent: str | None = None,
+) -> str:
     url = getattr(candidate, "url", None)
     if not url:
         raise ValueError("blog candidate has no public URL")
-    return fetch_text(str(url), max_bytes, timeout=timeout)
+    return fetch_text(
+        str(url),
+        max_bytes,
+        timeout=timeout,
+        max_attempts=max_attempts,
+        user_agent=user_agent,
+    )
 
 
 def parse_source_feed(payload: bytes | str, source_id: str) -> list[Candidate]:

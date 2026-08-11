@@ -30,6 +30,7 @@ def _write_config(root: Path) -> None:
     }})
     _write_yaml(root / "config/settings.yaml", {
         "daily_target": 8,
+        "request_user_agent": "RecSysDaily/1.0",
         "structured_analysis_min_success_rate": .90,
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
@@ -57,6 +58,11 @@ def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> Non
 def test_repository_rss_request_limit_is_two() -> None:
     config = load_config(Path(__file__).parents[2])
     assert config.settings.limits.rss_requests_per_run_per_source == 2
+
+
+def test_repository_request_user_agent_is_identifiable() -> None:
+    config = load_config(Path(__file__).parents[2])
+    assert config.settings.request_user_agent == "RecSysDaily/1.0"
 
 
 def test_duplicate_taxonomy_ids_are_rejected(tmp_path: Path) -> None:
