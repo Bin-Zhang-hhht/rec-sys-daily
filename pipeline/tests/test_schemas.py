@@ -1,6 +1,8 @@
 from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from pydantic import TypeAdapter, ValidationError
 
 from recsys_daily.config import TopicEntry, TopicTaxonomy
@@ -87,8 +89,64 @@ def test_deep_reading_response_schemas_are_strict_and_evidence_bearing() -> None
     assert blog["properties"]["analysis_basis"]["enum"] == ["rss_full_content", "article_html", "excerpt_fallback"]
     assert "problem_zh" in paper["required"]
     assert "system_context_zh" in blog["required"]
-    assert paper["properties"]["evidence_refs"]["minItems"] >= 1
-    assert blog["properties"]["evidence_refs"]["minItems"] >= 1
+    assert "evidence_refs" not in paper["required"]
+    assert "evidence_refs" not in blog["required"]
+    assert paper["allOf"][1]["anyOf"][1]["properties"]["evidence_refs"]["minItems"] >= 1
+    assert blog["anyOf"][3]["properties"]["evidence_refs"]["minItems"] >= 1
+
+
+def test_paper_response_schema_accepts_method_and_limitation_only() -> None:
+    schema = paper_reading_json_schema()
+    payload = {
+        "problem_zh": "A bounded retrieval problem.",
+        "method_zh": "A two-tower method.",
+        "limitations_zh": ["Evaluation is limited to one dataset."],
+    }
+
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(payload)
+
+
+def test_blog_response_schema_accepts_evidence_only_analysis() -> None:
+    schema = blog_reading_json_schema()
+    payload = {
+        "system_context_zh": "A feed-ranking service.",
+        "evidence_refs": [{"heading": "Architecture"}],
+    }
+
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("schema", "payload"),
+    [
+        (
+            paper_reading_json_schema(),
+            {
+                "problem_zh": "A bounded retrieval problem.",
+                "contributions_zh": [],
+                "method_zh": "",
+                "experiments": {"datasets": [], "baselines": [], "metrics": [], "findings_zh": []},
+                "limitations_zh": [],
+                "evidence_refs": [],
+            },
+        ),
+        (
+            blog_reading_json_schema(),
+            {
+                "system_context_zh": "A feed-ranking service.",
+                "architecture_zh": None,
+                "implementation_zh": None,
+                "lessons_zh": [],
+                "evidence_refs": [],
+            },
+        ),
+    ],
+)
+def test_deep_reading_response_schemas_reject_empty_analysis(schema: dict[str, object], payload: dict[str, object]) -> None:
+    with pytest.raises(JsonSchemaValidationError):
+        Draft202012Validator(schema).validate(payload)
 
 
 def test_manifest_serialization_is_stage_minimal() -> None:
