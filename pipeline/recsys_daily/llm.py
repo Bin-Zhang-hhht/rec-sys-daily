@@ -145,7 +145,10 @@ class TextClient:
             response = self._client.chat.completions.create(
                 model=self.model,
                 messages=list(messages),
-                response_format={"type": "json_schema", "json_schema": {"name": "response", "schema": dict(schema)}},
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {"name": "response", "strict": True, "schema": dict(schema)},
+                },
                 temperature=0.6,
                 stream=False,
             )

@@ -26,12 +26,22 @@ def test_text_client_uses_active_profile_and_parses_json(monkeypatch: pytest.Mon
     monkeypatch.setattr("recsys_daily.llm.OpenAI", FakeOpenAI)
     client = TextClient.from_config(config.models, environ={"NVIDIA_BASE_URL": "https://example.test/v1", "NVIDIA_API_KEY": "test-key"})
 
-    result = client.complete_json([{"role": "user", "content": "hello"}], {"type": "object"})
+    schema = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {"score": {"type": "number"}},
+        "required": ["score"],
+    }
+    result = client.complete_json([{"role": "user", "content": "hello"}], schema)
 
     assert result == {"score": 3}
     assert observed["base_url"] == "https://example.test/v1"
     assert observed["api_key"] == "test-key"
     assert observed["model"] == config.models.text.active().model
+    assert observed["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {"name": "response", "strict": True, "schema": schema},
+    }
     assert "reasoning_content" not in result
 
 

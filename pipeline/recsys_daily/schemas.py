@@ -53,7 +53,7 @@ class BlogEvidenceRef(ArtifactModel):
 
     @model_validator(mode="after")
     def has_location(self) -> "BlogEvidenceRef":
-        if not self.heading and not self.section:
+        if not any(value and value.strip() for value in (self.heading, self.section)):
             raise ValueError("blog evidence requires a heading or section")
         return self
 
@@ -153,19 +153,29 @@ def _paper_evidence_schema() -> dict[str, Any]:
 
 
 def _blog_evidence_schema() -> dict[str, Any]:
+    nullable_locations = {
+        "heading": {"type": ["string", "null"], "minLength": 1},
+        "section": {"type": ["string", "null"], "minLength": 1},
+    }
+
+    def location_branch(nonempty: str) -> dict[str, Any]:
+        properties = dict(nullable_locations)
+        properties[nonempty] = {"type": "string", "minLength": 1}
+        return {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": properties,
+            "required": list(properties),
+        }
+
     return {
         "type": "array",
         "items": {
             "type": "object",
             "additionalProperties": False,
-            "properties": {
-                "heading": {"type": ["string", "null"], "minLength": 1},
-                "section": {"type": ["string", "null"], "minLength": 1},
-            },
-            "anyOf": [
-                {"properties": {"heading": {"type": "string", "minLength": 1}}, "required": ["heading"]},
-                {"properties": {"section": {"type": "string", "minLength": 1}}, "required": ["section"]},
-            ],
+            "properties": nullable_locations,
+            "required": ["heading", "section"],
+            "anyOf": [location_branch("heading"), location_branch("section")],
         },
     }
 
@@ -182,6 +192,7 @@ def paper_reading_json_schema() -> dict[str, Any]:
             "metrics": string_list,
             "findings_zh": string_list,
         },
+        "required": ["datasets", "baselines", "metrics", "findings_zh"],
     }
     properties: dict[str, Any] = {
         "analysis_basis": {"type": "string", "enum": ["arxiv_html", "pdf_text", "abstract_fallback"]},
@@ -191,7 +202,7 @@ def paper_reading_json_schema() -> dict[str, Any]:
         "technical_depth": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         "problem_zh": {"type": "string", "minLength": 1},
         "contributions_zh": string_list,
-        "method_zh": {"type": "string", "minLength": 1},
+        "method_zh": {"type": ["string", "null"], "minLength": 1},
         "experiments": experiments,
         "limitations_zh": string_list,
         "business_implications_zh": string_list,
@@ -201,44 +212,7 @@ def paper_reading_json_schema() -> dict[str, Any]:
         "type": "object",
         "additionalProperties": False,
         "properties": properties,
-        "required": ["problem_zh"],
-        "allOf": [
-            {
-                "anyOf": [
-                    {
-                        "properties": {"method_zh": {"type": "string", "minLength": 1}},
-                        "required": ["method_zh"],
-                    },
-                    {
-                        "properties": {"contributions_zh": {**string_list, "minItems": 1}},
-                        "required": ["contributions_zh"],
-                    },
-                ]
-            },
-            {
-                "anyOf": [
-                    {
-                        "properties": {
-                            "experiments": {
-                                "anyOf": [
-                                    {"properties": {field: {**string_list, "minItems": 1}}, "required": [field]}
-                                    for field in ("datasets", "baselines", "metrics", "findings_zh")
-                                ]
-                            }
-                        },
-                        "required": ["experiments"],
-                    },
-                    {
-                        "properties": {"evidence_refs": {**_paper_evidence_schema(), "minItems": 1}},
-                        "required": ["evidence_refs"],
-                    },
-                    {
-                        "properties": {"limitations_zh": {**string_list, "minItems": 1}},
-                        "required": ["limitations_zh"],
-                    },
-                ]
-            },
-        ],
+        "required": list(properties),
     }
 
 
@@ -265,25 +239,7 @@ def blog_reading_json_schema() -> dict[str, Any]:
         "type": "object",
         "additionalProperties": False,
         "properties": properties,
-        "required": ["system_context_zh"],
-        "anyOf": [
-            {
-                "properties": {"architecture_zh": {"type": "string", "minLength": 1}},
-                "required": ["architecture_zh"],
-            },
-            {
-                "properties": {"implementation_zh": {"type": "string", "minLength": 1}},
-                "required": ["implementation_zh"],
-            },
-            {
-                "properties": {"lessons_zh": {**string_list, "minItems": 1}},
-                "required": ["lessons_zh"],
-            },
-            {
-                "properties": {"evidence_refs": {**_blog_evidence_schema(), "minItems": 1}},
-                "required": ["evidence_refs"],
-            },
-        ],
+        "required": list(properties),
     }
 
 
