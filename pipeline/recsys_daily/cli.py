@@ -185,7 +185,7 @@ def collect_filter(output: Path = typer.Option(...), root: Path = typer.Option(P
     config = load_config(repository)
     state_path = repository / "data" / "state.json"
     state = State.model_validate(json.loads(state_path.read_text(encoding="utf-8"))) if state_path.exists() else None
-    history = load_history_ids(repository / "data", state)
+    history = load_history_ids(repository / "data", config, state)
     limiter = _full_read_limiter(config)
     text_client = TextClient.from_config(config.models, limiter=limiter, timeout_seconds=None, retries=None)
     run_collect_filter(config, output, state, history, text_client.complete_json)

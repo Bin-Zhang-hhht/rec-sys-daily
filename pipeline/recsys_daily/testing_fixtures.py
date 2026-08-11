@@ -264,7 +264,7 @@ def _run_stage_one(
         exercise_source_fallbacks=degraded,
     )
     stage = root / "stage-1"
-    history = load_history_ids(repository_data or root / "repository-data", state)
+    history = load_history_ids(repository_data or root / "repository-data", config, state)
     run_collect_filter(
         config,
         stage,

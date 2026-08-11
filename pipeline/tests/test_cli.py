@@ -47,7 +47,21 @@ def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypat
         json.dumps(State(recommended_item_ids=["state-history"]).model_dump(mode="json")),
         encoding="utf-8",
     )
-    item.write_text(json.dumps({"id": "item-history"}), encoding="utf-8")
+    item.write_text(json.dumps({
+        "id": "item-history",
+        "kind": "paper",
+        "title": "History",
+        "summary_zh": "Historical summary",
+        "source": "arxiv",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+    }), encoding="utf-8")
     digest.write_text(json.dumps({
         "date": "2025-01-02",
         "papers": [{"item_id": "digest-history", "recommendation_reason_zh": "history", "rank": 1}],

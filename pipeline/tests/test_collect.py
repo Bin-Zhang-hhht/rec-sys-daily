@@ -115,18 +115,33 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
 
 
 def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> None:
+    config = load_config(ROOT)
     item = tmp_path / "items/papers/2025/01/item-history.json"
     digest = tmp_path / "digests/2025/01/2025-01-02.json"
     item.parent.mkdir(parents=True)
     digest.parent.mkdir(parents=True)
-    item.write_text(json.dumps({"id": "item-history"}), encoding="utf-8")
+    item.write_text(json.dumps({
+        "id": "item-history",
+        "kind": "paper",
+        "title": "History",
+        "summary_zh": "Historical summary",
+        "source": "arxiv",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+    }), encoding="utf-8")
     digest.write_text(json.dumps({
         "date": "2025-01-02",
         "papers": [{"item_id": "digest-paper", "recommendation_reason_zh": "history", "rank": 1}],
         "blogs": [{"item_id": "digest-blog", "recommendation_reason_zh": "history", "rank": 1}],
     }), encoding="utf-8")
 
-    assert load_history_ids(tmp_path, State(recommended_item_ids=["state-history"])) == {
+    assert load_history_ids(tmp_path, config, State(recommended_item_ids=["state-history"])) == {
         "state-history",
         "item-history",
         "digest-paper",
@@ -138,6 +153,7 @@ def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> No
     ("relative", "payload"),
     [
         ("items/papers/2025/01/broken.json", {"id": 42}),
+        ("items/papers/2025/01/missing-fields.json", {"id": "missing-fields"}),
         ("digests/2025/01/2025-01-02.json", {"date": "2025-01-02", "papers": [{}], "blogs": []}),
     ],
 )
@@ -147,7 +163,7 @@ def test_load_history_ids_rejects_corrupt_canonical_json(tmp_path: Path, relativ
     path.write_text(json.dumps(payload), encoding="utf-8")
 
     with pytest.raises(ValueError, match="canonical history"):
-        load_history_ids(tmp_path, State())
+        load_history_ids(tmp_path, load_config(ROOT), State())
 
 
 def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorical_candidates(tmp_path: Path) -> None:

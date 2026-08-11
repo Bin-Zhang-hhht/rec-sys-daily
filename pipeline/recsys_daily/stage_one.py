@@ -7,6 +7,7 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 from .artifacts import write_json, write_jsonl
@@ -14,7 +15,7 @@ from .collect import Candidate, CollectionResult, FeedResponse, collect_candidat
 from .config import AppConfig
 from .filtering import prefilter
 from .metadata import MetadataResult, analyze_metadata
-from .schemas import Digest, SourceRunStatus, SourceState, Stage1Metadata, StageReport, State
+from .schemas import BlogItem, Digest, PaperItem, SourceRunStatus, SourceState, Stage1Metadata, StageReport, State
 from .security import Resolver
 
 
@@ -52,7 +53,11 @@ def _canonical_json_files(root: Path, data_root: Path) -> list[Path]:
     return files
 
 
-def load_history_ids(data_root: Path, state: State | dict[str, Any] | None) -> set[str]:
+def load_history_ids(
+    data_root: Path,
+    config: AppConfig,
+    state: State | dict[str, Any] | None,
+) -> set[str]:
     """Load every historically recommended ID from canonical repository data."""
     try:
         current_state = _state_value(state)
@@ -63,22 +68,49 @@ def load_history_ids(data_root: Path, state: State | dict[str, Any] | None) -> s
         return history
 
     for path in _canonical_json_files(data_root / "items", data_root):
+        relative = path.relative_to(data_root)
+        parts = relative.parts
+        if (
+            len(parts) != 5
+            or parts[0] != "items"
+            or parts[1] not in {"papers", "blogs"}
+            or not re.fullmatch(r"\d{4}", parts[2])
+            or not re.fullmatch(r"(?:0[1-9]|1[0-2])", parts[3])
+            or path.suffix != ".json"
+        ):
+            raise ValueError(f"invalid canonical history item path {relative.as_posix()}")
         value = _read_canonical_object(path, data_root)
-        item_id = value.get("id")
-        if not isinstance(item_id, str) or not item_id.strip():
-            relative = path.relative_to(data_root).as_posix()
-            raise ValueError(f"invalid canonical history item {relative}: id must be a non-empty string")
-        if item_id != path.stem:
-            relative = path.relative_to(data_root).as_posix()
-            raise ValueError(f"invalid canonical history item {relative}: id does not match its canonical path")
-        history.add(item_id)
+        try:
+            item_type = PaperItem if parts[1] == "papers" else BlogItem
+            item = item_type.model_validate(value, context={"taxonomy": config.topics})
+            expected_kind = "paper" if parts[1] == "papers" else "blog"
+            if item.kind != expected_kind or item.id != path.stem:
+                raise ValueError("item kind or stable ID does not match its canonical path")
+            if (f"{item.published_at.year:04d}", f"{item.published_at.month:02d}") != parts[2:4]:
+                raise ValueError("item publication date does not match its canonical path")
+            if isinstance(item, BlogItem) and item.excerpt is not None and len(item.excerpt) > config.settings.storage.max_blog_excerpt_chars:
+                raise ValueError("blog excerpt exceeds configured max_blog_excerpt_chars")
+        except Exception as exc:
+            raise ValueError(f"invalid canonical history item {relative.as_posix()}: {exc}") from exc
+        history.add(item.id)
 
     for path in _canonical_json_files(data_root / "digests", data_root):
+        relative = path.relative_to(data_root)
+        parts = relative.parts
+        if (
+            len(parts) != 4
+            or parts[0] != "digests"
+            or not re.fullmatch(r"\d{4}", parts[1])
+            or not re.fullmatch(r"(?:0[1-9]|1[0-2])", parts[2])
+            or path.suffix != ".json"
+        ):
+            raise ValueError(f"invalid canonical history digest path {relative.as_posix()}")
         value = _read_canonical_object(path, data_root)
         try:
             digest = Digest.model_validate(value)
+            if (f"{digest.date.year:04d}", f"{digest.date.month:02d}", f"{digest.date.isoformat()}.json") != parts[1:4]:
+                raise ValueError("digest date does not match its canonical path")
         except Exception as exc:
-            relative = path.relative_to(data_root).as_posix()
             raise ValueError(f"invalid canonical history digest {relative}: {exc}") from exc
         history.update(entry.item_id for entry in [*digest.papers, *digest.blogs])
     return history
