@@ -544,6 +544,7 @@ VLM 请求遵循 NVIDIA 官方 Chat Completions 多模态格式：`messages[0].c
 默认限制：
 
 ```yaml
+request_user_agent: RecSysDaily/1.0
 limits:
   http_concurrency: 2
   nvidia_hard_rpm: 40
@@ -555,6 +556,8 @@ limits:
   arxiv_min_interval_seconds: 3
   request_timeout_seconds: 45
   retry_attempts: 3
+  retry_backoff_seconds: 1
+  retry_max_delay_seconds: 30
   max_papers_per_run: 100
   max_blogs_per_run: 50
   deep_reading_candidates_per_type: 16
@@ -606,8 +609,7 @@ NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 r
 ├── site/
 │   ├── Dockerfile
 │   └── Astro static site
-├── compose.yaml
-└── scripts/dev.ps1
+└── compose.yaml
 ```
 
 `data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 16 论文和 Top 16 博客保存或更新结构化深读记录，单月通常不超过约 1,000 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 8 篇推荐的深读候选也保留结构化结果，以供后续重排复用。
@@ -800,15 +802,7 @@ docker compose run --rm pipeline run --output /workspace/publish-bundle
 docker compose run --rm site build
 ```
 
-便捷脚本：
-
-```powershell
-.\scripts\dev.ps1 test
-.\scripts\dev.ps1 build
-.\scripts\dev.ps1 run
-```
-
-`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。`dev.ps1 run` 先运行 pipeline 生成数据包，再运行 site build；`dev.ps1 test` 分别执行 Python 运行时生成的离线场景和 Astro + Pagefind 测试 bundle build。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
+`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
 
 Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依赖、Docker 镜像或 GitHub Actions；项目构建和运行不依赖任何 MCP 服务。
 

@@ -57,7 +57,7 @@
 
 ## Local development
 
-- The supported local shell is PowerShell. Use PowerShell syntax and the repository's `.ps1` scripts; do not assume Bash is available.
+- The supported local shell is PowerShell. Use PowerShell syntax for local orchestration; do not assume Bash is available.
 - Docker is the standard build and test environment. Do not require a host Python or Node installation for normal development.
 - Standard commands are:
 
@@ -66,9 +66,6 @@ docker compose build pipeline site
 docker compose run --rm pipeline test-fixtures
 docker compose run --rm pipeline run --output /workspace/publish-bundle
 docker compose run --rm site build
-.\scripts\dev.ps1 test
-.\scripts\dev.ps1 build
-.\scripts\dev.ps1 run
 ```
 
 - Prefer `rg` and `rg --files` for repository search.

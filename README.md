@@ -4,15 +4,12 @@ RecSys Daily is a static Chinese research digest for recommendation-systems pape
 
 ## Local commands
 
-Docker is the supported local runtime. PowerShell helpers use the same two images as CI:
+Docker is the supported local runtime. Use the same two images as CI:
 
 ```powershell
 docker compose build pipeline site
 docker compose run --rm pipeline test-fixtures --case all --work /workspace/publish-bundle
 docker compose run --rm -e PUBLISH_BUNDLE_DIR=/workspace/publish-bundle/publish-bundle site build
-.\scripts\dev.ps1 test
-.\scripts\dev.ps1 build
-.\scripts\dev.ps1 run
 ```
 
 `test-fixtures` is offline, generates all Atom/RSS/HTML/model/state inputs under the supplied work directory, and does not require or track a `fixtures/` directory. Production runs read API settings from environment variables or `.env`; never put keys in this repository.
