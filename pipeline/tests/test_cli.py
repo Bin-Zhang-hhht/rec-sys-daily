@@ -64,7 +64,7 @@ def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypat
     }), encoding="utf-8")
     digest.write_text(json.dumps({
         "date": "2025-01-02",
-        "papers": [{"item_id": "digest-history", "recommendation_reason_zh": "history", "rank": 1}],
+        "papers": [{"item_id": "item-history", "recommendation_reason_zh": "history", "rank": 1}],
         "blogs": [],
     }), encoding="utf-8")
     captured: dict[str, object] = {}
@@ -88,7 +88,7 @@ def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypat
     cli.collect_filter(tmp_path / "stage-1", tmp_path)
 
     assert isinstance(captured["state"], State)
-    assert captured["history"] == {"state-history", "item-history", "digest-history"}
+    assert captured["history"] == {"state-history", "item-history"}
 
 
 def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) -> None:

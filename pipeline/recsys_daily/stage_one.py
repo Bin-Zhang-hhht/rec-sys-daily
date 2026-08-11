@@ -67,6 +67,8 @@ def load_history_ids(
     if not data_root.exists():
         return history
 
+    canonical_kinds: dict[str, tuple[str, str]] = {}
+    canonical_ids_by_kind: dict[str, set[str]] = {"paper": set(), "blog": set()}
     for path in _canonical_json_files(data_root / "items", data_root):
         relative = path.relative_to(data_root)
         parts = relative.parts
@@ -92,6 +94,15 @@ def load_history_ids(
                 raise ValueError("blog excerpt exceeds configured max_blog_excerpt_chars")
         except Exception as exc:
             raise ValueError(f"invalid canonical history item {relative.as_posix()}: {exc}") from exc
+        relative_name = relative.as_posix()
+        previous = canonical_kinds.get(item.id)
+        if previous is not None:
+            raise ValueError(
+                f"duplicate canonical history item {item.id}: {previous[0]} and {relative_name}"
+            )
+        kind = "paper" if item.kind == "paper" else "blog"
+        canonical_kinds[item.id] = (relative_name, kind)
+        canonical_ids_by_kind[kind].add(item.id)
         history.add(item.id)
 
     for path in _canonical_json_files(data_root / "digests", data_root):
@@ -110,6 +121,11 @@ def load_history_ids(
             digest = Digest.model_validate(value)
             if (f"{digest.date.year:04d}", f"{digest.date.month:02d}", f"{digest.date.isoformat()}.json") != parts[1:4]:
                 raise ValueError("digest date does not match its canonical path")
+            missing_papers = [entry.item_id for entry in digest.papers if entry.item_id not in canonical_ids_by_kind["paper"]]
+            missing_blogs = [entry.item_id for entry in digest.blogs if entry.item_id not in canonical_ids_by_kind["blog"]]
+            if missing_papers or missing_blogs:
+                references = [*(f"paper:{item_id}" for item_id in missing_papers), *(f"blog:{item_id}" for item_id in missing_blogs)]
+                raise ValueError(f"digest reference does not match canonical item kind: {', '.join(references)}")
         except Exception as exc:
             raise ValueError(f"invalid canonical history digest {relative}: {exc}") from exc
         history.update(entry.item_id for entry in [*digest.papers, *digest.blogs])
@@ -157,6 +173,8 @@ def collection_stage_report(config: AppConfig, result: CollectionResult, metadat
     warnings = list(result.warnings)
     sources: list[SourceRunStatus] = []
     for source in [*config.sources.academic, *config.sources.blogs]:
+        if not source.enabled:
+            continue
         warning = next((item for item in warnings if item.startswith(f"{source.id}:")), None)
         sources.append(SourceRunStatus(source_id=source.id, success=warning is None, warning=warning))
     return StageReport(

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from collections.abc import Mapping, Sequence
 import html
 import json
 from pathlib import Path
@@ -161,6 +162,32 @@ def _public_resolver(_host: str, port: int, *_args: object) -> list[tuple[object
     return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("8.8.8.8", port))]
 
 
+def _fixture_metadata_candidate_ids(messages: Sequence[Mapping[str, Any]]) -> list[str]:
+    """Read candidate IDs from current prompts and the upcoming JSON envelope."""
+    for message in messages:
+        content = message.get("content")
+        payload: Any = content
+        if isinstance(content, str):
+            try:
+                payload = json.loads(content)
+            except json.JSONDecodeError:
+                continue
+        if not isinstance(payload, Mapping) or "source_documents" not in payload:
+            continue
+        documents = payload["source_documents"]
+        if not isinstance(documents, list):
+            raise ValueError("fixture source_documents must be a list")
+        ids: list[str] = []
+        for document in documents:
+            if not isinstance(document, Mapping) or not isinstance(document.get("id"), str) or not document["id"].strip():
+                raise ValueError("fixture source document must contain a non-empty id")
+            ids.append(document["id"])
+        return ids
+
+    legacy = "\n".join(str(message.get("content", "")) for message in messages)
+    return re.findall(r"^id: (.+)$", legacy, re.MULTILINE)
+
+
 def _atom_document(candidates: list[Candidate]) -> str:
     entries = []
     for candidate in candidates:
@@ -237,7 +264,7 @@ def _fixture_stage_dependencies(
         metadata_calls += 1
         if fail_metadata_batch is not None and metadata_calls == fail_metadata_batch:
             raise RuntimeError("fixture metadata degradation")
-        ids = re.findall(r"^id: (.+)$", messages[0]["content"], re.MULTILINE)
+        ids = _fixture_metadata_candidate_ids(messages)
         items = []
         for item_id in ids:
             value = _metadata(candidates_by_id[item_id], config)
@@ -407,13 +434,13 @@ def _run_failure_injection(
 
 
 def _seed_historical_repository(data: Path, config: AppConfig) -> State:
-    published_at = datetime(2025, 1, 2, tzinfo=UTC)
+    published_at = datetime(2026, 8, 10, tzinfo=UTC)
     item = {
         "id": "arxiv-2608.01234",
         "kind": "paper",
         "source": "arxiv",
-        "title": "Historical Recommendation Paper",
-        "url": "https://arxiv.org/abs/2501.00001",
+        "title": "Two-Tower Retrieval Paper 0",
+        "url": "https://arxiv.org/abs/2608.01234",
         "published_at": published_at.isoformat().replace("+00:00", "Z"),
         "authors": ["Historical Author"],
         "summary_zh": "历史推荐论文摘要。",
@@ -426,9 +453,9 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
             "visual_analysis": {"status": "not_required"},
         },
     }
-    write_json(data / "items/papers/2025/01/arxiv-2608.01234.json", item)
-    write_json(data / "digests/2025/01/2025-01-02.json", {
-        "date": "2025-01-02",
+    write_json(data / "items/papers/2026/08/arxiv-2608.01234.json", item)
+    write_json(data / "digests/2026/08/2026-08-10.json", {
+        "date": "2026-08-10",
         "papers": [{"item_id": "arxiv-2608.01234", "recommendation_reason_zh": "历史推荐", "rank": 1}],
         "blogs": [],
     })
@@ -450,7 +477,7 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
         config_snapshot=snapshot,
         stage_report=StageReport(),
     )
-    write_json(data / "runs/2025/01/historical-run.json", report.model_dump(mode="json"))
+    write_json(data / "runs/2026/08/historical-run.json", report.model_dump(mode="json"))
     state = State(last_success_at=published_at, recommended_item_ids=["arxiv-2608.01234"], updated_at=published_at)
     write_json(data / "state.json", state.model_dump(mode="json"))
     return state

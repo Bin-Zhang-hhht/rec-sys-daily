@@ -2,18 +2,19 @@ from datetime import UTC, datetime
 from dataclasses import replace
 from pathlib import Path
 import json
-import re
 import socket
 
 import pytest
 import requests
 
 from recsys_daily import collect
-from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, _entry_feed_content, collect_candidates, parse_blog_feed, stable_id
+from recsys_daily.collect import Candidate, CollectionResult, FeedResponse, _arxiv_url, _entry_feed_content, collect_candidates, parse_blog_feed, stable_id
 from recsys_daily.config import SourcesConfig, load_config
+from recsys_daily.metadata import MetadataResult
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
 from recsys_daily.schemas import SourceState, State
-from recsys_daily.stage_one import load_history_ids, run_collect_filter
+from recsys_daily.stage_one import collection_stage_report, load_history_ids, run_collect_filter
+from recsys_daily.testing_fixtures import _fixture_metadata_candidate_ids
 from recsys_daily.state import compute_query_windows, query_window
 
 
@@ -116,12 +117,14 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
 
 def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> None:
     config = load_config(ROOT)
-    item = tmp_path / "items/papers/2025/01/item-history.json"
+    item = tmp_path / "items/papers/2025/01/digest-paper.json"
+    blog = tmp_path / "items/blogs/2025/01/digest-blog.json"
     digest = tmp_path / "digests/2025/01/2025-01-02.json"
     item.parent.mkdir(parents=True)
+    blog.parent.mkdir(parents=True)
     digest.parent.mkdir(parents=True)
     item.write_text(json.dumps({
-        "id": "item-history",
+        "id": "digest-paper",
         "kind": "paper",
         "title": "History",
         "summary_zh": "Historical summary",
@@ -135,6 +138,21 @@ def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> No
         "methods": [config.topics.methods[0].id],
         "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
     }), encoding="utf-8")
+    blog.write_text(json.dumps({
+        "id": "digest-blog",
+        "kind": "blog",
+        "title": "History Blog",
+        "summary_zh": "Historical summary",
+        "source": "meta_engineering",
+        "url": "https://engineering.example.com/history",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "excerpt_fallback", "system_context_zh": "context"},
+    }), encoding="utf-8")
     digest.write_text(json.dumps({
         "date": "2025-01-02",
         "papers": [{"item_id": "digest-paper", "recommendation_reason_zh": "history", "rank": 1}],
@@ -143,7 +161,6 @@ def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> No
 
     assert load_history_ids(tmp_path, config, State(recommended_item_ids=["state-history"])) == {
         "state-history",
-        "item-history",
         "digest-paper",
         "digest-blog",
     }
@@ -166,6 +183,88 @@ def test_load_history_ids_rejects_corrupt_canonical_json(tmp_path: Path, relativ
         load_history_ids(tmp_path, load_config(ROOT), State())
 
 
+def test_collection_stage_report_omits_disabled_sources() -> None:
+    config = load_config(ROOT)
+    disabled = config.sources.blogs[0].model_copy(update={"enabled": False})
+    config = config.model_copy(update={"sources": SourcesConfig(academic=config.sources.academic, blogs=[disabled, *config.sources.blogs[1:]])})
+    result = CollectionResult(window=query_window(None, now=NOW), candidates=[], source_states={})
+
+    report = collection_stage_report(config, result, MetadataResult([], 0, 1.0, 0))
+
+    assert disabled.id not in {source.source_id for source in report.sources}
+
+
+def test_fixture_metadata_parser_supports_legacy_and_source_document_envelopes() -> None:
+    legacy = [{"role": "user", "content": "id: legacy-id\ntitle: Legacy"}]
+    structured = [
+        {"role": "system", "content": "classify"},
+        {"role": "user", "content": json.dumps({"task": "classify", "source_documents": [{"id": "structured-id"}]})},
+    ]
+
+    assert _fixture_metadata_candidate_ids(legacy) == ["legacy-id"]
+    assert _fixture_metadata_candidate_ids(structured) == ["structured-id"]
+
+
+def test_load_history_ids_rejects_duplicate_canonical_item_ids(tmp_path: Path) -> None:
+    config = load_config(ROOT)
+    item = {
+        "id": "duplicate-id",
+        "kind": "paper",
+        "title": "History",
+        "summary_zh": "Historical summary",
+        "source": "arxiv",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+    }
+    first = tmp_path / "items/papers/2025/01/duplicate-id.json"
+    second = tmp_path / "items/papers/2026/01/duplicate-id.json"
+    first.parent.mkdir(parents=True)
+    second.parent.mkdir(parents=True)
+    first.write_text(json.dumps(item), encoding="utf-8")
+    second.write_text(json.dumps({**item, "published_at": "2026-01-02T00:00:00Z"}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="duplicate canonical history item"):
+        load_history_ids(tmp_path, config, State())
+
+
+@pytest.mark.parametrize("digest", [
+    {"date": "2025-01-02", "papers": [{"item_id": "missing-id", "recommendation_reason_zh": "history", "rank": 1}], "blogs": []},
+    {"date": "2025-01-02", "papers": [], "blogs": [{"item_id": "paper-id", "recommendation_reason_zh": "history", "rank": 1}]},
+])
+def test_load_history_ids_rejects_missing_or_wrong_kind_digest_reference(tmp_path: Path, digest: dict[str, object]) -> None:
+    config = load_config(ROOT)
+    item = {
+        "id": "paper-id",
+        "kind": "paper",
+        "title": "History",
+        "summary_zh": "Historical summary",
+        "source": "arxiv",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+    }
+    item_path = tmp_path / "items/papers/2025/01/paper-id.json"
+    digest_path = tmp_path / "digests/2025/01/2025-01-02.json"
+    item_path.parent.mkdir(parents=True)
+    digest_path.parent.mkdir(parents=True)
+    item_path.write_text(json.dumps(item), encoding="utf-8")
+    digest_path.write_text(json.dumps(digest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="digest reference"):
+        load_history_ids(tmp_path, config, State(recommended_item_ids=["missing-id"]))
+
+
 def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorical_candidates(tmp_path: Path) -> None:
     calls: list[str] = []
 
@@ -183,7 +282,7 @@ def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorica
     completed_ids: list[str] = []
 
     def complete_json(messages: list[dict[str, str]], _schema: object) -> dict[str, object]:
-        ids = re.findall(r"^id: (.+)$", messages[0]["content"], re.MULTILINE)
+        ids = _fixture_metadata_candidate_ids(messages)
         completed_ids.extend(ids)
         return {"items": [{
             "id": item_id,
