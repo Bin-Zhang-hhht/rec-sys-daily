@@ -325,6 +325,7 @@ class SourceRunStatus(ArtifactModel):
 class BuildConfigSnapshot(ArtifactModel):
     graph_max_content_nodes: int = Field(ge=1)
     graph_recent_days: PositiveInt
+    minimum_final_score: float = Field(ge=0, le=1)
     target_item_bytes: PositiveInt
     max_item_bytes: PositiveInt
     max_blog_excerpt_chars: PositiveInt
