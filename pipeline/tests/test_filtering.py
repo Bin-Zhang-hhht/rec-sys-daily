@@ -38,7 +38,21 @@ def test_prefilter_is_history_aware_deterministic_and_caps_each_kind() -> None:
     assert len([candidate for candidate in first if candidate.kind == "blog"]) == 50
     assert [stable_id(candidate) for candidate in first] == [stable_id(candidate) for candidate in second]
     assert first[-1].metadata_score <= first[0].metadata_score
-    assert stable_id(historical) not in [stable_id(candidate) for candidate in first[:10]]
+    assert stable_id(historical) not in {stable_id(candidate) for candidate in first}
+
+
+def test_prefilter_excludes_all_historical_ids() -> None:
+    config = load_config(Path(__file__).parents[2])
+    historical = _candidate(0)
+
+    result = prefilter(
+        [historical, _candidate(1)],
+        config,
+        State(recommended_item_ids=[stable_id(historical)]),
+        now=NOW,
+    )
+
+    assert stable_id(historical) not in {stable_id(value) for value in result}
 
 
 def test_prefilter_uses_stable_tie_breakers() -> None:

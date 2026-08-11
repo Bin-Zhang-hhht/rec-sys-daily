@@ -8,6 +8,7 @@ from recsys_daily.cli import _real_services, _run_deep_read, app
 from recsys_daily.collect import Candidate
 from recsys_daily.config import load_config
 from recsys_daily.deep_read import DeepReadServices
+from recsys_daily.schemas import State
 
 
 runner = CliRunner()
@@ -31,6 +32,49 @@ def test_fixture_failure_does_not_write_canonical_state(tmp_path: Path) -> None:
     result = runner.invoke(app, ["test-fixtures", "--case", "failures", "--work", str(tmp_path)])
     assert result.exit_code == 0, result.stdout
     assert not (tmp_path / "publish-bundle").exists()
+
+
+def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypatch, tmp_path: Path) -> None:
+    import recsys_daily.cli as cli
+
+    config = load_config(Path(__file__).parents[2])
+    data = tmp_path / "data"
+    item = data / "items/papers/2025/01/item-history.json"
+    digest = data / "digests/2025/01/2025-01-02.json"
+    item.parent.mkdir(parents=True)
+    digest.parent.mkdir(parents=True)
+    (data / "state.json").write_text(
+        json.dumps(State(recommended_item_ids=["state-history"]).model_dump(mode="json")),
+        encoding="utf-8",
+    )
+    item.write_text(json.dumps({"id": "item-history"}), encoding="utf-8")
+    digest.write_text(json.dumps({
+        "date": "2025-01-02",
+        "papers": [{"item_id": "digest-history", "recommendation_reason_zh": "history", "rank": 1}],
+        "blogs": [],
+    }), encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    class FakeClient:
+        complete_json = staticmethod(lambda *_args: {"items": []})
+
+        @classmethod
+        def from_config(cls, *_args: object, **_kwargs: object) -> "FakeClient":
+            return cls()
+
+    def fake_run(_config: object, _output: Path, state: object, history: object, _complete_json: object, **_kwargs: object) -> None:
+        captured["state"] = state
+        captured["history"] = history
+
+    monkeypatch.setattr(cli, "_root", lambda _root: tmp_path)
+    monkeypatch.setattr(cli, "load_config", lambda _root: config)
+    monkeypatch.setattr(cli, "TextClient", FakeClient)
+    monkeypatch.setattr(cli, "run_collect_filter", fake_run)
+
+    cli.collect_filter(tmp_path / "stage-1", tmp_path)
+
+    assert isinstance(captured["state"], State)
+    assert captured["history"] == {"state-history", "item-history", "digest-history"}
 
 
 def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) -> None:

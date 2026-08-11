@@ -69,6 +69,8 @@ def prefilter(
     ids = _history_ids(history)
     unique: dict[str, Candidate] = {}
     for candidate in candidates:
+        if stable_id(candidate) in ids:
+            continue
         score = _score(candidate, config, ids, current)
         scored = replace(candidate, metadata_score=score)
         key = stable_id(scored)

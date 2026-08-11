@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
 from dataclasses import replace
 from pathlib import Path
+import json
+import re
 import socket
 
 import pytest
@@ -11,6 +13,7 @@ from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, _entry_fee
 from recsys_daily.config import SourcesConfig, load_config
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
 from recsys_daily.schemas import SourceState, State
+from recsys_daily.stage_one import load_history_ids, run_collect_filter
 from recsys_daily.state import compute_query_windows, query_window
 
 
@@ -109,6 +112,96 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
     assert blog.url == "https://engineering.example.com/posts/feed-ranking"
     assert len(blog.excerpt) <= _config().settings.storage.max_blog_excerpt_chars
     assert result.source_states["arxiv"].etag == '"arxiv-v1"'
+
+
+def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> None:
+    item = tmp_path / "items/papers/2025/01/item-history.json"
+    digest = tmp_path / "digests/2025/01/2025-01-02.json"
+    item.parent.mkdir(parents=True)
+    digest.parent.mkdir(parents=True)
+    item.write_text(json.dumps({"id": "item-history"}), encoding="utf-8")
+    digest.write_text(json.dumps({
+        "date": "2025-01-02",
+        "papers": [{"item_id": "digest-paper", "recommendation_reason_zh": "history", "rank": 1}],
+        "blogs": [{"item_id": "digest-blog", "recommendation_reason_zh": "history", "rank": 1}],
+    }), encoding="utf-8")
+
+    assert load_history_ids(tmp_path, State(recommended_item_ids=["state-history"])) == {
+        "state-history",
+        "item-history",
+        "digest-paper",
+        "digest-blog",
+    }
+
+
+@pytest.mark.parametrize(
+    ("relative", "payload"),
+    [
+        ("items/papers/2025/01/broken.json", {"id": 42}),
+        ("digests/2025/01/2025-01-02.json", {"date": "2025-01-02", "papers": [{}], "blogs": []}),
+    ],
+)
+def test_load_history_ids_rejects_corrupt_canonical_json(tmp_path: Path, relative: str, payload: object) -> None:
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="canonical history"):
+        load_history_ids(tmp_path, State())
+
+
+def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorical_candidates(tmp_path: Path) -> None:
+    calls: list[str] = []
+
+    def fetcher(url: str, _headers: dict[str, str]) -> FeedResponse:
+        calls.append(url)
+        payload = ARXIV_ATOM if "export.arxiv.org" in url else BLOG_RSS.replace(
+            "<rss version='2.0'>",
+            "<rss version='2.0' xmlns:content='http://purl.org/rss/1.0/modules/content/'>",
+        ).replace(
+            "</item>",
+            "<content:encoded><![CDATA[Full implementation details]]></content:encoded></item>",
+        )
+        return FeedResponse(200, payload.encode(), {})
+
+    completed_ids: list[str] = []
+
+    def complete_json(messages: list[dict[str, str]], _schema: object) -> dict[str, object]:
+        ids = re.findall(r"^id: (.+)$", messages[0]["content"], re.MULTILINE)
+        completed_ids.extend(ids)
+        return {"items": [{
+            "id": item_id,
+            "summary_zh": "fixture summary",
+            "targets": ["content"],
+            "scenarios": ["text_feed"],
+            "tasks": ["retrieval"],
+            "methods": ["two_tower"],
+            "relevance_score": 0.9,
+            "graph_relations": [],
+            "degraded": False,
+        } for item_id in ids]}
+
+    run_collect_filter(
+        _config(),
+        tmp_path,
+        State(),
+        {"arxiv-2608.01234"},
+        complete_json,
+        fetcher=fetcher,
+        resolver=_public_resolver,
+        now=NOW,
+        run_id="stage-one-test",
+    )
+
+    papers = (tmp_path / "papers.jsonl").read_text(encoding="utf-8")
+    blogs = (tmp_path / "blogs.jsonl").read_text(encoding="utf-8")
+    assert len(calls) == 2
+    assert papers == ""
+    assert len(completed_ids) == 1
+    assert completed_ids[0] in blogs
+    assert "Full implementation details" not in blogs
+    assert json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))["run_id"] == "stage-one-test"
+    assert set(json.loads((tmp_path / "source-states.json").read_text(encoding="utf-8"))) == {"arxiv", "meta_engineering"}
 
 
 def test_collect_passes_configured_excerpt_limit() -> None:

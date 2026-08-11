@@ -176,7 +176,7 @@ def _bounded_text(value: Any, limit: int = 4_000) -> str:
 
 def _entry_excerpt(entry: Any, limit: int = 4_000) -> str:
     values: list[str] = []
-    for name in ("summary", "description", "content"):
+    for name in ("summary", "description"):
         value = _entry_value(entry, name)
         if value:
             values.append(_bounded_text(value, limit))
