@@ -54,7 +54,7 @@ def test_text_client_strips_unsupported_provider_schema_constraints(monkeypatch:
             return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content='{"ok": true}'))])
 
     monkeypatch.setattr("recsys_daily.llm.OpenAI", lambda **_kwargs: SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions())))
-    client = TextClient(base_url="https://example.test/v1", api_key="key", model="model")
+    client = TextClient(base_url="https://example.test/v1", api_key="key", model="model", retries=1)
     client.complete_json(
         [{"role": "user", "content": "hello"}],
         {
