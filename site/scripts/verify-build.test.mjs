@@ -26,7 +26,17 @@ function makeBundle(snapshot = {}) {
   mkdirSync(join(dist, "graph"), { recursive: true });
   mkdirSync(join(dist, "pagefind"), { recursive: true });
   writeFileSync(join(bundle, "pending-data/runs/2026/08/run.json"), JSON.stringify({ config_snapshot: fullSnapshot, stage_report: {} }));
-  writeFileSync(join(dist, "graph.json"), JSON.stringify({ nodes: [{ data: { type: "paper" } }, { data: { type: "blog" } }], edges: [] }));
+  writeFileSync(join(dist, "graph.json"), JSON.stringify({
+    nodes: [
+      { data: { id: "paper-1", type: "paper", href: "/papers/paper-1/" } },
+      { data: { id: "article-1", type: "article", href: "/articles/article-1/" } },
+      { data: { id: "method:ranking", type: "method" } },
+    ],
+    edges: [
+      { data: { id: "edge-1", source: "paper-1", target: "method:ranking" } },
+      { data: { id: "edge-2", source: "article-1", target: "method:ranking" } },
+    ],
+  }));
   for (const file of ["index.html", "search/index.html", "graph/index.html", "pagefind/pagefind.js", "pagefind/filter.json"]) writeFileSync(join(dist, file), "x");
   return { bundle, dist };
 }

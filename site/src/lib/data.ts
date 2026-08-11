@@ -8,6 +8,7 @@ export type Item = {
   published_at: string; authors: string[]; targets: string[]; scenarios: string[]; tasks: string[]; methods: string[];
   relevance_score: number; deep_reading: Record<string, any>; excerpt?: string;
   graph_relations?: { type: string; target_id: string; confidence: number; evidence: string; generated_by: string }[];
+  llm?: { profile: string; model: string; generated_at: string; degraded?: boolean };
 };
 export type DigestEntry = { item_id: string; recommendation_reason_zh: string; rank: number };
 export type Digest = { date: string; papers: DigestEntry[]; blogs: DigestEntry[] };
