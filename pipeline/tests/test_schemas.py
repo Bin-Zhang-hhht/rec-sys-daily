@@ -206,6 +206,7 @@ def test_run_report_carries_config_and_stage_snapshots() -> None:
     snapshot = BuildConfigSnapshot(
         graph_max_content_nodes=80,
         graph_recent_days=90,
+        minimum_final_score=0.5,
         target_item_bytes=16_384,
         max_item_bytes=32_768,
         max_blog_excerpt_chars=4_000,
@@ -229,6 +230,7 @@ def test_artifact_timestamps_require_utc(timestamp: datetime) -> None:
     snapshot = BuildConfigSnapshot(
         graph_max_content_nodes=80,
         graph_recent_days=90,
+        minimum_final_score=0.5,
         target_item_bytes=16_384,
         max_item_bytes=32_768,
         max_blog_excerpt_chars=4_000,

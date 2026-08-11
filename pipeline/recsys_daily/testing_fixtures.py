@@ -463,6 +463,7 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
     snapshot = BuildConfigSnapshot(
         graph_max_content_nodes=config.settings.graph_max_content_nodes,
         graph_recent_days=config.settings.graph_recent_days,
+        minimum_final_score=config.settings.minimum_final_score,
         target_item_bytes=storage.target_item_bytes,
         max_item_bytes=storage.max_item_bytes,
         max_blog_excerpt_chars=storage.max_blog_excerpt_chars,

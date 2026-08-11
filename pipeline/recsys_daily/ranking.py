@@ -62,12 +62,17 @@ def rank_items(
     limit: int = 8,
     *,
     final_weights: FinalScoreWeights | None = None,
+    minimum_final_score: float = 0.0,
 ) -> list[PaperItem | BlogItem]:
     """Return the best items of one kind with stable tie-breaking."""
     if limit < 0:
         raise ValueError("limit must be non-negative")
+    if not 0 <= minimum_final_score <= 1:
+        raise ValueError("minimum_final_score must be between 0 and 1")
     selected = [item for item in items if item.kind == kind]
     if final_weights is None:
+        for item in selected:
+            item.final_score = item.relevance_score
         selected.sort(key=lambda item: (-item.relevance_score, -item.published_at.timestamp(), item.source, item.id))
     else:
         selected.sort(
@@ -78,4 +83,4 @@ def rank_items(
                 item.id,
             )
         )
-    return selected[:limit]
+    return [item for item in selected if item.final_score >= minimum_final_score][:limit]

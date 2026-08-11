@@ -30,6 +30,7 @@ def _write_config(root: Path) -> None:
     }})
     _write_yaml(root / "config/settings.yaml", {
         "daily_target": 8,
+        "minimum_final_score": 0.5,
         "request_user_agent": "RecSysDaily/1.0",
         "structured_analysis_min_success_rate": .90,
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},

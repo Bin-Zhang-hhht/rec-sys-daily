@@ -12,6 +12,7 @@ function makeBundle(snapshot = {}) {
   const fullSnapshot = {
     graph_max_content_nodes: 80,
     graph_recent_days: 90,
+    minimum_final_score: 0.5,
     target_item_bytes: 16384,
     max_item_bytes: 32768,
     max_blog_excerpt_chars: 4000,
