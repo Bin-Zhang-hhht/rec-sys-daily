@@ -125,7 +125,7 @@ def _real_services(
         return vision_client.analyze("Analyze all detected key pages and return strict JSON.", images)
 
     request_timeout = config.settings.limits.request_timeout_seconds
-    max_pdf_bytes = config.settings.limits.max_pdf_bytes
+    max_pdf_bytes = config.models.mineru.max_pdf_bytes
     max_blog_html_bytes = config.settings.limits.max_blog_html_bytes
 
     def configured_fetch_text(url: str, limit: int) -> str:
@@ -142,11 +142,7 @@ def _real_services(
     def fetch_blog_feed(_source_id: str, url: str) -> bytes:
         return fetch_public_url(url, timeout=request_timeout).content
 
-    blog_feed_cache = BlogFeedCache(
-        source_urls,
-        fetch_blog_feed,
-        max_requests_per_source=max(1, config.settings.limits.rss_requests_per_run_per_source - 1),
-    )
+    blog_feed_cache = BlogFeedCache(source_urls, fetch_blog_feed)
 
     return DeepReadServices(
         content=ContentServices(
@@ -157,8 +153,8 @@ def _real_services(
         temporary_root=work / "temporary",
         text_reader=text_reader,
         vision_reader=vision_reader,
-        max_pdf_bytes=config.settings.limits.max_pdf_bytes,
-        max_pdf_pages=config.settings.limits.max_pdf_pages,
+        max_pdf_bytes=config.models.mineru.max_pdf_bytes,
+        max_pdf_pages=config.models.mineru.max_pdf_pages,
         max_html_bytes=config.settings.limits.max_blog_html_bytes,
         domain_limiter=DomainRateLimiter(config.settings.limits.blog_min_interval_seconds_per_domain),
         vision_profile=config.models.vision.profile,
