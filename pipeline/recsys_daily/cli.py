@@ -93,7 +93,7 @@ def _real_services(
     retry_backoff_seconds = config.settings.limits.retry_backoff_seconds
     retry_max_delay_seconds = config.settings.limits.retry_max_delay_seconds
     request_user_agent = config.settings.request_user_agent
-    max_pdf_bytes = config.settings.limits.max_pdf_bytes
+    max_pdf_bytes = config.models.mineru.max_pdf_bytes
     max_blog_html_bytes = config.settings.limits.max_blog_html_bytes
     arxiv_limiter = DomainRateLimiter(config.settings.limits.arxiv_min_interval_seconds)
     blog_limiter = DomainRateLimiter(config.settings.limits.blog_min_interval_seconds_per_domain)
@@ -147,11 +147,7 @@ def _real_services(
             max_delay_seconds=retry_max_delay_seconds,
         ).content
 
-    blog_feed_cache = BlogFeedCache(
-        source_urls,
-        fetch_blog_feed,
-        max_requests_per_source=max(1, config.settings.limits.rss_requests_per_run_per_source - 1),
-    )
+    blog_feed_cache = BlogFeedCache(source_urls, fetch_blog_feed)
 
     return DeepReadServices(
         content=ContentServices(
@@ -162,8 +158,8 @@ def _real_services(
         temporary_root=work / "temporary",
         text_reader=text_reader,
         vision_reader=vision_reader,
-        max_pdf_bytes=config.settings.limits.max_pdf_bytes,
-        max_pdf_pages=config.settings.limits.max_pdf_pages,
+        max_pdf_bytes=config.models.mineru.max_pdf_bytes,
+        max_pdf_pages=config.models.mineru.max_pdf_pages,
         max_html_bytes=config.settings.limits.max_blog_html_bytes,
         vision_profile=config.models.vision.profile,
         vision_model=config.models.vision.model,
