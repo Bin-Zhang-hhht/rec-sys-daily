@@ -38,3 +38,12 @@ models:
     concurrency_per_worker: 1
     timeout_seconds: 600
     retries: 3
+  mineru:
+    api_key_env: MINERU_API_KEY
+    base_url: https://mineru.net/api/v4
+    model_version: vlm
+    upload_timeout_seconds: 120
+    poll_timeout_seconds: 900
+    poll_interval_seconds: 5
+    max_pdf_bytes: 20971520
+    max_pdf_pages: 200

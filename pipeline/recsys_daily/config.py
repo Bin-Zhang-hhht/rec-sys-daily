@@ -150,10 +150,29 @@ class ModelCommon(StrictModel):
     retries: PositiveInt
 
 
+class MinerUConfig(StrictModel):
+    api_key_env: str = Field(min_length=1)
+    base_url: str = Field(pattern=r"^https://")
+    model_version: Literal["vlm"]
+    upload_timeout_seconds: PositiveInt
+    poll_timeout_seconds: PositiveInt
+    poll_interval_seconds: PositiveInt
+    max_pdf_bytes: PositiveInt
+    max_pdf_pages: PositiveInt
+
+    @field_validator("api_key_env")
+    @classmethod
+    def environment_variable_name(cls, value: str) -> str:
+        if not re.fullmatch(r"[A-Z][A-Z0-9_]*", value):
+            raise ValueError("environment reference must be an environment-variable identifier")
+        return value
+
+
 class ModelConfig(StrictModel):
     text: TextModels
     vision: VisionModels
     common: ModelCommon
+    mineru: MinerUConfig
 
 
 class ScoreWeights(StrictModel):
@@ -191,7 +210,6 @@ class Limits(StrictModel):
     nvidia_parallel_workers: Literal[2]
     nvidia_concurrency_per_worker: Literal[1]
     nvidia_min_interval_seconds_per_worker: Literal[4]
-    rss_requests_per_run_per_source: Literal[2]
     arxiv_min_interval_seconds: PositiveInt
     request_timeout_seconds: PositiveInt
     retry_attempts: PositiveInt
@@ -200,13 +218,9 @@ class Limits(StrictModel):
     max_papers_per_run: Literal[100]
     max_blogs_per_run: Literal[50]
     deep_reading_candidates_per_type: Literal[16]
-    max_pdf_downloads_per_run: Literal[16]
-    max_blog_fulltext_fetches_per_run: Literal[16]
     pdf_download_concurrency: Literal[1]
     blog_download_concurrency_per_domain: Literal[1]
     blog_min_interval_seconds_per_domain: PositiveInt
-    max_pdf_bytes: PositiveInt
-    max_pdf_pages: PositiveInt
     max_blog_html_bytes: PositiveInt
 
     @model_validator(mode="after")
