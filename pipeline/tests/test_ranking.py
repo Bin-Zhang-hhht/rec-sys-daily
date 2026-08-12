@@ -48,3 +48,12 @@ def test_final_ranking_uses_configured_evidence_weight() -> None:
     ranked = rank_items(items, "paper", final_weights=weights)
 
     assert [item.id for item in ranked] == ["evidence-winner", "metadata-winner"]
+
+
+def test_final_ranking_filters_below_configured_quality_threshold() -> None:
+    items = [_paper("high", 0.9, with_evidence=True), _paper("low", 0.1, with_evidence=False)]
+    weights = FinalScoreWeights(metadata_score=1, evidence_quality=0, business_transferability=0, technical_depth=0)
+
+    ranked = rank_items(items, "paper", final_weights=weights, minimum_final_score=0.5)
+
+    assert [item.id for item in ranked] == ["high"]

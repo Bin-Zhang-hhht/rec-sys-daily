@@ -32,6 +32,39 @@ def _json_content(content: Any) -> dict[str, Any]:
     return value
 
 
+# OpenAI-compatible strict structured outputs accept a deliberately small
+# JSON-Schema subset. Keep richer constraints in Pydantic and semantic
+# validation, then remove unsupported assertions only at the request boundary.
+_UNSUPPORTED_PROVIDER_SCHEMA_KEYS = {
+    "minLength",
+    "maxLength",
+    "pattern",
+    "format",
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "multipleOf",
+    "minItems",
+    "maxItems",
+    "uniqueItems",
+    "minProperties",
+    "maxProperties",
+}
+
+
+def _provider_schema(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_provider_schema(item) for item in value]
+    if not isinstance(value, Mapping):
+        return value
+    return {
+        key: _provider_schema(item)
+        for key, item in value.items()
+        if key not in _UNSUPPORTED_PROVIDER_SCHEMA_KEYS
+    }
+
+
 @dataclass
 class TokenBudget:
     context_window_tokens: int
@@ -145,7 +178,10 @@ class TextClient:
             response = self._client.chat.completions.create(
                 model=self.model,
                 messages=list(messages),
-                response_format={"type": "json_schema", "json_schema": {"name": "response", "schema": dict(schema)}},
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {"name": "response", "strict": True, "schema": _provider_schema(schema)},
+                },
                 temperature=0.6,
                 stream=False,
             )

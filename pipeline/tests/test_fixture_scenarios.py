@@ -18,8 +18,32 @@ def _jsonl(path: Path) -> list[dict[str, object]]:
 
 def test_daily_fixture_keeps_history(tmp_path: Path) -> None:
     daily = run_fixture_scenarios(tmp_path, case="daily", repository_root=Path(__file__).parents[2])["daily"]
-    assert daily.pending_state["recommended_item_ids"][:1] == ["historical-paper"]
+    stage_ids = {
+        str(item["id"])
+        for item in [
+            *_jsonl(daily.generated_root / "stage-1/papers.jsonl"),
+            *_jsonl(daily.generated_root / "stage-1/blogs.jsonl"),
+        ]
+    }
+    assert daily.pending_state["recommended_item_ids"][:1] == ["arxiv-2608.01234"]
+    assert "arxiv-2608.01234" not in stage_ids
     assert daily.historical_item_count > 0
+
+
+def test_fixture_stage_one_uses_all_configured_sources_and_metadata_analysis(tmp_path: Path) -> None:
+    result = run_fixture_scenarios(tmp_path, case="cold-start", repository_root=Path(__file__).parents[2])["cold-start"]
+    report = result.stage_report
+    source_states = json.loads((result.generated_root / "stage-1/source-states.json").read_text(encoding="utf-8"))
+    stage_text = "".join(
+        (result.generated_root / f"stage-1/{kind}s.jsonl").read_text(encoding="utf-8")
+        for kind in ("paper", "blog")
+    )
+
+    assert set(source_states) == {source["source_id"] for source in report["sources"] if source["success"]}
+    assert len(source_states) > 2
+    assert report["metadata_llm_calls"] > 0
+    assert "<feed" not in stage_text
+    assert "<rss" not in stage_text
 
 
 def test_degraded_fixture_marks_metadata_and_rejects_incomplete_recommendations(tmp_path: Path) -> None:
@@ -56,7 +80,7 @@ def test_degraded_fixture_exercises_source_and_content_fallbacks(tmp_path: Path)
     bases = {item["deep_reading"]["analysis_basis"] for item in blog_readings}
 
     assert any(source["success"] is False for source in result.stage_report["sources"])
-    assert "second Feed failed" in result.stage_report["warnings"]
+    assert any(warning.endswith("second Feed failed") for warning in result.stage_report["warnings"])
     assert {"article_html", "excerpt_fallback"}.issubset(bases)
 
 

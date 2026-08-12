@@ -248,6 +248,7 @@ def _build_snapshot(config: AppConfig) -> BuildConfigSnapshot:
     return BuildConfigSnapshot(
         graph_max_content_nodes=settings.graph_max_content_nodes,
         graph_recent_days=settings.graph_recent_days,
+        minimum_final_score=settings.minimum_final_score,
         target_item_bytes=storage.target_item_bytes,
         max_item_bytes=storage.max_item_bytes,
         max_blog_excerpt_chars=storage.max_blog_excerpt_chars,
@@ -378,10 +379,12 @@ def integrate(
     papers = rank_items(
         paper_items[:max_deep_reads], "paper", config.settings.daily_target,
         final_weights=config.settings.final_weights,
+        minimum_final_score=config.settings.minimum_final_score,
     )
     blogs = rank_items(
         blog_items[:max_deep_reads], "blog", config.settings.daily_target,
         final_weights=config.settings.final_weights,
+        minimum_final_score=config.settings.minimum_final_score,
     )
     digest = Digest(date=run_at.date(), papers=_digest_entries(papers), blogs=_digest_entries(blogs))
     previous = _load_previous_state(state)
@@ -425,8 +428,9 @@ def integrate(
         _copy_repository_data(repository_data, pending, config)
         for item in all_items:
             _write_item(pending, item, config.settings.storage.max_item_bytes)
-        digest_path = pending / "digests" / f"{digest.date.year:04d}" / f"{digest.date.month:02d}" / f"{digest.date.isoformat()}.json"
-        write_json(digest_path, digest.model_dump(mode="json"))
+        if digest.papers or digest.blogs:
+            digest_path = pending / "digests" / f"{digest.date.year:04d}" / f"{digest.date.month:02d}" / f"{digest.date.isoformat()}.json"
+            write_json(digest_path, digest.model_dump(mode="json"))
         report_path = pending / "runs" / f"{run_at.year:04d}" / f"{run_at.month:02d}" / f"{run_id}.json"
         write_json(report_path, report.model_dump(mode="json"))
         _validate_pending_digest_references(pending)

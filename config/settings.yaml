@@ -1,4 +1,6 @@
 daily_target: 8
+minimum_final_score: 0.50
+request_user_agent: RecSysDaily/1.0
 structured_analysis_min_success_rate: 0.90
 metadata_weights:
   topic_relevance: 0.30
@@ -23,6 +25,8 @@ limits:
   arxiv_min_interval_seconds: 3
   request_timeout_seconds: 45
   retry_attempts: 3
+  retry_backoff_seconds: 1
+  retry_max_delay_seconds: 30
   max_papers_per_run: 100
   max_blogs_per_run: 50
   deep_reading_candidates_per_type: 16

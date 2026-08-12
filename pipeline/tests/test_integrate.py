@@ -91,6 +91,17 @@ def test_publish_bundle_allowlist(tmp_path: Path) -> None:
     assert sorted(path.name for path in bundle.path.iterdir()) == ["manifest.json", "pending-data", "taxonomy.json"]
 
 
+def test_integration_does_not_write_empty_digest_but_keeps_report_and_state(tmp_path: Path) -> None:
+    settings = CONFIG.settings.model_copy(update={"minimum_final_score": 1.0})
+    config = CONFIG.model_copy(update={"settings": settings})
+    bundle = integrate(fixture_stages(tmp_path), tmp_path / "bundle", config, state=None)
+
+    pending = bundle.path / "pending-data"
+    assert not list((pending / "digests").rglob("*.json")) if (pending / "digests").exists() else True
+    assert list((pending / "runs").rglob("*.json"))
+    assert (pending / "state.json").exists()
+
+
 def test_mismatched_manifest_is_rejected_without_state(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path, paper_run_id="a", blog_run_id="b")
     with pytest.raises(ValueError, match="run_id"):
@@ -225,6 +236,7 @@ def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_pa
     snapshot = BuildConfigSnapshot(
         graph_max_content_nodes=CONFIG.settings.graph_max_content_nodes,
         graph_recent_days=CONFIG.settings.graph_recent_days,
+        minimum_final_score=CONFIG.settings.minimum_final_score,
         target_item_bytes=CONFIG.settings.storage.target_item_bytes,
         max_item_bytes=CONFIG.settings.storage.max_item_bytes,
         max_blog_excerpt_chars=CONFIG.settings.storage.max_blog_excerpt_chars,

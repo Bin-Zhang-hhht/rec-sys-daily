@@ -22,7 +22,7 @@ function readSnapshot(bundle) {
   const report = JSON.parse(fs.readFileSync(runs.at(-1), "utf8"));
   const snapshot = report.config_snapshot;
   const fields = [
-    "graph_max_content_nodes", "graph_recent_days", "target_item_bytes", "max_item_bytes",
+    "graph_max_content_nodes", "graph_recent_days", "minimum_final_score", "target_item_bytes", "max_item_bytes",
     "max_blog_excerpt_chars", "warn_repository_data_mb", "warn_pages_artifact_mb", "fail_pages_artifact_mb",
   ];
   if (!snapshot || fields.some(field => typeof snapshot[field] !== "number" || !Number.isFinite(snapshot[field]) || snapshot[field] <= 0)) {
@@ -42,6 +42,25 @@ function assertNoRawContent(root) {
   }
 }
 
+function assertGraphNavigation(graph) {
+  const contentTypes = new Set(["paper", "article", "blog"]);
+  const contentNodes = graph.nodes.filter(node => contentTypes.has(node.data?.type));
+  const contentIds = new Set(contentNodes.map(node => node.data.id));
+  for (const node of contentNodes) {
+    const expected = node.data.type === "paper" ? "papers" : "articles";
+    if (typeof node.data.href !== "string" || !new RegExp(`^/${expected}/[A-Za-z0-9._~-]+/$`).test(node.data.href)) {
+      throw new Error(`graph content node has invalid detail href: ${node.data.id ?? "<unknown>"}`);
+    }
+  }
+  for (const node of graph.nodes.filter(node => !contentTypes.has(node.data?.type))) {
+    const adjacent = graph.edges.some(edge =>
+      (edge.data?.source === node.data.id && contentIds.has(edge.data?.target))
+      || (edge.data?.target === node.data.id && contentIds.has(edge.data?.source))
+    );
+    if (!adjacent) throw new Error(`graph taxonomy node has no adjacent content: ${node.data?.id ?? "<unknown>"}`);
+  }
+}
+
 export function verifyBuild({ dist, bundle }) {
   const { snapshot } = readSnapshot(bundle);
   for (const relative of required) {
@@ -49,6 +68,7 @@ export function verifyBuild({ dist, bundle }) {
   }
   const graph = JSON.parse(fs.readFileSync(path.join(dist, "graph.json"), "utf8"));
   if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) throw new Error("invalid graph.json");
+  assertGraphNavigation(graph);
   const contentNodes = graph.nodes.filter(node => ["paper", "article", "blog"].includes(node.data?.type)).length;
   if (contentNodes > snapshot.graph_max_content_nodes) throw new Error("graph content node limit exceeded");
   const pagefindFiles = fs.readdirSync(path.join(dist, "pagefind"));

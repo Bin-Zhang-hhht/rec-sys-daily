@@ -4,24 +4,27 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from collections.abc import Mapping, Sequence
+import html
 import json
 from pathlib import Path
+import re
 import shutil
+import socket
 from typing import Any
 
-from .artifacts import write_json, write_jsonl
-from .collect import Candidate, stable_id
+from .artifacts import write_json
+from .collect import Candidate, FeedResponse, stable_id
 from .config import AppConfig, load_config
 from .content import BlogFeedCache, ContentServices, PageText
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
-from .schemas import BuildConfigSnapshot, RunReport, SourceRunStatus, StageReport, State
+from .schemas import BuildConfigSnapshot, RunReport, StageReport, State
+from .stage_one import load_history_ids, run_collect_filter
 
 
 PAPER_HTML = """<!doctype html><html><body><article><h1>Two-Tower Retrieval for Content Recommendation</h1><h2>Method</h2><p>The model uses two towers.</p></article></body></html>"""
 ARTICLE_HTML = """<!doctype html><html><body><article><h1>How We Improved Feed Ranking</h1><h2>Architecture</h2><p>A bounded article about ranking.</p></article></body></html>"""
-ARXIV_ATOM = """<?xml version='1.0'?><feed xmlns='http://www.w3.org/2005/Atom'><entry><id>http://arxiv.org/abs/2608.01234v2</id><published>2026-08-09T12:00:00Z</published><title>Two-Tower Retrieval for Content Recommendation</title><summary>Candidate retrieval for content recommendation with a Two-Tower Model.</summary><author><name>Ada Lovelace</name></author><link href='https://arxiv.org/abs/2608.01234v2' rel='alternate'/></entry></feed>"""
-BLOG_RSS = """<?xml version='1.0'?><rss version='2.0'><channel><item><guid>example-ranking-2026</guid><title>How We Improved Feed Ranking</title><link>https://engineering.example.com/posts/feed-ranking</link><pubDate>Sun, 09 Aug 2026 08:30:00 +0000</pubDate><description><![CDATA[Practical feed ranking lessons.]]></description></item></channel></rss>"""
 
 
 @dataclass(frozen=True)
@@ -155,56 +158,151 @@ def _fixture_services(work: Path, *, exercise_blog_fallbacks: bool = False) -> D
     return services
 
 
-def _write_sources(root: Path) -> None:
-    for relative, value in {
-        "sources/arxiv.atom": ARXIV_ATOM,
-        "sources/blog.rss": BLOG_RSS,
-        "content/paper.html": PAPER_HTML,
-        "content/article.html": ARTICLE_HTML,
-        "models/responses.json": json.dumps({"paper": "structured", "blog": "structured"}),
-    }.items():
-        path = root / relative
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(value, encoding="utf-8")
+def _public_resolver(_host: str, port: int, *_args: object) -> list[tuple[object, ...]]:
+    return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("8.8.8.8", port))]
 
 
-def _write_stage(
-    root: Path,
-    candidates: list[Candidate],
+def _fixture_metadata_candidate_ids(messages: Sequence[Mapping[str, Any]]) -> list[str]:
+    """Read candidate IDs from current prompts and the upcoming JSON envelope."""
+    for message in messages:
+        content = message.get("content")
+        payload: Any = content
+        if isinstance(content, str):
+            try:
+                payload = json.loads(content)
+            except json.JSONDecodeError:
+                continue
+        if not isinstance(payload, Mapping) or "source_documents" not in payload:
+            continue
+        documents = payload["source_documents"]
+        if not isinstance(documents, list):
+            raise ValueError("fixture source_documents must be a list")
+        ids: list[str] = []
+        for document in documents:
+            if not isinstance(document, Mapping) or not isinstance(document.get("id"), str) or not document["id"].strip():
+                raise ValueError("fixture source document must contain a non-empty id")
+            ids.append(document["id"])
+        return ids
+
+    legacy = "\n".join(str(message.get("content", "")) for message in messages)
+    return re.findall(r"^id: (.+)$", legacy, re.MULTILINE)
+
+
+def _atom_document(candidates: list[Candidate]) -> str:
+    entries = []
+    for candidate in candidates:
+        arxiv_id = candidate.arxiv_id or stable_id(candidate).removeprefix("arxiv-")
+        entries.append(
+            "<entry>"
+            f"<id>http://arxiv.org/abs/{html.escape(arxiv_id)}v2</id>"
+            f"<published>{candidate.published_at.isoformat().replace('+00:00', 'Z')}</published>"
+            f"<title>{html.escape(candidate.title)}</title>"
+            f"<summary>{html.escape(candidate.excerpt)}</summary>"
+            + "".join(f"<author><name>{html.escape(author)}</name></author>" for author in candidate.authors)
+            + f"<link href='{html.escape(candidate.url or '')}' rel='alternate'/>"
+            + "".join(f"<category term='{html.escape(category)}'/>" for category in candidate.categories)
+            + "</entry>"
+        )
+    return "<?xml version='1.0'?><feed xmlns='http://www.w3.org/2005/Atom'>" + "".join(entries) + "</feed>"
+
+
+def _rss_document(candidates: list[Candidate]) -> str:
+    items = []
+    for candidate in candidates:
+        items.append(
+            "<item>"
+            f"<guid>{html.escape(candidate.source_entry_id or candidate.url or stable_id(candidate))}</guid>"
+            f"<title>{html.escape(candidate.title)}</title>"
+            f"<link>{html.escape(candidate.url or '')}</link>"
+            f"<pubDate>{candidate.published_at.strftime('%a, %d %b %Y %H:%M:%S +0000')}</pubDate>"
+            f"<description>{html.escape(candidate.excerpt)}</description>"
+            + "".join(f"<author>{html.escape(author)}</author>" for author in candidate.authors)
+            + "</item>"
+        )
+    return "<?xml version='1.0'?><rss version='2.0'><channel>" + "".join(items) + "</channel></rss>"
+
+
+def _fixture_stage_dependencies(
     config: AppConfig,
+    candidates: list[Candidate],
+    *,
+    fail_metadata_batch: int | None = None,
+    exercise_source_fallbacks: bool = False,
+) -> tuple[Any, Any]:
+    papers = [candidate for candidate in candidates if candidate.kind == "paper"]
+    blogs = [candidate for candidate in candidates if candidate.kind == "blog"]
+    enabled_blogs = [source for source in config.sources.blogs if source.enabled]
+    blogs_by_url: dict[str, list[Candidate]] = {source.url: [] for source in enabled_blogs}
+    source_failure_urls = (
+        {
+            source.url: warning
+            for source, warning in zip(
+                enabled_blogs[1:3],
+                ("second Feed failed", "article extraction fallback"),
+                strict=False,
+            )
+        }
+        if exercise_source_fallbacks
+        else {}
+    )
+    candidate_sources = [source for source in enabled_blogs if source.url not in source_failure_urls]
+    for index, candidate in enumerate(blogs):
+        blogs_by_url[candidate_sources[index % len(candidate_sources)].url].append(candidate)
+
+    def fetcher(url: str, _headers: dict[str, str]) -> FeedResponse:
+        if "export.arxiv.org" in url:
+            return FeedResponse(200, _atom_document(papers).encode(), {})
+        if url in source_failure_urls:
+            raise RuntimeError(source_failure_urls[url])
+        return FeedResponse(200, _rss_document(blogs_by_url[url]).encode(), {})
+
+    candidates_by_id = {stable_id(candidate): candidate for candidate in candidates}
+    metadata_calls = 0
+
+    def complete_json(messages: Any, _schema: Any) -> dict[str, Any]:
+        nonlocal metadata_calls
+        metadata_calls += 1
+        if fail_metadata_batch is not None and metadata_calls == fail_metadata_batch:
+            raise RuntimeError("fixture metadata degradation")
+        ids = _fixture_metadata_candidate_ids(messages)
+        items = []
+        for item_id in ids:
+            value = _metadata(candidates_by_id[item_id], config)
+            items.append(value)
+        return {"items": items}
+
+    return fetcher, complete_json
+
+
+def _run_stage_one(
+    root: Path,
+    config: AppConfig,
+    candidates: list[Candidate],
     run_id: str,
     *,
-    report: StageReport,
-    metadata_overrides: dict[str, dict[str, Any]] | None = None,
+    state: State | None = None,
+    repository_data: Path | None = None,
+    degraded: bool = False,
 ) -> Path:
+    fetcher, complete_json = _fixture_stage_dependencies(
+        config,
+        candidates,
+        fail_metadata_batch=2 if degraded else None,
+        exercise_source_fallbacks=degraded,
+    )
     stage = root / "stage-1"
-    stage.mkdir(parents=True, exist_ok=True)
-    write_json(stage / "manifest.json", {"run_id": run_id, "schema_version": "1"})
-    docs = []
-    for candidate in candidates:
-        metadata = _metadata(candidate, config)
-        metadata.update((metadata_overrides or {}).get(stable_id(candidate), {}))
-        value = {
-            "kind": candidate.kind,
-            "source_id": candidate.source_id,
-            "title": candidate.title,
-            "url": candidate.url,
-            "published_at": candidate.published_at.isoformat().replace("+00:00", "Z"),
-            "authors": list(candidate.authors),
-            "excerpt": candidate.excerpt,
-            "categories": list(candidate.categories),
-            "arxiv_id": candidate.arxiv_id,
-            "doi": candidate.doi,
-            "source_entry_id": candidate.source_entry_id,
-            "source_weight": candidate.source_weight,
-            "source_scenarios": list(candidate.source_scenarios),
-            **metadata,
-        }
-        docs.append(value)
-    for kind in ("paper", "blog"):
-        write_jsonl(stage / f"{kind}s.jsonl", [value for value in docs if value["kind"] == kind])
-    write_json(stage / "source-states.json", {})
-    write_json(stage / "stage-report.json", report.model_dump(mode="json"))
+    history = load_history_ids(repository_data or root / "repository-data", config, state)
+    run_collect_filter(
+        config,
+        stage,
+        state,
+        history,
+        complete_json,
+        fetcher=fetcher,
+        resolver=_public_resolver,
+        now=datetime(2026, 8, 10, tzinfo=UTC),
+        run_id=run_id,
+    )
     return stage
 
 
@@ -238,12 +336,17 @@ def _run_pipeline(
     *,
     state: State | None = None,
     repository_data: Path | None = None,
-    report: StageReport | None = None,
-    metadata_overrides: dict[str, dict[str, Any]] | None = None,
     exercise_blog_fallbacks: bool = False,
 ) -> FixtureScenarioResult:
-    report = report or StageReport(metadata_llm_calls=1, metadata_llm_success_rate=1.0)
-    stage = _write_stage(root, candidates, config, run_id, report=report, metadata_overrides=metadata_overrides)
+    stage = _run_stage_one(
+        root,
+        config,
+        candidates,
+        run_id,
+        state=state,
+        repository_data=repository_data,
+        degraded=exercise_blog_fallbacks,
+    )
     deep_dirs = _write_deep_stages(
         root,
         stage,
@@ -252,7 +355,11 @@ def _run_pipeline(
     )
     bundle = integrate(StageInputs(stage, deep_dirs["paper"], deep_dirs["blog"]), root / "publish-bundle", config, state=state, repository_data=repository_data)
     pending_state = json.loads((bundle.path / "pending-data/state.json").read_text(encoding="utf-8"))
-    historical_count = len(list((bundle.path / "pending-data/items").rglob("*.json"))) - len(candidates)
+    stage_candidate_count = sum(
+        len([line for line in (stage / f"{kind}s.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()])
+        for kind in ("paper", "blog")
+    )
+    historical_count = len(list((bundle.path / "pending-data/items").rglob("*.json"))) - stage_candidate_count
     return FixtureScenarioResult(
         name=root.name,
         generated_root=root,
@@ -288,13 +395,7 @@ def _run_failure_injection(
     promoted = False
     try:
         _inject_failure(failure_point, "collect")
-        stage = _write_stage(
-            root,
-            candidates,
-            config,
-            f"fixture-failure-{failure_point}",
-            report=StageReport(metadata_llm_calls=1, metadata_llm_success_rate=1.0),
-        )
+        stage = _run_stage_one(root, config, candidates, f"fixture-failure-{failure_point}", state=seed)
         completed.append("collect")
 
         _inject_failure(failure_point, "deep-read")
@@ -333,13 +434,13 @@ def _run_failure_injection(
 
 
 def _seed_historical_repository(data: Path, config: AppConfig) -> State:
-    published_at = datetime(2025, 1, 2, tzinfo=UTC)
+    published_at = datetime(2026, 8, 10, tzinfo=UTC)
     item = {
-        "id": "historical-paper",
+        "id": "arxiv-2608.01234",
         "kind": "paper",
         "source": "arxiv",
-        "title": "Historical Recommendation Paper",
-        "url": "https://arxiv.org/abs/2501.00001",
+        "title": "Two-Tower Retrieval Paper 0",
+        "url": "https://arxiv.org/abs/2608.01234",
         "published_at": published_at.isoformat().replace("+00:00", "Z"),
         "authors": ["Historical Author"],
         "summary_zh": "历史推荐论文摘要。",
@@ -352,16 +453,17 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
             "visual_analysis": {"status": "not_required"},
         },
     }
-    write_json(data / "items/papers/2025/01/historical-paper.json", item)
-    write_json(data / "digests/2025/01/2025-01-02.json", {
-        "date": "2025-01-02",
-        "papers": [{"item_id": "historical-paper", "recommendation_reason_zh": "历史推荐", "rank": 1}],
+    write_json(data / "items/papers/2026/08/arxiv-2608.01234.json", item)
+    write_json(data / "digests/2026/08/2026-08-10.json", {
+        "date": "2026-08-10",
+        "papers": [{"item_id": "arxiv-2608.01234", "recommendation_reason_zh": "历史推荐", "rank": 1}],
         "blogs": [],
     })
     storage = config.settings.storage
     snapshot = BuildConfigSnapshot(
         graph_max_content_nodes=config.settings.graph_max_content_nodes,
         graph_recent_days=config.settings.graph_recent_days,
+        minimum_final_score=config.settings.minimum_final_score,
         target_item_bytes=storage.target_item_bytes,
         max_item_bytes=storage.max_item_bytes,
         max_blog_excerpt_chars=storage.max_blog_excerpt_chars,
@@ -376,8 +478,8 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
         config_snapshot=snapshot,
         stage_report=StageReport(),
     )
-    write_json(data / "runs/2025/01/historical-run.json", report.model_dump(mode="json"))
-    state = State(last_success_at=published_at, recommended_item_ids=["historical-paper"], updated_at=published_at)
+    write_json(data / "runs/2026/08/historical-run.json", report.model_dump(mode="json"))
+    state = State(last_success_at=published_at, recommended_item_ids=["arxiv-2608.01234"], updated_at=published_at)
     write_json(data / "state.json", state.model_dump(mode="json"))
     return state
 
@@ -387,7 +489,6 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
     if root.exists():
         shutil.rmtree(root)
     root.mkdir(parents=True, exist_ok=True)
-    _write_sources(root)
     now = datetime(2026, 8, 10, tzinfo=UTC)
     if name == "failures":
         seed = {"schema_version": "1", "recommended_item_ids": ["seed-item"]}
@@ -402,26 +503,20 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
         state = _seed_historical_repository(data, config)
         return _run_pipeline(root, config, [_candidate("paper", 0, now), _candidate("blog", 0, now)], "fixture-daily", state=state, repository_data=data)
     if name == "degraded":
+        fallback_terms = "content recommendation feed ranking candidate retrieval two-tower model"
+        blogs = [
+            source.model_copy(update={"scenarios": [fallback_terms]})
+            if source.id == "pinterest_engineering"
+            else source
+            for source in config.sources.blogs
+        ]
+        config = config.model_copy(update={"sources": config.sources.model_copy(update={"blogs": blogs})})
         candidates = [_candidate("paper" if index % 2 == 0 else "blog", index, now) for index in range(100)]
-        metadata_overrides = {
-            stable_id(candidate): {"degraded": True}
-            for candidate in candidates[:8]
-        }
-        metadata_overrides[stable_id(candidates[0])]["summary_zh"] = None
-        metadata_overrides[stable_id(candidates[1])]["methods"] = []
         return _run_pipeline(
             root,
             config,
             candidates,
             "fixture-degraded",
-            report=StageReport(
-                sources=[SourceRunStatus(source_id="meta_engineering", success=False, warning="optional Feed failed")],
-                metadata_llm_calls=13,
-                metadata_llm_success_rate=12 / 13,
-                metadata_degraded_count=8,
-                warnings=["optional Feed failed", "second Feed failed", "article extraction fallback"],
-            ),
-            metadata_overrides=metadata_overrides,
             exercise_blog_fallbacks=True,
         )
     return _run_pipeline(root, config, [_candidate("paper", 0, now), _candidate("blog", 0, now)], f"fixture-{name}")

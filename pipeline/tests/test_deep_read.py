@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 import json
 from pathlib import Path
@@ -156,9 +157,25 @@ def test_paper_without_critical_pages_skips_vision_and_uses_arxiv_html(tmp_path:
 
     assert reading.analysis_basis == "arxiv_html"
     assert reading.visual_analysis.status == "not_required"
-    assert content.pdf_calls == 0
+    assert content.pdf_calls == 1
     assert vision_calls == []
     assert list(tmp_path.iterdir()) == []
+
+
+def test_paper_rejects_empty_model_analysis(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, html=PAPER_HTML)
+    services = _services(tmp_path, content, text=lambda *_args: {})
+
+    with pytest.raises(ValueError, match="meaningful|problem"):
+        deep_read_paper(_paper(), services)
+
+
+def test_blog_rejects_empty_model_analysis(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, article=ARTICLE_HTML)
+    services = _services(tmp_path, content, text=lambda *_args: {})
+
+    with pytest.raises(ValueError, match="meaningful|system_context"):
+        deep_read_blog(_blog(), services)
 
 
 def test_paper_html_extraction_failure_does_not_send_raw_html_to_text_reader(tmp_path: Path) -> None:
@@ -208,20 +225,23 @@ def test_blog_uses_feed_content_before_article_and_directory_artifact_excludes_r
     assert content.article_calls == 0
 
 
-def test_blog_article_fetch_uses_configured_html_limit_and_domain_limiter(tmp_path: Path) -> None:
+def test_blog_article_fetch_uses_configured_html_limit_without_outer_limiter(tmp_path: Path) -> None:
     content = FakeContent(tmp_path, article="<p>Article body</p>")
     calls: list[tuple[object, int]] = []
     content.fetch_article_html = lambda candidate, limit: calls.append((candidate, limit)) or "<p>Article body</p>"  # type: ignore[method-assign]
     limiter_calls: list[str] = []
     services = _services(tmp_path, content, text=_blog_analysis)
     services.max_html_bytes = 123
-    services.domain_limiter = type("Limiter", (), {"acquire": lambda _self, url: limiter_calls.append(url)})()
+    services = replace(
+        services,
+        domain_limiter=type("Limiter", (), {"acquire": lambda _self, url: limiter_calls.append(url)})(),
+    )
 
     reading = deep_read_blog(_blog(), services)
 
     assert reading.analysis_basis == "article_html"
     assert calls == [(_blog(), 123)]
-    assert limiter_calls == [_blog().url]
+    assert limiter_calls == []
 
 
 def test_deep_read_caps_input_to_top_sixteen(tmp_path: Path) -> None:

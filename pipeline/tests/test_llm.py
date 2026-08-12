@@ -26,13 +26,49 @@ def test_text_client_uses_active_profile_and_parses_json(monkeypatch: pytest.Mon
     monkeypatch.setattr("recsys_daily.llm.OpenAI", FakeOpenAI)
     client = TextClient.from_config(config.models, environ={"NVIDIA_BASE_URL": "https://example.test/v1", "NVIDIA_API_KEY": "test-key"})
 
-    result = client.complete_json([{"role": "user", "content": "hello"}], {"type": "object"})
+    schema = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {"score": {"type": "number"}},
+        "required": ["score"],
+    }
+    result = client.complete_json([{"role": "user", "content": "hello"}], schema)
 
     assert result == {"score": 3}
     assert observed["base_url"] == "https://example.test/v1"
     assert observed["api_key"] == "test-key"
     assert observed["model"] == config.models.text.active().model
+    assert observed["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {"name": "response", "strict": True, "schema": schema},
+    }
     assert "reasoning_content" not in result
+
+
+def test_text_client_strips_unsupported_provider_schema_constraints(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, object] = {}
+
+    class FakeCompletions:
+        def create(self, **kwargs: object) -> object:
+            observed.update(kwargs)
+            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content='{"ok": true}'))])
+
+    monkeypatch.setattr("recsys_daily.llm.OpenAI", lambda **_kwargs: SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions())))
+    client = TextClient(base_url="https://example.test/v1", api_key="key", model="model", retries=1)
+    client.complete_json(
+        [{"role": "user", "content": "hello"}],
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {"ok": {"type": "boolean", "minLength": 1, "minimum": 0}},
+            "required": ["ok"],
+        },
+    )
+
+    response_format = observed["response_format"]
+    assert isinstance(response_format, dict)
+    schema = response_format["json_schema"]["schema"]  # type: ignore[index]
+    assert schema["properties"]["ok"] == {"type": "boolean"}  # type: ignore[index]
 
 
 def test_text_and_vision_clients_use_model_common_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:

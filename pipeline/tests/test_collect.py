@@ -1,14 +1,20 @@
 from datetime import UTC, datetime
 from dataclasses import replace
 from pathlib import Path
+import json
 import socket
 
 import pytest
+import requests
 
-from recsys_daily.collect import Candidate, FeedResponse, _arxiv_url, _entry_feed_content, collect_candidates, parse_blog_feed, stable_id
+from recsys_daily import collect
+from recsys_daily.collect import Candidate, CollectionResult, FeedResponse, _arxiv_url, _entry_feed_content, collect_candidates, parse_blog_feed, stable_id
 from recsys_daily.config import SourcesConfig, load_config
+from recsys_daily.metadata import MetadataResult
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
 from recsys_daily.schemas import SourceState, State
+from recsys_daily.stage_one import collection_stage_report, load_history_ids, run_collect_filter
+from recsys_daily.testing_fixtures import _fixture_metadata_candidate_ids
 from recsys_daily.state import compute_query_windows, query_window
 
 
@@ -109,6 +115,210 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
     assert result.source_states["arxiv"].etag == '"arxiv-v1"'
 
 
+def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> None:
+    config = load_config(ROOT)
+    item = tmp_path / "items/papers/2025/01/digest-paper.json"
+    blog = tmp_path / "items/blogs/2025/01/digest-blog.json"
+    digest = tmp_path / "digests/2025/01/2025-01-02.json"
+    item.parent.mkdir(parents=True)
+    blog.parent.mkdir(parents=True)
+    digest.parent.mkdir(parents=True)
+    item.write_text(json.dumps({
+        "id": "digest-paper",
+        "kind": "paper",
+        "title": "History",
+        "summary_zh": "Historical summary",
+        "source": "arxiv",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+    }), encoding="utf-8")
+    blog.write_text(json.dumps({
+        "id": "digest-blog",
+        "kind": "blog",
+        "title": "History Blog",
+        "summary_zh": "Historical summary",
+        "source": "meta_engineering",
+        "url": "https://engineering.example.com/history",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "excerpt_fallback", "system_context_zh": "context"},
+    }), encoding="utf-8")
+    digest.write_text(json.dumps({
+        "date": "2025-01-02",
+        "papers": [{"item_id": "digest-paper", "recommendation_reason_zh": "history", "rank": 1}],
+        "blogs": [{"item_id": "digest-blog", "recommendation_reason_zh": "history", "rank": 1}],
+    }), encoding="utf-8")
+
+    assert load_history_ids(tmp_path, config, State(recommended_item_ids=["state-history"])) == {
+        "state-history",
+        "digest-paper",
+        "digest-blog",
+    }
+
+
+@pytest.mark.parametrize(
+    ("relative", "payload"),
+    [
+        ("items/papers/2025/01/broken.json", {"id": 42}),
+        ("items/papers/2025/01/missing-fields.json", {"id": "missing-fields"}),
+        ("digests/2025/01/2025-01-02.json", {"date": "2025-01-02", "papers": [{}], "blogs": []}),
+    ],
+)
+def test_load_history_ids_rejects_corrupt_canonical_json(tmp_path: Path, relative: str, payload: object) -> None:
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="canonical history"):
+        load_history_ids(tmp_path, load_config(ROOT), State())
+
+
+def test_collection_stage_report_omits_disabled_sources() -> None:
+    config = load_config(ROOT)
+    disabled = config.sources.blogs[0].model_copy(update={"enabled": False})
+    config = config.model_copy(update={"sources": SourcesConfig(academic=config.sources.academic, blogs=[disabled, *config.sources.blogs[1:]])})
+    result = CollectionResult(window=query_window(None, now=NOW), candidates=[], source_states={})
+
+    report = collection_stage_report(config, result, MetadataResult([], 0, 1.0, 0))
+
+    assert disabled.id not in {source.source_id for source in report.sources}
+
+
+def test_fixture_metadata_parser_supports_legacy_and_source_document_envelopes() -> None:
+    legacy = [{"role": "user", "content": "id: legacy-id\ntitle: Legacy"}]
+    structured = [
+        {"role": "system", "content": "classify"},
+        {"role": "user", "content": json.dumps({"task": "classify", "source_documents": [{"id": "structured-id"}]})},
+    ]
+
+    assert _fixture_metadata_candidate_ids(legacy) == ["legacy-id"]
+    assert _fixture_metadata_candidate_ids(structured) == ["structured-id"]
+
+
+def test_load_history_ids_rejects_duplicate_canonical_item_ids(tmp_path: Path) -> None:
+    config = load_config(ROOT)
+    item = {
+        "id": "duplicate-id",
+        "kind": "paper",
+        "title": "History",
+        "summary_zh": "Historical summary",
+        "source": "arxiv",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+    }
+    first = tmp_path / "items/papers/2025/01/duplicate-id.json"
+    second = tmp_path / "items/papers/2026/01/duplicate-id.json"
+    first.parent.mkdir(parents=True)
+    second.parent.mkdir(parents=True)
+    first.write_text(json.dumps(item), encoding="utf-8")
+    second.write_text(json.dumps({**item, "published_at": "2026-01-02T00:00:00Z"}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="duplicate canonical history item"):
+        load_history_ids(tmp_path, config, State())
+
+
+@pytest.mark.parametrize("digest", [
+    {"date": "2025-01-02", "papers": [{"item_id": "missing-id", "recommendation_reason_zh": "history", "rank": 1}], "blogs": []},
+    {"date": "2025-01-02", "papers": [], "blogs": [{"item_id": "paper-id", "recommendation_reason_zh": "history", "rank": 1}]},
+])
+def test_load_history_ids_rejects_missing_or_wrong_kind_digest_reference(tmp_path: Path, digest: dict[str, object]) -> None:
+    config = load_config(ROOT)
+    item = {
+        "id": "paper-id",
+        "kind": "paper",
+        "title": "History",
+        "summary_zh": "Historical summary",
+        "source": "arxiv",
+        "url": "https://arxiv.org/abs/2501.00001",
+        "published_at": "2025-01-02T00:00:00Z",
+        "authors": ["Author"],
+        "targets": [config.topics.targets[0].id],
+        "scenarios": [config.topics.scenarios[0].id],
+        "tasks": [config.topics.tasks[0].id],
+        "methods": [config.topics.methods[0].id],
+        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+    }
+    item_path = tmp_path / "items/papers/2025/01/paper-id.json"
+    digest_path = tmp_path / "digests/2025/01/2025-01-02.json"
+    item_path.parent.mkdir(parents=True)
+    digest_path.parent.mkdir(parents=True)
+    item_path.write_text(json.dumps(item), encoding="utf-8")
+    digest_path.write_text(json.dumps(digest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="digest reference"):
+        load_history_ids(tmp_path, config, State(recommended_item_ids=["missing-id"]))
+
+
+def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorical_candidates(tmp_path: Path) -> None:
+    calls: list[str] = []
+
+    def fetcher(url: str, _headers: dict[str, str]) -> FeedResponse:
+        calls.append(url)
+        payload = ARXIV_ATOM if "export.arxiv.org" in url else BLOG_RSS.replace(
+            "<rss version='2.0'>",
+            "<rss version='2.0' xmlns:content='http://purl.org/rss/1.0/modules/content/'>",
+        ).replace(
+            "</item>",
+            "<content:encoded><![CDATA[Full implementation details]]></content:encoded></item>",
+        )
+        return FeedResponse(200, payload.encode(), {})
+
+    completed_ids: list[str] = []
+
+    def complete_json(messages: list[dict[str, str]], _schema: object) -> dict[str, object]:
+        ids = _fixture_metadata_candidate_ids(messages)
+        completed_ids.extend(ids)
+        return {"items": [{
+            "id": item_id,
+            "summary_zh": "fixture summary",
+            "targets": ["content"],
+            "scenarios": ["text_feed"],
+            "tasks": ["retrieval"],
+            "methods": ["two_tower"],
+            "relevance_score": 0.9,
+            "graph_relations": [],
+            "degraded": False,
+        } for item_id in ids]}
+
+    run_collect_filter(
+        _config(),
+        tmp_path,
+        State(),
+        {"arxiv-2608.01234"},
+        complete_json,
+        fetcher=fetcher,
+        resolver=_public_resolver,
+        now=NOW,
+        run_id="stage-one-test",
+    )
+
+    papers = (tmp_path / "papers.jsonl").read_text(encoding="utf-8")
+    blogs = (tmp_path / "blogs.jsonl").read_text(encoding="utf-8")
+    assert len(calls) == 2
+    assert papers == ""
+    assert len(completed_ids) == 1
+    assert completed_ids[0] in blogs
+    assert "Full implementation details" not in blogs
+    assert json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))["run_id"] == "stage-one-test"
+    assert set(json.loads((tmp_path / "source-states.json").read_text(encoding="utf-8"))) == {"arxiv", "meta_engineering"}
+
+
 def test_collect_passes_configured_excerpt_limit() -> None:
     config = load_config(ROOT)
     storage = config.settings.storage.model_copy(update={"max_blog_excerpt_chars": 7})
@@ -179,6 +389,132 @@ def test_fetch_revalidates_every_redirect_target() -> None:
     with pytest.raises(PublicUrlError):
         fetch_public_url("https://public.example/feed", resolver=_public_resolver, request=request)
     assert calls == ["https://public.example/feed"]
+
+
+def test_fetch_public_url_retries_transport_failures_and_sets_user_agent() -> None:
+    class Response:
+        status_code = 200
+        content = b"ok"
+        headers: dict[str, str] = {}
+        is_redirect = False
+        is_permanent_redirect = False
+
+    calls: list[dict[str, object]] = []
+    acquired = 0
+    attempts = iter([requests.ConnectionError("tls eof"), Response()])
+
+    def acquire() -> None:
+        nonlocal acquired
+        acquired += 1
+
+    def request(_url: str, **kwargs: object) -> Response:
+        calls.append(kwargs)
+        value = next(attempts)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    response = fetch_public_url(
+        "https://public.example/feed",
+        resolver=_public_resolver,
+        request=request,
+        max_attempts=2,
+        user_agent="RecSysDaily/test",
+        sleeper=lambda _: None,
+        attempt_limiter=acquire,
+        backoff_seconds=0.25,
+        max_delay_seconds=4,
+    )
+
+    assert response.status_code == 200
+    assert calls[0]["headers"] == {"User-Agent": "RecSysDaily/test"}
+    assert len(calls) == 2
+    assert acquired == 2
+
+
+def test_fetch_public_url_preserves_explicit_user_agent() -> None:
+    class Response:
+        status_code = 200
+        content = b"ok"
+        headers: dict[str, str] = {}
+        is_redirect = False
+        is_permanent_redirect = False
+
+    calls: list[dict[str, object]] = []
+
+    def request(_url: str, **kwargs: object) -> Response:
+        calls.append(kwargs)
+        return Response()
+
+    fetch_public_url(
+        "https://public.example/feed",
+        headers={"user-agent": "Explicit/2.0"},
+        resolver=_public_resolver,
+        request=request,
+        user_agent="RecSysDaily/test",
+    )
+
+    assert calls[0]["headers"] == {"user-agent": "Explicit/2.0"}
+
+
+def test_collect_retries_source_http_503_with_configured_network_options(monkeypatch: pytest.MonkeyPatch) -> None:
+    config = _config()
+    academic = config.sources.academic[0].model_copy(update={"enabled": False})
+    blog = config.sources.blogs[0]
+    config = config.model_copy(update={"sources": SourcesConfig(academic=[academic], blogs=[blog])})
+    attempts = 0
+    seen_headers: list[dict[str, str]] = []
+    limiter_intervals: list[float] = []
+    limiter_calls: list[str] = []
+
+    class FakeDomainLimiter:
+        def __init__(self, min_interval_seconds: float) -> None:
+            limiter_intervals.append(min_interval_seconds)
+
+        def acquire(self, url: str) -> None:
+            limiter_calls.append(url)
+
+    monkeypatch.setattr(collect, "DomainRateLimiter", FakeDomainLimiter)
+
+    class Response:
+        is_redirect = False
+        is_permanent_redirect = False
+
+        def __init__(self, status_code: int, content: bytes = b"") -> None:
+            self.status_code = status_code
+            self.content = content
+            self.headers: dict[str, str] = {}
+            self.url = blog.url
+
+    def request(_url: str, **kwargs: object) -> Response:
+        nonlocal attempts
+        attempts += 1
+        seen_headers.append(dict(kwargs["headers"]))  # type: ignore[arg-type]
+        if attempts == 1:
+            return Response(503)
+        return Response(200, BLOG_RSS.encode())
+
+    original_fetch = fetch_public_url
+
+    def configured_fetch(url: str, **kwargs: object) -> requests.Response:
+        assert kwargs["max_attempts"] == config.settings.limits.retry_attempts
+        assert kwargs["user_agent"] == config.settings.request_user_agent
+        assert kwargs["backoff_seconds"] == config.settings.limits.retry_backoff_seconds
+        assert kwargs["max_delay_seconds"] == config.settings.limits.retry_max_delay_seconds
+        return original_fetch(url, request=request, sleeper=lambda _: None, **kwargs)
+
+    monkeypatch.setattr(collect, "fetch_public_url", configured_fetch)
+
+    result = collect_candidates(config, now=NOW, resolver=_public_resolver)
+
+    assert attempts == 2
+    assert limiter_intervals == [
+        config.settings.limits.arxiv_min_interval_seconds,
+        config.settings.limits.blog_min_interval_seconds_per_domain,
+    ]
+    assert limiter_calls == [blog.url, blog.url]
+    assert seen_headers[0]["User-Agent"] == config.settings.request_user_agent
+    assert result.warnings == []
 
 
 def test_blog_feed_preserves_content_encoded_for_full_reading() -> None:

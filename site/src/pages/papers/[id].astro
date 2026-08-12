@@ -1,11 +1,22 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { loadBundle, taxonomyName } from "../../lib/data";
-export function getStaticPaths() { const data = loadBundle(); return data.items.filter(item => item.kind === "paper").map(item => ({ params: { id: item.id }, props: { item, data } })); }
+export function getStaticPaths() {
+  const data = loadBundle();
+  return data.items.filter(item => item.kind === "paper").map(item => ({ params: { id: item.id }, props: { item, data } }));
+}
 const { item, data } = Astro.props;
 const reading = item.deep_reading;
-function ageBucket(value: string) { const days = Math.max(0, (Date.now() - Date.parse(value)) / 86400000); return days <= 7 ? "7d" : days <= 30 ? "30d" : days <= 365 ? "365d" : "older"; }
-const labels = [...item.targets.map(id => taxonomyName(data.taxonomy, "targets", id)?.name_zh ?? id), ...item.scenarios.map(id => taxonomyName(data.taxonomy, "scenarios", id)?.name_zh ?? id), ...item.tasks.map(id => taxonomyName(data.taxonomy, "tasks", id)?.name_zh ?? id), ...item.methods.map(id => taxonomyName(data.taxonomy, "methods", id)?.name_zh ?? id)];
+function ageBucket(value: string) {
+  const days = Math.max(0, (Date.now() - Date.parse(value)) / 86400000);
+  return days <= 7 ? "7d" : days <= 30 ? "30d" : days <= 365 ? "365d" : "older";
+}
+const labels = [
+  ...item.targets.map(id => taxonomyName(data.taxonomy, "targets", id)?.name_zh ?? id),
+  ...item.scenarios.map(id => taxonomyName(data.taxonomy, "scenarios", id)?.name_zh ?? id),
+  ...item.tasks.map(id => taxonomyName(data.taxonomy, "tasks", id)?.name_zh ?? id),
+  ...item.methods.map(id => taxonomyName(data.taxonomy, "methods", id)?.name_zh ?? id),
+];
 ---
 <BaseLayout title={`${item.title} · RecSys Daily`}>
   <article data-pagefind-body class="prose-lite mx-auto max-w-4xl">
@@ -14,13 +25,19 @@ const labels = [...item.targets.map(id => taxonomyName(data.taxonomy, "targets",
     {item.scenarios.map(id => <span class="hidden" data-pagefind-filter={`scenarios:${id}`}></span>)}
     {item.tasks.map(id => <span class="hidden" data-pagefind-filter={`tasks:${id}`}></span>)}
     {item.methods.map(id => <span class="hidden" data-pagefind-filter={`methods:${id}`}></span>)}
-    <p class="text-sm text-slate-500">Paper · {item.published_at.slice(0, 10)} · {item.source}</p><h1 class="mt-2 text-3xl font-bold text-slate-950">{item.title}</h1>
+    <p class="text-sm text-slate-500">论文 · {item.published_at.slice(0, 10)} · {item.source}</p>
+    <h1 class="mt-2 text-3xl font-bold text-slate-950">{item.title}</h1>
     <p class="mt-4 text-lg text-slate-700">{item.summary_zh}</p>
     <div class="mt-4 flex flex-wrap gap-2">{labels.map(label => <span class="tag">{label}</span>)}</div>
-    <section class="mt-8 grid gap-6 md:grid-cols-2"><div><h2 class="text-xl font-semibold">研究问题</h2><p>{reading.problem_zh}</p></div><div><h2 class="text-xl font-semibold">Method / Architecture</h2><p>{reading.method_zh}</p></div></section>
-    <section class="mt-8"><h2 class="text-xl font-semibold">Contributions</h2><ul>{(reading.contributions_zh ?? []).map((value: string) => <li>{value}</li>)}</ul></section>
-    <section class="mt-8"><h2 class="text-xl font-semibold">Experiments</h2><p>Datasets: {(reading.experiments?.datasets ?? []).join(", ") || "未提供"}</p><p>Baselines: {(reading.experiments?.baselines ?? []).join(", ") || "未提供"}</p><p>Metrics: {(reading.experiments?.metrics ?? []).join(", ") || "未提供"}</p><ul>{(reading.experiments?.findings_zh ?? []).map((value: string) => <li>{value}</li>)}</ul></section>
-    <section class="mt-8"><h2 class="text-xl font-semibold">Evidence & Visual Analysis</h2><p>正文依据：{reading.analysis_basis}</p><p>视觉状态：{reading.visual_analysis?.status}</p>{(reading.evidence_refs ?? []).map((ref: {section: string; page: number}) => <p class="text-sm text-slate-600">{ref.section} · PDF page {ref.page}</p>)}</section>
-    <p class="mt-8 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm">LLM 生成，可能存在错误。请以<a href={item.url} rel="noreferrer">原文</a>为准。</p>
+    {item.llm && <dl class="mt-6 grid gap-x-6 gap-y-2 border-y border-slate-200 py-4 text-sm sm:grid-cols-3">
+      <div><dt class="text-slate-500">模型配置</dt><dd class="mt-1 font-medium text-slate-800">{item.llm.profile}</dd></div>
+      <div><dt class="text-slate-500">模型</dt><dd class="mt-1 font-medium text-slate-800">{item.llm.model}</dd></div>
+      <div><dt class="text-slate-500">生成时间</dt><dd class="mt-1 font-medium text-slate-800">{item.llm.generated_at}</dd></div>
+    </dl>}
+    <section class="mt-8 grid gap-6 md:grid-cols-2"><div><h2 class="text-xl font-semibold">研究问题</h2><p>{reading.problem_zh ?? "未提供"}</p></div><div><h2 class="text-xl font-semibold">方法与架构</h2><p>{reading.method_zh ?? "未提供"}</p></div></section>
+    <section class="mt-8"><h2 class="text-xl font-semibold">主要贡献</h2><ul>{(reading.contributions_zh ?? []).map((value: string) => <li>{value}</li>)}</ul></section>
+    <section class="mt-8"><h2 class="text-xl font-semibold">实验</h2><p>数据集：{(reading.experiments?.datasets ?? []).join(", ") || "未提供"}</p><p>基线：{(reading.experiments?.baselines ?? []).join(", ") || "未提供"}</p><p>指标：{(reading.experiments?.metrics ?? []).join(", ") || "未提供"}</p><ul>{(reading.experiments?.findings_zh ?? []).map((value: string) => <li>{value}</li>)}</ul></section>
+    <section class="mt-8"><h2 class="text-xl font-semibold">证据与视觉分析</h2><p>正文依据：{reading.analysis_basis}</p><p>视觉状态：{reading.visual_analysis?.status}</p>{(reading.evidence_refs ?? []).map((ref: {section: string; page: number}) => <p class="text-sm text-slate-600">{ref.section} · PDF 第 {ref.page} 页</p>)}</section>
+    <p class="mt-8 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm">内容由 LLM 生成，可能存在错误。请以<a href={item.url} rel="noreferrer">原文</a>为准。</p>
   </article>
 </BaseLayout>

@@ -53,7 +53,7 @@ class BlogEvidenceRef(ArtifactModel):
 
     @model_validator(mode="after")
     def has_location(self) -> "BlogEvidenceRef":
-        if not self.heading and not self.section:
+        if not any(value and value.strip() for value in (self.heading, self.section)):
             raise ValueError("blog evidence requires a heading or section")
         return self
 
@@ -117,6 +117,130 @@ class BlogReading(ArtifactModel):
     limitations_zh: list[str] = Field(default_factory=list)
     business_implications_zh: list[str] = Field(default_factory=list)
     evidence_refs: list[BlogEvidenceRef] = Field(default_factory=list)
+
+
+def _visual_analysis_json_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "status": {"type": "string", "enum": ["completed", "not_required", "unavailable"]},
+            "profile": {"type": ["string", "null"]},
+            "model": {"type": ["string", "null"]},
+            "pages": {"type": "array", "items": {"type": "integer", "minimum": 1}},
+            "architecture_zh": {"type": ["string", "null"]},
+            "table_findings_zh": {"type": "array", "items": {"type": "string", "minLength": 1}},
+            "chart_findings_zh": {"type": "array", "items": {"type": "string", "minLength": 1}},
+            "limitations_zh": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        },
+        "required": ["status", "profile", "model", "pages", "architecture_zh", "table_findings_zh", "chart_findings_zh", "limitations_zh"],
+    }
+
+
+def _paper_evidence_schema() -> dict[str, Any]:
+    return {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "section": {"type": "string", "minLength": 1},
+                "page": {"type": "integer", "minimum": 1},
+            },
+            "required": ["section", "page"],
+        },
+    }
+
+
+def _blog_evidence_schema() -> dict[str, Any]:
+    nullable_locations = {
+        "heading": {"type": ["string", "null"], "minLength": 1},
+        "section": {"type": ["string", "null"], "minLength": 1},
+    }
+
+    def location_branch(nonempty: str) -> dict[str, Any]:
+        properties = dict(nullable_locations)
+        properties[nonempty] = {"type": "string", "minLength": 1}
+        return {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": properties,
+            "required": list(properties),
+        }
+
+    return {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": nullable_locations,
+            "required": ["heading", "section"],
+            "anyOf": [location_branch("heading"), location_branch("section")],
+        },
+    }
+
+
+def paper_reading_json_schema() -> dict[str, Any]:
+    """Strict response contract for paper deep-reading model calls."""
+    string_list = {"type": "array", "items": {"type": "string", "minLength": 1}}
+    experiments = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "datasets": string_list,
+            "baselines": string_list,
+            "metrics": string_list,
+            "findings_zh": string_list,
+        },
+        "required": ["datasets", "baselines", "metrics", "findings_zh"],
+    }
+    properties: dict[str, Any] = {
+        "analysis_basis": {"type": "string", "enum": ["arxiv_html", "pdf_text", "abstract_fallback"]},
+        "visual_analysis": _visual_analysis_json_schema(),
+        "evidence_quality": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "business_transferability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "technical_depth": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "problem_zh": {"type": "string", "minLength": 1},
+        "contributions_zh": string_list,
+        "method_zh": {"type": ["string", "null"], "minLength": 1},
+        "experiments": experiments,
+        "limitations_zh": string_list,
+        "business_implications_zh": string_list,
+        "evidence_refs": _paper_evidence_schema(),
+    }
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": properties,
+        "required": list(properties),
+    }
+
+
+def blog_reading_json_schema() -> dict[str, Any]:
+    """Strict response contract for blog deep-reading model calls."""
+    string_list = {"type": "array", "items": {"type": "string", "minLength": 1}}
+    properties: dict[str, Any] = {
+        "analysis_basis": {"type": "string", "enum": ["rss_full_content", "article_html", "excerpt_fallback"]},
+        "evidence_quality": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "business_transferability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "technical_depth": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "system_context_zh": {"type": "string", "minLength": 1},
+        "architecture_zh": {"type": ["string", "null"], "minLength": 1},
+        "implementation_zh": {"type": ["string", "null"], "minLength": 1},
+        "production_constraints_zh": string_list,
+        "tradeoffs_zh": string_list,
+        "results_zh": string_list,
+        "lessons_zh": string_list,
+        "limitations_zh": string_list,
+        "business_implications_zh": string_list,
+        "evidence_refs": _blog_evidence_schema(),
+    }
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": properties,
+        "required": list(properties),
+    }
 
 
 class Stage1Metadata(ArtifactModel):
@@ -201,6 +325,7 @@ class SourceRunStatus(ArtifactModel):
 class BuildConfigSnapshot(ArtifactModel):
     graph_max_content_nodes: int = Field(ge=1)
     graph_recent_days: PositiveInt
+    minimum_final_score: float = Field(ge=0, le=1)
     target_item_bytes: PositiveInt
     max_item_bytes: PositiveInt
     max_blog_excerpt_chars: PositiveInt

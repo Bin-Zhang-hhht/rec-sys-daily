@@ -1,20 +1,26 @@
 from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from pydantic import TypeAdapter, ValidationError
 
 from recsys_daily.config import TopicEntry, TopicTaxonomy
 from recsys_daily.schemas import (
     BlogItem,
+    BlogReading,
     BuildConfigSnapshot,
     ContentItem,
     LLMMetadata,
     Manifest,
     PaperItem,
+    PaperReading,
     RunReport,
     SourceState,
     StageReport,
     State,
+    blog_reading_json_schema,
+    paper_reading_json_schema,
 )
 
 
@@ -76,6 +82,118 @@ def test_completed_visual_analysis_requires_provenance_and_finding() -> None:
         PaperItem.model_validate(data, context={"taxonomy": _taxonomy()})
 
 
+def test_deep_reading_response_schemas_are_strict_and_evidence_bearing() -> None:
+    paper = paper_reading_json_schema()
+    blog = blog_reading_json_schema()
+    assert paper["additionalProperties"] is False
+    assert blog["additionalProperties"] is False
+    assert paper["properties"]["analysis_basis"]["enum"] == ["arxiv_html", "pdf_text", "abstract_fallback"]
+    assert blog["properties"]["analysis_basis"]["enum"] == ["rss_full_content", "article_html", "excerpt_fallback"]
+    assert "problem_zh" in paper["required"]
+    assert "system_context_zh" in blog["required"]
+    assert "evidence_refs" in paper["required"]
+    assert "evidence_refs" in blog["required"]
+    assert paper["properties"]["method_zh"]["type"] == ["string", "null"]
+    assert blog["properties"]["architecture_zh"]["type"] == ["string", "null"]
+
+
+@pytest.mark.parametrize("schema", [paper_reading_json_schema(), blog_reading_json_schema()])
+def test_deep_reading_schemas_are_recursively_provider_strict(schema: dict[str, object]) -> None:
+    def assert_strict(value: object) -> None:
+        if isinstance(value, dict):
+            if value.get("type") == "object":
+                assert value.get("additionalProperties") is False
+                assert set(value.get("required", [])) == set(value.get("properties", {}))
+            for nested in value.values():
+                assert_strict(nested)
+        elif isinstance(value, list):
+            for nested in value:
+                assert_strict(nested)
+
+    assert_strict(schema)
+
+
+def test_paper_response_schema_accepts_method_and_limitation_only() -> None:
+    schema = paper_reading_json_schema()
+    payload = {
+        "analysis_basis": "abstract_fallback",
+        "visual_analysis": {
+            "status": "not_required",
+            "profile": None,
+            "model": None,
+            "pages": [],
+            "architecture_zh": None,
+            "table_findings_zh": [],
+            "chart_findings_zh": [],
+            "limitations_zh": [],
+        },
+        "evidence_quality": None,
+        "business_transferability": None,
+        "technical_depth": None,
+        "problem_zh": "A bounded retrieval problem.",
+        "contributions_zh": [],
+        "method_zh": "A two-tower method.",
+        "experiments": {"datasets": [], "baselines": [], "metrics": [], "findings_zh": []},
+        "limitations_zh": ["Evaluation is limited to one dataset."],
+        "business_implications_zh": [],
+        "evidence_refs": [],
+    }
+
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(payload)
+
+
+def test_blog_response_schema_accepts_evidence_only_analysis() -> None:
+    schema = blog_reading_json_schema()
+    payload = {
+        "analysis_basis": "excerpt_fallback",
+        "evidence_quality": None,
+        "business_transferability": None,
+        "technical_depth": None,
+        "system_context_zh": "A feed-ranking service.",
+        "architecture_zh": None,
+        "implementation_zh": None,
+        "production_constraints_zh": [],
+        "tradeoffs_zh": [],
+        "results_zh": [],
+        "lessons_zh": [],
+        "limitations_zh": [],
+        "business_implications_zh": [],
+        "evidence_refs": [{"heading": "Architecture", "section": None}],
+    }
+
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(payload)
+
+
+def test_blog_evidence_requires_one_nonempty_location() -> None:
+    evidence_schema = blog_reading_json_schema()["properties"]["evidence_refs"]["items"]
+    with pytest.raises(JsonSchemaValidationError):
+        Draft202012Validator(evidence_schema).validate({"heading": None, "section": None})
+    with pytest.raises(ValidationError, match="heading or section"):
+        BlogReading(
+            analysis_basis="excerpt_fallback",
+            system_context_zh="A feed-ranking service.",
+            evidence_refs=[{"heading": " ", "section": None}],
+        )
+
+
+def test_post_schema_quality_validation_rejects_empty_semantic_alternatives() -> None:
+    paper = PaperReading(
+        analysis_basis="abstract_fallback",
+        visual_analysis={"status": "not_required"},
+        problem_zh="A bounded retrieval problem.",
+    )
+    blog = BlogReading(analysis_basis="excerpt_fallback", system_context_zh="A feed-ranking service.")
+
+    from recsys_daily.deep_read import validate_reading_quality
+
+    with pytest.raises(ValueError, match="method or contribution"):
+        validate_reading_quality(paper)
+    with pytest.raises(ValueError, match="architecture, implementation, lesson, or evidence"):
+        validate_reading_quality(blog)
+
+
 def test_manifest_serialization_is_stage_minimal() -> None:
     assert set(Manifest(run_id="run", schema_version="1").model_dump()) == {"run_id", "schema_version"}
 
@@ -88,6 +206,7 @@ def test_run_report_carries_config_and_stage_snapshots() -> None:
     snapshot = BuildConfigSnapshot(
         graph_max_content_nodes=80,
         graph_recent_days=90,
+        minimum_final_score=0.5,
         target_item_bytes=16_384,
         max_item_bytes=32_768,
         max_blog_excerpt_chars=4_000,
@@ -111,6 +230,7 @@ def test_artifact_timestamps_require_utc(timestamp: datetime) -> None:
     snapshot = BuildConfigSnapshot(
         graph_max_content_nodes=80,
         graph_recent_days=90,
+        minimum_final_score=0.5,
         target_item_bytes=16_384,
         max_item_bytes=32_768,
         max_blog_excerpt_chars=4_000,

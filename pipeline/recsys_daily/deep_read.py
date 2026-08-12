@@ -29,6 +29,8 @@ class DeepReadServices:
     max_pdf_bytes: int = 20 * 1024 * 1024
     max_pdf_pages: int = 80
     max_html_bytes: int = 5 * 1024 * 1024
+    # Kept for callers built against the pre-configured limiter API. Network
+    # pacing now belongs to the injected content fetch functions.
     domain_limiter: Any | None = None
     vision_profile: str = "nvidia_omni"
     vision_model: str = "configured-vision-model"
@@ -91,13 +93,58 @@ def _visual_analysis(services: DeepReadServices, page_paths: list[Path], pages: 
 
 
 def _validated_payload(model: type[BaseModel], payload: Mapping[str, Any], *, analysis_basis: str, visual: VisualAnalysis | None = None) -> BaseModel:
+    if not isinstance(payload, Mapping):
+        raise ValueError("deep-reading response must be a JSON object")
     data = dict(payload)
-    for key in ("source_full_text", "raw_text", "full_text", "prompt", "response", "reasoning_content"):
+    for key in ("source_full_text", "raw_text", "full_text", "prompt", "response", "reasoning_content", "reasoning_trace"):
         data.pop(key, None)
     data["analysis_basis"] = analysis_basis
     if visual is not None:
         data["visual_analysis"] = visual.model_dump()
-    return model.model_validate(data)
+    reading = model.model_validate(data)
+    return validate_reading_quality(reading)
+
+
+def validate_reading_quality(reading: PaperReading | BlogReading) -> PaperReading | BlogReading:
+    """Reject structurally valid but content-free model responses."""
+    def has_text(value: str | None) -> bool:
+        return bool(value and value.strip())
+
+    def has_any_text(values: list[str]) -> bool:
+        return any(has_text(value) for value in values)
+
+    if isinstance(reading, PaperReading):
+        if not has_text(reading.problem_zh):
+            raise ValueError("paper deep-reading response requires a meaningful problem")
+        has_method_or_contribution = bool(
+            has_text(reading.method_zh)
+            or has_any_text(reading.contributions_zh)
+        )
+        if not has_method_or_contribution:
+            raise ValueError("paper deep-reading response requires a method or contribution")
+        experiments = reading.experiments
+        has_evidence = bool(
+            any(has_text(reference.section) for reference in reading.evidence_refs)
+            or has_any_text(reading.limitations_zh)
+            or has_any_text(experiments.datasets)
+            or has_any_text(experiments.baselines)
+            or has_any_text(experiments.metrics)
+            or has_any_text(experiments.findings_zh)
+        )
+        if not has_evidence:
+            raise ValueError("paper deep-reading response requires experiment, evidence, or limitation")
+        return reading
+    if not has_text(reading.system_context_zh):
+        raise ValueError("blog deep-reading response requires meaningful system_context_zh")
+    has_blog_analysis = bool(
+        has_text(reading.architecture_zh)
+        or has_text(reading.implementation_zh)
+        or has_any_text(reading.lessons_zh)
+        or any(has_text(reference.heading) or has_text(reference.section) for reference in reading.evidence_refs)
+    )
+    if not has_blog_analysis:
+        raise ValueError("blog deep-reading response requires architecture, implementation, lesson, or evidence")
+    return reading
 
 
 def deep_read_paper(candidate: Candidate, services: DeepReadServices) -> PaperReading:
@@ -118,32 +165,38 @@ def deep_read_paper(candidate: Candidate, services: DeepReadServices) -> PaperRe
                     basis = "arxiv_html"
             except Exception:
                 body = ""
-            if not body:
-                try:
-                    pdf_method = getattr(services.content, "fetch_pdf", services.content.fetch_bytes)
-                    pdf = _fetch(pdf_method, pdf_url, candidate, services.max_pdf_bytes)
-                    pdf_path = _write_temp(services.temporary_root, f"{stable_id(candidate)}.pdf", pdf, paths)
-                    body, page_texts = services.content.extract_pdf(pdf_path, services.max_pdf_pages)
-                    if body:
-                        basis = "pdf_text"
-                        _write_temp(services.temporary_root, f"{stable_id(candidate)}.txt", body, paths)
-                except Exception:
+            # HTML is preferred for text quality, but PDF inspection is always
+            # attempted so figures and tables are not silently missed.
+            try:
+                pdf_method = getattr(services.content, "fetch_pdf", services.content.fetch_bytes)
+                pdf = _fetch(pdf_method, pdf_url, candidate, services.max_pdf_bytes)
+                pdf_path = _write_temp(services.temporary_root, f"{stable_id(candidate)}.pdf", pdf, paths)
+                pdf_body, page_texts = services.content.extract_pdf(pdf_path, services.max_pdf_pages)
+                if not body and pdf_body:
+                    body = pdf_body
+                    basis = "pdf_text"
+                    _write_temp(services.temporary_root, f"{stable_id(candidate)}.txt", pdf_body, paths)
+                page_numbers = services.content.critical_pages(page_texts)
+                if page_numbers:
+                    page_paths = services.content.render_pages(pdf_path, page_numbers, services.temporary_root)
+                    paths.extend(page_paths)
+                    visual = _visual_analysis(services, page_paths, page_numbers)
+                else:
+                    visual = VisualAnalysis(status="not_required")
+            except Exception:
+                if body:
+                    visual = VisualAnalysis(status="unavailable")
+                else:
                     body = ""
                     basis = "abstract_fallback"
                     visual = VisualAnalysis(status="not_required")
-                else:
-                    # Text extraction is useful even if visual page handling
-                    # fails; only the visual branch should become unavailable.
-                    try:
-                        page_numbers = services.content.critical_pages(page_texts)
-                        page_paths = services.content.render_pages(pdf_path, page_numbers, services.temporary_root)
-                        paths.extend(page_paths)
-                        visual = _visual_analysis(services, page_paths, page_numbers)
-                    except Exception:
-                        visual = VisualAnalysis(status="unavailable")
         if not body:
             body = candidate.excerpt or candidate.title
-        payload = services.text_reader("paper", body, {"analysis_basis": basis, "visual_analysis": visual.model_dump()})
+        payload = services.text_reader(
+            "paper",
+            body,
+            {"id": stable_id(candidate), "analysis_basis": basis, "visual_analysis": visual.model_dump()},
+        )
         return _validated_payload(PaperReading, payload, analysis_basis=basis, visual=visual)  # type: ignore[return-value]
     finally:
         _cleanup(paths)
@@ -162,9 +215,6 @@ def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogRead
             basis = "rss_full_content"
         if not body and services.content.fetch_article_html is not None:
             try:
-                if services.domain_limiter is not None:
-                    acquire = getattr(services.domain_limiter, "acquire", services.domain_limiter)
-                    acquire(candidate.url or "")
                 fetch_article = services.content.fetch_article_html
                 try:
                     html = fetch_article(candidate, services.max_html_bytes)  # type: ignore[call-arg]
@@ -181,7 +231,7 @@ def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogRead
                 body = ""
         if not body:
             body = candidate.excerpt or candidate.title
-        payload = services.text_reader("blog", body, {"analysis_basis": basis})
+        payload = services.text_reader("blog", body, {"id": stable_id(candidate), "analysis_basis": basis})
         return _validated_payload(BlogReading, payload, analysis_basis=basis)  # type: ignore[return-value]
     finally:
         _cleanup(paths)

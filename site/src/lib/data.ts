@@ -8,12 +8,14 @@ export type Item = {
   published_at: string; authors: string[]; targets: string[]; scenarios: string[]; tasks: string[]; methods: string[];
   relevance_score: number; deep_reading: Record<string, any>; excerpt?: string;
   graph_relations?: { type: string; target_id: string; confidence: number; evidence: string; generated_by: string }[];
+  llm?: { profile: string; model: string; generated_at: string; degraded?: boolean };
 };
 export type DigestEntry = { item_id: string; recommendation_reason_zh: string; rank: number };
 export type Digest = { date: string; papers: DigestEntry[]; blogs: DigestEntry[] };
 export type BuildConfigSnapshot = {
   graph_max_content_nodes: number;
   graph_recent_days: number;
+  minimum_final_score: number;
   target_item_bytes: number;
   max_item_bytes: number;
   max_blog_excerpt_chars: number;
@@ -67,7 +69,7 @@ function validateSnapshot(value: unknown): BuildConfigSnapshot {
   if (!value || typeof value !== "object") throw new Error("run report config_snapshot is missing");
   const snapshot = value as Record<string, unknown>;
   const fields: (keyof BuildConfigSnapshot)[] = [
-    "graph_max_content_nodes", "graph_recent_days", "target_item_bytes", "max_item_bytes",
+    "graph_max_content_nodes", "graph_recent_days", "minimum_final_score", "target_item_bytes", "max_item_bytes",
     "max_blog_excerpt_chars", "warn_repository_data_mb", "warn_pages_artifact_mb", "fail_pages_artifact_mb",
   ];
   for (const field of fields) {

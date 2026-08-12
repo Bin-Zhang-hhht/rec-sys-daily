@@ -5,8 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping
 import ipaddress
 from urllib.parse import urljoin, urlsplit
+import time
 
 import requests
+
+from .rate_limit import RateLimiter, request_with_retries
 
 
 class PublicUrlError(ValueError):
@@ -74,7 +77,7 @@ def validate_public_url(url: str, *, resolver: Resolver | None = None) -> str:
     return url
 
 
-def fetch_public_url(
+def _fetch_public_url_once(
     url: str,
     *,
     headers: Mapping[str, str] | None = None,
@@ -83,11 +86,10 @@ def fetch_public_url(
     request: Callable[..., requests.Response] = requests.get,
     max_redirects: int = 5,
 ) -> requests.Response:
-    """Fetch one URL while validating the original and each redirect target."""
+    """Fetch one redirect chain while validating every requested URL."""
     current = validate_public_url(url, resolver=resolver)
-    request_headers = dict(headers or {})
     for _ in range(max_redirects + 1):
-        response = request(current, headers=request_headers, timeout=timeout, allow_redirects=False)
+        response = request(current, headers=headers, timeout=timeout, allow_redirects=False)
         if response.is_redirect or response.is_permanent_redirect:
             location = response.headers.get("Location")
             if not location:
@@ -98,3 +100,41 @@ def fetch_public_url(
             return response
         raise requests.HTTPError(f"HTTP {response.status_code} for {current}", response=response)
     raise PublicUrlError("too many redirects")
+
+
+def fetch_public_url(
+    url: str,
+    *,
+    headers: Mapping[str, str] | None = None,
+    timeout: float = 45,
+    resolver: Resolver | None = None,
+    request: Callable[..., requests.Response] = requests.get,
+    max_redirects: int = 5,
+    max_attempts: int = 3,
+    user_agent: str | None = None,
+    sleeper: Callable[[float], None] = time.sleep,
+    attempt_limiter: RateLimiter | Callable[[], None] | None = None,
+    backoff_seconds: float = 1.0,
+    max_delay_seconds: float = 30.0,
+) -> requests.Response:
+    """Fetch a public URL with bounded retries and redirect revalidation."""
+    request_headers = dict(headers or {})
+    if user_agent and not any(str(name).casefold() == "user-agent" for name in request_headers):
+        request_headers["User-Agent"] = user_agent
+
+    return request_with_retries(
+        lambda: _fetch_public_url_once(
+            url,
+            headers=request_headers,
+            timeout=timeout,
+            resolver=resolver,
+            request=request,
+            max_redirects=max_redirects,
+        ),
+        sleeper=sleeper,
+        limiter=attempt_limiter,
+        max_attempts=max_attempts,
+        retry_on_exceptions=(requests.ConnectionError, requests.Timeout),
+        backoff_seconds=backoff_seconds,
+        max_delay_seconds=max_delay_seconds,
+    )

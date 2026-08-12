@@ -195,6 +195,8 @@ class Limits(StrictModel):
     arxiv_min_interval_seconds: PositiveInt
     request_timeout_seconds: PositiveInt
     retry_attempts: PositiveInt
+    retry_backoff_seconds: PositiveFloat
+    retry_max_delay_seconds: PositiveFloat
     max_papers_per_run: Literal[100]
     max_blogs_per_run: Literal[50]
     deep_reading_candidates_per_type: Literal[16]
@@ -211,6 +213,8 @@ class Limits(StrictModel):
     def nvidia_limit_is_valid(self) -> "Limits":
         if self.nvidia_target_rpm > self.nvidia_hard_rpm:
             raise ValueError("nvidia_target_rpm must not exceed nvidia_hard_rpm")
+        if self.retry_backoff_seconds > self.retry_max_delay_seconds:
+            raise ValueError("retry_max_delay_seconds must be at least retry_backoff_seconds")
         return self
 
 
@@ -225,6 +229,8 @@ class StorageSettings(StrictModel):
 
 class Settings(StrictModel):
     daily_target: Literal[8]
+    minimum_final_score: float = Field(ge=0, le=1)
+    request_user_agent: str = Field(min_length=1)
     structured_analysis_min_success_rate: float = Field(ge=0, le=1)
     metadata_weights: ScoreWeights
     final_weights: FinalScoreWeights
