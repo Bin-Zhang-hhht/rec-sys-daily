@@ -16,7 +16,7 @@ from typing import Any
 from .artifacts import write_json
 from .collect import Candidate, FeedResponse, stable_id
 from .config import AppConfig, load_config
-from .content import BlogFeedCache, ContentServices, PageText
+from .content import BlogFeedCache, ContentServices
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
 from .schemas import BuildConfigSnapshot, RunReport, StageReport, State
@@ -90,16 +90,10 @@ class _FixtureContent:
         return self.paper_html
 
     def fetch_bytes(self, _url: str, _limit: int) -> bytes:
-        raise RuntimeError("fixture PDF unavailable; HTML fallback is expected")
+        return b"fixture PDF"
 
-    def extract_pdf(self, _path: Path, _max_pages: int) -> tuple[str, list[PageText]]:
-        raise RuntimeError("fixture PDF unavailable")
-
-    def critical_pages(self, _pages: list[PageText]) -> list[int]:
-        return []
-
-    def render_pages(self, _path: Path, _pages: list[int], _directory: Path) -> list[Path]:
-        return []
+    def extract_pdf(self, *_args: object) -> object:
+        raise AssertionError("fixture paper flow must not use PyMuPDF")
 
     def extract_article(self, html: str) -> str:
         return html.replace("<", " ").replace(">", " ")
@@ -132,20 +126,24 @@ def _fixture_services(work: Path, *, exercise_blog_fallbacks: bool = False) -> D
             "evidence_refs": [{"heading": "Architecture"}],
         }
 
+    class FixtureMinerU:
+        max_pdf_bytes = 20_971_520
+
+        @staticmethod
+        def parse_pdf(_pdf: bytes, _filename: str, _temporary_root: Path) -> str:
+            return "# Method\nTwo-Tower Retrieval\n# Results\nRecall@20 improves."
+
     services = DeepReadServices(
         content=ContentServices(
             fetch_text=content.fetch_text,
             fetch_bytes=content.fetch_bytes,
-            extract_pdf=content.extract_pdf,
-            critical_pages=content.critical_pages,
-            render_pages=content.render_pages,
             extract_article=content.extract_article,
             feed_content=content.feed_content,
             fetch_article_html=content.fetch_article_html,
         ),
         temporary_root=work / "temporary",
         text_reader=text_reader,
-        vision_reader=lambda _pages: {},
+        mineru=FixtureMinerU(),
     )
     if exercise_blog_fallbacks:
         def failed_second_feed(_source_id: str, _url: str) -> bytes:

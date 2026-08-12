@@ -31,7 +31,7 @@ def _paper(item_id: str, score: float) -> dict[str, object]:
         "methods": ["two_tower"],
         "relevance_score": score,
         "deep_reading": {
-            "analysis_basis": "pdf_text",
+            "analysis_basis": "mineru_full_text",
             "visual_analysis": {"status": "not_required"},
         },
     }
@@ -152,7 +152,7 @@ def test_final_ranking_uses_configured_deep_read_dimensions() -> None:
     low = PaperItem.model_validate(_paper("low", 0.95), context={"taxonomy": CONFIG.topics})
     high_data = _paper("high", 0.60)
     high_data["deep_reading"] = {
-        "analysis_basis": "pdf_text",
+        "analysis_basis": "mineru_full_text",
         "visual_analysis": {"status": "not_required"},
         "evidence_quality": 1.0,
         "business_transferability": 1.0,

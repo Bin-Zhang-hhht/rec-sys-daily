@@ -91,12 +91,14 @@ jobs:
           DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           NVIDIA_VLM_INVOKE_URL: ${{ secrets.NVIDIA_VLM_INVOKE_URL }}
+          MINERU_API_KEY: ${{ secrets.MINERU_API_KEY }}
         run: |
           mkdir -p "deep-reading-${{ matrix.kind }}"
           docker run --rm \
             -e NVIDIA_BASE_URL -e NVIDIA_API_KEY \
             -e DEEPSEEK_BASE_URL -e DEEPSEEK_API_KEY \
             -e NVIDIA_VLM_INVOKE_URL \
+            -e MINERU_API_KEY \
             -v "$PWD/stage-1:/workspace/stage-1:ro" \
             -v "$PWD/deep-reading-${{ matrix.kind }}:/workspace/deep-reading" \
             "${IMAGE_TAG}-pipeline" deep-read --kind "${{ matrix.kind }}" --input /workspace/stage-1 --output /workspace/deep-reading --root /workspace

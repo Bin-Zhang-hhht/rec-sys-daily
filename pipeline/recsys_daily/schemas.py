@@ -88,7 +88,7 @@ class PaperExperiments(ArtifactModel):
 
 
 class PaperReading(ArtifactModel):
-    analysis_basis: Literal["arxiv_html", "pdf_text", "abstract_fallback"]
+    analysis_basis: Literal["mineru_full_text", "abstract_fallback"]
     visual_analysis: VisualAnalysis
     evidence_quality: float | None = Field(default=None, ge=0, le=1)
     business_transferability: float | None = Field(default=None, ge=0, le=1)
@@ -195,7 +195,7 @@ def paper_reading_json_schema() -> dict[str, Any]:
         "required": ["datasets", "baselines", "metrics", "findings_zh"],
     }
     properties: dict[str, Any] = {
-        "analysis_basis": {"type": "string", "enum": ["arxiv_html", "pdf_text", "abstract_fallback"]},
+        "analysis_basis": {"type": "string", "enum": ["mineru_full_text", "abstract_fallback"]},
         "visual_analysis": _visual_analysis_json_schema(),
         "evidence_quality": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         "business_transferability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},

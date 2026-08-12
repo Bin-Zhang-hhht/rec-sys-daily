@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 from types import SimpleNamespace
 
+import pytest
 from typer.testing import CliRunner
 
 from recsys_daily.cli import _real_services, _run_deep_read, app
@@ -24,14 +25,25 @@ def test_cli_exposes_stage_commands() -> None:
 def test_fixture_success_writes_publish_bundle_without_network(tmp_path: Path) -> None:
     result = runner.invoke(app, ["test-fixtures", "--case", "cold-start", "--work", str(tmp_path)])
     assert result.exit_code == 0, result.stdout
-    assert (tmp_path / "publish-bundle" / "manifest.json").exists()
-    assert (tmp_path / "publish-bundle" / "pending-data" / "state.json").exists()
+    assert {path.name for path in tmp_path.iterdir()} == {"manifest.json", "taxonomy.json", "pending-data"}
+    assert (tmp_path / "manifest.json").exists()
+    assert (tmp_path / "pending-data" / "state.json").exists()
 
 
 def test_fixture_failure_does_not_write_canonical_state(tmp_path: Path) -> None:
     result = runner.invoke(app, ["test-fixtures", "--case", "failures", "--work", str(tmp_path)])
     assert result.exit_code == 0, result.stdout
-    assert not (tmp_path / "publish-bundle").exists()
+    assert not any(tmp_path.iterdir())
+
+
+def test_fixture_refuses_unknown_work_directory_entries(tmp_path: Path) -> None:
+    (tmp_path / "keep.txt").write_text("user content", encoding="utf-8")
+
+    result = runner.invoke(app, ["test-fixtures", "--case", "cold-start", "--work", str(tmp_path)])
+
+    assert result.exit_code != 0
+    assert "unknown entries" in result.output
+    assert (tmp_path / "keep.txt").read_text(encoding="utf-8") == "user content"
 
 
 def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypatch, tmp_path: Path) -> None:
@@ -119,7 +131,7 @@ def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) 
         })(),
         temporary_root=tmp_path / "temporary",
         text_reader=lambda *_args: {"system_context_zh": "context", "evidence_refs": [{"heading": "Architecture"}]},
-        vision_reader=lambda _paths: {},
+        mineru=type("Parser", (), {"max_pdf_bytes": 100, "parse_pdf": lambda *_args: "paper"})(),
     )
 
     _run_deep_read("blog", stage_one, output, services, "run-1")
@@ -129,33 +141,30 @@ def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) 
     assert len(payload["items"]) == 16
 
 
-def test_full_reading_clients_share_one_limiter(monkeypatch, tmp_path: Path) -> None:
+def test_blog_services_do_not_require_mineru_key(monkeypatch, tmp_path: Path) -> None:
     import recsys_daily.cli as cli
 
     config = load_config(Path(__file__).parents[2])
-    seen: list[object] = []
-
     class FakeText:
         pass
 
-    class FakeVision:
-        pass
+    monkeypatch.delenv("MINERU_API_KEY", raising=False)
+    monkeypatch.setattr(cli.TextClient, "from_config", lambda *_args, **_kwargs: FakeText())
 
-    def fake_text(*_args: object, **kwargs: object) -> FakeText:
-        seen.append(kwargs["limiter"])
-        return FakeText()
+    services = _real_services(config, Path(__file__).parents[2], tmp_path, kind="blog")
 
-    def fake_vision(*_args: object, **kwargs: object) -> FakeVision:
-        seen.append(kwargs["limiter"])
-        return FakeVision()
+    assert services.mineru.max_pdf_bytes == config.models.mineru.max_pdf_bytes
 
-    monkeypatch.setattr(cli.TextClient, "from_config", fake_text)
-    monkeypatch.setattr(cli.VisionClient, "from_config", fake_vision)
 
-    _real_services(config, Path(__file__).parents[2], tmp_path)
+def test_paper_services_require_mineru_key(monkeypatch, tmp_path: Path) -> None:
+    import recsys_daily.cli as cli
 
-    assert len(seen) == 2
-    assert seen[0] is seen[1]
+    config = load_config(Path(__file__).parents[2])
+    monkeypatch.delenv("MINERU_API_KEY", raising=False)
+    monkeypatch.setattr(cli.TextClient, "from_config", lambda *_args, **_kwargs: object())
+
+    with pytest.raises(ValueError, match="MinerU API key"):
+        _real_services(config, Path(__file__).parents[2], tmp_path, kind="paper")
 
 
 def test_real_services_threads_source_retry_timing_and_attempt_limiters(monkeypatch, tmp_path: Path) -> None:
@@ -202,14 +211,13 @@ def test_real_services_threads_source_retry_timing_and_attempt_limiters(monkeypa
 
     monkeypatch.setattr(cli, "DomainRateLimiter", FakeDomainLimiter)
     monkeypatch.setattr(cli, "TextClient", FakeClient)
-    monkeypatch.setattr(cli, "VisionClient", FakeClient)
-    monkeypatch.setattr(cli, "fetch_text_request", record("html", "<p>paper</p>"))
+    monkeypatch.setenv("MINERU_API_KEY", "test-key")
+    monkeypatch.setattr(cli, "MinerUClient", lambda **kwargs: SimpleNamespace(max_pdf_bytes=kwargs["config"].max_pdf_bytes))
     monkeypatch.setattr(cli, "fetch_bytes_request", record("pdf", b"pdf"))
     monkeypatch.setattr(cli, "fetch_article_html_request", record("article", "<p>blog</p>"))
     monkeypatch.setattr(cli, "fetch_public_url", fetch_feed)
 
-    services = _real_services(config, Path(__file__).parents[2], tmp_path)
-    services.content.fetch_text("https://arxiv.org/html/2608.01234", 100)
+    services = _real_services(config, Path(__file__).parents[2], tmp_path, kind="paper")
     services.content.fetch_bytes("https://arxiv.org/pdf/2608.01234.pdf", 100)
     blog = config.sources.blogs[0]
     candidate = Candidate("blog", blog.id, "Post", blog.url, datetime(2026, 8, 10, tzinfo=UTC))
@@ -219,13 +227,12 @@ def test_real_services_threads_source_retry_timing_and_attempt_limiters(monkeypa
     services.blog_feed_content(candidate)
 
     assert limiter_intervals == [11, 13]
-    assert [kind for kind, _url, _kwargs in network_calls] == ["html", "pdf", "article", "feed"]
+    assert [kind for kind, _url, _kwargs in network_calls] == ["pdf", "article", "feed"]
     for _kind, _url, kwargs in network_calls:
         assert kwargs["backoff_seconds"] == 0.25
         assert kwargs["max_delay_seconds"] == 7
         assert kwargs["max_attempts"] == limits.retry_attempts
     assert limiter_calls == [
-        (11, "https://arxiv.org/html/2608.01234"),
         (11, "https://arxiv.org/pdf/2608.01234.pdf"),
         (13, blog.url),
         (13, blog.url),
@@ -243,17 +250,12 @@ def test_real_services_uses_kind_specific_deep_read_schema(monkeypatch, tmp_path
             calls.append((messages, schema))
             return {}
 
-    class FakeVision:
-        def analyze(self, *_args: object) -> dict[str, object]:
-            return {}
-
     monkeypatch.setattr(cli.TextClient, "from_config", lambda *args, **kwargs: FakeText())
-    monkeypatch.setattr(cli.VisionClient, "from_config", lambda *args, **kwargs: FakeVision())
-    services = _real_services(config, Path(__file__).parents[2], tmp_path)
+    services = _real_services(config, Path(__file__).parents[2], tmp_path, kind="blog")
     services.text_reader("paper", "paper source", {"analysis_basis": "abstract_fallback"})
     services.text_reader("blog", "blog source", {"analysis_basis": "excerpt_fallback"})
 
-    assert calls[0][1]["properties"]["analysis_basis"]["enum"] == ["arxiv_html", "pdf_text", "abstract_fallback"]
+    assert calls[0][1]["properties"]["analysis_basis"]["enum"] == ["mineru_full_text", "abstract_fallback"]
     assert calls[1][1]["properties"]["analysis_basis"]["enum"] == ["rss_full_content", "article_html", "excerpt_fallback"]
     assert calls[0][0][0]["role"] == "system"
     assert "source_documents" in json.loads(calls[0][0][1]["content"])

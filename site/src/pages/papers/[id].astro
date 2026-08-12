@@ -37,7 +37,7 @@ const labels = [
     <section class="mt-8 grid gap-6 md:grid-cols-2"><div><h2 class="text-xl font-semibold">研究问题</h2><p>{reading.problem_zh ?? "未提供"}</p></div><div><h2 class="text-xl font-semibold">方法与架构</h2><p>{reading.method_zh ?? "未提供"}</p></div></section>
     <section class="mt-8"><h2 class="text-xl font-semibold">主要贡献</h2><ul>{(reading.contributions_zh ?? []).map((value: string) => <li>{value}</li>)}</ul></section>
     <section class="mt-8"><h2 class="text-xl font-semibold">实验</h2><p>数据集：{(reading.experiments?.datasets ?? []).join(", ") || "未提供"}</p><p>基线：{(reading.experiments?.baselines ?? []).join(", ") || "未提供"}</p><p>指标：{(reading.experiments?.metrics ?? []).join(", ") || "未提供"}</p><ul>{(reading.experiments?.findings_zh ?? []).map((value: string) => <li>{value}</li>)}</ul></section>
-    <section class="mt-8"><h2 class="text-xl font-semibold">证据与视觉分析</h2><p>正文依据：{reading.analysis_basis}</p><p>视觉状态：{reading.visual_analysis?.status}</p>{(reading.evidence_refs ?? []).map((ref: {section: string; page: number}) => <p class="text-sm text-slate-600">{ref.section} · PDF 第 {ref.page} 页</p>)}</section>
+    <section class="mt-8"><h2 class="text-xl font-semibold">证据</h2><p>正文依据：{reading.analysis_basis}</p>{(reading.evidence_refs ?? []).map((ref: {section: string; page: number}) => <p class="text-sm text-slate-600">{ref.section} · PDF 第 {ref.page} 页</p>)}</section>
     <p class="mt-8 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm">内容由 LLM 生成，可能存在错误。请以<a href={item.url} rel="noreferrer">原文</a>为准。</p>
   </article>
 </BaseLayout>

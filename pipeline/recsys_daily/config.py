@@ -144,12 +144,6 @@ class VisionModels(StrictModel):
         return self
 
 
-class ModelCommon(StrictModel):
-    concurrency_per_worker: Literal[1]
-    timeout_seconds: PositiveInt
-    retries: PositiveInt
-
-
 class MinerUConfig(StrictModel):
     api_key_env: str = Field(min_length=1)
     base_url: str = Field(pattern=r"^https://")
@@ -168,11 +162,17 @@ class MinerUConfig(StrictModel):
         return value
 
 
+class ModelCommon(StrictModel):
+    concurrency_per_worker: Literal[1]
+    timeout_seconds: PositiveInt
+    retries: PositiveInt
+
+
 class ModelConfig(StrictModel):
     text: TextModels
     vision: VisionModels
-    common: ModelCommon
     mineru: MinerUConfig
+    common: ModelCommon
 
 
 class ScoreWeights(StrictModel):

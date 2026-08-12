@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import replace
 from datetime import UTC, datetime
 import json
 from pathlib import Path
@@ -8,8 +7,9 @@ from pathlib import Path
 import pytest
 
 from recsys_daily.collect import Candidate
-from recsys_daily.content import BlogFeedCache, PageText
+from recsys_daily.content import BlogFeedCache
 from recsys_daily.deep_read import DeepReadServices, deep_read, deep_read_blog, deep_read_paper
+from recsys_daily.mineru import MinerUError
 
 
 ROOT = Path(__file__).parents[2]
@@ -81,22 +81,14 @@ class FakeContent:
         self.pdf_calls += 1
         return b"fixture pdf"
 
-    def extract_pdf(self, _path: Path, _max_pages: int) -> tuple[str, list[PageText]]:
-        return (
-            "Abstract\nFixture extracted PDF text.\nMethod\nTwo towers.\nResults\nStrong Recall.",
-            [PageText(page=2, text="Figure 1 Architecture"), PageText(page=5, text="Table 1 Main Results")],
-        )
+    def extract_pdf(self, *_args: object) -> object:
+        raise AssertionError("PyMuPDF extraction must not be called")
 
-    def critical_pages(self, _pages: list[PageText]) -> list[int]:
-        return list(self.pages)
+    def critical_pages(self, *_args: object) -> object:
+        raise AssertionError("critical-page detection must not be called")
 
-    def render_pages(self, _pdf: Path, pages: list[int], directory: Path) -> list[Path]:
-        results = []
-        for page in pages:
-            path = directory / f"page-{page}.png"
-            path.write_bytes(b"png")
-            results.append(path)
-        return results
+    def render_pages(self, *_args: object) -> object:
+        raise AssertionError("page rendering must not be called")
 
     def feed_content(self, _candidate: Candidate) -> str | None:
         return None
@@ -111,54 +103,51 @@ class FakeContent:
         return "Architecture\n" + html.replace("<", " ").replace(">", " ")
 
 
-def _services(tmp_path: Path, content: FakeContent, *, vision=None, text=_paper_analysis) -> DeepReadServices:
+class FakeMinerU:
+    max_pdf_bytes = 20 * 1024 * 1024
+
+    def __init__(self, body: str | Exception = "Full MinerU paper body") -> None:
+        self.body = body
+        self.calls: list[tuple[bytes, str, Path]] = []
+
+    def parse_pdf(self, pdf: bytes, filename: str, temporary_root: Path) -> str:
+        self.calls.append((pdf, filename, temporary_root))
+        if isinstance(self.body, Exception):
+            raise self.body
+        return self.body
+
+
+def _services(tmp_path: Path, content: FakeContent, *, mineru=None, text=_paper_analysis) -> DeepReadServices:
     return DeepReadServices(
         content=content,
         temporary_root=tmp_path,
         text_reader=text,
-        vision_reader=vision or (lambda _pages: {"architecture_zh": "页面展示双塔架构。"}),
-        max_pdf_bytes=20 * 1024 * 1024,
-        max_pdf_pages=80,
+        mineru=mineru or FakeMinerU(),
         max_html_bytes=5 * 1024 * 1024,
     )
 
 
-def test_paper_falls_back_to_pdf_calls_vision_once_with_all_critical_pages_and_cleans_files(tmp_path: Path) -> None:
-    content = FakeContent(tmp_path, pages=[2, 5])
-    vision_calls: list[list[Path]] = []
-    services = _services(tmp_path, content, vision=lambda pages: vision_calls.append(pages) or {"architecture_zh": "双塔架构。"})
+def test_paper_uses_pdf_and_mineru_only(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path, html=PAPER_HTML, pages=[2, 5])
+    content.fetch_text = lambda *_args: (_ for _ in ()).throw(AssertionError("arXiv HTML must not be fetched"))  # type: ignore[method-assign]
+    mineru = FakeMinerU()
+    services = _services(tmp_path, content, mineru=mineru)
 
     reading = deep_read_paper(_paper(), services)
 
-    assert reading.analysis_basis == "pdf_text"
-    assert reading.visual_analysis.status == "completed"
-    assert reading.visual_analysis.pages == [2, 5]
-    assert len(vision_calls) == 1
-    assert [path.name for path in vision_calls[0]] == ["page-2.png", "page-5.png"]
+    assert reading.analysis_basis == "mineru_full_text"
+    assert reading.visual_analysis.status == "not_required"
+    assert mineru.calls == [(b"fixture pdf", "arxiv-2608.01234.pdf", tmp_path)]
     assert list(tmp_path.iterdir()) == []
 
 
-def test_paper_keeps_pdf_text_when_visual_page_detection_fails(tmp_path: Path) -> None:
+def test_paper_does_not_call_visual_page_detection(tmp_path: Path) -> None:
     content = FakeContent(tmp_path)
-    content.critical_pages = lambda _pages: (_ for _ in ()).throw(RuntimeError("page detection unavailable"))  # type: ignore[method-assign]
 
     reading = deep_read_paper(_paper(), _services(tmp_path, content))
 
-    assert reading.analysis_basis == "pdf_text"
-    assert reading.visual_analysis.status == "unavailable"
-    assert list(tmp_path.iterdir()) == []
-
-
-def test_paper_without_critical_pages_skips_vision_and_uses_arxiv_html(tmp_path: Path) -> None:
-    content = FakeContent(tmp_path, html=PAPER_HTML)
-    vision_calls: list[list[Path]] = []
-
-    reading = deep_read_paper(_paper(), _services(tmp_path, content, vision=lambda pages: vision_calls.append(pages) or {}))
-
-    assert reading.analysis_basis == "arxiv_html"
+    assert reading.analysis_basis == "mineru_full_text"
     assert reading.visual_analysis.status == "not_required"
-    assert content.pdf_calls == 1
-    assert vision_calls == []
     assert list(tmp_path.iterdir()) == []
 
 
@@ -178,18 +167,22 @@ def test_blog_rejects_empty_model_analysis(tmp_path: Path) -> None:
         deep_read_blog(_blog(), services)
 
 
-def test_paper_html_extraction_failure_does_not_send_raw_html_to_text_reader(tmp_path: Path) -> None:
+def test_paper_mineru_failure_uses_abstract_fallback(tmp_path: Path) -> None:
     content = FakeContent(tmp_path, html="<html><script>alert('ignore')</script></html>")
-    content.extract_article = lambda _html: ""  # type: ignore[method-assign]
-    observed: list[str] = []
-    services = _services(tmp_path, content, text=lambda _kind, body, _context: observed.append(body) or _paper_analysis())
+    observed: list[tuple[str, str]] = []
+    services = _services(
+        tmp_path,
+        content,
+        mineru=FakeMinerU(MinerUError("parse failed")),
+        text=lambda _kind, body, context: observed.append((body, context["analysis_basis"])) or _paper_analysis(),
+    )
 
     reading = deep_read_paper(_paper(), services)
 
-    assert reading.analysis_basis == "pdf_text"
-    assert observed
-    assert "<html>" not in observed[0]
-    assert content.pdf_calls == 1
+    assert reading.analysis_basis == "abstract_fallback"
+    assert reading.visual_analysis.status == "not_required"
+    assert observed == [(_paper().excerpt, "abstract_fallback")]
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_blog_falls_back_from_article_to_excerpt_and_cleans_raw_html_on_text_failure(tmp_path: Path) -> None:
@@ -229,19 +222,13 @@ def test_blog_article_fetch_uses_configured_html_limit_without_outer_limiter(tmp
     content = FakeContent(tmp_path, article="<p>Article body</p>")
     calls: list[tuple[object, int]] = []
     content.fetch_article_html = lambda candidate, limit: calls.append((candidate, limit)) or "<p>Article body</p>"  # type: ignore[method-assign]
-    limiter_calls: list[str] = []
     services = _services(tmp_path, content, text=_blog_analysis)
     services.max_html_bytes = 123
-    services = replace(
-        services,
-        domain_limiter=type("Limiter", (), {"acquire": lambda _self, url: limiter_calls.append(url)})(),
-    )
 
     reading = deep_read_blog(_blog(), services)
 
     assert reading.analysis_basis == "article_html"
     assert calls == [(_blog(), 123)]
-    assert limiter_calls == []
 
 
 def test_deep_read_caps_input_to_top_sixteen(tmp_path: Path) -> None:
@@ -305,3 +292,31 @@ def test_blog_second_feed_failure_uses_article_or_excerpt(tmp_path: Path) -> Non
     reading = deep_read_blog(_blog(), services)
 
     assert reading.analysis_basis == "article_html"
+
+
+def test_blog_second_feed_failure_can_be_retried(tmp_path: Path) -> None:
+    payload = """
+    <rss version='2.0' xmlns:content='http://purl.org/rss/1.0/modules/content/'><channel><item>
+      <guid>feed-ranking</guid><title>How We Improved Feed Ranking</title>
+      <link>https://engineering.example.com/posts/feed-ranking</link>
+      <pubDate>Mon, 10 Aug 2026 00:00:00 +0000</pubDate>
+      <content:encoded><![CDATA[<p>Full feed implementation.</p>]]></content:encoded>
+    </item></channel></rss>
+    """
+    attempts = 0
+
+    def fetch_feed(_source_id: str, _url: str) -> str:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise RuntimeError("feed temporarily down")
+        return payload
+
+    cache = BlogFeedCache(
+        source_urls={"example": "https://example.test/feed"},
+        fetch_feed=fetch_feed,
+    )
+
+    assert cache.get(_blog()) is None
+    assert cache.get(_blog()) == "<p>Full feed implementation.</p>"
+    assert attempts == 2

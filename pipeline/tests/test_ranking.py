@@ -32,7 +32,7 @@ def _paper(item_id: str, score: float, *, with_evidence: bool) -> PaperItem:
             "methods": ["two_tower"],
             "relevance_score": score,
             "deep_reading": {
-                "analysis_basis": "pdf_text",
+                "analysis_basis": "mineru_full_text",
                 "visual_analysis": {"status": "not_required"},
                 "evidence_refs": [{"section": "Results", "page": 2}] if with_evidence else [],
             },

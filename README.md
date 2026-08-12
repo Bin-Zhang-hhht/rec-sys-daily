@@ -32,6 +32,7 @@ Configure these GitHub Actions Secrets for production runs:
 
 - `NVIDIA_BASE_URL`
 - `NVIDIA_API_KEY`
+- `MINERU_API_KEY`
 - `NVIDIA_VLM_INVOKE_URL`
 - `DEEPSEEK_BASE_URL`
 - `DEEPSEEK_API_KEY`

@@ -30,7 +30,7 @@ def _taxonomy() -> TopicTaxonomy:
 
 
 def _item(kind: str = "paper") -> dict[str, object]:
-    reading: dict[str, object] = {"analysis_basis": "pdf_text", "visual_analysis": {"status": "not_required"}}
+    reading: dict[str, object] = {"analysis_basis": "mineru_full_text", "visual_analysis": {"status": "not_required"}}
     if kind == "blog":
         reading = {"analysis_basis": "article_html", "system_context_zh": "context"}
     return {"kind": kind, "id": f"{kind}:example", "title": "Original Title", "summary_zh": "summary", "source": "arxiv", "url": "https://example.com", "published_at": "2026-08-09T00:00:00Z", "authors": ["Author"], "targets": ["content"], "scenarios": ["text_feed"], "tasks": ["ranking"], "methods": ["two_tower"], "deep_reading": reading}
@@ -87,7 +87,7 @@ def test_deep_reading_response_schemas_are_strict_and_evidence_bearing() -> None
     blog = blog_reading_json_schema()
     assert paper["additionalProperties"] is False
     assert blog["additionalProperties"] is False
-    assert paper["properties"]["analysis_basis"]["enum"] == ["arxiv_html", "pdf_text", "abstract_fallback"]
+    assert paper["properties"]["analysis_basis"]["enum"] == ["mineru_full_text", "abstract_fallback"]
     assert blog["properties"]["analysis_basis"]["enum"] == ["rss_full_content", "article_html", "excerpt_fallback"]
     assert "problem_zh" in paper["required"]
     assert "system_context_zh" in blog["required"]

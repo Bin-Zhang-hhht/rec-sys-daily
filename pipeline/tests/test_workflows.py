@@ -41,6 +41,8 @@ def test_daily_workflow_has_single_schedule_and_artifact_boundaries() -> None:
     assert "retention-days: 1" in text
     assert "pending-data" in text
     assert "actions/deploy-pages@v4" in text
+    assert "MINERU_API_KEY: ${{ secrets.MINERU_API_KEY }}" in text
+    assert "-e MINERU_API_KEY" in text
 
 
 def test_verify_workflow_is_fixture_only_and_builds_both_images() -> None:

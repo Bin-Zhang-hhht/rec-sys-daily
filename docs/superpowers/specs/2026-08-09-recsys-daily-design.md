@@ -31,7 +31,7 @@ LLM：OpenAI-compatible API，默认面向 NVIDIA NIM
 
 - 不运行常驻后端服务
 - 不使用关系型数据库、Vector DB 或 Graph DB
-- 不下载或解析 TeX source archive；不在 Git、缓存或 Pages artifact 中永久保存论文 PDF、关键页面图片、博客原始 HTML 或任何提取全文
+- 不下载或解析 TeX source archive；不在 Git、缓存或 Pages artifact 中永久保存论文 PDF、MinerU ZIP/Markdown、博客原始 HTML 或任何提取全文
 - 不在详情页嵌入 PDF、镜像论文/博客全文或提供站内全文阅读器
 - 不建设复杂 RAG、聊天机器人或用户登录系统
 - 不把知识图谱作为严格事实库或学术结论依据
@@ -418,13 +418,13 @@ final_score = 0.55 * metadata_score
 
 论文处理规则：
 
-1. 按 `arXiv HTML → PDF text → Abstract` 的顺序获取正文
-2. 只访问 arXiv 提供的公开地址，不尝试绕过登录、付费墙或访问控制；首版不下载或解析 TeX source
-3. PDF 串行下载到 runner 临时目录，单篇最大 20 MB、最多 80 页；提取后按 section heading 识别 Abstract、Introduction、Method、Experiments、Results、Limitations 和 Conclusion
-4. 本地规则根据 Figure/Table caption、页面图片和章节位置识别所有关键页面，包括 Overview、Architecture、Main Results、Ablation 和 Case Study
-5. 检测到关键页面时，每篇论文恰好调用一次 VLM；应用层不设置关键页面数量上限，将识别出的全部关键页面放入同一请求。没有关键页面时不发起零图片调用。视觉请求只受所配置 invoke URL 的 context、HTTP payload 和图像格式等真实协议约束，不按固定页数丢弃页面
-6. VLM 输出页面级 Architecture、Table、Chart 和视觉限制证据；没有关键页面时标记 `not_required`，VLM 失败时标记 `unavailable`，两种情况都继续文本深读且不因缺少图片降低论文分数
-7. 每篇论文再调用一次文本 LLM，将全文与 VLM 结构化证据合并为中文深度解读；输入超过文本模型 context 预算时按章节重要性和 token 数裁剪，不进行扫描版 OCR
+1. 正文获取链固定为 `arXiv PDF → MinerU full.md → Abstract fallback`
+2. 只访问 arXiv 提供的公开 PDF 地址，不调用 arXiv HTML，不尝试绕过登录、付费墙或访问控制；首版不下载或解析 TeX source
+3. PDF 串行下载到 runner 临时目录，并由 MinerU REST API 上传、轮询和解析；`models.mineru` 配置单篇 PDF 的 byte/page 上限、上传超时、轮询间隔和 deadline
+4. MinerU 成功时只读取结果 ZIP 中经过校验的 `full.md`，再交给同步文本 reader 生成中文结构化深度解读
+5. PDF 下载或 MinerU 上传、轮询、终态、结果校验任一步失败时，使用 candidate excerpt；excerpt 为空时使用 title，并标记 `analysis_basis: abstract_fallback`
+6. 论文 runner 不调用 arXiv HTML、PyMuPDF 正文提取、关键页检测、页面渲染或 VLM。现有 vision 配置和客户端仅保留兼容，不参与首版论文深读
+7. 输入超过文本模型 context 预算时按章节重要性和 token 数裁剪；不得静默省略 MinerU 返回内容或伪装为全文深读
 
 博客处理规则：
 
@@ -435,17 +435,16 @@ final_score = 0.55 * metadata_score
 5. 每篇博客单独调用一次 LLM，生成中文结构化解读
 
 由于博客全文不能进入 Stage 1 artifact，而 `deep-read --kind blog` 运行在独立
-runner，blog deep-read runner 可以按 `source_id` 对每个已启用 Feed 最多再次抓取
-一次。它只在进程内缓存第二次响应，按 stable ID、canonical URL 或标准化标题匹配
-Stage 1 候选，并优先使用匹配条目的 `content:encoded` 或 Atom `content`。第二次
-Feed 抓取失败、没有全文或无法匹配时，继续使用公开文章 HTML，再降级到 excerpt。
-该行为由 `limits.rss_requests_per_run_per_source` 控制，生产默认值为 2；Feed
-原文仍不得进入跨 job artifact、日志、canonical item 或 Pages artifact。
+runner，blog deep-read runner 可以按 `source_id` 再次抓取已启用 Feed。成功响应只在
+进程内缓存，并按 stable ID、canonical URL 或标准化标题匹配 Stage 1 候选；抓取失败
+不作为永久耗尽条件，后续候选仍可重新抓取。Feed 抓取失败、没有全文或无法匹配时，
+继续使用公开文章 HTML，再降级到 excerpt。Feed 原文不得进入跨 job artifact、日志、
+canonical item 或 Pages artifact。
 
 两类内容都遵循以下规则：
 
 - 单次 LLM 输入使用 token-aware budgeting：1M context 中预留 output 与 prompt/schema 空间，其余预算用于全文；超长内容优先保留摘要、架构、方法、实验/结果、限制和结论等高价值段落
-- 无论成功、降级或异常中断，都在 `finally` 阶段删除 PDF、关键页面图片、原始 HTML 和提取文本；它们不得进入 cache、日志、artifact 或 Git
+- 无论成功、降级或异常中断，都在 `finally` 阶段删除临时 PDF、MinerU ZIP、MinerU Markdown、原始 HTML 和提取文本；它们不得进入 cache、日志、artifact 或 Git
 - Top 16 候选的结构化深度解读与全文指纹写入 canonical item；遇到相同来源修订和指纹时直接复用解读，无需再次抓取全文
 - 只保存转述后的结构化分析和短证据定位，不保存长段原文
 
@@ -456,9 +455,9 @@ Feed 抓取失败、没有全文或无法匹配时，继续使用公开文章 HT
 - 对文字流、语聊、直播间、好友推荐的业务启示
 - 相关工作和知识图谱关系
 
-论文额外包括 Datasets、Baselines、Metrics、实验设计和关键 findings；博客额外包括 System Context、Architecture / Implementation、Production Constraints、Engineering Trade-offs、线上结果与可复用经验。论文证据只保存 section 名和 PDF page number；博客证据只保存 heading 或 section 名，不复制长段原文。
+论文额外包括 Datasets、Baselines、Metrics、实验设计和关键 findings；博客额外包括 System Context、Architecture / Implementation、Production Constraints、Engineering Trade-offs、线上结果与可复用经验。论文证据只保存 MinerU Markdown 中可验证的 section 名和 PDF page number；博客证据只保存 heading 或 section 名，不复制长段原文。
 
-论文正文依据分别写入 `analysis_basis: arxiv_html`、`pdf_text` 或 `abstract_fallback`，视觉状态独立写入 `visual_analysis.status: completed | not_required | unavailable`，避免组合枚举。博客使用 Feed 全文时写入 `rss_full_content`，成功提取公开网页正文时写入 `article_html`，失败时使用 excerpt 生成较短解读并写入 `excerpt_fallback`。详情页必须明确显示正文和视觉分析依据，不能把降级结果冒充全文深读。
+论文正文依据只允许 `analysis_basis: mineru_full_text` 或 `abstract_fallback`；首版论文 runner 不做视觉阅读，兼容字段 `visual_analysis.status` 固定为 `not_required`。博客使用 Feed 全文时写入 `rss_full_content`，成功提取公开网页正文时写入 `article_html`，失败时使用 excerpt 生成较短解读并写入 `excerpt_fallback`。详情页必须明确显示正文分析依据，不能把降级结果冒充全文深读。
 
 所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此论文 runner 内只串行处理初排 Top 16 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；具体许可信息随 item 保存，并始终链接到原站。
 
@@ -508,6 +507,16 @@ models:
       temperature: 0.6
       top_p: 0.95
 
+  mineru:
+    api_key_env: MINERU_API_KEY
+    base_url: https://mineru.net/api/v4
+    model_version: vlm
+    upload_timeout_seconds: 120
+    poll_timeout_seconds: 900
+    poll_interval_seconds: 5
+    max_pdf_bytes: 20971520
+    max_pdf_pages: 200
+
   common:
     concurrency_per_worker: 1
     timeout_seconds: 600
@@ -524,9 +533,11 @@ NVIDIA_VLM_INVOKE_URL=https://integrate.api.nvidia.com/v1/chat/completions
 
 文本模型只实现一个薄的 OpenAI-compatible wrapper：使用 `OpenAI(base_url=<active profile base_url>, api_key=...)`，再调用 `client.chat.completions.create(...)`。NVIDIA Nemotron 3 Super、Nemotron 3 Ultra 和 DeepSeek V4 Flash 使用同一文本路径；OpenAI SDK 根据 base URL 访问 Chat Completions，配置中不手工追加 `/chat/completions`。切换文本模型只修改 `models.text.active_profile`。系统不自动 failover，也不在一次运行中自动混用文本 profile。
 
-视觉模型不复用文本 wrapper。它使用 `requests.post` 直接调用完整的 `NVIDIA_VLM_INVOKE_URL`，发送 `Authorization: Bearer <API_KEY>`、`Content-Type: application/json` 和 `Accept: application/json`。VLM 固定 `stream: false`，请求体按 NVIDIA 接口显式组装。文本与视觉路径只共用超时、重试、限流和日志脱敏策略，不共享调用函数。
+视觉模型不复用文本 wrapper。它使用 `requests.post` 直接调用完整的 `NVIDIA_VLM_INVOKE_URL`，发送 `Authorization: Bearer <API_KEY>`、`Content-Type: application/json` 和 `Accept: application/json`。VLM 固定 `stream: false`，请求体按 NVIDIA 接口显式组装。该配置和客户端保留兼容，但首版 paper runner 不调用视觉模型。文本与视觉路径只共用超时、重试、限流和日志脱敏策略，不共享调用函数。
 
-VLM 请求遵循 NVIDIA 官方 Chat Completions 多模态格式：`messages[0].content` 是一个数组，先放 `{"type":"text","text":"..."}`，再为每个关键页面追加一个 `{"type":"image_url","image_url":{"url":"data:image/png;base64,..."}}`。所有检测到的关键页面进入同一次请求；请求体合并 `models.vision.request_defaults` 中的 `max_tokens`、`reasoning_budget`、`stream`、`temperature` 和 `top_p`。只读取 `choices[0].message.content` 作为待校验结果，不保存或记录 `reasoning_content`。canonical item 分别记录实际文本 profile、视觉 profile、model 和生成时间。实现不建设 provider adapter、模型能力发现或自动参数探测；API Key 只存在 GitHub Actions Secrets 中。[NVIDIA 模型页](https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning)给出了该托管 invoke URL、请求参数和 `image_url` 多图片格式。
+VLM 客户端遵循 NVIDIA 官方 Chat Completions 多模态格式并保持独立实现，只读取 `choices[0].message.content`，不保存或记录 `reasoning_content`。实现不建设 provider adapter、模型能力发现或自动参数探测。若未来批准恢复视觉链路，必须先修订本设计；首版不能把兼容客户端接回 paper runner。
+
+MinerU 使用独立 REST 客户端和 `MINERU_API_KEY`。客户端先校验 PDF byte/page 上限，再申请 presigned upload URL、上传 PDF、按 batch ID 和 data ID 轮询，并从终态结果 URL 下载 ZIP。presigned URL、每次 GET 重定向和结果 URL 都必须重新验证为公开地址；对 `429/5xx` 尊重 `Retry-After` 并有限重试；轮询必须受 deadline 约束；ZIP 必须包含唯一、大小合规的 `full.md`。结果下载不得向第三方 URL 携带 MinerU Bearer header。所有临时文件和目录在 `finally` 中清理。
 
 ### 8.2 限流和恢复
 
@@ -552,7 +563,6 @@ limits:
   nvidia_parallel_workers: 2
   nvidia_concurrency_per_worker: 1
   nvidia_min_interval_seconds_per_worker: 4
-  rss_requests_per_run_per_source: 2
   arxiv_min_interval_seconds: 3
   request_timeout_seconds: 45
   retry_attempts: 3
@@ -561,21 +571,17 @@ limits:
   max_papers_per_run: 100
   max_blogs_per_run: 50
   deep_reading_candidates_per_type: 16
-  max_pdf_downloads_per_run: 16
-  max_blog_fulltext_fetches_per_run: 16
   pdf_download_concurrency: 1
   blog_download_concurrency_per_domain: 1
   blog_min_interval_seconds_per_domain: 2
-  max_pdf_bytes: 20971520
-  max_pdf_pages: 80
   max_blog_html_bytes: 5242880
 ```
 
 NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 runner 的合计目标控制在 30 RPM。每个 runner 只允许 1 个在途模型请求且请求启动至少间隔 4 秒；论文和博客 runner 分别错开启动，所有重试也必须重新经过限流器，不能绕过预算。因为两个 runner 固定且不再引入其他复杂并行方式，所以无需外部协调服务。
 
-每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用文本 LLM，满额时约 19 次正常调用；Top 16 论文最多各使用 1 次 VLM（仅在检测到关键页面时）并各使用 1 次文本深读，Top 16 博客各使用 1 次文本深读，因此冷启动满额时最多约 67 次正常调用。日更因候选较少且可复用未变更的既有深读结果，通常调用更少。系统不设置模型每次运行调用次数上限；单请求 context、候选数量、40 RPM、每 worker 并发 1、有限重试和各 job timeout 是实际边界。
+每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用文本 LLM；Top 16 论文在 MinerU 解析或摘要降级后各使用 1 次文本深读，Top 16 博客各使用 1 次文本深读。日更因候选较少且可复用未变更的既有深读结果，通常调用更少。系统不设置模型或内容抓取的每次运行调用次数上限；候选数量、40 RPM、每 worker 并发 1、有限重试、MinerU deadline 和各 job timeout 是实际边界。
 
-文本模型按 profile 中的 1M context 配置，VLM 按其独立的 262,144 context 配置。发送请求前必须读取配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。首版不从 endpoint 自动发现 context；配置维护者必须使用服务端真实值，服务端拒绝超限请求时必须显式失败或降级，不能静默截断。VLM 的“全部关键页面”没有应用级页数上限，但仍必须满足 endpoint 的 context、payload 和图像协议；客户端在一次请求内编码所有关键页面并在超出真实协议能力时返回明确的 `unavailable`，不得静默丢页或拆成多次调用。
+文本模型按 profile 中的 1M context 配置。发送请求前必须读取配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。首版不从 endpoint 自动发现 context；配置维护者必须使用服务端真实值，服务端拒绝超限请求时必须显式失败或降级，不能静默截断。MinerU 输入限制只从 `models.mineru` 读取，超过 PDF byte/page 上限时显式进入摘要降级。
 
 如果 LLM 个别批次失败，允许降级使用英文摘要截断和规则标签，但每次运行都要求至少 90% 候选完成结构化分析；最终进入当日推荐的条目必须 100% 拥有可展示摘要，否则不进入推荐。该规则不区分首次运行和日更。
 
@@ -616,7 +622,7 @@ NVIDIA endpoint 硬限制按 40 RPM 设计，系统主动把两个并行全文 r
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
-以下内容不提交 Git：RSS/API 原始响应、PDF、PDF 提取全文、全文 HTML、关键页面图片、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、`graph.json` 和 Pagefind 索引。图谱、详情页、归档页和搜索索引都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。搜索只索引站内详情页已经公开的元数据、摘要和结构化深度解读，不索引、复制或保存论文 PDF 文本与博客原始全文。Git 只保存模型生成的结构化深度解读、视觉观察及其分析依据。
+以下内容不提交 Git：RSS/API 原始响应、PDF、MinerU ZIP/Markdown、PDF 提取全文、全文 HTML、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、`graph.json` 和 Pagefind 索引。图谱、详情页、归档页和搜索索引都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。搜索只索引站内详情页已经公开的元数据、摘要和结构化深度解读，不索引、复制或保存论文 PDF/MinerU 文本与博客原始全文。Git 只保存模型生成的结构化深度解读及其分析依据。
 
 存储保护规则：
 
@@ -653,16 +659,9 @@ storage:
   "content_fingerprint": "sha256:...",
   "graph_relations": [],
   "deep_reading": {
-    "analysis_basis": "pdf_text",
+    "analysis_basis": "mineru_full_text",
     "visual_analysis": {
-      "status": "completed",
-      "profile": "nvidia_omni",
-      "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "pages": [2, 6, 7, 9],
-      "architecture_zh": "架构图的结构化解释。",
-      "table_findings_zh": [],
-      "chart_findings_zh": [],
-      "limitations_zh": []
+      "status": "not_required"
     },
     "problem_zh": "研究问题与背景。",
     "contributions_zh": ["核心贡献。"],
@@ -688,7 +687,7 @@ storage:
 }
 ```
 
-论文 `analysis_basis` 为 `arxiv_html`、`pdf_text` 或 `abstract_fallback`；`visual_analysis.status` 为 `completed`、`not_required` 或 `unavailable`，只有 `completed` 必须包含 profile、model、pages 和视觉 findings。博客 item 使用相同公共字段，但 `analysis_basis` 为 `rss_full_content`、`article_html` 或 `excerpt_fallback`，深读分支保存 `system_context_zh`、`architecture_zh`、`implementation_zh`、`production_constraints_zh`、`tradeoffs_zh`、`results_zh` 和 `lessons_zh`。博客证据定位使用 heading/section，不使用 PDF page。JSON Schema 使用按 `kind` 区分的 `oneOf` 约束，避免把论文实验字段强加给博客。
+论文 `analysis_basis` 为 `mineru_full_text` 或 `abstract_fallback`；首版 `visual_analysis.status` 固定为 `not_required`。博客 item 使用相同公共字段，但 `analysis_basis` 为 `rss_full_content`、`article_html` 或 `excerpt_fallback`，深读分支保存 `system_context_zh`、`architecture_zh`、`implementation_zh`、`production_constraints_zh`、`tradeoffs_zh`、`results_zh` 和 `lessons_zh`。博客证据定位使用 heading/section，不使用 PDF page。JSON Schema 使用按 `kind` 区分的 `oneOf` 约束，避免把论文实验字段强加给博客。
 
 ## 10. 静态站点
 
@@ -710,8 +709,7 @@ storage:
 - Datasets、Baselines、Metrics 与关键实验结果
 - 局限性、适用边界和业务启示
 - section/page 级证据引用
-- `arxiv_html`、`pdf_text` 或 `abstract_fallback` 正文依据，以及 `completed`、`not_required` 或 `unavailable` 视觉状态
-- 视觉模型对 Architecture、Table 和 Chart 的页面级结构化观察与限制说明
+- `mineru_full_text` 或 `abstract_fallback` 正文依据
 - 场景、任务和方法标签
 - 与当前内容相邻的论文/博客
 - 原文、arXiv 或 DOI 外部链接；不在站内嵌入 PDF
@@ -791,7 +789,7 @@ storage:
 
 ## 12. Docker 与本地开发
 
-项目不启动数据库或常驻 Compose 服务，但按技术栈使用两个独立镜像：`pipeline/Dockerfile` 只包含 Python、正文提取和 LLM/VLM 客户端；`site/Dockerfile` 只包含 Node、pnpm、Astro、Tailwind、Pagefind 和前端依赖。两个镜像通过结构化 publish bundle 交接，不共享 Python 或 Node 运行时。
+项目不启动数据库或常驻 Compose 服务，但按技术栈使用两个独立镜像：`pipeline/Dockerfile` 只包含 Python、正文获取、MinerU 和模型客户端；`site/Dockerfile` 只包含 Node、pnpm、Astro、Tailwind、Pagefind 和前端依赖。两个镜像通过结构化 publish bundle 交接，不共享 Python 或 Node 运行时。
 
 PowerShell 本地命令：
 
@@ -854,7 +852,7 @@ commit、state 或 config hash。
 - 只读仓库权限
 - 固定 matrix 为 `kind: [paper, blog]`，`max-parallel: 2`，不再按候选或页数创建其他并行 job
 - 两个 runner 下载同一个 stage-1 artifact，并分别执行 `deep-read --kind paper` 与 `deep-read --kind blog`
-- 论文 runner 完成 Top 16 正文阅读，并在存在关键页面时为每篇论文发起恰好一次 VLM 视觉阅读；博客 runner 完成 Top 16 全文阅读
+- 论文 runner 完成 Top 16 的 arXiv PDF 下载、MinerU 解析和文本深读，失败时基于摘要降级；博客 runner 完成 Top 16 全文阅读
 - 分别上传 `deep-reading-paper-<run-id>` 和 `deep-reading-blog-<run-id>` 结构化 artifact，`retention-days: 1`
 
 两个全文 runner 各自并发为 1、最短请求间隔 4 秒，合计目标不超过 30 RPM。论文和博客固定并行可以为两类内容分别获得最多 5 小时执行时间，同时不引入候选分片、动态 matrix 或其他复杂调度。
@@ -866,7 +864,7 @@ commit、state 或 config hash。
 - 使用 `pipeline/Dockerfile`，保持仓库只读权限
 - 下载三个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致
 - 执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-bundle`
-- 基于已经包含视觉证据的论文深读和博客深读各精排目标 8 篇
+- 基于论文和博客的结构化深读各精排目标 8 篇
 - 生成待提交的 canonical items、日报、运行报告、图谱关系、pending `state.json` 和本次配置的 `taxonomy.json` 快照
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
 - 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 1`
@@ -896,7 +894,7 @@ Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`�
 - 验证 Pages artifact 不超过配置的大小边界，然后上传并部署
 - Pages 部署成功后，将 `pending-data/` 暂存为仓库 `data/`，并在同一个 Git commit 中提交 canonical 数据和最终 `state.json`
 
-只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、HTML、提取全文或关键页面图片不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
+只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、MinerU ZIP/Markdown、HTML 或提取全文不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
 
 工作流公共设置：
 
@@ -916,13 +914,13 @@ Python 单元与集成测试覆盖：
 
 - YAML 配置、四类主题对象和引用校验、`taxonomy.json` 标准化快照、手动切换 active text profile、冷启动/日更时间窗口和数量上限
 - arXiv Atom 与 RSS/Atom 标准化、稳定 ID 去重和确定性评分
-- 文本 OpenAI-compatible wrapper 的 profile 切换与 JSON 解析；独立 NVIDIA VLM `requests.post` 路径的多 `image_url` payload、请求参数以及忽略 reasoning trace
+- 文本 OpenAI-compatible wrapper 的 profile 切换与 JSON 解析；MinerU 请求 payload、upload URL、polling、ZIP、终态失败、deadline 和临时目录清理
 - `429/5xx`、`Retry-After`、最多 3 次重试、每 worker 并发 1 和 NVIDIA 40 RPM 边界
-- `arXiv HTML → PDF text → Abstract` 与博客 `Feed full content → article HTML → excerpt` 降级链
+- `arXiv PDF → MinerU full.md → Abstract fallback` 与博客 `Feed full content → article HTML → excerpt` 降级链，并验证论文路径不调用 arXiv HTML、PyMuPDF 或 VLM
 - Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；模型失败时规则标签不得依赖固定 topic ID
 - Top 16 深读、最终各 8 篇、深读 Schema、正文/视觉依据和图谱节点裁剪
 - 完整 pending data tree、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
-- PDF、关键页面图片、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
+- PDF、MinerU ZIP/Markdown、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
 - manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
 
 端到端测试只保留五组运行时生成的场景：
@@ -938,11 +936,11 @@ Python 单元与集成测试覆盖：
 ## 15. 安全、合规和可观测性
 
 - 只保存公开元数据、摘要、短 excerpt 和 LLM 结构化深度解读，不镜像或嵌入受版权保护的全文
-- 只对初排 Top 16 论文临时访问公开 arXiv HTML/PDF；博客优先使用 Feed 全文，必要时最多访问 Top 16 篇公开文章 HTML
+- 只对初排 Top 16 论文临时访问公开 arXiv PDF 并调用 MinerU；博客优先使用 Feed 全文，必要时访问公开文章 HTML
 - 论文和博客抓取都遵守来源访问规则、robots 与站点条款，不绕过登录、付费墙或反自动化限制
 - RSS、PDF 和 HTML 一律视为不可信输入；只允许公开 `https`/`http` URL，每次重定向后重新解析并拒绝 loopback、私网和 link-local 地址
 - HTML 不执行脚本；LLM prompt 明确把正文包裹为只读资料并忽略其中指令，输出仍须通过严格 JSON Schema 校验
-- 临时 PDF、关键页面图片、原始 HTML 和提取文本不进入 Git、cache、日志、跨 job artifact 或 Pages artifact
+- 临时 PDF、MinerU ZIP/Markdown、原始 HTML 和提取文本只存在于进程临时目录，不进入 Git、cache、日志、跨 job artifact 或 Pages artifact
 - 深度解读使用转述和 section/page 或 heading/section 引用，不发布长段原文
 - 每个页面保留原始来源链接和发布时间
 - 遵循各 API 的使用政策、分页规则和请求间隔
@@ -969,13 +967,13 @@ Python 单元与集成测试覆盖：
 13. canonical item 按类型和年月分文件保存，日报只引用 item ID，构建产物和原始响应不进入 Git
 14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、rank-integrate 和 build-deploy 四个逻辑阶段，共五个物理 job；job timeout 分别为 120、300、120 和 60 分钟，单 job 不超过 5 小时，理论墙钟上限约 10 小时
 15. 每次运行从论文和博客元数据初排结果中各取最多 16 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 16 篇时处理全部候选
-16. Top 16 论文在全文 runner 中检测关键页面；存在关键页面的论文恰好调用一次 VLM，单次调用包含全部识别出的关键页面且不设应用级页数上限；无关键页面不调用并标记 `not_required`，视觉失败或无关键页面不阻断文本深读
-17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、关键页面图片、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
-18. 默认文本 profile 为 NVIDIA Nemotron 3 Super、视觉 profile 为 NVIDIA Nemotron 3 Nano Omni；NVIDIA Ultra 与 DeepSeek V4 Flash 可通过 YAML 手动切换，但运行中不自动混用文本 profile
+16. Top 16 论文在全文 runner 中按 `arXiv PDF → MinerU full.md` 完成正文读取；PDF/MinerU 任一步失败时使用 excerpt 或 title 并标记 `abstract_fallback`，paper runner 不调用 arXiv HTML、PyMuPDF、关键页检测或 VLM
+17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、MinerU ZIP/Markdown、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
+18. 默认文本 profile 为 NVIDIA Nemotron 3 Super；NVIDIA Ultra 与 DeepSeek V4 Flash 可通过 YAML 手动切换，但运行中不自动混用文本 profile。vision 配置仅保留兼容，首版 paper runner 不使用
 19. 模型不设置每次运行调用次数上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行且总目标 30 RPM、硬上限 40 RPM、每 worker 并发 1、有限重试
 20. 任一 stage/job 失败都不写正式 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，不重新调用 LLM
-21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv HTML → PDF text → Abstract`，不实现 OpenReview 或 TeX source
-22. 文本模型使用一个同步 OpenAI-compatible wrapper，NVIDIA 与 DeepSeek 分别配置 base URL；视觉模型使用独立完整 invoke URL 和 `requests.post`，单请求包含多个 `image_url`，默认 `max_tokens: 65536`、`reasoning_budget: 16384`、`temperature: 0.6`、`top_p: 0.95` 和 `stream: false`
+21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv PDF → MinerU full.md → Abstract fallback`，不实现 arXiv HTML、OpenReview、TeX source、本地 PDF 正文提取或视觉阅读
+22. 文本模型使用一个同步 OpenAI-compatible wrapper，NVIDIA 与 DeepSeek 分别配置 base URL；MinerU 使用独立 REST 客户端和 `MINERU_API_KEY`，校验 PDF 上限、公网 URL、batch/data ID、polling deadline 与 ZIP `full.md`，并在所有终态清理临时文件
 23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
 24. 自动化测试控制在约 15–20 个高价值测试和五组运行时生成的端到端场景，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
 
@@ -989,9 +987,9 @@ Python 单元与集成测试覆盖：
    使用 `content`、`text_feed`、`ranking` 或 `two_tower` 等固定默认值。模型批次
    失败时只能使用当前词表生成规则标签并标记 degraded；没有可展示摘要或完整标签
    的条目不得进入最终日报。
-2. `deep-read --kind blog` 在独立 runner 中按来源缓存第二次 Feed 抓取，默认每个
-   来源每次运行最多 2 次请求；Feed 全文只在进程内使用，随后按既有 HTML/excerpt
-   降级链处理并清理临时内容。
+2. `deep-read --kind blog` 在独立 runner 中按来源缓存成功的 Feed 抓取；失败不作为
+   永久耗尽条件，后续候选仍可重新抓取。Feed 全文只在进程内使用，随后按既有
+   HTML/excerpt 降级链处理并清理临时内容。
 3. `rank-integrate` 必须基于只读仓库 data 生成完整 pending tree，且用稳定去重
    合并 previous/current `recommended_item_ids`。正式 state 仍只在 Pages 部署成功
    后提升。

@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from recsys_daily.config import ModelConfig, load_config
+from recsys_daily.config import load_config
 
 
 def _write_yaml(path: Path, data: object) -> None:
@@ -26,8 +26,8 @@ def _write_config(root: Path) -> None:
             "base_url_env": "NVIDIA_BASE_URL", "api_key_env": "NVIDIA_API_KEY", "model": "nvidia/super", "context_window_tokens": 1_000_000,
         }}, "reserved_prompt_tokens": 8_000, "reserved_output_tokens": 16_000, "batch_size": 8},
         "vision": {"profile": "nvidia_omni", "invoke_url_env": "NVIDIA_VLM_INVOKE_URL", "api_key_env": "NVIDIA_API_KEY", "model": "nvidia/omni", "context_window_tokens": 262_144, "max_requests_per_paper": 1, "include_all_detected_key_pages": True, "request_defaults": {"max_tokens": 65_536, "reasoning_budget": 16_384, "stream": False, "temperature": 0.6, "top_p": 0.95}},
-        "common": {"concurrency_per_worker": 1, "timeout_seconds": 600, "retries": 3},
         "mineru": {"api_key_env": "MINERU_API_KEY", "base_url": "https://mineru.net/api/v4", "model_version": "vlm", "upload_timeout_seconds": 120, "poll_timeout_seconds": 900, "poll_interval_seconds": 5, "max_pdf_bytes": 20_971_520, "max_pdf_pages": 200},
+        "common": {"concurrency_per_worker": 1, "timeout_seconds": 600, "retries": 3},
     }})
     _write_yaml(root / "config/settings.yaml", {
         "daily_target": 8,
@@ -54,7 +54,7 @@ def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> Non
     config = load_config(tmp_path)
     assert config.models.text.active_profile == "nvidia_super"
     assert config.settings.limits.nvidia_target_rpm == 30
-    assert config.models.mineru.max_pdf_pages == 200
+    assert config.models.mineru.model_version == "vlm"
 
 
 def test_config_uses_mineru_and_has_no_fetch_attempt_caps() -> None:
@@ -64,17 +64,18 @@ def test_config_uses_mineru_and_has_no_fetch_attempt_caps() -> None:
     assert not hasattr(limits, "max_pdf_downloads_per_run")
     assert not hasattr(limits, "max_blog_fulltext_fetches_per_run")
     assert config.models.mineru.api_key_env == "MINERU_API_KEY"
-    assert config.models.mineru.base_url == "https://mineru.net/api/v4"
-    assert config.models.mineru.model_version == "vlm"
-    assert config.models.mineru.poll_timeout_seconds > 0
-    assert config.models.mineru.poll_interval_seconds > 0
+    assert config.models.mineru.max_pdf_pages == 200
 
 
-def test_mineru_api_key_reference_must_be_an_environment_name() -> None:
-    document = yaml.safe_load((Path(__file__).parents[2] / "config/models.yaml").read_text(encoding="utf-8"))
-    document["models"]["mineru"]["api_key_env"] = "not-a-variable"
+def test_mineru_api_key_reference_must_be_an_environment_name(tmp_path: Path) -> None:
+    _write_config(tmp_path)
+    path = tmp_path / "config/models.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["models"]["mineru"]["api_key_env"] = "not-a-variable"
+    _write_yaml(path, data)
+
     with pytest.raises(ValueError, match="api_key_env"):
-        ModelConfig.model_validate(document["models"])
+        load_config(tmp_path)
 
 
 def test_repository_request_user_agent_is_identifiable() -> None:

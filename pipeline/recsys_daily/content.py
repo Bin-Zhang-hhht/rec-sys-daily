@@ -154,15 +154,11 @@ class BlogFeedCache:
         source_urls: Mapping[str, str],
         fetch_feed: Callable[[str, str], bytes | str],
         parse_feed: Callable[[bytes | str, str], list[Candidate]] = parse_source_feed,
-        max_requests_per_source: int = 1,
     ) -> None:
-        if max_requests_per_source < 1:
-            raise ValueError("max_requests_per_source must be positive")
         self._source_urls = dict(source_urls)
         self._fetch_feed = fetch_feed
         self._parse_feed = parse_feed
-        self._max_requests_per_source = max_requests_per_source
-        self._attempts: dict[str, int] = {}
+        self._loaded_sources: set[str] = set()
         self._content_by_id: dict[str, str] = {}
         self._content_by_url: dict[str, str] = {}
         self._content_by_title: dict[str, str] = {}
@@ -178,13 +174,13 @@ class BlogFeedCache:
             store = {"id": self._content_by_id, "url": self._content_by_url, "title": self._content_by_title}[key]
             if values in store:
                 return store[values]
-        if self._attempts.get(source_id, 0) >= self._max_requests_per_source:
+        if source_id in self._loaded_sources:
             return None
-        self._attempts[source_id] = self._attempts.get(source_id, 0) + 1
         try:
             candidates = self._parse_feed(self._fetch_feed(source_id, self._source_urls[source_id]), source_id)
         except Exception:
             return None
+        self._loaded_sources.add(source_id)
         for parsed in candidates:
             body = (parsed.feed_content or "").strip()
             if not body:

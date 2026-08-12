@@ -12,7 +12,8 @@ from typing import Any, Callable, Mapping
 from pydantic import BaseModel
 
 from .collect import Candidate, stable_id
-from .content import ContentServices, PageText, arxiv_urls
+from .content import ContentServices, arxiv_urls
+from .mineru import MinerUClient
 from .schemas import BlogReading, PaperReading, VisualAnalysis
 
 
@@ -25,15 +26,8 @@ class DeepReadServices:
     content: ContentServices
     temporary_root: Path
     text_reader: Callable[[str, str, Mapping[str, Any]], Mapping[str, Any]]
-    vision_reader: Callable[[list[Path]], Mapping[str, Any]]
-    max_pdf_bytes: int = 20 * 1024 * 1024
-    max_pdf_pages: int = 80
+    mineru: MinerUClient
     max_html_bytes: int = 5 * 1024 * 1024
-    # Kept for callers built against the pre-configured limiter API. Network
-    # pacing now belongs to the injected content fetch functions.
-    domain_limiter: Any | None = None
-    vision_profile: str = "nvidia_omni"
-    vision_model: str = "configured-vision-model"
     blog_feed_content: Callable[[Candidate], str | None] | None = None
 
 
@@ -53,11 +47,6 @@ def _cleanup(paths: list[Path]) -> None:
             pass
 
 
-def _body_from_html(content: ContentServices, html: str) -> str:
-    extractor = getattr(content, "extract_html", None) or content.extract_article
-    return str(extractor(html) or "").strip()
-
-
 def _arxiv_identifier(candidate: Candidate) -> str | None:
     if candidate.arxiv_id:
         return candidate.arxiv_id
@@ -74,22 +63,6 @@ def _fetch(method: Callable[..., Any], url: str, candidate: Candidate, limit: in
         return method(url, limit)
     except TypeError:
         return method(candidate)
-
-
-def _visual_analysis(services: DeepReadServices, page_paths: list[Path], pages: list[int]) -> VisualAnalysis:
-    if not pages:
-        return VisualAnalysis(status="not_required")
-    try:
-        result = dict(services.vision_reader(page_paths))
-    except Exception:
-        return VisualAnalysis(status="unavailable")
-    result.pop("reasoning_content", None)
-    result.pop("reasoning_trace", None)
-    result.update({"status": "completed", "profile": services.vision_profile, "model": services.vision_model, "pages": pages})
-    try:
-        return VisualAnalysis.model_validate(result)
-    except Exception:
-        return VisualAnalysis(status="unavailable")
 
 
 def _validated_payload(model: type[BaseModel], payload: Mapping[str, Any], *, analysis_basis: str, visual: VisualAnalysis | None = None) -> BaseModel:
@@ -148,58 +121,26 @@ def validate_reading_quality(reading: PaperReading | BlogReading) -> PaperReadin
 
 
 def deep_read_paper(candidate: Candidate, services: DeepReadServices) -> PaperReading:
-    paths: list[Path] = []
-    body = ""
+    body = candidate.excerpt or candidate.title
     basis = "abstract_fallback"
     visual = VisualAnalysis(status="not_required")
-    try:
-        arxiv_id = _arxiv_identifier(candidate)
-        if arxiv_id:
-            html_url, pdf_url = arxiv_urls(arxiv_id)
-            try:
-                html_method = getattr(services.content, "fetch_arxiv_html", services.content.fetch_text)
-                html = _fetch(html_method, html_url, candidate, services.max_html_bytes)
-                _write_temp(services.temporary_root, f"{stable_id(candidate)}.html", html, paths)
-                body = _body_from_html(services.content, html)
-                if body:
-                    basis = "arxiv_html"
-            except Exception:
-                body = ""
-            # HTML is preferred for text quality, but PDF inspection is always
-            # attempted so figures and tables are not silently missed.
-            try:
-                pdf_method = getattr(services.content, "fetch_pdf", services.content.fetch_bytes)
-                pdf = _fetch(pdf_method, pdf_url, candidate, services.max_pdf_bytes)
-                pdf_path = _write_temp(services.temporary_root, f"{stable_id(candidate)}.pdf", pdf, paths)
-                pdf_body, page_texts = services.content.extract_pdf(pdf_path, services.max_pdf_pages)
-                if not body and pdf_body:
-                    body = pdf_body
-                    basis = "pdf_text"
-                    _write_temp(services.temporary_root, f"{stable_id(candidate)}.txt", pdf_body, paths)
-                page_numbers = services.content.critical_pages(page_texts)
-                if page_numbers:
-                    page_paths = services.content.render_pages(pdf_path, page_numbers, services.temporary_root)
-                    paths.extend(page_paths)
-                    visual = _visual_analysis(services, page_paths, page_numbers)
-                else:
-                    visual = VisualAnalysis(status="not_required")
-            except Exception:
-                if body:
-                    visual = VisualAnalysis(status="unavailable")
-                else:
-                    body = ""
-                    basis = "abstract_fallback"
-                    visual = VisualAnalysis(status="not_required")
-        if not body:
+    arxiv_id = _arxiv_identifier(candidate)
+    if arxiv_id:
+        _html_url, pdf_url = arxiv_urls(arxiv_id)
+        try:
+            pdf_method = getattr(services.content, "fetch_pdf", services.content.fetch_bytes)
+            pdf = _fetch(pdf_method, pdf_url, candidate, services.mineru.max_pdf_bytes)
+            body = services.mineru.parse_pdf(pdf, f"{stable_id(candidate)}.pdf", services.temporary_root)
+            basis = "mineru_full_text"
+        except Exception:
             body = candidate.excerpt or candidate.title
-        payload = services.text_reader(
-            "paper",
-            body,
-            {"id": stable_id(candidate), "analysis_basis": basis, "visual_analysis": visual.model_dump()},
-        )
-        return _validated_payload(PaperReading, payload, analysis_basis=basis, visual=visual)  # type: ignore[return-value]
-    finally:
-        _cleanup(paths)
+            basis = "abstract_fallback"
+    payload = services.text_reader(
+        "paper",
+        body,
+        {"id": stable_id(candidate), "analysis_basis": basis},
+    )
+    return _validated_payload(PaperReading, payload, analysis_basis=basis, visual=visual)  # type: ignore[return-value]
 
 
 def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogReading:
