@@ -49,19 +49,11 @@ def _manifest(path: Path) -> Manifest:
 
 
 def _stage_values(path: Path, kind: str) -> list[dict[str, Any]]:
-    candidates = [
-        path / "items.jsonl",
-        path / f"{kind}s.jsonl",
-        path / f"{kind}.jsonl",
-        path / f"{kind}-deep-readings.json",
-    ]
-    source = next((candidate for candidate in candidates if candidate.exists()), None)
-    if source is None:
+    source = path / f"{kind}-deep-readings.json"
+    if not source.exists():
         raise ValueError(f"missing {kind} deep-reading artifact in {path}")
-    if source.suffix == ".jsonl":
-        return read_jsonl(source)
     document = read_json(source)
-    values = document.get("items", document)
+    values = document.get("items")
     if not isinstance(values, list) or not all(isinstance(value, dict) for value in values):
         raise ValueError(f"deep-reading artifact must contain item objects: {source}")
     return values
@@ -69,37 +61,31 @@ def _stage_values(path: Path, kind: str) -> list[dict[str, Any]]:
 
 def _candidate_metadata(stage1: Path) -> dict[str, dict[str, Any]]:
     metadata: dict[str, dict[str, Any]] = {}
-    for name in ("items.jsonl", "papers.jsonl", "blogs.jsonl", "paper-candidates.json", "blog-candidates.json", "candidates.json"):
+    for name in ("papers.jsonl", "blogs.jsonl"):
         source = stage1 / name
         if not source.exists():
             continue
-        document = None if source.suffix == ".jsonl" else read_json(source)
-        values = read_jsonl(source) if source.suffix == ".jsonl" else document.get("items", document.get("candidates", []))
-        if isinstance(values, list):
-            for value in values:
-                if not isinstance(value, dict):
-                    raise ValueError(f"candidate artifact contains a non-object value: {source}")
-                if not value.get("id"):
-                    raise ValueError(f"candidate id is required: {source}")
-                candidate_id = str(value["id"])
-                if candidate_id in metadata:
-                    raise ValueError(f"duplicate candidate id in stage-1: {candidate_id}")
-                metadata[candidate_id] = value
+        for value in read_jsonl(source):
+            if not value.get("id"):
+                raise ValueError(f"candidate id is required: {source}")
+            candidate_id = str(value["id"])
+            if candidate_id in metadata:
+                raise ValueError(f"duplicate candidate id in stage-1: {candidate_id}")
+            metadata[candidate_id] = value
     return metadata
 
 
 def _source_states(stage1: Path) -> dict[str, SourceState]:
-    for name in ("source-states.json", "source_states.json"):
-        source = stage1 / name
-        if source.exists():
-            document = read_json(source)
-            result: dict[str, SourceState] = {}
-            for source_id, value in document.items():
-                if not isinstance(value, dict):
-                    raise ValueError(f"source state must be an object: {source_id}")
-                result[str(source_id)] = SourceState.model_validate(value)
-            return result
-    return {}
+    source = stage1 / "source-states.json"
+    if not source.exists():
+        return {}
+    document = read_json(source)
+    result: dict[str, SourceState] = {}
+    for source_id, value in document.items():
+        if not isinstance(value, dict):
+            raise ValueError(f"source state must be an object: {source_id}")
+        result[str(source_id)] = SourceState.model_validate(value)
+    return result
 
 
 def _stage_report(stage1: Path) -> StageReport:
@@ -230,12 +216,10 @@ def _attach_provenance(
     generated_at: datetime,
     metadata: dict[str, dict[str, Any]],
 ) -> None:
-    profile = config.models.text.active_profile
-    model = config.models.text.active().model
+    model = config.models.text.model
     for item in items:
         if item.llm is None:
             item.llm = LLMMetadata(
-                profile=profile,
                 model=model,
                 generated_at=generated_at,
                 degraded=bool(metadata[item.id]["degraded"]),

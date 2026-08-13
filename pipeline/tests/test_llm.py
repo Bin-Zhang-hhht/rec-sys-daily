@@ -1,118 +1,185 @@
 from __future__ import annotations
 
-import json
 from types import SimpleNamespace
 
 import pytest
 
 from recsys_daily.config import load_config
-from recsys_daily.llm import TextClient, TokenBudget, VisionClient
+from recsys_daily.llm import ModelOutputError, TextClient, TokenBudget
 
 
-def test_text_client_uses_active_profile_and_parses_json(monkeypatch: pytest.MonkeyPatch) -> None:
+SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {"score": {"type": "number"}},
+    "required": ["score"],
+}
+
+
+class FakeResponses:
+    def __init__(self, observed: dict[str, object], outputs: list[object] | None = None) -> None:
+        self.observed = observed
+        self.outputs = outputs or [SimpleNamespace(output_text='{"score": 3}')]
+
+    def create(self, **kwargs: object) -> object:
+        self.observed.update(kwargs)
+        value = self.outputs.pop(0)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+
+def test_text_client_uses_single_model_responses_api_and_parses_json(monkeypatch: pytest.MonkeyPatch) -> None:
     config = load_config(__import__("pathlib").Path(__file__).parents[2])
     observed: dict[str, object] = {}
-
-    class FakeCompletions:
-        def create(self, **kwargs: object) -> object:
-            observed.update(kwargs)
-            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content='{"score": 3}', reasoning_content="secret"))])
 
     class FakeOpenAI:
         def __init__(self, **kwargs: object) -> None:
             observed.update(kwargs)
-            self.chat = SimpleNamespace(completions=FakeCompletions())
+            self.responses = FakeResponses(observed)
 
     monkeypatch.setattr("recsys_daily.llm.OpenAI", FakeOpenAI)
-    client = TextClient.from_config(config.models, environ={"NVIDIA_BASE_URL": "https://example.test/v1", "NVIDIA_API_KEY": "test-key"})
-
-    schema = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {"score": {"type": "number"}},
-        "required": ["score"],
-    }
-    result = client.complete_json([{"role": "user", "content": "hello"}], schema)
+    client = TextClient.from_config(
+        config.models,
+        environ={"DEEPSEEK_BASE_URL": "https://example.test/v1", "DEEPSEEK_API_KEY": "test-key"},
+    )
+    messages = [{"role": "system", "content": "instructions"}, {"role": "user", "content": "document"}]
+    result = client.complete_json(messages, SCHEMA)
 
     assert result == {"score": 3}
     assert observed["base_url"] == "https://example.test/v1"
     assert observed["api_key"] == "test-key"
-    assert observed["model"] == config.models.text.active().model
-    assert observed["response_format"] == {
-        "type": "json_schema",
-        "json_schema": {"name": "response", "strict": True, "schema": schema},
+    assert observed["model"] == config.models.text.model
+    assert observed["max_output_tokens"] == config.models.text.reserved_output_tokens
+    assert observed["input"] == messages
+    assert observed["text"] == {
+        "format": {"type": "json_schema", "name": "response", "strict": True, "schema": SCHEMA}
     }
-    assert "reasoning_content" not in result
+    assert "response_format" not in observed
+    assert not hasattr(client, "_limiter")
 
 
-def test_text_client_strips_unsupported_provider_schema_constraints(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_text_client_strips_unsupported_provider_schema_constraints() -> None:
     observed: dict[str, object] = {}
-
-    class FakeCompletions:
-        def create(self, **kwargs: object) -> object:
-            observed.update(kwargs)
-            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content='{"ok": true}'))])
-
-    monkeypatch.setattr("recsys_daily.llm.OpenAI", lambda **_kwargs: SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions())))
-    client = TextClient(base_url="https://example.test/v1", api_key="key", model="model", retries=1)
+    client = TextClient(
+        base_url="https://example.test/v1",
+        api_key="key",
+        model="model",
+        retries=1,
+        client=SimpleNamespace(responses=FakeResponses(observed, [SimpleNamespace(output_text='{"ok": true}')]))
+    )
     client.complete_json(
         [{"role": "user", "content": "hello"}],
         {
             "type": "object",
             "additionalProperties": False,
-            "properties": {"ok": {"type": "boolean", "minLength": 1, "minimum": 0}},
+            "properties": {"ok": {"type": "boolean", "minLength": 1, "minimum": 0, "maximum": 1}},
             "required": ["ok"],
         },
     )
 
-    response_format = observed["response_format"]
-    assert isinstance(response_format, dict)
-    schema = response_format["json_schema"]["schema"]  # type: ignore[index]
-    assert schema["properties"]["ok"] == {"type": "boolean"}  # type: ignore[index]
+    schema = observed["text"]["format"]["schema"]  # type: ignore[index]
+    assert schema["properties"]["ok"] == {"type": "boolean", "minimum": 0, "maximum": 1}
 
 
-def test_text_and_vision_clients_use_model_common_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:
-    config = load_config(__import__("pathlib").Path(__file__).parents[2])
-    models = config.models.model_copy(update={"common": config.models.common.model_copy(update={"timeout_seconds": 17, "retries": 2})})
-    monkeypatch.setattr("recsys_daily.llm.OpenAI", lambda **kwargs: SimpleNamespace())
-    text = TextClient.from_config(models, environ={"NVIDIA_BASE_URL": "https://example.test/v1", "NVIDIA_API_KEY": "key"})
-    vision = VisionClient.from_config(models, {"NVIDIA_VLM_INVOKE_URL": "https://example.test/v1/chat/completions", "NVIDIA_API_KEY": "key"})
-    assert (text.timeout_seconds, text.retries) == (17, 2)
-    assert (vision.timeout_seconds, vision.retries) == (17, 2)
-
-
-def test_vision_builds_single_multimage_request_and_ignores_reasoning(monkeypatch: pytest.MonkeyPatch) -> None:
-    config = load_config(__import__("pathlib").Path(__file__).parents[2])
-    observed: dict[str, object] = {}
-
-    class Response:
-        def raise_for_status(self) -> None:
-            return None
-
-        def json(self) -> dict[str, object]:
-            return {"choices": [{"message": {"content": '{"status":"ok"}', "reasoning_content": "private"}}]}
-
-    def post(url: str, **kwargs: object) -> Response:
-        observed["url"] = url
-        observed.update(kwargs)
-        return Response()
-
-    monkeypatch.setattr("recsys_daily.llm.requests.post", post)
-    client = VisionClient.from_config(
-        config.models,
-        {"NVIDIA_VLM_INVOKE_URL": "https://example.test/v1/chat/completions", "NVIDIA_API_KEY": "test-key"},
+@pytest.mark.parametrize("output", [None, "", "not json", "[]"])
+def test_text_client_rejects_missing_or_invalid_output_text(output: object) -> None:
+    client = TextClient(
+        base_url="https://example.test/v1",
+        api_key="key",
+        model="model",
+        retries=1,
+        client=SimpleNamespace(responses=FakeResponses({}, [SimpleNamespace(output_text=output)])),
     )
-    result = client.analyze("inspect", ["data:image/png;base64,a", "data:image/png;base64,b"])
+    with pytest.raises(ModelOutputError, match="JSON text|valid JSON|object"):
+        client.complete_json([{"role": "user", "content": "hello"}], SCHEMA)
 
-    assert result == {"status": "ok"}
-    assert observed["url"] == "https://example.test/v1/chat/completions"
-    assert observed["headers"]["Accept"] == "application/json"
-    payload = observed["json"]
-    assert payload["max_tokens"] == 65536
-    assert payload["reasoning_budget"] == 16384
-    assert payload["stream"] is False
-    assert payload["messages"][0]["content"][0]["type"] == "text"
-    assert [part["image_url"]["url"] for part in payload["messages"][0]["content"][1:]] == ["data:image/png;base64,a", "data:image/png;base64,b"]
+
+def test_text_client_retries_invalid_json() -> None:
+    sleeps: list[float] = []
+    responses = FakeResponses(
+        {},
+        [SimpleNamespace(output_text='{"score":'), SimpleNamespace(output_text='{"score": 0.8}')],
+    )
+    client = TextClient(
+        base_url="https://example.test/v1",
+        api_key="key",
+        model="model",
+        retries=2,
+        sleeper=sleeps.append,
+        client=SimpleNamespace(responses=responses),
+    )
+
+    assert client.complete_json([{"role": "user", "content": "hello"}], SCHEMA) == {"score": 0.8}
+    assert sleeps == [1.0]
+
+
+def test_text_client_retries_schema_mismatch_and_fails_explicitly() -> None:
+    sleeps: list[float] = []
+    responses = FakeResponses(
+        {},
+        [SimpleNamespace(output_text='{"unexpected": true}'), SimpleNamespace(output_text='{"score": 2}')],
+    )
+    client = TextClient(
+        base_url="https://example.test/v1",
+        api_key="key",
+        model="model",
+        retries=2,
+        sleeper=sleeps.append,
+        client=SimpleNamespace(responses=responses),
+    )
+
+    bounded_schema = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {"score": {"type": "number", "minimum": 0, "maximum": 1}},
+        "required": ["score"],
+    }
+    with pytest.raises(ModelOutputError, match="requested schema"):
+        client.complete_json([{"role": "user", "content": "hello"}], bounded_schema)
+    assert sleeps == [1.0]
+
+
+def test_text_client_requires_environment_without_exposing_values() -> None:
+    config = load_config(__import__("pathlib").Path(__file__).parents[2])
+    with pytest.raises(ValueError) as exc_info:
+        TextClient.from_config(config.models, environ={"DEEPSEEK_API_KEY": "secret-value"})
+    assert "secret-value" not in str(exc_info.value)
+
+
+def test_text_client_retries_transient_errors() -> None:
+    class TransientError(RuntimeError):
+        status_code = 503
+
+    sleeps: list[float] = []
+    responses = FakeResponses({}, [TransientError(), SimpleNamespace(output_text='{"score": 3}')])
+    client = TextClient(
+        base_url="https://example.test/v1",
+        api_key="key",
+        model="model",
+        retries=2,
+        sleeper=sleeps.append,
+        client=SimpleNamespace(responses=responses),
+    )
+    assert client.complete_json([{"role": "user", "content": "hello"}], SCHEMA) == {"score": 3}
+    assert sleeps == [1.0]
+
+
+def test_text_client_uses_model_common_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:
+    config = load_config(__import__("pathlib").Path(__file__).parents[2])
+    models = config.models.model_copy(
+        update={"common": config.models.common.model_copy(update={"timeout_seconds": 17, "retries": 2})}
+    )
+    monkeypatch.setattr("recsys_daily.llm.OpenAI", lambda **_kwargs: SimpleNamespace())
+    text = TextClient.from_config(
+        models,
+        environ={"DEEPSEEK_BASE_URL": "https://example.test/v1", "DEEPSEEK_API_KEY": "key"},
+    )
+    assert (text.timeout_seconds, text.retries, text.max_output_tokens) == (
+        17,
+        2,
+        config.models.text.reserved_output_tokens,
+    )
 
 
 def test_token_budget_fails_instead_of_silently_dropping_sections() -> None:

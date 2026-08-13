@@ -72,11 +72,14 @@ class SourcesConfig(StrictModel):
         return self
 
 
-class TextProfile(StrictModel):
+class TextModels(StrictModel):
     base_url_env: str = Field(min_length=1)
     api_key_env: str = Field(min_length=1)
     model: str = Field(min_length=1)
     context_window_tokens: PositiveInt
+    reserved_prompt_tokens: PositiveInt
+    reserved_output_tokens: PositiveInt
+    batch_size: PositiveInt
 
     @field_validator("base_url_env", "api_key_env")
     @classmethod
@@ -85,62 +88,10 @@ class TextProfile(StrictModel):
             raise ValueError("environment reference must be an environment-variable identifier")
         return value
 
-
-class TextModels(StrictModel):
-    active_profile: str = Field(min_length=1)
-    profiles: dict[str, TextProfile] = Field(min_length=1)
-    reserved_prompt_tokens: PositiveInt
-    reserved_output_tokens: PositiveInt
-    batch_size: PositiveInt
-
     @model_validator(mode="after")
-    def active_profile_exists(self) -> "TextModels":
-        if self.active_profile not in self.profiles:
-            raise ValueError("unknown active text profile")
-        expected_references = {
-            "nvidia_super": ("NVIDIA_BASE_URL", "NVIDIA_API_KEY"),
-            "nvidia_ultra": ("NVIDIA_BASE_URL", "NVIDIA_API_KEY"),
-            "deepseek_v4_flash": ("DEEPSEEK_BASE_URL", "DEEPSEEK_API_KEY"),
-        }
-        for profile_name, expected in expected_references.items():
-            profile = self.profiles.get(profile_name)
-            if profile and (profile.base_url_env, profile.api_key_env) != expected:
-                raise ValueError(f"{profile_name} must use its documented environment references")
-        return self
-
-    def active(self) -> TextProfile:
-        return self.profiles[self.active_profile]
-
-
-class VisionRequestDefaults(StrictModel):
-    max_tokens: PositiveInt
-    reasoning_budget: PositiveInt
-    stream: Literal[False]
-    temperature: float = Field(ge=0, le=2)
-    top_p: float = Field(gt=0, le=1)
-
-
-class VisionModels(StrictModel):
-    profile: str = Field(min_length=1)
-    invoke_url_env: str = Field(min_length=1)
-    api_key_env: str = Field(min_length=1)
-    model: str = Field(min_length=1)
-    context_window_tokens: PositiveInt
-    max_requests_per_paper: Literal[1]
-    include_all_detected_key_pages: Literal[True]
-    request_defaults: VisionRequestDefaults
-
-    @field_validator("invoke_url_env", "api_key_env")
-    @classmethod
-    def environment_variable_name(cls, value: str) -> str:
-        if not re.fullmatch(r"[A-Z][A-Z0-9_]*", value):
-            raise ValueError("environment reference must be an environment-variable identifier")
-        return value
-
-    @model_validator(mode="after")
-    def documented_environment_references(self) -> "VisionModels":
-        if self.invoke_url_env != "NVIDIA_VLM_INVOKE_URL" or self.api_key_env != "NVIDIA_API_KEY":
-            raise ValueError("vision must use NVIDIA_VLM_INVOKE_URL and NVIDIA_API_KEY")
+    def documented_environment_references(self) -> "TextModels":
+        if (self.base_url_env, self.api_key_env) != ("DEEPSEEK_BASE_URL", "DEEPSEEK_API_KEY"):
+            raise ValueError("text model must use DEEPSEEK_BASE_URL and DEEPSEEK_API_KEY")
         return self
 
 
@@ -163,14 +114,12 @@ class MinerUConfig(StrictModel):
 
 
 class ModelCommon(StrictModel):
-    concurrency_per_worker: Literal[1]
     timeout_seconds: PositiveInt
     retries: PositiveInt
 
 
 class ModelConfig(StrictModel):
     text: TextModels
-    vision: VisionModels
     mineru: MinerUConfig
     common: ModelCommon
 
@@ -205,11 +154,6 @@ class FinalScoreWeights(StrictModel):
 
 class Limits(StrictModel):
     http_concurrency: PositiveInt
-    nvidia_hard_rpm: PositiveInt
-    nvidia_target_rpm: PositiveInt
-    nvidia_parallel_workers: Literal[2]
-    nvidia_concurrency_per_worker: Literal[1]
-    nvidia_min_interval_seconds_per_worker: Literal[4]
     arxiv_min_interval_seconds: PositiveInt
     request_timeout_seconds: PositiveInt
     retry_attempts: PositiveInt
@@ -224,9 +168,7 @@ class Limits(StrictModel):
     max_blog_html_bytes: PositiveInt
 
     @model_validator(mode="after")
-    def nvidia_limit_is_valid(self) -> "Limits":
-        if self.nvidia_target_rpm > self.nvidia_hard_rpm:
-            raise ValueError("nvidia_target_rpm must not exceed nvidia_hard_rpm")
+    def request_limits_are_valid(self) -> "Limits":
         if self.retry_backoff_seconds > self.retry_max_delay_seconds:
             raise ValueError("retry_max_delay_seconds must be at least retry_backoff_seconds")
         return self

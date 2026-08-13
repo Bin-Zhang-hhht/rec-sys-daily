@@ -28,9 +28,15 @@ def candidate(identifier: str, excerpt: str = "short excerpt") -> Candidate:
 
 def test_metadata_schema_uses_configured_taxonomy_enums() -> None:
     schema = metadata_json_schema(CONFIG.topics)
-    assert schema["properties"]["items"]["items"]["properties"]["targets"]["items"]["enum"] == [
+    item_schema = schema["properties"]["items"]["items"]
+    assert item_schema["properties"]["targets"]["items"]["enum"] == [
         entry.id for entry in CONFIG.topics.targets
     ]
+    assert item_schema["properties"]["summary_zh"] == {"type": "string", "minLength": 1}
+    for category in ("targets", "scenarios", "tasks", "methods"):
+        assert item_schema["properties"][category]["minItems"] == 1
+    assert "degraded" not in item_schema["properties"]
+    assert "degraded" not in item_schema["required"]
 
 
 def test_metadata_prompt_isolated_from_source_instructions() -> None:
@@ -74,6 +80,29 @@ def test_metadata_analysis_batches_and_validates_ids() -> None:
     assert result.success_rate == 1
     assert result.degraded_count == 0
     assert [item.id for item in result.items] == [stable_id(item) for item in values]
+
+
+def test_metadata_success_state_is_owned_by_pipeline() -> None:
+    def complete(_messages, _schema):
+        return {
+            "items": [{
+                "id": "arxiv-2608.00001",
+                "summary_zh": "summary",
+                "targets": [CONFIG.topics.targets[0].id],
+                "scenarios": [CONFIG.topics.scenarios[0].id],
+                "tasks": [CONFIG.topics.tasks[0].id],
+                "methods": [CONFIG.topics.methods[0].id],
+                "relevance_score": 0.8,
+                "graph_relations": [],
+                "degraded": True,
+            }]
+        }
+
+    result = analyze_metadata([candidate("2608.00001")], CONFIG, complete)
+
+    assert result.success_rate == 1
+    assert result.degraded_count == 0
+    assert result.items[0].degraded is False
 
 
 def test_metadata_failure_uses_only_matching_config_labels_and_marks_degraded() -> None:

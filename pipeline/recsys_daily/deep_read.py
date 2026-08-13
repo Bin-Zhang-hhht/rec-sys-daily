@@ -12,9 +12,9 @@ from typing import Any, Callable, Mapping
 from pydantic import BaseModel
 
 from .collect import Candidate, stable_id
-from .content import ContentServices, arxiv_urls
+from .content import ContentServices, arxiv_pdf_url
 from .mineru import MinerUClient
-from .schemas import BlogReading, PaperReading, VisualAnalysis
+from .schemas import BlogReading, PaperReading
 
 
 class DeepReadError(RuntimeError):
@@ -65,15 +65,13 @@ def _fetch(method: Callable[..., Any], url: str, candidate: Candidate, limit: in
         return method(candidate)
 
 
-def _validated_payload(model: type[BaseModel], payload: Mapping[str, Any], *, analysis_basis: str, visual: VisualAnalysis | None = None) -> BaseModel:
+def _validated_payload(model: type[BaseModel], payload: Mapping[str, Any], *, analysis_basis: str) -> BaseModel:
     if not isinstance(payload, Mapping):
         raise ValueError("deep-reading response must be a JSON object")
     data = dict(payload)
     for key in ("source_full_text", "raw_text", "full_text", "prompt", "response", "reasoning_content", "reasoning_trace"):
         data.pop(key, None)
     data["analysis_basis"] = analysis_basis
-    if visual is not None:
-        data["visual_analysis"] = visual.model_dump()
     reading = model.model_validate(data)
     return validate_reading_quality(reading)
 
@@ -123,10 +121,9 @@ def validate_reading_quality(reading: PaperReading | BlogReading) -> PaperReadin
 def deep_read_paper(candidate: Candidate, services: DeepReadServices) -> PaperReading:
     body = candidate.excerpt or candidate.title
     basis = "abstract_fallback"
-    visual = VisualAnalysis(status="not_required")
     arxiv_id = _arxiv_identifier(candidate)
     if arxiv_id:
-        _html_url, pdf_url = arxiv_urls(arxiv_id)
+        pdf_url = arxiv_pdf_url(arxiv_id)
         try:
             pdf_method = getattr(services.content, "fetch_pdf", services.content.fetch_bytes)
             pdf = _fetch(pdf_method, pdf_url, candidate, services.mineru.max_pdf_bytes)
@@ -140,7 +137,7 @@ def deep_read_paper(candidate: Candidate, services: DeepReadServices) -> PaperRe
         body,
         {"id": stable_id(candidate), "analysis_basis": basis},
     )
-    return _validated_payload(PaperReading, payload, analysis_basis=basis, visual=visual)  # type: ignore[return-value]
+    return _validated_payload(PaperReading, payload, analysis_basis=basis)  # type: ignore[return-value]
 
 
 def deep_read_blog(candidate: Candidate, services: DeepReadServices) -> BlogReading:
@@ -208,7 +205,7 @@ def deep_read(
         raise ValueError("max_candidates must be non-negative")
     source = input_dir / f"{kind}-candidates.json"
     if not source.exists():
-        source = input_dir / "candidates.json"
+        raise ValueError(f"missing {kind} candidate artifact in {input_dir}")
     document = json.loads(source.read_text(encoding="utf-8"))
     values = document.get("candidates", document) if isinstance(document, dict) else document
     if not isinstance(values, list):

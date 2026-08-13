@@ -44,6 +44,7 @@ def metadata_messages(candidates: Sequence[Candidate]) -> list[dict[str, str]]:
             }
         )
     return json_messages(
-        "Classify each candidate using only the configured taxonomy IDs. Return strict JSON with an items array.",
+        "Classify each candidate using only the configured taxonomy IDs. Provide a non-empty Chinese summary and "
+        "at least one valid target, scenario, task, and method for every item. Return strict JSON with an items array.",
         documents,
     )

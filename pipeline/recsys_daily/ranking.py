@@ -17,8 +17,7 @@ def _evidence_quality(item: PaperItem | BlogItem) -> float:
     if explicit is not None:
         return explicit
     references = item.deep_reading.evidence_refs
-    visual = getattr(getattr(item.deep_reading, "visual_analysis", None), "status", None)
-    return min(1.0, len(references) / 3 + (0.25 if visual == "completed" else 0.0))
+    return min(1.0, len(references) / 3)
 
 
 def _business_transferability(item: PaperItem | BlogItem) -> float:

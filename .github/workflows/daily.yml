@@ -36,17 +36,12 @@ jobs:
           cache-to: type=gha,mode=max,scope=pipeline
       - name: Collect and filter
         env:
-          NVIDIA_BASE_URL: ${{ secrets.NVIDIA_BASE_URL }}
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          NVIDIA_VLM_INVOKE_URL: ${{ secrets.NVIDIA_VLM_INVOKE_URL }}
         run: |
           mkdir -p stage-1 data
           docker run --rm \
-            -e NVIDIA_BASE_URL -e NVIDIA_API_KEY \
             -e DEEPSEEK_BASE_URL -e DEEPSEEK_API_KEY \
-            -e NVIDIA_VLM_INVOKE_URL \
             -v "$PWD/stage-1:/workspace/stage-1" \
             -v "$PWD/data:/workspace/data:ro" \
             "${IMAGE_TAG}-pipeline" collect-filter --output /workspace/stage-1 --root /workspace
@@ -86,18 +81,13 @@ jobs:
           cache-to: type=gha,mode=max,scope=pipeline
       - name: Deep read selected kind
         env:
-          NVIDIA_BASE_URL: ${{ secrets.NVIDIA_BASE_URL }}
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          NVIDIA_VLM_INVOKE_URL: ${{ secrets.NVIDIA_VLM_INVOKE_URL }}
           MINERU_API_KEY: ${{ secrets.MINERU_API_KEY }}
         run: |
           mkdir -p "deep-reading-${{ matrix.kind }}"
           docker run --rm \
-            -e NVIDIA_BASE_URL -e NVIDIA_API_KEY \
             -e DEEPSEEK_BASE_URL -e DEEPSEEK_API_KEY \
-            -e NVIDIA_VLM_INVOKE_URL \
             -e MINERU_API_KEY \
             -v "$PWD/stage-1:/workspace/stage-1:ro" \
             -v "$PWD/deep-reading-${{ matrix.kind }}:/workspace/deep-reading" \

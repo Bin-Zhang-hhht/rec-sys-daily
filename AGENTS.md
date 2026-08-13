@@ -38,9 +38,9 @@
 - Keep every target, scenario, task, and method entry in the normalized `id`, `name_zh`, `name_en`, and `terms` shape.
 - Reject duplicate IDs, missing fields, and canonical item labels that are not declared in `topics.yaml`.
 - `rank-integrate` emits the normalized, ordered `taxonomy.json` snapshot used by the site build. The site must not maintain a second hard-coded label map.
-- Text models use one synchronous OpenAI-compatible wrapper. NVIDIA NIM and DeepSeek are selected manually through `config/models.yaml`; do not add automatic provider failover or mix text profiles within a run.
-- The NVIDIA VLM uses its independent full invoke URL and direct `requests.post` path. Do not route it through the text wrapper.
-- Keep the NVIDIA hard ceiling at 40 RPM and the combined paper/blog target at 30 RPM. Each full-reading worker has concurrency 1, and every retry must pass through the same limiter.
+- Text models use one synchronous DeepSeek OpenAI-compatible Responses API wrapper. Do not add provider failover, profiles, or automatic protocol fallback.
+- MinerU is the independent paper parser and uses its own REST client; do not route it through the text wrapper.
+- Do not impose a client-side model RPM or concurrency limiter. Keep HTTP `429/5xx`, `Retry-After`, bounded retries, and the existing arXiv/RSS/HTML domain pacing protections.
 - Do not silently truncate model input, omit selected visual pages, or ignore schema failures. Fail explicitly or use the documented fallback state.
 - Secrets come from environment variables or GitHub Actions Secrets. Never write real keys to code, fixtures, logs, artifacts, or documentation examples.
 
@@ -100,7 +100,7 @@ When reviewing changes, prioritize findings in this order:
 
 1. Incorrect state advancement or publishing partial data
 2. Secret, SSRF, untrusted-input, copyright, or raw-content leakage
-3. NVIDIA rate-limit or retry violations
+3. HTTP retry, source pacing, or provider error-handling violations
 4. Schema, stable-ID, deduplication, and deterministic-output regressions
 5. Broken Docker, GitHub Actions, Pages, Pagefind, or graph builds
 6. Unnecessary dependencies, client JavaScript, abstractions, or scope expansion

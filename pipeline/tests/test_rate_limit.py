@@ -4,26 +4,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from recsys_daily.rate_limit import RateLimiter, RetryableHTTPError, request_with_retries
-
-
-def test_rate_limiter_enforces_four_second_interval_with_fake_clock() -> None:
-    now = [0.0]
-    sleeps: list[float] = []
-
-    def clock() -> float:
-        return now[0]
-
-    def sleep(seconds: float) -> None:
-        sleeps.append(seconds)
-        now[0] += seconds
-
-    limiter = RateLimiter(target_rpm=30, hard_rpm=40, clock=clock, sleeper=sleep)
-    limiter.acquire()
-    now[0] = 1.0
-    limiter.acquire()
-
-    assert sleeps == [3.0]
+from recsys_daily.rate_limit import RetryableHTTPError, request_with_retries
 
 
 def test_each_retry_acquires_limiter_and_retry_after_is_respected() -> None:

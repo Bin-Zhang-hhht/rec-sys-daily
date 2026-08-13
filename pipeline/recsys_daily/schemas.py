@@ -36,7 +36,6 @@ class GraphRelation(ArtifactModel):
 
 
 class LLMMetadata(ArtifactModel):
-    profile: str = Field(min_length=1)
     model: str = Field(min_length=1)
     generated_at: UtcDatetime = Field(default_factory=utc_now)
     degraded: bool = False
@@ -58,28 +57,6 @@ class BlogEvidenceRef(ArtifactModel):
         return self
 
 
-class VisualAnalysis(ArtifactModel):
-    status: Literal["completed", "not_required", "unavailable"]
-    profile: str | None = None
-    model: str | None = None
-    pages: list[int] = Field(default_factory=list)
-    architecture_zh: str | None = None
-    table_findings_zh: list[str] = Field(default_factory=list)
-    chart_findings_zh: list[str] = Field(default_factory=list)
-    limitations_zh: list[str] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def completed_has_evidence(self) -> "VisualAnalysis":
-        if self.status != "completed":
-            return self
-        if not self.profile or not self.model or not self.pages:
-            raise ValueError("completed visual analysis requires profile, model, and pages")
-        findings = [self.architecture_zh, *self.table_findings_zh, *self.chart_findings_zh, *self.limitations_zh]
-        if not any(finding and finding.strip() for finding in findings):
-            raise ValueError("completed visual analysis requires a visual finding")
-        return self
-
-
 class PaperExperiments(ArtifactModel):
     datasets: list[str] = Field(default_factory=list)
     baselines: list[str] = Field(default_factory=list)
@@ -89,7 +66,6 @@ class PaperExperiments(ArtifactModel):
 
 class PaperReading(ArtifactModel):
     analysis_basis: Literal["mineru_full_text", "abstract_fallback"]
-    visual_analysis: VisualAnalysis
     evidence_quality: float | None = Field(default=None, ge=0, le=1)
     business_transferability: float | None = Field(default=None, ge=0, le=1)
     technical_depth: float | None = Field(default=None, ge=0, le=1)
@@ -117,24 +93,6 @@ class BlogReading(ArtifactModel):
     limitations_zh: list[str] = Field(default_factory=list)
     business_implications_zh: list[str] = Field(default_factory=list)
     evidence_refs: list[BlogEvidenceRef] = Field(default_factory=list)
-
-
-def _visual_analysis_json_schema() -> dict[str, Any]:
-    return {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "status": {"type": "string", "enum": ["completed", "not_required", "unavailable"]},
-            "profile": {"type": ["string", "null"]},
-            "model": {"type": ["string", "null"]},
-            "pages": {"type": "array", "items": {"type": "integer", "minimum": 1}},
-            "architecture_zh": {"type": ["string", "null"]},
-            "table_findings_zh": {"type": "array", "items": {"type": "string", "minLength": 1}},
-            "chart_findings_zh": {"type": "array", "items": {"type": "string", "minLength": 1}},
-            "limitations_zh": {"type": "array", "items": {"type": "string", "minLength": 1}},
-        },
-        "required": ["status", "profile", "model", "pages", "architecture_zh", "table_findings_zh", "chart_findings_zh", "limitations_zh"],
-    }
 
 
 def _paper_evidence_schema() -> dict[str, Any]:
@@ -196,7 +154,6 @@ def paper_reading_json_schema() -> dict[str, Any]:
     }
     properties: dict[str, Any] = {
         "analysis_basis": {"type": "string", "enum": ["mineru_full_text", "abstract_fallback"]},
-        "visual_analysis": _visual_analysis_json_schema(),
         "evidence_quality": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         "business_transferability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         "technical_depth": {"type": ["number", "null"], "minimum": 0, "maximum": 1},

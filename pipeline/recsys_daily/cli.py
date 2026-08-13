@@ -15,13 +15,13 @@ import typer
 from .artifacts import write_json
 from .collect import Candidate
 from .config import AppConfig, load_config
-from .content import BlogFeedCache, ContentServices, fetch_article_html as fetch_article_html_request, fetch_bytes as fetch_bytes_request, fetch_text as fetch_text_request
+from .content import BlogFeedCache, ContentServices, fetch_article_html as fetch_article_html_request, fetch_bytes as fetch_bytes_request
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
 from .llm import TextClient, TokenBudget
 from .mineru import MinerUClient
 from .prompts import json_messages
-from .rate_limit import DomainRateLimiter, RateLimiter
+from .rate_limit import DomainRateLimiter
 from .security import fetch_public_url
 from .schemas import State, blog_reading_json_schema, paper_reading_json_schema
 from .stage_one import load_history_ids, run_collect_filter
@@ -44,36 +44,28 @@ def _root(root: Path | None = None) -> Path:
     raise typer.BadParameter("could not locate config/topics.yaml")
 
 
-def _full_read_limiter(config: AppConfig) -> RateLimiter:
-    limits = config.settings.limits
-    return RateLimiter(
-        target_rpm=limits.nvidia_target_rpm,
-        hard_rpm=limits.nvidia_hard_rpm,
-        min_interval_seconds=limits.nvidia_min_interval_seconds_per_worker,
-    )
-
-
 def _real_services(
     config: AppConfig,
     root: Path,
     work: Path,
     *,
-    limiter: RateLimiter | None = None,
     kind: str = "paper",
 ) -> DeepReadServices:
     if kind not in {"paper", "blog"}:
         raise ValueError("kind must be paper or blog")
-    shared_limiter = limiter or _full_read_limiter(config)
-    text_client = TextClient.from_config(config.models, limiter=shared_limiter)
-    profile = config.models.text.active()
+    text_client = TextClient.from_config(config.models)
+    text_model = config.models.text
 
     def text_reader(kind: str, body: str, context: dict[str, Any]) -> dict[str, Any]:
         prompt = (
             f"Analyze this {kind} for a recommendation-system deep reading. "
-            "Summarize only claims supported by the supplied source document and return strict JSON."
+            "Summarize only claims supported by the supplied source document. "
+            "Return exactly the fields required by the supplied JSON schema, with no extra fields. "
+            "Use JSON numbers between 0 and 1 for evidence_quality, business_transferability, "
+            "and technical_depth."
         )
         budget = TokenBudget(
-            context_window_tokens=profile.context_window_tokens,
+            context_window_tokens=text_model.context_window_tokens,
             reserved_prompt_tokens=config.models.text.reserved_prompt_tokens,
             reserved_output_tokens=config.models.text.reserved_output_tokens,
         )
@@ -97,18 +89,6 @@ def _real_services(
     max_blog_html_bytes = config.settings.limits.max_blog_html_bytes
     arxiv_limiter = DomainRateLimiter(config.settings.limits.arxiv_min_interval_seconds)
     blog_limiter = DomainRateLimiter(config.settings.limits.blog_min_interval_seconds_per_domain)
-
-    def configured_fetch_text(url: str, limit: int) -> str:
-        return fetch_text_request(
-            url,
-            min(limit, max_pdf_bytes),
-            timeout=request_timeout,
-            max_attempts=retry_attempts,
-            user_agent=request_user_agent,
-            attempt_limiter=lambda: arxiv_limiter.acquire(url),
-            backoff_seconds=retry_backoff_seconds,
-            max_delay_seconds=retry_max_delay_seconds,
-        )
 
     def configured_fetch_bytes(url: str, limit: int) -> bytes:
         return fetch_bytes_request(
@@ -163,7 +143,6 @@ def _real_services(
 
     return DeepReadServices(
         content=ContentServices(
-            fetch_text=configured_fetch_text,
             fetch_bytes=configured_fetch_bytes,
             fetch_article_html=configured_fetch_article_html,
         ),
@@ -206,8 +185,7 @@ def collect_filter(output: Path = typer.Option(...), root: Path = typer.Option(P
     state_path = repository / "data" / "state.json"
     state = State.model_validate(json.loads(state_path.read_text(encoding="utf-8"))) if state_path.exists() else None
     history = load_history_ids(repository / "data", config, state)
-    limiter = _full_read_limiter(config)
-    text_client = TextClient.from_config(config.models, limiter=limiter, timeout_seconds=None, retries=None)
+    text_client = TextClient.from_config(config.models, timeout_seconds=None, retries=None)
     run_collect_filter(config, output, state, history, text_client.complete_json)
 
 
@@ -248,16 +226,15 @@ def run_pipeline(output: Path = typer.Option(...), root: Path = typer.Option(Pat
     collect_filter(work / "stage-1", repository)
     manifest = json.loads((work / "stage-1" / "manifest.json").read_text(encoding="utf-8"))
     config = load_config(repository)
-    limiter = _full_read_limiter(config)
     max_candidates = config.settings.limits.deep_reading_candidates_per_type
     _run_deep_read(
         "paper", work / "stage-1", work / "deep-reading-paper",
-        _real_services(config, repository, work, limiter=limiter, kind="paper"), manifest["run_id"],
+        _real_services(config, repository, work, kind="paper"), manifest["run_id"],
         max_candidates=max_candidates,
     )
     _run_deep_read(
         "blog", work / "stage-1", work / "deep-reading-blog",
-        _real_services(config, repository, work, limiter=limiter, kind="blog"), manifest["run_id"],
+        _real_services(config, repository, work, kind="blog"), manifest["run_id"],
         max_candidates=max_candidates,
     )
     rank_integrate(work, output, repository)

@@ -72,23 +72,9 @@ class FakeContent:
         self.pdf_calls = 0
         self.article_calls = 0
 
-    def fetch_text(self, _url: str, _limit: int) -> str:
-        if self.html is None:
-            raise RuntimeError("HTML unavailable")
-        return self.html
-
     def fetch_bytes(self, _url: str, _limit: int) -> bytes:
         self.pdf_calls += 1
         return b"fixture pdf"
-
-    def extract_pdf(self, *_args: object) -> object:
-        raise AssertionError("PyMuPDF extraction must not be called")
-
-    def critical_pages(self, *_args: object) -> object:
-        raise AssertionError("critical-page detection must not be called")
-
-    def render_pages(self, *_args: object) -> object:
-        raise AssertionError("page rendering must not be called")
 
     def feed_content(self, _candidate: Candidate) -> str | None:
         return None
@@ -129,25 +115,24 @@ def _services(tmp_path: Path, content: FakeContent, *, mineru=None, text=_paper_
 
 def test_paper_uses_pdf_and_mineru_only(tmp_path: Path) -> None:
     content = FakeContent(tmp_path, html=PAPER_HTML, pages=[2, 5])
-    content.fetch_text = lambda *_args: (_ for _ in ()).throw(AssertionError("arXiv HTML must not be fetched"))  # type: ignore[method-assign]
     mineru = FakeMinerU()
     services = _services(tmp_path, content, mineru=mineru)
 
     reading = deep_read_paper(_paper(), services)
 
     assert reading.analysis_basis == "mineru_full_text"
-    assert reading.visual_analysis.status == "not_required"
     assert mineru.calls == [(b"fixture pdf", "arxiv-2608.01234.pdf", tmp_path)]
     assert list(tmp_path.iterdir()) == []
 
 
 def test_paper_does_not_call_visual_page_detection(tmp_path: Path) -> None:
     content = FakeContent(tmp_path)
+    assert not hasattr(content, "critical_pages")
+    assert not hasattr(content, "render_pages")
 
     reading = deep_read_paper(_paper(), _services(tmp_path, content))
 
     assert reading.analysis_basis == "mineru_full_text"
-    assert reading.visual_analysis.status == "not_required"
     assert list(tmp_path.iterdir()) == []
 
 
@@ -180,7 +165,6 @@ def test_paper_mineru_failure_uses_abstract_fallback(tmp_path: Path) -> None:
     reading = deep_read_paper(_paper(), services)
 
     assert reading.analysis_basis == "abstract_fallback"
-    assert reading.visual_analysis.status == "not_required"
     assert observed == [(_paper().excerpt, "abstract_fallback")]
     assert list(tmp_path.iterdir()) == []
 

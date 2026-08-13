@@ -30,7 +30,7 @@ def _taxonomy() -> TopicTaxonomy:
 
 
 def _item(kind: str = "paper") -> dict[str, object]:
-    reading: dict[str, object] = {"analysis_basis": "mineru_full_text", "visual_analysis": {"status": "not_required"}}
+    reading: dict[str, object] = {"analysis_basis": "mineru_full_text"}
     if kind == "blog":
         reading = {"analysis_basis": "article_html", "system_context_zh": "context"}
     return {"kind": kind, "id": f"{kind}:example", "title": "Original Title", "summary_zh": "summary", "source": "arxiv", "url": "https://example.com", "published_at": "2026-08-09T00:00:00Z", "authors": ["Author"], "targets": ["content"], "scenarios": ["text_feed"], "tasks": ["ranking"], "methods": ["two_tower"], "deep_reading": reading}
@@ -68,17 +68,11 @@ def test_legacy_deep_reading_alias_is_rejected() -> None:
         PaperItem.model_validate(data, context={"taxonomy": _taxonomy()})
 
 
-def test_legacy_visual_fields_are_rejected() -> None:
+@pytest.mark.parametrize("field", ["visual_status", "visual_analysis"])
+def test_legacy_visual_fields_are_rejected(field: str) -> None:
     data = _item()
-    data["deep_reading"]["visual_status"] = "not_required"  # type: ignore[index]
-    with pytest.raises(ValidationError, match="visual_status"):
-        PaperItem.model_validate(data, context={"taxonomy": _taxonomy()})
-
-
-def test_completed_visual_analysis_requires_provenance_and_finding() -> None:
-    data = _item()
-    data["deep_reading"]["visual_analysis"] = {"status": "completed", "profile": "vision", "model": "model", "pages": [1]}  # type: ignore[index]
-    with pytest.raises(ValidationError, match="visual finding"):
+    data["deep_reading"][field] = {"status": "not_required"}  # type: ignore[index]
+    with pytest.raises(ValidationError, match=field):
         PaperItem.model_validate(data, context={"taxonomy": _taxonomy()})
 
 
@@ -93,6 +87,7 @@ def test_deep_reading_response_schemas_are_strict_and_evidence_bearing() -> None
     assert "system_context_zh" in blog["required"]
     assert "evidence_refs" in paper["required"]
     assert "evidence_refs" in blog["required"]
+    assert "visual_analysis" not in paper["properties"]
     assert paper["properties"]["method_zh"]["type"] == ["string", "null"]
     assert blog["properties"]["architecture_zh"]["type"] == ["string", "null"]
 
@@ -117,16 +112,6 @@ def test_paper_response_schema_accepts_method_and_limitation_only() -> None:
     schema = paper_reading_json_schema()
     payload = {
         "analysis_basis": "abstract_fallback",
-        "visual_analysis": {
-            "status": "not_required",
-            "profile": None,
-            "model": None,
-            "pages": [],
-            "architecture_zh": None,
-            "table_findings_zh": [],
-            "chart_findings_zh": [],
-            "limitations_zh": [],
-        },
         "evidence_quality": None,
         "business_transferability": None,
         "technical_depth": None,
@@ -181,7 +166,6 @@ def test_blog_evidence_requires_one_nonempty_location() -> None:
 def test_post_schema_quality_validation_rejects_empty_semantic_alternatives() -> None:
     paper = PaperReading(
         analysis_basis="abstract_fallback",
-        visual_analysis={"status": "not_required"},
         problem_zh="A bounded retrieval problem.",
     )
     blog = BlogReading(analysis_basis="excerpt_fallback", system_context_zh="A feed-ranking service.")
@@ -240,7 +224,7 @@ def test_artifact_timestamps_require_utc(timestamp: datetime) -> None:
     )
     stage_report = StageReport()
     with pytest.raises(ValidationError, match="UTC"):
-        LLMMetadata(profile="profile", model="model", generated_at=timestamp)
+        LLMMetadata(model="model", generated_at=timestamp)
     with pytest.raises(ValidationError, match="UTC"):
         PaperItem.model_validate(_item() | {"published_at": timestamp}, context=taxonomy)
     with pytest.raises(ValidationError, match="UTC"):
@@ -249,3 +233,8 @@ def test_artifact_timestamps_require_utc(timestamp: datetime) -> None:
         SourceState(last_success_at=timestamp)
     with pytest.raises(ValidationError, match="UTC"):
         State(last_success_at=timestamp, updated_at=timestamp)
+
+
+def test_llm_metadata_rejects_removed_profile_field() -> None:
+    with pytest.raises(ValidationError, match="profile"):
+        LLMMetadata(profile="deepseek", model="deepseek-v4-flash")

@@ -43,6 +43,9 @@ def test_daily_workflow_has_single_schedule_and_artifact_boundaries() -> None:
     assert "actions/deploy-pages@v4" in text
     assert "MINERU_API_KEY: ${{ secrets.MINERU_API_KEY }}" in text
     assert "-e MINERU_API_KEY" in text
+    assert "DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}" in text
+    assert "DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}" in text
+    assert "NVIDIA" not in text
 
 
 def test_verify_workflow_is_fixture_only_and_builds_both_images() -> None:

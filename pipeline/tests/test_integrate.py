@@ -32,7 +32,6 @@ def _paper(item_id: str, score: float) -> dict[str, object]:
         "relevance_score": score,
         "deep_reading": {
             "analysis_basis": "mineru_full_text",
-            "visual_analysis": {"status": "not_required"},
         },
     }
 
@@ -62,7 +61,10 @@ def _blog(item_id: str, score: float) -> dict[str, object]:
 def _write_stage(path: Path, run_id: str, kind: str, items: list[dict[str, object]]) -> Path:
     path.mkdir(parents=True)
     (path / "manifest.json").write_text(json.dumps({"run_id": run_id, "schema_version": "1"}), encoding="utf-8")
-    (path / "items.jsonl").write_text("".join(json.dumps(item) + "\n" for item in items), encoding="utf-8")
+    (path / f"{kind}-deep-readings.json").write_text(
+        json.dumps({"kind": kind, "items": items}, ensure_ascii=False),
+        encoding="utf-8",
+    )
     return path
 
 
@@ -72,8 +74,17 @@ def fixture_stages(tmp_path: Path, *, paper_run_id: str = "run-1", blog_run_id: 
     stage1.mkdir()
     (stage1 / "manifest.json").write_text(json.dumps({"run_id": paper_run_id, "schema_version": "1"}), encoding="utf-8")
     candidates = [_paper(f"paper-{i}", 1 - i / 20) for i in range(10)] + [_blog(f"blog-{i}", 1 - i / 20) for i in range(10)]
-    (stage1 / "items.jsonl").write_text(
-        "".join(json.dumps({**{key: value for key, value in item.items() if key not in {"deep_reading"}}, "graph_relations": [], "degraded": False}) + "\n" for item in candidates),
+    stage1_candidates = {
+        **{key: value for key, value in item.items() if key not in {"deep_reading"}},
+        "graph_relations": [],
+        "degraded": False,
+    }
+    (stage1 / "papers.jsonl").write_text(
+        "".join(json.dumps(stage1_candidates) + "\n" for item in candidates if item["kind"] == "paper"),
+        encoding="utf-8",
+    )
+    (stage1 / "blogs.jsonl").write_text(
+        "".join(json.dumps(stage1_candidates) + "\n" for item in candidates if item["kind"] == "blog"),
         encoding="utf-8",
     )
     (stage1 / "source-states.json").write_text(
@@ -134,16 +145,18 @@ def test_source_states_are_carried_into_pending_state_and_provenance_is_recorded
     assert state["sources"]["blog"]["etag"] == '"old"'
     item_path = next((bundle.path / "pending-data" / "items").rglob("*.json"))
     item = json.loads(item_path.read_text(encoding="utf-8"))
-    assert item["llm"]["profile"] == CONFIG.models.text.active_profile
-    assert item["llm"]["model"] == CONFIG.models.text.active().model
+    assert set(item["llm"]) == {"model", "generated_at", "degraded"}
+    assert item["llm"]["model"] == CONFIG.models.text.model
 
 
 def test_deep_read_ids_must_belong_to_stage_one_candidates(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
-    paper_path = stages.paper / "items.jsonl"
-    value = json.loads(paper_path.read_text(encoding="utf-8").splitlines()[0])
+    paper_path = stages.paper / "paper-deep-readings.json"
+    paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
+    value = paper_document["items"][0]
     value["id"] = "unknown-paper"
-    paper_path.write_text(json.dumps(value) + "\n", encoding="utf-8")
+    paper_document["items"][0] = value
+    paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
     with pytest.raises(ValueError, match="deep-reading id"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
@@ -153,7 +166,6 @@ def test_final_ranking_uses_configured_deep_read_dimensions() -> None:
     high_data = _paper("high", 0.60)
     high_data["deep_reading"] = {
         "analysis_basis": "mineru_full_text",
-        "visual_analysis": {"status": "not_required"},
         "evidence_quality": 1.0,
         "business_transferability": 1.0,
         "technical_depth": 1.0,
@@ -164,8 +176,10 @@ def test_final_ranking_uses_configured_deep_read_dimensions() -> None:
 
 def test_integration_rejects_low_structured_analysis_rate(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
-    stage_items = [json.loads(line) for line in (stages.paper / "items.jsonl").read_text(encoding="utf-8").splitlines()]
-    (stages.paper / "items.jsonl").write_text(json.dumps(stage_items[0]) + "\n", encoding="utf-8")
+    paper_path = stages.paper / "paper-deep-readings.json"
+    paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
+    paper_document["items"] = paper_document["items"][:1]
+    paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
     with pytest.raises(ValueError, match="structured analysis success rate"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
@@ -190,10 +204,10 @@ def test_source_states_are_promoted_into_pending_state(tmp_path: Path) -> None:
 
 def test_unknown_deep_read_candidate_id_is_rejected(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
-    paper_path = stages.paper / "items.jsonl"
-    value = json.loads(paper_path.read_text(encoding="utf-8").splitlines()[0])
-    value["id"] = "paper-not-collected"
-    paper_path.write_text(json.dumps(value) + "\n", encoding="utf-8")
+    paper_path = stages.paper / "paper-deep-readings.json"
+    paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
+    paper_document["items"][0]["id"] = "paper-not-collected"
+    paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
 
     with pytest.raises(ValueError, match="candidate id"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
@@ -201,9 +215,11 @@ def test_unknown_deep_read_candidate_id_is_rejected(tmp_path: Path) -> None:
 
 def test_structured_analysis_success_rate_is_enforced(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
-    paper_path = stages.paper / "items.jsonl"
-    lines = paper_path.read_text(encoding="utf-8").splitlines()[:8]
-    paper_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    paper_path = stages.paper / "paper-deep-readings.json"
+    # Seven of ten Stage 1 paper candidates is below the configured 0.80 gate.
+    paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
+    paper_document["items"] = paper_document["items"][:7]
+    paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
 
     with pytest.raises(ValueError, match="structured analysis success rate"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
@@ -211,12 +227,12 @@ def test_structured_analysis_success_rate_is_enforced(tmp_path: Path) -> None:
 
 def test_item_size_limit_is_enforced_before_publish(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
-    paper_path = stages.stage1 / "items.jsonl"
-    lines = paper_path.read_text(encoding="utf-8").splitlines()
+    blob_path = stages.stage1 / "papers.jsonl"
+    lines = blob_path.read_text(encoding="utf-8").splitlines()
     value = json.loads(lines[0])
     value["summary_zh"] = "x" * (CONFIG.settings.storage.max_item_bytes + 1)
     lines[0] = json.dumps(value)
-    paper_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    blob_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="item exceeds configured size"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
@@ -309,7 +325,7 @@ def test_integrate_rejects_historical_digest_with_missing_item_transactionally(t
 
 def test_integrate_enforces_configured_blog_excerpt_limit(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
-    stage_path = stages.stage1 / "items.jsonl"
+    stage_path = stages.stage1 / "blogs.jsonl"
     values = [json.loads(line) for line in stage_path.read_text(encoding="utf-8").splitlines()]
     next(item for item in values if item["kind"] == "blog")["excerpt"] = "12345678"
     stage_path.write_text("\n".join(json.dumps(item) for item in values) + "\n", encoding="utf-8")

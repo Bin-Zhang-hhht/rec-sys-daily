@@ -30,11 +30,10 @@ The site image consumes only the short-lived publish bundle (`manifest.json`, `t
 
 Configure these GitHub Actions Secrets for production runs:
 
-- `NVIDIA_BASE_URL`
-- `NVIDIA_API_KEY`
-- `MINERU_API_KEY`
-- `NVIDIA_VLM_INVOKE_URL`
 - `DEEPSEEK_BASE_URL`
 - `DEEPSEEK_API_KEY`
+- `MINERU_API_KEY`
+
+The pipeline uses the single text model declared at `models.text` in `config/models.yaml` through an OpenAI-compatible Responses API. Change the model ID in YAML; change the endpoint or credential through the corresponding environment variable. The paper path uses MinerU independently for temporary PDF-to-Markdown parsing.
 
 The scheduled run is at `00:23 UTC` (`08:23 Asia/Shanghai`) and can also be started with `workflow_dispatch`.

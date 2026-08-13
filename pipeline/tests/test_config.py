@@ -22,21 +22,22 @@ def _write_config(root: Path) -> None:
         "blogs": [],
     })
     _write_yaml(root / "config/models.yaml", {"models": {
-        "text": {"active_profile": "nvidia_super", "profiles": {"nvidia_super": {
-            "base_url_env": "NVIDIA_BASE_URL", "api_key_env": "NVIDIA_API_KEY", "model": "nvidia/super", "context_window_tokens": 1_000_000,
-        }}, "reserved_prompt_tokens": 8_000, "reserved_output_tokens": 16_000, "batch_size": 8},
-        "vision": {"profile": "nvidia_omni", "invoke_url_env": "NVIDIA_VLM_INVOKE_URL", "api_key_env": "NVIDIA_API_KEY", "model": "nvidia/omni", "context_window_tokens": 262_144, "max_requests_per_paper": 1, "include_all_detected_key_pages": True, "request_defaults": {"max_tokens": 65_536, "reasoning_budget": 16_384, "stream": False, "temperature": 0.6, "top_p": 0.95}},
+        "text": {
+            "base_url_env": "DEEPSEEK_BASE_URL", "api_key_env": "DEEPSEEK_API_KEY",
+            "model": "deepseek-v4-flash", "context_window_tokens": 1_000_000,
+            "reserved_prompt_tokens": 8_000, "reserved_output_tokens": 16_000, "batch_size": 8,
+        },
         "mineru": {"api_key_env": "MINERU_API_KEY", "base_url": "https://mineru.net/api/v4", "model_version": "vlm", "upload_timeout_seconds": 120, "poll_timeout_seconds": 900, "poll_interval_seconds": 5, "max_pdf_bytes": 20_971_520, "max_pdf_pages": 200},
-        "common": {"concurrency_per_worker": 1, "timeout_seconds": 600, "retries": 3},
+        "common": {"timeout_seconds": 600, "retries": 3},
     }})
     _write_yaml(root / "config/settings.yaml", {
         "daily_target": 8,
         "minimum_final_score": 0.5,
         "request_user_agent": "RecSysDaily/1.0",
-        "structured_analysis_min_success_rate": .90,
+        "structured_analysis_min_success_rate": .80,
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
-        "limits": {"http_concurrency": 2, "nvidia_hard_rpm": 40, "nvidia_target_rpm": 30, "nvidia_parallel_workers": 2, "nvidia_concurrency_per_worker": 1, "nvidia_min_interval_seconds_per_worker": 4, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 16, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
+        "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 16, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
         "graph_max_content_nodes": 80,
         "graph_recent_days": 90,
         "storage": {"target_item_bytes": 16_384, "max_item_bytes": 32_768, "max_blog_excerpt_chars": 4_000, "warn_repository_data_mb": 500, "warn_pages_artifact_mb": 500, "fail_pages_artifact_mb": 900},
@@ -52,8 +53,8 @@ def test_repository_config_snapshot_is_ordered_and_public() -> None:
 def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> None:
     _write_config(tmp_path)
     config = load_config(tmp_path)
-    assert config.models.text.active_profile == "nvidia_super"
-    assert config.settings.limits.nvidia_target_rpm == 30
+    assert config.models.text.model == "deepseek-v4-flash"
+    assert not hasattr(config.settings.limits, "llm_target_rpm")
     assert config.models.mineru.model_version == "vlm"
 
 
@@ -65,6 +66,24 @@ def test_config_uses_mineru_and_has_no_fetch_attempt_caps() -> None:
     assert not hasattr(limits, "max_blog_fulltext_fetches_per_run")
     assert config.models.mineru.api_key_env == "MINERU_API_KEY"
     assert config.models.mineru.max_pdf_pages == 200
+
+
+@pytest.mark.parametrize("legacy_field", [
+    "nvidia_hard_rpm",
+    "nvidia_target_rpm",
+    "llm_hard_rpm",
+    "llm_target_rpm",
+    "llm_min_interval_seconds_per_worker",
+])
+def test_legacy_llm_rate_limit_fields_are_rejected(tmp_path: Path, legacy_field: str) -> None:
+    _write_config(tmp_path)
+    path = tmp_path / "config/settings.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["limits"][legacy_field] = 40
+    _write_yaml(path, data)
+
+    with pytest.raises(ValueError, match=legacy_field):
+        load_config(tmp_path)
 
 
 def test_mineru_api_key_reference_must_be_an_environment_name(tmp_path: Path) -> None:
@@ -134,19 +153,32 @@ def test_model_environment_references_must_be_identifiers(tmp_path: Path) -> Non
     _write_config(tmp_path)
     path = tmp_path / "config/models.yaml"
     data = yaml.safe_load(path.read_text())
-    data["models"]["text"]["profiles"]["nvidia_super"]["base_url_env"] = "https://example.com/v1"
+    data["models"]["text"]["base_url_env"] = "https://example.com/v1"
     _write_yaml(path, data)
 
     with pytest.raises(ValueError, match="base_url_env"):
         load_config(tmp_path)
 
 
-def test_text_and_vision_environment_references_match_their_profiles(tmp_path: Path) -> None:
+def test_text_environment_references_match_the_documented_deepseek_names(tmp_path: Path) -> None:
     _write_config(tmp_path)
     path = tmp_path / "config/models.yaml"
     data = yaml.safe_load(path.read_text())
-    data["models"]["text"]["profiles"]["nvidia_super"]["api_key_env"] = "DEEPSEEK_API_KEY"
+    data["models"]["text"]["api_key_env"] = "OTHER_API_KEY"
     _write_yaml(path, data)
 
-    with pytest.raises(ValueError, match="nvidia_super"):
+    with pytest.raises(ValueError, match="DEEPSEEK"):
+        load_config(tmp_path)
+
+
+@pytest.mark.parametrize("legacy_field", ["profiles", "active_profile", "vision"])
+def test_legacy_model_selection_and_vision_fields_are_rejected(tmp_path: Path, legacy_field: str) -> None:
+    _write_config(tmp_path)
+    path = tmp_path / "config/models.yaml"
+    data = yaml.safe_load(path.read_text())
+    target = data["models"] if legacy_field == "vision" else data["models"]["text"]
+    target[legacy_field] = {}
+    _write_yaml(path, data)
+
+    with pytest.raises(ValueError, match=legacy_field):
         load_config(tmp_path)

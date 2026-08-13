@@ -72,7 +72,7 @@ def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypat
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
         "methods": [config.topics.methods[0].id],
-        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+        "deep_reading": {"analysis_basis": "abstract_fallback"},
     }), encoding="utf-8")
     digest.write_text(json.dumps({
         "date": "2025-01-02",

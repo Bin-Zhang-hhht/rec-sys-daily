@@ -9,10 +9,10 @@ description = "Daily recommendation-systems research pipeline"
 requires-python = ">=3.12"
 dependencies = [
     "feedparser",
+    "jsonschema",
     "openai",
     "pypdf",
     "pydantic>=2",
-    "PyMuPDF",
     "python-dateutil",
     "PyYAML",
     "requests",
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["jsonschema", "pytest"]
+dev = ["pytest"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

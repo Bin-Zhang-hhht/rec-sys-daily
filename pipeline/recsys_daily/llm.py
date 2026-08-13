@@ -1,4 +1,4 @@
-"""Synchronous OpenAI-compatible text and direct NVIDIA vision clients."""
+"""Synchronous OpenAI-compatible Responses API text client."""
 
 from __future__ import annotations
 
@@ -9,16 +9,21 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-import requests
-from openai import OpenAI
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
+from openai import APIConnectionError, OpenAI
 
 from .config import ModelConfig
-from .rate_limit import RateLimiter, RetryableHTTPError, request_with_retries
+from .rate_limit import request_with_retries
+
+
+class ModelOutputError(ValueError):
+    """A retryable malformed response without retaining provider output."""
 
 
 def _json_content(content: Any) -> dict[str, Any]:
     if not isinstance(content, str):
-        raise ValueError("model response content must be JSON text")
+        raise ModelOutputError("model response content must be JSON text")
     text = content.strip()
     if text.startswith("```"):
         lines = text.splitlines()
@@ -26,9 +31,9 @@ def _json_content(content: Any) -> dict[str, Any]:
     try:
         value = json.loads(text)
     except json.JSONDecodeError as exc:
-        raise ValueError("model response is not valid JSON") from exc
+        raise ModelOutputError("model response is not valid JSON") from exc
     if not isinstance(value, dict):
-        raise ValueError("model response JSON must be an object")
+        raise ModelOutputError("model response JSON must be an object")
     return value
 
 
@@ -40,11 +45,6 @@ _UNSUPPORTED_PROVIDER_SCHEMA_KEYS = {
     "maxLength",
     "pattern",
     "format",
-    "minimum",
-    "maximum",
-    "exclusiveMinimum",
-    "exclusiveMaximum",
-    "multipleOf",
     "minItems",
     "maxItems",
     "uniqueItems",
@@ -135,15 +135,16 @@ class TextClient:
         base_url: str,
         api_key: str,
         model: str,
+        max_output_tokens: int | None = None,
         timeout_seconds: int | None = None,
         retries: int | None = None,
-        limiter: RateLimiter | Callable[[], None] | None = None,
         sleeper: Callable[[float], None] = time.sleep,
         client: Any | None = None,
     ) -> None:
         self.base_url, self.api_key, self.model = base_url, api_key, model
+        self.max_output_tokens = max_output_tokens
         self.timeout_seconds, self.retries = timeout_seconds, retries
-        self._limiter, self._sleeper = limiter or RateLimiter(), sleeper
+        self._sleeper = sleeper
         self._client = client or OpenAI(api_key=api_key, base_url=base_url, timeout=timeout_seconds)
 
     @classmethod
@@ -152,130 +153,54 @@ class TextClient:
         models: ModelConfig,
         environ: Mapping[str, str] | None = None,
         *,
-        limiter: RateLimiter | Callable[[], None] | None = None,
         timeout_seconds: int | None = None,
         retries: int | None = None,
         sleeper: Callable[[float], None] = time.sleep,
     ) -> "TextClient":
         env = os.environ if environ is None else environ
-        profile = models.text.active()
-        base_url, api_key = env.get(profile.base_url_env), env.get(profile.api_key_env)
+        text = models.text
+        base_url, api_key = env.get(text.base_url_env), env.get(text.api_key_env)
         if not base_url or not api_key:
-            raise ValueError("active text profile environment variables are missing")
+            raise ValueError("text model environment variables are missing")
         common = models.common
         return cls(
             base_url=base_url,
             api_key=api_key,
-            model=profile.model,
+            model=text.model,
+            max_output_tokens=text.reserved_output_tokens,
             timeout_seconds=common.timeout_seconds if timeout_seconds is None else timeout_seconds,
             retries=common.retries if retries is None else retries,
-            limiter=limiter,
             sleeper=sleeper,
         )
 
     def complete_json(self, messages: Sequence[Mapping[str, Any]], schema: Mapping[str, Any]) -> dict[str, Any]:
+        validator = Draft202012Validator(schema)
+
         def operation() -> dict[str, Any]:
-            response = self._client.chat.completions.create(
+            response = self._client.responses.create(
                 model=self.model,
-                messages=list(messages),
-                response_format={
-                    "type": "json_schema",
-                    "json_schema": {"name": "response", "strict": True, "schema": _provider_schema(schema)},
+                input=list(messages),
+                text={
+                    "format": {
+                        "type": "json_schema",
+                        "name": "response",
+                        "strict": True,
+                        "schema": _provider_schema(schema),
+                    }
                 },
+                max_output_tokens=self.max_output_tokens,
                 temperature=0.6,
-                stream=False,
             )
+            value = _json_content(getattr(response, "output_text", None))
             try:
-                content = response.choices[0].message.content
-            except (AttributeError, IndexError, TypeError) as exc:
-                raise ValueError("model response has no choices[0].message.content") from exc
-            return _json_content(content)
+                validator.validate(value)
+            except JsonSchemaValidationError as exc:
+                raise ModelOutputError("model response does not match the requested schema") from exc
+            return value
 
-        return request_with_retries(operation, limiter=self._limiter, sleeper=self._sleeper, max_attempts=self.retries)
-
-
-class VisionClient:
-    def __init__(
-        self,
-        *,
-        invoke_url: str,
-        api_key: str,
-        model: str,
-        defaults: Any,
-        timeout_seconds: int | None = None,
-        retries: int | None = None,
-        limiter: RateLimiter | Callable[[], None] | None = None,
-        sleeper: Callable[[float], None] = time.sleep,
-        post: Callable[..., Any] | None = None,
-    ) -> None:
-        self.invoke_url, self.api_key, self.model = invoke_url, api_key, model
-        self.defaults, self.timeout_seconds, self.retries = defaults, timeout_seconds, retries
-        self._limiter, self._sleeper, self._post = limiter or RateLimiter(), sleeper, post
-
-    @classmethod
-    def from_config(
-        cls,
-        models: ModelConfig,
-        environ: Mapping[str, str] | None = None,
-        *,
-        limiter: RateLimiter | Callable[[], None] | None = None,
-        timeout_seconds: int | None = None,
-        retries: int | None = None,
-        sleeper: Callable[[float], None] = time.sleep,
-    ) -> "VisionClient":
-        env = os.environ if environ is None else environ
-        vision = models.vision
-        invoke_url, api_key = env.get(vision.invoke_url_env), env.get(vision.api_key_env)
-        if not invoke_url or not api_key:
-            raise ValueError("vision environment variables are missing")
-        common = models.common
-        return cls(
-            invoke_url=invoke_url,
-            api_key=api_key,
-            model=vision.model,
-            defaults=vision.request_defaults,
-            timeout_seconds=common.timeout_seconds if timeout_seconds is None else timeout_seconds,
-            retries=common.retries if retries is None else retries,
-            limiter=limiter,
-            sleeper=sleeper,
+        return request_with_retries(
+            operation,
+            sleeper=self._sleeper,
+            max_attempts=self.retries,
+            retry_on_exceptions=(APIConnectionError, ModelOutputError),
         )
-
-    def build_payload(self, prompt: str, images: Sequence[str]) -> dict[str, Any]:
-        content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
-        content.extend({"type": "image_url", "image_url": {"url": image}} for image in images)
-        return {
-            "model": self.model,
-            "messages": [{"role": "user", "content": content}],
-            "max_tokens": self.defaults.max_tokens,
-            "reasoning_budget": self.defaults.reasoning_budget,
-            "temperature": self.defaults.temperature,
-            "top_p": self.defaults.top_p,
-            "stream": False,
-        }
-
-    def analyze(self, prompt: str, images: Sequence[str]) -> dict[str, Any]:
-        payload = self.build_payload(prompt, images)
-
-        def operation() -> dict[str, Any]:
-            response = (self._post or requests.post)(
-                self.invoke_url,
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                json=payload,
-                timeout=self.timeout_seconds,
-            )
-            try:
-                response.raise_for_status()
-            except requests.HTTPError as exc:
-                retry_after = (getattr(response, "headers", {}) or {}).get("Retry-After")
-                raise RetryableHTTPError(getattr(response, "status_code", 0), retry_after=retry_after) from exc
-            try:
-                content = response.json()["choices"][0]["message"]["content"]
-            except (KeyError, IndexError, TypeError) as exc:
-                raise ValueError("vision response has no choices[0].message.content") from exc
-            return _json_content(content)
-
-        return request_with_retries(operation, limiter=self._limiter, sleeper=self._sleeper, max_attempts=self.retries)

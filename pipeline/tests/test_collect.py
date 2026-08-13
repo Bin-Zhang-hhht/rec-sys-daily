@@ -15,7 +15,7 @@ from recsys_daily.security import PublicUrlError, fetch_public_url, validate_pub
 from recsys_daily.schemas import SourceState, State
 from recsys_daily.stage_one import collection_stage_report, load_history_ids, run_collect_filter
 from recsys_daily.testing_fixtures import _fixture_metadata_candidate_ids
-from recsys_daily.state import compute_query_windows, query_window
+from recsys_daily.state import query_window
 
 
 ROOT = Path(__file__).parents[2]
@@ -36,14 +36,12 @@ def _config():
 
 
 def test_query_window_uses_cold_start_and_incremental_offsets() -> None:
-    cold = compute_query_windows(None, now=NOW)
+    cold = query_window(None, now=NOW)
     state = State(last_success_at=datetime(2026, 8, 9, 0, 0, tzinfo=UTC))
     incremental = query_window(state, now=NOW)
 
     assert cold.papers_since == datetime(2021, 8, 10, 0, 0, tzinfo=UTC)
     assert cold.blogs_since == datetime(2023, 8, 10, 0, 0, tzinfo=UTC)
-    assert cold.paper_start == cold.papers_since
-    assert cold.blog_start == cold.blogs_since
     assert incremental.papers_since == datetime(2026, 8, 7, 0, 0, tzinfo=UTC)
     assert incremental.blogs_since == datetime(2026, 8, 2, 0, 0, tzinfo=UTC)
 
@@ -136,7 +134,7 @@ def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> No
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
         "methods": [config.topics.methods[0].id],
-        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+        "deep_reading": {"analysis_basis": "abstract_fallback"},
     }), encoding="utf-8")
     blog.write_text(json.dumps({
         "id": "digest-blog",
@@ -220,7 +218,7 @@ def test_load_history_ids_rejects_duplicate_canonical_item_ids(tmp_path: Path) -
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
         "methods": [config.topics.methods[0].id],
-        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+        "deep_reading": {"analysis_basis": "abstract_fallback"},
     }
     first = tmp_path / "items/papers/2025/01/duplicate-id.json"
     second = tmp_path / "items/papers/2026/01/duplicate-id.json"
@@ -252,7 +250,7 @@ def test_load_history_ids_rejects_missing_or_wrong_kind_digest_reference(tmp_pat
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
         "methods": [config.topics.methods[0].id],
-        "deep_reading": {"analysis_basis": "abstract_fallback", "visual_analysis": {"status": "not_required"}},
+        "deep_reading": {"analysis_basis": "abstract_fallback"},
     }
     item_path = tmp_path / "items/papers/2025/01/paper-id.json"
     digest_path = tmp_path / "digests/2025/01/2025-01-02.json"

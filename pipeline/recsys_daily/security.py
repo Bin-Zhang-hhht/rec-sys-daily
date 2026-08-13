@@ -9,7 +9,7 @@ import time
 
 import requests
 
-from .rate_limit import RateLimiter, request_with_retries
+from .rate_limit import request_with_retries
 
 
 class PublicUrlError(ValueError):
@@ -113,7 +113,7 @@ def fetch_public_url(
     max_attempts: int = 3,
     user_agent: str | None = None,
     sleeper: Callable[[float], None] = time.sleep,
-    attempt_limiter: RateLimiter | Callable[[], None] | None = None,
+    attempt_limiter: Callable[[], None] | None = None,
     backoff_seconds: float = 1.0,
     max_delay_seconds: float = 30.0,
 ) -> requests.Response:

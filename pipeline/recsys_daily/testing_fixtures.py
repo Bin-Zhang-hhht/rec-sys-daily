@@ -86,14 +86,8 @@ class _FixtureContent:
         self.article_html = ARTICLE_HTML
         self.exercise_blog_fallbacks = exercise_blog_fallbacks
 
-    def fetch_text(self, _url: str, _limit: int) -> str:
-        return self.paper_html
-
     def fetch_bytes(self, _url: str, _limit: int) -> bytes:
         return b"fixture PDF"
-
-    def extract_pdf(self, *_args: object) -> object:
-        raise AssertionError("fixture paper flow must not use PyMuPDF")
 
     def extract_article(self, html: str) -> str:
         return html.replace("<", " ").replace(">", " ")
@@ -135,7 +129,6 @@ def _fixture_services(work: Path, *, exercise_blog_fallbacks: bool = False) -> D
 
     services = DeepReadServices(
         content=ContentServices(
-            fetch_text=content.fetch_text,
             fetch_bytes=content.fetch_bytes,
             extract_article=content.extract_article,
             feed_content=content.feed_content,
@@ -448,7 +441,6 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
         "methods": [config.topics.methods[0].id],
         "deep_reading": {
             "analysis_basis": "abstract_fallback",
-            "visual_analysis": {"status": "not_required"},
         },
     }
     write_json(data / "items/papers/2026/08/arxiv-2608.01234.json", item)

@@ -40,6 +40,7 @@ def metadata_json_schema(taxonomy: TopicTaxonomy) -> dict[str, Any]:
         return {
             "type": "array",
             "items": {"type": "string", "enum": [entry.id for entry in getattr(taxonomy, category)]},
+            "minItems": 1,
             "uniqueItems": True,
         }
 
@@ -48,16 +49,15 @@ def metadata_json_schema(taxonomy: TopicTaxonomy) -> dict[str, Any]:
         "additionalProperties": False,
         "properties": {
             "id": {"type": "string", "minLength": 1},
-            "summary_zh": {"type": ["string", "null"]},
+            "summary_zh": {"type": "string", "minLength": 1},
             "targets": labels("targets"),
             "scenarios": labels("scenarios"),
             "tasks": labels("tasks"),
             "methods": labels("methods"),
             "relevance_score": {"type": "number", "minimum": 0, "maximum": 1},
             "graph_relations": {"type": "array", "items": relation_schema},
-            "degraded": {"type": "boolean"},
         },
-        "required": ["id", "summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "graph_relations", "degraded"],
+        "required": ["id", "summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "graph_relations"],
     }
     return {
         "type": "object",
@@ -119,7 +119,7 @@ def analyze_metadata(
             raw_items = response.get("items") if isinstance(response, Mapping) else None
             if not isinstance(raw_items, list):
                 raise ValueError("metadata response must contain an items list")
-            parsed = [Stage1Metadata.model_validate(item) for item in raw_items]
+            parsed = [Stage1Metadata.model_validate({**item, "degraded": False}) for item in raw_items]
             returned = {item.id for item in parsed}
             if returned != expected or len(parsed) != len(returned):
                 raise ValueError("metadata response must contain exactly the requested candidates")
