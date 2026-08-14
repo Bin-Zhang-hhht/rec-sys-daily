@@ -31,9 +31,9 @@ function makeBundle(snapshot = {}) {
   writeFileSync(join(bundle, "pending-data/digests/2026/08/2026-08-13.json"), JSON.stringify({ date: "2026-08-13", papers: [], blogs: [] }));
   writeFileSync(join(dist, "graph.json"), JSON.stringify({
     nodes: [
-      { data: { id: "paper-1", type: "paper", href: "/rec-sys-daily/papers/paper-1/" } },
-      { data: { id: "article-1", type: "article", href: "/rec-sys-daily/articles/article-1/" } },
-      { data: { id: "method:ranking", type: "method" } },
+      { data: { id: "paper-1", type: "paper", href: "/rec-sys-daily/papers/paper-1/", weight: 2 } },
+      { data: { id: "article-1", type: "article", href: "/rec-sys-daily/articles/article-1/", weight: 2 } },
+      { data: { id: "method:ranking", type: "method", weight: 2 } },
     ],
     edges: [
       { data: { id: "edge-1", source: "paper-1", target: "method:ranking" } },
@@ -64,6 +64,14 @@ test("verifyBuild rejects links that escape the project Pages base", () => {
   const htmlRoot = makeBundle({ graph_max_content_nodes: 2 });
   writeFileSync(join(htmlRoot.dist, "index.html"), '<a href="/search/">search</a>');
   assert.throws(() => verifyBuild(htmlRoot), /escapes project base/);
+});
+
+test("verifyBuild rejects graph nodes without a finite positive weight", () => {
+  const root = makeBundle({ graph_max_content_nodes: 2 });
+  const graph = JSON.parse(readFileSync(join(root.dist, "graph.json"), "utf8"));
+  graph.nodes[0].data.weight = 0;
+  writeFileSync(join(root.dist, "graph.json"), JSON.stringify(graph));
+  assert.throws(() => verifyBuild(root), /invalid positive weight/);
 });
 
 test("site image pins pnpm and approves only required dependency builds", () => {

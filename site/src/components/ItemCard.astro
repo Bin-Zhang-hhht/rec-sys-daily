@@ -1,7 +1,8 @@
 ---
+import { ArrowRight, BookOpen, Database, ExternalLink, Gauge, Newspaper, ScanText, Users } from "@lucide/astro";
 import type { DigestEntry, Item, Taxonomy } from "../lib/data";
-import { taxonomyGroups, taxonomyName } from "../lib/data";
 import { itemPath } from "../lib/paths";
+import TaxonomyChips from "./TaxonomyChips.astro";
 const { item, taxonomy, entry } = Astro.props as { item: Item; taxonomy: Taxonomy; entry?: DigestEntry };
 const href = itemPath(item);
 const basisLabels: Record<string, string> = {
@@ -12,17 +13,44 @@ const basisLabels: Record<string, string> = {
   excerpt_fallback: "Excerpt 降级",
 };
 ---
-<article class="border border-slate-200 bg-white p-5 shadow-sm">
-  <div class="mb-2 flex items-center justify-between text-xs text-slate-500"><span>{entry ? `#${entry.rank} · ` : ""}{item.kind === "paper" ? "Paper" : "Engineering Blog"}</span><time datetime={item.published_at}>{item.published_at.slice(0, 10)}</time></div>
-  <h3 class="text-lg font-semibold"><a href={href}>{item.title}</a></h3>
-  <p class="prose-lite mt-2 text-sm text-slate-700">{item.summary_zh}</p>
-  {entry && <p class="mt-3 text-sm text-slate-600"><strong>推荐理由：</strong>{entry.recommendation_reason_zh}</p>}
-  <dl class="mt-3 grid gap-2 text-xs text-slate-500 sm:grid-cols-2">
-    <div><dt class="inline">来源：</dt><dd class="inline">{item.source}</dd></div>
-    <div><dt class="inline">作者：</dt><dd class="inline">{item.authors.join("、") || "未署名"}</dd></div>
-    <div><dt class="inline">分数：</dt><dd class="inline">相关性 {item.relevance_score.toFixed(2)} · 最终 {item.final_score.toFixed(2)}</dd></div>
-    <div><dt class="inline">分析：</dt><dd class="inline">{basisLabels[item.deep_reading.analysis_basis]}{item.llm?.degraded ? " · 已降级" : ""}</dd></div>
+<article class="group rounded-lg border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+  <div class="flex items-center justify-between gap-3 text-xs text-slate-500">
+    <span class="inline-flex items-center gap-1.5 font-medium uppercase text-slate-600">
+      {item.kind === "paper" ? <BookOpen size={15} stroke-width={1.8} aria-hidden="true" /> : <Newspaper size={15} stroke-width={1.8} aria-hidden="true" />}
+      {entry ? `#${entry.rank} · ` : ""}{item.kind === "paper" ? "Paper" : "Engineering Blog"}
+    </span>
+    <time class="shrink-0 tabular-nums" datetime={item.published_at}>{item.published_at.slice(0, 10)}</time>
+  </div>
+  <h3 class="mt-3 text-lg font-semibold leading-7 text-slate-950">
+    <a class="decoration-sky-600 decoration-1 underline-offset-4 group-hover:underline" href={href}>{item.title}</a>
+  </h3>
+  <p class="mt-3 text-sm leading-7 text-slate-700">{item.summary_zh}</p>
+  {entry && <p class="mt-4 border-l-2 border-sky-300 pl-3 text-sm leading-6 text-slate-600"><strong class="font-semibold text-slate-800">推荐理由：</strong>{entry.recommendation_reason_zh}</p>}
+  <dl class="mt-5 grid gap-3 border-t border-slate-100 pt-5 text-xs leading-5 text-slate-600">
+    <div class="grid grid-cols-[1.125rem_3.25rem_minmax(0,1fr)] items-start gap-2">
+      <Database class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
+      <dt class="font-medium text-slate-500">来源</dt>
+      <dd class="min-w-0 break-words text-slate-700">{item.source}</dd>
+    </div>
+    <div class="grid grid-cols-[1.125rem_3.25rem_minmax(0,1fr)] items-start gap-2">
+      <Users class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
+      <dt class="font-medium text-slate-500">作者</dt>
+      <dd class="min-w-0 break-words text-slate-700">{item.authors.join("、") || "未署名"}</dd>
+    </div>
+    <div class="grid grid-cols-[1.125rem_3.25rem_minmax(0,1fr)] items-start gap-2">
+      <Gauge class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
+      <dt class="font-medium text-slate-500">分数</dt>
+      <dd class="min-w-0 tabular-nums text-slate-700">相关性 {item.relevance_score.toFixed(2)} · 最终 {item.final_score.toFixed(2)}</dd>
+    </div>
+    <div class="grid grid-cols-[1.125rem_3.25rem_minmax(0,1fr)] items-start gap-2">
+      <ScanText class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
+      <dt class="font-medium text-slate-500">分析</dt>
+      <dd class="min-w-0 text-slate-700">{basisLabels[item.deep_reading.analysis_basis] ?? item.deep_reading.analysis_basis}{item.llm?.degraded ? <span class="text-amber-700"> · 已降级</span> : ""}</dd>
+    </div>
   </dl>
-  <div class="mt-4 space-y-2">{taxonomyGroups.map(group => <div class="flex flex-wrap items-center gap-2 text-xs"><span class="w-12 text-slate-500">{group}</span>{item[group].map(id => <span class="tag">{taxonomyName(taxonomy, group, id).name_zh}</span>)}</div>)}</div>
-  <div class="mt-4 flex gap-4 text-sm"><a href={href}>查看详情</a><a href={item.url} target="_blank" rel="noreferrer">阅读原文</a></div>
+  <TaxonomyChips item={item} taxonomy={taxonomy} class="mt-5" />
+  <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-sm font-medium">
+    <a class="inline-flex items-center gap-1.5" href={href}>查看详情 <ArrowRight size={16} stroke-width={1.8} aria-hidden="true" /></a>
+    <a class="inline-flex items-center gap-1.5" href={item.url} target="_blank" rel="noopener noreferrer">阅读原文 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
+  </div>
 </article>

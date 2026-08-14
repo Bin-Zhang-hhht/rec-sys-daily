@@ -1,11 +1,78 @@
 ---
+import { AlertTriangle, CheckCircle2, Cpu, ExternalLink, FileSearch, Tags } from "@lucide/astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { loadBundle, taxonomyGroups } from "../lib/data";
+
+const data = loadBundle();
+const latestItems = [...data.latestDigest.papers, ...data.latestDigest.blogs]
+  .map(entry => data.byId.get(entry.item_id))
+  .filter(item => item !== undefined);
+const models = [...new Set(latestItems.flatMap(item => item.llm?.model ? [item.llm.model] : []))].sort();
+const bases = [...new Set(latestItems.map(item => item.deep_reading.analysis_basis))].sort();
+const basisLabels: Record<string, string> = {
+  mineru_full_text: "论文：MinerU 全文",
+  abstract_fallback: "论文：Abstract 降级",
+  rss_full_content: "博客：RSS 全文",
+  article_html: "博客：Article HTML",
+  excerpt_fallback: "博客：Excerpt 降级",
+};
+const groupMeta = {
+  targets: { label: "目标 Targets", classes: "border-sky-200 bg-sky-50 text-sky-900" },
+  scenarios: { label: "场景 Scenarios", classes: "border-emerald-200 bg-emerald-50 text-emerald-900" },
+  tasks: { label: "任务 Tasks", classes: "border-amber-200 bg-amber-50 text-amber-950" },
+  methods: { label: "方法 Methods", classes: "border-violet-200 bg-violet-50 text-violet-900" },
+} as const;
+const repository = "https://github.com/Bin-Zhang-hhht/rec-sys-daily";
 ---
 <BaseLayout title="关于 · RecSys Daily">
-  <h1 class="text-3xl font-bold">关于 RecSys Daily</h1>
-  <div class="prose-lite mt-6 max-w-3xl space-y-4 text-slate-700">
-    <p>这是一个面向推荐系统研究与工程实践的中文每日情报站。</p>
-    <p>学术来源为 arXiv，工程内容来自配置的 RSS/Atom feeds。页面只保存公开元数据、摘要和结构化转述，不镜像原始 PDF、HTML 或全文。</p>
-    <p>LLM 生成内容可能存在错误，请通过每条内容的原文链接核验。</p>
-  </div>
+  <header class="border-b border-slate-200 pb-7">
+    <p class="text-sm font-semibold text-sky-700">Configuration Snapshot</p>
+    <h1 class="mt-2 text-3xl font-bold leading-tight text-slate-950">关于 RecSys Daily</h1>
+    <p class="mt-3 max-w-3xl leading-7 text-slate-600">面向推荐系统研究与工程实践的中文日报。此页只展示当前 publish bundle 可验证的配置快照与运行信息。</p>
+  </header>
+
+  <section class="mt-9 grid gap-8 border-b border-slate-200 pb-9 lg:grid-cols-2">
+    <div>
+      <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-slate-950"><FileSearch size={20} stroke-width={1.8} aria-hidden="true" />信息来源</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">最新运行 <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700">{data.runReport.run_id}</code> 报告的来源 ID 与状态。</p>
+      <ul class="mt-4 divide-y divide-slate-200 border-y border-slate-200">
+        {data.runReport.stage_report.sources.map(source => (
+          <li class="flex items-start justify-between gap-4 py-3 text-sm">
+            <div><code class="text-slate-800">{source.source_id}</code>{source.warning && <p class="mt-1 text-xs leading-5 text-amber-800">{source.warning}</p>}</div>
+            <span class:list={["inline-flex shrink-0 items-center gap-1.5 font-medium", source.success ? "text-emerald-700" : "text-amber-800"]}>{source.success ? <CheckCircle2 size={16} stroke-width={1.8} aria-hidden="true" /> : <AlertTriangle size={16} stroke-width={1.8} aria-hidden="true" />}{source.success ? "正常" : "异常"}</span>
+          </li>
+        ))}
+      </ul>
+      <a class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium" href={`${repository}/blob/main/config/sources.yaml`} target="_blank" rel="noopener noreferrer">查看来源名称与 Feed URL <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
+    </div>
+
+    <div>
+      <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-slate-950"><Cpu size={20} stroke-width={1.8} aria-hidden="true" />模型与分析依据</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">来自最新日报 {data.latestDigest.date || "暂无日期"} 的实际入选内容，不推断未写入 bundle 的运行配置。</p>
+      <dl class="mt-4 divide-y divide-slate-200 border-y border-slate-200 text-sm">
+        <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-500">生成模型</dt><dd class="text-slate-800">{models.length ? models.join("、") : "本期未记录"}</dd></div>
+        <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-500">分析依据</dt><dd class="text-slate-800">{bases.length ? bases.map(value => basisLabels[value] ?? value).join("、") : "本期无内容"}</dd></div>
+        <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-500">数据边界</dt><dd class="leading-6 text-slate-800">公开元数据、摘要与结构化转述；不镜像 PDF、HTML 或来源全文。</dd></div>
+      </dl>
+      <a class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium" href={`${repository}/blob/main/config/models.yaml`} target="_blank" rel="noopener noreferrer">查看完整模型配置 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
+    </div>
+  </section>
+
+  <section class="mt-9">
+    <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-slate-950"><Tags size={20} stroke-width={1.8} aria-hidden="true" />主题控制词表</h2>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">以下 ID 与中英文名称由本次构建的 <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">taxonomy.json</code> 动态生成；检索 terms 不进入公开 bundle。</p>
+    <div class="mt-5 grid gap-x-8 gap-y-7 md:grid-cols-2">
+      {taxonomyGroups.map(group => (
+        <section>
+          <h3 class:list={["inline-flex rounded-full border px-3 py-1 text-sm font-semibold", groupMeta[group].classes]}>{groupMeta[group].label}</h3>
+          <dl class="mt-3 divide-y divide-slate-200 border-y border-slate-200">
+            {data.taxonomy[group].map(entry => <div class="grid gap-1 py-3 text-sm sm:grid-cols-[minmax(8rem,0.8fr)_1.2fr]"><dt><code class="break-all text-xs text-slate-500">{entry.id}</code></dt><dd class="text-slate-800">{entry.name_zh}<span class="ml-2 text-slate-500">{entry.name_en}</span></dd></div>)}
+          </dl>
+        </section>
+      ))}
+    </div>
+    <a class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium" href={`${repository}/blob/main/config/topics.yaml`} target="_blank" rel="noopener noreferrer">查看检索 terms 与完整主题配置 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
+  </section>
+
+  <aside class="mt-10 border-l-2 border-amber-300 pl-4 text-sm leading-7 text-slate-600">LLM 生成内容可能存在错误，请通过每条详情页的原文链接核验。来源 URL、检索词和完整模型参数以 GitHub 配置文件为准。</aside>
 </BaseLayout>

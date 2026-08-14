@@ -1,0 +1,37 @@
+---
+import type { Item, Taxonomy, TaxonomyGroup } from "../lib/data";
+import { taxonomyGroups, taxonomyName } from "../lib/data";
+
+const { item, taxonomy, class: className } = Astro.props as {
+  item: Pick<Item, TaxonomyGroup>;
+  taxonomy: Taxonomy;
+  class?: string;
+};
+
+const groupMeta: Record<TaxonomyGroup, { label: string; classes: string }> = {
+  targets: { label: "目标", classes: "border-sky-200 bg-sky-50 text-sky-800" },
+  scenarios: { label: "场景", classes: "border-emerald-200 bg-emerald-50 text-emerald-800" },
+  tasks: { label: "任务", classes: "border-amber-200 bg-amber-50 text-amber-900" },
+  methods: { label: "方法", classes: "border-violet-200 bg-violet-50 text-violet-800" },
+};
+
+const chips = taxonomyGroups.flatMap(group =>
+  item[group].map(id => ({ group, ...taxonomyName(taxonomy, group, id) })),
+);
+---
+
+<div class:list={["flex flex-wrap gap-2", className]} aria-label="内容分类标签">
+  {chips.map(chip => (
+    <span
+      class:list={[
+        "inline-flex min-h-7 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs leading-4",
+        groupMeta[chip.group].classes,
+      ]}
+      title={`${groupMeta[chip.group].label}：${chip.name_zh} / ${chip.name_en}`}
+    >
+      <span class="font-semibold">{groupMeta[chip.group].label}</span>
+      <span class="h-3 w-px bg-current opacity-25" aria-hidden="true"></span>
+      <span>{chip.name_zh}</span>
+    </span>
+  ))}
+</div>

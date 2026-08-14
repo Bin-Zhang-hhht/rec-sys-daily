@@ -670,7 +670,11 @@ storage:
 - `/graph/`：轻量交互知识图谱
 - `/about/`：配置范围、来源和免责声明
 
-首页和日报卡片展示 rank、来源、作者、日期、原文链接、中文 summary、四类标签、推荐理由、相关性/最终分数以及 degraded 和 analysis basis。`/archive/` 按日期列出全部日报，并使用小型原生客户端脚本按 kind、年份和四类 taxonomy 筛选，组内多选为 OR、组间为 AND；它不借用 Pagefind，也不使用 `/?date=...` 伪路由。
+首页和日报卡片展示 rank、来源、作者、日期、原文链接、中文 summary、四类标签、推荐理由、相关性/最终分数以及 degraded 和 analysis basis。卡片使用 8px 圆角、24px 内边距和完整纵向元数据行；taxonomy 胶囊保留目标/场景/任务/方法文字，并分别使用蓝、绿、琥珀、紫色。顶栏使用静态 SVG 品牌标识和 `@lucide/astro` 图标，移动端保留图标、tooltip 与 `aria-label`，代码入口链接到项目仓库。`/archive/` 按日报日期分组并以轻量时间轨呈现，每天内部明确区分论文和博客；小型原生客户端脚本按 kind、年份和四类 taxonomy 筛选，组内多选为 OR、组间为 AND，并隐藏筛选后为空的日期组；它不借用 Pagefind，也不使用 `/?date=...` 伪路由。
+
+详情页采用 68--72ch 单列阅读流，宽屏在右侧增加窄元数据栏，移动端顺序堆叠；结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客 excerpt 使用保留已有换行的原生可展开阅读块，在达到配置字符上限时明确显示截断状态并提供原文链接；站点不伪造已经丢失的原始段落。
+
+`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据和 `taxonomy.json` 的 ID、中英文名称；来源 URL、检索 terms 和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
 
 论文详情页展示：
 
@@ -714,9 +718,9 @@ storage:
 - Pagefind 加载后先读取实际 filter counts，零结果配置项保留但置灰，当前条件下的可用数量随搜索结果更新；纯筛选使用 `null` query，结果数以过滤后 `results.length` 为准
 - 默认按相关性返回结果；时间筛选只限制结果集合，不复制一套归档查询逻辑
 
-初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。用户首次聚焦搜索框或操作筛选项时，才从 `import.meta.env.BASE_URL` 下动态加载 `pagefind/pagefind.js`，并同时设置 base URL 与 base path。输入使用约 300 ms debounce，每次搜索用递增请求序号防止旧响应覆盖新结果。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载，界面明确展示 loading、empty 和 error 状态。
+初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。用户首次聚焦搜索框或操作筛选项时，才从 `import.meta.env.BASE_URL` 下动态加载 `pagefind/pagefind.js`，并同时设置 base URL 与 base path；这些交互只预加载 runtime 和 filter counts，不自动提交查询。关键词搜索必须通过带图标的提交按钮或 Enter 执行，首次提交后的筛选变化重新执行最近一次已提交的关键词；输入本身不触发搜索。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载，界面明确展示 loading、empty 和 error 状态。
 
-[Astro Tailwind 文档](https://docs.astro.build/en/guides/styling/#tailwind)规定 Astro 5.2+ 使用 Tailwind 4 Vite plugin；[Astro framework components](https://docs.astro.build/en/guides/framework-components/)说明未使用 `client:*` 的框架组件不会下发客户端 runtime，但本项目当前交互规模不需要 React island。[Pagefind Search API](https://pagefind.app/docs/api/)支持聚焦时初始化、debounced search 和逐条加载结果数据，[Pagefind filtering API](https://pagefind.app/docs/js-api-filtering/)提供筛选及动态数量，[Pagefind multilingual search](https://pagefind.app/docs/multilingual/)说明 extended release 的中文分词能力。
+[Astro Tailwind 文档](https://docs.astro.build/en/guides/styling/#tailwind)规定 Astro 5.2+ 使用 Tailwind 4 Vite plugin；[Astro framework components](https://docs.astro.build/en/guides/framework-components/)说明未使用 `client:*` 的框架组件不会下发客户端 runtime，但本项目当前交互规模不需要 React island。[Pagefind Search API](https://pagefind.app/docs/api/)支持按需初始化和逐条加载结果数据，[Pagefind filtering API](https://pagefind.app/docs/js-api-filtering/)提供筛选及动态数量，[Pagefind multilingual search](https://pagefind.app/docs/multilingual/)说明 extended release 的中文分词能力。
 
 ## 11. 轻量交互知识图谱
 
@@ -746,6 +750,9 @@ storage:
 - 单击或按 Enter 只选中节点、高亮一跳邻居并打开侧边栏，不自动导航
 - 侧边栏展示摘要和唯一的详情页导航链接
 - 从日报或详情页以 `?center=<item-id>` 打开中心节点与一跳邻域；无效 ID 回退到全图并显示状态提示，用户首次手动筛选后退出 center 模式
+- 搜索、时间和 taxonomy 控件位于画布上方；画布约占 `70vh`，桌面右栏只保留节点详情，移动端详情位于画布下方；提供适应画布和重置视图按钮
+- 继续使用 Cytoscape 内置 COSE，布局参数固定为 `nodeRepulsion=12000`、`idealEdgeLength=90`、`gravity=0.25`、`nodeOverlap=16`、`componentSpacing=100`、`numIter=1500`；筛选或中心定位后对可见子图重新布局并适配
+- `graph.json` 节点增加有限正数 `data.weight`，按保留图中不同相邻节点的 degree 计算并映射到约 24--52px；远缩放时隐藏普通标签，只突出选中节点和一跳邻居
 
 ### 11.1 防止图谱臃肿
 

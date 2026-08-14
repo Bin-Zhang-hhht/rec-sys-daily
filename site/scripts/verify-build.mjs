@@ -46,6 +46,11 @@ function assertGraphNavigation(graph) {
   const contentTypes = new Set(["paper", "article", "blog"]);
   const contentNodes = graph.nodes.filter(node => contentTypes.has(node.data?.type));
   const contentIds = new Set(contentNodes.map(node => node.data.id));
+  for (const node of graph.nodes) {
+    if (!Number.isFinite(node.data?.weight) || node.data.weight <= 0) {
+      throw new Error(`graph node has invalid positive weight: ${node.data?.id ?? "<unknown>"}`);
+    }
+  }
   for (const node of contentNodes) {
     const expected = node.data.type === "paper" ? "papers" : "articles";
     if (typeof node.data.href !== "string" || !new RegExp(`^/rec-sys-daily/${expected}/[A-Za-z0-9._~-]+/$`).test(node.data.href)) {

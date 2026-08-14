@@ -42,7 +42,9 @@ export type BuildConfigSnapshot = {
   warn_pages_artifact_mb: number;
   fail_pages_artifact_mb: number;
 };
-export type RunReport = { run_id: string; config_snapshot: BuildConfigSnapshot; stage_report: Record<string, unknown> };
+export type RunSourceStatus = { source_id: string; success: boolean; warning: string | null };
+export type RunStageReport = Record<string, unknown> & { sources: RunSourceStatus[] };
+export type RunReport = { run_id: string; config_snapshot: BuildConfigSnapshot; stage_report: RunStageReport };
 
 const defaultRoot = "/workspace/publish-bundle";
 const routeIdPattern = /^[A-Za-z0-9._~-]+$/;
@@ -273,6 +275,23 @@ function validateSnapshot(value: unknown): BuildConfigSnapshot {
   return snapshot as BuildConfigSnapshot;
 }
 
+function validateStageReport(value: unknown): RunStageReport {
+  const stageReport = record(value, "RunReport.stage_report");
+  if (!Array.isArray(stageReport.sources)) fail("RunReport.stage_report.sources", "expected an array");
+  const sourceIds = new Set<string>();
+  const sources = stageReport.sources.map((value, index) => {
+    const context = `RunReport.stage_report.sources[${index}]`;
+    const source = record(value, context);
+    const sourceId = text(source.source_id, `${context}.source_id`);
+    if (sourceIds.has(sourceId)) fail("RunReport.stage_report.sources", `duplicate source_id ${sourceId}`);
+    sourceIds.add(sourceId);
+    if (typeof source.success !== "boolean") fail(`${context}.success`, "expected a boolean");
+    if (source.warning !== null && typeof source.warning !== "string") fail(`${context}.warning`, "expected a string or null");
+    return { source_id: sourceId, success: source.success, warning: source.warning };
+  });
+  return { ...stageReport, sources };
+}
+
 export function loadBundle(root?: string) {
   const base = bundleRoot(root);
   const taxonomy = validateTaxonomy(readJson(path.join(base, "taxonomy.json")));
@@ -296,7 +315,7 @@ export function loadBundle(root?: string) {
   const runReport: RunReport = {
     run_id: text(reportValue.run_id, "RunReport.run_id"),
     config_snapshot: validateSnapshot(reportValue.config_snapshot),
-    stage_report: record(reportValue.stage_report, "RunReport.stage_report"),
+    stage_report: validateStageReport(reportValue.stage_report),
   };
   const buildConfig = validateSnapshot(runReport.config_snapshot);
   const byId = new Map<string, Item>();

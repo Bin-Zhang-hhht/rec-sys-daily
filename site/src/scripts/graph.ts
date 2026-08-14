@@ -6,15 +6,17 @@ type CytoscapeNode = {
   data: ((key?: string) => unknown);
   addClass: (name: string) => void;
   removeClass: (name: string) => void;
+  hasClass: (name: string) => boolean;
 };
 
 type CytoscapeCollection = {
   addClass: (name: string) => void;
   removeClass: (name: string) => void;
+  filter: (predicate: (element: CytoscapeNode) => boolean) => CytoscapeCollection;
 };
 
 type CytoscapeInstance = {
-  on: (event: string, selector: string, handler: (event: { target: CytoscapeNode }) => void) => void;
+  on: (event: string, selectorOrHandler: string | ((event: { target: CytoscapeNode }) => void), handler?: (event: { target: CytoscapeNode }) => void) => void;
   elements: () => {
     addClass: (name: string) => void;
     removeClass: (name: string) => void;
@@ -22,6 +24,8 @@ type CytoscapeInstance = {
   };
   nodes: () => { forEach: (handler: (node: CytoscapeNode) => void) => void };
   fit: (collection?: CytoscapeCollection, padding?: number) => void;
+  layout: (options: Record<string, unknown>) => { run: () => void };
+  zoom: () => number;
 };
 
 type CytoscapeFactory = (options: Record<string, unknown>) => CytoscapeInstance;
@@ -32,6 +36,9 @@ const query = document.querySelector<HTMLInputElement>("#graph-query");
 const details = document.querySelector<HTMLElement>("#graph-details");
 const filters = document.querySelector<HTMLFormElement>("#graph-filters");
 const showAll = document.querySelector<HTMLButtonElement>("#graph-show-all");
+const fitButton = document.querySelector<HTMLButtonElement>("#graph-fit");
+const resetButton = document.querySelector<HTMLButtonElement>("#graph-reset");
+const timeControls = [...document.querySelectorAll<HTMLSelectElement>("select[data-graph-time]")];
 
 const contentTypes = new Set<NodeData["type"]>(["paper", "article"]);
 
@@ -105,25 +112,31 @@ function renderTaxonomyDetails(graph: GraphDocument, data: NodeData): void {
   details.append(list);
 }
 
-if (canvas && status && query && details && filters && showAll) {
+if (canvas && status && query && details && filters && showAll && fitButton && resetButton) {
   const run = async () => {
     try {
       const graphUrl = canvas.dataset.graphUrl;
       if (!graphUrl) throw new Error("graph URL is missing");
       const [{ default: cytoscape }, response] = await Promise.all([
-        import("cytoscape") as Promise<{ default: CytoscapeFactory }>,
+        import("cytoscape") as unknown as Promise<{ default: CytoscapeFactory }>,
         fetch(graphUrl),
       ]);
       if (!response.ok) throw new Error(`graph request failed: ${response.status}`);
       const graph = await response.json() as GraphDocument;
+      const maxWeight = Math.max(1, ...graph.nodes.map(node => node.data.weight));
       const cy = cytoscape({
         container: canvas,
         elements: [...graph.nodes, ...graph.edges],
         style: [
-          { selector: "node", style: { label: "data(label)", "font-size": 9, "background-color": "#0b5cad", color: "#172033", "text-wrap": "wrap", "text-max-width": 110 } },
-          { selector: "node[type = 'paper']", style: { "background-color": "#0b5cad", shape: "round-rectangle" } },
-          { selector: "node[type = 'article']", style: { "background-color": "#147d64", shape: "round-rectangle" } },
-          { selector: "node[type = 'target'], node[type = 'scenario'], node[type = 'task'], node[type = 'method']", style: { "background-color": "#d9a441", shape: "ellipse" } },
+          { selector: "node", style: { label: "data(label)", width: `mapData(weight, 1, ${maxWeight}, 24, 52)`, height: `mapData(weight, 1, ${maxWeight}, 24, 52)`, "font-size": 9, "background-color": "#2563eb", color: "#172033", "text-wrap": "wrap", "text-max-width": 110, "border-width": 1, "border-color": "#ffffff" } },
+          { selector: "node[type = 'paper']", style: { "background-color": "#2563eb", shape: "round-rectangle" } },
+          { selector: "node[type = 'article']", style: { "background-color": "#059669", shape: "round-rectangle" } },
+          { selector: "node[type = 'target']", style: { "background-color": "#38bdf8", shape: "ellipse" } },
+          { selector: "node[type = 'scenario']", style: { "background-color": "#34d399", shape: "ellipse" } },
+          { selector: "node[type = 'task']", style: { "background-color": "#fbbf24", shape: "ellipse" } },
+          { selector: "node[type = 'method']", style: { "background-color": "#a78bfa", shape: "ellipse" } },
+          { selector: "node.zoom-far", style: { label: "" } },
+          { selector: "node.zoom-far.graph-selected, node.zoom-far.graph-neighbor", style: { label: "data(label)" } },
           { selector: ".search-hit", style: { "border-width": 4, "border-color": "#dc2626", "border-opacity": 1 } },
           { selector: ".graph-selected", style: { "border-width": 5, "border-color": "#0284c7", "border-opacity": 1 } },
           { selector: ".graph-neighbor", style: { "border-width": 3, "border-color": "#38bdf8", "border-opacity": 0.9 } },
@@ -131,7 +144,7 @@ if (canvas && status && query && details && filters && showAll) {
           { selector: ".graph-hidden", style: { display: "none" } },
           { selector: "edge", style: { width: 1, "line-color": "#cbd5e1", "target-arrow-color": "#cbd5e1", "target-arrow-shape": "triangle", opacity: 0.75 } },
         ],
-        layout: { name: "cose", animate: false, fit: true, padding: 30 },
+        layout: { name: "cose", animate: false, fit: true, padding: 40, nodeRepulsion: 12000, idealEdgeLength: 90, gravity: 0.25, nodeOverlap: 16, componentSpacing: 100, numIter: 1500 },
       });
       let selectedNode: NodeData | null = null;
       const nodesById = new Map(graph.nodes.map(node => [node.data.id, node.data]));
@@ -143,6 +156,21 @@ if (canvas && status && query && details && filters && showAll) {
         adjacentIds.get(edge.data.target)?.add(edge.data.source);
       }
       const collectionFor = (ids: Set<string>) => cy.elements().filter(elementValue => ids.has(String(elementValue.data("id"))));
+      const visibleElements = () => cy.elements().filter(elementValue => !elementValue.hasClass("graph-hidden"));
+      const runLayout = (fit = true) => {
+        const visible = visibleElements();
+        cy.layout({ name: "cose", eles: visible, animate: false, fit: false, padding: 40, nodeRepulsion: 12000, idealEdgeLength: 90, gravity: 0.25, nodeOverlap: 16, componentSpacing: 100, numIter: 1500 }).run();
+        if (fit) cy.fit(visible, 40);
+      };
+      const refreshZoomLabels = () => {
+        const far = cy.zoom() < 0.72;
+        cy.nodes().forEach(node => {
+          const id = String(node.data("id"));
+          const keep = selectedNode?.id === id || (selectedNode && (adjacentIds.get(selectedNode.id)?.has(id) ?? false));
+          if (far && !keep) node.addClass("zoom-far");
+          else node.removeClass("zoom-far");
+        });
+      };
       const highlightSelection = (data: NodeData) => {
         const highlighted = new Set([data.id, ...(adjacentIds.get(data.id) ?? []), ...graph.edges.filter(edge => edge.data.source === data.id || edge.data.target === data.id).map(edge => edge.data.id)]);
         cy.elements().removeClass("graph-selected");
@@ -152,6 +180,7 @@ if (canvas && status && query && details && filters && showAll) {
         collectionFor(highlighted).removeClass("graph-muted");
         collectionFor(new Set([data.id])).addClass("graph-selected");
         collectionFor(new Set(adjacentIds.get(data.id) ?? [])).addClass("graph-neighbor");
+        refreshZoomLabels();
       };
       const remember = (data: NodeData) => {
         selectedNode = data;
@@ -176,8 +205,8 @@ if (canvas && status && query && details && filters && showAll) {
             selected.get(group)?.add(input.value);
           }
         }
-        const year = filters.querySelector<HTMLSelectElement>('select[data-graph-time="year"]')?.value;
-        const age = filters.querySelector<HTMLSelectElement>('select[data-graph-time="age"]')?.value;
+        const year = timeControls.find(control => control.dataset.graphTime === "year")?.value;
+        const age = timeControls.find(control => control.dataset.graphTime === "age")?.value;
         const visibleContent = new Set<string>();
         for (const node of graph.nodes) {
           const data = node.data;
@@ -198,11 +227,15 @@ if (canvas && status && query && details && filters && showAll) {
         cy.elements().removeClass("graph-hidden");
         for (const node of graph.nodes) if (!visibleNodes.has(node.data.id)) collectionFor(new Set([node.data.id])).addClass("graph-hidden");
         for (const edge of graph.edges) if (!visibleNodes.has(edge.data.source) || !visibleNodes.has(edge.data.target)) collectionFor(new Set([edge.data.id])).addClass("graph-hidden");
-        showAll.classList.add("hidden");
+        showAll.classList.toggle("hidden", visibleNodes.size === graph.nodes.length);
+        runLayout();
+        refreshZoomLabels();
         status.textContent = `${visibleContent.size} 个内容节点符合筛选`;
       };
       filters.addEventListener("change", applyFilters);
+      for (const control of timeControls) control.addEventListener("change", applyFilters);
       cy.on("tap", "node", event => activate(event.target.data() as NodeData));
+      cy.on("zoom", () => refreshZoomLabels());
       canvas.addEventListener("keydown", event => {
         if ((event.key === "Enter" || event.key === " ") && selectedNode) {
           event.preventDefault();
@@ -213,7 +246,14 @@ if (canvas && status && query && details && filters && showAll) {
       query.addEventListener("input", () => {
         const text = query.value.trim().toLocaleLowerCase();
         cy.elements().removeClass("search-hit");
-        if (!text) return;
+        if (!text) {
+          selectedNode = null;
+          cy.elements().removeClass("graph-selected");
+          cy.elements().removeClass("graph-neighbor");
+          cy.elements().removeClass("graph-muted");
+          refreshZoomLabels();
+          return;
+        }
         const matches = searchable.filter(node => `${node.data.id} ${node.data.label} ${(node.data.search_terms ?? node.data.tags ?? []).join(" ")}`.toLocaleLowerCase().includes(text));
         for (const node of matches) {
           const found = cy.elements().filter(elementValue => elementValue.data("id") === node.data.id);
@@ -221,18 +261,30 @@ if (canvas && status && query && details && filters && showAll) {
         }
         const first = matches[0]?.data;
         if (first) {
-          remember(first);
-          details.replaceChildren();
-          appendContentSummary(details, first);
+          activate(first);
+          cy.fit(collectionFor(new Set([first.id, ...(adjacentIds.get(first.id) ?? [])])), 40);
         }
       });
       const showFullGraph = () => {
         cy.elements().removeClass("graph-hidden");
+        cy.elements().removeClass("graph-muted");
+        cy.elements().removeClass("graph-selected");
+        cy.elements().removeClass("graph-neighbor");
+        selectedNode = null;
         showAll.classList.add("hidden");
         status.textContent = `${graph.nodes.length} 个节点，${graph.edges.length} 条关系`;
-        cy.fit();
+        runLayout();
+        refreshZoomLabels();
       };
       showAll.addEventListener("click", showFullGraph);
+      fitButton.addEventListener("click", () => cy.fit(visibleElements(), 40));
+      resetButton.addEventListener("click", () => {
+        query.value = "";
+        for (const input of filters.querySelectorAll<HTMLInputElement>("input[data-graph-filter]")) input.checked = false;
+        for (const control of timeControls) control.value = "";
+        details.textContent = "选择节点后显示详情。";
+        showFullGraph();
+      });
       const centerId = new URL(window.location.href).searchParams.get("center");
       if (centerId) {
         const center = nodesById.get(centerId);
@@ -243,14 +295,16 @@ if (canvas && status && query && details && filters && showAll) {
           activate(center);
           showAll.classList.remove("hidden");
           status.textContent = `已定位 ${center.label} 及一跳邻域`;
+          runLayout();
           cy.fit(collectionFor(visible), 40);
+          refreshZoomLabels();
         } else {
           status.textContent = `未找到中心节点 ${centerId}，已显示全图`;
-          cy.fit();
+          runLayout();
         }
       } else {
         status.textContent = `${graph.nodes.length} 个节点，${graph.edges.length} 条关系`;
-        cy.fit();
+        runLayout();
       }
     } catch (error) {
       status.textContent = `图谱加载失败：${error instanceof Error ? error.message : "未知错误"}`;

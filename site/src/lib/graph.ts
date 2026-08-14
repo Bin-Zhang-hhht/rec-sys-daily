@@ -11,6 +11,7 @@ export type GraphNode = {
     published_at?: string;
     tags?: string[];
     search_terms?: string[];
+    weight: number;
   };
 };
 
@@ -57,7 +58,7 @@ export function buildGraph(items: Item[], taxonomy: Taxonomy, now: number, snaps
     const tags = groups.flatMap(group => item[group] ?? []);
     nodes.push({ data: {
       id: contentNodeId(item), label: item.title, type: item.kind === "paper" ? "paper" : "article",
-      href: itemPath(item), summary: item.summary_zh, published_at: item.published_at, tags, search_terms: [item.title, ...tags],
+      href: itemPath(item), summary: item.summary_zh, published_at: item.published_at, tags, search_terms: [item.title, ...tags], weight: 1,
     } });
   }
 
@@ -67,7 +68,7 @@ export function buildGraph(items: Item[], taxonomy: Taxonomy, now: number, snaps
     for (const entry of entries) {
       if (!used.has(entry.id)) continue;
       const nodeId = taxonomyNodeId(group, entry.id);
-      nodes.push({ data: { id: nodeId, label: `${entry.name_zh} / ${entry.name_en}`, type: group.slice(0, -1) as GraphNode["data"]["type"], search_terms: [entry.id, entry.name_zh, entry.name_en] } });
+      nodes.push({ data: { id: nodeId, label: `${entry.name_zh} / ${entry.name_en}`, type: group.slice(0, -1) as GraphNode["data"]["type"], search_terms: [entry.id, entry.name_zh, entry.name_en], weight: 1 } });
       for (const item of visible.filter(value => (value[group] ?? []).includes(entry.id))) {
         const key = `${item.id}|${nodeId}`;
         if (edgeKeys.has(key)) continue;
@@ -90,5 +91,13 @@ export function buildGraph(items: Item[], taxonomy: Taxonomy, now: number, snaps
       edges.push({ data: { id: `relation:${key}`, source: item.id, target, type: relation.type, confidence: relation.confidence, evidence: relation.evidence, generated_by: relation.generated_by } });
     }
   }
+
+  const neighbors = new Map(nodes.map(node => [node.data.id, new Set<string>()]));
+  for (const edge of edges) {
+    neighbors.get(edge.data.source)?.add(edge.data.target);
+    neighbors.get(edge.data.target)?.add(edge.data.source);
+  }
+  for (const node of nodes) node.data.weight = Math.max(1, neighbors.get(node.data.id)?.size ?? 0);
+
   return { nodes, edges };
 }

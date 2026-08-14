@@ -17,9 +17,10 @@ let pagefind: PagefindApi | undefined;
 let loading: Promise<PagefindApi> | undefined;
 let currentResults: PagefindResult[] = [];
 let shown = 0;
-let timer: number | undefined;
 let requestSequence = 0;
 let appendSequence: number | undefined;
+let committedQuery = "";
+let hasSubmitted = false;
 
 if (input && form && resultsElement && status && more) {
   const ensurePagefind = async () => {
@@ -52,8 +53,8 @@ if (input && form && resultsElement && status && more) {
     const fragment = document.createDocumentFragment();
     for (const value of values) {
       const article = document.createElement("article");
-      article.className = "border border-slate-200 bg-white p-4";
-      article.innerHTML = `<h2 class="font-semibold"><a class="text-sky-700" href="${encodeURI(value.url)}">${escapeHtml(value.meta?.title ?? value.url)}</a></h2><p class="mt-2 text-sm text-slate-600">${sanitizeExcerpt(value.excerpt ?? "")}</p>`;
+      article.className = "rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]";
+      article.innerHTML = `<h2 class="font-semibold leading-6"><a class="text-sky-800" href="${encodeURI(value.url)}">${escapeHtml(value.meta?.title ?? value.url)}</a></h2><p class="mt-2 text-sm leading-7 text-slate-600">${sanitizeExcerpt(value.excerpt ?? "")}</p>`;
       fragment.append(article);
     }
     resultsElement.append(fragment);
@@ -82,8 +83,7 @@ if (input && form && resultsElement && status && more) {
     more.classList.add("hidden");
     try {
       const api = await ensurePagefind();
-      const query = input.value.trim();
-      const response = await api.search(query || null, { filters: selectedFilters() });
+      const response = await api.search(committedQuery || null, { filters: selectedFilters() });
       if (request !== requestSequence) return;
       currentResults = response.results;
       shown = 0;
@@ -101,19 +101,33 @@ if (input && form && resultsElement && status && more) {
       status.textContent = `搜索加载失败：${error instanceof Error ? error.message : "未知错误"}`;
     }
   };
-  const schedule = () => {
-    requestSequence += 1;
-    appendSequence = undefined;
-    currentResults = [];
-    shown = 0;
-    more.disabled = false;
-    more.classList.add("hidden");
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => void render(), 300);
+  const preload = async () => {
+    try {
+      const sequence = requestSequence;
+      const api = await ensurePagefind();
+      await updateFilterCounts(api, undefined, sequence);
+    } catch (error) {
+      status.textContent = `搜索加载失败：${error instanceof Error ? error.message : "未知错误"}`;
+    }
   };
-  input.addEventListener("focus", () => { void render(); }, { once: true });
-  input.addEventListener("input", schedule);
-  form.addEventListener("change", () => { void render(); });
+  input.addEventListener("focus", () => { void preload(); }, { once: true });
+  input.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    committedQuery = input.value.trim();
+    hasSubmitted = true;
+    void render();
+  });
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    committedQuery = input.value.trim();
+    hasSubmitted = true;
+    void render();
+  });
+  form.addEventListener("change", () => {
+    if (hasSubmitted) void render();
+    else void preload();
+  });
   more.addEventListener("click", () => {
     const request = requestSequence;
     if (appendSequence === request) return;

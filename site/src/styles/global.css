@@ -2,13 +2,41 @@
 
 :root {
   color-scheme: light;
-  font-family: "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
-  background: #f6f7f9;
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  background: #f4f6f8;
   color: #172033;
+  font-synthesis: none;
 }
 
-body { margin: 0; }
-a { color: #0b5cad; text-decoration: none; }
+html { background: #f4f6f8; }
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: #f4f6f8;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: #075985; text-decoration: none; }
 a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid #0284c7; outline-offset: 3px; }
+::selection { background: #bae6fd; color: #0c4a6e; }
 .prose-lite p { line-height: 1.75; }
-.tag { border: 1px solid #c9d3df; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.78rem; }
+.prose-lite ul {
+  display: grid;
+  gap: 0.625rem;
+  margin-top: 0.875rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+.prose-lite li { line-height: 1.75; padding-left: 0.2rem; }
+.prose-lite li::marker { color: #0ea5e9; }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+  background: #fff;
+  font-size: 0.78rem;
+}
