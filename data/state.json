@@ -1,0 +1,85 @@
+{
+  "last_success_at": "2026-08-14T05:01:20.515357Z",
+  "recommended_item_ids": [
+    "arxiv-2608.12184",
+    "arxiv-2608.11354",
+    "arxiv-2608.11980",
+    "arxiv-2608.11604",
+    "arxiv-2608.11846",
+    "arxiv-2608.12569",
+    "arxiv-2608.12845",
+    "arxiv-2608.11749",
+    "url-f7ea41897b8edc1d893d7d6c",
+    "url-147e05989c727690117bef1a",
+    "url-57deba14677af6256df5f6c1",
+    "url-efe96dcd75f9bde404ee3c9a",
+    "url-de494392552bfa7589a583be",
+    "url-235fa230d8103318ceecd98d",
+    "url-ab1787e03eb4807379306b7b",
+    "url-6eed0d1566da5cbddb9ba2f1"
+  ],
+  "schema_version": "1",
+  "sources": {
+    "airbnb_tech": {
+      "cursor": null,
+      "etag": "W/\"9b47db1f750515ed93568343594c37d9\"",
+      "last_modified": "Wed, 12 Aug 2026 19:03:23 GMT",
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "arxiv": {
+      "cursor": null,
+      "etag": null,
+      "last_modified": null,
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "discord_engineering": {
+      "cursor": null,
+      "etag": null,
+      "last_modified": "Tue, 11 Aug 2026 18:01:54 GMT",
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "etsy_codeascraft": {
+      "cursor": null,
+      "etag": null,
+      "last_modified": null,
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "google_research": {
+      "cursor": null,
+      "etag": null,
+      "last_modified": "Wed, 12 Aug 2026 09:51:00 GMT",
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "meta_engineering": {
+      "cursor": null,
+      "etag": "W/\"d6f72ca051e3018b56dbefdc5c7dcabf\"",
+      "last_modified": "Wed, 12 Aug 2026 16:03:14 GMT",
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "netflix_techblog": {
+      "cursor": null,
+      "etag": null,
+      "last_modified": null,
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "nvidia_developer": {
+      "cursor": null,
+      "etag": "\"841a65b766277f6170bf35ae99ace45a\"",
+      "last_modified": "Wed, 12 Aug 2026 21:37:31 GMT",
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "pinterest_engineering": {
+      "cursor": null,
+      "etag": null,
+      "last_modified": null,
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    },
+    "spotify_engineering": {
+      "cursor": null,
+      "etag": null,
+      "last_modified": null,
+      "last_success_at": "2026-08-14T04:14:03.239770Z"
+    }
+  },
+  "updated_at": "2026-08-14T05:01:20.515357Z"
+}

@@ -1,0 +1,98 @@
+{
+  "authors": [],
+  "deep_reading": {
+    "analysis_basis": "article_html",
+    "architecture_zh": "据文章描述，集成由两个层面构成：账号层面将 Discord 与 Battle.net 账号关联；公会层面在 WoW 公会设置中选择 Discord 服务器和可链接频道，实现消息在 Discord 与 WoW 公会聊天之间的双向同步。文章还提到 WoW 公会聊天会对来自 Discord 的消息显示 Discord 图标，但未披露后端消息路由、身份认证、存储或同步机制。",
+    "business_implications_zh": [
+      "通过与暴雪官方合作并与 WoW 公会聊天打通，Discord 可进一步融入游戏社区的核心沟通场景。",
+      "降低公会活动组织成本可能增强用户对 Discord 和 WoW 的粘性。",
+      "该合作可作为 Discord 扩展游戏生态的示例，为后续与其他游戏厂商的集成提供产品化路径。",
+      "对依赖社区运营的平台而言，将聊天与游戏内身份绑定可能带来活跃度提升，但需要提供足够的权限管理与支持文档。"
+    ],
+    "business_transferability": 0.4,
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "heading": "Linked Guild Chat is Here!",
+        "section": null
+      },
+      {
+        "heading": "How to Connect Battle.net® and Discord to Link Your WoW Guild’s Chat",
+        "section": null
+      },
+      {
+        "heading": "First, Link Your Accounts",
+        "section": null
+      },
+      {
+        "heading": "Second, Link the Channels in World of Warcraft",
+        "section": null
+      },
+      {
+        "heading": null,
+        "section": "source material"
+      }
+    ],
+    "implementation_zh": "用户侧通过 Discord 的“User Settings > Connected Apps > Battle.net”完成账号绑定，也可按照暴雪页面引导在 WoW 内绑定；随后由公会会长或官员在游戏内打开“Guild & Communities UI”，进入 Roster 页签的 Guild Settings，在 Guild Control 下选择 Discord Settings，选择有链接权限的 Discord 服务器和频道并确认链接。需要 Discord 侧具备 Manage Channels、View Channel、Send Messages 权限才能看到可链接选项。",
+    "lessons_zh": [
+      "将外部社区聊天工具与游戏内公会系统打通，可以减少玩家在不同客户端之间切换的摩擦。",
+      "产品集成需要提供清晰的分步引导，包括账号绑定、权限说明和频道选择流程。",
+      "权限和角色控制是此类双向同步功能的重要治理手段，但需要同时提供权限不足时的排查指引。"
+    ],
+    "limitations_zh": [
+      "本文是官方功能公告，未提供关于同步可靠性、延迟或消息丢失率的任何数据。",
+      "未说明后端技术架构、API 设计或扩展性。",
+      "未提供不同规模公会、复杂权限场景下的实测结果。",
+      "没有用户反馈、量化指标或与其他聊天集成方案的对比。"
+    ],
+    "production_constraints_zh": [
+      "账号绑定需要用户手动完成，且曾经绑定过的用户可能仍需更新连接。",
+      "在 WoW 中链接频道需要公会会长或官员操作，普通成员无法自行配置。",
+      "目标 Discord 频道需要对应的用户权限：Manage Channels、View Channel、Send Messages。",
+      "若权限不足，游戏内界面不会显示可链接选项，需要先到 Discord 服务器设置中检查权限。",
+      "文章提到 Blizzard 页面还提供额外设置，例如角色名显示方式和聊天过滤器，未在本文展开。"
+    ],
+    "results_zh": [
+      "链接后，Discord 与 WoW 公会聊天之间可同步消息，玩家无论在游戏内、Discord 服务器中还是外出时都能保持联系。",
+      "WoW 公会聊天中会显示 Discord 图标，用于标识从 Discord 发出的消息。",
+      "文章作者表示该功能可让 raid 组团和物资确认等组织工作更集中，减少反复追问的沟通成本。"
+    ],
+    "system_context_zh": "本文是 Discord 官方博客的功能发布说明，介绍 Discord 与暴雪 Battle.net/《魔兽世界》公会聊天的联动功能。内容属于产品公告和配置指南，主要面向用户说明如何绑定账号、选择频道并启用消息同步；未包含系统设计、性能指标或用户评测数据。",
+    "technical_depth": 0.1,
+    "tradeoffs_zh": [
+      "消息双向同步让玩家在游戏内、Discord 或外出时都能参与公会聊天，但同时要求双方平台账号和频道配置正确。",
+      "将链接权限限制在公会管理者和有 Discord 权限的用户，可降低误配置风险，但也增加了部署时的操作门槛。",
+      "对来自 Discord 的消息显示 Discord 图标有助于区分消息来源，但文章未说明是否影响聊天界面或过滤规则。"
+    ]
+  },
+  "excerpt": "Gather your guildmates! Link your Discord and Battle.net accounts to unlock synced guild chat across Discord and World of Warcraft. Gather your guildmates! Link your Discord and Battle.net accounts to unlock synced guild chat across Discord and World of Warcraft.",
+  "final_score": 0.37000000000000005,
+  "graph_relations": [],
+  "id": "url-d948ecd6776f0c29d74bd349",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-08-11T00:00:00Z",
+  "relevance_score": 0.4,
+  "scenarios": [
+    "voice_chat",
+    "friend_recommendation"
+  ],
+  "source": "discord_engineering",
+  "summary_zh": "Discord 与 Battle.net 账号联动功能上线，用户绑定 Discord 和《魔兽世界》账号后，可在 Discord 与游戏内同步公会聊天。",
+  "targets": [
+    "user",
+    "room"
+  ],
+  "tasks": [
+    "link_prediction"
+  ],
+  "title": "Link Discord and WoW to Keep the Guild Chatting Wherever You Are",
+  "url": "https://discord.com/blog/link-world-of-warcraft-with-discord"
+}

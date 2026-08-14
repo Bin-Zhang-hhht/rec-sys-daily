@@ -1,0 +1,146 @@
+{
+  "abstract": "Generative retrieval models perform document retrieval by autoregressively generating document identifiers (DocIDs). This process naturally forms a sequential decision problem, where each decoding step selects a DocID token and the complete token sequence determines the retrieved document. However, retrieval effectiveness is typically evaluated only after the full DocID is generated, creating a mismatch between token-level generation and document-level relevance supervision. As a result, existing reinforcement learning methods for generative retrieval mostly rely on sequence-level rewards, where the same document-level feedback is propagated to all decoding steps. Such coarse-grained feedback makes it difficult to identify which token decisions are responsible for successful or failed retrieval. In this work, we propose a fine-grained reinforcement learning framework for generative retrieval with token-level relevance rewards. Instead of assigning a single reward to the entire generated DocID, we estimate step-wise rewards by measuring how each token decision changes the expected retrieval quality of the corresponding generation trajectory. This enables more precise credit assignment and encourages the policy to favor token decisions that contribute more directly to document-level relevance. We further develop practical reward estimation strategies tailored to the DocID generation process and incorporate them into a policy optimization framework. Experiments on retrieval benchmarks show that our method consistently outperforms sequence-level reward baselines, demonstrating the effectiveness of fine-grained supervision for aligning autoregressive DocID generation with retrieval objectives. Generative retrieval models perform document retrieval by autoregressively generating document identifiers (DocIDs). This process naturally forms a sequential decision problem, where each decoding step selects a DocID token and the complete token sequence determines the retrieved document. However, retrieval effectiveness is typically evaluated only after the full DocID is generated, creating a mismatch between token-level generation and document-level relevance supervision. As a result, existing reinforcement learning methods for generative retrieval mostly rely on sequence-level rewards, where the same document-level feedback is propagated to all decoding steps. Such coarse-grained feedback makes it difficult to identify which token decisions are responsible for successful or failed retrieval. In this work, we propose a fine-grained reinforcement learning framework for generative retrieval with token-level relevance rewards. Instead of assigning a single reward to the entire generated DocID, we estimate step-wise rewards by measuring how each token decision changes the expected retrieval quality of the corresponding generation trajectory. This enables more precise credit assignment and encourages the policy to favor token decisions that contribute more directly to document-level relevance. We further develop practical reward estimation strategies tailored to the DocID generation process and incorporate them into a policy optimization framework. Experiments on retrieval benchmarks show that our method consistently outperforms sequence-level reward baselines, demonstrating the effectiveness of fine-grained supervision for aligning autoregressive DocID generation with retrieval objectives.",
+  "arxiv_id": "2608.12049",
+  "authors": [
+    "Xinpeng Zhao",
+    "Yang Liu",
+    "Ran Chen",
+    "Xinyu Ma",
+    "Daiting Shi",
+    "Pengjie Ren",
+    "Zhumin Chen",
+    "Zhaochun Ren",
+    "Xin Xin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "TCA-GRPO在R@1和MRR@10上的提升意味着搜索、问答等系统顶部结果的命中率和排序质量可获改善，直接影响用户可见的检索体验。",
+      "方法同时验证了TU（标题+URL）和PQ（量化语义码）两类DocID，表明其可适配Web检索与语义标识检索场景，具备一定的场景灵活性。",
+      "token级奖励设计不需要额外训练奖励模型，相比RLHF式奖励建模可减少相关成本，有利于在检索系统中落地。",
+      "但两阶段训练和强化学习rollout带来的计算开销意味着实际部署需要较充足的算力，资源受限场景下的采用可能受限。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "将生成式文档检索建模为序贯决策问题，指出现有基于序列级奖励的强化学习方法存在token级信用分配不足的核心局限。",
+      "提出TCA，一种细粒度强化学习框架，不依赖额外奖励模型，通过比较生成隐藏状态轨迹与冻结参考模型的金标准DocID轨迹，为单个DocID token分配相关性感知奖励，并可与GRPO及PPO两种策略优化算法实例化。",
+      "在MS MARCO文档数据集和Natural Questions基准上进行实验，表明token级信用分配相比强监督基线和序列级强化学习基线一致提升检索效果。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Section 1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Section 4 Method"
+      },
+      {
+        "page": 1,
+        "section": "Section 5 Experimental Settings"
+      },
+      {
+        "page": 1,
+        "section": "Section 6 Experimental Results and Analysis"
+      },
+      {
+        "page": 1,
+        "section": "Section 7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BM25",
+        "DocT5Query",
+        "DPR",
+        "ANCE",
+        "RepBERT",
+        "Sentence-T5",
+        "DSI",
+        "DSI-QG",
+        "NCI",
+        "SEAL",
+        "Ultron",
+        "ROGER",
+        "MINDER",
+        "LTRGR",
+        "GenRRL",
+        "DDRO",
+        "baseline-sft",
+        "TCA-GRPO序列级奖励变体"
+      ],
+      "datasets": [
+        "MS MARCO document dataset（MS-TU、MS-PQ）",
+        "Natural Questions NQ320k（NQ-TU、NQ-PQ）"
+      ],
+      "findings_zh": [
+        "在MS MARCO上，TCA-GRPO使用TU DocID取得所有对比方法中最优的R@1、R@5和MRR@10（39.60、68.19、51.10），相比复现的DDRO(TU)将R@1从38.24提升到39.60，MRR@10从50.33提升到51.10。",
+        "在Natural Questions上，TCA-GRPO使用PQ DocID取得最优R@1和MRR@10（50.02、56.10），相比DDRO(PQ)将R@1从48.10提升到50.02，MRR@10从54.32提升到56.10。",
+        "TCA-GRPO在MS-TU、MS-PQ、NQ-TU、NQ-PQ四种设置下均一致优于baseline-sft；TCA-PPO在多数设置下也有提升（如NQ-PQ的R@1从42.26提升到49.27，MRR@10从48.45提升到55.80），但稳定性不如TCA-GRPO。",
+        "在固定GRPO优化器下，token级奖励相比序列级奖励带来额外提升：MS-TU的R@1从39.10提升到39.60、MRR@10从50.86提升到51.10；NQ-PQ的R@1从48.80提升到50.02、MRR@10从55.24提升到56.10。",
+        "约束解码对训练稳定性很重要：去掉约束后NQ-PQ的R@1从50.02降至45.18，MRR@10从56.10降至51.40；MSMARCO-TU的R@1从39.60降至37.74。",
+        "组大小G=4到8之间性能趋于稳定，G=8达到最好或接近最好结果；KL系数方面，TU DocID在β=0.01时最优，PQ DocID在β=0时最优。"
+      ],
+      "metrics": [
+        "Recall@1",
+        "Recall@5",
+        "Recall@10",
+        "MRR@10"
+      ]
+    },
+    "limitations_zh": [
+      "TCA依赖SFT参考模型并进行强化学习后训练，训练流程更复杂。",
+      "强化学习阶段因rollout生成和token级奖励计算引入了不小的训练开销。",
+      "改进主要体现在R@1和MRR@10等头部精度指标上，R@5和R@10的提升较小，更广的召回可能仍需要文档级或列表级相关性优化。",
+      "TCA-PPO需要学习DocID前缀状态上的价值函数，在NQ-TU上出现R@5和R@10轻微下降，稳定性不如TCA-GRPO。"
+    ],
+    "method_zh": "TCA采用两阶段训练：先通过监督微调（SFT）初始化查询到DocID的生成能力；再进行基于token级信用分配的强化学习后训练。训练中冻结SFT模型作为参考模型，在teacher forcing下预缓存金标准DocID的解码器隐藏状态轨迹。策略模型在trie约束解码下生成候选DocID，逐位置计算生成隐藏状态与金标准隐藏状态的余弦相似度作为轨迹奖励，并加入长度惩罚和精确匹配命中奖励。TCA-GRPO将token级奖励在候选组内按解码位置归一化为组相对优势；TCA-PPO则使用线性价值头和GAE估计token级优势。两种实现均支持TU和PQ两种DocID形式。",
+    "problem_zh": "生成式检索模型通过自回归生成DocID完成文档检索，但检索效果仅在完整DocID生成后按文档级相关性评估；现有强化学习方法大多使用序列级奖励，将同一文档级反馈分配给所有解码步骤，难以区分哪些token决策真正导致检索成功或失败，造成token级生成与文档级相关性监督之间的信用分配不匹配。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.7775000000000001,
+  "graph_relations": [
+    {
+      "confidence": 0.6,
+      "evidence": "均利用大语言模型与序列建模完成内容检索/排序",
+      "generated_by": "rule_based",
+      "target_id": "arxiv-2608.12184",
+      "type": "shares_method"
+    }
+  ],
+  "id": "arxiv-2608.12049",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "reinforcement_learning",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-12T13:28:56Z",
+  "relevance_score": 0.8,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "本文提出生成式文档检索的细粒度强化学习框架，用token级相关性奖励替代序列级奖励，通过逐解码步估算奖励改进信用分配，在检索基准上一致优于序列级奖励基线。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking"
+  ],
+  "title": "Token-Level Credit Assignment Optimization for Generative Document Retrieval",
+  "url": "https://arxiv.org/abs/2608.12049v1"
+}

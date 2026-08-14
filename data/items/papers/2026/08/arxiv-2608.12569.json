@@ -1,0 +1,111 @@
+{
+  "abstract": "Dense retrievers rank documents using vector similarity between a frozen encoder and a precomputed index. While test-time ranking rewards from a reranker or LLM judge can improve results, existing methods discard this signal after a single query. Updating the retriever's weights makes rewards reusable, but this requires parameter access, which is unavailable for closed-source models, and is computationally prohibitive. We propose TTT-Embed (Test-Time Tuning of Embeddings), a framework that distills ranking rewards into a lightweight, learned vector within the output embedding space of a frozen model. This vector is optimized purely from scalar ranking scores assigned to the retriever's own candidate documents, requiring no access to model weights, ground-truth labels, or modifications to index. A single scope parameter controls rewards reuse (global, task, or query), enabling a principled trade-off between reusability and specificity under a fixed reward computation budget. We demonstrate that as the available reward budget scales, the optimal sharing scope shifts dynamically from global-wise to task-wise and finally to query-wise. Evaluated across five embedding models and 15 MTEB retrieval tasks, TTT-Embed improves test-time retrieval by up to +8.36 nDCG@10. Crucially, the learned states generalize effectively to unseen queries (up to +8.57 nDCG@10) and unseen tasks (up to +4.71 nDCG@10). Furthermore, TTT-Embed successfully resolves catastrophic forgetting: by leaving base weights entirely frozen, it recovers degraded general capabilities (up to +8.00 nDCG@10, even surpassing the original base model) while preserving in-domain specialization. These results establish ranking rewards as a reusable test-time state, enabling budget-efficient adaptation for any embedding model, including closed-source APIs. Dense retrievers rank documents using vector similarity between a frozen encoder and a precomputed index. While test-time ranking rewards from a reranker or LLM judge can improve results, existing methods discard this signal after a single query. Updating the retriever's weights makes rewards reusable, but this requires parameter access, which is unavailable for closed-source models, and is computationally prohibitive. We propose TTT-Embed (Test-Time Tuning of Embeddings), a framework that distills ranking rewards into a lightweight, learned vector within the output embedding space of a frozen model. This vector is optimized purely from scalar ranking scores assigned to the retriever's own candidate documents, requiring no access to model weights, ground-truth labels, or modifications to index. A single scope parameter controls rewards reuse (global, task, or query), enabling a principled trade-off between reusability and specificity under a fixed reward computation budget. We demonstrate that as the available reward budget scales, the optimal sharing scope shifts dynamically from global-wise to task-wise and finally to query-wise. Evaluated across five embedding models and 15 MTEB retrieval tasks, TTT-Embed improves test-time retrieval by up to +8.36 nDCG@10. Crucially, the learned states generalize effectively to unseen queries (up to +8.57 nDCG@10) and unseen tasks (up to +4.71 nDCG@10). Furthermore, TTT-Embed successfully resolves catastrophic forgetting: by leaving base weights entirely frozen, it recovers degraded general capabilities (up to +8.00 nDCG@10, even surpassing the original base model) while preserving in-domain specialization. These results establish ranking rewards as a reusable test-time state, enabling budget-efficient adaptation for any embedding model, including closed-source APIs.",
+  "arxiv_id": "2608.12569",
+  "authors": [
+    "Tianyu Chen",
+    "Jiaxing Wu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "为使用闭源/API embedding的企业提供了一条无需微调、无需权重访问即可利用reranker或LLM judge反馈提升检索质量的技术路径。",
+      "轻量残差向量存储成本低、可跨查询复用，能在固定奖励预算下服务大量查询，降低反复调用昂贵reranker/LLM judge的推理成本。",
+      "预算驱动的共享范围选择可直接用于部署决策：低预算用全局共享，中预算用任务级共享，高预算用查询级共享；任务级在完整预算范围内最稳健。",
+      "可缓解领域微调导致的通用能力遗忘，在保持领域专精的同时恢复通用检索能力，对需要持续做领域适配的搜索、RAG、智能体技能检索系统有实用价值。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出TTT-EMBED（Test-Time Tuning of Embeddings）：在冻结嵌入模型的输出空间中学习一个轻量残差向量v_g，通过x_q + α_g v_g调整查询表示；仅使用外部奖励模型给出的标量排序分数，不访问模型权重/梯度、不使用ground-truth标签、不修改文档索引，且兼容闭源API。",
+      "证明该状态可泛化并缓解遗忘：在5个嵌入模型、15个MTEB检索任务上最高提升+8.36 nDCG@10；对未见过查询最高+8.57，对留一任务最高+4.71；通过完全冻结基础权重，可恢复领域微调模型退化的一般能力（最高+8.00，甚至超过原始基础模型），同时保持领域专精。",
+      "给出部署优化指南：揭示最优共享范围随奖励预算从全局→任务级→查询级迁移；分析固定预算下的广度-深度权衡；提出免调参的证据自适应缩放规则α_g=n_g/(n_g+1)，在oracle regret上达到0.11，优于固定α=1的0.17。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2. TTT-EMBED: Reusable Test-Time Tuning in Embedding Space"
+      },
+      {
+        "page": 1,
+        "section": "4. Results"
+      },
+      {
+        "page": 1,
+        "section": "5. Analysis"
+      },
+      {
+        "page": 1,
+        "section": "13. Full-Curve Budget Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Raw retrieval（无奖励的原始检索）",
+        "Direct reranking（用同一奖励分数直接重排原候选列表）",
+        "Reverse KL variant（反向KL目标）",
+        "Softmax-GRPO（改编自Retrieval-GRPO的目标）"
+      ],
+      "datasets": [
+        "MTEB 15个英文检索任务：ArguAna、CQADupstackGamingRetrieval、CQADupstackUnixRetrieval、ClimateFEVERHardNegatives、DBPediaHardNegatives、FEVERHardNegatives、FiQA2018、HotpotQAHardNegatives、MSMARCOHardNegatives、NQHardNegatives、QuoraRetrievalHardNegatives、SCIDOCS、TRECCOVID、TopiOCQAHardNegatives、Touche2020Retrieval.v3",
+        "SKILLRET（agent技能检索基准，4,997个查询、6,660个候选技能卡）"
+      ],
+      "findings_zh": [
+        "在b=10时，task-wise TTT-EMBED平均提升6.36 nDCG@10，且比cost-matched直接重排高3.15点；在b=100时，query-wise达到8.36点，仍比直接重排高0.56点。",
+        "最优共享范围随预算变化：低预算（b≈10⁻²）全局共享最优，中预算任务级最优，高预算（b=30及以上）查询级最优；任务级共享在完整log-budget曲线上的AUBC@100对全部5个模型均最高。",
+        "泛化实验中，80%查询各提供10个奖励时，task-wise状态对未参与训练的20%查询提升3.17–8.57点（平均5.57），global平均4.02；leave-one-task-out平均提升3.09点，两个闭源Gemini模型也为正。",
+        "在SKILLRET上精调的模型在15个MTEB任务上退化4.49点；b=10时task-wise TTT-EMBED将该冻结模型的MTEB分数提升8.00点至53.42，超过原始基础模型49.90和直接重排51.58，同时保持SKILLRET领域分数66.21不变。",
+        "固定预算下分配策略有预算依赖性：b=2时深度优先（每查询更多奖励文档）更优，b=10时广度优先（覆盖更多查询）更优。",
+        "目标函数消融中，knowledge distillation在global和task共享范围上优于Reverse KL与Softmax-GRPO；奖励模型选择上，Qwen3-Reranker-4B效果最好（+3.25），而Qwen3-8B-Instruct与Qwen3-VL-30B-A3B-Instruct作为奖励模型反而低于原始检索。"
+      ],
+      "metrics": [
+        "nDCG@10",
+        "ΔnDCG@10（相对原始检索的匹配变化）",
+        "AUBC（gain–budget曲线下面积，按log预算积分）"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅限于英文文本检索任务（15个MTEB任务+SKILLRET），多模态等更广场景留待未来工作。",
+      "作者明确表示最优共享范围的预算临界点不应理解为普适阈值，实际部署需要按模型和场景选取。",
+      "奖励模型质量直接影响收益：不是任意现成LLM都适合做奖励模型，文中通用Qwen模型作为奖励模型时效果低于原始检索。",
+      "若只给原top-K候选加偏置而不重新检索，可能漏掉被v_g提升出的新文档；近似ANN搜索也只能近似精确排序。",
+      "基础编码器和文档索引完全冻结，因此最终检索质量仍受原始嵌入空间表达能力的上限约束。"
+    ],
+    "method_zh": "TTT-EMBED将测试时排序奖励蒸馏到冻结模型输出嵌入空间中的轻量向量v_g。对每个共享范围g对应的奖励查询组F_g，先将奖励模型对当前top-K候选的标量分数经softmax(r/τ_T)构成teacher分布p^T；再以修正查询嵌入与候选文档嵌入的余弦相似度softmax构成student分布p^S(v)。优化目标为带岭正则的listwise KL蒸馏：min Σ_q w_q KL(p^T_q || p^S_q(v)) + λ||v||²，其中w_q按任务均衡加权。共享范围决定哪些查询共用一个v_g：global、task、query三种粒度。部署时用unit(x_q + α_g v_g)作为查询向量，在不变ANN索引上重新检索；α_g=n_g/(n_g+1)由奖励查询数n_g自动确定，无需在评估标签上调参。整个学习与部署过程不更新编码器、不修改文档嵌入或索引结构。",
+    "problem_zh": "稠密检索通常用冻结编码器和预计算索引做向量相似度排序；reranker或LLM judge在测试时提供了更强相关信号，但现有方法把这份排序奖励用一次就丢弃。更新检索器权重虽然能让奖励跨查询复用，但对闭源API不可行，且大模型参数规模导致计算昂贵。本文研究在固定奖励预算下，如何在不访问或不更新模型权重、不修改索引的前提下，将测试时排序奖励转化为可复用的轻量状态并在查询之间共享。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8205,
+  "graph_relations": [],
+  "id": "arxiv-2608.12569",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-12T20:24:57Z",
+  "relevance_score": 0.85,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "本文提出TTT-Embed，将排序奖励蒸馏到冻结嵌入模型输出空间中的轻量级可学习向量中，仅利用重排器或LLM判断给出的标量排序分数即可优化，无需访问模型权重或标注；作用域参数可控制奖励复用粒度，在MTEB检索任务上显著提升测试时检索并缓解灾难性遗忘。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking",
+    "reranking"
+  ],
+  "title": "Test-Time Optimization of Query Embeddings with Ranking Aware Reward Maximization",
+  "url": "https://arxiv.org/abs/2608.12569v1"
+}

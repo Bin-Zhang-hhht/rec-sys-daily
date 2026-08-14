@@ -1,0 +1,97 @@
+{
+  "authors": [],
+  "deep_reading": {
+    "analysis_basis": "article_html",
+    "architecture_zh": "文中未给出 SDK 内部架构或接口分层。按功能模块可归纳为：账号关联（Account Linking，含 deeplink 与单点移动端内链接）、Android Rich Presence（通过账号关联或 RPC 分享）、统一好友列表（Unified Friends List）、游戏邀请（Game Invites）、Discord 社交电商（Social Commerce）及官方服务器/频道社区管理。这些模块组合用于打通游戏内社交、跨平台好友和社区。",
+    "business_implications_zh": [
+      "对游戏发行商：将 Discord 社交能力接入手游可降低获客成本，通过好友邀请和礼物购买带来回流/新用户",
+      "账号关联与统一好友列表可减少跨平台好友碎片化，提升组队和留存",
+      "社交电商展示新的应用内购买渠道，礼物机制能覆盖 lapsed/new 玩家",
+      "社区频道可承载客服和玩家管理，降低运营成本并提升社区活跃",
+      "这些案例表明社交图谱和关系链可作为个性化推荐/邀请的强信号，但本博客未提供具体算法或数据"
+    ],
+    "business_transferability": 0.7,
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "heading": "Mobile Updates: Made to Move",
+        "section": "Discord Blog"
+      },
+      {
+        "heading": "Mobile Partnerships: Driving Innovation",
+        "section": "Discord Blog"
+      },
+      {
+        "heading": "Moving in on Mobile",
+        "section": "Discord Blog"
+      }
+    ],
+    "implementation_zh": "实现层面提到：为 Android 提供 Rich Presence 的 minimal setup；账号关联流程增加 deeplink 支持，减少跳转摩擦；Delta Force 用单点移动端账号关联替代浏览器重定向和手动登录；Ninja Kiwi 在 Discord 内搭建商城，支持浏览、购买和赠送游戏物品；Scopely/Marvel Strike Force 通过 Discord 频道承载客服和社区管理。未提供代码、API 或部署细节。",
+    "lessons_zh": [
+      "用社交关系而非买量驱动留存和自然增长",
+      "减少 onboarding/账号关联摩擦是移动端关键",
+      "社交电商/礼物机制可作为拉动新老玩家参与和变现的手段",
+      "社区与游戏内体验融合（官方服务器、频道管理）有助于模糊游戏与社区的边界",
+      "早期与发行商合作有助于针对真实玩家行为打磨 SDK"
+    ],
+    "limitations_zh": [
+      "来源为 Discord 官方博客，缺少第三方独立验证",
+      "案例指标多为定性或厂商自报，缺少对照组和完整口径",
+      "Marvel Rivals 数据来自 pilot，不代表正式 Commerce 全量结果",
+      "文章未提供 SDK 架构、代码示例或性能基准，技术深度有限",
+      "“积极社区反馈/玩家希望更早推出”为主观描述，未量化"
+    ],
+    "production_constraints_zh": [
+      "需要适配 iOS 和 Android 双平台及小屏幕体验",
+      "移动玩家对流程摩擦容忍度低，需低摩擦、快速引导",
+      "社交电商仍在 rollout 阶段，并非全量开放",
+      "Rich Presence 在 Android 上目前为 minimal setup",
+      "账号关联、好友列表等功能需与既有游戏好友体系集成，避免碎片化"
+    ],
+    "results_zh": [
+      "Marvel Rivals 社交电商 pilot：41% 购买为礼物，25% 的送礼者为流失或全新玩家",
+      "Arena Breakout：组队速度提升、跨平台会话间消息增多、官方 Discord 服务器活跃度提升",
+      "Marvel Strike Force：新玩家即时账号关联、快速创建联盟频道、社区反馈积极（玩家希望更早推出）",
+      "Delta Force：单点移动端账号关联带来更顺畅的 onboarding 和更强的活动激活",
+      "Bloons TD 6：上线 Discord 内商城，含首发折扣和专属 Wumpus Pet"
+    ],
+    "system_context_zh": "本文介绍 Discord Social SDK v1.10 移动平台支持正式上线（GA），面向 iOS/Android 游戏开发者，通过账号关联、Rich Presence、社交电商等能力将 Discord 社交体验嵌入手游，以提升留存、互动与增长。文中强调针对小屏幕和碎片化游戏场景进行优化，并列举 Tencent、Scopely、Ninja Kiwi 等合作案例。",
+    "technical_depth": 0.25,
+    "tradeoffs_zh": [
+      "用单点移动端账号关联替代浏览器重定向，降低转化摩擦，但可能限制 Web 端入口",
+      "Rich Presence 支持多种分享方式（账号关联/RPC），灵活但需开发者自行选择集成路径",
+      "社交电商扩展至移动端可触达新玩家和好友，但目前仍处 pilot/推广阶段",
+      "将社区/客服渠道并入 Discord 增强互动，但依赖玩家进入 Discord 生态"
+    ]
+  },
+  "excerpt": "Mobile support is now generally available in the Discord Social SDK, allowing developers to extend Discord's social experiences to iOS and Android. Mobile support is now generally available in the Discord Social SDK, allowing developers to extend Discord's social experiences to iOS and Android.",
+  "final_score": 0.4600000000000001,
+  "graph_relations": [],
+  "id": "url-ed75e87a9db2b445791ef23d",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-08-06T00:00:00Z",
+  "relevance_score": 0.4,
+  "scenarios": [
+    "voice_chat",
+    "friend_recommendation"
+  ],
+  "source": "discord_engineering",
+  "summary_zh": "Discord Social SDK 1.10 版本正式向移动平台提供通用支持，开发者可在 iOS 和 Android 中集成 Discord 的社交能力。",
+  "targets": [
+    "user",
+    "room"
+  ],
+  "tasks": [
+    "user_matching"
+  ],
+  "title": "General Availability of Mobile Platform Support Arrives in Discord Social SDK Version 1.10",
+  "url": "https://discord.com/blog/mobile-platform-support-arrives-in-discord-social-sdk"
+}

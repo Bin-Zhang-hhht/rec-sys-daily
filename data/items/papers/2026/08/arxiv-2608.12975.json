@@ -1,0 +1,149 @@
+{
+  "abstract": "This paper reports two empirical findings on session-based recommendation (SBR), unified in a single model, DTAMLP. First, existing time-aware and GNN-based models (e.g., TiSASRec, SR-GNN) treat every click-time interval as equally informative, even though very short dwell times often reflect accidental clicks carrying little preference signal -- a phenomenon we call sporadic noise. We show that a lightweight, plug-and-play weight fusion module, blending a model's attention weight with a threshold-capped time-interval weight, can be inserted into such models with almost no architectural change and yields a consistent accuracy gain; we view this as the most directly verifiable contribution of this work. Second, we revisit an under-explained observation from FMLP-Rec, where a learnable frequency-domain filter on item embeddings improves accuracy, and offer a possible explanation: time-domain behavior mixes several entangled psychological preferences, and a frequency-domain view may let a model separate and down-weight such preference noise more naturally -- an interpretive conjecture rather than a proven mechanism. Building on both insights, DTAMLP, an all-MLP framework combining weight fusion and FFT-based filtering, is validated on Diginetica and RetailRocket. While this system-level design reflects the state of the field circa 2023 rather than a state-of-the-art claim, ablations confirm the two mechanisms contribute complementary, non-redundant improvements. This paper reports two empirical findings on session-based recommendation (SBR), unified in a single model, DTAMLP. First, existing time-aware and GNN-based models (e.g., TiSASRec, SR-GNN) treat every click-time interval as equally informative, even though very short dwell times often reflect accidental clicks carrying little preference signal -- a phenomenon we call sporadic noise. We show that a lightweight, plug-and-play weight fusion module, blending a model's attention weight with a threshold-capped time-interval weight, can be inserted into such models with almost no architectural change and yields a consistent accuracy gain; we view this as the most directly verifiable contribution of this work. Second, we revisit an under-explained observation from FMLP-Rec, where a learnable frequency-domain filter on item embeddings improves accuracy, and offer a possible explanation: time-domain behavior mixes several entangled psychological preferences, and a frequency-domain view may let a model separate and down-weight such preference noise more naturally -- an interpretive conjecture rather than a proven mechanism. Building on both insights, DTAMLP, an all-MLP framework combining weight fusion and FFT-based filtering, is validated on Diginetica and RetailRocket. While this system-level design reflects the state of the field circa 2023 rather than a state-of-the-art claim, ablations confirm the two mechanisms contribute complementary, non-redundant improvements.",
+  "arxiv_id": "2608.12975",
+  "authors": [
+    "Jiamu Zheng",
+    "Xiaojun Shan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "会话推荐直接面向匿名用户或未登录场景，适用于电商、短视频和流媒体平台，无需依赖长期用户身份画像，工程接入门槛较低。",
+      "权重融合模块是几乎零架构改动的即插即用干预，只要业务已有点击时间戳，就可以低成本接入现有TiSASRec、SR-GNN类线上模型并提升排序准确率。",
+      "RetailRocket上Recall增益小而MRR/NDCG增益较大，说明该方法更适合在不改变候选召回池的情况下优化排序和曝光顺序，对点击率、用户停留等业务指标可能有更直接的价值。",
+      "DTAMLP采用FFT替换注意力，理论复杂度O(d log d)且训练速度快，在GPU训练成本敏感的业务中可能降低模型迭代成本，但论文未宣称对全部基线有效率优势。",
+      "t-SNE可视化提示DTAMLP能学到更可分的会话表示，可能利于后续做用户意图聚类、冷启动物品关联或推荐理由解释，但该证据仅为定性。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出一个可即插即用的权重融合模块：将模型已有注意力权重与“截断后做softmax的点击间隔权重”线性融合，几乎不改骨干架构即可稳定提升TiSASRec和SR-GNN的准确率；这是论文中最直接、可验证的核心贡献。",
+      "针对FMLP-Rec频域滤波的有效性提出“偏好噪声”解释猜想：频域可能比时域更容易分离和压低用户纠缠的弱相关心理偏好成分；作者明确说明这是解释性假说而非严格证明的机制。",
+      "把上述两种观察与来自前人的表示一致性嵌入设计组合为DTAMLP（全MLP + FFT过滤 + 时间感知 + 权重融合 + 鲁棒距离度量），在Diginetica和RetailRocket上验证性能，并通过消融说明两个机制互补而非冗余。"
+    ],
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2.1 Sporadic Noise and Time Interval"
+      },
+      {
+        "page": 1,
+        "section": "3.2.2 Preference Noise: A Conjecture Motivated by Frequency-Domain Filtering"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Deep Neural Filtering Blocks"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Experimental Results"
+      },
+      {
+        "page": 1,
+        "section": "5.3.2 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Efficiency Analysis"
+      },
+      {
+        "page": 1,
+        "section": "6. Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "FMLP-Rec",
+        "TiSASRec",
+        "SASRec",
+        "Bert4Rec",
+        "GCARM",
+        "GCSAN",
+        "SR-GNN",
+        "GRU4Rec",
+        "NARM",
+        "Caser",
+        "HGN"
+      ],
+      "datasets": [
+        "Diginetica",
+        "RetailRocket",
+        "MovieLens-1m",
+        "Yoochoose（仅用于定性t-SNE可视化，未做完整定量评估）"
+      ],
+      "findings_zh": [
+        "即插即用验证：固定beta∈{0.1,0.2,0.3}的权重融合使TiSASRec在MovieLens-1m上稳定提升，NDCG@10从56.8163升至最高57.4986，HR@10从79.3377升至约80.15；可学习beta使SR-GNN在Diginetica上MRR@20从15.8268升至18.0137，Recall@20从47.4723升至48.2895。",
+        "主实验：DTAMLP在Diginetica和RetailRocket上一致优于所有对比基线。Diginetica上最强基线为GCARM，DTAMLP相对提升MRR@{10,20}为5.72%/5.32%，NDCG@{10,20}为4.92%/4.24%，Recall@{10,20}为4.82%/3.63%。",
+        "RetailRocket上相对各指标最强基线，DTAMLP提升MRR@{10,20}为4.46%/4.30%，NDCG@{10,20}为4.01%/3.38%，Recall@{10,20}为1.59%/1.17%；Recall提升明显小于排序类指标，说明改进主要来自把相关物品排得更靠前，而非检索出不同的相关物品集合。",
+        "消融实验：去掉时间感知、去掉Weight Fusion、去掉FFT-Transformer都会降低准确率，其中FFT-Transformer影响相对更大；两个核心机制在消融层面表现为互补、非冗余的改进。",
+        "参数调优（RetailRocket）：interval_max=70000、margin=0.05、dropout=0.2时效果最佳；更大的embedding size能提升性能，但消耗更多GPU显存。",
+        "Yoochoose上的t-SNE可视化显示DTAMLP的会话嵌入比SR-GNN和GCARM具有更好的类别分离，但作者说明这只是定性、说明性结果，不是正式证明。",
+        "效率分析：DTAMLP的FFT-Transformer理论复杂度为O(d log d)，在V100上训练少于10分钟，而Caser约需6小时；作者未测量GCARM的训练时间，因此不宣称对所有基线都有效率优势。"
+      ],
+      "metrics": [
+        "MRR@10",
+        "MRR@20",
+        "NDCG@10",
+        "NDCG@20",
+        "Recall@10",
+        "Recall@20",
+        "HR@10（仅TiSASRec即插即用验证）"
+      ]
+    },
+    "limitations_zh": [
+      "“偏好噪声”是对FMLP-Rec频域滤波为何有效的解释性猜想，论文没有独立证明该机制，也没有验证“某个频率对应某个心理偏好成分”的对应关系，只提供间接的消融层面的证据。",
+      "DTAMLP本身被作者定位为2023年前后领域的整合性系统，而非当前SOTA；论文发布时没有更新实验和基线。",
+      "点击时间间隔只是浏览时长的代理，长间隔可能来自用户中途离开，短间隔也可能包含多种行为；eta阈值和softmax权重融合属于启发式设计。",
+      "RetailRocket上的Recall提升很小，说明该方法主要改善排序质量，对候选召回集合的扩展有限。",
+      "Yoochoose仅用于定性可视化，没有在它上面做完整定量对比。",
+      "效率对比只针对部分模型，没有测量GCARM等更强基线的训练时间，也没有给出部署/服务延迟的证据。"
+    ],
+    "method_zh": "DTAMLP先将物品one-hot经embedding矩阵映射并与可学习位置编码相加，再经LayerNorm和Dropout得到输入表示。为保证会话嵌入和物品嵌入处于同一表示空间，会话嵌入被定义为会话内物品嵌入的加权和。权重由深层神经过滤模块生成：FFT-Transformer沿物品维度做1D FFT，乘可学习频域滤波器W后反变换回时域，再接残差、LayerNorm、Dropout和FFN；Time-Aware模块将点击时间到预测时间差按600秒切片、上限144做时间embedding，与FFT输出拼接后降维为临时注意力权重alpha_temp；Weight Fusion模块计算alpha_noise=softmax(min(interval, eta))，用可学习系数beta把alpha_temp和alpha_noise线性融合为最终权重，以抑制短停留偶发噪声；最后用cosine距离和带固定margin的(N-1)-tuple loss（鲁棒距离度量）训练。",
+    "problem_zh": "会话推荐（SBR）中，现有时间感知模型和GNN模型把每次点击之间的时间间隔都视为同等可靠的兴趣信号，但电商等场景中大量短停留点击（如误点、被图片吸引后迅速退出）只携带很弱的偏好信号，即“偶发噪声”，会扭曲会话表示；同时，用户行为在时域上是多种纠缠心理偏好的混合，相关偏好与无关偏好难以分开，而频域滤波虽然被证明有效（如FMLP-Rec），其机理尚未得到解释。",
+    "technical_depth": 0.66
+  },
+  "doi": null,
+  "final_score": 0.788,
+  "graph_relations": [
+    {
+      "confidence": 0.34,
+      "evidence": "均处理内容序列建模与检索排序问题",
+      "generated_by": "heuristic_classifier",
+      "target_id": "arxiv-2608.12987",
+      "type": "related_work"
+    }
+  ],
+  "id": "arxiv-2608.12975",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-13T08:55:40Z",
+  "relevance_score": 0.88,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "针对会话推荐中的偶发点击噪声和偏好噪声，提出 DTAMLP 全 MLP 框架，将阈值截断的时间间隔权重融合进注意力机制，并采用 FFT 频域滤波对物品嵌入去噪，在 Diginetica 和 RetailRocket 上验证了两种机制具有互补且非冗余的准确率提升。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "ranking"
+  ],
+  "title": "DTAMLP: Denoise Time-aware MLP for Session-based Recommendation",
+  "url": "https://arxiv.org/abs/2608.12975v1"
+}

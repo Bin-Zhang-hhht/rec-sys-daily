@@ -1,0 +1,116 @@
+{
+  "abstract": "Semantic ID (SID)-based generative recommendation has recently achieved remarkable success. However, existing methods suffer from a previously overlooked fairness issue, which we term \\textbf{Token Frequency Bias}, where high-frequency SID tokens are systematically over-predicted while low-frequency SID tokens are under-predicted. This bias originates from the combined effects of imbalanced semantic codebooks during SID construction, and popularity bias together with the maximum likelihood estimation objective during recommendation training, resulting in unfair exposure across item categories. Existing SID methods mainly focus on improving codebook quality and overlook the impact of token frequency imbalance on downstream recommendation fairness, while LLM debiasing methods often yield suboptimal results when directly applied to SID-based recommendation, due to the hierarchical semantics of SID tokens. To address this issue, we propose \\textbf{FSGR}, a fairness optimization framework for SID-based generative recommendation. During SID construction, FSGR employs OT-based Assignment Optimization and Dual-Criteria Re-anchor mechanism to form a more balanced SID representation space. During recommendation training, it adopts a two-stage training strategy and introduces Hierarchical Frequency Calibration for layer-specific fairness fine-tuning. Experiments on three public datasets with three backbone models demonstrate that FSGR mitigates token frequency bias and delivers an average Gini fairness improvement of over 20\\% while maintaining competitive recommendation accuracy. Semantic ID (SID)-based generative recommendation has recently achieved remarkable success. However, existing methods suffer from a previously overlooked fairness issue, which we term \\textbf{Token Frequency Bias}, where high-frequency SID tokens are systematically over-predicted while low-frequency SID tokens are under-predicted. This bias originates from the combined effects of imbalanced semantic codebooks during SID construction, and popularity bias together with the maximum likelihood estimation objective during recommendation training, resulting in unfair exposure across item categories. Existing SID methods mainly focus on improving codebook quality and overlook the impact of token frequency imbalance on downstream recommendation fairness, while LLM debiasing methods often yield suboptimal results when directly applied to SID-based recommendation, due to the hierarchical semantics of SID tokens. To address this issue, we propose \\textbf{FSGR}, a fairness optimization framework for SID-based generative recommendation. During SID construction, FSGR employs OT-based Assignment Optimization and Dual-Criteria Re-anchor mechanism to form a more balanced SID representation space. During recommendation training, it adopts a two-stage training strategy and introduces Hierarchical Frequency Calibration for layer-specific fairness fine-tuning. Experiments on three public datasets with three backbone models demonstrate that FSGR mitigates token frequency bias and delivers an average Gini fairness improvement of over 20\\% while maintaining competitive recommendation accuracy.",
+  "arxiv_id": "2608.12845",
+  "authors": [
+    "Yuchen Zheng",
+    "Sihan Xu",
+    "Jingwen Yang",
+    "Xiangrui Cai",
+    "Haiwei Zhang",
+    "Xiaojie Yuan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "缓解token频率偏差可以减少头部token关联类别的曝光垄断，改善长尾商品和类别的可见性，避免“富者愈富”的正反馈循环导致的长尾边缘化。",
+      "FSGR在保持有竞争力的推荐精度的同时将平均Gini公平性提升超过20%，适合作为基于LLM的生成式推荐系统中提升物品侧曝光公平性的技术方案。",
+      "实现方式为LoRA微调Llama3.1-8B/Qwen3-8B等8B级LLM并配合RQ-VAE，企业若采用该框架需具备相应的SID量化和LLM微调能力，但其公平性收益可直接体现为更均衡的品类曝光和更好的长尾商品分发。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "首次识别并定义了SID-based生成式推荐中的token频率偏差，指出码本不平衡、训练数据流行度偏差与MLE目标的内在局限共同导致SID token层面的物品侧公平性退化。",
+      "提出FSGR公平优化框架：在SID构建阶段，通过基于最优传输的分配优化（OTA）和双准则重锚定机制（DCR）形成更平衡的SID表示空间；在推荐训练阶段，采用两阶段训练策略，先进行语义对齐预训练，再通过层次化频率校准（HFC）进行层间差异化去偏。",
+      "在三个公开数据集和三种骨干模型上的实验表明，FSGR能缓解token频率偏差，平均Gini公平性提升超过20%，同时保持有竞争力的推荐精度。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Method"
+      },
+      {
+        "page": 1,
+        "section": "Experiments"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "RQ-VAE",
+        "RT",
+        "QuaSID",
+        "MiLe",
+        "WAKL"
+      ],
+      "datasets": [
+        "Amazon Luxury Beauty",
+        "Amazon Industrial and Scientific",
+        "Amazon Software"
+      ],
+      "findings_zh": [
+        "在TIGER、Llama3.1-8B和Qwen3-8B三种骨干上，FSGR均取得最低的Gini值，平均Gini公平性提升超过20%，同时Recall和NDCG与基线相比保持竞争力。",
+        "消融实验表明，去掉BSQ或去掉HFC都会导致Gini升高，完整FSGR取得最佳公平性；BSQ为下游公平性提供更平衡的码本基础，HFC进一步缓解自回归训练引入的频率偏差。",
+        "BSQ显著提升码本覆盖率并降低码本Gini：在Industrial数据集上覆盖率接近100%，token频率分布比RQ-VAE、RT、QuaSID更平坦，说明码本利用更加均衡。",
+        "HFC的层次化温度调度tau_l=l/L优于Reverse tau_l和Fixed tau_l：Reverse在Beauty和Industrial上进一步降低Gini但损害Recall/NDCG，HFC在公平性与精度之间取得最佳权衡。",
+        "token频率分布分析显示，FSGR生成的SID token分布比原始RQ-VAE和LLM更接近真实分布，显著减少高频token的过度预测并提升低频token的相对曝光。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "Gini@10"
+      ]
+    },
+    "limitations_zh": [
+      "公平性优化在少数设置下会对推荐精度造成轻微影响，并非在所有数据集和骨干上都同时获得最优精度与最优公平性。",
+      "实验仅在Amazon的Luxury Beauty、Industrial and Scientific、Software三个子集以及TIGER、Llama3.1-8B、Qwen3-8B三种骨干上验证，未覆盖更多领域、更大规模模型或在线部署场景。",
+      "未来仍需将FSGR扩展到更先进的生成式推荐架构，并探索自适应的频率感知优化策略，以进一步改善公平性与精度的权衡。"
+    ],
+    "method_zh": "FSGR包含两大模块：平衡语义量化（BSQ）与两阶段推荐训练。BSQ用于SID构建：OTA将每个mini-batch内的量化建模为最优传输问题，通过Sinkhorn-Knopp求解带均匀边际约束的传输计划P*，并将其与模型实际软分配Q的KL散度作为正则项，提升码本整体利用率；DCR周期性识别死码字，并根据两种准则重锚定：策略A将死码字重初始化到OT代价最高的未覆盖区域，策略B将其重初始化到码字利用密度高的拥挤区域，以同时改善欠表示与过拥挤的语义空间。推荐训练分两阶段：第一阶段用标准交叉熵损失学习用户行为与SID序列的语义映射；第二阶段使用HFC进行公平微调，对每层SID预测logits加上对数频率先验b_l=-log(f_l+epsilon)，并按tau_l=l/L的层次化温度调度施加不同程度的校准——浅层校准较弱以保持粗粒度语义，深层校准较强以缓解细粒度token频率偏差；校准logits仅用于SID预测位置，总体损失为L_non-SID + lambda_h * L_SID。",
+    "problem_zh": "SID-based生成式推荐存在一种此前被忽略的公平性问题，即Token Frequency Bias（token频率偏差）：高频SID token被系统性过度预测，低频SID token被预测不足，导致曝光集中于少数高频token关联的商品类别，边缘化长尾类别。该偏差源于SID构建时语义码本本身不平衡、训练数据中的流行度偏差，以及推荐训练中最大似然估计目标放大高频信号三者的共同作用。现有SID方法主要关注码本质量和碰撞问题，忽略了token频率不平衡对下游推荐公平性的影响；直接套用LLM去偏方法又因为SID token的层次化语义而效果欠佳。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.8075000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.12845",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "multi_task_learning"
+  ],
+  "published_at": "2026-08-13T05:34:51Z",
+  "relevance_score": 0.85,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出FSGR，面向语义ID生成式推荐系统的公平性优化框架，通过基于最优传输的分配优化、双标准重锚定以及层次化频率校准缓解Token频率偏差，在保持推荐精度的同时显著提升公平性。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking"
+  ],
+  "title": "FSGR: Mitigating Token Frequency Bias for Fair SID-Based Generative Recommendation",
+  "url": "https://arxiv.org/abs/2608.12845v1"
+}

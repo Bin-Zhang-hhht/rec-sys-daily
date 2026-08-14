@@ -1,0 +1,129 @@
+{
+  "authors": [],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "系统由三大部分组成：(1) 富化的异构图：包含用户、广告、广告主、campaign、商品、pixel 等节点以及带类型、权重、时间衰减的边；节点初始嵌入融合预训练语义特征和行为统计，高频节点使用 deep hash embedding 控制 ID 内存上限。(2) 分层编码器：基于 transformer 的图编码器，输入侧包含节点编码器、位置编码器和边编码器；图结构信号（如节点类型转移、最短路径距离）作为 attention bias 注入 query-key 点积，使模型保持拓扑感知；采用 FlexAttention 按需计算 bias，避免物化完整 pairwise bias 矩阵，并使用 block-masked packing 处理变长子图。(3) 多层级与离散化：学习从原始图到 super-graph 的多层级投影，输出通用实体嵌入，并通过 composite quantization 离散化为 Bag-of-Meaning (BoM) tokens，用于倒排检索和集合聚合。",
+    "business_implications_zh": [
+      "提升深度漏斗广告排序，使广告主能触达对产品或服务具有真实潜在兴趣的用户",
+      "BoM tokens 支持倒排索引召回，可能降低召回阶段延迟和存储开销",
+      "统一表示可复用于个性化、检索、监督和专门排序架构，降低广告栈各模块重复建模成本",
+      "多模态世界知识有助于理解甚至从未见过的广告主和商品，对增量广告主和长尾供给更友好",
+      "多层级兴趣结构可用于 MoE 生成分布学习等专门架构，支持按兴趣类别路由",
+      "有潜力改善发现型广告体验并扩大广告主有效触达，最终带来深度漏斗商业增量，但原文未提供收入侧定量证据"
+    ],
+    "business_transferability": 0.65,
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "heading": "How Hierarchical Interest Representation Enhances Deep Funnel Optimization",
+        "section": "blog body"
+      },
+      {
+        "heading": "The Technical Challenges",
+        "section": "blog body"
+      },
+      {
+        "heading": "Introducing Hierarchical Interest Representation",
+        "section": "blog body"
+      },
+      {
+        "heading": "The Hierarchical Interest Representation Architecture",
+        "section": "blog body"
+      },
+      {
+        "heading": "Training the Hierarchical Encoder",
+        "section": "blog body"
+      },
+      {
+        "heading": "Tokenization",
+        "section": "blog body"
+      },
+      {
+        "heading": "Activating Hierarchical Interest Representation Across the Delivery Stack",
+        "section": "blog body"
+      },
+      {
+        "heading": "The Future of Hierarchical Interest Representation",
+        "section": "blog body"
+      }
+    ],
+    "implementation_zh": "训练包含两个互补目标：一是跨视图自蒸馏，对每个 anchor node 采样 broad teacher view 和 narrow student view，让学生预测与老师相同的兴趣簇，并用 Sinkhorn-Knopp 均衡分配防止单簇坍缩；二是监督式 engagement prediction，基于两个节点表示、交互类型和时间预测真实交互边是否存在。工程实现上，原始异构图存放在在线图引擎中，训练与在线 serving 共用同一数据源以保证分布一致；训练时 subgraph fetch 和 node-feature read 与 GPU 计算流水化，多个 worker 预取后续 batch；测试阶段相比同步基线获得 30x wall-clock 加速，并保持高 GPU FLOPs 利用率，且端到端 bit-exact 可复现。因果性方面，图引擎按 cutoff timestamp 掩蔽未来节点和边，边按时间顺序划分 train/validation/test，batch 只在固定时间块内 shuffle，避免时间泄漏。世界知识方面，从广告主页面元数据和商品目录中提取文本、图像、视频等多模态特征，经定制 LLM 推理引擎生成编码特征作为输入。",
+    "lessons_zh": [
+      "图结构信息可以编码为 attention bias，使 transformer 保持拓扑感知，避免标准 message-passing 的过平滑问题",
+      "自监督跨视图蒸馏可以把监督扩展到远超出产生深度漏斗转化的用户范围，缓解交互稀疏性",
+      "多模态世界知识可以补充稀疏交互，帮助模型泛化到未见过的实体",
+      "用 learned super-graph / interest primitives 做维度压缩，使原始稀疏的用户-广告边在兴趣原语图上变得更稠密、词表更稳定",
+      "统一度量空间支持跨类型关系推断、簇间关系和最近邻计算，适合检索和排序复用",
+      "严格的时间因果切割和训练/在线同分布是可信增量学习的必要条件"
+    ],
+    "limitations_zh": [
+      "原文未报告离线评测指标、在线 A/B 结果、转化率提升或收入影响，属于研究方向介绍而非已证明的生产收益",
+      "深度漏斗反馈本身稀缺，文中主要依靠推断兴趣和世界知识补足，未证明能转化为真实转化",
+      "30x 加速来自测试阶段，并非完整生产端到端性能结论",
+      "BoM 离散化可能损失连续嵌入的细粒度语义，量化带来的质量影响未量化",
+      "系统定位为 upstream representation layer，未来工作仍包括训练扩展效率、embedding freshness、知识压缩和 memory-efficient attention kernels，说明当前仍有工程限制",
+      "文中对跨 GEM、Andromeda、Adaptive Ranking Model 的具体部署路径和实际上线效果描述较少"
+    ],
+    "production_constraints_zh": [
+      "图规模达数十亿节点/月，需同时支撑在线 fresh serving 与离线评估迭代",
+      "深度漏斗的用户反馈稀疏，且每月广告、广告主和商品词汇量巨大",
+      "需要捕捉长程全局关系，但标准 attention 加图 bias 会物化完整 pairwise 矩阵，内存不可行",
+      "ID 词汇量达百亿级，ID embedding 内存必须有界，因此使用 deep hash embedding",
+      "训练和评估必须严格遵循事件时间顺序，防止信息泄漏",
+      "需要保持 bit-exact 可复现性，以支持基础设施迁移和 checkpoint 恢复而不静默改变模型行为",
+      "在线/离线必须使用同一图数据源，保证训练与 serving 分布一致",
+      "变长子图需要打包成单个 block-masked 序列，避免 padding 浪费和跨图泄漏"
+    ],
+    "results_zh": [
+      "在真实 Meta 广告数据上以数十亿交互规模端到端训练",
+      "测试阶段通过流水线数据加载实现了 30x wall-clock 加速（对比同步基线），并保持高 GPU FLOPs 利用率",
+      "实现端到端 bit-exact 可复现性，支持基础设施迁移和 checkpoint 恢复",
+      "通过 BoM tokens 支持倒排索引的快速紧凑召回，并能表示用户兴趣和广告主服务的兴趣",
+      "系统声称可输出通用实体嵌入和 BoM 兴趣 token，有潜力增强 GEM、Andromeda、Adaptive Ranking Model 的深度漏斗优化，但原文未给出离线/在线质量指标或商业收益数据"
+    ],
+    "system_context_zh": "Hierarchical Interest Representation (HIR) 是 Meta Ads 深度漏斗优化中的一个上游表示层：它学习用户、广告主、商品、服务等广告实体在统一度量空间中的嵌入，通过多层级兴趣原语（latent interest primitives）连接用户的推断兴趣与广告主的深度漏斗供给。它与 Meta 的 GEM、Andromeda、Adaptive Ranking Model 等下游系统衔接，目标是为整个广告投放栈提供可复用的个性化、召回、监督和排序能力。系统基于异构图，在真实 Meta 广告数据上以数十亿交互的规模端到端训练，并在线/离线使用同一图数据源。",
+    "technical_depth": 0.75,
+    "tradeoffs_zh": [
+      "稠密稳定关系通常对应较粗/较高层的兴趣抽象，稀疏特定连接对应较细粒度，因此需要在多层级粒度之间做权衡",
+      "连续通用嵌入适合排序，但不适合倒排索引检索、集合聚合和人工解释，因此离散化为 BoM tokens，存在量化粒度损失",
+      "标准 attention 注入图 bias 需要物化 pairwise bias 矩阵，FlexAttention 以按需计算换取内存效率",
+      "跨视图蒸馏通过更自信的 teacher view 提供监督目标，但 view 的宽窄设计存在置信度与覆盖范围之间的权衡",
+      "Sinkhorn-Knopp 均衡分配可防止自监督单簇坍缩，但也可能对簇的天然非均衡分布施加约束",
+      "多模态世界知识通过 LLM 推理引入，带来计算和压缩成本，但能缓解稀疏交互",
+      "多层级 super-graph 使边在兴趣原语图上更稠密，但失去了原始图的一部分细粒度信息"
+    ]
+  },
+  "excerpt": "Hierarchical Interest Representation is a research area for Meta Ads. We’re exploring an upstream representation layer over the universe of Ads entities – users, advertisers, products, services – learning unified embeddings that connect users’ inferred interests with the breadth of what advertisers offer in their deep funnel ads. The innovations in Hierarchical Interest Representation are [...] Read More... The post Exploring Hierarchical Interest Representation For Meta Ads Deep Funnel Optimization appeared first on Engineering at Meta . Hierarchical Interest Representation is a research area for Meta Ads. We’re exploring an upstream representation layer over the universe of Ads entities – users, advertisers, products, services – learning unified embeddings that connect users’ inferred interests with the breadth of what advertisers offer in their deep funnel ads. The innovations in Hierarchical Interest Representation are [...] Read More... The post Exploring Hierarchical Interest Representation For Meta Ads Deep Funnel Optimization appeared first on Engineering at Meta .",
+  "final_score": 0.825,
+  "graph_relations": [],
+  "id": "url-235fa230d8103318ceecd98d",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower"
+  ],
+  "published_at": "2026-07-15T17:00:52Z",
+  "relevance_score": 0.95,
+  "scenarios": [
+    "text_feed",
+    "livestream",
+    "friend_recommendation"
+  ],
+  "source": "meta_engineering",
+  "summary_zh": "Meta 正在探索面向广告深度漏斗优化的分层兴趣表示，构建覆盖用户、广告主、商品与服务等广告实体的上游统一嵌入层，将用户推断出的兴趣与广告主提供的深层漏斗广告内容连接起来。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking",
+    "multi_objective_optimization"
+  ],
+  "title": "Exploring Hierarchical Interest Representation For Meta Ads Deep Funnel Optimization",
+  "url": "https://engineering.fb.com/2026/07/15/ai-research/exploring-hierarchical-interest-representation-for-meta-ads-deep-funnel-optimization"
+}

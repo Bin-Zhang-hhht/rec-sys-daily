@@ -1,0 +1,182 @@
+{
+  "abstract": "Multi-objective optimization (MOO) has demonstrated significant success in multi-task learning by mitigating task conflicts through gradient manipulation. However, most existing methods flatten model parameters into vectors and perform gradient manipulation under Euclidean geometry, thereby overlooking the matrix structure prevalent in modern architectures such as Transformers. In this paper, we show that gradient manipulation in Euclidean space does not generally yield the steepest descent direction under matrix geometry, potentially limiting optimization efficiency. Drawing from the theory of steepest descent for matrix-valued parameters, we propose MOON (Multi-Objective OrthoNormalized Updates), which performs gradient manipulation under spectral--nuclear norm geometry and uses the orthonormalized manipulated gradient for parameter updates. Theoretically, for smooth non-convex objectives, we establish convergence of the averaged Pareto-stationarity measure at rates of $\\mathcal{O}(T^{-1/2})$ in the deterministic setting and $\\mathcal{O}(T^{-1/4})$ under stochastic gradients. Empirical results across various benchmarks show that MOON consistently improves both optimization efficiency and final multi-task performance. Our code is available at https://github.com/KunlinLyu/MOON. Multi-objective optimization (MOO) has demonstrated significant success in multi-task learning by mitigating task conflicts through gradient manipulation. However, most existing methods flatten model parameters into vectors and perform gradient manipulation under Euclidean geometry, thereby overlooking the matrix structure prevalent in modern architectures such as Transformers. In this paper, we show that gradient manipulation in Euclidean space does not generally yield the steepest descent direction under matrix geometry, potentially limiting optimization efficiency. Drawing from the theory of steepest descent for matrix-valued parameters, we propose MOON (Multi-Objective OrthoNormalized Updates), which performs gradient manipulation under spectral--nuclear norm geometry and uses the orthonormalized manipulated gradient for parameter updates. Theoretically, for smooth non-convex objectives, we establish convergence of the averaged Pareto-stationarity measure at rates of $\\mathcal{O}(T^{-1/2})$ in the deterministic setting and $\\mathcal{O}(T^{-1/4})$ under stochastic gradients. Empirical results across various benchmarks show that MOON consistently improves both optimization efficiency and final multi-task performance. Our code is available at https://github.com/KunlinLyu/MOON.",
+  "arxiv_id": "2608.11749",
+  "authors": [
+    "Shiji Zhou",
+    "Kunlin Lyu",
+    "Lei Zhang",
+    "Ruodong Wang",
+    "Yifan Sun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "MOON 在相同墙钟时间内取得更低训练损失，并能更快达到目标损失，例如比 MGDA 快约 39.8%、比 FAMO 快约 14.1%，可能降低多任务模型训练的算力和时间成本。",
+      "MOON 的内存占用与 MGDA/FAMO 基本一致，说明在获得更优多任务性能的同时没有引入显著显存开销，有助于在资源受限的生产环境中部署。",
+      "在 Qwen3-1.7B-Base 的多目标强化学习微调中展现出有效性，说明该方法可能适用于大语言模型的多目标对齐、安全性和质量权衡等实际业务场景。",
+      "MOON 面向 Transformer 等矩阵参数为主的现代架构，且在多任务视觉、分子性质预测和 40 任务属性分类上均取得领先结果，具备在多任务推荐、内容理解和智能体训练等方向迁移的潜力。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出 MOON（Multi-Objective OrthoNormalized Updates），一种结构感知的多目标优化方法，在谱范数-核范数几何下进行梯度操作，并使用正交归一化后的矩阵更新方向，从而适配现代架构中的矩阵参数。",
+      "建立了光滑非凸目标下 Pareto 稳定性的收敛性保证：确定性梯度下平均 Pareto 平稳性指标达到 O(T^{-1/2})，无偏随机梯度下达到 O(T^{-1/4})。",
+      "在 MultiMNIST、NYU-v2、CityScapes、QM9、CelebA 等多个基准以及 Qwen3-1.7B-Base 的多目标强化学习微调中验证了 MOON 能加速优化并取得有竞争力或更好的最终多任务性能。",
+      "给出了实用的 MOON 实现，包括梯度动量、Newton-Schulz 极因子近似和在线任务权重更新，以降低精确求解的计算代价。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Multi-Objective Orthonormalized Updates"
+      },
+      {
+        "page": 1,
+        "section": "Practical Implementation"
+      },
+      {
+        "page": 1,
+        "section": "Convergence Analysis"
+      },
+      {
+        "page": 1,
+        "section": "A Toy Case"
+      },
+      {
+        "page": 1,
+        "section": "Multi-task Classification"
+      },
+      {
+        "page": 1,
+        "section": "Multi-task Scene Understanding"
+      },
+      {
+        "page": 1,
+        "section": "Multi-task Regression"
+      },
+      {
+        "page": 1,
+        "section": "F.2 Comparison with Naive Combinations with Muon"
+      },
+      {
+        "page": 1,
+        "section": "F.3 Transformer Experiment on CelebA"
+      },
+      {
+        "page": 1,
+        "section": "F.4 Multi-Objective Reinforcement Fine-Tuning on Qwen3-1.7B-Base"
+      },
+      {
+        "page": 1,
+        "section": "F.7 30-task Synthetic Data Regression Experiment"
+      },
+      {
+        "page": 1,
+        "section": "F.8 Training Efficiency Comparison"
+      },
+      {
+        "page": 1,
+        "section": "G Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "STL",
+        "LS",
+        "SI",
+        "RLW",
+        "DWA",
+        "UW",
+        "MGDA",
+        "PCGrad",
+        "GradNorm",
+        "CAGrad",
+        "IMTL-G",
+        "Nash-MTL",
+        "FAMO",
+        "Muon",
+        "MGDA+Muon",
+        "FAMO+Muon"
+      ],
+      "datasets": [
+        "MultiMNIST",
+        "NYU-v2",
+        "CityScapes",
+        "QM9",
+        "CelebA",
+        "synthetic 30-task regression",
+        "MATH500 (Qwen3-1.7B-Base RL fine-tuning)"
+      ],
+      "findings_zh": [
+        "在 MultiMNIST 上，MOON 的左右手写数字分类准确率和平均准确率均优于所比较的 MOO 方法，平均准确率为 95.65%，高于 FAMO 的 95.39% 和 CAGrad 的 95.19%。",
+        "在 NYU-v2 上，MOON 的平均性能下降 Delta m% 为 -4.63，是表中最好的结果；在 CityScapes 上 MOON 的 Delta m% 为 1.54，mIoU 为 78.61，均优于各基线。",
+        "在 QM9 的 11 个分子性质预测任务上，MOON 在大部分任务上取得最低 MAE，并取得最低的平均性能下降 Delta m%=49.9%。",
+        "在 CelebA 的 40 任务分类中，MOON 在 CNN 骨干下 Delta m%=4.65，在 ViT 骨干下 Delta m%=6.09，均为所比较方法中最低。",
+        "训练效率方面，MOON 在相同墙钟时间内取得更低的平均训练交叉熵损失；达到平均 CE loss 0.15 所需时间比 MGDA 快约 39.8%，比 FAMO 快约 14.1%，且 GPU 内存占用与 MGDA/FAMO 基本相当（约 2078 MB vs 2076 MB）。",
+        "在 Qwen3-1.7B-Base 于 MATH500 上的多目标强化学习微调中，MOON 在 clarity、accuracy 和 response length 之间取得了较好的权衡，验证集轨迹显示其能快速达到较优的多目标解。",
+        "玩具实验和 30 任务合成数据回归实验显示，MOON 比 MGDA、FAMO 以及直接结合 Muon 的 MGDA/FAMO 收敛更快、最终损失更低。"
+      ],
+      "metrics": [
+        "test accuracy",
+        "average accuracy",
+        "mIoU",
+        "pixel accuracy",
+        "absolute error",
+        "relative error",
+        "angle distance",
+        "within t° accuracy",
+        "Delta m% average performance drop",
+        "MAE",
+        "average training cross-entropy loss",
+        "wall-clock time",
+        "GPU memory",
+        "clarity",
+        "response length"
+      ]
+    },
+    "limitations_zh": [
+      "理论分析假设精确计算极因子，而实际实现使用有限步 Newton-Schulz 迭代近似，论文将有限步近似的精确理论刻画留作未来工作。",
+      "实际算法使用单步在线更新近似对偶任务权重，而不是精确求解核范数对偶问题，这属于近似处理。",
+      "主要实验均重复 3 个随机种子并报告均值，规模相对有限；LLM 强化学习微调实验基于 Qwen3-1.7B-Base 和 MATH500，结论的可推广性仍需更多大规模验证。"
+    ],
+    "method_zh": "MOON 针对矩阵参数构造多目标最速下降问题：假设每个目标关于谱范数 L-光滑，最小化所有目标公共二次上界对应的谱范数正则化 min-max 问题；通过对偶问题，在概率单纯形上最小化加权聚合梯度的核范数以确定任务权重，而原始问题的最优方向由聚合梯度的极因子（polar factor）U V^T 给出。实际算法中，MOON 用指数移动平均平滑聚合梯度，用有限步 Newton-Schulz 迭代近似极因子，并用 softmax 参数化的单步在线更新近似对偶任务权重；对包含多个矩阵参数块的网络按块应用该更新。",
+    "problem_zh": "现有面向多任务学习的多目标优化（MOO）方法大多通过梯度操作缓解任务冲突，但它们通常将模型参数展平为向量，并在欧氏几何下进行梯度处理，忽略了 Transformer 等现代架构中大量矩阵参数的结构。论文指出，欧氏空间中的梯度操作在矩阵几何下不一定能给出最速下降方向，可能限制优化效率；同时，将传统 MOO 方法与 Muon 等矩阵感知优化器简单结合缺乏一致的几何基础，且在矩阵几何下建立收敛性分析具有挑战性。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.7955000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.11749",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "multi_task_learning"
+  ],
+  "published_at": "2026-08-12T07:41:31Z",
+  "relevance_score": 0.8,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出MOON，在谱-核范数矩阵几何下对多任务梯度进行正交归一化更新，以缓解多任务学习中的梯度冲突，提升优化效率与最终多任务性能，并在多个基准上验证有效性。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "MOON: Multi-Objective OrthoNormalized Updates for Multitask Learning",
+  "url": "https://arxiv.org/abs/2608.11749v1"
+}

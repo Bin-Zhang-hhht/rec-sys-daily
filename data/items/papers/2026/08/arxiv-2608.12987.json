@@ -1,0 +1,164 @@
+{
+  "abstract": "Generative information retrieval (GIR) has emerged as a compelling alternative to the conventional index-retrieve-then-rank retrieval pipeline by training a generator to produce the identifiers of relevant items directly. Despite its promise, a number of open challenges still remain. First, constrained left-to-right decoding is vulnerable to prefix-level errors and local optima. Second, most prior GIR research remains largely unimodal, leaving instruction-aware retrieval across text, image, and mixed image-text items underexplored. Third, although discrete identifier-based GIR offers higher efficiency, its retrieval accuracy still lags behind that of the cutting-edge dense-vector-based retrieval methods. Motivated by these challenges, we propose DrIG, a novel Generative framework for universal multimodal retrieval featuring Dual-role Identifiers, which supports diverse retrieval tasks across multiple modalities and domains. Each candidate is assigned a single residual-quantized identifier that serves two complementary roles. In its sequential role, the identifier is decoded autoregressively, where the first token explicitly models modality and the remaining tokens capture progressively finer semantics. In its set-based role, the same tokens are reinterpreted as an unordered set to provide a prefix-independent relevance prior, which guides constrained beam search and alleviates local-optimum errors. Extensive experiments on the M-BEIR benchmark and the text-to-image evaluation datasets show that:(1)DrIG consistently outperforms state-of-the-art generative multimodal baselines across diverse tasks, while hybrid reranking achieves a favorable efficiency-effectiveness trade-off against strong dense retrievers. (2)Ablation and scaling analyses reveal how the base LMM, beam size, reranking depth, and fusion strategy affect retrieval performance, providing practical guidance for system design. Generative information retrieval (GIR) has emerged as a compelling alternative to the conventional index-retrieve-then-rank retrieval pipeline by training a generator to produce the identifiers of relevant items directly. Despite its promise, a number of open challenges still remain. First, constrained left-to-right decoding is vulnerable to prefix-level errors and local optima. Second, most prior GIR research remains largely unimodal, leaving instruction-aware retrieval across text, image, and mixed image-text items underexplored. Third, although discrete identifier-based GIR offers higher efficiency, its retrieval accuracy still lags behind that of the cutting-edge dense-vector-based retrieval methods. Motivated by these challenges, we propose DrIG, a novel Generative framework for universal multimodal retrieval featuring Dual-role Identifiers, which supports diverse retrieval tasks across multiple modalities and domains. Each candidate is assigned a single residual-quantized identifier that serves two complementary roles. In its sequential role, the identifier is decoded autoregressively, where the first token explicitly models modality and the remaining tokens capture progressively finer semantics. In its set-based role, the same tokens are reinterpreted as an unordered set to provide a prefix-independent relevance prior, which guides constrained beam search and alleviates local-optimum errors. Extensive experiments on the M-BEIR benchmark and the text-to-image evaluation datasets show that:(1)DrIG consistently outperforms state-of-the-art generative multimodal baselines across diverse tasks, while hybrid reranking achieves a favorable efficiency-effectiveness trade-off against strong dense retrievers. (2)Ablation and scaling analyses reveal how the base LMM, beam size, reranking depth, and fusion strategy affect retrieval performance, providing practical guidance for system design.",
+  "arxiv_id": "2608.12987",
+  "authors": [
+    "Kaipeng Li",
+    "Haitao Yu",
+    "Xuanchen Zhou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "DrIG的混合检索设计在保持生成式检索近常数级吞吐的同时，通过稠密重排提升准确率，适合需要大规模候选池的多模态搜索场景，如新闻图片检索、电商时尚商品检索和百科知识证据检索。",
+      "在Fashion200K、FashionIQ等时尚领域任务上的结果说明其可用于服装/商品图文匹配、以图搜款和基于修改指令的商品检索。",
+      "M-BEIR和Flickr30K/MSCOCO上的实验显示，通用多模态训练获得的模型可迁移到标准文到图检索，降低为具体场景重复训练的成本。",
+      "重排深度、束宽和码本配置提供了可调的有效性-效率操作点，企业可在延迟敏感与效果优先场景之间灵活选择。",
+      "由于在知识密集文本检索上仍落后于稠密/LMM方法，实际部署中需结合更强的重排器或专用文本检索模块。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出DrIG，一种面向通用多模态检索的生成式框架，为每个候选分配一个残差量化标识符，并让同一标识符承担双重角色：序列角色用于自回归生成，集合角色用于前缀无关的相关性估计。",
+      "提出双引导受限解码，将Trie约束的束搜索与顺序不变的全局限相关性先验结合，缓解从左到右标识符生成中的局部最优问题，并集成稠密top-k重排，系统分析有效性-效率权衡。",
+      "在M-BEIR基准以及Flickr30K、MSCOCO文到图检索基准上进行实验，DrIG一致优于现有生成式多模态检索基线；混合重排策略进一步缩小了生成式检索与稠密检索之间的效果差距。",
+      "提供关于码本设计、束宽、先验权重、重排深度、解码器骨干和训练目标的大量消融与诊断分析，为生成式多模态检索系统设计提供实践指导。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Constructing Dual-role Identifiers"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Generative Retrieval with Dual-role Identifiers"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Hybrid Retrieval Strategies"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Main Comparison on M-BEIR"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Text-to-image Generative Retrieval"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Component Ablation and Representation Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Effectiveness-Efficiency Trade-off"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Design and Hyperparameter Sensitivity Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5.7 Qualitative Case Studies"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "CLIP-SF",
+        "BLIP-FF",
+        "LamRA-ret",
+        "LamRA",
+        "GENIUS",
+        "GENIUS-C",
+        "GRACE",
+        "IRGen",
+        "AVG",
+        "ComGTIR-D",
+        "ComGTIR-DHclip"
+      ],
+      "datasets": [
+        "M-BEIR（含VisualNews、MSCOCO、Fashion200K、WebQA、EDIS、NIGHTS、OVEN、InfoSeek、FashionIQ、CIRR）",
+        "Flickr30K",
+        "MSCOCO"
+      ],
+      "findings_zh": [
+        "在M-BEIR local-pool设置下，DrIG平均得分从生成式基线GENIUS的29.5提升到38.0，相对提升28.8%；在global-pool设置下从28.6提升到36.4，相对提升27.3%。",
+        "加入稠密向量重排后，DrIG-C和DrIG-LT在local-pool平均得分分别达到48.7和50.4，在global-pool分别达到47.1和48.9，明显优于GENIUS-C，表明生成式候选生成与稠密重排具有互补性。",
+        "在Flickr30K上，M-BEIR训练的DrIG零样本达到59.0/83.1/88.2（R@1/R@5/R@10），DrIG-LT达到75.8/90.0/91.6；在Flickr30K域内训练后DrIG和DrIG-LT进一步达到65.8/88.4/92.8和76.9/92.5/94.8。",
+        "在MSCOCO上，M-BEIR训练的DrIG达到41.8/70.2/79.4，DrIG-LT达到56.1/79.6/86.0，超过现有生成式文到图检索方法。",
+        "消融实验表明，量化前的对比损失L_sr^cl至关重要，去除后多数任务性能崩溃；Trie约束同样关键，去除后MSCOCO文到图R@10从79.4降至21.6；集合角色、查询增强、判别排序损失和模态码本均带来一致但程度不同的提升。",
+        "码本配置分析显示，增加量化深度L和词汇量K通常提升效果，默认8×4096在大多数任务上最佳，但过大的码本在视觉细粒度任务上不总是最优；更深码本降低QPS。",
+        "束宽从1增大到20左右带来显著提升，之后趋于饱和；QPS从束宽1的972.6降至束宽50的37.6，体现直接的有效性-效率权衡。",
+        "重排深度k增大到中等范围收益明显，继续增大收益递减；DrIG-LT在多数任务上优于DrIG-C，说明LamRA嵌入比CLIP-SF提供更强的细粒度重排信号。",
+        "解码器骨干方面，T5-large在WebQA等文本密集型任务上有提升，但在CIRR和NIGHTS等视觉细粒度任务上反而下降；T5-small以30M参数取得最均衡的跨任务表现。",
+        "全局先验权重λ>0普遍提升R@5，λ=1.0在多数设置下表现稳定，但最优值存在任务依赖性。"
+      ],
+      "metrics": [
+        "Recall@1",
+        "Recall@5",
+        "Recall@10",
+        "Average Recall",
+        "QPS（每秒查询数）"
+      ]
+    },
+    "limitations_zh": [
+      "在知识密集和文本中心任务上，混合生成式检索与最强稠密/LMM检索器之间仍有明显差距，例如WebQA q_t→c_t任务DrIG-LT为65.9，而LamRA达到96.7。",
+      "离散化过程会丢失连续稠密表示中的细粒度语义信息，重排只能缓解而不能完全消除该问题。",
+      "当前框架采用表示学习、标识符构建、集合式评分和解码器训练分阶段优化的流程，缺乏端到端联合优化。",
+      "生成式检索系统面对动态候选集时的增删和标识符更新问题尚未解决，需进一步研究。",
+      "案例研究显示，在需要视觉证据与细粒度文本信息同时对齐的任务上，DrIG仍可能失败，例如无法区分需要精确多模态证据匹配的候选。"
+    ],
+    "method_zh": "DrIG包含四个核心阶段：(1) 使用Qwen2-VL等大视觉语言模型，通过显式一词总结提示和两阶段对比微调（InfoNCE损失）获得指令感知的共享嵌入表示；(2) 构建双角色标识符：采用残差量化（RQ），首层码本大小为3以区分图像、文本和图文对，后续码本逐级编码更细粒度语义；同一标识符既作为有序序列用于自回归生成，又被重新解释为无序集合，通过查询到码本token空间的映射和token级分数聚合得到前缀无关的全局限相关性分数；(3) 训练解码器：以查询-目标插值进行查询增强，使用生成式交叉熵损失和基于硬负样本的自适应边际判别排序损失训练T5解码器；(4) 推理时执行双引导Trie约束束搜索，将顺序解码分数与集合式全局先验加权结合，并可选用稠密向量相似度对生成的top-k候选进行重排，以补偿离散量化造成的信息损失。",
+    "problem_zh": "生成式信息检索（GIR）虽有潜力，但存在三个关键挑战：一是从左到右的受限解码对前缀级错误和局部最优非常敏感，相关候选一旦前缀被剪枝便无法恢复；二是现有GIR研究大多局限于单模态，对文本、图像和图文混合项的指令感知通用多模态检索探索不足；三是基于离散标识符的生成式检索虽然效率更高，但准确率仍落后于基于稠密向量的先进检索方法。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.743,
+  "graph_relations": [
+    {
+      "confidence": 0.38,
+      "evidence": "两者都涉及内容序列上的检索/排序，可互为方法参考",
+      "generated_by": "heuristic_classifier",
+      "target_id": "arxiv-2608.12975",
+      "type": "related_work"
+    }
+  ],
+  "id": "arxiv-2608.12987",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-13T09:10:09Z",
+  "relevance_score": 0.7,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出 DrIG 生成式通用多模态检索框架，采用双角色残差量化标识符支持文本、图像和混合图文检索；顺序解码建模模态与细粒度语义，集合式角色提供前缀无关的相关性先验，用于指导约束束搜索并缓解局部最优问题，混合重排序进一步提升效率与准确率。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval",
+    "reranking"
+  ],
+  "title": "Generative Universal Multimodal Retrieval with Dual-role Identifiers",
+  "url": "https://arxiv.org/abs/2608.12987v1"
+}

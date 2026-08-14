@@ -1,0 +1,78 @@
+{
+  "abstract": "Multimodal retrieval and classification across different types of media, spanning text, images,video and audio, has traditionally relied on dual-encoder models that align visual and textual representations through contrastive learning. The March 2026 release of Gemini Embedding 2, Google's first natively multimodal embedding model to map text, images, video, audio, and documents into a single shared space, raises competition among multimodal retrieval systems. Simultaneously, frontier Large language models (LLMs) have also demonstrated strong visual understanding, raising the question of whether they can serve as effective zero-shot rankers. Our study provides the first direct comparison of native multimodal embeddings against LLM-based visual ranking on Flickr30k. We observe that GPT-4.1 and Claude Sonnet 4.6 perform on par with Gemini Embedding 2. Additionally, once embeddings are precomputed, multimodal embeddings are better suited for low-latency applications. Multimodal retrieval and classification across different types of media, spanning text, images,video and audio, has traditionally relied on dual-encoder models that align visual and textual representations through contrastive learning. The March 2026 release of Gemini Embedding 2, Google's first natively multimodal embedding model to map text, images, video, audio, and documents into a single shared space, raises competition among multimodal retrieval systems. Simultaneously, frontier Large language models (LLMs) have also demonstrated strong visual understanding, raising the question of whether they can serve as effective zero-shot rankers. Our study provides the first direct comparison of native multimodal embeddings against LLM-based visual ranking on Flickr30k. We observe that GPT-4.1 and Claude Sonnet 4.6 perform on par with Gemini Embedding 2. Additionally, once embeddings are precomputed, multimodal embeddings are better suited for low-latency applications.",
+  "arxiv_id": "2608.11343",
+  "authors": [
+    "Archan Dutta",
+    "Vyanktesh Kanungo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "低延迟多模态检索场景可优先考虑预计算的嵌入方案",
+      "若延迟不是关键约束，LLM 也可作为效果相当的多模态排序器"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "首次在 Flickr30k 上直接对比原生多模态嵌入模型与基于 LLM 的视觉排序方法",
+      "观察到 GPT-4.1 和 Claude Sonnet 4.6 在效果上与 Gemini Embedding 2 持平",
+      "指出在嵌入预计算完成后，多模态嵌入更适合低延迟应用场景"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Gemini Embedding 2",
+        "GPT-4.1",
+        "Claude Sonnet 4.6"
+      ],
+      "datasets": [
+        "Flickr30k"
+      ],
+      "findings_zh": [
+        "GPT-4.1 与 Claude Sonnet 4.6 在性能上与 Gemini Embedding 2 相当",
+        "在多模态嵌入预计算完成的前提下，嵌入方式更适合低延迟应用"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [],
+    "method_zh": null,
+    "problem_zh": "传统的多模态检索依赖双编码器模型通过对比学习对齐视觉和文本表征；Gemini Embedding 2 作为原生多模态嵌入模型发布后，需要评估其与具备视觉理解能力的前沿大语言模型在多模态检索排序任务上的表现对比。",
+    "technical_depth": 0.2
+  },
+  "doi": null,
+  "final_score": 0.635,
+  "graph_relations": [],
+  "id": "arxiv-2608.11343",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower",
+    "large_language_model"
+  ],
+  "published_at": "2026-08-11T18:49:08Z",
+  "relevance_score": 0.9,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "首次直接对比原生多模态嵌入模型Gemini Embedding 2与前沿LLM在Flickr30k困难负样本文本到图像检索上的零样本排序性能；结果表明GPT-4.1和Claude Sonnet 4.6与Gemini Embedding 2性能相当，而预计算嵌入更适用于低延迟应用。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking",
+    "reranking"
+  ],
+  "title": "Can Frontier LLMs Match Natively Multimodal Embeddings? A Comparison on Hard-Negative Text-to-Image Retrieval",
+  "url": "https://arxiv.org/abs/2608.11343v1"
+}

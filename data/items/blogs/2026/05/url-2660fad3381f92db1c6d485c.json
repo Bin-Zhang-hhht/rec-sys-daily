@@ -1,0 +1,128 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "平台采用“one definition, many runtimes”的核心组织原则：信号/事件类型只定义一次，再在多个运行时中一致实例化。整体由六大部分组成：1) 流式与批量 ingestion；2) 共享执行引擎，基于配置完成过滤、join、transform 和 enrichment；3) 实时 indexer，将事件转为规范化表示并写入低延迟、时间版本化存储；4) 批量 indexer 与 backfill pipeline，从历史原始事件重算长序列并产出可复用中间数据集；5) 列式、时间分区的存储，按列读取所需字段，按时间桶约束写入和扫描；6) 在线 serving API，按信号/特征名请求用户序列，执行请求时 enrichment 和“最近 N 个事件/时间窗口”的裁剪逻辑。配置使用 Python 编写、校验后编译为 JSON，由流式、批量与 serving 共享消费。",
+    "business_implications_zh": [
+      "用户序列位于几乎所有用户侧表面之下，同时驱动自然内容与广告，序列质量一旦回退会快速体现在用户体验和收入上。",
+      "基础设施成本下降直接改善推荐系统的成本效率，尤其在大规模多租户场景下。",
+      "更快的 onboarding 缩短新信号从概念到生产的时间，使 ML 和产品团队能更敏捷地迭代模型特征。",
+      "统一、稳定的“事件→enriched signals→sequences”契约让下游消费者（ML 工程师、数据科学家）更容易训练和服务模型，并支持跨排序、检索、探索、异常检测等复用。",
+      "迁移过程中使用 shadow 比较和 A/B 实验，说明平台级重构可以在不损害用户体验和收入的前提下完成，这对生产推荐系统有直接参考价值。"
+    ],
+    "business_transferability": 0.65,
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "heading": "Context: Where Sequences Show Up and Why Quality Is Hard",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Goals (and Non‑Goals)",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "The Core Idea: One Definition, Many Runtimes",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Architecture Overview",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Design Decision 1: Configuration‑as‑Code for Sequences and Enrichments",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Design Decision 2 — Shared Execution Engine with Pluggable Executors",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Design Decision 3: Lambda Architecture for Fresh and Complete Sequences",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Design Decision 4: Columnar, Time‑Partitioned Storage with Table Semantics",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Migration, Rollout, and Measurement",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Future Work",
+        "section": "Pinterest Engineering Blog"
+      }
+    ],
+    "implementation_zh": "实现上包括：将序列与 enrichment 定义改为配置即代码，包含序列元数据、事件类型配置和 enrichment 配置；引入带可插拔 executor 的共享执行引擎，executor 作为事件类型的业务逻辑插件，框架负责数据源/sink、并发、重试、背压和配置解析；采用 lambda 架构，流式路径维护“当前”视图，批量路径负责修正历史和离线数据；存储从大而全的 enriched event blob 改为列式、时间分区、带表语义的数据集。迁移按事件类型逐个进行：新旧 pipeline 并行生成 shadow sequences，做事件级逐字段比较与序列级输出比较，配合 A/B 实验验证后受控切换消费者并逐步废弃 legacy 路径。运营上建立了序列新鲜度/延迟、事件与 enrichment 覆盖率、schema drift、配置发布状态、serving 延迟和错误率等 dashboard。",
+    "lessons_zh": [
+      "“一次定义、多运行时”能避免训练 pipeline 与 serving 系统各自构建序列导致的 split-brain 漂移问题。",
+      "配置即代码使 onboarding 更快、diff 可读、代码 owner 可 review、回滚直接，并且天然形成平台团队与 ML/产品团队的责任分离。",
+      "共享执行引擎配合可插拔 executor，可复用流式与批量的核心 enrichment 逻辑，减少代码重复和行为漂移。",
+      "Lambda 架构是平衡用户序列新鲜度与完整性需求的有效方式。",
+      "列式、时间分区且带表语义的存储，既降低 I/O 和网络开销，又便于按分区检查异常天、验证新 enrichment、并排比较新旧 pipeline。",
+      "迁移应作为一等项目：按事件类型逐个进行，用 shadow 输出、事件级/序列级两层比较和 A/B 实验验证后再受控切换。",
+      "可观测性是平台可靠性的关键；出现问题后能否快速定位，往往决定是小问题还是重大事故。"
+    ],
+    "limitations_zh": [
+      "由于公司政策，文中只提供定性结果，没有披露成本降幅、onboarding 时间缩短幅度、延迟或参与度提升的具体数值。",
+      "项目的非目标是不重新设计下游模型或排序架构，也不改变产品层事件定义（什么算点击、保存、转化），因此这些方面没有覆盖。",
+      "新老系统数据无法 100% 匹配，团队接受“近似等价”并通过多层验证来保证安全，这意味着仍存在细微行为差异的可能性。",
+      "未来工作尚未完成：更丰富的 self-serve 工具、配置静态分析、自动化 backfill 编排、更强的正确性保障（如异常检测）、覆盖更多事件类型/表面以及会话级或对象级等更高层行为抽象。"
+    ],
+    "production_constraints_zh": [
+      "用户序列同时服务训练、离线分析和在线推理，必须既新鲜又完整，且需要支撑延迟敏感的生产负载。",
+      "平台是多租户的，要支持许多团队和模型，正确性、可观测性和可运维性与吞吐/延迟同等重要。",
+      "新增事件和 enrichment 时需保持一致，同时下游消费者要求 schema 版本化、可预测，不能静默变更。",
+      "真实数据存在晚到事件、enrichment 重算/修正、历史 backfill，序列需要最终反映这些变化。",
+      "由于在线系统特性，用全新 job 重新生成的数据无法与 legacy 系统 100% 匹配，必须通过充分验证证明近似等价。",
+      "受公司政策限制，成果只能做定性描述，不能披露具体量化指标。"
+    ],
+    "results_zh": [
+      "大型事件类型完全迁移后，基础设施成本显著下降，主要来自更高效的存储格式、适当减少副本以及每次请求更低的网络传输量。",
+      "新 enrichment 和事件类型的 onboarding 时间大幅下降，大部分变更从定制 pipeline 工作转为配置更新和小型可组合 executor。",
+      "主要推荐表面在切换到新平台产出的序列后，参与度指标有所提升，同时保持在质量和安全预期范围内。",
+      "通过 shadow 比较和 A/B 实验，团队获得信心可以安全切换 pipeline 且无影响。"
+    ],
+    "system_context_zh": "本文描述 Pinterest 的 Ads Feature Engineering Infra、Core ML Infra、ML Data 与 User Understanding 团队对用户序列（user sequence）平台的重新设计。该平台支撑 Home feed、Related Pins、Search Results 等几乎所有用户侧表面的自然内容与广告排序、检索和推荐，同时服务于训练数据集、离线分析和在线推理；它是一个多租户平台，需要同时满足实时性、完整性、一致性、稳定 schema 以及延迟敏感的生产负载要求。",
+    "technical_depth": 0.85,
+    "tradeoffs_zh": [
+      "新鲜度与完整性天然冲突：流式路径提供近实时“当前”视图，批量路径负责“修正历史”和长期一致性，二者通过 lambda 架构合作而非竞争。",
+      "旧存储用大而全的 enriched event blob，读写需要拉取整个 payload，成本高；新存储用列式、时间分区表，按需读列，但需要更复杂的表语义和分区管理。",
+      "配置即代码加共享执行引擎降低新事件/enrichment 的接入成本，同时需要在框架与插件代码之间划清边界以保持可维护性。",
+      "共享执行引擎同时服务流式和批量，减少代码重复与 batch/serving 漂移，但要求执行器业务逻辑足够小而清晰。",
+      "迁移中接受新旧数据无法 100% 匹配的现实，用事件级、序列级两层比较加 A/B 实验来换取安全切换的信心。"
+    ]
+  },
+  "excerpt": "Authors ( listed alphabetically ) Ads Feature Engineering Infra team: Ajay Venkatakrishnan, Le Zhang Core ML Infra team: Eric Shang, Pihui Wei ML Data team: Connor Votroubek, Yi He User Understanding team: Camilo Munoz, Simin Li If you work on ranking, retrieval, or recommendation systems, you’ve probably asked for some version of the same thing: “Give me the last N meaningful actions this user took, with the right enrichments, in a format that’s easy to train and serve ML models.” On paper, that sounds simple. In practice, “user sequences” often become one of the most expensive and fragile parts of the ML data stack. They end up powering everything from training datasets to offline analysis and online inference, so they need to be fresh and complete at the same time. They must remain consistent as you add new events and enrichments. And they have to do all of this while serving latency‑sensitive production workloads. This article walks through how we redesigned our user‑sequence platform to make these sequences cheaper to run, faster to extend, and easier to debug, while still supporting demanding production use cases. What We Mean by “User Sequence” In this context, a user sequence is an ordered list of recent, relevant events for a user, along with the enrichments (signals) attached to each event. Here, enrichments mean all the extra signals we attach to raw events, so they’re useful for models: embeddings (for example, Pin or query representations), contextual features (such as surface, device, or country), and derived attributes or counters that describe how the user interacted with a piece of content over time. A concrete example helps. Imagine a sequence made up of the last 500 engagements a user had with Pinterest Pins. Each event in that sequence might carry a timestamp, an action type, the surface where the action occurred, and a handful of embedding features or categorical attributes. As a data primitive, user sequences are powerful. They capture temporal behavior instead of just aggregates like “how many clicks” over a period. They enable sequence‑aware models such as Transformers, sequence encoders, or attention‑over‑history architectures. And because they preserve fairly raw behavior, they can be reused across ranking, retrieval, exploration, anomaly detection, and other workloads. The catch is that a high‑quality sequence is not just “the N latest events from a log table.” It is the result of a multi‑step process: Ingest events from diverse sources, Filter down to the subset of events that matter, Enrich each event with additional signals (embeddings, metadata, and so on), and Finally assemble those enriched events into a stable, well‑defined sequence representation. Doing this once is easy. Doing it in a way that supports many teams, many event types, and many models over multiple years is where things get interesting. Context: Where Sequences Show Up and Why Quality Is Hard User sequences sit underneath almost every user-facing surface: Home feed(HF), Related Pins (RP), Search Results (SR), and many others. They power both organic products and ads across these surfaces in Pinterest, so any regression in sequence quality shows up quickly in user experience and revenue. From an infrastructure point of view, they show up in three main places. In training datasets , offline pipelines pull long history windows of enriched events per user in order to build sequence features. In offline analysis , data scientists dissect user behavior across sessions, surfaces, or campaigns using sequence‑level queries. And in online inference , real‑time services fetch up‑to‑date user sequences at request time to feed ranking and retrieval models. Across these use cases, sequence quality turns out to be multi‑dimensional. Freshness measures how quickly new events and enrichments show up in the sequence. Completeness asks whether late‑arriving events, corrections, or backfills are eventually reflected. Consistent enrichment is about ",
+  "final_score": 0.57,
+  "graph_relations": [],
+  "id": "url-2660fad3381f92db1c6d485c",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-05-21T16:01:00Z",
+  "relevance_score": 0.45,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "pinterest_engineering",
+  "summary_zh": "Pinterest重构了用户序列数据平台，将原始事件经过筛选、丰富和组装形成稳定、可复用的用户行为序列，支持训练数据集、离线分析和在线推理中的Transformer等序列模型，是召回和排序等使用场景的关键数据基础设施。",
+  "targets": [
+    "user"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking"
+  ],
+  "title": "Making User-Sequence Data More Cost-Efficient, Faster, and Easier to Use",
+  "url": "https://medium.com/pinterest-engineering/making-user-sequence-data-more-cost-efficient-faster-and-easier-to-use-2a56a928cae1?source=rss----4c5a5f6279b6---4"
+}

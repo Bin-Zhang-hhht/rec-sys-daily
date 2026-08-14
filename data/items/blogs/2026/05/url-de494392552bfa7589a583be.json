@@ -1,0 +1,107 @@
+{
+  "authors": [
+    "Pat Geitner"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "使用搜索交互三元组（query、engaged listing、non-engaged listing）作为训练数据；engaged是指被点击、购买或收藏的listing，non-engaged包括同搜索结果中未被交互的listing和随机样本。对每个三元组，由Qwen3-VL-8B生成两个listing的多个候选摘要，再将这些摘要输入冻结的两塔稠密检索器（用于搜索候选生成的神经检索模型），计算其与query的相似度；奖励定义为query与engaged摘要的相似度减去query与non-engaged摘要的相似度之间的margin。使用GRPO基于同batch内候选摘要的相对质量更新摘要生成模型，使engaged摘要更靠近query，non-engaged摘要更远离query。由于模型训练目标是区分备选商品而非单纯压缩原始信息，因此也可以利用搜索系统当前未直接摄入的信息，例如图片。",
+    "business_implications_zh": [
+      "更好的商品表示可使搜索和推荐系统更精准地匹配买家品味，尤其有助于Etsy这类手工、小众和长尾商品被合适买家发现。",
+      "同一份RL生成摘要能提升不同下游模型（如神经检索模型和Semantic Relevance模型），说明一份商品表示可能被多个系统复用，降低重复建设成本。",
+      "用点击、购买、收藏等真实行为作为奖励，可以减少人工定义“重要产品属性”的负担，适合SKU极其多样化的市场。",
+      "文中提出可能形成正反馈回路：更好的摘要给下游模型更丰富信号，更好的模型又为摘要微调提供更强奖励，从而持续改善商品理解。"
+    ],
+    "business_transferability": 0.7,
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "heading": "The Gap Between Raw Data and Rich Product Understanding",
+        "section": "rss_full_content"
+      },
+      {
+        "heading": "Unlocking Deeper Product Understanding with Contrastive Signal",
+        "section": "rss_full_content"
+      },
+      {
+        "heading": "Human Evaluation",
+        "section": "Measuring Downstream Impact"
+      },
+      {
+        "heading": "Quantitative Offline Evaluation",
+        "section": "Measuring Downstream Impact"
+      },
+      {
+        "heading": "Why This Matters",
+        "section": "rss_full_content"
+      }
+    ],
+    "implementation_zh": "选择开源模型Qwen3-VL-8B作为摘要生成模型，结合listing的标题、图片、描述、属性等多模态原始信息生成内部商品摘要。训练数据来自真实搜索行为形成的三元组；每个三元组中生成若干候选摘要，并需要将engaged和non-engaged候选摘要放在同一batch内联合评分，因为奖励依赖配对的margin而不是单个摘要独立质量。冻结的神经检索模型提供奖励信号，GRPO用于策略更新。训练过程中可观察单个listing摘要的演化：从基础模型基本重复标题、模糊描述，逐步变为提取具体区分性产品细节并忽略发货说明、养护说明等噪声。",
+    "lessons_zh": [
+      "可以用对比性的真实买家互动信号作为RL奖励来定义高质量商品摘要，而不必预先设计覆盖所有商品细节的schema。",
+      "margin式奖励设计天然抑制reward hacking：通用关键词堆砌无法同时提高engaged相似度并降低non-engaged相似度。",
+      "通过观察单个listing摘要随训练步骤的演化，可以直观判断模型是否在提取与区分相关的细节。",
+      "用另一个下游模型验证摘要效果，是判断表示是否泛化、是否只是过拟合奖励模型的一种有效方式。",
+      "领域专家（如Etsy库存专家）参与人工评估，有助于把LLM输出与真实商品特殊性对齐。"
+    ],
+    "limitations_zh": [
+      "源文档的文字部分只报告了Semantic Relevance模型上macro F1相对提升8.7%，结果表以图片形式呈现，未在可读文本中提供完整数值、baseline细节或统计显著性。",
+      "人工评估主要由一位Etsy库存专家进行，文档未披露被评估摘要数量、抽样方式和评判一致性。",
+      "文档未披露训练超参数、GRPO具体配置、数据规模、计算成本等复现所需细节。",
+      "在线实验仍在规划中，因此没有线上指标或生产环境验证结果。",
+      "文章未讨论该方法在其他平台、类目或不同交互信号下是否同样有效。"
+    ],
+    "production_constraints_zh": [
+      "生产规模下直接摄取和推理所有原始listing数据很困难，因为存在严格延迟约束。",
+      "并非所有下游搜索/推荐系统都能直接处理图片，因此需要用文本摘要承载视觉等信息。",
+      "Etsy库存高度多样化，固定schema难以覆盖所有产品细节，这是选择非结构化摘要的一个原因。",
+      "奖励模型是冻结的稠密检索器，需要防止reward hacking；margin式奖励通过构造避免关键词堆砌摘要被奖励。",
+      "训练时须将配对的engaged/non-engaged候选摘要放在同一batch联合生成和评估，增加了训练工程复杂度。",
+      "文中明确表示在线实验仍在规划中，当前尚未给出已上线的生产验证结果。"
+    ],
+    "results_zh": [
+      "在人工评估中，模型持续从listing中提取标题之外具体且准确的产品细节；库存专家确认生成内容基于卖家信息，并优先呈现对搜索和推荐模型最相关的细节。",
+      "离线评估中，将RL微调生成摘要作为Semantic Relevance模型输入，相比使用描述n-grams，macro F1相对提升8.7%。",
+      "该模型虽然显式针对神经搜索检索模型优化，但其摘要也改善了另一个不同目标的下游模型，说明摘要捕获了重要的通用产品细节，而非仅过拟合奖励信号。",
+      "训练演化示例显示，基础模型生成的摘要主要重复标题，而RL微调后的摘要能提取真正让商品与众不同的细节。"
+    ],
+    "system_context_zh": "Etsy的搜索和推荐系统需要在商品类别和标题之外，理解每件商品的独特细节，例如材质、工艺、视觉风格和潜在受众。卖家通过标题、图片、描述、标签、变体和属性提供丰富信息，但这些细节通常埋藏在长而嘈杂、格式不一致的数据中，且并非所有系统都能处理图片；生产环境下直接摄取、推理全部原始listing数据又受严格延迟约束。因此Etsy探索用LLM生成自由文本商品摘要，作为下游搜索/推荐模型可以消费的产品表示。",
+    "technical_depth": 0.8,
+    "tradeoffs_zh": [
+      "结构化属性数据便于分析和手工构造ML特征，但固定schema难以覆盖Etsy一物一品的多样性；自由文本摘要更灵活，但需要从买家行为中学习什么才算“好摘要”。",
+      "直接使用原始listing数据信息量最大，但延迟和规模成本高；生成式摘要更简洁、便于下游模型使用，但也可能因压缩而丢失信息。",
+      "使用对比margin作为奖励可以同时拉近engaged、推远non-engaged，并抑制通用关键词堆砌；但摘要优化与特定检索器的embedding空间绑定，需要额外验证跨模型泛化能力。",
+      "相比用prompt或schema预先规定重要信息，RL方法不需要事先知道搜索/推荐系统需要哪些细节，而是直接从真实买家互动中学到区分性信息。",
+      "摘要虽然针对神经检索检索模型优化，但离线实验显示也能提升另一个语义相关性模型，说明存在一定的通用表示收益。"
+    ]
+  },
+  "excerpt": "Etsy’s marketplace is defined by the creativity and craftsmanship of our sellers and the hundreds of millions of highly diverse products they offer. You can find silversmiths who cold-forge recycled sterling silver, weavers who dye raw fleece with indigo and black walnut, and ceramicists who throw stoneware on a kick wheel. These details define each product and often determine whether it matches a buyer’s taste, style, and interests. Sometimes buyers know exactly what they want, searching for “hand-thrown ceramic mug” or “vegetable-tanned leather wallet.” Other times, especially in recommendations, that intent is implicit. In those cases, we need to surface products that align with a buyer’s preferences even when those details are not explicitly stated. To do that well, our search and recommendation systems need to understand what sets each listing apart beyond just the product category or listing titles, capturing the details that signal what an object is, how it was made, and whom it might appeal to. The quality of these representations directly limits how precisely our models can learn relationships between buyer taste and product details, and in turn surface relevant recommendations and search results. If the representation misses what makes a product special, the model will too. The Gap Between Raw Data and Rich Product Understanding Sellers provide rich product information through listing titles, images, descriptions, tags, variations, and attributes, but the most distinguishing details are often buried in long, noisy, and inconsistently expressed data. For example, details about how a product is made might be buried in a long description alongside shipping information, return policies, and sizing charts. A product’s visual style might be clear in its images, but not all of our systems can process images. At scale, ingesting and reasoning over all this raw data for production models is difficult due to tight latency constraints. Parallel work at Etsy addresses some of these challenges by extracting parts of this raw signal into a structured format where we define attributes and infer them across all of the products in our inventory. While structured data works well for analysis and hand-crafting ML features, the diversity of Etsy’s one-of-a-kind inventory makes defining a fixed schema to capture all product intricacies difficult at scale. Unstructured data can give us greater flexibility to capture more of this diverse information in a way that downstream ML models can learn from. One way to represent listings with less structural constraint is with free-form natural language summaries. Language models can leverage their world knowledge to distill unique product details into concise, expressive summaries that are easy to plug into downstream models. However, a key challenge with unstructured output is defining what a “good” solution looks like, as what's important varies widely across products and contexts. Even within the same category, the details that matter most can differ substantially between listings. For one piece of artwork, buyers might respond most strongly to the composition or color palette, while for another, it may be the brushwork or framing style that determines which buyers it is most relevant to. Which details matter most is often reflected in how buyers engage with the listing given their search intent or prior interactions. Because these distinctions depend heavily on the specific product, expressing what information is important through a prompt or a schema would require knowing upfront what details our complex search and recommendation systems actually need. Instead, we can build richer product representations by learning which information matters directly from contextual buyer engagement signal. Unlocking Deeper Product Understanding with Contrastive Signal Reinforcement learning (RL) provides a flexible way to shape product representations around the listing details most aligned with buyer engage",
+  "final_score": 0.8374999999999999,
+  "graph_relations": [],
+  "id": "url-de494392552bfa7589a583be",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-05-26T18:13:10Z",
+  "relevance_score": 0.95,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "etsy_codeascraft",
+  "summary_zh": "Etsy 使用对比强化学习，从买家与商品的互动信号中学习哪些商品细节对匹配和转化最重要，从而构建更丰富的商品表示，改进搜索与推荐效果。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking"
+  ],
+  "title": "Shaping Product Understanding with Contrastive Reinforcement Learning",
+  "url": "https://www.etsy.com/codeascraft/shaping-product-understanding-with-contrastive-reinforcement-learning"
+}

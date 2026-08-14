@@ -1,0 +1,100 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "测试装置由三部分构成：1) 核心工具为 Bash 脚本，将提示通过管道传给代理并捕获 verbose JSON 日志；2) 测试用例分为 15 个正例（覆盖技能领域）和 5 个负例（通用编程提示，用于暴露误报）；3) 日志解析启发式与指标统计脚本。核心指标包括正例技能调用成功率、负例误报率和总体准确率。",
+    "business_implications_zh": [
+      "对依赖 AI 代理执行领域特定工程任务的组织，技能调用率可作为可度量的质量指标，以减少架构评审等关键流程中技能未被加载的风险。",
+      "在技能元数据和提示词上的投入可以显著提高代理可靠性和工程效率。",
+      "不同代理的优化收益不同，企业应根据所选工具分配优化预算和团队实践。",
+      "推荐系统团队若使用技能化代码代理，可借鉴该测试方法论来验证推荐相关技能/工具链的代理调用可靠性，但需另行设计领域相关测试集。"
+    ],
+    "business_transferability": 0.42,
+    "evidence_quality": 0.62,
+    "evidence_refs": [
+      {
+        "heading": "How to Build A Skill Test Harness",
+        "section": null
+      },
+      {
+        "heading": "What we learned: optimizations",
+        "section": null
+      },
+      {
+        "heading": "Conclusion",
+        "section": null
+      }
+    ],
+    "implementation_zh": "执行命令示例：echo \"$prompt\" | claude --print --verbose --output-format stream-json > \"$log_file\" 2>&1。Claude 日志检测使用 grep '\"name\":\"Skill\"' 与 '\"command\":\"rx-mvvm-architecture\"'，或 'Launching skill: rx-mvvm-architecture'。测试共进行 5 轮 × 20 条提示 = 100 次测试；Codex 使用 GPT 5.2-codex，Claude 使用 Opus 4.5。优化手段包括在 frontmatter YAML 描述中加入更多上下文、使用全大写强调指令、在 AGENTS.md 中增加技能表及选择理由，以及组合多种手段。",
+    "lessons_zh": [
+      "可以且应该用经验测试量化代理技能调用，并持续采纳和改进。",
+      "最可靠的技能调用方法是好的计划、详尽的指令和明确的开发者意图。",
+      "日志解析启发式足以自动化判断技能是否被调用。",
+      "技能 frontmatter 描述中的上下文信息是一种跨代理有效的优化手段。",
+      "工程团队应同时优化技能定义和提示词，才能充分发挥领域特定代理能力。",
+      "设置负例有助于暴露误报，从而更全面地评估技能调用可靠性。"
+    ],
+    "limitations_zh": [
+      "测试提示为故意简洁以捕获边界情况，不代表对技能、模型或测试装置的否定。",
+      "精确的优化后指标只在表格图片中，且没有 alt 文本；本分析未引用无法从文本读取的具体数字。",
+      "结果来自 Pinterest 特定的 rx-mvvm 技能、特定模型版本（Codex GPT 5.2-codex、Claude Opus 4.5），可能不具普适性。",
+      "日志解析依赖特定模式（如 'name:Skill' 或 'Launching skill'），输出格式变化时可能影响判定。",
+      "文章不直接涉及推荐系统；若迁移到推荐系统工程场景，需要针对推荐相关技能与代理做独立验证。"
+    ],
+    "production_constraints_zh": [
+      "无法保证 100% 技能调用，尤其是当工程师使用简洁或模糊提示时。",
+      "代理具有非确定性，需要多次运行同一测试套件来获得可靠结论。",
+      "AGENTS.md 中增加技能表会占用上下文窗口 token，需在收益与 token 节约之间平衡。",
+      "关键工程工作流（如架构评审）对可靠性要求高，73%/62% 的基线表现被认为不可接受。",
+      "即使技能经过优化，工程师仍须使用高质量、详尽、意图清晰的提示。"
+    ],
+    "results_zh": [
+      "基线总体准确率：Codex 为 73%，Claude 为 62%。",
+      "优化后两者的表现都大幅提升，且 Codex 的提升幅度显著大于 Claude。",
+      "在 frontmatter 描述中加入更多上下文带来了与代理无关的可测量提升。",
+      "组合多种手段仅在 Codex 上叠加了增益，Claude 未见到同等效果。",
+      "让代理改进已应用的优化内容没有继续提升调用率，实际略有下降。",
+      "所有明确包含 'load this skill' 的提示，在两个代理的每一轮测试中都成功加载了技能。",
+      "优化后的详细数值以表格图片呈现；本文文本未包含可解析的具体数字，因此本分析不引用未读出的图片数值。"
+    ],
+    "system_context_zh": "Pinterest 工程团队在采用 rx-mvvm 技能帮助代理为其 iOS 架构编写代码时，发现技能并非总能被加载。为量化技能调用可靠性，他们在内部代理 Pin-agent（OpenAI Codex 的 fork）和 Claude Code 上运行自动化测试，并基于日志分析优化技能元数据与提示词。文章面向工程效能而非推荐系统，但对依赖 AI 代理的工程流程具有参考意义。",
+    "technical_depth": 0.66,
+    "tradeoffs_zh": [
+      "AGENTS.md 增加技能表与选择理由可改善技能加载，但团队需权衡上下文窗口 token 占用。",
+      "在 frontmatter 描述中加入更多上下文带来了可测量收益，且与代理选择无关。",
+      "全大写强调指令有效，但作者认为这种做法有些傻且不美观。",
+      "组合多种优化技术能叠加收益，但仅对 Codex 明显，Claude 未见同等叠加效果。",
+      "让代理自行改进作者/团队添加的提示技巧，未能进一步提升调用率，反而略有下降。"
+    ]
+  },
+  "excerpt": "An Engineer’s Guide to Better AI Skills: Implementing a Testing Process to Optimize Agent Performance in Any Repository or Skill Author: Daniel Reed The tech industry is currently seeing a massive overhaul in the way we work and many are enjoying the benefits of AI agents, particularly when automating engineer workflows and serving domain-specific knowledge. However, relying on agents to consistently invoke a custom skill can be surprisingly unreliable at times. When adopting a new skill intended to help agents write code for Pinterest’s iOS architecture (I’ll call it rx-mvvm) we discovered that sometimes our knowledge skill wasn’t being loaded into our agents. To address this, we conducted a series of tests on Pin-agent (an internal fork of OpenAI’s Codex) and Claude Code to quantify the reliability of skill invocation and identify some best practices to maximize performance. This was a direct result of observing agents struggling to meet the skills bar during architectural reviews. We found that by applying different techniques we could track and drastically improve skill invocation rates on both tested agents. How to Build A Skill Test Harness Building a reliable test harness for agent skill invocation requires three key components working in concert. The Core Tool is a Bash script that orchestrates automated testing by piping prompts to your agent and capturing verbose output logs. The core execution is simple: if echo \"$prompt\" | claude --print --verbose --output-format stream-json > \"$log_file\" 2>&1; then command_success=true fi The script runs all test cases in sequence, collecting logs for later analysis. We ran the entire suite multiple times to account for the nondeterministic nature of agents. Prompts were categorized into two categories defined as arrays: Positive Cases — 15 prompts covering the full spectrum of skill domains: CORE_PROMPTS=( \"load the rx-mvvm-architecture skill\" \"check if this follows rx-mvvm patterns\" # ... 13 more cases ) Negative Cases — 5 general programming prompts designed to expose false positives: EDGE_PROMPTS=( \"fix this Swift compilation error\" \"write unit tests for this View\" \"refactor this function\" # ... 2 more cases ) We then use log parsing heuristics on the json output logfiles to detect skill invocation by searching for telltale patterns in the JSON-streamed debug output. skill_invoked_claude() { local log_file=\"$1\" if grep -q '\"name\":\"Skill\"' \"$log_file\" && grep -q '\"command\":\"rx-mvvm-architecture\"' \"$log_file\"; then return 0 elif grep -q 'Launching skill: rx-mvvm-architecture' \"$log_file\"; then return 0 else return 1 fi } The script finally tallies successes across both categories and computes three key metrics with clear formulas: CORE_SUCCESS_RATE=$(awk \"BEGIN {printf \\\"%.1f\\\", ($CORE_SKILL_INVOKED / $CORE_TOTAL) * 100}\") EDGE_FALSE_POSITIVE_RATE=$(awk \"BEGIN {printf \\\"%.1f\\\", ($EDGE_SKILL_INVOKED / $EDGE_TOTAL) * 100}\") OVERALL_ACCURACY=$(awk \"BEGIN {printf \\\"%.1f\\\", ($TOTAL_CORRECT / $TOTAL_TESTS) * 100}\") What we learned: optimizations Our initial “vanilla” testing revealed that neither agent could guarantee 100% skill invocation, particularly when engineers used terse or ambiguous prompts. The baseline performance was an overall accuracy of 73% for Codex and 62% for Claude. This low reliability is unacceptable for critical engineering workflows. Our research confirmed that the performance of both tools can be dramatically improved, with the increase being much greater for Codex than for Claude. We found there were many ways to improve skill invocation rates: Frontmatter description: — Including more contextual information (like architectural components) in the skill description in the frontmatter YAML (the section at the top) is a great way to improve performance. — This gave us measurable gains that were agnostic to agent choice Aggressive Language: — Applying aggressive, all caps commands like “YOU MUST LOAD THIS SKILL IF” in the frontmatter is another way to signal impor",
+  "final_score": 0.5005000000000001,
+  "graph_relations": [],
+  "id": "url-1e5fec4b63a510c1388eb6ee",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-05-12T16:01:00Z",
+  "relevance_score": 0.45,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "pinterest_engineering",
+  "summary_zh": "本文介绍Pinterest为AI编码技能调用构建测试框架的过程，通过正例和负例提示测试Claude Code与Pin-agent等代理的技能加载可靠性，并提出改进技能描述等优化方法。核心是评估和优化大语言模型代理的技能检索与调用，而非推荐系统。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "An Engineer’s Guide to Better AI Skills: Implementing a Testing Process to Optimize Agent…",
+  "url": "https://medium.com/pinterest-engineering/an-engineers-guide-to-better-ai-skills-implementing-a-testing-process-to-optimize-agent-a000c9c9abcd?source=rss----4c5a5f6279b6---4"
+}

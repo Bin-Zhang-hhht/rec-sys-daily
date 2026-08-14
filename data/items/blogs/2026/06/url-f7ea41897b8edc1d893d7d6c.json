@@ -1,0 +1,136 @@
+{
+  "authors": [
+    "Netflix Technology Blog"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "GenPage 采用标准 decoder-only transformer 架构，并将输入 embedding 与输出 projection 权重解绑，以适应预训练与后训练的不同目标。数据表示上使用领域专用 tokenizer：用户上下文 token 包括行为序列、画像属性与请求上下文；页面 token 按布局顺序（从左到右、从上到下）序列化行与实体，每个行/实体对应一个 token。训练采用 LLM 式两阶段：先用 next-token prediction 预训练，再用加权二分类（WBC）或强化学习（RL）后训练。推理时通过 constrained decoding 强制业务规则，并结合 hybrid row decoding：每行仅自回归生成前几个实体，其余实体通过单次前向传播的 logits 选择。冷启动采用 context injection 与 semantic embedding fusion；模型更新采用多节奏增量训练，并用 fallback token 处理新词。",
+    "business_implications_zh": [
+      "GenPage 在核心用户 engagement 指标上取得统计显著提升，同时降低 20% 服务延迟，具备明确的在线业务价值",
+      "单一生成式模型可替代多阶段推荐栈，降低 ML 模型维护成本，并避免多阶段目标不一致问题",
+      "生成式范式更易支持新产品体验，如直播、游戏、播客等新内容类型，非二维布局，个性化 UI 与艺术品个性化",
+      "展示类别分布偏移说明新范式可能带来更精准的个性化，但也要求重新审视 reward system 等生产组件是否与生成式目标对齐",
+      "推理延迟降低带来的余量可用于增加模型容量或更丰富 prompt，具有后续投入空间",
+      "经验表明优化上下文表示在当前阶段比单纯扩大模型容量更具性价比，可指导资源投入方向"
+    ],
+    "business_transferability": 0.8,
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "heading": "Introduction",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Data",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Reward system",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Model architecture",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Training recipe",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Addressing production challenges",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Offline experiments",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Online evaluation",
+        "section": "Netflix TechBlog GenPage"
+      },
+      {
+        "heading": "Conclusion",
+        "section": "Netflix TechBlog GenPage"
+      }
+    ],
+    "implementation_zh": "实现要点包括：（1）领域专用 tokenizer 将事件压缩为 4 个 token（实体ID、动作类型、时间桶、时长桶），远少于文本 tokenizer，同时让 token 与产品概念一一对应，便于规则 mask；（2）预训练使用线上获得正向反馈的首页曝光数据，让模型模仿生产系统；后训练 WBC 将每个页面 token 映射到对应行/实体奖励，按奖励符号生成二分类标签、按幅度生成样本权重；（3）RL 采用 reward model 预测页面级奖励，并用 KL penalty 约束策略接近预训练 checkpoint，算法采用 Dr. GRPO；（4）冷启动时用小概率将实体ID token 替换为 fallback token，训练模型仅依赖内容 embedding 做推荐；（5）日常增量训练用最新一天数据加历史采样子集继续后训练，避免灾难性遗忘；（6）业务规则在推理时通过 token 级 mask 强制，如固定行位置、去重、类别一致性；（7）在线测试中 GenPage 在既有生产行/实体候选集上解码，以辅助处理 eligibility 等业务规则。",
+    "lessons_zh": [
+      "LLM 的 pretrain-then-post-train 范式可迁移到推荐系统：先用 next-token prediction 学习首页“语言”，再用 WBC 或 RL 对齐用户满意度",
+      "在当前规模与数据条件下，prompt 信息丰富度比模型容量更重要；上下文未饱和前，应优先优化上下文表示",
+      "自定义 tokenization 是工程可行性的关键支撑：缩短序列、降低延迟，并让业务规则能直接映射到 token mask",
+      "RL 页面级优化能捕捉跨行/跨实体的交互，即使未显式优化多样性也会带来多样性提升",
+      "单一生成式模型可替代多阶段推荐栈，减少需维护的模型数量，并降低端到端服务复杂度和延迟",
+      "生成式方案天然对会话内信号敏感，无需大量手工特征工程"
+    ],
+    "limitations_zh": [
+      "长上下文仍依赖手写摘要，未实现端到端压缩学习",
+      "当前 tokenization 中每实体/行只用一个 token，尚未支持多 token 实体（如 episode、semantic ID 序列）",
+      "尚未整合语言、多模态与推理等更广泛的 LLM 能力",
+      "RL 存在 reward hacking 风险，reward model 仅在接近生产策略分布时可靠",
+      "在线测试观察到展示实体类别分布发生非预期偏移，原因未完全厘清，需要进一步调查",
+      "离线 RL 评估使用的奖励与策略优化目标来自同一模型，只能作为确认性结果，不能独立证明页面级优化效果",
+      "在线测试是在现有生产候选集上解码，未完全验证完全端到端生成候选的能力",
+      "各消融实验跨越不同训练配置和数据快照，结果只能进行相对比较，不能跨研究直接比较"
+    ],
+    "production_constraints_zh": [
+      "首页需实时生成，服务延迟是首要工程约束",
+      "目录持续变化，新实体缺少交互数据，需解决冷启动",
+      "模型需随用户兴趣和文化趋势保持新鲜，但每日从头重训大规模 transformer 成本过高",
+      "必须强制复杂产品与业务规则，包括结构化约束、去重、行固定、类别一致性等",
+      "实体和行词汇表需每日更新以纳入新内容，未登录词需 fallback 处理",
+      "长上下文数据源（如完整曝光历史）无法直接 token 化，需手写摘要压缩",
+      "在线测试中仍需依赖生产行/实体候选集来满足业务规则和 eligibility"
+    ],
+    "results_zh": [
+      "在线 A/B 测试中，多个 GenPage 变体在核心用户 engagement 指标上均取得统计显著提升（p<0.001），且结果对训练数据配置差异稳健",
+      "相比生产基线，GenPage 将端到端服务延迟降低 20%",
+      "预训练相对仅用 WBC 后训练，在 loss、行 AUC、实体 AUC 上均带来实质提升；实体 AUC 从 0.91 到 0.92 对应误排率从 9% 降至 8%",
+      "模型规模从约 120M 到 900M 参数时，预训练 loss 和 WBC loss 均呈幂律式下降",
+      "在固定模型规模下，逐步丰富上下文 token 使 WBC loss 降低约 6.9%，超过 7.5 倍模型容量扩展带来的约 1.3% 降幅",
+      "RL 后训练在离线评估中持续提升页面级奖励，且页面多样性（实体间 pairwise embedding 距离）也上升，尽管多样性不在 RL 目标中",
+      "模型对会话内信号响应强：最新会话内行为快速影响后续推荐，一两天后回落到长期偏好"
+    ],
+    "system_context_zh": "本文介绍 Netflix 首页推荐系统的生成式重构方案 GenPage。传统 Netflix 首页由多阶段管线构建：候选生成、行级排序、实体级排序等若干独立组件共同决定二维页面布局。GenPage 将用户历史、画像与请求上下文视为 prompt，将整个首页（行、实体、布局）视为 response，用单一 decoder-only transformer 自回归生成整个首页，以端到端方式替代多阶段推荐栈。系统面向实时服务，需处理冷启动、目录变化、业务规则和延迟约束。",
+    "technical_depth": 0.9,
+    "tradeoffs_zh": [
+      "自定义 tokenizer 相比通用文本 tokenizer 提升计算效率并增强产品可控性，但需要为推荐领域单独设计",
+      "完整用户历史等长数据源使用手写摘要，虽降低计算成本，但引入了 prompt engineering，未实现端到端压缩",
+      "WBC 后训练更简单、直接对齐实体级目标，但无法直接优化页面级整体奖励；RL 能优化页面级目标，但更难评估和优化，且存在 reward hacking 风险",
+      "RL 使用 reward model 避免 off-policy 高方差，但奖励模型在偏离生产策略分布时不可靠，需 KL penalty 限制策略",
+      "全自回归逐 token 生成能充分利用上下文，但延迟高；hybrid row decoding 在前几个实体保留自回归条件，其余实体并行选择，以延迟换质量",
+      "预训练主要让模型模仿生产系统，不直接优化奖励幅度，且持续用旧模型生成的数据训练可能带来模型退化",
+      "扩展模型容量（120M→900M）约降低 1.3% WBC loss，而丰富上下文累计降低约 6.9%，当前阶段上下文信息比容量更关键"
+    ]
+  },
+  "excerpt": "Authors: Lequn Wang , J iangwei Pan , and Linas Baltrunas Figure 1. Autoregressive homepage generation. GenPage builds a Netflix homepage one row or entity at a time, each one conditioned on what’s already on the page and the user’s context. Introduction The Netflix homepage is the first thing users see when they open the app and the primary way they discover content to enjoy. Almost every part of it is personalized, including which rows appear, which entities show up within those rows, and how everything is arranged on the page. Constructing that homepage is a genuinely hard problem. It is not simply producing one ranked list. The homepage is a structured, two-dimensional layout, made up of recommendation rows and the entities within them. Here, an entity can be a movie, show, game, live event, or other recommendable item. Each choice can affect the value of the others. Traditionally, it is built through a complex, multi-stage pipeline, with separate components for candidate generation and ranking at both the row and entity levels. We saw an opportunity to rethink this design. Large language models have shown that a single generative model can perform diverse tasks just by generating a response to a prompt. Inspired by this prompt-response paradigm, we trained a single generative model to build the homepage by directly answering one question: Given everything we know about this user and this request, what homepage should we generate to maximize user satisfaction? We call this approach GenPage. It treats the user history and request context as the prompt, and autoregressively generates the entire homepage as the response (Figure 1). Unlike most generative recommenders, such as TIGER , HSTU , and OneRec , which generate flat ranked lists, GenPage generates the rows, entities, and layout together. This shift is motivated by several goals: End-to-end modeling. A single transformer model that constructs the page from raw input signals can replace a complex multi-stage recommender stack. This reduces the number of ML models to maintain, avoids misaligned objectives across stages, and eliminates much of the traditional feature engineering. Whole-page optimization via reinforcement learning (RL). Autoregressive page generation makes it possible to optimize for page-level rewards with RL. This can capture interactions across rows and entities, such as diversity or the balance between rows with different stopping power . For example, a Continue Watching row near the top of the page may strongly satisfy a user’s immediate intent, but also reduce how much of the page they browse. Modeling these interactions at the page level lets us align the system more directly with user satisfaction than entity-level objectives alone. Better scaling behavior. A generative transformer model gives us a clearer path to improving quality through more data, compute, and model capacity, without repeatedly redesigning the system. Flexibility and extensibility. The prompt-response paradigm is flexible by design. By simplifying feature engineering and enabling whole-page optimization, GenPage makes it easier to support new product experiences, such as additional content types like live events, games, and podcasts; layouts beyond the current two-dimensional structure; personalized UI components; and per-entity artwork personalization, all with fewer architectural changes. Bringing GenPage into production at Netflix also required solving challenges specific to industry-scale recommender systems. Because the homepage is generated in real time, serving latency is a primary engineering constraint. We also need to handle entity cold start in a constantly evolving catalog, keep the model fresh as user interests and cultural trends shift, and enforce complex product and business rules on the generated output. Despite these challenges, GenPage has already had substantial production impact. In an online A/B test against a mature, highly optimized multi-stage production ",
+  "final_score": 0.8915000000000001,
+  "graph_relations": [],
+  "id": "url-f7ea41897b8edc1d893d7d6c",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-06-29T13:01:02Z",
+  "relevance_score": 0.93,
+  "scenarios": [
+    "text_feed",
+    "livestream"
+  ],
+  "source": "netflix_techblog",
+  "summary_zh": "Netflix提出GenPage，用一个生成式Transformer直接以用户历史和请求上下文为提示，自回归生成整个首页的行、实体与布局，替代多阶段推荐流水线，并可结合强化学习进行整页奖励优化，在在线A/B测试中获得显著收益。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "ranking"
+  ],
+  "title": "GenPage: Towards End-to-End Generative Homepage Construction at Netflix",
+  "url": "https://netflixtechblog.com/genpage-towards-end-to-end-generative-homepage-construction-at-netflix-77146fba8a08?source=rss----2615bd06b42e---4"
+}

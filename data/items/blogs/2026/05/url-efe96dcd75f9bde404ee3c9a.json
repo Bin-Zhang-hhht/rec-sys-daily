@@ -1,0 +1,116 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "提出 Contextual Sequential Two-Tower Model。用户塔由 Transformer 编码器输出与新的 context layer 输出拼接，再经过最终 MLP 得到用户 embedding。对 Related Pins，context layer 的输入来自用户当前浏览的 subject Pin 的 top 兴趣类别 embedding，并按置信度加权聚合；用户表示层还加入年龄、国家、性别等人口统计学 embedding。训练时使用合成增强数据：将正样本/转化事件的兴趣类别特征投影为伪上下文注入输入序列，并在 context layer 使用高 dropout。serving 采用混合推理：离线计算 Transformer encoder 的 last hidden state 存入特征库并每日刷新；在线计算 context layer 和最终 MLP head，输入实时上下文特征与预计算的离线用户信号。",
+    "business_implications_zh": [
+      "Related Pins 广告相关性提升，用户看到的广告与正在浏览的内容更匹配，有利于广告体验和后续转化。",
+      "ROAS 提升约 0.7%，top countries 提升约 1.4%，而这些国家占大部分收入，因此对整体收入影响更显著。",
+      "候选 delivery 翻倍意味着更多相关广告候选能进入展示，可能提高广告库存利用率和参与度。",
+      "该方案未来扩展到 Search 等上下文敏感表面，有望进一步改善搜索场景下的广告相关性。"
+    ],
+    "business_transferability": 0.7,
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "heading": "Motivation: The Need for Real-Time Context",
+        "section": "source_document"
+      },
+      {
+        "heading": "Model Architecture: Integrating the Context Layer",
+        "section": "source_document"
+      },
+      {
+        "heading": "Model Training with Synthetic Context",
+        "section": "source_document"
+      },
+      {
+        "heading": "Hybrid User Embedding Inference",
+        "section": "source_document"
+      },
+      {
+        "heading": "Results and Business Impact",
+        "section": "source_document"
+      },
+      {
+        "heading": "Survival Rate & Relevance",
+        "section": "source_document"
+      },
+      {
+        "heading": "Topline Business Metrics",
+        "section": "source_document"
+      },
+      {
+        "heading": "Future work",
+        "section": "source_document"
+      }
+    ],
+    "implementation_zh": "候选生成器基于两塔 Transformer 架构；离线评估使用 Related Pins 真实流量日志特征，生成模型输出 embedding 后计算 Recall@K，正样本定义为通过排序漏斗并最终展示给用户的候选。生产 serving 将用户塔拆成离线与在线两部分，使最终用户 embedding 能随实时上下文动态变化。由于真实在线上下文在训练时不可用，且合并 onsite/offsite 数据存在困难，训练阶段采用合成增强数据模拟上下文信息。",
+    "lessons_zh": [
+      "将实时上下文注入用户塔可以显著提升广告候选与用户当前浏览场景的相关性。",
+      "合成增强数据是训练只有 serving 时才可用的上下文特征的一种可行方案。",
+      "混合推理能把重计算放在离线、轻量上下文计算放在在线，同时保持个性化和实时相关性。",
+      "候选相关性提升可以转化为候选生存率、广告展示量和 ROAS 等业务指标的增长。"
+    ],
+    "limitations_zh": [
+      "上下文特征目前主要针对 Related Pins 的 subject Pin 兴趣类别，尚未推广到 Search 等表面。",
+      "上下文与序列编码器的融合方式仍是简单拼接，未建模历史事件与上下文的动态交互。",
+      "训练无法直接使用真实在线上下文，只能依赖合成增强数据。",
+      "给出的业务提升主要发生在 Related Pins 和 top countries，其他表面/地区的效果未在本篇中说明。"
+    ],
+    "production_constraints_zh": [
+      "实时上下文只有在广告请求（online）时才知道，离线训练必须用合成增强数据模拟。",
+      "合并 onsite 数据与 offsite 数据存在显著技术困难。",
+      "无法保证用户在两次连续 offsite 事件之间看过 Related Pins 的广告曝光。",
+      "离线用户 embedding 需要每日刷新，存在批处理更新延迟。",
+      "原有候选生成器在 Related Pins 上生存率低，只有不到 1% 的展示归因给它。"
+    ],
+    "results_zh": [
+      "离线 Recall@K 相比生产模型提升 3x–10x。",
+      "Related Pins 上该候选生成器检索出的候选中位相关性提升约 275–300%。",
+      "Related Pins 整体广告相关性指标提升 1.08%。",
+      "候选 delivery 提升 2 倍，即更多被检索出的广告候选最终进入展示。",
+      "转化相关业务指标 ROAS 提升约 0.7%，其中 top countries 的 ROAS 提升约 1.4%。"
+    ],
+    "system_context_zh": "Pinterest 广告候选生成场景。此前已有一个基于 Transformer 两塔模型的离线行为序列候选生成器，利用用户站外转化历史预测与广告主和商品的交互，但缺少在线上下文：广告请求时模型不知道用户当前正在浏览的 Pin 或搜索词。这在 Related Pins 和 Search 等上下文高度敏感的表面上尤其不利，导致该候选生成器在 Related Pins 上的展示归因占比低于 1%。",
+    "technical_depth": 0.8,
+    "tradeoffs_zh": [
+      "混合推理将大部分用户塔计算放在离线，只把 context layer 和最终 MLP 放到在线，以权衡延迟与上下文新鲜度。",
+      "使用合成增强数据而非真实在线上下文训练，以规避数据合并与曝光保证问题，但需要高 dropout 防止模型过度依赖伪上下文。",
+      "上下文融合目前采用简单拼接，未来计划改用 cross-attention 融合，让历史事件的重要性由实时上下文动态决定。",
+      "引入上下文信息的同时，需要保留对用户历史事件序列的依赖，因此训练时对 context layer 使用高 dropout。"
+    ]
+  },
+  "excerpt": "Huiqin Xin | Machine Learning Engineer II, Ads Vertical Modeling; Lakshmi Manoharan | Senior Machine Learning Engineer, Ads Vertical Modeling; Karthik Jayasurya | Staff Machine Learning Engineer, Ads Signals; Ziwei Guo | Senior Machine Learning Engineer, Ads Vertical Modeling; Alina Liviniuk | Machine Learning Engineer II, Ads Vertical Modeling Motivation: The Need for Real-Time Context In a previous post , Ads Candidate Generation using Behavioral Sequence Modeling , we introduced a candidate generator (CG) that uses a Transformer-based two-tower model to leverage a user’s offsite conversion history — a powerful signal — to predict future interactions with advertisers and specific products. This was a significant step forward, moving beyond static interest categories to model the evolving user shopping journey. However, a key limitation of the initial sequential model was its lack of online context information. The user embeddings were inferred offline purely from historical offsite behavior, meaning that at the moment an ad was served, the model had no knowledge of what the user was currently browsing on Pinterest. This is a crucial drawback, particularly for highly contextual surfaces like Related Pins and Search , where the user’s current Pin or search query represents a strong, immediate signal of intent. For example, on the Related Pins surface, if a user is viewing a Pin of a “vintage leather armchair,” the recommended ads should be highly relevant to that specific item, not just their general, long-term interests. This lack of context severely limited the model’s effectiveness on these surfaces; in the previous production system, less than 1% of impressions on Related Pins were attributed to this CG, indicating its candidates struggled to survive the downstream ranking and auction stages. The Contextual Sequential Modeling Solution To overcome this challenge, we developed the Contextual Sequential Two Tower Model , an evolution of the sequential recommender model specifically designed to incorporate real-time, online context. This approach focuses on three major areas: a new model architecture, a novel training approach, and a hybrid serving flow. Model Architecture: Integrating the Context Layer The core architectural change was integrating a context layer directly into the query tower of the two-tower model. Figure 1. Contextual Sequential two-tower model architecture As shown in the diagram above, the model now concatenates the output of the original Transformer encoder (which represents historical sequence information) with the output of the new context layer. This combined representation is then fed into the final Multi-Layer Perceptron (MLP) to derive the final user embedding. For the Related Pins surface, the context layer’s input features are derived from the subject Pin (the Pin the user is currently viewing), specifically using features like the aggregated embedding representations of the top interest categories of the subject Pin, weighted by their confidence scores. To further personalize the model, the user representation layer was augmented with embeddings of user demographic features, such as age, country, and gender. Model Training with Synthetic Context Since real-time context is only available at serving time, we had to make the model capable of learning from this signal during offline training. The solution was to use synthetic augmented data . Figure 2. Model training with synthetic augmented data During model training, we artificially inject pseudo-context information derived from the positive label (the conversion event) into the input sequence. For example, by projecting the interest category features from the positive item, we encourage the model to retrieve items that are semantically related to the context associated with that user session. A high dropout rate is used in the context layer during training to ensure the model still relies on the user’s historical event sequence (the Transformer ",
+  "final_score": 0.8410000000000002,
+  "graph_relations": [],
+  "id": "url-efe96dcd75f9bde404ee3c9a",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-05-08T19:01:00Z",
+  "relevance_score": 0.92,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "pinterest_engineering",
+  "summary_zh": "Pinterest广告候选生成模型引入实时上下文。基于Transformer双塔序列模型，在查询塔中增加上下文层，将当前浏览的Pin等实时信号与历史行为序列结合，并通过合成增强数据训练，以提升Related Pins和Search等场景的广告相关性。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Enhancing Ad Relevance: Integrating Real-Time Context into Sequential Recommender Models",
+  "url": "https://medium.com/pinterest-engineering/enhancing-ad-relevance-integrating-real-time-context-into-sequential-recommender-models-bc3a2f9b682e?source=rss----4c5a5f6279b6---4"
+}

@@ -1,0 +1,81 @@
+{
+  "authors": [],
+  "deep_reading": {
+    "analysis_basis": "article_html",
+    "architecture_zh": null,
+    "business_implications_zh": [
+      "Discord 通过该项目直接押注荷兰游戏创始人，可能强化其欧洲总部所在地的本地游戏生态",
+      "文章称游戏制作者可在 Discord 获得实时反馈，表明该平台可作为产品与市场匹配的渠道",
+      "项目提供后期融资接触机会，瞄准游戏工作室融资最难的阶段",
+      "将荷兰游戏公司与 AI、实时计算等前沿技术关联，可能提升该行业在投资和人才方面的吸引力"
+    ],
+    "business_transferability": 0.5,
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "heading": "Game On: Discord Is Backing the Next Generation of Dutch Gaming Founders",
+        "section": "source material"
+      }
+    ],
+    "implementation_zh": "项目面向荷兰最有雄心的游戏公司，由 Discord、Techleap 和荷兰游戏协会联合挑选首批五家公司。项目自公告发布起运行至 2026 年底，内容包括：小规模同行学习（覆盖招聘、融资、发行、社区、全球化等主题）、通过 Techleap 网络获得投资者渠道、通过 Discord 连接游戏生态。2026 年 10 月安排旧金山之行，包括与 Discord 领导层交流和由 Techleap 及 Prince Constantijn 主办的投资者晚宴；项目以 11 月的荷兰游戏奖收官。",
+    "lessons_zh": [
+      "游戏行业一直通过连接成长：玩家之间互相分享，开发者之间互相学习",
+      "没有创始人能独自扩大规模；连接对的同行、资本和市场可以强化整个行业（Constantijn van Oranje 观点）",
+      "Discord 将自身定位为游戏开发者与玩家之间形成实时反馈闭环的场所"
+    ],
+    "limitations_zh": [
+      "文章是项目发布公告而非结果评估；项目仍在进行中，没有公布可量化的项目成果",
+      "首批只有五家入围公司，项目覆盖面有限",
+      "文章对各公司的描述来自官方简介，未经独立验证",
+      "没有提供任何推荐系统、算法或技术架构层面的细节"
+    ],
+    "production_constraints_zh": [
+      "项目首批仅限五家公司，且由 Discord、Techleap 和荷兰游戏协会联合挑选",
+      "项目有明确时间窗口，活动安排集中在 2026 年 10 月旧金山之行和 11 月荷兰游戏奖",
+      "文章称当前后期阶段游戏工作室融资最难，暗示资本获取是外部约束"
+    ],
+    "results_zh": [
+      "Poki 每月玩家达 9000 万，且以盈利方式完全自我融资",
+      "VaultN 被 Bethesda、2K、Take-Two 等主要发行商信任",
+      "MAXYMUM 在今年的 GDC 上获得验证",
+      "YOM 正在构建去中心化云游戏基础设施，将区块链与流媒体结合",
+      "Immens 是从零构建、以 AI 为核心的欧洲游戏引擎"
+    ],
+    "system_context_zh": "本文是 Discord 官方博客公告，宣布与 Techleap 及荷兰游戏协会合作推出 Gaming Founders Circle。文章将 Discord 描述为游戏玩家和开发者聚集的通信平台，并声称超过 90% 的 Discord 用户玩游戏，超过 8000 万人在超过 1 万个游戏社区中活动；开发者可在平台上获得玩家的实时反馈。",
+    "technical_depth": 0.1,
+    "tradeoffs_zh": [
+      "选择小规模、高接触的同行小组，而非大规模公开课程或线上开放资源",
+      "项目侧重同行交流和投资者网络，未提及对技术栈、产品开发或发行渠道提供直接补贴或工具"
+    ]
+  },
+  "excerpt": "Together with Techleap, we’re launching the Gaming Founders Circle: a hands-on program for the most ambitious gaming companies in the Netherlands to provide participants with a direct line to the people, investors, and networks that help great games scale. Together with Techleap, we’re launching the Gaming Founders Circle: a hands-on program for the most ambitious gaming companies in the Netherlands to provide participants with a direct line to the people, investors, and networks that help great games scale.",
+  "final_score": 0.4925000000000001,
+  "graph_relations": [],
+  "id": "url-73305c6893e6460537c878d5",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-14T05:01:20.515357Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-06-10T00:00:00Z",
+  "relevance_score": 0.45,
+  "scenarios": [
+    "voice_chat",
+    "friend_recommendation"
+  ],
+  "source": "discord_engineering",
+  "summary_zh": "Discord 与 Techleap 合作推出 Gaming Founders Circle，面向荷兰最有野心的游戏公司，帮助他们对接人才、投资人和行业网络。",
+  "targets": [
+    "user"
+  ],
+  "tasks": [
+    "user_matching",
+    "link_prediction"
+  ],
+  "title": "Game On: Discord Is Backing the Next Generation of Dutch Gaming Founders",
+  "url": "https://discord.com/blog/game-on-discord-is-backing-the-next-generation-of-dutch-gaming-founders"
+}
