@@ -798,7 +798,7 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 触发条件：
 
 - 每日定时运行，默认北京时间 08:23（UTC 00:23），避开整点高峰
-- `workflow_dispatch` 手动运行；生产运行只接受 `master`，其他 ref 在首个 job 明确失败
+- `workflow_dispatch` 手动运行；生产运行只接受 `main`，其他 ref 在首个 job 明确失败
 
 生产 workflow 分为四个逻辑阶段和五个物理 job。前三个数据阶段的业务命令在 `pipeline/Dockerfile` 镜像内运行；最后的网站构建命令在 `site/Dockerfile` 镜像内运行。checkout、artifact 上传下载、Pages 部署和 Git 提交由 GitHub runner 上的官方 action 或宿主步骤负责，不要求业务镜像安装另一套技术栈。两个镜像分别使用 GitHub Actions layer cache，不把 Python/PDF 依赖带入前端镜像，也不把 Node/Astro 依赖带入数据镜像。
 

@@ -29,7 +29,7 @@ def test_daily_workflow_permissions_timeouts_and_needs() -> None:
     assert jobs["build_deploy"]["permissions"]["contents"] == "write"
     assert "pages" not in jobs["collect_filter"].get("permissions", {})
     assert "contents" not in jobs["collect_filter"]["permissions"] or jobs["collect_filter"]["permissions"]["contents"] == "read"
-    assert jobs["collect_filter"]["steps"][0]["run"] == 'test "$GITHUB_REF" = "refs/heads/master"'
+    assert jobs["collect_filter"]["steps"][0]["run"] == 'test "$GITHUB_REF" = "refs/heads/main"'
     deploy_steps = jobs["build_deploy"]["steps"]
     deploy_index = next(index for index, step in enumerate(deploy_steps) if step.get("uses") == "actions/deploy-pages@v4")
     promote_index = next(index for index, step in enumerate(deploy_steps) if step.get("name") == "Promote pending data after deployment")
@@ -52,7 +52,7 @@ def test_daily_workflow_has_single_schedule_and_artifact_boundaries() -> None:
     assert "DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}" in text
     assert "--output /workspace/publish-work/publish-bundle" in text
     assert "rsync --archive --delete publish-bundle/pending-data/ data/" in text
-    assert "git push origin HEAD:master" in text
+    assert "git push origin HEAD:main" in text
     assert "SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}" in text
     assert "NVIDIA" not in text
 

@@ -24,7 +24,7 @@ jobs:
       contents: read
     steps:
       - name: Require the default branch
-        run: test "$GITHUB_REF" = "refs/heads/master"
+        run: test "$GITHUB_REF" = "refs/heads/main"
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
       - name: Build pipeline image
@@ -209,5 +209,5 @@ jobs:
           git add -A data
           if ! git diff --cached --quiet; then
             git commit -m "data: publish daily recommendation bundle"
-            git push origin HEAD:master
+            git push origin HEAD:main
           fi

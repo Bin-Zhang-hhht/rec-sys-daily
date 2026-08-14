@@ -47,6 +47,6 @@ Also configure the Actions variable `SITE_ORIGIN` with the origin only, for exam
 
 The pipeline uses the single text model declared at `models.text` in `config/models.yaml` through an OpenAI-compatible Responses API. Change the model ID in YAML; change the endpoint or credential through the corresponding environment variable. The paper path uses MinerU independently for temporary PDF-to-Markdown parsing.
 
-The scheduled run is at `00:23 UTC` (`08:23 Asia/Shanghai`) and can also be started with `workflow_dispatch`; production runs are accepted only from `master`.
+The scheduled run is at `00:23 UTC` (`08:23 Asia/Shanghai`) and can also be started with `workflow_dispatch`; production runs are accepted only from `main`.
 
-If the final data push fails transiently and `origin/master` has not advanced, rerun `build_deploy` while the one-day publish artifact is still available. If the branch has advanced or the artifact has expired, run the full workflow again; the workflow never force-pushes canonical data.
+If the final data push fails transiently and `origin/main` has not advanced, rerun `build_deploy` while the one-day publish artifact is still available. If the branch has advanced or the artifact has expired, run the full workflow again; the workflow never force-pushes canonical data.
