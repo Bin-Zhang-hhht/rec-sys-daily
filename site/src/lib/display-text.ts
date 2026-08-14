@@ -29,11 +29,3 @@ function dedupeRepeatedHalves(value: string): string {
 export function formatAcademicText(value: string): string {
   return dedupeRepeatedHalves(value).replace(/\\([%&_#])/g, "$1");
 }
-
-export function normalizeDisplayNewlines(value: string): string {
-  return value.replace(/\r\n?/g, "\n");
-}
-
-export function isExcerptTruncated(value: string, maxChars: number): boolean {
-  return Number.isFinite(maxChars) && maxChars > 0 && value.length >= maxChars;
-}

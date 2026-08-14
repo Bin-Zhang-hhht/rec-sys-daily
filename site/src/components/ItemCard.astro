@@ -4,51 +4,69 @@ import type { DigestEntry, Item, Taxonomy } from "../lib/data";
 import { itemPath, sitePath } from "../lib/paths";
 import ScoreGauge from "./ScoreGauge.astro";
 import TaxonomyChips from "./TaxonomyChips.astro";
-const { item, taxonomy, entry } = Astro.props as { item: Item; taxonomy: Taxonomy; entry?: DigestEntry };
+const { item, taxonomy, entry, splitOnWide = false } = Astro.props as {
+  item: Item;
+  taxonomy: Taxonomy;
+  entry?: DigestEntry;
+  splitOnWide?: boolean;
+};
 const href = itemPath(item);
 const authorLabel = item.authors.join("、") || "未署名";
 ---
 <article class="group rounded-lg border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
-  <div class="flex items-center justify-between gap-3 text-xs text-slate-500">
-    <span class="inline-flex items-center gap-1.5 font-medium uppercase text-slate-600">
-      {item.kind === "paper" ? <BookOpen size={15} stroke-width={1.8} aria-hidden="true" /> : <Newspaper size={15} stroke-width={1.8} aria-hidden="true" />}
-      {entry ? `#${entry.rank} · ` : ""}{item.kind === "paper" ? "Paper" : "Engineering Blog"}
-    </span>
-    <time class="shrink-0 tabular-nums" datetime={item.published_at}>{item.published_at.slice(0, 10)}</time>
-  </div>
-  <h3 class="mt-3 text-lg font-semibold leading-7 text-slate-950">
-    <a class="decoration-sky-600 decoration-1 underline-offset-4 group-hover:underline" href={href}>{item.title}</a>
-  </h3>
-  <TaxonomyChips item={item} taxonomy={taxonomy} class="mt-3" />
-  <div class="mt-4 border-y border-slate-100 py-4">
-    <dl class="grid gap-2 text-xs leading-5 text-slate-600">
-      <div class="grid min-w-0 grid-cols-[1.125rem_2.5rem_minmax(0,1fr)] items-start gap-2">
-        <Database class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
-        <dt class="font-medium text-slate-500">来源</dt>
-        <dd class="min-w-0 truncate text-slate-700" title={item.source}>{item.source}</dd>
+  <div class:list={[splitOnWide && "lg:grid lg:grid-cols-2 lg:gap-8"]}>
+    <div class="min-w-0">
+      <div class="flex items-center justify-between gap-3 text-xs text-slate-500">
+        <span class="inline-flex items-center gap-1.5 font-medium uppercase text-slate-600">
+          {item.kind === "paper" ? <BookOpen size={15} stroke-width={1.8} aria-hidden="true" /> : <Newspaper size={15} stroke-width={1.8} aria-hidden="true" />}
+          {entry ? `#${entry.rank} · ` : ""}{item.kind === "paper" ? "Paper" : "Engineering Blog"}
+        </span>
+        <time class="shrink-0 tabular-nums" datetime={item.published_at}>{item.published_at.slice(0, 10)}</time>
       </div>
-      <div class="grid min-w-0 grid-cols-[1.125rem_2.5rem_minmax(0,1fr)] items-start gap-2">
-        <Users class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
-        <dt class="font-medium text-slate-500">作者</dt>
-        <dd class="min-w-0 truncate text-slate-700" title={authorLabel}>{authorLabel}</dd>
+      <h3 class="mt-3 text-lg font-semibold leading-7 text-slate-950">
+        <a class="decoration-sky-600 decoration-1 underline-offset-4 group-hover:underline" href={href}>{item.title}</a>
+      </h3>
+      <TaxonomyChips item={item} taxonomy={taxonomy} class="mt-3" />
+      <div class:list={["mt-4 border-y border-slate-100 py-4", splitOnWide && "lg:border-b-0 lg:pb-0"]}>
+        <dl class="grid gap-2 text-xs leading-5 text-slate-600">
+          <div class="grid min-w-0 grid-cols-[1.125rem_2.5rem_minmax(0,1fr)] items-start gap-2">
+            <Database class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
+            <dt class="font-medium text-slate-500">来源</dt>
+            <dd class="min-w-0 truncate text-slate-700" title={item.source}>{item.source}</dd>
+          </div>
+          <div class="grid min-w-0 grid-cols-[1.125rem_2.5rem_minmax(0,1fr)] items-start gap-2">
+            <Users class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
+            <dt class="font-medium text-slate-500">作者</dt>
+            <dd class="min-w-0 truncate text-slate-700" title={authorLabel}>{authorLabel}</dd>
+          </div>
+          <div class="grid min-w-0 grid-cols-[1.125rem_2.5rem_minmax(0,1fr)] items-start gap-2">
+            <Gauge class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
+            <dt class="font-medium text-slate-500">评分</dt>
+            <dd class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-slate-700 lg:gap-x-4">
+              <ScoreGauge label="相关性" value={item.relevance_score} color="#0284c7" />
+              <ScoreGauge label="综合得分" value={item.final_score} color="#059669" />
+              <a class="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2" href={sitePath("about/#scoring")} aria-label="评分说明" title="评分说明">
+                <CircleHelp size={14} stroke-width={1.8} aria-hidden="true" />
+              </a>
+            </dd>
+          </div>
+        </dl>
       </div>
-      <div class="grid min-w-0 grid-cols-[1.125rem_2.5rem_minmax(0,1fr)] items-start gap-2">
-        <Gauge class="mt-0.5 text-slate-400" size={16} stroke-width={1.8} aria-hidden="true" />
-        <dt class="font-medium text-slate-500">评分</dt>
-        <dd class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-slate-700 lg:gap-x-4">
-          <ScoreGauge label="相关性" value={item.relevance_score} color="#0284c7" />
-          <ScoreGauge label="综合得分" value={item.final_score} color="#059669" />
-          <a class="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2" href={sitePath("about/#scoring")} aria-label="评分说明" title="评分说明">
-            <CircleHelp size={14} stroke-width={1.8} aria-hidden="true" />
-          </a>
-        </dd>
+    </div>
+    <div class:list={["min-w-0", splitOnWide && "lg:border-l lg:border-slate-100 lg:pl-8"]}>
+      {splitOnWide && <h4 class="mt-4 text-sm font-semibold text-slate-950 lg:mt-0">中文总结</h4>}
+      <p class:list={["text-sm leading-7 text-slate-700", splitOnWide ? "mt-2" : "mt-4"]}>{item.summary_zh}</p>
+      {entry && splitOnWide && (
+        <div class="mt-4">
+          <h4 class="text-sm font-semibold text-slate-950">推荐理由</h4>
+          <p class="mt-2 text-sm leading-7 text-slate-700">{entry.recommendation_reason_zh}</p>
+        </div>
+      )}
+      {entry && !splitOnWide && <p class="mt-4 border-l-2 border-sky-300 pl-3 text-sm leading-6 text-slate-600"><strong class="font-semibold text-slate-800">推荐理由：</strong>{entry.recommendation_reason_zh}</p>}
+      <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-sm font-medium">
+        <a class="inline-flex items-center gap-1.5" href={href}>查看详情 <ArrowRight size={16} stroke-width={1.8} aria-hidden="true" /></a>
+        <a class="inline-flex items-center gap-1.5" href={item.url} target="_blank" rel="noopener noreferrer">阅读原文 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
       </div>
-    </dl>
-  </div>
-  <p class="mt-4 text-sm leading-7 text-slate-700">{item.summary_zh}</p>
-  {entry && <p class="mt-4 border-l-2 border-sky-300 pl-3 text-sm leading-6 text-slate-600"><strong class="font-semibold text-slate-800">推荐理由：</strong>{entry.recommendation_reason_zh}</p>}
-  <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-sm font-medium">
-    <a class="inline-flex items-center gap-1.5" href={href}>查看详情 <ArrowRight size={16} stroke-width={1.8} aria-hidden="true" /></a>
-    <a class="inline-flex items-center gap-1.5" href={item.url} target="_blank" rel="noopener noreferrer">阅读原文 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
+    </div>
   </div>
 </article>

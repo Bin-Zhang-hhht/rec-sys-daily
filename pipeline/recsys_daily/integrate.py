@@ -139,11 +139,16 @@ def _is_publishable_degraded_metadata(value: dict[str, Any]) -> bool:
     )
 
 
-def _validate_blog_excerpt(item: ContentItem, excerpt_limit: int) -> None:
-    if isinstance(item, BlogItem) and item.excerpt is not None and len(item.excerpt) > excerpt_limit:
+def _validate_stage_one_blog_excerpt(value: dict[str, Any], excerpt_limit: int) -> None:
+    excerpt = value.get("excerpt")
+    if excerpt is None:
+        return
+    if not isinstance(excerpt, str):
+        raise ValueError("stage-1 blog excerpt must be a string")
+    if len(excerpt) > excerpt_limit:
         raise ValueError(
-            "blog excerpt exceeds configured max_blog_excerpt_chars: "
-            f"{item.id} ({len(item.excerpt)} > {excerpt_limit})"
+            "stage-1 blog excerpt exceeds configured max_blog_excerpt_chars: "
+            f"{value.get('id', '<unknown>')} ({len(excerpt)} > {excerpt_limit})"
         )
 
 
@@ -181,11 +186,12 @@ def _items(
         if kind == "paper":
             value["abstract"] = value.pop("excerpt", "")
         else:
+            _validate_stage_one_blog_excerpt(value, excerpt_limit)
+            value.pop("excerpt", None)
             value.pop("arxiv_id", None)
             value.pop("doi", None)
         item_type = PaperItem if kind == "paper" else BlogItem
         item = item_type.model_validate(value, context={"taxonomy": taxonomy})
-        _validate_blog_excerpt(item, excerpt_limit)
         parsed.append(item)
     return parsed
 
@@ -285,7 +291,6 @@ def _validate_historical_json(source: Path, relative: Path, config: AppConfig) -
                 raise ValueError("item kind or stable ID does not match its canonical path")
             if (f"{item.published_at.year:04d}", f"{item.published_at.month:02d}") != parts[2:4]:
                 raise ValueError("item publication date does not match its canonical path")
-            _validate_blog_excerpt(item, config.settings.storage.max_blog_excerpt_chars)
         elif parts[0] == "digests":
             digest = Digest.model_validate(value)
             if (f"{digest.date.year:04d}", f"{digest.date.month:02d}", f"{digest.date.isoformat()}.json") != parts[1:4]:

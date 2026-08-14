@@ -90,8 +90,6 @@ def load_history_ids(
                 raise ValueError("item kind or stable ID does not match its canonical path")
             if (f"{item.published_at.year:04d}", f"{item.published_at.month:02d}") != parts[2:4]:
                 raise ValueError("item publication date does not match its canonical path")
-            if isinstance(item, BlogItem) and item.excerpt is not None and len(item.excerpt) > config.settings.storage.max_blog_excerpt_chars:
-                raise ValueError("blog excerpt exceeds configured max_blog_excerpt_chars")
         except Exception as exc:
             raise ValueError(f"invalid canonical history item {relative.as_posix()}: {exc}") from exc
         relative_name = relative.as_posix()

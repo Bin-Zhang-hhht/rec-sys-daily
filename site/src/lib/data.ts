@@ -27,7 +27,7 @@ type ItemBase = {
   relevance_score: number; final_score: number; graph_relations: GraphRelation[]; llm: LlmMetadata | null;
 };
 export type PaperItem = ItemBase & { kind: "paper"; abstract: string; arxiv_id: string; doi: string | null; deep_reading: PaperReading };
-export type BlogItem = ItemBase & { kind: "blog"; excerpt?: string | null; deep_reading: BlogReading };
+export type BlogItem = ItemBase & { kind: "blog"; deep_reading: BlogReading };
 export type Item = PaperItem | BlogItem;
 export type DigestEntry = { item_id: string; recommendation_reason_zh: string; rank: number };
 export type Digest = { date: string; papers: DigestEntry[]; blogs: DigestEntry[] };
@@ -238,7 +238,7 @@ function validateItem(value: unknown, taxonomy: Taxonomy, context: string): Item
     ...common, kind, abstract: text(raw.abstract, `${context}.abstract`), arxiv_id: text(raw.arxiv_id, `${context}.arxiv_id`),
     doi: raw.doi == null ? null : text(raw.doi, `${context}.doi`), deep_reading: validateReading(raw.deep_reading, kind, `${context}.deep_reading`) as PaperReading,
   };
-  return { ...common, kind, excerpt: raw.excerpt == null ? null : text(raw.excerpt, `${context}.excerpt`), deep_reading: validateReading(raw.deep_reading, kind, `${context}.deep_reading`) as BlogReading };
+  return { ...common, kind, deep_reading: validateReading(raw.deep_reading, kind, `${context}.deep_reading`) as BlogReading };
 }
 
 function validateDigest(value: unknown, context: string): Digest {

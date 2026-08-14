@@ -438,12 +438,14 @@ final_score = 0.55 * metadata_score
 4. 同一域名并发为 1，带可识别 User-Agent，并使用请求间隔、`Retry-After` 和有限退避重试
 5. 每篇博客单独调用一次 LLM，生成中文结构化解读
 
-由于博客全文不能进入 Stage 1 artifact，而 `deep-read --kind blog` 运行在独立
+由于博客 Feed 全文不能进入 Stage 1 artifact，而 `deep-read --kind blog` 运行在独立
 runner，blog deep-read runner 可以按 `source_id` 再次抓取已启用 Feed。成功响应只在
 进程内缓存，并按 stable ID、canonical URL 或标准化标题匹配 Stage 1 候选；抓取失败
-不作为永久耗尽条件，后续候选仍可重新抓取。Feed 抓取失败、没有全文或无法匹配时，
-继续使用公开文章 HTML，再降级到 excerpt。Feed 原文不得进入跨 job artifact、日志、
-canonical item 或 Pages artifact。
+不作为永久耗尽条件，后续候选仍可重新抓取。Stage 1 artifact 允许携带配置上限内的
+短 excerpt，供独立 runner 在 Feed 全文和文章 HTML 均不可用时降级使用；Feed 全文
+抓取失败、没有全文或无法匹配时，继续使用公开文章 HTML，再降级到该 excerpt。Feed
+全文不得进入跨 job artifact、日志、canonical item 或 Pages artifact，短 excerpt 也
+不得进入 canonical item 或 Pages artifact。
 
 两类内容都遵循以下规则：
 
@@ -605,7 +607,7 @@ storage:
   fail_pages_artifact_mb: 900
 ```
 
-结构化深读以约 16 KB/条为目标；32 条/日的理论新增量约 187 MB/年，实际日更通常不足 32 条。单条超过 32 KB 时先压缩冗余解释和非核心 excerpt，但不截断标题、作者、标识符、链接、结论和结构化标签。仓库数据达到 500 MB 时在运行报告中告警，提示用户降低深读候选数或迁移历史归档；Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
+结构化深读以约 16 KB/条为目标；32 条/日的理论新增量约 187 MB/年，实际日更通常不足 32 条。`max_blog_excerpt_chars` 只限制短期 Stage 1 artifact 中的博客 excerpt；canonical item 和 Pages artifact 不保存该字段。单条超过 32 KB 时先压缩冗余解释，但不截断标题、作者、标识符、链接、结论和结构化标签。仓库数据达到 500 MB 时在运行报告中告警，提示用户降低深读候选数或迁移历史归档；Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
 
 [GitHub Repository limits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits) 当前建议单个目录不超过 3,000 个条目；[GitHub large-file guidance](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github) 建议仓库最好保持在 1 GB 以下。[GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) 要求发布站点不超过 1 GB。该结构以年月分片并排除生成物，目标是让正常运行多年后仍保持在建议范围内。
 
@@ -671,11 +673,11 @@ storage:
 - `/graph/`：轻量交互知识图谱
 - `/about/`：配置范围、来源和免责声明
 
-首页和日报卡片展示 rank、来源、作者、日期、原文链接、中文 summary、四类标签、推荐理由以及相关性/综合得分；analysis basis 和 degraded 状态保留在详情页及关于页，不占用摘要卡片。卡片使用 8px 圆角与 24px 内边距，taxonomy 胶囊紧接标题，并分别使用蓝、绿、琥珀、紫色区分目标、场景、任务和方法；胶囊之后以三行元数据展示来源、作者和评分。过长作者单行省略并以 tooltip 提供完整名单。评分行内使用两个紧凑 SVG 环形仪表显示相关性与综合得分，并以可点击问号图标链接到关于页的评分计算说明。顶栏使用静态 SVG 品牌标识和 `@lucide/astro` 图标，移动端保留图标、tooltip 与 `aria-label`；GitHub 入口使用官方 Primer Octicons 品牌标记并链接到项目仓库。页面标题可使用本地保存的 Koboyo `archive` 和 `search` 图标作为编辑性装饰；图标源码附带官方来源和许可注释，不通过 CDN 加载。导航、提交、筛选、展开、重置等操作控件继续统一使用 Lucide，避免装饰图标承担交互语义。
+首页和日报卡片展示 rank、来源、作者、日期、原文链接、中文 summary、四类标签、推荐理由以及相关性/综合得分；analysis basis 和 degraded 状态保留在详情页及关于页，不占用摘要卡片。首页的论文与技术博客分区在宽屏仍按纵向单列排列，每张卡片改为左右两栏：标题、taxonomy 和三行元数据在左侧，摘要、推荐理由与操作入口在右侧；“中文总结”和“推荐理由”使用相同的标题样式并各自独占一行，正文另起一行。窄屏恢复为同一卡片内的单列阅读顺序。日报归档复用默认卡片布局，不跟随首页启用宽屏内部分栏。卡片使用 8px 圆角与 24px 内边距，taxonomy 胶囊紧接标题，并分别使用蓝、绿、琥珀、紫色区分目标、场景、任务和方法；胶囊之后以三行元数据展示来源、作者和评分。过长作者单行省略并以 tooltip 提供完整名单。评分行内使用两个紧凑 SVG 环形仪表显示相关性与综合得分，并以可点击问号图标链接到关于页的评分计算说明。顶栏使用静态 SVG 品牌标识和 `@lucide/astro` 图标，移动端保留图标、tooltip 与 `aria-label`；GitHub 入口使用官方 Primer Octicons 品牌标记并链接到项目仓库。页面标题可使用本地保存的 Koboyo `archive` 和 `search` 图标作为编辑性装饰；图标源码附带官方来源和许可注释，不通过 CDN 加载。导航、提交、筛选、展开、重置等操作控件继续统一使用 Lucide，避免装饰图标承担交互语义。
 
 `/archive/` 按日报日期分组并以轻量时间轨呈现，每天内部明确区分论文和博客；分区标题已经提供内容类型和数量，卡片因此直接从标题开始，不重复显示类型标记或发布日期行。页面常显一个紧凑的本地搜索框，对标题、中文摘要、kind、日报日期、发布日期以及 taxonomy 的 ID、中英文名称做 NFKC 归一化、英文大小写不敏感的多关键词 AND 匹配，并使用约 150ms 防抖即时更新；它不加载 Pagefind，也不新增 URL 查询契约。kind、年份和四类 taxonomy 筛选放入默认折叠的原生 `<details>`，显示已选条件数量和重置入口；关键词与高级筛选之间为 AND，taxonomy 组内多选为 OR、组间为 AND。筛选后为空的论文/博客分区与日期组必须隐藏，并保留结果计数和明确空状态；归档不使用 `/?date=...` 伪路由。
 
-详情页采用 68--72ch 单列阅读流，展示顺序统一为标题、taxonomy 胶囊、内容信息和中文摘要；移动端严格按该顺序堆叠，宽屏则把内容信息放入右侧窄栏，同时保持正文摘要紧接标题区之后。结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客 excerpt 使用保留已有换行的原生可展开阅读块，在达到配置字符上限时明确显示截断状态并提供原文链接；站点不伪造已经丢失的原始段落。
+详情页采用 68--72ch 单列阅读流，展示顺序统一为标题、taxonomy 胶囊、内容信息和带“中文总结”标题的中文摘要；移动端严格按该顺序堆叠，宽屏则把内容信息放入右侧窄栏，同时保持正文摘要紧接标题区之后。结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客详情页不渲染 Feed excerpt；短 excerpt 仅作为 Stage 1 和 deep-read 之间的临时降级输入。
 
 `/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、入选阈值和 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式；页面明确声明精确权重以当次运行配置为准。来源 URL、检索 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
 
@@ -695,7 +697,7 @@ storage:
 
 博客详情页展示：
 
-- 原始标题、Feed excerpt 和中文一句话结论
+- 原始标题和带“中文总结”标题的中文一句话结论
 - System Context、Architecture / Implementation 与关键技术方案
 - Production Constraints、Engineering Trade-offs、线上结果和可复用经验
 - 局限性、适用边界和对四类业务场景的启示
@@ -719,6 +721,7 @@ storage:
 - 每个详情页把 canonical item 的分类 ID 写入 Pagefind filter attribute；显示名称只来自 taxonomy，不在页面脚本中维护第二份映射
 - 同一筛选组内的多选采用 OR，不同筛选组之间采用 AND
 - Pagefind 加载后先读取实际 filter counts，零结果配置项保留但置灰，当前条件下的可用数量随搜索结果更新；纯筛选使用 `null` query，结果数以过滤后 `results.length` 为准
+- Pagefind 只索引详情页实际渲染的公开内容；博客短 excerpt 不进入 canonical item、详情页正文或搜索索引。搜索 API 返回对象中的 `excerpt` 是 Pagefind 生成的结果片段，与博客源字段无关
 - 默认按相关性返回结果；时间筛选只限制结果集合，不复制一套归档查询逻辑
 
 初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。搜索框始终可见；移动端压缩页头、标题与结果卡间距，全部筛选放入默认关闭的原生 disclosure，summary 显示筛选图标和已选数量，taxonomy 项仅显示中文短名但通过 tooltip 与 `aria-label` 保留中英文全名。桌面断点继续使用约 18rem 的常显筛选侧栏。用户首次聚焦搜索框或操作筛选项时，才从 `import.meta.env.BASE_URL` 下动态加载 `pagefind/pagefind.js`，并同时设置 base URL 与 base path；这些交互只预加载 runtime 和 filter counts，不自动提交查询。关键词搜索必须通过带图标的提交按钮或 Enter 执行，首次提交后的筛选变化重新执行最近一次已提交的关键词；输入本身不触发搜索。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载，界面明确展示 loading、empty 和 error 状态。
@@ -910,7 +913,7 @@ Python 单元与集成测试覆盖：
 - `arXiv PDF → MinerU full.md → Abstract fallback` 与博客 `Feed full content → article HTML → excerpt` 降级链，并验证论文路径不调用 arXiv HTML、PyMuPDF 或 VLM
 - Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；空 excerpt 博客仍生成摘要，纯英文 `summary_zh` 不得通过模型响应或降级 artifact 进入发布；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 16
 - Top 16 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 8 篇、深读 Schema、正文依据和图谱节点裁剪
-- 完整 pending data tree、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
+- 完整 pending data tree、博客 canonical item 不含 excerpt、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
 - PDF、MinerU ZIP/Markdown、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
 - manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
 - Docker tmpfs 只挂载父目录时能成功生成最终子目录，已存在的空/非空输出子目录都拒绝覆盖
@@ -927,7 +930,7 @@ Python 单元与集成测试覆盖：
 
 ## 15. 安全、合规和可观测性
 
-- 只保存公开元数据、摘要、短 excerpt 和 LLM 结构化深度解读，不镜像或嵌入受版权保护的全文
+- canonical data 只保存公开元数据、摘要和 LLM 结构化深度解读，不保存博客 excerpt，也不镜像或嵌入受版权保护的全文；有界短 excerpt 只存在于保留 1 天的 Stage 1 artifact
 - 只对初排 Top 16 论文临时访问公开 arXiv PDF 并调用 MinerU；博客优先使用 Feed 全文，必要时访问公开文章 HTML
 - 论文和博客只访问配置中已批准的公开来源，不绕过登录、付费墙或反自动化限制；首版不实现 robots 抓取与解析子系统，来源条款变化时由维护者停用对应来源
 - RSS、PDF 和 HTML 一律视为不可信输入；只允许公开 `https`/`http` URL，每次重定向后重新解析并拒绝 loopback、私网和 link-local 地址
@@ -956,7 +959,7 @@ Python 单元与集成测试覆盖：
 10. 本地测试和构建完全通过 Docker 完成，pipeline 与 site 使用两个独立镜像并通过 publish bundle 交接
 11. GitHub Actions 的数据 job 使用 `pipeline/Dockerfile`、网站 job 使用 `site/Dockerfile`，并对 API 限流、429 和失败重试有测试覆盖
 12. GitHub Pages 部署不依赖任何常驻服务器
-13. canonical item 按类型和年月分文件保存，日报只引用 item ID，构建产物和原始响应不进入 Git
+13. canonical item 按类型和年月分文件保存，博客 item 不含 excerpt，日报只引用 item ID，构建产物和原始响应不进入 Git
 14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、rank-integrate 和 build-deploy 四个逻辑阶段，共五个物理 job；job timeout 分别为 120、300、120 和 60 分钟，单 job 不超过 5 小时，理论墙钟上限约 10 小时
 15. 每次运行从论文和博客元数据初排结果中各取最多 16 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 16 篇时处理全部候选
 16. Top 16 论文在全文 runner 中按 `arXiv PDF → MinerU full.md` 完成正文读取；PDF/MinerU 任一步失败时使用 excerpt 或 title 并标记 `abstract_fallback`，paper runner 不调用 arXiv HTML、PyMuPDF、关键页检测或 VLM
@@ -985,8 +988,9 @@ Python 单元与集成测试覆盖：
    失败时只能使用当前词表生成规则标签并标记 degraded；没有可展示摘要或完整标签
    的条目不得进入最终日报。
 2. `deep-read --kind blog` 在独立 runner 中按来源缓存成功的 Feed 抓取；失败不作为
-   永久耗尽条件，后续候选仍可重新抓取。Feed 全文只在进程内使用，随后按既有
-   HTML/excerpt 降级链处理并清理临时内容。
+   永久耗尽条件，后续候选仍可重新抓取。Feed 全文只在进程内使用；Stage 1 artifact
+   只携带配置上限内的短 excerpt，随后按既有 HTML/excerpt 降级链处理。`rank-integrate`
+   必须在生成 canonical blog item 时剥离 excerpt，Pages 与 Pagefind 不得发布该字段。
 3. `rank-integrate` 必须基于只读仓库 data 生成完整 pending tree，且用稳定去重
    合并 previous/current `recommended_item_ids`。该列表只来自有效 state 和实际 digest 中的推荐
    item ID，不从 canonical items 全量反推。正式 state 仍只在 Pages 部署成功后提升。

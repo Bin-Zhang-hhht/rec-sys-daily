@@ -456,7 +456,22 @@ def test_integrate_rejects_historical_digest_with_missing_item_transactionally(t
     assert not (tmp_path / "bundle").exists()
 
 
-def test_integrate_enforces_configured_blog_excerpt_limit(tmp_path: Path) -> None:
+def test_integrate_strips_stage_one_blog_excerpt_from_canonical_item(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    stage_path = stages.stage1 / "blogs.jsonl"
+    values = [json.loads(line) for line in stage_path.read_text(encoding="utf-8").splitlines()]
+    next(item for item in values if item["id"] == "blog-0")["excerpt"] = "Transient feed excerpt"
+    stage_path.write_text("\n".join(json.dumps(item) for item in values) + "\n", encoding="utf-8")
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG)
+
+    canonical = json.loads(
+        (bundle.path / "pending-data/items/blogs/2026/08/blog-0.json").read_text(encoding="utf-8")
+    )
+    assert "excerpt" not in canonical
+
+
+def test_integrate_enforces_configured_stage_one_blog_excerpt_limit(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
     stage_path = stages.stage1 / "blogs.jsonl"
     values = [json.loads(line) for line in stage_path.read_text(encoding="utf-8").splitlines()]
@@ -468,6 +483,23 @@ def test_integrate_enforces_configured_blog_excerpt_limit(tmp_path: Path) -> Non
 
     with pytest.raises(ValueError, match="max_blog_excerpt_chars"):
         integrate(stages, tmp_path / "bundle", config)
+
+
+def test_integrate_rejects_historical_canonical_blog_excerpt(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    stages = fixture_stages(run_root)
+    historical = tmp_path / "data/items/blogs/2025/01/historical-blog.json"
+    historical.parent.mkdir(parents=True)
+    value = _blog("historical-blog", 0.5)
+    value["published_at"] = "2025-01-02T00:00:00Z"
+    value["excerpt"] = "Legacy canonical excerpt"
+    historical.write_text(json.dumps(value), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="historical canonical"):
+        integrate(stages, tmp_path / "bundle", CONFIG, repository_data=tmp_path / "data")
+
+    assert not (tmp_path / "bundle").exists()
 
 
 def test_integrate_rejects_unsupported_repository_data_transactionally(tmp_path: Path) -> None:

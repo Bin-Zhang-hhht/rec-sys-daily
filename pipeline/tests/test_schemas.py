@@ -79,6 +79,13 @@ def test_legacy_visual_fields_are_rejected(field: str) -> None:
         PaperItem.model_validate(data, context={"taxonomy": _taxonomy()})
 
 
+def test_blog_item_rejects_excerpt() -> None:
+    data = _item("blog")
+    data["excerpt"] = "Feed excerpt"
+    with pytest.raises(ValidationError, match="excerpt"):
+        BlogItem.model_validate(data, context={"taxonomy": _taxonomy()})
+
+
 def test_deep_reading_response_schemas_are_strict_and_evidence_bearing() -> None:
     paper = paper_reading_json_schema()
     blog = blog_reading_json_schema()
