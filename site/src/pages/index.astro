@@ -1,10 +1,10 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ItemCard from "../components/ItemCard.astro";
-import { loadBundle } from "../lib/data";
+import { loadBundle, resolveDigestEntries } from "../lib/data";
 const data = loadBundle();
-const paperItems = data.latestDigest.papers.map(entry => data.byId.get(entry.item_id)).filter(Boolean);
-const blogItems = data.latestDigest.blogs.map(entry => data.byId.get(entry.item_id)).filter(Boolean);
+const paperItems = resolveDigestEntries(data.latestDigest.papers, data.byId);
+const blogItems = resolveDigestEntries(data.latestDigest.blogs, data.byId);
 ---
 <BaseLayout title="RecSys Daily · 每日推荐系统研究">
   <section class="border-b border-slate-200 pb-7">
@@ -13,7 +13,7 @@ const blogItems = data.latestDigest.blogs.map(entry => data.byId.get(entry.item_
     <p class="mt-3 max-w-3xl text-slate-600">论文与工程实践的结构化中文摘要，保留原始 English titles、algorithms、datasets 和 metrics。</p>
   </section>
   <div class="mt-8 grid gap-8 lg:grid-cols-2">
-    <section><h2 class="mb-4 text-xl font-semibold">论文 · {paperItems.length}</h2><div class="grid gap-4">{paperItems.map(item => <ItemCard item={item!} taxonomy={data.taxonomy} />)}</div></section>
-    <section><h2 class="mb-4 text-xl font-semibold">技术博客 · {blogItems.length}</h2><div class="grid gap-4">{blogItems.map(item => <ItemCard item={item!} taxonomy={data.taxonomy} />)}</div></section>
+    <section><h2 class="mb-4 text-xl font-semibold">论文 · {paperItems.length}</h2><div class="grid gap-4">{paperItems.map(({ item, entry }) => <ItemCard item={item} entry={entry} taxonomy={data.taxonomy} />)}</div></section>
+    <section><h2 class="mb-4 text-xl font-semibold">技术博客 · {blogItems.length}</h2><div class="grid gap-4">{blogItems.map(({ item, entry }) => <ItemCard item={item} entry={entry} taxonomy={data.taxonomy} />)}</div></section>
   </div>
 </BaseLayout>

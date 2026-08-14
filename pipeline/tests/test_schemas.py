@@ -33,7 +33,10 @@ def _item(kind: str = "paper") -> dict[str, object]:
     reading: dict[str, object] = {"analysis_basis": "mineru_full_text"}
     if kind == "blog":
         reading = {"analysis_basis": "article_html", "system_context_zh": "context"}
-    return {"kind": kind, "id": f"{kind}:example", "title": "Original Title", "summary_zh": "summary", "source": "arxiv", "url": "https://example.com", "published_at": "2026-08-09T00:00:00Z", "authors": ["Author"], "targets": ["content"], "scenarios": ["text_feed"], "tasks": ["ranking"], "methods": ["two_tower"], "deep_reading": reading}
+    item = {"kind": kind, "id": f"{kind}:example", "title": "Original Title", "summary_zh": "summary", "source": "arxiv", "url": "https://example.com", "published_at": "2026-08-09T00:00:00Z", "authors": ["Author"], "targets": ["content"], "scenarios": ["text_feed"], "tasks": ["ranking"], "methods": ["two_tower"], "deep_reading": reading}
+    if kind == "paper":
+        item.update({"abstract": "Original abstract", "arxiv_id": "2608.00001", "doi": None})
+    return item
 
 
 def test_content_item_uses_kind_discriminator() -> None:
@@ -180,6 +183,11 @@ def test_post_schema_quality_validation_rejects_empty_semantic_alternatives() ->
 
 def test_manifest_serialization_is_stage_minimal() -> None:
     assert set(Manifest(run_id="run", schema_version="1").model_dump()) == {"run_id", "schema_version"}
+
+
+def test_manifest_rejects_non_v1_schema_version() -> None:
+    with pytest.raises(ValidationError, match="schema_version"):
+        Manifest(run_id="run", schema_version="2")
 
 
 def test_generated_timestamps_are_utc() -> None:

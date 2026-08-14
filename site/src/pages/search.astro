@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { loadBundle } from "../lib/data";
+import { siteBase } from "../lib/paths";
 const { taxonomy, items } = loadBundle();
 const years = [...new Set(items.map(item => item.published_at.slice(0, 4)))].sort().reverse();
 ---
@@ -15,6 +16,6 @@ const years = [...new Set(items.map(item => item.published_at.slice(0, 4)))].sor
     </form>
     <section><div class="flex items-center justify-between border-b border-slate-200 pb-3"><p id="search-status" class="text-sm text-slate-500">聚焦搜索框或选择筛选项以加载搜索。</p><button id="search-more" type="button" class="hidden border border-slate-300 px-3 py-1.5 text-sm">加载更多</button></div><div id="search-results" class="mt-5 space-y-4" aria-live="polite"></div></section>
   </div>
-  <script type="application/json" id="search-taxonomy">{JSON.stringify(taxonomy)}</script>
+  <span id="search-config" class="hidden" data-site-base={siteBase}></span>
   <script src="../scripts/search.ts"></script>
 </BaseLayout>

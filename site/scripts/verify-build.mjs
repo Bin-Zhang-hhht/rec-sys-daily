@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const required = ["index.html", "search/index.html", "graph/index.html", "graph.json", "pagefind/pagefind.js"];
+const required = ["index.html", "archive/index.html", "search/index.html", "graph/index.html", "graph.json", "pagefind/pagefind.js"];
 
 function filesUnder(root) {
   if (!fs.existsSync(root)) return [];
@@ -36,7 +36,7 @@ function bytesUnder(root) {
 }
 
 function assertNoRawContent(root) {
-  const forbidden = /\.(pdf|html|txt)$/i;
+  const forbidden = /\.(pdf|html?|txt|md|zip)$/i;
   for (const file of filesUnder(root)) {
     if (forbidden.test(file)) throw new Error(`raw source content leaked into artifact: ${path.relative(root, file)}`);
   }
@@ -48,7 +48,7 @@ function assertGraphNavigation(graph) {
   const contentIds = new Set(contentNodes.map(node => node.data.id));
   for (const node of contentNodes) {
     const expected = node.data.type === "paper" ? "papers" : "articles";
-    if (typeof node.data.href !== "string" || !new RegExp(`^/${expected}/[A-Za-z0-9._~-]+/$`).test(node.data.href)) {
+    if (typeof node.data.href !== "string" || !new RegExp(`^/rec-sys-daily/${expected}/[A-Za-z0-9._~-]+/$`).test(node.data.href)) {
       throw new Error(`graph content node has invalid detail href: ${node.data.id ?? "<unknown>"}`);
     }
   }
@@ -73,9 +73,18 @@ export function verifyBuild({ dist, bundle }) {
   if (contentNodes > snapshot.graph_max_content_nodes) throw new Error("graph content node limit exceeded");
   const pagefindFiles = fs.readdirSync(path.join(dist, "pagefind"));
   if (!pagefindFiles.some(file => file.includes("filter"))) throw new Error("Pagefind filters missing");
+  const digestFiles = filesUnder(path.join(bundle, "pending-data", "digests")).filter(file => file.endsWith(".json"));
+  for (const file of digestFiles) {
+    const digest = JSON.parse(fs.readFileSync(file, "utf8"));
+    if (!fs.existsSync(path.join(dist, "archive", String(digest.date), "index.html"))) throw new Error(`missing archive date page: ${digest.date}`);
+  }
+  for (const file of filesUnder(dist).filter(file => file.endsWith(".html"))) {
+    const html = fs.readFileSync(file, "utf8");
+    if (/\b(?:href|src)=["']\/(?!rec-sys-daily\/)/.test(html)) throw new Error(`root-relative link escapes project base: ${path.relative(dist, file)}`);
+  }
   assertNoRawContent(path.join(bundle, "pending-data"));
   for (const file of filesUnder(dist)) {
-    if (/\.(pdf|txt)$/i.test(file)) throw new Error(`raw source content leaked into build output: ${path.relative(dist, file)}`);
+    if (/\.(pdf|txt|md|zip)$/i.test(file)) throw new Error(`raw source content leaked into build output: ${path.relative(dist, file)}`);
   }
 
   const distBytes = bytesUnder(dist);

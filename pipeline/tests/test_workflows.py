@@ -29,6 +29,11 @@ def test_daily_workflow_permissions_timeouts_and_needs() -> None:
     assert jobs["build_deploy"]["permissions"]["contents"] == "write"
     assert "pages" not in jobs["collect_filter"].get("permissions", {})
     assert "contents" not in jobs["collect_filter"]["permissions"] or jobs["collect_filter"]["permissions"]["contents"] == "read"
+    assert jobs["collect_filter"]["steps"][0]["run"] == 'test "$GITHUB_REF" = "refs/heads/master"'
+    deploy_steps = jobs["build_deploy"]["steps"]
+    deploy_index = next(index for index, step in enumerate(deploy_steps) if step.get("uses") == "actions/deploy-pages@v4")
+    promote_index = next(index for index, step in enumerate(deploy_steps) if step.get("name") == "Promote pending data after deployment")
+    assert deploy_index < promote_index
 
 
 def test_daily_workflow_has_single_schedule_and_artifact_boundaries() -> None:
@@ -45,6 +50,10 @@ def test_daily_workflow_has_single_schedule_and_artifact_boundaries() -> None:
     assert "-e MINERU_API_KEY" in text
     assert "DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}" in text
     assert "DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}" in text
+    assert "--output /workspace/publish-work/publish-bundle" in text
+    assert "rsync --archive --delete publish-bundle/pending-data/ data/" in text
+    assert "git push origin HEAD:master" in text
+    assert "SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}" in text
     assert "NVIDIA" not in text
 
 
@@ -58,6 +67,9 @@ def test_verify_workflow_is_fixture_only_and_builds_both_images() -> None:
     assert "test-fixtures" in text
     assert "pagefind/pagefind.js" in text
     assert "graph.json" in text
+    assert "test:build-contract" in text
+    assert "type=tmpfs,destination=/workspace/test-parent" in text
+    assert "SITE_ORIGIN: https://example.invalid" in text
     assert "scripts/**" not in text
     assert text.count("retention-days: 1") == 1
 
@@ -67,7 +79,7 @@ def test_verify_workflow_uses_runtime_scenarios() -> None:
     assert "COPY fixtures" not in dockerfile
     text = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
     assert "fixtures/**" not in text
-    assert "test-fixtures --case all --work /workspace/work/verify" in text
+    assert "test-fixtures --case all --work /workspace/work/verify/publish-bundle" in text
 
 
 def test_site_docker_context_excludes_host_dependencies_and_build_outputs() -> None:

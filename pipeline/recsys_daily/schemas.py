@@ -228,7 +228,6 @@ class ItemBase(ArtifactModel):
     methods: list[str]
     relevance_score: float = Field(default=0, ge=0, le=1)
     final_score: float = Field(default=0, ge=0, le=1)
-    content_fingerprint: str | None = None
     graph_relations: list[GraphRelation] = Field(default_factory=list)
     llm: LLMMetadata | None = None
 
@@ -249,6 +248,9 @@ class ItemBase(ArtifactModel):
 
 class PaperItem(ItemBase):
     kind: Literal["paper"]
+    abstract: str = Field(min_length=1)
+    arxiv_id: str = Field(min_length=1)
+    doi: str | None = None
     deep_reading: PaperReading
 
 
@@ -323,7 +325,7 @@ class SourceState(ArtifactModel):
 
 
 class State(ArtifactModel):
-    schema_version: str = "1"
+    schema_version: Literal["1"] = "1"
     last_success_at: UtcDatetime | None = None
     sources: dict[str, SourceState] = Field(default_factory=dict)
     recommended_item_ids: list[str] = Field(default_factory=list)
@@ -332,7 +334,7 @@ class State(ArtifactModel):
 
 class Manifest(ArtifactModel):
     run_id: str = Field(min_length=1)
-    schema_version: str = Field(min_length=1)
+    schema_version: Literal["1"]
     _created_at: datetime = PrivateAttr(default_factory=utc_now)
 
     @property

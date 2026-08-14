@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { sitePath } from "../lib/paths";
 const { title = "RecSys Daily" } = Astro.props;
 ---
 <!doctype html>
@@ -12,8 +13,8 @@ const { title = "RecSys Daily" } = Astro.props;
   <body>
     <header class="border-b border-slate-200 bg-white">
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 text-sm">
-        <a href="/" class="font-semibold text-slate-900">RecSys Daily</a>
-        <div class="flex gap-4"><a href="/archive/">归档</a><a href="/search/">搜索</a><a href="/graph/">图谱</a><a href="/about/">关于</a></div>
+        <a href={sitePath()} class="font-semibold text-slate-900">RecSys Daily</a>
+        <div class="flex gap-4"><a href={sitePath("archive/")}>归档</a><a href={sitePath("search/")}>搜索</a><a href={sitePath("graph/")}>图谱</a><a href={sitePath("about/")}>关于</a></div>
       </nav>
     </header>
     <main class="mx-auto max-w-6xl px-5 py-8"><slot /></main>

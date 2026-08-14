@@ -1,4 +1,5 @@
 import type { BuildConfigSnapshot, Item, Taxonomy } from "./data";
+import { itemPath } from "./paths";
 
 export type GraphNode = {
   data: {
@@ -9,6 +10,7 @@ export type GraphNode = {
     summary?: string;
     published_at?: string;
     tags?: string[];
+    search_terms?: string[];
   };
 };
 
@@ -55,8 +57,7 @@ export function buildGraph(items: Item[], taxonomy: Taxonomy, now: number, snaps
     const tags = groups.flatMap(group => item[group] ?? []);
     nodes.push({ data: {
       id: contentNodeId(item), label: item.title, type: item.kind === "paper" ? "paper" : "article",
-      href: item.kind === "paper" ? `/papers/${item.id}/` : `/articles/${item.id}/`, summary: item.summary_zh,
-      published_at: item.published_at, tags,
+      href: itemPath(item), summary: item.summary_zh, published_at: item.published_at, tags, search_terms: [item.title, ...tags],
     } });
   }
 
@@ -66,7 +67,7 @@ export function buildGraph(items: Item[], taxonomy: Taxonomy, now: number, snaps
     for (const entry of entries) {
       if (!used.has(entry.id)) continue;
       const nodeId = taxonomyNodeId(group, entry.id);
-      nodes.push({ data: { id: nodeId, label: `${entry.name_zh} / ${entry.name_en}`, type: group.slice(0, -1) as GraphNode["data"]["type"] } });
+      nodes.push({ data: { id: nodeId, label: `${entry.name_zh} / ${entry.name_en}`, type: group.slice(0, -1) as GraphNode["data"]["type"], search_terms: [entry.id, entry.name_zh, entry.name_en] } });
       for (const item of visible.filter(value => (value[group] ?? []).includes(entry.id))) {
         const key = `${item.id}|${nodeId}`;
         if (edgeKeys.has(key)) continue;

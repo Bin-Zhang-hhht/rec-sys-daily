@@ -63,8 +63,9 @@
 
 ```powershell
 docker compose build pipeline site
-docker compose run --rm pipeline test-fixtures --case all --work /workspace/publish-bundle
-docker compose run --rm pipeline run --output /workspace/publish-bundle
+docker compose run --rm pipeline test-fixtures --case all --work /workspace/work/fixture-bundle
+docker compose run --rm -e PUBLISH_BUNDLE_DIR=/workspace/work/fixture-bundle site build
+docker compose run --rm pipeline run --output /workspace/work/publish-bundle
 docker compose run --rm site build
 ```
 

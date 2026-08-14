@@ -2,9 +2,9 @@
 
 日期：2026-08-09
 
-状态：已批准并实现
+状态：已批准，首发实施中
 
-部署目标：GitHub Pages
+部署目标：GitHub Project Pages（`/rec-sys-daily/`）
 
 运行环境：GitHub Actions + Docker
 
@@ -64,16 +64,18 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 ## 4. 统一工作流与时间窗口
 
-### 4.1 单工作流判定
+### 4.1 单工作流与时间窗口分支
 
-冷启动和日常更新由同一个 `daily.yml`、同一个 Python CLI 包和同一套四阶段处理逻辑完成。前三个数据处理阶段由 Python 命令完成，最后一个网站构建与部署阶段由 Node/Astro 完成；冷启动和日更不接受独立模式参数，只根据 `data/state.json` 计算查询起始时间：
+首次运行不是独立的“冷启动模式”，只是同一管道在不存在有效 `data/state.json` 时选用较长查询窗口的一个分支。`daily.yml`、Python CLI、四阶段处理逻辑和候选上限均不变，不提供独立模式参数、专用 workflow 或额外数据模型。前三个数据阶段由 Python 完成，网站构建与部署由 Node/Astro 完成。
+
+`query_window()` 严格读取状态并按下表选择时间窗口；状态文件不存在时走首次运行分支，状态文件存在但无法通过 Schema 或时间字段校验时必须明确失败，不得静默当作首次运行：
 
 | 状态 | 论文起始时间 | 博客起始时间 |
 | --- | --- | --- |
-| 不存在有效状态 | 当前时间减 5 年 | 当前时间减 3 年 |
+| `state.json` 不存在 | 当前时间减 5 年 | 当前时间减 3 年 |
 | 存在有效状态 | `last_success_at - 48 小时` | `last_success_at - 7 天` |
 
-每次运行统一使用论文最多 100 篇、博客最多 50 篇，并从元数据初排结果中各取最多 16 篇进行临时全文解读，再分别重排出目标 8 篇。冷启动和日更使用完全相同的候选数、深读数和筛选代码，两种运行的唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
+每次运行统一使用论文最多 100 篇、博客最多 50 篇，完成元数据分析后各取最多 16 篇进行临时全文解读，再分别重排出目标 8 篇。无有效状态与有效状态分支使用完全相同的候选数、深读数和筛选代码，唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
 
 ### 4.2 成功条件
 
@@ -87,7 +89,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 6. 静态站点构建通过
 7. GitHub Pages 部署成功
 
-如果任一关键步骤失败，不提交新的 `state.json`。首次运行失败后，下次定时运行仍使用 5 年/3 年时间范围；日更失败后，下次运行仍从上一次成功时间回溯，不会跳过失败期间的内容。
+如果任一关键步骤失败，不提交新的 `state.json`。无有效状态的首次运行失败后，下次定时运行仍使用 5 年/3 年时间范围；已有有效状态的运行失败后，下次运行仍从上一次成功时间回溯，不会跳过失败期间的内容。
 
 博客 RSS 属于可选来源，单个 Feed 暂时失败只记录警告，避免某个公司博客故障导致整个工作流永远无法完成。来源配置仍支持将特定 Feed 标为 `required: true`。RSS 通常只返回近期条目，因此首次运行的“近 3 年、最多 50 篇”是接受范围和安全上限，不保证每个 Feed 都能回溯到 3 年前。
 
@@ -113,7 +115,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 ### 5.2 高质量 RSS/Atom 来源
 
-以下地址已通过站点链接或 Feed 内容类型进行核验。核心来源和次级来源默认启用；次级来源使用更严格的关键词和 LLM 相关性阈值。
+以下地址已通过站点链接或 Feed 内容类型进行核验。“核心/次级”只是文档中对来源适用性的分组；首版配置仍只使用既有 `weight`，不增加 tier 字段或分组专属阈值。
 
 #### 核心来源
 
@@ -390,9 +392,11 @@ flowchart LR
 - arXiv category
 - 来源质量权重
 - 发布时间和新颖度
-- 与历史推荐的重复惩罚
+- 与历史已推荐内容的重复判定
 
-每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析。初排后，论文和博客各取 Top 16 进入全文深读；若不足 16 篇则全部进入。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
+每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 16 进入全文深读；若不足 16 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 16 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
+
+历史防重的唯一事实来源是有效 `state.json` 和历史 digest 中真正发布过的 item ID。仅因某条内容已有 canonical item 或曾进入 Top 16 而未被推荐，不得把它记为已推荐；这类条目仍可在后续时间窗口中参与竞争。
 
 元数据初排分数示意：
 
@@ -410,11 +414,11 @@ final_score = 0.55 * metadata_score
             + 0.10 * technical_depth
 ```
 
-权重由 `config/settings.yaml` 调整。相同分数使用发布日期、source ID 和 stable ID 做确定性 tie-break，保证运行时生成的测试场景与重复运行结果稳定。
+权重由 `config/settings.yaml` 调整。Top 16 相同相关性分数使用发布日期、source ID 和 stable ID 做上述确定性 tie-break，保证运行时生成的测试场景与重复运行结果稳定。
 
 ### 7.3 论文与博客全文深度解读
 
-全文处理发生在元数据初排之后、最终推荐之前。每次最多处理 Top 16 论文和 Top 16 博客，深读结果参与最终重排，而不是只给已入选内容补充详情。该阶段是统一管道的固定部分，不为冷启动建立另一套流程。
+全文处理发生在元数据初排之后、最终推荐之前。每次最多处理 Top 16 论文和 Top 16 博客，深读结果参与最终重排，而不是只给已入选内容补充详情。该阶段是统一管道的固定部分，不因是否存在有效 state 而改变。
 
 论文处理规则：
 
@@ -429,7 +433,7 @@ final_score = 0.55 * metadata_score
 博客处理规则：
 
 1. 优先使用 RSS/Atom 中的 `content:encoded` 或 Atom `content`；若 Feed 只有 excerpt，再访问 canonical URL 的公开文章 HTML
-2. 不绕过登录、付费墙、robots 或其他访问控制；被限制、拒绝或条款不允许自动抓取时直接降级
+2. 只访问配置中已批准来源的公开 URL，不绕过登录、付费墙或其他访问控制；401/403、受限页面或条款不允许自动抓取时直接降级。首版不新增 robots 抓取与解析子系统，来源条款变化时由维护者停用对应来源
 3. HTML 单篇最大 5 MB，使用 `trafilatura` 提取正文、标题和 heading，忽略脚本、样式、图片及导航区域
 4. 同一域名并发为 1，带可识别 User-Agent，并使用请求间隔、`Retry-After` 和有限退避重试
 5. 每篇博客单独调用一次 LLM，生成中文结构化解读
@@ -445,8 +449,10 @@ canonical item 或 Pages artifact。
 
 - 单次 LLM 输入使用 token-aware budgeting：1M context 中预留 output 与 prompt/schema 空间，其余预算用于全文；超长内容优先保留摘要、架构、方法、实验/结果、限制和结论等高价值段落
 - 无论成功、降级或异常中断，都在 `finally` 阶段删除临时 PDF、MinerU ZIP、MinerU Markdown、原始 HTML 和提取文本；它们不得进入 cache、日志、artifact 或 Git
-- Top 16 候选的结构化深度解读与全文指纹写入 canonical item；遇到相同来源修订和指纹时直接复用解读，无需再次抓取全文
+- 成功产生的 Top 16 结构化深度解读写入 canonical item；首版不实现全文指纹、解读缓存或自动复用协议
 - 只保存转述后的结构化分析和短证据定位，不保存长段原文
+
+`deep-read --kind paper|blog` 对每个 shortlist 条目独立处理。深读 artifact 固定包含成功的 `items` 和失败的 `failures: [{"id": "...", "code": "..."}]`；每个输入 ID 必须恰好出现一次。`code` 只能是管道定义的简短错误码，不记录异常链、URL、请求头或源内容。`rank-integrate` 分别按 `len(items) / (len(items) + len(failures))` 校验论文和博客深读成功率；无候选时记为成功，否则必须达到 `structured_analysis_min_success_rate: 0.80` 才能整合。低于门槛时不生成 publish bundle，也不推进正式 state。首版不设持久化重试队列；失败条目只可依靠既有重叠时间窗口再次出现。
 
 共同解读字段包括：
 
@@ -459,7 +465,7 @@ canonical item 或 Pages artifact。
 
 论文正文依据只允许 `analysis_basis: mineru_full_text` 或 `abstract_fallback`，不包含视觉分析字段。博客使用 Feed 全文时写入 `rss_full_content`，成功提取公开网页正文时写入 `article_html`，失败时使用 excerpt 生成较短解读并写入 `excerpt_fallback`。详情页必须明确显示正文分析依据，不能把降级结果冒充全文深读。
 
-所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此论文 runner 内只串行处理初排 Top 16 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；具体许可信息随 item 保存，并始终链接到原站。
+所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此论文 runner 内只串行处理初排 Top 16 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；每个页面始终链接到原站。
 
 ## 8. LLM 与 API 限制
 
@@ -501,6 +507,8 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 
 MinerU 使用独立 REST 客户端和 `MINERU_API_KEY`。客户端先校验 PDF byte/page 上限，再申请 presigned upload URL、上传 PDF、按 batch ID 和 data ID 轮询，并从终态结果 URL 下载 ZIP。presigned URL、每次 GET 重定向和结果 URL 都必须重新验证为公开地址；对 `429/5xx` 尊重 `Retry-After` 并有限重试；轮询必须受 deadline 约束；ZIP 必须包含唯一、大小合规的 `full.md`。结果下载不得向第三方 URL 携带 MinerU Bearer header。所有临时文件和目录在 `finally` 中清理。
 
+MinerU 申请上传地址的响应必须恰好包含一个 upload URL，且响应中的 data ID 必须与当前请求目标一致；否则直接失败，不猜测或选择列表中的某个地址。
+
 ### 8.2 限流和恢复
 
 文本 wrapper 和视觉 requests 调用共用同一组请求策略：
@@ -531,12 +539,15 @@ limits:
   pdf_download_concurrency: 1
   blog_download_concurrency_per_domain: 1
   blog_min_interval_seconds_per_domain: 2
+  max_feed_bytes: 5242880
   max_blog_html_bytes: 5242880
 ```
 
+Feed、HTML 和 PDF 响应都使用流式 N+1 上限读取：先拒绝明确超限的 `Content-Length`，否则按块读取，一旦读到限额之后的第一个 byte 就停止并失败。Feed 和 HTML 的默认上限均为 5 MiB，PDF 使用 `models.mineru.max_pdf_bytes`。超限响应不写入完整内存缓冲或 artifact。
+
 文本 endpoint 不配置 NIM 遗留的客户端 RPM 上限或固定请求间隔。每个 runner 使用同步客户端，进程内始终只有 1 个在途模型请求；论文和博客 runner 可以由工作流并行。`429/5xx`、连接异常和无效结构化输出使用同一有限重试路径，`429` 尊重 `Retry-After`，不建设跨 job 限流协调服务。
 
-每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用文本 LLM；Top 16 论文在 MinerU 解析或摘要降级后各使用 1 次文本深读，Top 16 博客各使用 1 次文本深读。日更因候选较少且可复用未变更的既有深读结果，通常调用更少。系统不设置模型或内容抓取的每次运行调用次数上限；候选数量、同步单请求、有限重试、MinerU deadline 和各 job timeout 是实际边界。
+每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用文本 LLM；Top 16 论文在 MinerU 解析或摘要降级后各使用 1 次文本深读，Top 16 博客各使用 1 次文本深读。日更因候选较少，通常调用更少。系统不设置模型或内容抓取的每次运行调用次数上限；候选数量、同步单请求、有限重试、MinerU deadline 和各 job timeout 是实际边界。首版不实现指纹缓存或跨运行深读复用。
 
 文本模型按 `models.text` 中的 1M context 配置。发送请求前必须读取配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。`reserved_output_tokens` 同时作为 Responses API 的 `max_output_tokens`，避免结构化 JSON 被服务端默认输出上限截断。首版不从 endpoint 自动发现 context；配置维护者必须使用服务端真实值，服务端拒绝超限请求时必须显式失败或降级，不能静默截断。MinerU 输入限制只从 `models.mineru` 读取，超过 PDF byte/page 上限时显式进入摘要降级。
 
@@ -575,7 +586,7 @@ limits:
 └── compose.yaml
 ```
 
-`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 16 论文和 Top 16 博客保存或更新结构化深读记录，单月通常不超过约 1,000 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 8 篇推荐的深读候选也保留结构化结果，以供后续重排复用。
+`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 16 论文和 Top 16 博客保存或更新结构化深读记录，单月通常不超过约 1,000 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 8 篇推荐的成功深读候选也可保留结构化结果，但不因此记为已推荐。首版不根据这些 canonical item 建立指纹缓存协议。
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
@@ -593,7 +604,7 @@ storage:
   fail_pages_artifact_mb: 900
 ```
 
-结构化深读以约 16 KB/条为目标；32 条/日的理论新增量约 187 MB/年，实际日更不足 32 条且已有指纹可复用时会更低。单条超过 32 KB 时先压缩冗余解释和非核心 excerpt，但不截断标题、作者、标识符、链接、结论和结构化标签。仓库数据达到 500 MB 时在运行报告中告警，提示用户降低深读候选数或迁移历史归档；Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
+结构化深读以约 16 KB/条为目标；32 条/日的理论新增量约 187 MB/年，实际日更通常不足 32 条。单条超过 32 KB 时先压缩冗余解释和非核心 excerpt，但不截断标题、作者、标识符、链接、结论和结构化标签。仓库数据达到 500 MB 时在运行报告中告警，提示用户降低深读候选数或迁移历史归档；Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
 
 [GitHub Repository limits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits) 当前建议单个目录不超过 3,000 个条目；[GitHub large-file guidance](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github) 建议仓库最好保持在 1 GB 以下。[GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) 要求发布站点不超过 1 GB。该结构以年月分片并排除生成物，目标是让正常运行多年后仍保持在建议范围内。
 
@@ -607,13 +618,15 @@ storage:
   "title": "Original English Title",
   "url": "https://...",
   "published_at": "2026-08-09T00:00:00Z",
+  "abstract": "Original arXiv abstract.",
+  "arxiv_id": "2608.01234",
+  "doi": null,
   "summary_zh": "一句中文总结，保留关键 English terms。",
   "targets": ["user"],
   "scenarios": ["friend_recommendation"],
   "tasks": ["link_prediction", "ranking"],
   "methods": ["graph_neural_network"],
   "relevance_score": 0.92,
-  "content_fingerprint": "sha256:...",
   "graph_relations": [],
   "deep_reading": {
     "analysis_basis": "mineru_full_text",
@@ -640,19 +653,24 @@ storage:
 }
 ```
 
-论文 `analysis_basis` 为 `mineru_full_text` 或 `abstract_fallback`。博客 item 使用相同公共字段，但 `analysis_basis` 为 `rss_full_content`、`article_html` 或 `excerpt_fallback`，深读分支保存 `system_context_zh`、`architecture_zh`、`implementation_zh`、`production_constraints_zh`、`tradeoffs_zh`、`results_zh` 和 `lessons_zh`。博客证据定位使用 heading/section，不使用 PDF page。JSON Schema 使用按 `kind` 区分的 `oneOf` 约束，避免把论文实验字段强加给博客。
+发布链路继续在 Manifest 中使用 `schema_version: "1"`，canonical item 也保持首版 v1 形状，不为上述增量字段创建新 schema 版本。Paper item 必须保存有界的原始 arXiv `abstract`、稳定 `arxiv_id` 和可空 `doi`；不增加 license、fingerprint 或 analysis revision 字段。论文 `analysis_basis` 为 `mineru_full_text` 或 `abstract_fallback`。博客 item 使用相同公共字段，但 `analysis_basis` 为 `rss_full_content`、`article_html` 或 `excerpt_fallback`，深读分支保存 `system_context_zh`、`architecture_zh`、`implementation_zh`、`production_constraints_zh`、`tradeoffs_zh`、`results_zh` 和 `lessons_zh`。博客证据定位使用 heading/section，不使用 PDF page。JSON Schema 使用按 `kind` 区分的 `oneOf` 约束，避免把论文实验字段强加给博客。
 
 ## 10. 静态站点
 
 前端使用 Astro + TypeScript + Tailwind CSS 4，输出纯静态文件。Tailwind 通过官方推荐的 Vite plugin 接入，不使用已废弃的 `@astrojs/tailwind`；首版不安装 React，搜索和图谱交互分别使用原生 TypeScript 驱动 Pagefind 与 Cytoscape.js。Astro 只为明确包含客户端脚本的页面输出 JavaScript，详情、归档和关于页面保持静态 HTML。
 
+站点固定作为 GitHub Project Pages 部署。`SITE_ORIGIN` 只保存 `https://<owner>.github.io` 这样的 origin，Astro 固定使用 `base: "/rec-sys-daily/"` 和 `trailingSlash: "always"`。所有导航、卡片、详情、归档、图谱、`graph.json`、Pagefind runtime 和搜索结果链接都通过同一 base-aware helper 生成，不硬编码根路径。
+
 - `/`：当天简报，论文和博客各目标 8 篇
 - `/papers/<id>/`：论文详情页
 - `/articles/<id>/`：博客详情页
 - `/archive/`：按日期和标签浏览历史日报
+- `/archive/YYYY-MM-DD/`：指定日报的静态路由
 - `/search/`：站内内容搜索和配置驱动筛选
 - `/graph/`：轻量交互知识图谱
 - `/about/`：配置范围、来源和免责声明
+
+首页和日报卡片展示 rank、来源、作者、日期、原文链接、中文 summary、四类标签、推荐理由、相关性/最终分数以及 degraded 和 analysis basis。`/archive/` 按日期列出全部日报，并使用小型原生客户端脚本按 kind、年份和四类 taxonomy 筛选，组内多选为 OR、组间为 AND；它不借用 Pagefind，也不使用 `/?date=...` 伪路由。
 
 论文详情页展示：
 
@@ -681,6 +699,8 @@ storage:
 
 详情页只展示结构化转述，不复制、镜像或缓存博客全文。
 
+每个详情页最多展示 4 条相关论文/博客：先按共享 taxonomy ID 数量降序，再按 `final_score` 降序、`published_at` 降序和 item ID 升序；排除自身并去重。详情页同时提供指向 `graph/?center=<id>` 的 base-aware 链接。
+
 ### 10.1 搜索页
 
 搜索使用 Pagefind Extended 在 `astro build` 完成后对静态 HTML 建立索引。`<html lang="zh-CN">` 用于启用中文界面和中文分词；npm 提供的 extended binary 同时支持中文分词与页面中的英文术语。只把论文和博客详情页的主内容标记为 `data-pagefind-body`，首页、日报、归档、图谱和导航不进入索引，避免同一条内容出现多个重复结果。
@@ -688,13 +708,13 @@ storage:
 搜索页面的职责边界如下：
 
 - `taxonomy.json` 生成 `targets`、`scenarios`、`tasks` 和 `methods` 四组筛选项，按 YAML 顺序显示 `name_zh name_en`
-- 内容类型 `kind: paper | blog`、发布年份 `published_year` 和构建时计算的 `age: 7d | 30d | 365d` 属于系统字段，不写入 `topics.yaml`；年份用于历史定位，age bucket 用于最近一周、一月和一年筛选
+- 内容类型 `kind: paper | blog`、发布年份 `published_year` 和构建时计算的 `age: 7d | 30d | 365d` 属于系统字段，不写入 `topics.yaml`；age bucket 累计写入，7 天内内容同时属于 7d/30d/365d，30 天内同时属于 30d/365d
 - 每个详情页把 canonical item 的分类 ID 写入 Pagefind filter attribute；显示名称只来自 taxonomy，不在页面脚本中维护第二份映射
 - 同一筛选组内的多选采用 OR，不同筛选组之间采用 AND
-- Pagefind 加载后读取实际 filter counts，零结果配置项保留但置灰，当前条件下的可用数量随搜索结果更新
+- Pagefind 加载后先读取实际 filter counts，零结果配置项保留但置灰，当前条件下的可用数量随搜索结果更新；纯筛选使用 `null` query，结果数以过滤后 `results.length` 为准
 - 默认按相关性返回结果；时间筛选只限制结果集合，不复制一套归档查询逻辑
 
-初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。用户首次聚焦搜索框或操作筛选项时才动态 `import("/pagefind/pagefind.js")` 并初始化；输入使用 Pagefind 的约 300 ms debounced search。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载。
+初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。用户首次聚焦搜索框或操作筛选项时，才从 `import.meta.env.BASE_URL` 下动态加载 `pagefind/pagefind.js`，并同时设置 base URL 与 base path。输入使用约 300 ms debounce，每次搜索用递增请求序号防止旧响应覆盖新结果。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载，界面明确展示 loading、empty 和 error 状态。
 
 [Astro Tailwind 文档](https://docs.astro.build/en/guides/styling/#tailwind)规定 Astro 5.2+ 使用 Tailwind 4 Vite plugin；[Astro framework components](https://docs.astro.build/en/guides/framework-components/)说明未使用 `client:*` 的框架组件不会下发客户端 runtime，但本项目当前交互规模不需要 React island。[Pagefind Search API](https://pagefind.app/docs/api/)支持聚焦时初始化、debounced search 和逐条加载结果数据，[Pagefind filtering API](https://pagefind.app/docs/js-api-filtering/)提供筛选及动态数量，[Pagefind multilingual search](https://pagefind.app/docs/multilingual/)说明 extended release 的中文分词能力。
 
@@ -721,11 +741,11 @@ storage:
 交互功能：
 
 - 平移、缩放和拖动
-- 在当前已加载图谱节点中按标题或标签快速定位；站内全局内容检索统一跳转 `/search/`，图谱页不重复加载 Pagefind
-- 按时间、场景、目标、任务和方法筛选
-- 点击节点高亮一跳邻居
-- 侧边栏展示摘要和详情页链接
-- 从日报或详情页打开以该内容为中心的局部子图
+- 在当前已加载图谱节点中，按内容标题以及 taxonomy 的 ID、中文名和英文名快速定位；站内全局内容检索统一跳转 base-aware `/search/`，图谱页不重复加载 Pagefind
+- 按时间、场景、目标、任务和方法筛选，同组 OR、组间 AND；筛选后隐藏不匹配内容、关联边和孤立 taxonomy 节点
+- 单击或按 Enter 只选中节点、高亮一跳邻居并打开侧边栏，不自动导航
+- 侧边栏展示摘要和唯一的详情页导航链接
+- 从日报或详情页以 `?center=<item-id>` 打开中心节点与一跳邻域；无效 ID 回退到全图并显示状态提示，用户首次手动筛选后退出 center 模式
 
 ### 11.1 防止图谱臃肿
 
@@ -748,18 +768,19 @@ PowerShell 本地命令：
 
 ```powershell
 docker compose build pipeline site
-docker compose run --rm pipeline test-fixtures --case all --work /workspace/publish-bundle
-docker compose run --rm pipeline run --output /workspace/publish-bundle
+docker compose run --rm pipeline test-fixtures --case all --work /workspace/work/fixture-bundle
+docker compose run --rm -e PUBLISH_BUNDLE_DIR=/workspace/work/fixture-bundle site build
+docker compose run --rm pipeline run --output /workspace/work/publish-bundle
 docker compose run --rm site build
 ```
 
-`compose.yaml` 使用临时或 bind-mounted `work/publish-bundle` 作为两个容器的唯一交接目录。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
+`compose.yaml` 挂载父目录 `./work:/workspace/work`，pipeline 把最终 publish bundle 写入尚不存在的 `/workspace/work/publish-bundle` 子目录，site 只读消费该子目录。`rank-integrate` 在最终目录的同一父目录内创建临时目录，完成后再替换为最终子目录；最终目录只要已存在就明确失败，不覆盖空挂载点或既有 bundle。测试 bundle 使用独立的 `fixture-bundle` 子目录，避免与真实运行输出冲突。测试默认不需要真实 API Key。真实 pipeline 命令显式读取 `.env` 或命令行环境变量；`.env` 和 `work/` 都被 `.gitignore` 排除。
 
 Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依赖、Docker 镜像或 GitHub Actions；项目构建和运行不依赖任何 MCP 服务。
 
 ## 13. GitHub Actions
 
-`daily.yml` 是唯一访问真实来源、调用 LLM、写入数据并部署 Pages 的运行工作流。`verify.yml` 只使用测试运行时生成的合成输入做代码验证，不承担冷启动或日更，因此不会复制生产管道逻辑。
+`daily.yml` 是唯一访问真实来源、调用 LLM、写入数据并部署 Pages 的运行工作流。`verify.yml` 只使用测试运行时生成的合成输入做代码验证，不承担首次或后续生产运行，因此不会复制生产管道逻辑。
 
 ### 13.1 verify.yml
 
@@ -777,7 +798,7 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 触发条件：
 
 - 每日定时运行，默认北京时间 08:23（UTC 00:23），避开整点高峰
-- `workflow_dispatch` 手动运行
+- `workflow_dispatch` 手动运行；生产运行只接受 `master`，其他 ref 在首个 job 明确失败
 
 生产 workflow 分为四个逻辑阶段和五个物理 job。前三个数据阶段的业务命令在 `pipeline/Dockerfile` 镜像内运行；最后的网站构建命令在 `site/Dockerfile` 镜像内运行。checkout、artifact 上传下载、Pages 部署和 Git 提交由 GitHub runner 上的官方 action 或宿主步骤负责，不要求业务镜像安装另一套技术栈。两个镜像分别使用 GitHub Actions layer cache，不把 Python/PDF 依赖带入前端镜像，也不把 Node/Astro 依赖带入数据镜像。
 
@@ -796,7 +817,7 @@ Artifact 只包含 `manifest.json`、`papers.jsonl`、`blogs.jsonl`、结构化�
 游标、`ETag`、`Last-Modified` 和最近成功时间；`stage-report.json` 只保存来源状态、
 告警、metadata LLM 调用次数、成功率和降级计数。两者都不包含原始 API/RSS 响应或
 全文。为减少协调代码，`manifest.json` 仍只保存 `run_id` 和 `schema_version`；不计算
-commit、state 或 config hash。
+commit、state 或 config hash。首版 `schema_version` 固定为 `"1"`。
 
 #### Job 2：deep-read
 
@@ -806,7 +827,7 @@ commit、state 或 config hash。
 - 固定 matrix 为 `kind: [paper, blog]`，`max-parallel: 2`，不再按候选或页数创建其他并行 job
 - 两个 runner 下载同一个 stage-1 artifact，并分别执行 `deep-read --kind paper` 与 `deep-read --kind blog`
 - 论文 runner 完成 Top 16 的 arXiv PDF 下载、MinerU 解析和文本深读，失败时基于摘要降级；博客 runner 完成 Top 16 全文阅读
-- 分别上传 `deep-reading-paper-<run-id>` 和 `deep-reading-blog-<run-id>` 结构化 artifact，`retention-days: 1`
+- 分别上传 `deep-reading-paper-<run-id>` 和 `deep-reading-blog-<run-id>` 结构化 artifact，`retention-days: 1`；每份都包含成功 `items` 与脱敏 `failures`
 
 两个全文 runner 各自使用同步单请求，不配置客户端 RPM 或最短请求间隔。论文和博客固定并行可以为两类内容分别获得最多 5 小时执行时间，同时不引入候选分片、动态 matrix 或其他复杂调度。
 
@@ -816,8 +837,8 @@ commit、state 或 config hash。
 - `timeout-minutes: 120`
 - 使用 `pipeline/Dockerfile`，保持仓库只读权限
 - 下载三个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致
-- 执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-bundle`
-- 基于论文和博客的结构化深读各精排目标 8 篇
+- 宿主创建并挂载父目录 `/workspace/publish-work`，不预创建最终子目录；执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-work/publish-bundle`
+- 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 8 篇
 - 生成待提交的 canonical items、日报、运行报告、图谱关系、pending `state.json` 和本次配置的 `taxonomy.json` 快照
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
 - 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 1`
@@ -845,7 +866,8 @@ Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`�
 - job 在该镜像内执行 `pnpm build`：先运行 Astro production build，从 `pending-data/` 和 `taxonomy.json` 派生详情页、搜索页、归档页、交互图谱和 `graph.json`，再对 `dist` 运行 Pagefind Extended
 - Pagefind 只索引详情页主内容，并输出按需加载的 runtime、支持中英文术语的索引、filters 和 metadata 到 `dist/pagefind/`
 - 验证 Pages artifact 不超过配置的大小边界，然后上传并部署
-- Pages 部署成功后，将 `pending-data/` 暂存为仓库 `data/`，并在同一个 Git commit 中提交 canonical 数据和最终 `state.json`
+- 使用 origin-only `SITE_ORIGIN`、固定 `/rec-sys-daily/` base 和尾斜杠规则构建并校验 Project Pages 链接
+- Pages 部署成功后，只将 `rank-integrate` 已验证的 `pending-data/` 对仓库 `data/` 执行 `rsync --archive --delete pending-data/ data/`，并在同一个 Git commit 中提交 canonical 数据和最终 `state.json`
 
 只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、MinerU ZIP/Markdown、HTML 或提取全文不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
 
@@ -854,35 +876,36 @@ Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`�
 - `concurrency.group: recsys-daily`
 - `cancel-in-progress: false`
 - 各 job 的 timeout 均低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限；官方还规定单次 workflow 最长 35 天，而本系统的理论墙钟上限约为 `2 + max(5, 5) + 2 + 1 = 10` 小时，也低于每日调度间隔
-- Job 1 失败时不启动全文 job；任一全文 job 失败时不启动精排；精排失败时不启动网站构建；网站构建或部署失败时不提交 pending 数据；任一失败都不写正式 `state.json`
+- Job 1 失败时不启动全文 job；全文 job 的系统性失败时不启动精排，单条失败则写入 artifact 由 `rank-integrate` 执行 80% 门槛；精排失败时不启动网站构建；网站构建或部署失败时不提交 pending 数据；任一失败都不写正式 `state.json`
 - GitHub UI 重新运行失败 job 时可复用同一 workflow 中仍有效的成功 artifact；精确 artifact 名称、当前 workflow run 和 manifest `run_id` 共同防止跨批次混用
 
-前端检查、构建或部署失败时只需重新运行 `build_deploy`，直接复用 publish bundle，不重新抓取内容或调用 LLM。如果 Pages 部署成功但数据提交失败，下次仍会重试同一批次；站点可能暂时已有内容，但仓库状态不会被错误标为完成。
+前端检查、构建或部署失败时只需重新运行 `build_deploy`，直接复用 publish bundle，不重新抓取内容或调用 LLM。Pages 部署成功后的数据 push 如遇非 fast-forward 冲突则直接失败，不 force push、不自动 rebase。只有远端未前进的瞬时 push 失败才可在一天保留期内手动重跑当前 workflow 的 `build_deploy`；远端已前进或 artifact 过期时必须重跑完整 workflow。下一次定时运行不被设计成自动重试上一批。
 
 ## 14. 测试策略
 
-首版把自动化测试控制在约 15–20 个高价值测试，不建设 provider capability 测试、浏览器测试集群、页面快照或大量错误组合矩阵。运行期失败策略不变，只压缩重复测试代码。
+首版自动化测试以与行为风险相匹配的高价值单元、集成和端到端测试为准，不设任意的总数上限；也不建设 provider capability 测试、浏览器测试集群、页面快照或大量错误组合矩阵。
 
 Python 单元与集成测试覆盖：
 
-- YAML 配置、四类主题对象和引用校验、`taxonomy.json` 标准化快照、单一文本模型配置、冷启动/日更时间窗口和数量上限
+- YAML 配置、四类主题对象和引用校验、`taxonomy.json` 标准化快照、单一文本模型配置、无 state/有效 state/非法 state 的时间窗口和数量上限
 - arXiv Atom 与 RSS/Atom 标准化、稳定 ID 去重和确定性评分
 - 文本 OpenAI-compatible Responses API wrapper 的 `input`、`text.format`、`output_text` 与 JSON 解析；MinerU 请求 payload、upload URL、polling、ZIP、终态失败、deadline 和临时目录清理
 - `429/5xx`、`Retry-After`、最多 3 次重试，以及同步客户端单请求边界
 - `arXiv PDF → MinerU full.md → Abstract fallback` 与博客 `Feed full content → article HTML → excerpt` 降级链，并验证论文路径不调用 arXiv HTML、PyMuPDF 或 VLM
-- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；模型失败时规则标签不得依赖固定 topic ID
-- Top 16 深读、最终各 8 篇、深读 Schema、正文/视觉依据和图谱节点裁剪
+- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 16
+- Top 16 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 8 篇、深读 Schema、正文依据和图谱节点裁剪
 - 完整 pending data tree、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
 - PDF、MinerU ZIP/Markdown、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
 - manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
+- Docker tmpfs 只挂载父目录时能成功生成最终子目录，已存在的空/非空输出子目录都拒绝覆盖
 
 端到端测试只保留五组运行时生成的场景：
 
-1. 首次 cold-start 成功并生成完整 publish bundle
+1. 无有效 state 的首次运行成功并生成完整 publish bundle
 2. 后续 daily 增量保留历史 canonical data，合并历史推荐 ID 并推进状态
 3. 可选 RSS 失败、第二次 Feed 抓取失败、正文抓取失败和 LLM 部分失败时按既有规则降级
 4. 参数化注入 collect/deep-read/rank/site/deploy 失败，验证都不写正式 `state.json`
-5. pipeline 动态生成的测试 bundle 能完成 Astro + Pagefind production build、图谱生成、中文搜索索引与 filter metadata 生成，以及按 RunReport 快照执行 Pages artifact 大小检查
+5. pipeline 动态生成的测试 bundle 能以 `/rec-sys-daily/` 非根 base 完成 Astro + Pagefind production build、静态归档路由、图谱生成、中文搜索索引与 filter metadata 生成，以及按 RunReport 快照执行 Pages artifact 大小检查
 
 前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build、Pagefind build 和动态测试产物存在性检查是首版前端验收门槛，不额外建设搜索浏览器测试。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
 
@@ -890,7 +913,7 @@ Python 单元与集成测试覆盖：
 
 - 只保存公开元数据、摘要、短 excerpt 和 LLM 结构化深度解读，不镜像或嵌入受版权保护的全文
 - 只对初排 Top 16 论文临时访问公开 arXiv PDF 并调用 MinerU；博客优先使用 Feed 全文，必要时访问公开文章 HTML
-- 论文和博客抓取都遵守来源访问规则、robots 与站点条款，不绕过登录、付费墙或反自动化限制
+- 论文和博客只访问配置中已批准的公开来源，不绕过登录、付费墙或反自动化限制；首版不实现 robots 抓取与解析子系统，来源条款变化时由维护者停用对应来源
 - RSS、PDF 和 HTML 一律视为不可信输入；只允许公开 `https`/`http` URL，每次重定向后重新解析并拒绝 loopback、私网和 link-local 地址
 - HTML 不执行脚本；LLM prompt 明确把正文包裹为只读资料并忽略其中指令，输出仍须通过严格 JSON Schema 校验
 - 临时 PDF、MinerU ZIP/Markdown、原始 HTML 和提取文本只存在于进程临时目录，不进入 Git、cache、日志、跨 job artifact 或 Pages artifact
@@ -905,10 +928,10 @@ Python 单元与集成测试覆盖：
 
 首个版本完成时必须满足：
 
-1. 空仓库状态下第一次 scheduled/manual 运行能自动使用冷启动时间范围
-2. 冷启动论文限制为近 5 年最多 100 篇，博客限制为近 3 年最多 50 篇
-3. 冷启动关键失败时远端仓库不存在完成状态
-4. 后续每日运行自动使用增量时间范围，冷启动和日更除时间范围外共用同一套处理逻辑和安全上限
+1. `state.json` 不存在时，scheduled/manual 运行自动使用首次运行时间窗口；已存在但非法的 state 必须明确失败
+2. 首次运行论文限制为近 5 年最多 100 篇，博客限制为近 3 年最多 50 篇
+3. 无有效 state 的首次运行关键失败时，远端仓库不存在完成状态
+4. 后续每日运行自动使用增量时间范围；两个时间窗口分支共用同一套处理逻辑和安全上限
 5. 每日论文和博客各目标 8 篇；候选不足时允许少于 8 篇，但不使用低相关或重复内容填充
 6. 每条推荐拥有中文一句话摘要并保留关键英文术语
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
@@ -928,7 +951,11 @@ Python 单元与集成测试覆盖：
 21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv PDF → MinerU full.md → Abstract fallback`，不实现 arXiv HTML、OpenReview、TeX source、本地 PDF 正文提取或视觉阅读
 22. 文本模型使用一个同步 OpenAI-compatible Responses API wrapper；MinerU 使用独立 REST 客户端和 `MINERU_API_KEY`，校验 PDF 上限、公网 URL、batch/data ID、polling deadline 与 ZIP `full.md`，并在所有终态清理临时文件
 23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
-24. 自动化测试控制在约 15–20 个高价值测试和五组运行时生成的端到端场景，不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
+24. 自动化测试覆盖与变更相匹配的高价值行为和五组运行时生成的端到端场景，不以任意总数限制作为验收条件，也不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
+25. `rank-integrate` 从挂载父目录中生成尚不存在的 publish bundle 子目录，真实 Docker 挂载场景不出现 mount-root `EBUSY`，任一失败不留下可被下游当作完整 bundle 的部分目录
+26. 深读 artifact 完整区分成功 `items` 和脱敏 `failures`，论文与博客分别达到 80% 才能整合；失败不写持久化重试队列
+27. Paper canonical item 在 schema v1 中必须包含 `abstract`、`arxiv_id` 和可空 `doi`，且历史防重只使用真正进入 digest 的推荐 ID
+28. GitHub Project Pages 从 `/rec-sys-daily/` 正常加载页面、资源、Pagefind 和 `graph.json`；每日只在 Pages 部署成功后以受限 exact-tree `rsync --delete` 提升 `pending-data/`，push 冲突不 force push
 
 ## 17. 已批准修复设计（2026-08-10）
 
@@ -945,8 +972,8 @@ Python 单元与集成测试覆盖：
    永久耗尽条件，后续候选仍可重新抓取。Feed 全文只在进程内使用，随后按既有
    HTML/excerpt 降级链处理并清理临时内容。
 3. `rank-integrate` 必须基于只读仓库 data 生成完整 pending tree，且用稳定去重
-   合并 previous/current `recommended_item_ids`。正式 state 仍只在 Pages 部署成功
-   后提升。
+   合并 previous/current `recommended_item_ids`。该列表只来自有效 state 和实际 digest 中的推荐
+   item ID，不从 canonical items 全量反推。正式 state 仍只在 Pages 部署成功后提升。
 4. `RunReport` 必须记录站点构建和存储告警所需的配置快照；Node/Astro 和构建校验
    从该快照读取图谱节点/时间限制、item 大小和 Pages artifact 阈值。Stage 1 的
    来源状态、告警、metadata LLM 调用次数、成功率和降级计数通过结构化的
@@ -959,3 +986,11 @@ Python 单元与集成测试覆盖：
    五组端到端场景由测试辅助模块在临时目录中确定性生成；`test-fixtures` 命令保留
    现有名称但只读取这些运行时生成的数据。Dockerfile 不复制 fixture 资产，CI 不从
    外部下载测试数据，也不需要真实 API Key。
+8. `rank-integrate` 对 `graph_relations` 的 target 做白名单校验时，只保留指向
+   本运行 canonical item 或 `topics.yaml` 声明 ID 的关系，其余关系按 §11.1 剪枝并
+   在运行报告 warnings 中记录，而不是让单个模型生成错误关系导致整次运行失败；
+   标签、ID 和 schema 层面的严格校验保持不变。
+9. `rank-integrate --output` 必须指向已挂载父目录下尚不存在的子目录。Docker Compose 和 CI
+   只创建并挂载父目录，不将最终 bundle 目录本身作为 mount root。输出子目录只要已存在，
+   无论是否为空都必须拒绝覆盖；临时目录与最终目录位于同一父目录，避免 mount-root
+   替换失败和部分 publish bundle。

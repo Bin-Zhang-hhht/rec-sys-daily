@@ -23,6 +23,8 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Require the default branch
+        run: test "$GITHUB_REF" = "refs/heads/master"
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
       - name: Build pipeline image
@@ -132,20 +134,20 @@ jobs:
           cache-to: type=gha,mode=max,scope=pipeline
       - name: Rank and integrate
         run: |
-          mkdir -p publish-bundle data
+          mkdir -p publish-work data
           docker run --rm \
             -v "$PWD/stages:/workspace/stages:ro" \
-            -v "$PWD/publish-bundle:/workspace/publish-bundle" \
+            -v "$PWD/publish-work:/workspace/publish-work" \
             -v "$PWD/data:/workspace/data:ro" \
-            "${IMAGE_TAG}-pipeline" rank-integrate --input /workspace/stages --output /workspace/publish-bundle --root /workspace
+            "${IMAGE_TAG}-pipeline" rank-integrate --input /workspace/stages --output /workspace/publish-work/publish-bundle --root /workspace
       - name: Validate publish bundle manifest
         run: |
-          test "$(find publish-bundle -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tr '\n' ' ')" = "manifest.json pending-data taxonomy.json "
-          python -c 'import json; m=json.load(open("publish-bundle/manifest.json")); assert m["run_id"], m'
+          test "$(find publish-work/publish-bundle -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tr '\n' ' ')" = "manifest.json pending-data taxonomy.json "
+          python -c 'import json; m=json.load(open("publish-work/publish-bundle/manifest.json")); assert m["run_id"], m'
       - uses: actions/upload-artifact@v4
         with:
           name: publish-bundle-${{ github.run_id }}
-          path: publish-bundle
+          path: publish-work/publish-bundle
           if-no-files-found: error
           retention-days: 1
 
@@ -180,9 +182,13 @@ jobs:
       - name: Validate downloaded manifest
         run: python -c 'import json; m=json.load(open("publish-bundle/manifest.json")); assert m["run_id"] and m["schema_version"] == "1", m'
       - name: Build Astro and Pagefind output
+        env:
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
         run: |
+          test -n "$SITE_ORIGIN"
           mkdir -p pages-dist
           docker run --rm \
+            -e SITE_ORIGIN \
             -v "$PWD/publish-bundle:/workspace/publish-bundle:ro" \
             -v "$PWD/pages-dist:/workspace/site/dist" \
             "${IMAGE_TAG}-site"
@@ -197,11 +203,11 @@ jobs:
         run: |
           test -f publish-bundle/pending-data/state.json
           mkdir -p data
-          cp -R publish-bundle/pending-data/. data/
+          rsync --archive --delete publish-bundle/pending-data/ data/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data
+          git add -A data
           if ! git diff --cached --quiet; then
             git commit -m "data: publish daily recommendation bundle"
-            git push
+            git push origin HEAD:master
           fi

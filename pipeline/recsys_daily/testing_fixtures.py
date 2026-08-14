@@ -379,7 +379,11 @@ def _run_failure_injection(
 ) -> FailureInjectionEvidence:
     state_path = root / "data/state.json"
     state_path.parent.mkdir(parents=True, exist_ok=True)
-    seed = State(schema_version="1", recommended_item_ids=["seed-item"])
+    seed = State(
+        schema_version="1",
+        last_success_at=datetime(2026, 8, 9, tzinfo=UTC),
+        recommended_item_ids=["seed-item"],
+    )
     write_json(state_path, seed.model_dump(mode="json"))
     state_before = state_path.read_bytes()
     completed: list[str] = []
@@ -434,11 +438,22 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
         "url": "https://arxiv.org/abs/2608.01234",
         "published_at": published_at.isoformat().replace("+00:00", "Z"),
         "authors": ["Historical Author"],
+        "abstract": "Candidate retrieval and recommendation ranking.",
+        "arxiv_id": "2608.01234",
+        "doi": None,
         "summary_zh": "历史推荐论文摘要。",
         "targets": [config.topics.targets[0].id],
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
         "methods": [config.topics.methods[0].id],
+        "relevance_score": 0.8,
+        "final_score": 0.8,
+        "graph_relations": [],
+        "llm": {
+            "model": config.models.text.model,
+            "generated_at": published_at.isoformat().replace("+00:00", "Z"),
+            "degraded": True,
+        },
         "deep_reading": {
             "analysis_basis": "abstract_fallback",
         },
@@ -481,7 +496,11 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
     root.mkdir(parents=True, exist_ok=True)
     now = datetime(2026, 8, 10, tzinfo=UTC)
     if name == "failures":
-        seed = {"schema_version": "1", "recommended_item_ids": ["seed-item"]}
+        seed = {
+            "schema_version": "1",
+            "last_success_at": "2026-08-09T00:00:00Z",
+            "recommended_item_ids": ["seed-item"],
+        }
         candidates = [_candidate("paper", 0, now), _candidate("blog", 0, now)]
         failures = {
             failure_point: _run_failure_injection(root / failure_point, config, candidates, failure_point)

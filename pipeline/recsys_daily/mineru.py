@@ -16,7 +16,7 @@ import requests
 
 from .config import MinerUConfig
 from .rate_limit import RetryableHTTPError, request_with_retries
-from .security import Resolver, validate_public_url
+from .security import Resolver, _close_response, read_bounded_response, validate_public_url
 
 
 class MinerUError(RuntimeError):
@@ -69,6 +69,7 @@ class MinerUClient:
         *,
         timeout: float,
         allow_redirect_response: bool = False,
+        response_reader: Callable[[Any], Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         request = getattr(self.session, method.lower())
@@ -80,12 +81,16 @@ class MinerUClient:
                 raise exc
             status = int(getattr(response, "status_code", 0))
             if status == 429 or 500 <= status <= 599:
+                if kwargs.get("stream"):
+                    _close_response(response)
                 raise RetryableHTTPError(status, retry_after=getattr(response, "headers", {}).get("Retry-After"))
             if allow_redirect_response and 300 <= status < 400:
                 return response
             if not 200 <= status < 300:
+                if kwargs.get("stream"):
+                    _close_response(response)
                 raise MinerUError(f"MinerU HTTP {status}")
-            return response
+            return response_reader(response) if response_reader is not None else response
 
         try:
             return request_with_retries(
@@ -101,25 +106,37 @@ class MinerUClient:
         except Exception as exc:
             raise MinerUError(f"MinerU {method.upper()} failed") from exc
 
-    def _public_get(self, url: str, *, timeout: float) -> Any:
+    def _public_get(self, url: str, *, timeout: float, max_bytes: int) -> bytes:
+        def read_result(response: Any) -> bytes:
+            try:
+                return read_bounded_response(response, max_bytes)
+            except ValueError as exc:
+                raise MinerUError("MinerU result ZIP exceeds configured size limit") from exc
+
         current = validate_public_url(url, resolver=self.resolver)
         for _ in range(6):
-            response = self._request(
+            result = self._request(
                 "get",
                 current,
                 timeout=timeout,
                 allow_redirect_response=True,
                 allow_redirects=False,
+                stream=True,
+                response_reader=read_result,
             )
-            if getattr(response, "is_redirect", False) or getattr(response, "is_permanent_redirect", False):
-                location = getattr(response, "headers", {}).get("Location")
+            if isinstance(result, bytes):
+                return result
+            status = int(getattr(result, "status_code", 0))
+            if 300 <= status < 400 or getattr(result, "is_redirect", False) or getattr(result, "is_permanent_redirect", False):
+                location = getattr(result, "headers", {}).get("Location")
                 if not location:
+                    _close_response(result)
                     raise MinerUError("redirect response is missing Location")
                 from urllib.parse import urljoin
 
+                _close_response(result)
                 current = validate_public_url(urljoin(current, location), resolver=self.resolver)
                 continue
-            return response
         raise MinerUError("too many redirects")
 
     @staticmethod
@@ -172,9 +189,11 @@ class MinerUClient:
                 raise MinerUError("MinerU upload response has no data")
             batch_id = data.get("batch_id")
             file_urls = data.get("file_urls")
-            if not isinstance(batch_id, str) or not isinstance(file_urls, list) or not file_urls:
+            if not isinstance(batch_id, str) or not isinstance(file_urls, list) or len(file_urls) != 1:
                 raise MinerUError("MinerU upload response is incomplete")
             upload_entry = file_urls[0]
+            if isinstance(upload_entry, dict) and upload_entry.get("data_id") not in (None, filename):
+                raise MinerUError("MinerU upload data_id does not match request")
             upload_url = upload_entry.get("url") if isinstance(upload_entry, dict) else upload_entry
             if not isinstance(upload_url, str):
                 raise MinerUError("MinerU upload URL is missing")
@@ -222,17 +241,11 @@ class MinerUClient:
             result_url = result_entry.get("full_zip_url") if result_entry else None
             if not isinstance(result_url, str):
                 raise MinerUError("MinerU result is missing full_zip_url")
-            response = self._public_get(result_url, timeout=self.config.upload_timeout_seconds)
-            declared_size = getattr(response, "headers", {}).get("Content-Length")
-            if declared_size:
-                try:
-                    if int(declared_size) > self.config.max_pdf_bytes:
-                        raise MinerUError("MinerU result ZIP exceeds configured size limit")
-                except ValueError:
-                    pass
-            zip_content = bytes(response.content)
-            if len(zip_content) > self.config.max_pdf_bytes:
-                raise MinerUError("MinerU result ZIP exceeds configured size limit")
+            zip_content = self._public_get(
+                result_url,
+                timeout=self.config.upload_timeout_seconds,
+                max_bytes=self.config.max_pdf_bytes,
+            )
             zip_path.write_bytes(zip_content)
             try:
                 with ZipFile(zip_path) as archive:

@@ -6,8 +6,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from pydantic import ValidationError
-
 from .schemas import State
 
 
@@ -23,13 +21,10 @@ class QueryWindow:
 def _valid_state(value: State | dict[str, Any] | None) -> State | None:
     if value is None:
         return None
-    if isinstance(value, State):
-        return value if value.last_success_at is not None else None
-    try:
-        state = State.model_validate(value)
-    except (ValidationError, TypeError, ValueError):
-        return None
-    return state if state.last_success_at is not None else None
+    state = value if isinstance(value, State) else State.model_validate(value)
+    if state.last_success_at is None:
+        raise ValueError("existing state must include last_success_at")
+    return state
 
 
 def query_window(state: State | dict[str, Any] | None, *, now: datetime | None = None) -> QueryWindow:

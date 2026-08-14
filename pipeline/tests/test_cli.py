@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from pathlib import Path
 import json
 from types import SimpleNamespace
@@ -56,7 +57,10 @@ def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypat
     item.parent.mkdir(parents=True)
     digest.parent.mkdir(parents=True)
     (data / "state.json").write_text(
-        json.dumps(State(recommended_item_ids=["state-history"]).model_dump(mode="json")),
+        json.dumps(State(
+            last_success_at=datetime(2026, 8, 9, tzinfo=UTC),
+            recommended_item_ids=["state-history"],
+        ).model_dump(mode="json")),
         encoding="utf-8",
     )
     item.write_text(json.dumps({
@@ -68,6 +72,9 @@ def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypat
         "url": "https://arxiv.org/abs/2501.00001",
         "published_at": "2025-01-02T00:00:00Z",
         "authors": ["Author"],
+        "abstract": "Historical abstract",
+        "arxiv_id": "2501.00001",
+        "doi": None,
         "targets": [config.topics.targets[0].id],
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
@@ -101,6 +108,23 @@ def test_collect_filter_passes_complete_canonical_history_to_stage_one(monkeypat
 
     assert isinstance(captured["state"], State)
     assert captured["history"] == {"state-history", "item-history"}
+
+
+@pytest.mark.parametrize("state_document", ['{"last_success_at":"invalid"}', '{}'])
+def test_collect_filter_reports_invalid_existing_state(monkeypatch, tmp_path: Path, state_document: str) -> None:
+    import recsys_daily.cli as cli
+
+    config = load_config(Path(__file__).parents[2])
+    state_path = tmp_path / "data/state.json"
+    state_path.parent.mkdir(parents=True)
+    state_path.write_text(state_document, encoding="utf-8")
+    monkeypatch.setattr(cli, "_root", lambda _root: tmp_path)
+    monkeypatch.setattr(cli, "load_config", lambda _root: config)
+
+    result = runner.invoke(app, ["collect-filter", "--output", str(tmp_path / "stage-1")])
+
+    assert result.exit_code == 1
+    assert "invalid data/state.json" in result.output
 
 
 def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) -> None:
@@ -139,6 +163,7 @@ def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) 
     assert not (output / "candidate-input").exists()
     payload = json.loads((output / "blog-deep-readings.json").read_text(encoding="utf-8"))
     assert len(payload["items"]) == 16
+    assert payload["failures"] == []
 
 
 def test_blog_services_do_not_require_mineru_key(monkeypatch, tmp_path: Path) -> None:

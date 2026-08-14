@@ -325,6 +325,7 @@ def _default_fetcher(
     attempt_limiter: Callable[[], None],
     backoff_seconds: float,
     max_delay_seconds: float,
+    max_bytes: int,
 ) -> FeedResponse:
     response = fetch_public_url(
         url,
@@ -336,6 +337,7 @@ def _default_fetcher(
         attempt_limiter=attempt_limiter,
         backoff_seconds=backoff_seconds,
         max_delay_seconds=max_delay_seconds,
+        max_bytes=max_bytes,
     )
     return FeedResponse(response.status_code, response.content, response.headers, response.url)
 
@@ -351,10 +353,7 @@ def _validated_state(value: State | dict[str, Any] | None) -> State | None:
     if isinstance(value, State):
         return value
     if isinstance(value, dict):
-        try:
-            return State.model_validate(value)
-        except ValueError:
-            return None
+        return State.model_validate(value)
     return None
 
 
@@ -401,6 +400,7 @@ def collect_candidates(
                     attempt_limiter=lambda limiter=limiter, url=url: limiter.acquire(url),
                     backoff_seconds=limits.retry_backoff_seconds,
                     max_delay_seconds=limits.retry_max_delay_seconds,
+                    max_bytes=limits.max_blog_html_bytes,
                 )
             if response.status_code == 304:
                 source_states[source.id] = SourceState(

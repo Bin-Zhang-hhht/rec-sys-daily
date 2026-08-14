@@ -48,15 +48,27 @@ def _manifest(path: Path) -> Manifest:
     return Manifest.model_validate(read_json(path / "manifest.json"))
 
 
-def _stage_values(path: Path, kind: str) -> list[dict[str, Any]]:
+def _stage_values(path: Path, kind: str) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     source = path / f"{kind}-deep-readings.json"
     if not source.exists():
         raise ValueError(f"missing {kind} deep-reading artifact in {path}")
     document = read_json(source)
+    if not isinstance(document, dict):
+        raise ValueError(f"deep-reading artifact must be an object: {source}")
+    if document.get("kind") != kind:
+        raise ValueError(f"deep-reading artifact kind does not match {kind}: {source}")
     values = document.get("items")
     if not isinstance(values, list) or not all(isinstance(value, dict) for value in values):
         raise ValueError(f"deep-reading artifact must contain item objects: {source}")
-    return values
+    raw_failures = document.get("failures")
+    if not isinstance(raw_failures, list) or not all(isinstance(value, dict) for value in raw_failures):
+        raise ValueError(f"deep-reading artifact must contain failure objects: {source}")
+    failures: list[dict[str, str]] = []
+    for value in raw_failures:
+        if set(value) != {"id", "code"} or not all(isinstance(value[key], str) and value[key].strip() for key in ("id", "code")):
+            raise ValueError(f"deep-reading failure must contain only non-empty id and code: {source}")
+        failures.append({"id": value["id"], "code": value["code"]})
+    return values, failures
 
 
 def _candidate_metadata(stage1: Path) -> dict[str, dict[str, Any]]:
@@ -140,7 +152,8 @@ def _items(
     excerpt_limit: int,
 ) -> list[ContentItem]:
     parsed: list[ContentItem] = []
-    for value in _stage_values(path, kind):
+    values, _ = _stage_values(path, kind)
+    for value in values:
         item_id = str(value.get("id", ""))
         if not item_id:
             raise ValueError(f"candidate id is required in {path}")
@@ -160,10 +173,13 @@ def _items(
             raise ValueError(f"canonical metadata is incomplete for {item_id}")
         if "authors" not in value:
             raise ValueError(f"canonical metadata is missing authors for {item_id}")
-        for key in ("source_id", "source_entry_id", "arxiv_id", "doi", "categories", "source_weight", "source_scenarios", "metadata_score", "degraded"):
+        for key in ("source_id", "source_entry_id", "categories", "source_weight", "source_scenarios", "metadata_score", "degraded"):
             value.pop(key, None)
         if kind == "paper":
-            value.pop("excerpt", None)
+            value["abstract"] = value.pop("excerpt", "")
+        else:
+            value.pop("arxiv_id", None)
+            value.pop("doi", None)
         item_type = PaperItem if kind == "paper" else BlogItem
         item = item_type.model_validate(value, context={"taxonomy": taxonomy})
         _validate_blog_excerpt(item, excerpt_limit)
@@ -172,16 +188,28 @@ def _items(
 
 
 def _structured_success_rate(
-    metadata: dict[str, dict[str, Any]],
-    items: list[ContentItem],
+    path: Path,
     kind: str,
-    max_deep_reads: int,
+    expected_ids: set[str],
 ) -> float:
-    expected = [item_id for item_id, value in metadata.items() if value.get("kind") == kind][:max_deep_reads]
-    if not expected:
+    values, failures = _stage_values(path, kind)
+    successful_ids = [str(value.get("id", "")) for value in values]
+    failed_ids = [value["id"] for value in failures]
+    attempted_ids = [*successful_ids, *failed_ids]
+    if any(not item_id for item_id in successful_ids):
+        raise ValueError(f"deep-reading {kind} item id is required")
+    if len(attempted_ids) != len(set(attempted_ids)):
+        raise ValueError(f"duplicate {kind} deep-reading result id")
+    if set(attempted_ids) != expected_ids:
+        missing = sorted(expected_ids - set(attempted_ids))
+        unexpected = sorted(set(attempted_ids) - expected_ids)
+        raise ValueError(
+            f"deep-reading {kind} results must match stage-1 candidates "
+            f"(missing={missing[:1]}, unexpected={unexpected[:1]})"
+        )
+    if not attempted_ids:
         return 1.0
-    successful = {item.id for item in items if item.kind == kind}
-    return len(set(expected) & successful) / len(expected)
+    return len(successful_ids) / len(attempted_ids)
 
 
 def _load_previous_state(value: State | dict[str, Any] | None) -> State | None:
@@ -333,6 +361,15 @@ def integrate(
         )
     source_states = _source_states(stages.stage1)
     excerpt_limit = config.settings.storage.max_blog_excerpt_chars
+    max_deep_reads = config.settings.limits.deep_reading_candidates_per_type
+    expected_papers = {item_id for item_id, value in metadata.items() if value.get("kind") == "paper"}
+    expected_blogs = {item_id for item_id, value in metadata.items() if value.get("kind") == "blog"}
+    for kind, expected_ids in (("paper", expected_papers), ("blog", expected_blogs)):
+        if len(expected_ids) > max_deep_reads:
+            raise ValueError(
+                f"stage-1 {kind} candidate count exceeds configured deep-reading limit: "
+                f"{len(expected_ids)} > {max_deep_reads}"
+            )
     paper_items = _items(stages.paper, "paper", config.topics, metadata, excerpt_limit)
     blog_items = _items(stages.blog, "blog", config.topics, metadata, excerpt_limit)
     all_items = [*paper_items, *blog_items]
@@ -344,14 +381,19 @@ def integrate(
         for category in (config.topics.targets, config.topics.scenarios, config.topics.tasks, config.topics.methods)
         for entry in category
     }
+    relation_warnings: list[str] = []
     for item in all_items:
-        for relation in item.graph_relations:
-            if relation.target_id not in allowed_relation_targets:
-                raise ValueError(f"unknown graph relation target: {relation.target_id}")
+        pruned = [relation for relation in item.graph_relations if relation.target_id not in allowed_relation_targets]
+        if not pruned:
+            continue
+        item.graph_relations = [relation for relation in item.graph_relations if relation.target_id in allowed_relation_targets]
+        relation_warnings.append(
+            f"pruned {len(pruned)} graph relation(s) with unknown target id(s) from {item.id} "
+            f"(first: {pruned[0].target_id})"
+        )
 
-    max_deep_reads = config.settings.limits.deep_reading_candidates_per_type
-    paper_success_rate = _structured_success_rate(metadata, paper_items, "paper", max_deep_reads)
-    blog_success_rate = _structured_success_rate(metadata, blog_items, "blog", max_deep_reads)
+    paper_success_rate = _structured_success_rate(stages.paper, "paper", expected_papers)
+    blog_success_rate = _structured_success_rate(stages.blog, "blog", expected_blogs)
     minimum_success_rate = config.settings.structured_analysis_min_success_rate
     if paper_success_rate < minimum_success_rate or blog_success_rate < minimum_success_rate:
         raise ValueError(
@@ -396,7 +438,7 @@ def integrate(
         blog_recommendations=len(blogs),
         llm_calls=stage_report.metadata_llm_calls,
         structured_analysis_success_rate=min(paper_success_rate, blog_success_rate, stage_report.metadata_llm_success_rate),
-        warnings=list(stage_report.warnings),
+        warnings=list(stage_report.warnings) + relation_warnings,
     )
     manifest = Manifest(run_id=run_id, schema_version=schema_version)
 

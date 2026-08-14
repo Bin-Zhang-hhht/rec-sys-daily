@@ -8,14 +8,20 @@ type CytoscapeNode = {
   removeClass: (name: string) => void;
 };
 
+type CytoscapeCollection = {
+  addClass: (name: string) => void;
+  removeClass: (name: string) => void;
+};
+
 type CytoscapeInstance = {
   on: (event: string, selector: string, handler: (event: { target: CytoscapeNode }) => void) => void;
   elements: () => {
+    addClass: (name: string) => void;
     removeClass: (name: string) => void;
-    filter: (predicate: (element: CytoscapeNode) => boolean) => { addClass?: (name: string) => void };
+    filter: (predicate: (element: CytoscapeNode) => boolean) => CytoscapeCollection;
   };
   nodes: () => { forEach: (handler: (node: CytoscapeNode) => void) => void };
-  fit: () => void;
+  fit: (collection?: CytoscapeCollection, padding?: number) => void;
 };
 
 type CytoscapeFactory = (options: Record<string, unknown>) => CytoscapeInstance;
@@ -25,14 +31,16 @@ const status = document.querySelector<HTMLElement>("#graph-status");
 const query = document.querySelector<HTMLInputElement>("#graph-query");
 const details = document.querySelector<HTMLElement>("#graph-details");
 const filters = document.querySelector<HTMLFormElement>("#graph-filters");
+const showAll = document.querySelector<HTMLButtonElement>("#graph-show-all");
 
 const contentTypes = new Set<NodeData["type"]>(["paper", "article"]);
 
 function detailHref(data: NodeData): string | null {
   if (!data.href || !contentTypes.has(data.type)) return null;
   const expected = data.type === "paper" ? "papers" : "articles";
-  if (!new RegExp(`^/${expected}/[A-Za-z0-9._~-]+/$`).test(data.href)) return null;
   const url = new URL(data.href, window.location.origin);
+  const base = import.meta.env.BASE_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (!new RegExp(`^${base}${expected}/[A-Za-z0-9._~-]+/$`).test(url.pathname)) return null;
   return url.origin === window.location.origin && !url.search && !url.hash ? url.pathname : null;
 }
 
@@ -97,12 +105,14 @@ function renderTaxonomyDetails(graph: GraphDocument, data: NodeData): void {
   details.append(list);
 }
 
-if (canvas && status && query && details && filters) {
+if (canvas && status && query && details && filters && showAll) {
   const run = async () => {
     try {
+      const graphUrl = canvas.dataset.graphUrl;
+      if (!graphUrl) throw new Error("graph URL is missing");
       const [{ default: cytoscape }, response] = await Promise.all([
         import("cytoscape") as Promise<{ default: CytoscapeFactory }>,
-        fetch(canvas.dataset.graphUrl ?? "/graph.json"),
+        fetch(graphUrl),
       ]);
       if (!response.ok) throw new Error(`graph request failed: ${response.status}`);
       const graph = await response.json() as GraphDocument;
@@ -115,23 +125,41 @@ if (canvas && status && query && details && filters) {
           { selector: "node[type = 'article']", style: { "background-color": "#147d64", shape: "round-rectangle" } },
           { selector: "node[type = 'target'], node[type = 'scenario'], node[type = 'task'], node[type = 'method']", style: { "background-color": "#d9a441", shape: "ellipse" } },
           { selector: ".search-hit", style: { "border-width": 4, "border-color": "#dc2626", "border-opacity": 1 } },
+          { selector: ".graph-selected", style: { "border-width": 5, "border-color": "#0284c7", "border-opacity": 1 } },
+          { selector: ".graph-neighbor", style: { "border-width": 3, "border-color": "#38bdf8", "border-opacity": 0.9 } },
+          { selector: ".graph-muted", style: { opacity: 0.18 } },
           { selector: ".graph-hidden", style: { display: "none" } },
           { selector: "edge", style: { width: 1, "line-color": "#cbd5e1", "target-arrow-color": "#cbd5e1", "target-arrow-shape": "triangle", opacity: 0.75 } },
         ],
         layout: { name: "cose", animate: false, fit: true, padding: 30 },
       });
       let selectedNode: NodeData | null = null;
+      const nodesById = new Map(graph.nodes.map(node => [node.data.id, node.data]));
+      const adjacentIds = new Map<string, Set<string>>();
+      for (const edge of graph.edges) {
+        if (!adjacentIds.has(edge.data.source)) adjacentIds.set(edge.data.source, new Set());
+        if (!adjacentIds.has(edge.data.target)) adjacentIds.set(edge.data.target, new Set());
+        adjacentIds.get(edge.data.source)?.add(edge.data.target);
+        adjacentIds.get(edge.data.target)?.add(edge.data.source);
+      }
+      const collectionFor = (ids: Set<string>) => cy.elements().filter(elementValue => ids.has(String(elementValue.data("id"))));
+      const highlightSelection = (data: NodeData) => {
+        const highlighted = new Set([data.id, ...(adjacentIds.get(data.id) ?? []), ...graph.edges.filter(edge => edge.data.source === data.id || edge.data.target === data.id).map(edge => edge.data.id)]);
+        cy.elements().removeClass("graph-selected");
+        cy.elements().removeClass("graph-neighbor");
+        cy.elements().removeClass("graph-muted");
+        cy.elements().addClass("graph-muted");
+        collectionFor(highlighted).removeClass("graph-muted");
+        collectionFor(new Set([data.id])).addClass("graph-selected");
+        collectionFor(new Set(adjacentIds.get(data.id) ?? [])).addClass("graph-neighbor");
+      };
       const remember = (data: NodeData) => {
         selectedNode = data;
         canvas.dataset.selectedNode = data.id;
       };
       const activate = (data: NodeData) => {
         remember(data);
-        const href = detailHref(data);
-        if (href) {
-          window.location.assign(href);
-          return;
-        }
+        highlightSelection(data);
         if (contentTypes.has(data.type)) {
           details.replaceChildren();
           appendContentSummary(details, data);
@@ -150,15 +178,28 @@ if (canvas && status && query && details && filters) {
         }
         const year = filters.querySelector<HTMLSelectElement>('select[data-graph-time="year"]')?.value;
         const age = filters.querySelector<HTMLSelectElement>('select[data-graph-time="age"]')?.value;
-        cy.nodes().forEach(node => {
-          const data = node.data() as NodeData;
-          if (!contentTypes.has(data.type)) return;
+        const visibleContent = new Set<string>();
+        for (const node of graph.nodes) {
+          const data = node.data;
+          if (!contentTypes.has(data.type)) continue;
           const ageDays = data.published_at ? Math.max(0, (Date.now() - Date.parse(data.published_at)) / 86400000) : Infinity;
           const matches = [...selected.values()].every(values => (data.tags ?? []).some(tag => values.has(tag)))
             && (!year || data.published_at?.startsWith(year))
             && (!age || (age === "7d" ? ageDays <= 7 : age === "30d" ? ageDays <= 30 : ageDays <= 365));
-          if (matches) node.removeClass("graph-hidden"); else node.addClass("graph-hidden");
-        });
+          if (matches) visibleContent.add(data.id);
+        }
+        const visibleNodes = new Set(visibleContent);
+        for (const edge of graph.edges) {
+          const source = nodesById.get(edge.data.source);
+          const target = nodesById.get(edge.data.target);
+          if (visibleContent.has(edge.data.source) && target && !contentTypes.has(target.type)) visibleNodes.add(edge.data.target);
+          if (visibleContent.has(edge.data.target) && source && !contentTypes.has(source.type)) visibleNodes.add(edge.data.source);
+        }
+        cy.elements().removeClass("graph-hidden");
+        for (const node of graph.nodes) if (!visibleNodes.has(node.data.id)) collectionFor(new Set([node.data.id])).addClass("graph-hidden");
+        for (const edge of graph.edges) if (!visibleNodes.has(edge.data.source) || !visibleNodes.has(edge.data.target)) collectionFor(new Set([edge.data.id])).addClass("graph-hidden");
+        showAll.classList.add("hidden");
+        status.textContent = `${visibleContent.size} 个内容节点符合筛选`;
       };
       filters.addEventListener("change", applyFilters);
       cy.on("tap", "node", event => activate(event.target.data() as NodeData));
@@ -168,15 +209,15 @@ if (canvas && status && query && details && filters) {
           activate(selectedNode);
         }
       });
-      const searchable = graph.nodes.filter(node => contentTypes.has(node.data.type));
+      const searchable = graph.nodes;
       query.addEventListener("input", () => {
         const text = query.value.trim().toLocaleLowerCase();
         cy.elements().removeClass("search-hit");
         if (!text) return;
-        const matches = searchable.filter(node => `${node.data.label} ${(node.data.tags ?? []).join(" ")}`.toLocaleLowerCase().includes(text));
+        const matches = searchable.filter(node => `${node.data.id} ${node.data.label} ${(node.data.search_terms ?? node.data.tags ?? []).join(" ")}`.toLocaleLowerCase().includes(text));
         for (const node of matches) {
           const found = cy.elements().filter(elementValue => elementValue.data("id") === node.data.id);
-          found.addClass?.("search-hit");
+          found.addClass("search-hit");
         }
         const first = matches[0]?.data;
         if (first) {
@@ -185,8 +226,32 @@ if (canvas && status && query && details && filters) {
           appendContentSummary(details, first);
         }
       });
-      status.textContent = `${graph.nodes.length} 个节点，${graph.edges.length} 条关系`;
-      cy.fit();
+      const showFullGraph = () => {
+        cy.elements().removeClass("graph-hidden");
+        showAll.classList.add("hidden");
+        status.textContent = `${graph.nodes.length} 个节点，${graph.edges.length} 条关系`;
+        cy.fit();
+      };
+      showAll.addEventListener("click", showFullGraph);
+      const centerId = new URL(window.location.href).searchParams.get("center");
+      if (centerId) {
+        const center = nodesById.get(centerId);
+        if (center && contentTypes.has(center.type)) {
+          const visible = new Set([centerId, ...(adjacentIds.get(centerId) ?? [])]);
+          for (const node of graph.nodes) if (!visible.has(node.data.id)) collectionFor(new Set([node.data.id])).addClass("graph-hidden");
+          for (const edge of graph.edges) if (!visible.has(edge.data.source) || !visible.has(edge.data.target)) collectionFor(new Set([edge.data.id])).addClass("graph-hidden");
+          activate(center);
+          showAll.classList.remove("hidden");
+          status.textContent = `已定位 ${center.label} 及一跳邻域`;
+          cy.fit(collectionFor(visible), 40);
+        } else {
+          status.textContent = `未找到中心节点 ${centerId}，已显示全图`;
+          cy.fit();
+        }
+      } else {
+        status.textContent = `${graph.nodes.length} 个节点，${graph.edges.length} 条关系`;
+        cy.fit();
+      }
     } catch (error) {
       status.textContent = `图谱加载失败：${error instanceof Error ? error.message : "未知错误"}`;
     }

@@ -32,6 +32,7 @@ def fetch_bytes(
         attempt_limiter=attempt_limiter,
         backoff_seconds=backoff_seconds,
         max_delay_seconds=max_delay_seconds,
+        max_bytes=max_bytes,
     )
     declared_size = response.headers.get("Content-Length")
     if declared_size:

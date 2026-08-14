@@ -212,13 +212,25 @@ def deep_read(
         raise ValueError("candidate artifact must contain a list")
     if services is None:
         raise DeepReadError("deep_read requires injected services")
-    readings = []
+    readings: list[dict[str, Any]] = []
+    failures: list[dict[str, str]] = []
     kind_values = [value for value in values if isinstance(value, dict) and value.get("kind") == kind]
-    for value in kind_values[:max_candidates]:
-        candidate = _candidate_from_dict(value)
-        reading = deep_read_paper(candidate, services) if kind == "paper" else deep_read_blog(candidate, services)
-        readings.append({"id": stable_id(candidate), "kind": kind, "deep_reading": reading.model_dump(mode="json")})
+    candidates = [_candidate_from_dict(value) for value in kind_values[:max_candidates]]
+    candidate_ids = [stable_id(candidate) for candidate in candidates]
+    if len(candidate_ids) != len(set(candidate_ids)):
+        raise ValueError(f"duplicate {kind} candidate id")
+    for candidate, candidate_id in zip(candidates, candidate_ids, strict=True):
+        try:
+            reading = deep_read_paper(candidate, services) if kind == "paper" else deep_read_blog(candidate, services)
+        except (OSError, RuntimeError, ValueError) as exc:
+            code = "invalid_deep_reading" if isinstance(exc, ValueError) else "deep_read_failed"
+            failures.append({"id": candidate_id, "code": code})
+            continue
+        readings.append({"id": candidate_id, "kind": kind, "deep_reading": reading.model_dump(mode="json")})
     output_dir.mkdir(parents=True, exist_ok=True)
     destination = output_dir / f"{kind}-deep-readings.json"
-    destination.write_text(json.dumps({"kind": kind, "items": readings}, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+    destination.write_text(
+        json.dumps({"kind": kind, "items": readings, "failures": failures}, ensure_ascii=False, sort_keys=True),
+        encoding="utf-8",
+    )
     return destination

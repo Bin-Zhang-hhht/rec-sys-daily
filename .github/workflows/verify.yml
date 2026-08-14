@@ -38,19 +38,25 @@ jobs:
           cache-to: type=gha,mode=max,scope=pipeline
       - name: Run Python tests
         run: docker run --rm -v "$PWD/.github:/workspace/.github:ro" --entrypoint pytest recsys-pipeline:${{ github.sha }} tests -q
+      - name: Verify bundle creation below a mounted parent
+        run: |
+          docker run --rm \
+            --mount type=tmpfs,destination=/workspace/test-parent \
+            --entrypoint pytest \
+            recsys-pipeline:${{ github.sha }} tests/test_integrate.py -q --basetemp=/workspace/test-parent/pytest
       - name: Run cold-start fixture pipeline
         run: |
           mkdir -p work/verify
           docker run --rm \
             -v "$PWD/work/verify:/workspace/work/verify" \
-            recsys-pipeline:${{ github.sha }} test-fixtures --case all --work /workspace/work/verify
+            recsys-pipeline:${{ github.sha }} test-fixtures --case all --work /workspace/work/verify/publish-bundle
           test -f work/verify/publish-bundle/manifest.json
           test -f work/verify/publish-bundle/taxonomy.json
           test -d work/verify/publish-bundle/pending-data
       - name: Check fixture bundle boundaries
         run: |
           test "$(find work/verify/publish-bundle -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tr '\n' ' ')" = "manifest.json pending-data taxonomy.json "
-          ! find work/verify/publish-bundle -type f \( -name '*.pdf' -o -name '*.html' -o -name '*.txt' \) | grep .
+          ! find work/verify/publish-bundle -type f \( -name '*.pdf' -o -name '*.html' -o -name '*.htm' -o -name '*.txt' -o -name '*.md' -o -name '*.zip' \) | grep .
       - uses: actions/upload-artifact@v4
         with:
           name: fixture-publish-bundle-${{ github.run_id }}
@@ -85,10 +91,15 @@ jobs:
         run: |
           test -f work/verify/publish-bundle/manifest.json
           test -f work/verify/publish-bundle/taxonomy.json
+      - name: Run site build-contract tests
+        run: docker run --rm --entrypoint pnpm recsys-site:${{ github.sha }} test:build-contract
       - name: Build static site in site image
+        env:
+          SITE_ORIGIN: https://example.invalid
         run: |
           mkdir -p work/verify/pages-dist
           docker run --rm \
+            -e SITE_ORIGIN \
             -v "$PWD/work/verify/publish-bundle:/workspace/publish-bundle:ro" \
             -v "$PWD/work/verify/pages-dist:/workspace/site/dist" \
             recsys-site:${{ github.sha }}

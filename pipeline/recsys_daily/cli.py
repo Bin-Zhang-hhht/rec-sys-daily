@@ -44,6 +44,20 @@ def _root(root: Path | None = None) -> Path:
     raise typer.BadParameter("could not locate config/topics.yaml")
 
 
+def _load_repository_state(repository: Path) -> State | None:
+    state_path = repository / "data" / "state.json"
+    if not state_path.exists():
+        return None
+    try:
+        state = State.model_validate(json.loads(state_path.read_text(encoding="utf-8")))
+        if state.last_success_at is None:
+            raise ValueError("last_success_at is required")
+        return state
+    except Exception as exc:
+        _cli_error(f"invalid data/state.json: {exc}")
+        raise AssertionError("unreachable") from exc
+
+
 def _real_services(
     config: AppConfig,
     root: Path,
@@ -125,6 +139,7 @@ def _real_services(
             attempt_limiter=lambda: blog_limiter.acquire(url),
             backoff_seconds=retry_backoff_seconds,
             max_delay_seconds=retry_max_delay_seconds,
+            max_bytes=max_blog_html_bytes,
         ).content
 
     blog_feed_cache = BlogFeedCache(source_urls, fetch_blog_feed)
@@ -182,8 +197,7 @@ def _run_deep_read(
 def collect_filter(output: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
     repository = _root(root)
     config = load_config(repository)
-    state_path = repository / "data" / "state.json"
-    state = State.model_validate(json.loads(state_path.read_text(encoding="utf-8"))) if state_path.exists() else None
+    state = _load_repository_state(repository)
     history = load_history_ids(repository / "data", config, state)
     text_client = TextClient.from_config(config.models, timeout_seconds=None, retries=None)
     run_collect_filter(config, output, state, history, text_client.complete_json)
@@ -208,8 +222,7 @@ def deep_read_command(kind: str = typer.Option(...), input: Path = typer.Option(
 def rank_integrate(input: Path = typer.Option(...), output: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
     repository = _root(root)
     config = load_config(repository)
-    state_path = repository / "data" / "state.json"
-    state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
+    state = _load_repository_state(repository)
     integrate(
         StageInputs(input / "stage-1", input / "deep-reading-paper", input / "deep-reading-blog"),
         output,

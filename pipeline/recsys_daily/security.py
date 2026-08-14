@@ -19,6 +19,45 @@ class PublicUrlError(ValueError):
 Resolver = Callable[[str, int], Iterable[tuple[object, ...]]]
 
 
+def _close_response(response: object) -> None:
+    close = getattr(response, "close", None)
+    if callable(close):
+        close()
+
+
+def read_bounded_response(response: object, max_bytes: int) -> bytes:
+    """Read at most one byte beyond a response limit and always close it."""
+    try:
+        headers = getattr(response, "headers", {})
+        declared_size = headers.get("Content-Length") if hasattr(headers, "get") else None
+        if declared_size is not None:
+            try:
+                declared_bytes = int(declared_size)
+            except (TypeError, ValueError):
+                declared_bytes = None
+            if declared_bytes is not None and declared_bytes > max_bytes:
+                raise ValueError(f"content exceeds {max_bytes} bytes")
+
+        chunks: list[bytes] = []
+        size = 0
+        iter_content = getattr(response, "iter_content", None)
+        iterator = (
+            iter_content(chunk_size=max_bytes + 1)
+            if callable(iter_content)
+            else (bytes(getattr(response, "content", b"")),)
+        )
+        for chunk in iterator:
+            if not chunk:
+                continue
+            size += len(chunk)
+            if size > max_bytes:
+                raise ValueError(f"content exceeds {max_bytes} bytes")
+            chunks.append(bytes(chunk))
+        return b"".join(chunks)
+    finally:
+        _close_response(response)
+
+
 def is_public_ip(address: str | ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
     try:
         return ipaddress.ip_address(address).is_global
@@ -85,19 +124,32 @@ def _fetch_public_url_once(
     resolver: Resolver | None = None,
     request: Callable[..., requests.Response] = requests.get,
     max_redirects: int = 5,
+    max_bytes: int | None = None,
 ) -> requests.Response:
     """Fetch one redirect chain while validating every requested URL."""
     current = validate_public_url(url, resolver=resolver)
     for _ in range(max_redirects + 1):
-        response = request(current, headers=headers, timeout=timeout, allow_redirects=False)
+        request_kwargs: dict[str, object] = {
+            "headers": headers,
+            "timeout": timeout,
+            "allow_redirects": False,
+        }
+        if max_bytes is not None:
+            request_kwargs["stream"] = True
+        response = request(current, **request_kwargs)
         if response.is_redirect or response.is_permanent_redirect:
             location = response.headers.get("Location")
             if not location:
+                _close_response(response)
                 raise PublicUrlError("redirect response is missing Location")
+            _close_response(response)
             current = validate_public_url(urljoin(current, location), resolver=resolver)
             continue
         if response.status_code == 304 or 200 <= response.status_code < 300:
+            if max_bytes is not None and response.status_code != 304:
+                response._content = read_bounded_response(response, max_bytes)
             return response
+        _close_response(response)
         raise requests.HTTPError(f"HTTP {response.status_code} for {current}", response=response)
     raise PublicUrlError("too many redirects")
 
@@ -116,6 +168,7 @@ def fetch_public_url(
     attempt_limiter: Callable[[], None] | None = None,
     backoff_seconds: float = 1.0,
     max_delay_seconds: float = 30.0,
+    max_bytes: int | None = None,
 ) -> requests.Response:
     """Fetch a public URL with bounded retries and redirect revalidation."""
     request_headers = dict(headers or {})
@@ -130,6 +183,7 @@ def fetch_public_url(
             resolver=resolver,
             request=request,
             max_redirects=max_redirects,
+            max_bytes=max_bytes,
         ),
         sleeper=sleeper,
         limiter=attempt_limiter,

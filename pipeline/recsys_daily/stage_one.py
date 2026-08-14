@@ -103,7 +103,6 @@ def load_history_ids(
         kind = "paper" if item.kind == "paper" else "blog"
         canonical_kinds[item.id] = (relative_name, kind)
         canonical_ids_by_kind[kind].add(item.id)
-        history.add(item.id)
 
     for path in _canonical_json_files(data_root / "digests", data_root):
         relative = path.relative_to(data_root)
@@ -169,6 +168,24 @@ def write_stage_one(
     write_json(output / "stage-report.json", (stage_report or StageReport()).model_dump(mode="json"))
 
 
+def shortlist_candidates(
+    candidates: Sequence[Candidate],
+    metadata: MetadataResult,
+    max_per_kind: int,
+) -> list[Candidate]:
+    """Select the metadata-ranked deep-reading candidates deterministically."""
+    metadata_by_id = {item.id: item for item in metadata.items}
+
+    def key(candidate: Candidate) -> tuple[float, float, str, str]:
+        item = metadata_by_id[stable_id(candidate)]
+        return (-item.relevance_score, -candidate.published_at.timestamp(), candidate.source_id, stable_id(candidate))
+
+    selected: list[Candidate] = []
+    for kind in ("paper", "blog"):
+        selected.extend(sorted((item for item in candidates if item.kind == kind), key=key)[:max_per_kind])
+    return selected
+
+
 def collection_stage_report(config: AppConfig, result: CollectionResult, metadata: MetadataResult) -> StageReport:
     warnings = list(result.warnings)
     sources: list[SourceRunStatus] = []
@@ -203,6 +220,11 @@ def run_collect_filter(
     current = result.window.until
     candidates = prefilter(result.candidates, config, history, now=current)
     metadata = analyze_metadata(candidates, config, complete_json)
+    candidates = shortlist_candidates(
+        candidates,
+        metadata,
+        config.settings.limits.deep_reading_candidates_per_type,
+    )
     write_stage_one(
         output,
         run_id or current.strftime("%Y%m%dT%H%M%SZ"),

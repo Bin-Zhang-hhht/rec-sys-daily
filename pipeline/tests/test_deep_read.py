@@ -241,6 +241,43 @@ def test_deep_read_caps_input_to_top_sixteen(tmp_path: Path) -> None:
     assert len(payload["items"]) == 16
 
 
+def test_deep_read_isolates_item_failure_without_persisting_error_text(tmp_path: Path) -> None:
+    content = FakeContent(tmp_path)
+    calls = 0
+
+    def text_reader(*_args: object) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise RuntimeError("provider failure with private details")
+        return _blog_analysis()
+
+    services = _services(tmp_path, content, text=text_reader)
+    input_dir = tmp_path / "input"
+    output_dir = tmp_path / "output"
+    input_dir.mkdir()
+    candidates = [
+        {
+            "kind": "blog",
+            "source_id": "example",
+            "title": f"Feed Ranking {index}",
+            "url": f"https://engineering.example.com/posts/{index}",
+            "published_at": "2026-08-10T00:00:00Z",
+            "authors": ["Example Engineer"],
+            "excerpt": "Short excerpt",
+        }
+        for index in range(2)
+    ]
+    (input_dir / "blog-candidates.json").write_text(json.dumps(candidates), encoding="utf-8")
+
+    deep_read("blog", input_dir, output_dir, services=services)
+
+    payload = json.loads((output_dir / "blog-deep-readings.json").read_text(encoding="utf-8"))
+    assert len(payload["items"]) == 1
+    assert payload["failures"] == [{"id": payload["failures"][0]["id"], "code": "deep_read_failed"}]
+    assert "private details" not in json.dumps(payload)
+
+
 def test_blog_deep_read_fetches_each_source_feed_once_and_reuses_content(tmp_path: Path) -> None:
     payload = """
     <rss version='2.0' xmlns:content='http://purl.org/rss/1.0/modules/content/'><channel><item>

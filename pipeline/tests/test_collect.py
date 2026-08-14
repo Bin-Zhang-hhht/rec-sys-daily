@@ -12,8 +12,8 @@ from recsys_daily.collect import Candidate, CollectionResult, FeedResponse, _arx
 from recsys_daily.config import SourcesConfig, load_config
 from recsys_daily.metadata import MetadataResult
 from recsys_daily.security import PublicUrlError, fetch_public_url, validate_public_url
-from recsys_daily.schemas import SourceState, State
-from recsys_daily.stage_one import collection_stage_report, load_history_ids, run_collect_filter
+from recsys_daily.schemas import SourceState, Stage1Metadata, State
+from recsys_daily.stage_one import collection_stage_report, load_history_ids, run_collect_filter, shortlist_candidates
 from recsys_daily.testing_fixtures import _fixture_metadata_candidate_ids
 from recsys_daily.state import query_window
 
@@ -46,10 +46,10 @@ def test_query_window_uses_cold_start_and_incremental_offsets() -> None:
     assert incremental.blogs_since == datetime(2026, 8, 2, 0, 0, tzinfo=UTC)
 
 
-def test_query_window_treats_invalid_state_as_cold_start() -> None:
-    window = query_window({"last_success_at": "not-a-timestamp"}, now=NOW)
-
-    assert window.papers_since == datetime(2021, 8, 10, 0, 0, tzinfo=UTC)
+@pytest.mark.parametrize("state", [{"last_success_at": "not-a-timestamp"}, {}, State()])
+def test_query_window_rejects_invalid_existing_state(state: State | dict[str, object]) -> None:
+    with pytest.raises(ValueError, match="last_success_at"):
+        query_window(state, now=NOW)
 
 
 def test_stable_id_prefers_arxiv_doi_url_then_title() -> None:
@@ -94,7 +94,7 @@ def test_collect_normalizes_fixtures_and_honors_conditional_headers() -> None:
             return FeedResponse(200, ARXIV_ATOM.encode(), {"ETag": '"arxiv-v1"'})
         return FeedResponse(200, BLOG_RSS.encode(), {"Last-Modified": "Sun, 09 Aug 2026 08:30:00 GMT"})
 
-    state = State(sources={
+    state = State(last_success_at=datetime(2026, 8, 9, 0, 0, tzinfo=UTC), sources={
         "arxiv": SourceState(etag='"old-arxiv"'),
         "meta_engineering": SourceState(last_modified="Sat, 08 Aug 2026 00:00:00 GMT"),
     })
@@ -130,6 +130,9 @@ def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> No
         "url": "https://arxiv.org/abs/2501.00001",
         "published_at": "2025-01-02T00:00:00Z",
         "authors": ["Author"],
+        "abstract": "Historical abstract",
+        "arxiv_id": "2501.00001",
+        "doi": None,
         "targets": [config.topics.targets[0].id],
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
@@ -155,6 +158,13 @@ def test_load_history_ids_combines_state_items_and_digests(tmp_path: Path) -> No
         "date": "2025-01-02",
         "papers": [{"item_id": "digest-paper", "recommendation_reason_zh": "history", "rank": 1}],
         "blogs": [{"item_id": "digest-blog", "recommendation_reason_zh": "history", "rank": 1}],
+    }), encoding="utf-8")
+    unrecommended = tmp_path / "items/papers/2025/01/unrecommended-paper.json"
+    unrecommended.write_text(json.dumps({
+        **json.loads(item.read_text(encoding="utf-8")),
+        "id": "unrecommended-paper",
+        "url": "https://arxiv.org/abs/2501.99999",
+        "arxiv_id": "2501.99999",
     }), encoding="utf-8")
 
     assert load_history_ids(tmp_path, config, State(recommended_item_ids=["state-history"])) == {
@@ -214,6 +224,9 @@ def test_load_history_ids_rejects_duplicate_canonical_item_ids(tmp_path: Path) -
         "url": "https://arxiv.org/abs/2501.00001",
         "published_at": "2025-01-02T00:00:00Z",
         "authors": ["Author"],
+        "abstract": "Historical abstract",
+        "arxiv_id": "2501.00001",
+        "doi": None,
         "targets": [config.topics.targets[0].id],
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
@@ -246,6 +259,9 @@ def test_load_history_ids_rejects_missing_or_wrong_kind_digest_reference(tmp_pat
         "url": "https://arxiv.org/abs/2501.00001",
         "published_at": "2025-01-02T00:00:00Z",
         "authors": ["Author"],
+        "abstract": "Historical abstract",
+        "arxiv_id": "2501.00001",
+        "doi": None,
         "targets": [config.topics.targets[0].id],
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
@@ -297,7 +313,7 @@ def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorica
     run_collect_filter(
         _config(),
         tmp_path,
-        State(),
+        None,
         {"arxiv-2608.01234"},
         complete_json,
         fetcher=fetcher,
@@ -315,6 +331,40 @@ def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorica
     assert "Full implementation details" not in blogs
     assert json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))["run_id"] == "stage-one-test"
     assert set(json.loads((tmp_path / "source-states.json").read_text(encoding="utf-8"))) == {"arxiv", "meta_engineering"}
+
+
+def test_stage_one_shortlist_uses_metadata_relevance_and_caps_each_kind() -> None:
+    candidates = [
+        Candidate(
+            kind=kind,
+            source_id="arxiv" if kind == "paper" else "example",
+            title=f"{kind} {index}",
+            url=f"https://example.com/{kind}/{index}",
+            published_at=NOW,
+            excerpt="recommendation ranking",
+            arxiv_id=f"2608.{index:05d}" if kind == "paper" else None,
+        )
+        for kind in ("paper", "blog")
+        for index in range(18)
+    ]
+    metadata = MetadataResult(
+        items=[
+            Stage1Metadata(id=stable_id(candidate), relevance_score=index / 20)
+            for candidate in candidates
+            for index in [int(candidate.title.rsplit(" ", 1)[-1])]
+        ],
+        llm_calls=5,
+        success_rate=1,
+        degraded_count=0,
+    )
+
+    selected = shortlist_candidates(candidates, metadata, 16)
+
+    for kind in ("paper", "blog"):
+        kind_ids = [stable_id(candidate) for candidate in selected if candidate.kind == kind]
+        expected = [stable_id(candidate) for candidate in candidates if candidate.kind == kind and int(candidate.title.rsplit(" ", 1)[-1]) >= 2]
+        assert len(kind_ids) == 16
+        assert kind_ids == list(reversed(expected))
 
 
 def test_collect_passes_configured_excerpt_limit() -> None:
@@ -453,6 +503,36 @@ def test_fetch_public_url_preserves_explicit_user_agent() -> None:
     )
 
     assert calls[0]["headers"] == {"user-agent": "Explicit/2.0"}
+
+
+def test_fetch_public_url_streams_only_through_the_limit_plus_one() -> None:
+    class Response:
+        status_code = 200
+        content = b"not-read"
+        headers: dict[str, str] = {}
+        is_redirect = False
+        is_permanent_redirect = False
+        closed = False
+
+        def iter_content(self, *, chunk_size: int):
+            assert chunk_size == 6
+            yield b"123"
+            yield b"456"
+
+        def close(self) -> None:
+            self.closed = True
+
+    response = Response()
+
+    with pytest.raises(ValueError, match="content exceeds 5 bytes"):
+        fetch_public_url(
+            "https://public.example/feed",
+            resolver=_public_resolver,
+            request=lambda *_args, **_kwargs: response,
+            max_bytes=5,
+        )
+
+    assert response.closed is True
 
 
 def test_collect_retries_source_http_503_with_configured_network_options(monkeypatch: pytest.MonkeyPatch) -> None:

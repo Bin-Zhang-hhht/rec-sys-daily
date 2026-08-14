@@ -7,12 +7,15 @@ services:
       - path: .env
         required: false
     volumes:
-      - ./work/publish-bundle:/workspace/publish-bundle
+      - ./work:/workspace/work
     entrypoint: ["python", "-m", "recsys_daily"]
 
   site:
     build:
       context: ./site
+    environment:
+      PUBLISH_BUNDLE_DIR: /workspace/work/publish-bundle
+      SITE_ORIGIN: ${SITE_ORIGIN:-https://example.invalid}
     volumes:
-      - ./work/publish-bundle:/workspace/publish-bundle
+      - ./work:/workspace/work:ro
     entrypoint: ["pnpm"]

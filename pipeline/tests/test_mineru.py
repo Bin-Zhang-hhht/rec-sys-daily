@@ -18,9 +18,19 @@ class FakeResponse:
     payload: dict[str, object]
     content: bytes = b""
     headers: dict[str, str] = field(default_factory=dict)
+    chunks: list[bytes] | None = None
+    closed: bool = False
+    chunk_sizes: list[int] = field(default_factory=list)
 
     def json(self) -> dict[str, object]:
         return self.payload
+
+    def iter_content(self, *, chunk_size: int):
+        self.chunk_sizes.append(chunk_size)
+        yield from self.chunks if self.chunks is not None else (self.content,)
+
+    def close(self) -> None:
+        self.closed = True
 
 
 class FakeSession:
@@ -92,7 +102,9 @@ def _happy_responses(zip_bytes: bytes) -> list[FakeResponse]:
 
 
 def test_parse_pdf_uploads_polls_and_reads_full_markdown(tmp_path: Path) -> None:
-    session = FakeSession(_happy_responses(_zip_bytes({"full.md": "# Method\nMinerU text"})))
+    responses = _happy_responses(_zip_bytes({"full.md": "# Method\nMinerU text"}))
+    result_response = responses[-1]
+    session = FakeSession(responses)
 
     text = _client(session).parse_pdf(b"%PDF", "paper.pdf", tmp_path)
 
@@ -101,7 +113,43 @@ def test_parse_pdf_uploads_polls_and_reads_full_markdown(tmp_path: Path) -> None
     assert session.calls[0][2]["headers"]["Authorization"] == "Bearer secret"  # type: ignore[index]
     assert session.calls[1][2]["allow_redirects"] is False
     assert "headers" not in session.calls[-1][2]
+    assert session.calls[-1][2]["stream"] is True
+    assert result_response.closed is True
     assert not list(tmp_path.iterdir())
+
+
+def test_parse_pdf_stops_chunked_result_after_limit_without_content_length(tmp_path: Path) -> None:
+    responses = _happy_responses(b"")
+    result_response = FakeResponse("get", 200, {}, chunks=[b"123", b"456"])
+    responses[-1] = result_response
+
+    with pytest.raises(MinerUError, match="result ZIP exceeds configured size limit"):
+        _client(FakeSession(responses), config={"max_pdf_bytes": 5}).parse_pdf(b"%PDF", "paper.pdf", tmp_path)
+
+    assert result_response.chunk_sizes == [6]
+    assert result_response.closed is True
+    assert not list(tmp_path.iterdir())
+
+
+def test_public_result_redirect_closes_each_streamed_response() -> None:
+    redirect = FakeResponse("get", 302, {}, headers={"Location": "https://cdn.example/result.zip"})
+    result = FakeResponse("get", 200, {}, content=b"zip")
+    session = FakeSession([redirect, result])
+
+    content = _client(session)._public_get(
+        "https://result.example/batch-1.zip",
+        timeout=10,
+        max_bytes=3,
+    )
+
+    assert content == b"zip"
+    assert [call[1] for call in session.calls] == [
+        "https://result.example/batch-1.zip",
+        "https://cdn.example/result.zip",
+    ]
+    assert all(call[2]["stream"] is True for call in session.calls)
+    assert redirect.closed is True
+    assert result.closed is True
 
 
 def test_parse_pdf_retries_transient_upload_failure(tmp_path: Path) -> None:
@@ -113,6 +161,24 @@ def test_parse_pdf_retries_transient_upload_failure(tmp_path: Path) -> None:
 
     assert _client(session).parse_pdf(b"%PDF", "paper.pdf", tmp_path) == "ok"
     assert [call[0] for call in session.calls[:2]] == ["post", "post"]
+
+
+@pytest.mark.parametrize(
+    ("file_urls", "message"),
+    [
+        (["https://upload.example/one", "https://upload.example/two"], "incomplete"),
+        ([{"url": "https://upload.example/paper", "data_id": "other.pdf"}], "data_id"),
+    ],
+)
+def test_parse_pdf_requires_one_matching_upload_entry(tmp_path: Path, file_urls: list[object], message: str) -> None:
+    session = FakeSession([
+        FakeResponse("post", 200, {"code": 0, "data": {"batch_id": "batch-1", "file_urls": file_urls}}),
+    ])
+
+    with pytest.raises(MinerUError, match=message):
+        _client(session).parse_pdf(b"%PDF", "paper.pdf", tmp_path)
+
+    assert not list(tmp_path.iterdir())
 
 
 @pytest.mark.parametrize(

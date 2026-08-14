@@ -1,25 +1,36 @@
 type PagefindResult = { data: () => Promise<{ url: string; excerpt?: string; meta?: Record<string, string> }> };
-type FilterCounts = Record<string, { values: Record<string, { count?: number; total?: number } | number> }>;
-type PagefindApi = { search: (query: string, options?: { filters?: Record<string, string | string[]> }) => Promise<{ results: PagefindResult[]; unfilteredResultCount?: number; filters?: FilterCounts }>; filters?: () => Promise<FilterCounts> };
+type FilterCounts = Record<string, Record<string, number>>;
+type FilterValue = string | { any: string[] };
+type PagefindApi = {
+  search: (query: string | null, options?: { filters?: Record<string, FilterValue> }) => Promise<{ results: PagefindResult[]; filters?: FilterCounts }>;
+  filters: () => Promise<FilterCounts>;
+  options: (options: { baseUrl: string; basePath: string }) => Promise<void>;
+};
 
 const input = document.querySelector<HTMLInputElement>("#search-input");
 const form = document.querySelector<HTMLFormElement>("#search-filters");
 const resultsElement = document.querySelector<HTMLElement>("#search-results");
 const status = document.querySelector<HTMLElement>("#search-status");
 const more = document.querySelector<HTMLButtonElement>("#search-more");
+const config = document.querySelector<HTMLElement>("#search-config");
 let pagefind: PagefindApi | undefined;
 let loading: Promise<PagefindApi> | undefined;
 let currentResults: PagefindResult[] = [];
 let shown = 0;
 let timer: number | undefined;
+let requestSequence = 0;
+let appendSequence: number | undefined;
 
 if (input && form && resultsElement && status && more) {
   const ensurePagefind = async () => {
     if (pagefind) return pagefind;
     // Pagefind writes this runtime into dist after Astro has emitted HTML.
-    const runtimePath = "/pagefind/" + "pagefind.js";
+    const siteBase = config?.dataset.siteBase ?? "/rec-sys-daily/";
+    const runtimePath = `${siteBase}pagefind/pagefind.js`;
     loading ??= import(/* @vite-ignore */ runtimePath) as Promise<PagefindApi>;
     pagefind = await loading;
+    await pagefind.options({ baseUrl: siteBase, basePath: runtimePath.slice(0, -"pagefind.js".length) });
+    await pagefind.filters();
     return pagefind;
   };
   const selectedFilters = () => {
@@ -32,12 +43,13 @@ if (input && form && resultsElement && status && more) {
       const group = select.dataset.filter;
       if (group && select.value) values[group] = [select.value];
     }
-    return Object.fromEntries(Object.entries(values).map(([key, selected]) => [key, selected.length === 1 ? selected[0] : selected]));
+    return Object.fromEntries(Object.entries(values).map(([key, selected]) => [key, selected.length === 1 ? selected[0] : { any: selected }]));
   };
-  const appendResults = async () => {
-    const fragment = document.createDocumentFragment();
+  const appendResults = async (sequence: number) => {
     const batch = currentResults.slice(shown, shown + 10);
     const values = await Promise.all(batch.map(result => result.data()));
+    if (sequence !== requestSequence) return;
+    const fragment = document.createDocumentFragment();
     for (const value of values) {
       const article = document.createElement("article");
       article.className = "border border-slate-200 bg-white p-4";
@@ -47,34 +59,82 @@ if (input && form && resultsElement && status && more) {
     resultsElement.append(fragment);
     shown += batch.length;
   };
-  const updateFilterCounts = async (api: PagefindApi, current?: FilterCounts) => {
-    const counts = current ?? (api.filters ? await api.filters() : {});
+  const updateFilterCounts = async (api: PagefindApi, current: FilterCounts | undefined, sequence: number) => {
+    const counts = current ?? await api.filters();
+    if (sequence !== requestSequence) return;
     for (const element of form.querySelectorAll<HTMLElement>("[data-filter-count]")) {
       const [group, value] = (element.dataset.filterCount ?? "").split(":");
-      const raw = counts[group]?.values?.[value];
-      const count = typeof raw === "number" ? raw : raw?.count ?? raw?.total ?? 0;
+      const count = counts[group]?.[value] ?? 0;
       element.textContent = count ? `(${count})` : "";
       const checkbox = element.parentElement?.querySelector<HTMLInputElement>("input");
-      if (checkbox) checkbox.disabled = count === 0 && !checkbox.checked;
+      const sameGroupSelected = [...form.querySelectorAll<HTMLInputElement>("input[data-filter]:checked")]
+        .some(inputValue => inputValue.dataset.filter === group);
+      if (checkbox) checkbox.disabled = count === 0 && !checkbox.checked && !sameGroupSelected;
     }
   };
   const render = async () => {
-    const api = await ensurePagefind();
-    const response = await api.search(input.value.trim(), { filters: selectedFilters() });
-    currentResults = response.results;
+    const request = ++requestSequence;
+    appendSequence = undefined;
+    currentResults = [];
     shown = 0;
-    resultsElement.replaceChildren();
-    await appendResults();
-    const total = response.unfilteredResultCount ?? currentResults.length;
-    status.textContent = `${total} 条结果`;
-    more.classList.toggle("hidden", shown >= currentResults.length);
-    await updateFilterCounts(api, response.filters);
+    status.textContent = "正在搜索…";
+    more.disabled = false;
+    more.classList.add("hidden");
+    try {
+      const api = await ensurePagefind();
+      const query = input.value.trim();
+      const response = await api.search(query || null, { filters: selectedFilters() });
+      if (request !== requestSequence) return;
+      currentResults = response.results;
+      shown = 0;
+      resultsElement.replaceChildren();
+      await appendResults(request);
+      if (request !== requestSequence) return;
+      status.textContent = currentResults.length ? `${currentResults.length} 条结果` : "没有符合条件的结果";
+      more.classList.toggle("hidden", shown >= currentResults.length);
+      await updateFilterCounts(api, response.filters, request);
+    } catch (error) {
+      if (request !== requestSequence) return;
+      currentResults = [];
+      shown = 0;
+      resultsElement.replaceChildren();
+      status.textContent = `搜索加载失败：${error instanceof Error ? error.message : "未知错误"}`;
+    }
   };
-  const schedule = () => { window.clearTimeout(timer); timer = window.setTimeout(() => void render(), 300); };
+  const schedule = () => {
+    requestSequence += 1;
+    appendSequence = undefined;
+    currentResults = [];
+    shown = 0;
+    more.disabled = false;
+    more.classList.add("hidden");
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => void render(), 300);
+  };
   input.addEventListener("focus", () => { void render(); }, { once: true });
   input.addEventListener("input", schedule);
   form.addEventListener("change", () => { void render(); });
-  more.addEventListener("click", () => { void appendResults().then(() => more.classList.toggle("hidden", shown >= currentResults.length)); });
+  more.addEventListener("click", () => {
+    const request = requestSequence;
+    if (appendSequence === request) return;
+    appendSequence = request;
+    more.disabled = true;
+    void appendResults(request)
+      .then(() => {
+        if (request === requestSequence) more.classList.toggle("hidden", shown >= currentResults.length);
+      })
+      .catch(error => {
+        if (request === requestSequence) {
+          status.textContent = `搜索结果加载失败：${error instanceof Error ? error.message : "未知错误"}`;
+        }
+      })
+      .finally(() => {
+        if (appendSequence === request) {
+          appendSequence = undefined;
+          more.disabled = false;
+        }
+      });
+  });
 }
 
 function escapeHtml(value: string) {
@@ -85,7 +145,11 @@ function sanitizeExcerpt(value: string) {
   const template = document.createElement("template");
   template.innerHTML = value;
   for (const element of template.content.querySelectorAll("*")) {
-    if (element.tagName !== "MARK") element.replaceWith(document.createTextNode(element.textContent ?? ""));
+    if (element.tagName === "MARK") {
+      for (const attribute of [...element.attributes]) element.removeAttribute(attribute.name);
+    } else {
+      element.replaceWith(document.createTextNode(element.textContent ?? ""));
+    }
   }
   return template.innerHTML;
 }

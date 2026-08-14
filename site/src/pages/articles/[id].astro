@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { loadBundle, taxonomyName } from "../../lib/data";
+import { loadBundle, relatedItems, taxonomyGroups, taxonomyName } from "../../lib/data";
+import { itemPath, sitePath } from "../../lib/paths";
 export function getStaticPaths() {
   const data = loadBundle();
   return data.items.filter(item => item.kind === "blog").map(item => ({ params: { id: item.id }, props: { item, data } }));
@@ -9,33 +10,34 @@ const { item, data } = Astro.props;
 const reading = item.deep_reading;
 function ageBucket(value: string) {
   const days = Math.max(0, (Date.now() - Date.parse(value)) / 86400000);
-  return days <= 7 ? "7d" : days <= 30 ? "30d" : days <= 365 ? "365d" : "older";
+  return [days <= 7 && "7d", days <= 30 && "30d", days <= 365 && "365d"].filter(Boolean) as string[];
 }
-const labels = [
-  ...item.targets.map(id => taxonomyName(data.taxonomy, "targets", id)?.name_zh ?? id),
-  ...item.scenarios.map(id => taxonomyName(data.taxonomy, "scenarios", id)?.name_zh ?? id),
-  ...item.tasks.map(id => taxonomyName(data.taxonomy, "tasks", id)?.name_zh ?? id),
-  ...item.methods.map(id => taxonomyName(data.taxonomy, "methods", id)?.name_zh ?? id),
-];
+const related = relatedItems(item, data.items);
 ---
 <BaseLayout title={`${item.title} · RecSys Daily`}>
   <article data-pagefind-body class="prose-lite mx-auto max-w-4xl">
-    <span class="hidden" data-pagefind-filter="kind:blog"></span><span class="hidden" data-pagefind-filter={`published_year:${item.published_at.slice(0, 4)}`}></span><span class="hidden" data-pagefind-filter={`age:${ageBucket(item.published_at)}`}></span>
+    <span class="hidden" data-pagefind-filter="kind:blog"></span><span class="hidden" data-pagefind-filter={`published_year:${item.published_at.slice(0, 4)}`}></span>{ageBucket(item.published_at).map(age => <span class="hidden" data-pagefind-filter={`age:${age}`}></span>)}
     {item.targets.map(id => <span class="hidden" data-pagefind-filter={`targets:${id}`}></span>)}
     {item.scenarios.map(id => <span class="hidden" data-pagefind-filter={`scenarios:${id}`}></span>)}
     {item.tasks.map(id => <span class="hidden" data-pagefind-filter={`tasks:${id}`}></span>)}
     {item.methods.map(id => <span class="hidden" data-pagefind-filter={`methods:${id}`}></span>)}
-    <p class="text-sm text-slate-500">工程博客 · {item.published_at.slice(0, 10)} · {item.source}</p>
+    <p class="text-sm text-slate-500">工程博客 · {item.published_at.slice(0, 10)} · {item.source} · {item.authors.join("、") || "未署名"}</p>
     <h1 class="mt-2 text-3xl font-bold text-slate-950">{item.title}</h1>
     <p class="mt-4 text-lg text-slate-700">{item.summary_zh}</p>
-    <div class="mt-4 flex flex-wrap gap-2">{labels.map(label => <span class="tag">{label}</span>)}</div>
+    {item.excerpt && <section class="mt-6 border-l-4 border-slate-300 pl-4"><h2 class="text-sm font-semibold">Feed excerpt</h2><p class="mt-1 text-sm text-slate-600">{item.excerpt}</p></section>}
+    <div class="mt-4 space-y-2">{taxonomyGroups.map(group => <div class="flex flex-wrap items-center gap-2"><span class="w-16 text-xs text-slate-500">{group}</span>{item[group].map(id => <span class="tag">{taxonomyName(data.taxonomy, group, id).name_zh}</span>)}</div>)}</div>
+    <dl class="mt-6 grid gap-x-6 gap-y-2 border-y border-slate-200 py-4 text-sm sm:grid-cols-2"><div><dt class="text-slate-500">相关性 / 最终分</dt><dd>{item.relevance_score.toFixed(2)} / {item.final_score.toFixed(2)}</dd></div><div><dt class="text-slate-500">分析依据</dt><dd>{reading.analysis_basis}{item.llm?.degraded ? " · 已降级" : ""}</dd></div></dl>
     {item.llm && <dl class="mt-6 grid gap-x-6 gap-y-2 border-y border-slate-200 py-4 text-sm sm:grid-cols-2">
       <div><dt class="text-slate-500">生成模型</dt><dd class="mt-1 font-medium text-slate-800">{item.llm.model}</dd></div>
       <div><dt class="text-slate-500">生成时间</dt><dd class="mt-1 font-medium text-slate-800">{item.llm.generated_at}</dd></div>
     </dl>}
     <section class="mt-8"><h2 class="text-xl font-semibold">系统背景</h2><p>{reading.system_context_zh ?? "未提供"}</p><h2 class="mt-6 text-xl font-semibold">架构与实现</h2><p>{reading.architecture_zh ?? "未提供"}</p><p>{reading.implementation_zh}</p></section>
     <section class="mt-8 grid gap-6 md:grid-cols-2"><div><h2 class="text-xl font-semibold">生产约束</h2><ul>{(reading.production_constraints_zh ?? []).map((value: string) => <li>{value}</li>)}</ul></div><div><h2 class="text-xl font-semibold">权衡与结果</h2><ul>{[...(reading.tradeoffs_zh ?? []), ...(reading.results_zh ?? [])].map((value: string) => <li>{value}</li>)}</ul></div></section>
-    <section class="mt-8"><h2 class="text-xl font-semibold">证据</h2><p>正文依据：{reading.analysis_basis}</p>{(reading.evidence_refs ?? []).map((ref: {heading?: string; section?: string}) => <p class="text-sm text-slate-600">{ref.heading ?? ref.section}</p>)}</section>
-    <p class="mt-8 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm">内容由 LLM 生成，可能存在错误。请以<a href={item.url} rel="noreferrer">原文</a>为准。</p>
+    <section class="mt-8 grid gap-6 md:grid-cols-2"><div><h2 class="text-xl font-semibold">可复用经验</h2><ul>{reading.lessons_zh.map(value => <li>{value}</li>)}</ul></div><div><h2 class="text-xl font-semibold">局限性</h2><ul>{reading.limitations_zh.map(value => <li>{value}</li>)}</ul></div></section>
+    <section class="mt-8"><h2 class="text-xl font-semibold">业务启示</h2><ul>{reading.business_implications_zh.map(value => <li>{value}</li>)}</ul></section>
+    <section class="mt-8"><h2 class="text-xl font-semibold">证据</h2>{reading.evidence_refs.map(ref => <p class="text-sm text-slate-600">{ref.heading ?? ref.section}</p>)}</section>
+    {related.length > 0 && <section data-pagefind-ignore class="mt-8"><h2 class="text-xl font-semibold">相关内容</h2><ul class="mt-3 space-y-2">{related.map(value => <li><a href={itemPath(value)}>{value.title}</a></li>)}</ul></section>}
+    <div data-pagefind-ignore class="mt-6 flex gap-4 text-sm"><a href={sitePath(`graph/?center=${encodeURIComponent(item.id)}`)}>在图谱中查看</a><a href={item.url} rel="noreferrer">阅读原文</a></div>
+    <p data-pagefind-ignore class="mt-8 border-l-4 border-amber-400 bg-amber-50 p-4 text-sm">内容由 LLM 生成，可能存在错误，请以原文为准。</p>
   </article>
 </BaseLayout>

@@ -25,6 +25,9 @@ def _paper(item_id: str, score: float) -> dict[str, object]:
         "url": f"https://arxiv.org/abs/{item_id}",
         "published_at": PUBLISHED_AT.isoformat().replace("+00:00", "Z"),
         "authors": ["Author"],
+        "abstract": f"Abstract for {item_id}",
+        "arxiv_id": item_id,
+        "doi": None,
         "targets": ["content"],
         "scenarios": ["text_feed"],
         "tasks": ["ranking"],
@@ -62,7 +65,7 @@ def _write_stage(path: Path, run_id: str, kind: str, items: list[dict[str, objec
     path.mkdir(parents=True)
     (path / "manifest.json").write_text(json.dumps({"run_id": run_id, "schema_version": "1"}), encoding="utf-8")
     (path / f"{kind}-deep-readings.json").write_text(
-        json.dumps({"kind": kind, "items": items}, ensure_ascii=False),
+        json.dumps({"kind": kind, "items": items, "failures": []}, ensure_ascii=False),
         encoding="utf-8",
     )
     return path
@@ -74,17 +77,23 @@ def fixture_stages(tmp_path: Path, *, paper_run_id: str = "run-1", blog_run_id: 
     stage1.mkdir()
     (stage1 / "manifest.json").write_text(json.dumps({"run_id": paper_run_id, "schema_version": "1"}), encoding="utf-8")
     candidates = [_paper(f"paper-{i}", 1 - i / 20) for i in range(10)] + [_blog(f"blog-{i}", 1 - i / 20) for i in range(10)]
-    stage1_candidates = {
-        **{key: value for key, value in item.items() if key not in {"deep_reading"}},
-        "graph_relations": [],
-        "degraded": False,
-    }
+
+    def stage1_record(item: dict[str, object]) -> dict[str, object]:
+        record = {
+            **{key: value for key, value in item.items() if key not in {"deep_reading"}},
+            "graph_relations": [],
+            "degraded": False,
+        }
+        if record["kind"] == "paper":
+            record["excerpt"] = record.pop("abstract")
+        return record
+
     (stage1 / "papers.jsonl").write_text(
-        "".join(json.dumps(stage1_candidates) + "\n" for item in candidates if item["kind"] == "paper"),
+        "".join(json.dumps(stage1_record(item)) + "\n" for item in candidates if item["kind"] == "paper"),
         encoding="utf-8",
     )
     (stage1 / "blogs.jsonl").write_text(
-        "".join(json.dumps(stage1_candidates) + "\n" for item in candidates if item["kind"] == "blog"),
+        "".join(json.dumps(stage1_record(item)) + "\n" for item in candidates if item["kind"] == "blog"),
         encoding="utf-8",
     )
     (stage1 / "source-states.json").write_text(
@@ -100,6 +109,74 @@ def fixture_stages(tmp_path: Path, *, paper_run_id: str = "run-1", blog_run_id: 
 def test_publish_bundle_allowlist(tmp_path: Path) -> None:
     bundle = integrate(fixture_stages(tmp_path), tmp_path / "bundle", CONFIG, state=None)
     assert sorted(path.name for path in bundle.path.iterdir()) == ["manifest.json", "pending-data", "taxonomy.json"]
+
+
+def test_integrate_rejects_stage_one_candidate_overflow(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    papers_path = stages.stage1 / "papers.jsonl"
+    extra_papers = [_paper(f"paper-{index}", 0.1) for index in range(10, 17)]
+    with papers_path.open("a", encoding="utf-8") as stream:
+        for item in extra_papers:
+            record = {key: value for key, value in item.items() if key != "deep_reading"}
+            record["excerpt"] = record.pop("abstract")
+            record.update({"graph_relations": [], "degraded": False})
+            stream.write(json.dumps(record) + "\n")
+    paper_deep_read_path = stages.paper / "paper-deep-readings.json"
+    paper_deep_read = json.loads(paper_deep_read_path.read_text(encoding="utf-8"))
+    paper_deep_read["items"].extend(extra_papers)
+    paper_deep_read_path.write_text(json.dumps(paper_deep_read), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="stage-1 paper candidate count exceeds"):
+        integrate(stages, tmp_path / "bundle", CONFIG)
+
+
+def test_unknown_graph_relation_target_is_pruned_with_warning(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    papers = stages.stage1 / "papers.jsonl"
+    lines = papers.read_text(encoding="utf-8").splitlines()
+    first = json.loads(lines[0])
+    first["graph_relations"] = [
+        {
+            "type": "related",
+            "target_id": "url-unknown-hash",
+            "confidence": 0.9,
+            "evidence": "mentions the item",
+            "generated_by": "metadata",
+        },
+        {
+            "type": "applies",
+            "target_id": "two_tower",
+            "confidence": 0.8,
+            "evidence": "method mentioned",
+            "generated_by": "metadata",
+        },
+    ]
+    lines[0] = json.dumps(first)
+    papers.write_text("".join(line + "\n" for line in lines), encoding="utf-8")
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+    item = json.loads((bundle.path / "pending-data" / "items" / "papers" / "2026" / "08" / "paper-0.json").read_text(encoding="utf-8"))
+    assert [relation["target_id"] for relation in item["graph_relations"]] == ["two_tower"]
+    report = RunReport.model_validate(
+        json.loads(next((bundle.path / "pending-data" / "runs").rglob("*.json")).read_text(encoding="utf-8"))
+    )
+    assert any("unknown target" in warning for warning in report.warnings)
+
+
+def test_integrate_requires_output_to_not_exist(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    empty = tmp_path / "bundle"
+    empty.mkdir()
+    with pytest.raises(FileExistsError, match="already exists"):
+        integrate(stages, empty, CONFIG, state=None)
+
+    populated = tmp_path / "populated"
+    populated.mkdir()
+    (populated / "existing.json").write_text("{}", encoding="utf-8")
+    again = tmp_path / "again"
+    again.mkdir()
+    with pytest.raises(FileExistsError, match="already exists"):
+        integrate(fixture_stages(again), populated, CONFIG, state=None)
 
 
 def test_integration_does_not_write_empty_digest_but_keeps_report_and_state(tmp_path: Path) -> None:
@@ -178,7 +255,9 @@ def test_integration_rejects_low_structured_analysis_rate(tmp_path: Path) -> Non
     stages = fixture_stages(tmp_path)
     paper_path = stages.paper / "paper-deep-readings.json"
     paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
+    failed = paper_document["items"][1:]
     paper_document["items"] = paper_document["items"][:1]
+    paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
     paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
     with pytest.raises(ValueError, match="structured analysis success rate"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
@@ -218,11 +297,27 @@ def test_structured_analysis_success_rate_is_enforced(tmp_path: Path) -> None:
     paper_path = stages.paper / "paper-deep-readings.json"
     # Seven of ten Stage 1 paper candidates is below the configured 0.80 gate.
     paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
+    failed = paper_document["items"][7:]
     paper_document["items"] = paper_document["items"][:7]
+    paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
     paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
 
     with pytest.raises(ValueError, match="structured analysis success rate"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+
+def test_structured_analysis_accepts_exact_eighty_percent(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    paper_path = stages.paper / "paper-deep-readings.json"
+    paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
+    failed = paper_document["items"][8:]
+    paper_document["items"] = paper_document["items"][:8]
+    paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
+    paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+    assert bundle.path.exists()
 
 
 def test_item_size_limit_is_enforced_before_publish(tmp_path: Path) -> None:

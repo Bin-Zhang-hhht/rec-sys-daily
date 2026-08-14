@@ -22,14 +22,17 @@ function makeBundle(snapshot = {}) {
     ...snapshot,
   };
   mkdirSync(join(bundle, "pending-data/runs/2026/08"), { recursive: true });
+  mkdirSync(join(bundle, "pending-data/digests/2026/08"), { recursive: true });
   mkdirSync(join(dist, "search"), { recursive: true });
   mkdirSync(join(dist, "graph"), { recursive: true });
+  mkdirSync(join(dist, "archive/2026-08-13"), { recursive: true });
   mkdirSync(join(dist, "pagefind"), { recursive: true });
   writeFileSync(join(bundle, "pending-data/runs/2026/08/run.json"), JSON.stringify({ config_snapshot: fullSnapshot, stage_report: {} }));
+  writeFileSync(join(bundle, "pending-data/digests/2026/08/2026-08-13.json"), JSON.stringify({ date: "2026-08-13", papers: [], blogs: [] }));
   writeFileSync(join(dist, "graph.json"), JSON.stringify({
     nodes: [
-      { data: { id: "paper-1", type: "paper", href: "/papers/paper-1/" } },
-      { data: { id: "article-1", type: "article", href: "/articles/article-1/" } },
+      { data: { id: "paper-1", type: "paper", href: "/rec-sys-daily/papers/paper-1/" } },
+      { data: { id: "article-1", type: "article", href: "/rec-sys-daily/articles/article-1/" } },
       { data: { id: "method:ranking", type: "method" } },
     ],
     edges: [
@@ -37,7 +40,7 @@ function makeBundle(snapshot = {}) {
       { data: { id: "edge-2", source: "article-1", target: "method:ranking" } },
     ],
   }));
-  for (const file of ["index.html", "search/index.html", "graph/index.html", "pagefind/pagefind.js", "pagefind/filter.json"]) writeFileSync(join(dist, file), "x");
+  for (const file of ["index.html", "archive/index.html", "search/index.html", "graph/index.html", "archive/2026-08-13/index.html", "pagefind/pagefind.js", "pagefind/filter.json"]) writeFileSync(join(dist, file), "x");
   return { bundle, dist };
 }
 
@@ -49,6 +52,18 @@ test("verifyBuild uses report graph and artifact thresholds", () => {
 test("verifyBuild accepts a bundle within configured limits", () => {
   const root = makeBundle({ graph_max_content_nodes: 2 });
   assert.equal(verifyBuild(root).snapshot.graph_max_content_nodes, 2);
+});
+
+test("verifyBuild rejects links that escape the project Pages base", () => {
+  const graphRoot = makeBundle({ graph_max_content_nodes: 2 });
+  const graph = JSON.parse(readFileSync(join(graphRoot.dist, "graph.json"), "utf8"));
+  graph.nodes[0].data.href = "/papers/paper-1/";
+  writeFileSync(join(graphRoot.dist, "graph.json"), JSON.stringify(graph));
+  assert.throws(() => verifyBuild(graphRoot), /invalid detail href/);
+
+  const htmlRoot = makeBundle({ graph_max_content_nodes: 2 });
+  writeFileSync(join(htmlRoot.dist, "index.html"), '<a href="/search/">search</a>');
+  assert.throws(() => verifyBuild(htmlRoot), /escapes project base/);
 });
 
 test("site image pins pnpm and approves only required dependency builds", () => {
