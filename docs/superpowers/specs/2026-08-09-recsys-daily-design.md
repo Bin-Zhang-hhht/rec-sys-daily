@@ -721,7 +721,7 @@ storage:
 - 每个详情页把 canonical item 的分类 ID 写入 Pagefind filter attribute；显示名称只来自 taxonomy，不在页面脚本中维护第二份映射
 - 同一筛选组内的多选采用 OR，不同筛选组之间采用 AND
 - Pagefind 加载后先读取实际 filter counts，零结果配置项保留但置灰，当前条件下的可用数量随搜索结果更新；纯筛选使用 `null` query，结果数以过滤后 `results.length` 为准
-- Pagefind 只索引详情页实际渲染的公开内容；博客短 excerpt 不进入 canonical item、详情页正文或搜索索引。搜索 API 返回对象中的 `excerpt` 是 Pagefind 生成的结果片段，与博客源字段无关
+- Pagefind 只索引详情页实际渲染的公开内容；博客短 excerpt 不进入 canonical item、详情页正文或搜索索引。详情页另将内容类型、发布日期、taxonomy 显示名和中文总结写入 Pagefind metadata；搜索结果卡片仿照归档卡片展示标题、仅含内容类型与日期的元数据行、四类 taxonomy 胶囊和中文总结，不直接渲染 Pagefind 自动生成的 `excerpt` 片段
 - 默认按相关性返回结果；时间筛选只限制结果集合，不复制一套归档查询逻辑
 
 初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。搜索框始终可见；移动端压缩页头、标题与结果卡间距，全部筛选放入默认关闭的原生 disclosure，summary 显示筛选图标和已选数量，taxonomy 项仅显示中文短名但通过 tooltip 与 `aria-label` 保留中英文全名。桌面断点继续使用约 18rem 的常显筛选侧栏。用户首次聚焦搜索框或操作筛选项时，才从 `import.meta.env.BASE_URL` 下动态加载 `pagefind/pagefind.js`，并同时设置 base URL 与 base path；这些交互只预加载 runtime 和 filter counts，不自动提交查询。关键词搜索必须通过带图标的提交按钮或 Enter 执行，首次提交后的筛选变化重新执行最近一次已提交的关键词；输入本身不触发搜索。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载，界面明确展示 loading、empty 和 error 状态。

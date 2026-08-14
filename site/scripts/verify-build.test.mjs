@@ -26,6 +26,8 @@ function makeBundle(snapshot = {}) {
   mkdirSync(join(dist, "search"), { recursive: true });
   mkdirSync(join(dist, "graph"), { recursive: true });
   mkdirSync(join(dist, "archive/2026-08-13"), { recursive: true });
+  mkdirSync(join(dist, "papers/paper-1"), { recursive: true });
+  mkdirSync(join(dist, "articles/article-1"), { recursive: true });
   mkdirSync(join(dist, "pagefind"), { recursive: true });
   writeFileSync(join(bundle, "pending-data/runs/2026/08/run.json"), JSON.stringify({ config_snapshot: fullSnapshot, stage_report: {} }));
   writeFileSync(join(bundle, "pending-data/digests/2026/08/2026-08-13.json"), JSON.stringify({ date: "2026-08-13", papers: [], blogs: [] }));
@@ -41,6 +43,9 @@ function makeBundle(snapshot = {}) {
     ],
   }));
   for (const file of ["index.html", "archive/index.html", "search/index.html", "graph/index.html", "archive/2026-08-13/index.html", "pagefind/pagefind.js", "pagefind/filter.json"]) writeFileSync(join(dist, file), "x");
+  const pagefindMetadata = '<span data-pagefind-ignore data-pagefind-meta="kind">论文</span><span data-pagefind-ignore data-pagefind-meta="published_at">2026-08-13</span><span data-pagefind-ignore data-pagefind-meta="taxonomy">[]</span><span data-pagefind-ignore data-pagefind-meta="summary_zh">中文总结</span>';
+  writeFileSync(join(dist, "papers/paper-1/index.html"), pagefindMetadata);
+  writeFileSync(join(dist, "articles/article-1/index.html"), pagefindMetadata);
   return { bundle, dist };
 }
 
@@ -72,6 +77,19 @@ test("verifyBuild rejects graph nodes without a finite positive weight", () => {
   graph.nodes[0].data.weight = 0;
   writeFileSync(join(root.dist, "graph.json"), JSON.stringify(graph));
   assert.throws(() => verifyBuild(root), /invalid positive weight/);
+});
+
+test("verifyBuild requires search card metadata on detail pages", () => {
+  const root = makeBundle({ graph_max_content_nodes: 2 });
+  writeFileSync(join(root.dist, "articles/article-1/index.html"), '<span data-pagefind-ignore data-pagefind-meta="kind">工程博客</span>');
+  assert.throws(() => verifyBuild(root), /missing Pagefind metadata published_at/);
+});
+
+test("verifyBuild excludes Pagefind metadata from indexed body text", () => {
+  const root = makeBundle({ graph_max_content_nodes: 2 });
+  const article = join(root.dist, "articles/article-1/index.html");
+  writeFileSync(article, readFileSync(article, "utf8").replace("data-pagefind-ignore ", ""));
+  assert.throws(() => verifyBuild(root), /metadata must be excluded from body text kind/);
 });
 
 test("site image pins pnpm and approves only required dependency builds", () => {

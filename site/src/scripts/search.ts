@@ -1,6 +1,8 @@
-type PagefindResult = { data: () => Promise<{ url: string; excerpt?: string; meta?: Record<string, string> }> };
+type PagefindResult = { data: () => Promise<{ url: string; meta?: Record<string, string> }> };
 type FilterCounts = Record<string, Record<string, number>>;
 type FilterValue = string | { any: string[] };
+type TaxonomyGroup = "targets" | "scenarios" | "tasks" | "methods";
+type SearchTaxonomyChip = { group: TaxonomyGroup; name_zh: string; name_en: string };
 type PagefindApi = {
   search: (query: string | null, options?: { filters?: Record<string, FilterValue> }) => Promise<{ results: PagefindResult[]; filters?: FilterCounts }>;
   filters: () => Promise<FilterCounts>;
@@ -23,6 +25,13 @@ let requestSequence = 0;
 let appendSequence: number | undefined;
 let committedQuery = "";
 let hasSubmitted = false;
+
+const groupMeta: Record<TaxonomyGroup, { label: string; classes: string }> = {
+  targets: { label: "目标", classes: "border-sky-200 bg-sky-50 text-sky-800" },
+  scenarios: { label: "场景", classes: "border-emerald-200 bg-emerald-50 text-emerald-800" },
+  tasks: { label: "任务", classes: "border-amber-200 bg-amber-50 text-amber-900" },
+  methods: { label: "方法", classes: "border-violet-200 bg-violet-50 text-violet-800" },
+};
 
 if (input && form && resultsElement && status && more) {
   const updateActiveFilterCount = () => {
@@ -72,8 +81,17 @@ if (input && form && resultsElement && status && more) {
     const fragment = document.createDocumentFragment();
     for (const value of values) {
       const article = document.createElement("article");
-      article.className = "rounded-lg border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5";
-      article.innerHTML = `<h2 class="font-semibold leading-6"><a class="text-sky-800" href="${encodeURI(value.url)}">${escapeHtml(value.meta?.title ?? value.url)}</a></h2><p class="mt-2 text-sm leading-6 text-slate-600 sm:leading-7">${sanitizeExcerpt(value.excerpt ?? "")}</p>`;
+      article.className = "rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]";
+      const meta = value.meta ?? {};
+      const taxonomy = parseTaxonomy(meta.taxonomy);
+      const chips = taxonomy.map(chip => {
+        const group = groupMeta[chip.group];
+        return `<span class="inline-flex min-h-7 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs leading-4 ${group.classes}" title="${escapeHtml(`${group.label}：${chip.name_zh} / ${chip.name_en}`)}"><span class="font-semibold">${group.label}</span><span class="h-3 w-px bg-current opacity-25" aria-hidden="true"></span><span>${escapeHtml(chip.name_zh)}</span></span>`;
+      }).join("");
+      const taxonomyMarkup = chips ? `<div class="mt-3 flex flex-wrap gap-2" aria-label="内容分类标签">${chips}</div>` : "";
+      const dateMarkup = meta.published_at ? ` · ${escapeHtml(meta.published_at)}` : "";
+      const summaryMarkup = meta.summary_zh ? `<p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(meta.summary_zh)}</p>` : "";
+      article.innerHTML = `<h2 class="font-semibold leading-6"><a class="text-sky-800" href="${escapeHtml(encodeURI(value.url))}">${escapeHtml(meta.title ?? value.url)}</a></h2><p class="mt-1 text-sm leading-6 text-slate-600">${escapeHtml(meta.kind ?? "内容")}${dateMarkup}</p>${taxonomyMarkup}${summaryMarkup}`;
       fragment.append(article);
     }
     resultsElement.append(fragment);
@@ -173,17 +191,20 @@ function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[character] ?? character);
 }
 
-function sanitizeExcerpt(value: string) {
-  const template = document.createElement("template");
-  template.innerHTML = value;
-  for (const element of template.content.querySelectorAll("*")) {
-    if (element.tagName === "MARK") {
-      for (const attribute of [...element.attributes]) element.removeAttribute(attribute.name);
-    } else {
-      element.replaceWith(document.createTextNode(element.textContent ?? ""));
-    }
+function parseTaxonomy(value: string | undefined): SearchTaxonomyChip[] {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((chip): chip is SearchTaxonomyChip => {
+      if (!chip || typeof chip !== "object") return false;
+      const candidate = chip as Record<string, unknown>;
+      return typeof candidate.group === "string" && candidate.group in groupMeta
+        && typeof candidate.name_zh === "string" && typeof candidate.name_en === "string";
+    });
+  } catch {
+    return [];
   }
-  return template.innerHTML;
 }
 
 export {};

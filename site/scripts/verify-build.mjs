@@ -66,6 +66,24 @@ function assertGraphNavigation(graph) {
   }
 }
 
+function assertSearchMetadata(dist) {
+  const detailPages = ["papers", "articles"]
+    .flatMap(kind => filesUnder(path.join(dist, kind)))
+    .filter(file => file.endsWith("index.html"));
+  for (const file of detailPages) {
+    const html = fs.readFileSync(file, "utf8");
+    for (const name of ["kind", "published_at", "taxonomy", "summary_zh"]) {
+      const tag = html.match(new RegExp(`<[^>]*data-pagefind-meta=["']${name}["'][^>]*>`))?.[0];
+      if (!tag) {
+        throw new Error(`detail page missing Pagefind metadata ${name}: ${path.relative(dist, file)}`);
+      }
+      if (!/\bdata-pagefind-ignore(?:\s|=|>)/.test(tag)) {
+        throw new Error(`Pagefind metadata must be excluded from body text ${name}: ${path.relative(dist, file)}`);
+      }
+    }
+  }
+}
+
 export function verifyBuild({ dist, bundle }) {
   const { snapshot } = readSnapshot(bundle);
   for (const relative of required) {
@@ -74,6 +92,7 @@ export function verifyBuild({ dist, bundle }) {
   const graph = JSON.parse(fs.readFileSync(path.join(dist, "graph.json"), "utf8"));
   if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) throw new Error("invalid graph.json");
   assertGraphNavigation(graph);
+  assertSearchMetadata(dist);
   const contentNodes = graph.nodes.filter(node => ["paper", "article", "blog"].includes(node.data?.type)).length;
   if (contentNodes > snapshot.graph_max_content_nodes) throw new Error("graph content node limit exceeded");
   const pagefindFiles = fs.readdirSync(path.join(dist, "pagefind"));

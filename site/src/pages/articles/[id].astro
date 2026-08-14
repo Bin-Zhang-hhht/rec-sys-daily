@@ -1,5 +1,6 @@
 ---
 import { ExternalLink, Network } from "@lucide/astro";
+import PagefindMeta from "../../components/PagefindMeta.astro";
 import TaxonomyChips from "../../components/TaxonomyChips.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { loadBundle, relatedItems } from "../../lib/data";
@@ -19,6 +20,7 @@ const sectionClass = "border-t border-slate-200 pt-7";
 ---
 <BaseLayout title={`${item.title} · RecSys Daily`}>
   <article data-pagefind-body class="mx-auto max-w-6xl">
+    <PagefindMeta item={item} taxonomy={data.taxonomy} />
     <span class="hidden" data-pagefind-filter="kind:blog"></span><span class="hidden" data-pagefind-filter={`published_year:${item.published_at.slice(0, 4)}`}></span>{ageBucket(item.published_at).map(age => <span class="hidden" data-pagefind-filter={`age:${age}`}></span>)}
     {item.targets.map(id => <span class="hidden" data-pagefind-filter={`targets:${id}`}></span>)}
     {item.scenarios.map(id => <span class="hidden" data-pagefind-filter={`scenarios:${id}`}></span>)}

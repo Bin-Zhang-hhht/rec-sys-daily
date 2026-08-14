@@ -1,0 +1,16 @@
+---
+import type { Item, Taxonomy } from "../lib/data";
+import { taxonomyGroups, taxonomyName } from "../lib/data";
+
+const { item, taxonomy } = Astro.props as { item: Item; taxonomy: Taxonomy };
+const taxonomyChips = taxonomyGroups.flatMap(group =>
+  item[group].map(id => {
+    const entry = taxonomyName(taxonomy, group, id);
+    return { group, name_zh: entry.name_zh, name_en: entry.name_en };
+  }),
+);
+---
+<span class="hidden" data-pagefind-ignore data-pagefind-meta="kind">{item.kind === "blog" ? "工程博客" : "论文"}</span>
+<span class="hidden" data-pagefind-ignore data-pagefind-meta="published_at">{item.published_at.slice(0, 10)}</span>
+<span class="hidden" data-pagefind-ignore data-pagefind-meta="summary_zh">{item.summary_zh}</span>
+<span class="hidden" data-pagefind-ignore data-pagefind-meta="taxonomy">{JSON.stringify(taxonomyChips)}</span>
