@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 import json
 from pathlib import Path
+import stat
 
 import pytest
 
@@ -177,6 +178,12 @@ def test_integrate_requires_output_to_not_exist(tmp_path: Path) -> None:
     again.mkdir()
     with pytest.raises(FileExistsError, match="already exists"):
         integrate(fixture_stages(again), populated, CONFIG, state=None)
+
+
+def test_integrate_publishes_a_traversable_bundle_root(tmp_path: Path) -> None:
+    bundle = integrate(fixture_stages(tmp_path), tmp_path / "bundle", CONFIG, state=None)
+
+    assert stat.S_IMODE(bundle.path.stat().st_mode) == 0o755
 
 
 def test_integration_does_not_write_empty_digest_but_keeps_report_and_state(tmp_path: Path) -> None:

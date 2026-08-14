@@ -469,6 +469,9 @@ def integrate(
         final_names = {entry.name for entry in temp_path.iterdir()}
         if final_names != {"manifest.json", "taxonomy.json", "pending-data"}:
             raise ValueError("publish bundle contains an unexpected top-level file")
+        # mkdtemp creates mode 0700. The container runs as root, while the
+        # GitHub runner must traverse the published bind-mounted directory.
+        temp_path.chmod(0o755)
         temp_path.replace(output)
     except Exception:
         shutil.rmtree(temp_path, ignore_errors=True)
