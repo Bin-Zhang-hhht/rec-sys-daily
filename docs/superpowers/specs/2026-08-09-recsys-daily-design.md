@@ -559,6 +559,7 @@ Feed、HTML 和 PDF 响应都使用流式 N+1 上限读取：先拒绝明确超�
 .
 ├── .github/workflows/
 │   ├── daily.yml
+│   ├── site-only.yml
 │   └── verify.yml
 ├── config/
 │   ├── sources.yaml
@@ -789,7 +790,7 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 
 ## 13. GitHub Actions
 
-`daily.yml` 是唯一访问真实来源、调用 LLM、写入数据并部署 Pages 的运行工作流。`verify.yml` 只使用测试运行时生成的合成输入做代码验证，不承担首次或后续生产运行，因此不会复制生产管道逻辑。
+`daily.yml` 是唯一访问真实来源、调用 LLM、生成 publish bundle、写入 canonical 数据和推进 `state.json` 的运行工作流。`site-only.yml` 只能复用最近一次成功 `daily.yml` 运行留下的不可变 publish bundle，重新构建并部署 Pages；它不执行 pipeline、不提交数据，也不推进状态。`verify.yml` 只使用测试运行时生成的合成输入做代码验证，不承担首次或后续生产运行，因此不会复制生产管道逻辑。
 
 ### 13.1 verify.yml
 
@@ -850,7 +851,7 @@ commit、state 或 config hash。首版 `schema_version` 固定为 `"1"`。
 - 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 8 篇
 - 生成待提交的 canonical items、日报、运行报告、图谱关系、pending `state.json` 和本次配置的 `taxonomy.json` 快照
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
-- 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 1`
+- 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 3`，为手动 site-only 重建提供有限复用窗口
 
 Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。`taxonomy.json` 是本次运行使用的 `topics.yaml` 标准化只读快照，只服务于网站构建，不提交到 `data/`。Publish bundle 不包含 HTML 页面、`graph.json`、Pagefind 索引或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
 
@@ -880,15 +881,21 @@ Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`�
 
 只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、MinerU ZIP/Markdown、HTML 或提取全文不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
 
+### 13.3 site-only.yml
+
+`site-only.yml` 仅通过 `workflow_dispatch` 手动触发，并且只接受 `main`。它使用只读 `actions`/`contents` 权限查询最近成功的 `daily.yml` 运行，按精确的 `publish-bundle-<source-run-id>` 名称选择尚未过期的 artifact；找不到可复用 bundle 时明确失败，不回退到采集、深读或精排。
+
+该 workflow checkout 当前 `main` 上的网站代码，使用 `site/Dockerfile` 消费下载的 bundle，执行与日常发布相同的 Astro、Pagefind、图谱和 Pages artifact 校验，然后部署 GitHub Pages。它不授予 `contents: write`，不执行 `rsync`、Git commit 或 push，且不得修改 `pending-data/` 或仓库 `data/`。因此 site-only 构建失败或部署失败都不会影响 canonical 数据与 `state.json`；成功也只更新 Pages 内容。最终 publish bundle 保留 3 天，Stage 1 和 deep-read 中间 artifact 仍只保留 1 天。
+
 工作流公共设置：
 
-- `concurrency.group: recsys-daily`
+- `daily.yml` 与 `site-only.yml` 共用 `concurrency.group: recsys-daily`
 - `cancel-in-progress: false`
 - 各 job 的 timeout 均低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限；官方还规定单次 workflow 最长 35 天，而本系统的理论墙钟上限约为 `2 + max(5, 5) + 2 + 1 = 10` 小时，也低于每日调度间隔
 - Job 1 失败时不启动全文 job；全文 job 的系统性失败时不启动精排，单条失败则写入 artifact 由 `rank-integrate` 执行 80% 门槛；精排失败时不启动网站构建；网站构建或部署失败时不提交 pending 数据；任一失败都不写正式 `state.json`
 - GitHub UI 重新运行失败 job 时可复用同一 workflow 中仍有效的成功 artifact；精确 artifact 名称、当前 workflow run 和 manifest `run_id` 共同防止跨批次混用
 
-前端检查、构建或部署失败时只需重新运行 `build_deploy`，直接复用 publish bundle，不重新抓取内容或调用 LLM。Pages 部署成功后的数据 push 如遇非 fast-forward 冲突则直接失败，不 force push、不自动 rebase。只有远端未前进的瞬时 push 失败才可在一天保留期内手动重跑当前 workflow 的 `build_deploy`；远端已前进或 artifact 过期时必须重跑完整 workflow。下一次定时运行不被设计成自动重试上一批。
+前端检查、构建或部署失败时可以重新运行原 `build_deploy` job，或在 3 天保留期内从 `main` 手动触发 `site-only.yml`，直接复用最近一次成功日报的 publish bundle，不重新抓取内容或调用 LLM。Pages 部署成功后的数据 push 如遇 non-fast-forward 冲突则直接失败，不 force push、不自动 rebase；site-only 不承担补写或修复 canonical 数据。artifact 过期且没有其他未过期的成功日报 bundle 时必须重跑完整 workflow。下一次定时运行不被设计成自动重试上一批。
 
 ## 14. 测试策略
 
@@ -956,7 +963,7 @@ Python 单元与集成测试覆盖：
 17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、MinerU ZIP/Markdown、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
 18. 文本配置只声明一个 DeepSeek 模型，默认模型 ID 为 `deepseek-v4-flash`；更换模型修改 YAML，更换 endpoint 或 key 修改环境变量，不实现多 profile、自动 failover 或协议回退
 19. 模型不设置每次运行调用次数或客户端 RPM 上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行、各自同步单请求并使用有限重试
-20. 任一 stage/job 失败都不写正式 `state.json`；跨 job 只传递 retention 1 天的结构化 artifact，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，不重新调用 LLM
+20. 任一 stage/job 失败都不写正式 `state.json`；Stage 1 与 deep-read artifact 保留 1 天，最终 publish bundle 保留 3 天，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，或通过只读数据的 `site-only.yml` 重建部署，不重新调用 LLM
 21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv PDF → MinerU full.md → Abstract fallback`，不实现 arXiv HTML、OpenReview、TeX source、本地 PDF 正文提取或视觉阅读
 22. 文本模型使用一个同步 OpenAI-compatible Responses API wrapper；MinerU 使用独立 REST 客户端和 `MINERU_API_KEY`，校验 PDF 上限、公网 URL、batch/data ID、polling deadline 与 ZIP `full.md`，并在所有终态清理临时文件
 23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签

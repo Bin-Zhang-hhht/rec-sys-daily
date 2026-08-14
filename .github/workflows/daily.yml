@@ -149,7 +149,7 @@ jobs:
           name: publish-bundle-${{ github.run_id }}
           path: publish-work/publish-bundle
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 3
 
   build_deploy:
     name: Build, deploy Pages, and promote data
