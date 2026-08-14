@@ -300,7 +300,7 @@ def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorica
         completed_ids.extend(ids)
         return {"items": [{
             "id": item_id,
-            "summary_zh": "fixture summary",
+            "summary_zh": "测试推荐摘要。",
             "targets": ["content"],
             "scenarios": ["text_feed"],
             "tasks": ["retrieval"],

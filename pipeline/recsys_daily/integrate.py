@@ -13,6 +13,7 @@ from typing import Any
 
 from .artifacts import read_json, read_jsonl, write_json
 from .config import AppConfig
+from .metadata import has_cjk
 from .ranking import rank_items
 from .schemas import (
     BlogItem,
@@ -123,6 +124,8 @@ def _metadata_record(value: dict[str, Any], taxonomy: Any) -> Stage1Metadata:
             raise ValueError(f"unknown {category} id: {unknown[0]}")
     if not metadata.summary_zh or not metadata.summary_zh.strip():
         raise ValueError(f"stage-1 metadata has no displayable summary: {metadata.id}")
+    if not has_cjk(metadata.summary_zh):
+        raise ValueError(f"stage-1 metadata summary_zh contains no CJK text: {metadata.id}")
     return metadata
 
 
@@ -130,7 +133,7 @@ def _is_publishable_degraded_metadata(value: dict[str, Any]) -> bool:
     if value.get("degraded") is not True:
         return True
     summary = value.get("summary_zh")
-    return bool(isinstance(summary, str) and summary.strip()) and all(
+    return bool(isinstance(summary, str) and has_cjk(summary)) and all(
         isinstance(value.get(field), list) and bool(value[field])
         for field in ("targets", "scenarios", "tasks", "methods")
     )

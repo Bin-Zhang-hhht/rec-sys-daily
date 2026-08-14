@@ -13,6 +13,8 @@ const resultsElement = document.querySelector<HTMLElement>("#search-results");
 const status = document.querySelector<HTMLElement>("#search-status");
 const more = document.querySelector<HTMLButtonElement>("#search-more");
 const config = document.querySelector<HTMLElement>("#search-config");
+const filterDisclosure = document.querySelector<HTMLDetailsElement>("#search-filter-disclosure");
+const activeFilterCount = document.querySelector<HTMLElement>("#search-active-filter-count");
 let pagefind: PagefindApi | undefined;
 let loading: Promise<PagefindApi> | undefined;
 let currentResults: PagefindResult[] = [];
@@ -23,6 +25,23 @@ let committedQuery = "";
 let hasSubmitted = false;
 
 if (input && form && resultsElement && status && more) {
+  const updateActiveFilterCount = () => {
+    const checkedCount = form.querySelectorAll<HTMLInputElement>("input[data-filter]:checked").length;
+    const selectedCount = [...form.querySelectorAll<HTMLSelectElement>("select[data-filter]")]
+      .filter(select => Boolean(select.value)).length;
+    const count = checkedCount + selectedCount;
+    if (activeFilterCount) {
+      activeFilterCount.textContent = count ? `${count} 项` : "";
+      activeFilterCount.classList.toggle("hidden", count === 0);
+    }
+  };
+  if (filterDisclosure) {
+    const desktopFilters = window.matchMedia("(min-width: 64rem)");
+    const syncFilterDisclosure = () => { filterDisclosure.open = desktopFilters.matches; };
+    syncFilterDisclosure();
+    desktopFilters.addEventListener("change", syncFilterDisclosure);
+  }
+  updateActiveFilterCount();
   const ensurePagefind = async () => {
     if (pagefind) return pagefind;
     // Pagefind writes this runtime into dist after Astro has emitted HTML.
@@ -53,8 +72,8 @@ if (input && form && resultsElement && status && more) {
     const fragment = document.createDocumentFragment();
     for (const value of values) {
       const article = document.createElement("article");
-      article.className = "rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]";
-      article.innerHTML = `<h2 class="font-semibold leading-6"><a class="text-sky-800" href="${encodeURI(value.url)}">${escapeHtml(value.meta?.title ?? value.url)}</a></h2><p class="mt-2 text-sm leading-7 text-slate-600">${sanitizeExcerpt(value.excerpt ?? "")}</p>`;
+      article.className = "rounded-lg border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5";
+      article.innerHTML = `<h2 class="font-semibold leading-6"><a class="text-sky-800" href="${encodeURI(value.url)}">${escapeHtml(value.meta?.title ?? value.url)}</a></h2><p class="mt-2 text-sm leading-6 text-slate-600 sm:leading-7">${sanitizeExcerpt(value.excerpt ?? "")}</p>`;
       fragment.append(article);
     }
     resultsElement.append(fragment);
@@ -112,11 +131,9 @@ if (input && form && resultsElement && status && more) {
   };
   input.addEventListener("focus", () => { void preload(); }, { once: true });
   input.addEventListener("keydown", event => {
-    if (event.key !== "Enter") return;
+    if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
     event.preventDefault();
-    committedQuery = input.value.trim();
-    hasSubmitted = true;
-    void render();
+    form.requestSubmit();
   });
   form.addEventListener("submit", event => {
     event.preventDefault();
@@ -125,6 +142,7 @@ if (input && form && resultsElement && status && more) {
     void render();
   });
   form.addEventListener("change", () => {
+    updateActiveFilterCount();
     if (hasSubmitted) void render();
     else void preload();
   });

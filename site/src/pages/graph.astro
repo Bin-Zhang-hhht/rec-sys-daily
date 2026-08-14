@@ -21,31 +21,33 @@ const groupStyles = {
   </section>
 
   <section class="mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm" aria-label="图谱控制">
-    <div class="grid gap-3 lg:grid-cols-[minmax(18rem,1fr)_11rem_11rem_auto] lg:items-end">
-      <label for="graph-query" class="text-sm font-medium text-slate-800">
+    <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[minmax(18rem,1fr)_minmax(20rem,22rem)_auto] lg:items-end">
+      <label for="graph-query" class="text-sm font-medium text-slate-800 sm:col-span-2 lg:col-span-1">
         定位节点
         <span class="relative mt-2 block">
           <Search aria-hidden="true" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           <input id="graph-query" type="search" class="w-full rounded-md border border-slate-300 py-2 pl-10 pr-3 text-sm" placeholder="标题或标签" autocomplete="off" />
         </span>
       </label>
-      <label class="text-sm font-medium text-slate-800">
-        发布年份
-        <select form="graph-filters" data-graph-time="year" class="mt-2 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
-          <option value="">全部年份</option>
-          {years.map(year => <option value={year}>{year}</option>)}
-        </select>
-      </label>
-      <label class="text-sm font-medium text-slate-800">
-        发布时间
-        <select form="graph-filters" data-graph-time="age" class="mt-2 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
-          <option value="">全部时间</option>
-          <option value="7d">最近 7 天</option>
-          <option value="30d">最近 30 天</option>
-          <option value="365d">最近一年</option>
-        </select>
-      </label>
-      <div class="flex gap-2">
+      <div class="grid min-w-0 grid-cols-2 gap-2 sm:min-w-[22rem]">
+        <label class="min-w-0 text-sm font-medium text-slate-800">
+          发布年份
+          <select form="graph-filters" data-graph-time="year" class="mt-1.5 block w-full rounded-md border border-slate-300 px-2.5 py-2 text-sm">
+            <option value="">全部年份</option>
+            {years.map(year => <option value={year}>{year}</option>)}
+          </select>
+        </label>
+        <label class="min-w-0 text-sm font-medium text-slate-800">
+          发布时间
+          <select form="graph-filters" data-graph-time="age" class="mt-1.5 block w-full rounded-md border border-slate-300 px-2.5 py-2 text-sm">
+            <option value="">全部时间</option>
+            <option value="7d">最近 7 天</option>
+            <option value="30d">最近 30 天</option>
+            <option value="365d">最近一年</option>
+          </select>
+        </label>
+      </div>
+      <div class="flex gap-2 sm:self-end">
         <button id="graph-fit" type="button" class="grid size-10 place-items-center rounded-md border border-slate-300 text-slate-600 hover:border-sky-500 hover:text-sky-700" aria-label="适应当前图谱" title="适应当前图谱">
           <Maximize2 aria-hidden="true" class="size-4" />
         </button>

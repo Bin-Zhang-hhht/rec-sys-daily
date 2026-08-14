@@ -1,8 +1,9 @@
 ---
-import { BookOpen, Newspaper, RotateCcw, SlidersHorizontal } from "@lucide/astro";
+import { BookOpen, Newspaper, RotateCcw, Search, SlidersHorizontal } from "@lucide/astro";
 import TaxonomyChips from "../../components/TaxonomyChips.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { loadBundle, taxonomyGroups } from "../../lib/data";
+import { createArchiveSearchText } from "../../lib/archive-search";
+import { loadBundle, taxonomyGroups, taxonomyName } from "../../lib/data";
 import { itemPath, sitePath } from "../../lib/paths";
 
 const data = loadBundle();
@@ -14,22 +15,55 @@ const archiveGroups = data.digests.slice().reverse().map(digest => ({
 const rows = archiveGroups.flatMap(group => [...group.papers, ...group.blogs]);
 const years = [...new Set(rows.map(row => row.item.published_at.slice(0, 4)))].sort().reverse();
 const groupLabels = { targets: "目标", scenarios: "场景", tasks: "任务", methods: "方法" } as const;
+const archiveIconPath = sitePath("icons/koboyo/archive.svg");
+const itemSearchText = (item: (typeof rows)[number]["item"], digestDate: string) => createArchiveSearchText({
+  title: item.title,
+  summaryZh: item.summary_zh,
+  kind: item.kind,
+  digestDate,
+  publishedDate: item.published_at,
+  taxonomy: taxonomyGroups.flatMap(group => item[group].map(id => {
+    const entry = taxonomyName(data.taxonomy, group, id);
+    return { id, nameZh: entry.name_zh, nameEn: entry.name_en };
+  })),
+});
 ---
 <BaseLayout title="日报归档 · RecSys Daily">
   <header class="border-b border-slate-200 pb-7">
-    <p class="text-sm font-semibold text-sky-700">Archive</p>
-    <h1 class="mt-2 text-3xl font-bold leading-tight text-slate-950">日报归档</h1>
-    <p class="mt-3 max-w-3xl leading-7 text-slate-600">按日报日期回看论文与工程博客；同一分类内可多选，分类之间组合筛选。</p>
-  </header>
-  <form id="archive-filters" class="mt-7 rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-      <h2 class="inline-flex items-center gap-2 text-sm font-semibold text-slate-900"><SlidersHorizontal size={17} stroke-width={1.8} aria-hidden="true" />筛选归档</h2>
-      <button type="reset" class="inline-flex min-h-9 items-center gap-2 rounded-md px-2.5 text-sm text-slate-600 hover:bg-slate-100" title="重置筛选"><RotateCcw size={16} stroke-width={1.8} aria-hidden="true" />重置</button>
+    <div class="flex items-center gap-3">
+      <img src={archiveIconPath} alt="" aria-hidden="true" width="40" height="40" class="h-9 w-9 shrink-0 sm:h-10 sm:w-10" />
+      <div>
+        <p class="text-sm font-semibold text-sky-700">Archive</p>
+        <h1 class="mt-1 text-3xl font-bold leading-tight text-slate-950">日报归档</h1>
+      </div>
     </div>
-    <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      <fieldset><legend class="text-sm font-semibold text-slate-800">内容类型</legend><div class="mt-2 grid gap-2 text-sm text-slate-700"><label class="inline-flex items-center gap-2"><input type="checkbox" value="paper" data-archive-filter="kind" /> 论文</label><label class="inline-flex items-center gap-2"><input type="checkbox" value="blog" data-archive-filter="kind" /> 工程博客</label></div></fieldset>
-      <label class="text-sm font-semibold text-slate-800">发布年份<select data-archive-year class="mt-2 block min-h-9 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm font-normal"><option value="">全部年份</option>{years.map(year => <option value={year}>{year}</option>)}</select></label>
-      {taxonomyGroups.map(group => <fieldset><legend class="text-sm font-semibold text-slate-800">{groupLabels[group]}</legend><div class="mt-2 max-h-32 space-y-2 overflow-y-auto pr-2 text-sm text-slate-700">{data.taxonomy[group].map(entry => <label class="flex items-start gap-2"><input class="mt-0.5" type="checkbox" value={entry.id} data-archive-filter={group} /><span>{entry.name_zh}<span class="ml-1 text-xs text-slate-400">{entry.name_en}</span></span></label>)}</div></fieldset>)}
+    <p class="mt-3 max-w-3xl leading-7 text-slate-600">按日报日期回看论文与工程博客；输入关键词快速定位，或展开筛选组合浏览。</p>
+  </header>
+  <form id="archive-filters" class="mt-6 rounded-lg border border-slate-200 bg-white p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+    <div class="relative flex items-center gap-2">
+      <label for="archive-query" class="sr-only">搜索归档</label>
+      <div class="relative min-w-0 flex-1">
+        <Search class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={17} stroke-width={1.8} aria-hidden="true" />
+        <input id="archive-query" type="search" autocomplete="off" class="min-h-10 w-full rounded-md border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="标题、摘要、标签或日期" />
+      </div>
+      <button type="reset" class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-md px-2.5 text-sm text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600" title="重置搜索与筛选" aria-label="重置搜索与筛选">
+        <RotateCcw size={16} stroke-width={1.8} aria-hidden="true" />
+        <span class="hidden sm:inline">重置</span>
+      </button>
+      <details class="group shrink-0">
+        <summary class="inline-flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 [&::-webkit-details-marker]:hidden">
+          <SlidersHorizontal size={17} stroke-width={1.8} aria-hidden="true" />
+          <span>筛选</span>
+          <span data-archive-selected-count class="hidden min-w-5 rounded-full bg-sky-100 px-1.5 py-0.5 text-center text-xs text-sky-800">0</span>
+        </summary>
+        <div class="absolute right-0 top-full z-20 mt-2 w-full max-w-3xl rounded-lg border border-slate-200 bg-white p-5 shadow-lg">
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <fieldset><legend class="text-sm font-semibold text-slate-800">内容类型</legend><div class="mt-2 grid gap-2 text-sm text-slate-700"><label class="inline-flex items-center gap-2"><input type="checkbox" value="paper" data-archive-filter="kind" /> 论文</label><label class="inline-flex items-center gap-2"><input type="checkbox" value="blog" data-archive-filter="kind" /> 工程博客</label></div></fieldset>
+            <label class="text-sm font-semibold text-slate-800">发布年份<select data-archive-year class="mt-2 block min-h-9 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm font-normal"><option value="">全部年份</option>{years.map(year => <option value={year}>{year}</option>)}</select></label>
+            {taxonomyGroups.map(group => <fieldset><legend class="text-sm font-semibold text-slate-800">{groupLabels[group]}</legend><div class="mt-2 max-h-36 space-y-2 overflow-y-auto pr-2 text-sm text-slate-700">{data.taxonomy[group].map(entry => <label class="flex items-start gap-2"><input class="mt-0.5" type="checkbox" value={entry.id} data-archive-filter={group} /><span>{entry.name_zh}<span class="ml-1 text-xs text-slate-400">{entry.name_en}</span></span></label>)}</div></fieldset>)}
+          </div>
+        </div>
+      </details>
     </div>
   </form>
   <p id="archive-status" class="mt-5 text-sm text-slate-500" role="status" aria-live="polite">共 {rows.length} 条推荐</p>
@@ -41,14 +75,13 @@ const groupLabels = { targets: "目标", scenarios: "场景", tasks: "任务", m
         <div class="mt-5 grid gap-7 xl:grid-cols-2">
           {([["paper", "论文", papers], ["blog", "工程博客", blogs]] as const).map(([kind, label, items]) => (
             <section data-archive-kind-section>
-              <h3 class="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">{kind === "paper" ? <BookOpen size={17} stroke-width={1.8} aria-hidden="true" /> : <Newspaper size={17} stroke-width={1.8} aria-hidden="true" />}{label} · {items.length}</h3>
+              <h3 class="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">{kind === "paper" ? <BookOpen size={17} stroke-width={1.8} aria-hidden="true" /> : <Newspaper size={17} stroke-width={1.8} aria-hidden="true" />}{label} · <span data-archive-kind-count>{items.length}</span></h3>
               <div class="grid gap-3">
                 {items.map(({ item }) => (
-                  <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]" data-archive-item data-kind={item.kind} data-year={item.published_at.slice(0, 4)} data-targets={item.targets.join(" ")} data-scenarios={item.scenarios.join(" ")} data-tasks={item.tasks.join(" ")} data-methods={item.methods.join(" ")}>
-                    <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500"><span class:list={["rounded-full border px-2 py-0.5 font-semibold", item.kind === "paper" ? "border-sky-200 bg-sky-50 text-sky-800" : "border-emerald-200 bg-emerald-50 text-emerald-800"]}>{item.kind === "paper" ? "论文" : "博客"}</span><time datetime={item.published_at}>{item.published_at.slice(0, 10)}</time></div>
-                    <h4 class="mt-3 font-semibold leading-6 text-slate-950"><a href={itemPath(item)}>{item.title}</a></h4>
+                  <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]" data-archive-item data-archive-search={itemSearchText(item, digest.date)} data-kind={item.kind} data-year={item.published_at.slice(0, 4)} data-targets={item.targets.join(" ")} data-scenarios={item.scenarios.join(" ")} data-tasks={item.tasks.join(" ")} data-methods={item.methods.join(" ")}>
+                    <h4 class="font-semibold leading-6 text-slate-950"><a href={itemPath(item)}>{item.title}</a></h4>
+                    <TaxonomyChips item={item} taxonomy={data.taxonomy} class="mt-3" />
                     <p class="mt-2 text-sm leading-6 text-slate-600">{item.summary_zh}</p>
-                    <TaxonomyChips item={item} taxonomy={data.taxonomy} class="mt-4" />
                   </article>
                 ))}
               </div>
@@ -59,46 +92,5 @@ const groupLabels = { targets: "目标", scenarios: "场景", tasks: "任务", m
     ))}
   </div>
   <p id="archive-empty" class="mt-10 hidden rounded-lg border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-slate-500">没有符合当前筛选条件的推荐。</p>
-  <script>
-    const form = document.querySelector<HTMLFormElement>("#archive-filters");
-    const status = document.querySelector<HTMLElement>("#archive-status");
-    const empty = document.querySelector<HTMLElement>("#archive-empty");
-    const year = form?.querySelector<HTMLSelectElement>("select[data-archive-year]");
-    const groups = [...document.querySelectorAll<HTMLElement>("[data-archive-group]")];
-    const taxonomyGroups = ["targets", "scenarios", "tasks", "methods"];
-
-    const applyFilters = () => {
-      if (!form) return;
-      const selected = new Map<string, Set<string>>();
-      for (const input of form.querySelectorAll<HTMLInputElement>("input[data-archive-filter]:checked")) {
-        const group = input.dataset.archiveFilter;
-        if (!group) continue;
-        if (!selected.has(group)) selected.set(group, new Set());
-        selected.get(group)?.add(input.value);
-      }
-      let visible = 0;
-      for (const group of groups) {
-        let groupVisible = 0;
-        for (const row of group.querySelectorAll<HTMLElement>("[data-archive-item]")) {
-          const kinds = selected.get("kind");
-          const matchesKind = !kinds?.size || kinds.has(row.dataset.kind ?? "");
-          const matchesYear = !year?.value || row.dataset.year === year.value;
-          const matchesTaxonomy = taxonomyGroups.every(taxonomyGroup => {
-            const values = selected.get(taxonomyGroup);
-            if (!values?.size) return true;
-            const rowValues = new Set((row.dataset[taxonomyGroup] ?? "").split(" ").filter(Boolean));
-            return [...values].some(value => rowValues.has(value));
-          });
-          row.hidden = !(matchesKind && matchesYear && matchesTaxonomy);
-          if (!row.hidden) { visible += 1; groupVisible += 1; }
-        }
-        for (const section of group.querySelectorAll<HTMLElement>("[data-archive-kind-section]")) section.hidden = !section.querySelector("[data-archive-item]:not([hidden])");
-        group.hidden = groupVisible === 0;
-      }
-      if (status) status.textContent = `共 ${visible} 条推荐`;
-      empty?.classList.toggle("hidden", visible > 0);
-    };
-    form?.addEventListener("change", applyFilters);
-    form?.addEventListener("reset", () => window.setTimeout(applyFilters));
-  </script>
+  <script src="../../scripts/archive.ts"></script>
 </BaseLayout>

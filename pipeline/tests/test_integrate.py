@@ -21,7 +21,7 @@ def _paper(item_id: str, score: float) -> dict[str, object]:
         "kind": "paper",
         "id": item_id,
         "title": f"Paper {item_id}",
-        "summary_zh": f"Summary for {item_id}",
+        "summary_zh": f"论文 {item_id} 的中文摘要。",
         "source": "arxiv",
         "url": f"https://arxiv.org/abs/{item_id}",
         "published_at": PUBLISHED_AT.isoformat().replace("+00:00", "Z"),
@@ -45,7 +45,7 @@ def _blog(item_id: str, score: float) -> dict[str, object]:
         "kind": "blog",
         "id": item_id,
         "title": f"Blog {item_id}",
-        "summary_zh": f"Summary for {item_id}",
+        "summary_zh": f"博客 {item_id} 的中文摘要。",
         "source": "meta_engineering",
         "url": f"https://example.com/{item_id}",
         "published_at": PUBLISHED_AT.isoformat().replace("+00:00", "Z"),
@@ -332,13 +332,44 @@ def test_item_size_limit_is_enforced_before_publish(tmp_path: Path) -> None:
     blob_path = stages.stage1 / "papers.jsonl"
     lines = blob_path.read_text(encoding="utf-8").splitlines()
     value = json.loads(lines[0])
-    value["summary_zh"] = "x" * (CONFIG.settings.storage.max_item_bytes + 1)
+    value["summary_zh"] = "中" * (CONFIG.settings.storage.max_item_bytes + 1)
     lines[0] = json.dumps(value)
     blob_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     with pytest.raises(ValueError, match="item exceeds configured size"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
     assert not (tmp_path / "bundle").exists()
+
+
+def test_integrate_rejects_non_chinese_stage_one_summary(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    papers_path = stages.stage1 / "papers.jsonl"
+    lines = papers_path.read_text(encoding="utf-8").splitlines()
+    value = json.loads(lines[0])
+    value["summary_zh"] = "English summary that bypassed Stage 1 validation."
+    lines[0] = json.dumps(value)
+    papers_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="contains no CJK text"):
+        integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+    assert not (tmp_path / "bundle").exists()
+
+
+def test_integrate_skips_degraded_non_chinese_summary(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    papers_path = stages.stage1 / "papers.jsonl"
+    lines = papers_path.read_text(encoding="utf-8").splitlines()
+    value = json.loads(lines[0])
+    value["summary_zh"] = "English degraded fallback summary."
+    value["degraded"] = True
+    lines[0] = json.dumps(value)
+    papers_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+    assert not (bundle.path / "pending-data/items/papers/2026/08/paper-0.json").exists()
+    assert all(entry.item_id != "paper-0" for entry in load_digest(bundle).papers)
 
 
 def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_path: Path) -> None:

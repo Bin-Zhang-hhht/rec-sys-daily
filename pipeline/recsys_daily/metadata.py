@@ -13,6 +13,13 @@ from .prompts import metadata_messages
 from .schemas import Stage1Metadata
 
 
+_CJK_PATTERN = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
+
+
+def has_cjk(value: str | None) -> bool:
+    return bool(value and _CJK_PATTERN.search(value))
+
+
 @dataclass(frozen=True)
 class MetadataResult:
     items: list[Stage1Metadata]
@@ -82,10 +89,10 @@ def _fallback(candidate: Candidate, taxonomy: TopicTaxonomy, excerpt_limit: int)
             values = list(dict.fromkeys([item for item in candidate.source_scenarios if item in allowed] + values))
         return values
 
-    excerpt = candidate.excerpt.strip()
+    excerpt = candidate.excerpt.strip()[:excerpt_limit]
     return Stage1Metadata(
         id=stable_id(candidate),
-        summary_zh=excerpt[:excerpt_limit] or None,
+        summary_zh=excerpt if has_cjk(excerpt) else None,
         targets=selected("targets"),
         scenarios=selected("scenarios"),
         tasks=selected("tasks"),
@@ -125,6 +132,8 @@ def analyze_metadata(
                 raise ValueError("metadata response must contain exactly the requested candidates")
             if any(set(getattr(item, category)) - {entry.id for entry in getattr(config.topics, category)} for item in parsed for category in ("targets", "scenarios", "tasks", "methods")):
                 raise ValueError("metadata response contains an unknown taxonomy id")
+            if any(not has_cjk(item.summary_zh) for item in parsed):
+                raise ValueError("metadata response summary_zh must contain CJK text")
             for item in parsed:
                 all_items[item.id] = item
             successes += 1

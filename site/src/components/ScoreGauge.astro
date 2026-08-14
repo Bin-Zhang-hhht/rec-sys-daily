@@ -1,0 +1,16 @@
+---
+const { label, value, color } = Astro.props as { label: string; value: number; color: string };
+const score = Math.max(0, Math.min(1, value));
+const radius = 8;
+const circumference = 2 * Math.PI * radius;
+const progress = circumference * score;
+const remainder = circumference - progress;
+const displayValue = score.toFixed(2);
+---
+<span class="inline-flex shrink-0 items-center gap-1 whitespace-nowrap" role="img" aria-label={`${label} ${displayValue}`} title={`${label} ${displayValue}`}>
+  <span class="font-medium text-slate-600">{label} <span class="tabular-nums text-slate-800">{displayValue}</span></span>
+  <svg class="size-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r={radius} fill="none" stroke="#e2e8f0" stroke-width="2.5"></circle>
+      <circle cx="12" cy="12" r={radius} fill="none" stroke={color} stroke-width="2.5" stroke-linecap="round" stroke-dasharray={`${progress} ${remainder}`} transform="rotate(-90 12 12)"></circle>
+    </svg>
+</span>

@@ -67,9 +67,14 @@ def _candidate(kind: str, index: int, now: datetime) -> Candidate:
 
 
 def _metadata(candidate: Candidate, config: AppConfig, *, degraded: bool = False) -> dict[str, Any]:
+    summary_zh = (
+        "研究面向推荐系统的双塔候选召回与排序方法。"
+        if candidate.kind == "paper"
+        else "介绍推荐系统信息流排序的工程实现与实践经验。"
+    )
     return {
         "id": stable_id(candidate),
-        "summary_zh": candidate.excerpt,
+        "summary_zh": summary_zh,
         "targets": [config.topics.targets[0].id],
         "scenarios": [config.topics.scenarios[0].id],
         "tasks": [config.topics.tasks[0].id],
@@ -107,16 +112,16 @@ def _fixture_services(work: Path, *, exercise_blog_fallbacks: bool = False) -> D
     def text_reader(kind: str, _body: str, _context: dict[str, Any]) -> dict[str, Any]:
         if kind == "paper":
             return {
-                "problem_zh": "Candidate retrieval for recommendation.",
-                "contributions_zh": ["A bounded two-tower retrieval design."],
-                "method_zh": "Two-Tower Retrieval",
+                "problem_zh": "研究推荐系统中的候选召回问题。",
+                "contributions_zh": ["提出有界的双塔候选召回方案。"],
+                "method_zh": "采用双塔模型执行候选召回。",
                 "experiments": {"datasets": ["RuntimeFixtureSet"], "metrics": ["Recall@20"]},
                 "evidence_refs": [{"section": "Method", "page": 1}],
             }
         return {
-            "system_context_zh": "Feed ranking service.",
-            "architecture_zh": "Retrieve candidates then rank them.",
-            "implementation_zh": "Bounded online feature service.",
+            "system_context_zh": "面向推荐系统的信息流排序服务。",
+            "architecture_zh": "先召回候选，再执行排序。",
+            "implementation_zh": "使用有界的在线特征服务。",
             "evidence_refs": [{"heading": "Architecture"}],
         }
 

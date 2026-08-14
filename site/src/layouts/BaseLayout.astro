@@ -1,7 +1,8 @@
 ---
 import "../styles/global.css";
-import { Archive, Code2, Info, Network, Newspaper, Search } from "@lucide/astro";
+import { Archive, Info, Network, Newspaper, Search } from "@lucide/astro";
 import BrandLogo from "../components/BrandLogo.astro";
+import GitHubMark from "../components/GitHubMark.astro";
 import { sitePath } from "../lib/paths";
 const { title = "RecSys Daily" } = Astro.props;
 const currentPath = Astro.url.pathname;
@@ -51,8 +52,8 @@ const navLinkClass = "inline-flex h-10 min-w-10 items-center justify-center gap-
             <span class="hidden md:inline">关于</span>
           </a>
           <a class={navLinkClass} href={repositoryUrl} target="_blank" rel="noopener noreferrer" aria-label="GitHub 代码仓库" title="GitHub 代码仓库">
-            <Code2 size={18} stroke-width={1.8} aria-hidden="true" />
-            <span class="hidden md:inline">代码</span>
+            <GitHubMark />
+            <span class="hidden md:inline">GitHub</span>
           </a>
         </div>
       </nav>

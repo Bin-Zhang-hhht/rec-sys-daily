@@ -394,7 +394,7 @@ flowchart LR
 - 发布时间和新颖度
 - 与历史已推荐内容的重复判定
 
-每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 16 进入全文深读；若不足 16 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 16 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
+每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析；博客即使没有 feed excerpt，也必须根据标题和已有元数据生成中文摘要。`summary_zh` 必须包含 CJK 字符，纯英文模型结果视为批次失败；降级时仅可复用本身含 CJK 的 excerpt，纯英文或空 excerpt 不得作为中文摘要发布。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 16 进入全文深读；若不足 16 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 16 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
 
 历史防重的唯一事实来源是有效 `state.json` 和历史 digest 中真正发布过的 item ID。仅因某条内容已有 canonical item 或曾进入 Top 16 而未被推荐，不得把它记为已推荐；这类条目仍可在后续时间窗口中参与竞争。
 
@@ -551,7 +551,7 @@ Feed、HTML 和 PDF 响应都使用流式 N+1 上限读取：先拒绝明确超�
 
 文本模型按 `models.text` 中的 1M context 配置。发送请求前必须读取配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。`reserved_output_tokens` 同时作为 Responses API 的 `max_output_tokens`，避免结构化 JSON 被服务端默认输出上限截断。首版不从 endpoint 自动发现 context；配置维护者必须使用服务端真实值，服务端拒绝超限请求时必须显式失败或降级，不能静默截断。MinerU 输入限制只从 `models.mineru` 读取，超过 PDF byte/page 上限时显式进入摘要降级。
 
-如果 LLM 个别批次失败，允许降级使用英文摘要截断和规则标签，但每次运行都要求至少 80% 模型批次完成结构化分析；最终进入当日推荐的条目必须 100% 拥有可展示摘要，否则不进入推荐。该规则不区分首次运行和日更。
+如果 LLM 个别批次失败，允许降级使用规则标签；仅当来源 excerpt 本身含 CJK 字符时才可截断复用为 `summary_zh`，纯英文或空 excerpt 不得伪装成中文摘要。每次运行都要求至少 80% 模型批次完成结构化分析；最终进入当日推荐的条目必须 100% 拥有含 CJK 的可展示摘要，否则不进入推荐。该规则不区分首次运行和日更。
 
 ## 9. 数据模型与仓库结构
 
@@ -670,11 +670,13 @@ storage:
 - `/graph/`：轻量交互知识图谱
 - `/about/`：配置范围、来源和免责声明
 
-首页和日报卡片展示 rank、来源、作者、日期、原文链接、中文 summary、四类标签、推荐理由、相关性/最终分数以及 degraded 和 analysis basis。卡片使用 8px 圆角、24px 内边距和完整纵向元数据行；taxonomy 胶囊保留目标/场景/任务/方法文字，并分别使用蓝、绿、琥珀、紫色。顶栏使用静态 SVG 品牌标识和 `@lucide/astro` 图标，移动端保留图标、tooltip 与 `aria-label`，代码入口链接到项目仓库。`/archive/` 按日报日期分组并以轻量时间轨呈现，每天内部明确区分论文和博客；小型原生客户端脚本按 kind、年份和四类 taxonomy 筛选，组内多选为 OR、组间为 AND，并隐藏筛选后为空的日期组；它不借用 Pagefind，也不使用 `/?date=...` 伪路由。
+首页和日报卡片展示 rank、来源、作者、日期、原文链接、中文 summary、四类标签、推荐理由以及相关性/综合得分；analysis basis 和 degraded 状态保留在详情页及关于页，不占用摘要卡片。卡片使用 8px 圆角与 24px 内边距，taxonomy 胶囊紧接标题，并分别使用蓝、绿、琥珀、紫色区分目标、场景、任务和方法；胶囊之后以三行元数据展示来源、作者和评分。过长作者单行省略并以 tooltip 提供完整名单。评分行内使用两个紧凑 SVG 环形仪表显示相关性与综合得分，并以可点击问号图标链接到关于页的评分计算说明。顶栏使用静态 SVG 品牌标识和 `@lucide/astro` 图标，移动端保留图标、tooltip 与 `aria-label`；GitHub 入口使用官方 Primer Octicons 品牌标记并链接到项目仓库。页面标题可使用本地保存的 Koboyo `archive` 和 `search` 图标作为编辑性装饰；图标源码附带官方来源和许可注释，不通过 CDN 加载。导航、提交、筛选、展开、重置等操作控件继续统一使用 Lucide，避免装饰图标承担交互语义。
 
-详情页采用 68--72ch 单列阅读流，宽屏在右侧增加窄元数据栏，移动端顺序堆叠；结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客 excerpt 使用保留已有换行的原生可展开阅读块，在达到配置字符上限时明确显示截断状态并提供原文链接；站点不伪造已经丢失的原始段落。
+`/archive/` 按日报日期分组并以轻量时间轨呈现，每天内部明确区分论文和博客；分区标题已经提供内容类型和数量，卡片因此直接从标题开始，不重复显示类型标记或发布日期行。页面常显一个紧凑的本地搜索框，对标题、中文摘要、kind、日报日期、发布日期以及 taxonomy 的 ID、中英文名称做 NFKC 归一化、英文大小写不敏感的多关键词 AND 匹配，并使用约 150ms 防抖即时更新；它不加载 Pagefind，也不新增 URL 查询契约。kind、年份和四类 taxonomy 筛选放入默认折叠的原生 `<details>`，显示已选条件数量和重置入口；关键词与高级筛选之间为 AND，taxonomy 组内多选为 OR、组间为 AND。筛选后为空的论文/博客分区与日期组必须隐藏，并保留结果计数和明确空状态；归档不使用 `/?date=...` 伪路由。
 
-`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据和 `taxonomy.json` 的 ID、中英文名称；来源 URL、检索 terms 和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
+详情页采用 68--72ch 单列阅读流，展示顺序统一为标题、taxonomy 胶囊、内容信息和中文摘要；移动端严格按该顺序堆叠，宽屏则把内容信息放入右侧窄栏，同时保持正文摘要紧接标题区之后。结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客 excerpt 使用保留已有换行的原生可展开阅读块，在达到配置字符上限时明确显示截断状态并提供原文链接；站点不伪造已经丢失的原始段落。
+
+`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、入选阈值和 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式；页面明确声明精确权重以当次运行配置为准。来源 URL、检索 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
 
 论文详情页展示：
 
@@ -711,14 +713,14 @@ storage:
 
 搜索页面的职责边界如下：
 
-- `taxonomy.json` 生成 `targets`、`scenarios`、`tasks` 和 `methods` 四组筛选项，按 YAML 顺序显示 `name_zh name_en`
+- `config/topics.yaml` 是四类 taxonomy 的唯一配置来源；`rank-integrate` 将本次运行的标准化快照写入 `taxonomy.json`，Astro 再由该快照生成 `targets`、`scenarios`、`tasks` 和 `methods` 四组筛选项，按 YAML 顺序显示 `name_zh name_en`。浏览器不直接读取 YAML，公开 bundle 不包含检索 `terms`；配置变化需要生成新的 publish bundle 并重建站点
 - 内容类型 `kind: paper | blog`、发布年份 `published_year` 和构建时计算的 `age: 7d | 30d | 365d` 属于系统字段，不写入 `topics.yaml`；age bucket 累计写入，7 天内内容同时属于 7d/30d/365d，30 天内同时属于 30d/365d
 - 每个详情页把 canonical item 的分类 ID 写入 Pagefind filter attribute；显示名称只来自 taxonomy，不在页面脚本中维护第二份映射
 - 同一筛选组内的多选采用 OR，不同筛选组之间采用 AND
 - Pagefind 加载后先读取实际 filter counts，零结果配置项保留但置灰，当前条件下的可用数量随搜索结果更新；纯筛选使用 `null` query，结果数以过滤后 `results.length` 为准
 - 默认按相关性返回结果；时间筛选只限制结果集合，不复制一套归档查询逻辑
 
-初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。用户首次聚焦搜索框或操作筛选项时，才从 `import.meta.env.BASE_URL` 下动态加载 `pagefind/pagefind.js`，并同时设置 base URL 与 base path；这些交互只预加载 runtime 和 filter counts，不自动提交查询。关键词搜索必须通过带图标的提交按钮或 Enter 执行，首次提交后的筛选变化重新执行最近一次已提交的关键词；输入本身不触发搜索。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载，界面明确展示 loading、empty 和 error 状态。
+初始访问 `/search/` 时只发送静态表单、内嵌的小型 taxonomy 数据和页面 CSS，不加载 Pagefind runtime 或索引。搜索框始终可见；移动端压缩页头、标题与结果卡间距，全部筛选放入默认关闭的原生 disclosure，summary 显示筛选图标和已选数量，taxonomy 项仅显示中文短名但通过 tooltip 与 `aria-label` 保留中英文全名。桌面断点继续使用约 18rem 的常显筛选侧栏。用户首次聚焦搜索框或操作筛选项时，才从 `import.meta.env.BASE_URL` 下动态加载 `pagefind/pagefind.js`，并同时设置 base URL 与 base path；这些交互只预加载 runtime 和 filter counts，不自动提交查询。关键词搜索必须通过带图标的提交按钮或 Enter 执行，首次提交后的筛选变化重新执行最近一次已提交的关键词；输入本身不触发搜索。每次先调用前 10 个 result 的 `data()`，点击“加载更多”后再按 10 条读取，避免一次下载所有结果详情。Pagefind 的索引分块、筛选文件和结果详情都保持按需加载，界面明确展示 loading、empty 和 error 状态。
 
 [Astro Tailwind 文档](https://docs.astro.build/en/guides/styling/#tailwind)规定 Astro 5.2+ 使用 Tailwind 4 Vite plugin；[Astro framework components](https://docs.astro.build/en/guides/framework-components/)说明未使用 `client:*` 的框架组件不会下发客户端 runtime，但本项目当前交互规模不需要 React island。[Pagefind Search API](https://pagefind.app/docs/api/)支持按需初始化和逐条加载结果数据，[Pagefind filtering API](https://pagefind.app/docs/js-api-filtering/)提供筛选及动态数量，[Pagefind multilingual search](https://pagefind.app/docs/multilingual/)说明 extended release 的中文分词能力。
 
@@ -899,7 +901,7 @@ Python 单元与集成测试覆盖：
 - 文本 OpenAI-compatible Responses API wrapper 的 `input`、`text.format`、`output_text` 与 JSON 解析；MinerU 请求 payload、upload URL、polling、ZIP、终态失败、deadline 和临时目录清理
 - `429/5xx`、`Retry-After`、最多 3 次重试，以及同步客户端单请求边界
 - `arXiv PDF → MinerU full.md → Abstract fallback` 与博客 `Feed full content → article HTML → excerpt` 降级链，并验证论文路径不调用 arXiv HTML、PyMuPDF 或 VLM
-- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 16
+- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；空 excerpt 博客仍生成摘要，纯英文 `summary_zh` 不得通过模型响应或降级 artifact 进入发布；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 16
 - Top 16 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 8 篇、深读 Schema、正文依据和图谱节点裁剪
 - 完整 pending data tree、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
 - PDF、MinerU ZIP/Markdown、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
