@@ -757,14 +757,15 @@ storage:
 - 侧边栏展示摘要和唯一的详情页导航链接
 - 从日报或详情页以 `?center=<item-id>` 打开中心节点与一跳邻域；无效 ID 回退到全图并显示状态提示，用户首次手动筛选后退出 center 模式
 - 搜索、时间和 taxonomy 控件位于画布上方；画布约占 `70vh`，桌面右栏只保留节点详情，移动端详情位于画布下方；提供适应画布和重置视图按钮
+- 六类节点图例以可键盘操作的 DOM 按钮叠放在画布内；按钮可切换对应节点类型，隐藏相关边，并裁掉因此孤立的 taxonomy 节点，重置图谱时恢复全部类型
 - 使用 ECharts `layout: "force"`，初始布局为 `circular`，固定起始参数为 `repulsion=520`、`gravity=0.04`、`edgeLength=[120,190]`、`friction=0.6`；筛选或中心定位后替换可见 `data/links` 并重新布局。ECharts 参数不与 Cytoscape COSE 做一一等价承诺
-- `graph.json` 节点增加有限正数 `data.weight`，按保留图中不同相邻节点的 degree 计算并用平方根映射到约 16--56px；论文与博客节点始终不在画布中绘制标题，标题通过搜索结果、tooltip 和详情栏提供；taxonomy 只显示中文短标签并使用 `labelLayout.hideOverlap` 隐藏重叠项，远缩放时只突出选中节点、一跳邻居和搜索命中
+- `graph.json` 节点增加有限正数 `data.weight`，按保留图中不同相邻节点的 degree 计算；客户端使用固定对数刻度 `min(56, 16 + 8 * log2(max(1, degree)))` 映射尺寸，每次 degree 翻倍增加 8px，degree 32 起封顶 56px。同一 degree 不因图谱增长、筛选或当前最大 degree 改变尺寸；论文与博客节点始终不在画布中绘制标题，标题通过搜索结果、tooltip 和详情栏提供；taxonomy 只显示中文短标签并使用 `labelLayout.hideOverlap` 隐藏重叠项，远缩放时只突出选中节点、一跳邻居和搜索命中
 - 画布启用 `roam`、桌面节点拖拽和 `scaleLimit`；移动端关闭节点拖拽以避免与页面滚动冲突。使用 `labelLayout.hideOverlap`、`emphasis.focus: "adjacency"` 和 `prefers-reduced-motion` 适配
 - ECharts `aria.enabled` 只作为补充；原生搜索结果列表、可聚焦控件、`aria-live` 状态和详情链接承担键盘与屏幕阅读器路径。动态标题、摘要和关系证据不通过未经转义的 HTML tooltip 插入
 
 ### 11.1 ECharts 案例调研与视觉取舍
 
-实现参考 ECharts 官方的 [Force-directed Graph](https://echarts.apache.org/examples/en/editor.html?c=graph-force)、[Circular Layout](https://echarts.apache.org/examples/en/editor.html?c=graph-circular-layout)、[WebKit Dependency](https://echarts.apache.org/examples/en/editor.html?c=graph-webkit-dep) 和 [Label Overlap](https://echarts.apache.org/examples/en/editor.html?c=graph-label-overlap) 案例。Force-directed Graph 提供 `force`、拖拽和 `roam` 的基础，本站独立使用 `force.initLayout: "circular"` 获得稳定起始分布；Circular Layout 仅作为非 force 的备用布局参考；WebKit Dependency 只提供分类图的表现参考；Label Overlap 提供 `labelLayout.hideOverlap`、源节点色曲线和度大小层级。站点不照搬案例的预计算坐标、全量标题或内嵌 legend，因为它们不适合本站动态筛选后的子图和较长的中英文学术标题。
+实现参考 ECharts 官方的 [Force-directed Graph](https://echarts.apache.org/examples/en/editor.html?c=graph-force)、[Circular Layout](https://echarts.apache.org/examples/en/editor.html?c=graph-circular-layout)、[WebKit Dependency](https://echarts.apache.org/examples/en/editor.html?c=graph-webkit-dep) 和 [Label Overlap](https://echarts.apache.org/examples/en/editor.html?c=graph-label-overlap) 案例。Force-directed Graph 提供 `force`、拖拽和 `roam` 的基础，本站独立使用 `force.initLayout: "circular"` 获得稳定起始分布；Circular Layout 仅作为非 force 的备用布局参考；WebKit Dependency 只提供分类图的表现参考；Label Overlap 提供 `labelLayout.hideOverlap`、源节点色曲线和度大小层级。站点不照搬案例的预计算坐标和全量标题，因为它们不适合本站动态筛选后的子图和较长的中英文学术标题；图内 legend 使用原生 DOM 按钮覆盖层而非 ECharts Canvas legend，以便与筛选状态同步并保留键盘和屏幕阅读器语义。
 
 视觉编码参考 Label Overlap 案例的实色圆点、度大小层级、分类色曲线和中性短标签，但保留本站的 force 布局：六类节点都使用圆形并默认设置为 50% opacity，论文为实线环、技术博客为虚线环，四类 taxonomy 与站内主题胶囊统一使用目标 sky、场景 emerald、任务 amber、方法 violet；taxonomy 边使用低透明度实线曲线并继承目标 taxonomy 节点颜色，模型生成关系使用继承源内容节点颜色的虚线小箭头；选中节点、一跳邻居和搜索命中分别使用深色、青色和红色描边，存在选中节点时非邻域节点继续降低 opacity。论文与博客不显示画布标题，taxonomy 标签保持不透明、只显示中文名并由 `labelLayout.hideOverlap` 隐藏碰撞项，完整中英文名称仍保留在 tooltip、搜索和详情区域。根据 ECharts 的 [Canvas vs. SVG](https://echarts.apache.org/handbook/en/best-practices/canvas-vs-svg/) 建议，本图谱使用 Canvas，以适配 force 动画、平移缩放和最多约 80 个内容节点；无障碍路径仍由 DOM 控件和详情区承担。
 
@@ -820,7 +821,7 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 
 触发条件：
 
-- 每日定时运行，默认北京时间 08:23（UTC 00:23），避开整点高峰
+- 每日定时运行，默认北京时间 03:33（UTC 19:33），避开整点高峰
 - `workflow_dispatch` 手动运行；生产运行只接受 `main`，其他 ref 在首个 job 明确失败
 
 生产 workflow 分为四个逻辑阶段和五个物理 job。前三个数据阶段的业务命令在 `pipeline/Dockerfile` 镜像内运行；最后的网站构建命令在 `site/Dockerfile` 镜像内运行。checkout、artifact 上传下载、Pages 部署和 Git 提交由 GitHub runner 上的官方 action 或宿主步骤负责，不要求业务镜像安装另一套技术栈。两个镜像分别使用 GitHub Actions layer cache，不把 Python/PDF 依赖带入前端镜像，也不把 Node/Astro 依赖带入数据镜像。

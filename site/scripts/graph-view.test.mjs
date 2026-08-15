@@ -6,6 +6,7 @@ import {
   centerGraphDocument,
   escapeEChartsRichText,
   filterGraphDocument,
+  filterGraphNodeTypes,
   GRAPH_NODE_STYLES,
   graphEdgeColor,
   graphNodeCanvasLabel,
@@ -88,6 +89,16 @@ test("year and cumulative age filters use the supplied clock", () => {
   );
 });
 
+test("node type toggles hide disabled types, remove their edges, and prune isolated taxonomy", () => {
+  const articleAndTask = filterGraphNodeTypes(graph, new Set(["article", "task"]));
+  assert.deepEqual(articleAndTask.nodes.map(node => node.data.id), ["article-b", "task:ranking"]);
+  assert.deepEqual(articleAndTask.edges.map(value => value.data.id), ["taxonomy:article-b|task:ranking"]);
+
+  const contentWithoutRelationships = filterGraphNodeTypes(graph, new Set(["paper", "method"]));
+  assert.deepEqual(contentWithoutRelationships.nodes.map(node => node.data.id), ["paper-a", "paper-c"]);
+  assert.deepEqual(contentWithoutRelationships.edges, []);
+});
+
 test("center returns the content node and its induced one-hop neighborhood", () => {
   const centered = centerGraphDocument(graph, "paper-a");
   assert.deepEqual(centered.nodes.map(node => node.data.id), ["paper-a", "article-b", "target:user", "task:ranking"]);
@@ -110,12 +121,16 @@ test("search applies NFKC lowercase normalization and stable relevance ordering"
   assert.deepEqual(searchGraphNodes(graph, "  "), []);
 });
 
-test("node size uses bounded square-root degree weighting from 16 to 56", () => {
-  assert.equal(graphNodeSymbolSize(1, 9), 16);
-  assert.equal(graphNodeSymbolSize(9, 9), 56);
-  assert.equal(graphNodeSymbolSize(3, 9), 36);
-  assert.equal(graphNodeSymbolSize(-1, 9), 16);
-  assert.equal(graphNodeSymbolSize(20, 9), 56);
+test("node size uses a fixed bounded logarithmic degree scale from 16 to 56", () => {
+  assert.equal(graphNodeSymbolSize(1), 16);
+  assert.equal(graphNodeSymbolSize(2), 24);
+  assert.equal(graphNodeSymbolSize(4), 32);
+  assert.equal(graphNodeSymbolSize(8), 40);
+  assert.equal(graphNodeSymbolSize(16), 48);
+  assert.equal(graphNodeSymbolSize(32), 56);
+  assert.equal(graphNodeSymbolSize(64), 56);
+  assert.equal(graphNodeSymbolSize(-1), 16);
+  assert.equal(graphNodeSymbolSize(Number.NaN), 16);
 });
 
 test("nodes use 50% opacity while selection mutes unrelated nodes", () => {

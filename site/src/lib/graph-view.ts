@@ -42,14 +42,14 @@ export type EChartsGraphData = {
 };
 
 const CONTENT_TYPES = new Set<GraphNode["data"]["type"]>(["paper", "article"]);
-const NODE_TYPES: GraphNode["data"]["type"][] = [
+export const GRAPH_NODE_TYPES = [
   "paper",
   "article",
   "target",
   "scenario",
   "task",
   "method",
-];
+] as const satisfies ReadonlyArray<GraphNode["data"]["type"]>;
 const AGE_DAYS: Record<GraphAgeFilter, number> = { "7d": 7, "30d": 30, "365d": 365 };
 const DAY_MS = 86_400_000;
 const MIN_NODE_SIZE = 16;
@@ -153,6 +153,26 @@ export function filterGraphDocument(graph: GraphDocument, filters: GraphFilters 
   return graphForContentIds(graph, contentIdsMatching(graph, filters));
 }
 
+/** Hide disabled node types and remove taxonomy nodes left without a visible relationship. */
+export function filterGraphNodeTypes(
+  graph: GraphDocument,
+  visibleTypes: ReadonlySet<GraphNode["data"]["type"]>,
+): GraphDocument {
+  const typeVisibleIds = new Set(
+    graph.nodes
+      .filter(node => visibleTypes.has(node.data.type))
+      .map(node => node.data.id),
+  );
+  const visibleEdges = graph.edges.filter(
+    edge => typeVisibleIds.has(edge.data.source) && typeVisibleIds.has(edge.data.target),
+  );
+  const connectedIds = new Set(visibleEdges.flatMap(edge => [edge.data.source, edge.data.target]));
+  const visibleNodes = graph.nodes.filter(
+    node => typeVisibleIds.has(node.data.id) && (isContentGraphNode(node) || connectedIds.has(node.data.id)),
+  );
+  return { nodes: visibleNodes, edges: visibleEdges };
+}
+
 export function graphNodeNeighborhood(graph: GraphDocument, nodeId: string): GraphDocument | null {
   if (!graph.nodes.some(node => node.data.id === nodeId)) return null;
   const visibleIds = new Set([nodeId, ...(buildGraphAdjacency(graph).get(nodeId) ?? [])]);
@@ -204,12 +224,9 @@ export function searchGraphNodes(graph: GraphDocument, query: string): GraphNode
     .map(result => result.node);
 }
 
-export function graphNodeSymbolSize(degree: number, maxDegree: number): number {
-  const safeMaximum = Number.isFinite(maxDegree) ? Math.max(1, maxDegree) : 1;
-  const safeWeight = Number.isFinite(degree) ? Math.min(safeMaximum, Math.max(1, degree)) : 1;
-  if (safeMaximum === 1) return MIN_NODE_SIZE;
-  const normalized = (safeWeight - 1) / (safeMaximum - 1);
-  return MIN_NODE_SIZE + (MAX_NODE_SIZE - MIN_NODE_SIZE) * Math.sqrt(normalized);
+export function graphNodeSymbolSize(degree: number): number {
+  const safeDegree = Number.isFinite(degree) ? Math.max(1, degree) : 1;
+  return Math.min(MAX_NODE_SIZE, MIN_NODE_SIZE + 8 * Math.log2(safeDegree));
 }
 
 export function graphNodeOpacity(selectionActive: boolean, focused: boolean): number {
@@ -237,17 +254,16 @@ export function graphEdgeColor(edgeKind: EChartsGraphLink["edgeKind"]): "source"
 
 export function adaptGraphDocumentToECharts(
   graph: GraphDocument,
-  maxWeight = Math.max(1, ...graph.nodes.map(node => node.data.weight)),
 ): EChartsGraphData {
   return {
-    categories: NODE_TYPES.map(name => ({ name })),
+    categories: GRAPH_NODE_TYPES.map(name => ({ name })),
     nodes: graph.nodes.map(({ data }) => ({
       ...data,
       name: data.label,
       value: data.weight,
       category: data.type,
       symbol: "circle",
-      symbolSize: graphNodeSymbolSize(data.weight, maxWeight),
+      symbolSize: graphNodeSymbolSize(data.weight),
     })),
     links: graph.edges.map(({ data }) => {
       const edgeKind = graphEdgeKind({ data });

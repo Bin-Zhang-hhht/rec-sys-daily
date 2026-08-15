@@ -12,6 +12,14 @@ const groupStyles = {
   tasks: "border-amber-200 bg-amber-50 text-amber-900 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100",
   methods: "border-violet-200 bg-violet-50 text-violet-800 has-[:checked]:border-violet-500 has-[:checked]:bg-violet-100",
 } as const;
+const graphLegend = [
+  { type: "paper", label: "论文", swatch: "border-indigo-800 bg-indigo-500" },
+  { type: "article", label: "技术博客", swatch: "border-2 border-dashed border-emerald-800 bg-emerald-500" },
+  { type: "target", label: "目标", swatch: "border-sky-800 bg-sky-500" },
+  { type: "scenario", label: "场景", swatch: "border-emerald-800 bg-emerald-500" },
+  { type: "task", label: "任务", swatch: "border-amber-800 bg-amber-500" },
+  { type: "method", label: "方法", swatch: "border-violet-800 bg-violet-500" },
+] as const;
 ---
 <BaseLayout title="知识图谱 / RecSys Daily">
   <section class="border-b border-slate-200 pb-5">
@@ -96,27 +104,39 @@ const groupStyles = {
     </details>
   </section>
 
-  <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-600" aria-label="图谱节点图例">
-    <li class="inline-flex items-center gap-1.5"><span class="size-3 rounded-full border border-indigo-800 bg-indigo-500 opacity-50"></span>论文</li>
-    <li class="inline-flex items-center gap-1.5"><span class="size-3 rounded-full border-2 border-dashed border-emerald-800 bg-emerald-500 opacity-50"></span>技术博客</li>
-    <li class="inline-flex items-center gap-1.5"><span class="size-3 rounded-full border border-sky-800 bg-sky-500 opacity-50"></span>目标</li>
-    <li class="inline-flex items-center gap-1.5"><span class="size-3 rounded-full border border-emerald-800 bg-emerald-500 opacity-50"></span>场景</li>
-    <li class="inline-flex items-center gap-1.5"><span class="size-3 rounded-full border border-amber-800 bg-amber-500 opacity-50"></span>任务</li>
-    <li class="inline-flex items-center gap-1.5"><span class="size-3 rounded-full border border-violet-800 bg-violet-500 opacity-50"></span>方法</li>
-  </ul>
-
   <div class="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
     <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" aria-label="知识图谱">
-      <div
-        id="graph-canvas"
-        class="h-[clamp(28rem,68vh,48rem)] w-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-600"
-        data-graph-url={sitePath("graph.json")}
-        tabindex="0"
-        role="region"
-        aria-label="推荐系统知识图谱画布"
-        aria-describedby="graph-status graph-accessible-summary"
-        aria-busy="true"
-      ></div>
+      <div class="relative">
+        <div
+          id="graph-canvas"
+          class="h-[clamp(28rem,68vh,48rem)] w-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-600"
+          data-graph-url={sitePath("graph.json")}
+          tabindex="0"
+          role="region"
+          aria-label="推荐系统知识图谱画布"
+          aria-describedby="graph-status graph-accessible-summary"
+          aria-busy="true"
+        ></div>
+        <div
+          id="graph-type-legend"
+          class="absolute left-3 top-3 z-10 flex max-w-[calc(100%_-_1.5rem)] flex-wrap gap-1 rounded-md border border-slate-200/90 bg-white/90 p-1.5 shadow-sm backdrop-blur-sm"
+          role="group"
+          aria-label="节点类型图例与筛选"
+        >
+          {graphLegend.map(entry => (
+            <button
+              type="button"
+              data-graph-type={entry.type}
+              aria-pressed="true"
+              class="inline-flex h-8 items-center gap-1.5 rounded-md border border-transparent px-2 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 aria-[pressed=false]:bg-slate-100 aria-[pressed=false]:text-slate-400 aria-[pressed=false]:opacity-60"
+              title={`${entry.label}节点：点击隐藏`}
+            >
+              <span class={`size-3 rounded-full border opacity-50 ${entry.swatch}`} aria-hidden="true"></span>
+              <span>{entry.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
       <p id="graph-status" class="border-t border-slate-100 px-4 py-3 text-sm text-slate-500" role="status" aria-live="polite">正在加载图谱...</p>
       <p id="graph-accessible-summary" class="sr-only">图谱加载后，可使用上方搜索框和筛选条件定位节点，并在节点详情区域访问内容链接。</p>
     </section>

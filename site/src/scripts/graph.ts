@@ -7,6 +7,7 @@ import {
   centerGraphDocument,
   escapeEChartsRichText,
   filterGraphDocument,
+  filterGraphNodeTypes,
   GRAPH_NODE_STYLES,
   graphEdgeColor,
   graphNodeCanvasLabel,
@@ -38,6 +39,7 @@ const showAll = document.querySelector<HTMLButtonElement>("#graph-show-all");
 const fitButton = document.querySelector<HTMLButtonElement>("#graph-fit");
 const resetButton = document.querySelector<HTMLButtonElement>("#graph-reset");
 const timeControls = [...document.querySelectorAll<HTMLSelectElement>("select[data-graph-time]")];
+const legendButtons = [...document.querySelectorAll<HTMLButtonElement>("button[data-graph-type]")];
 
 const typeLabels: Record<NodeData["type"], string> = {
   paper: "论文",
@@ -176,7 +178,7 @@ function statusFor(graph: GraphDocument, centered = false): string {
     : `${contentCount} 个内容节点，${graph.edges.length} 条关系`;
 }
 
-if (canvas && status && summary && query && searchResults && details && filters && filterPanel && showAll && fitButton && resetButton) {
+if (canvas && status && summary && query && searchResults && details && filters && filterPanel && showAll && fitButton && resetButton && legendButtons.length) {
   const run = async (): Promise<void> => {
     const graphUrl = canvas.dataset.graphUrl;
     if (!graphUrl) {
@@ -196,7 +198,21 @@ if (canvas && status && summary && query && searchResults && details && filters 
     let loadPromise: Promise<void> | null = null;
     let searchTimer: number | undefined;
 
-    const adjacency = (): Map<string, Set<string>> => (graph ? buildGraphAdjacency(graph) : new Map());
+    const legendTypes = legendButtons
+      .map(button => button.dataset.graphType)
+      .filter((type): type is NodeData["type"] => Boolean(type && type in typeLabels));
+    let visibleTypes = new Set<NodeData["type"]>(legendTypes);
+    const displayedView = (): GraphDocument => filterGraphNodeTypes(currentView, visibleTypes);
+    const syncLegendState = (): void => {
+      for (const button of legendButtons) {
+        const type = button.dataset.graphType as NodeData["type"];
+        const visible = visibleTypes.has(type);
+        button.setAttribute("aria-pressed", String(visible));
+        button.title = `${typeLabels[type]}节点：点击${visible ? "隐藏" : "显示"}`;
+      }
+    };
+
+    const adjacency = (): Map<string, Set<string>> => (graph ? buildGraphAdjacency(displayedView()) : new Map());
     const focusIds = (): Set<string> => selectedId ? new Set([selectedId, ...(adjacency().get(selectedId) ?? [])]) : new Set();
 
     const nodeOption = (data: EChartsGraphNode) => {
@@ -259,20 +275,21 @@ if (canvas && status && summary && query && searchResults && details && filters 
     };
 
     const updateAccessibleState = (): void => {
-      const contentCount = currentView.nodes.filter(node => contentTypes.has(node.data.type)).length;
+      const view = displayedView();
+      const contentCount = view.nodes.filter(node => contentTypes.has(node.data.type)).length;
       const selected = selectedId ? graph?.nodes.find(node => node.data.id === selectedId)?.data.label : undefined;
-      status.textContent = `${statusFor(currentView, centerMode)}${selected ? `；已选择 ${selected}` : ""}${statusNotice ? `；${statusNotice}` : ""}`;
+      status.textContent = `${statusFor(view, centerMode)}${selected ? `；已选择 ${selected}` : ""}${statusNotice ? `；${statusNotice}` : ""}`;
       summary.textContent = `${contentCount} 个内容节点已加载。使用搜索、筛选或键盘结果列表定位节点。`;
     };
 
     const renderChart = (fit = true): void => {
       if (!chart || !graph) return;
-      const maxWeight = Math.max(1, ...graph.nodes.map(node => node.data.weight));
-      const adapted = adaptGraphDocumentToECharts(currentView, maxWeight);
+      const view = displayedView();
+      const adapted = adaptGraphDocumentToECharts(view);
       chart.setOption({
         animation: !reducedMotion.matches,
         animationDurationUpdate: reducedMotion.matches ? 0 : 260,
-        aria: { enabled: true, description: `推荐系统研究图谱，${currentView.nodes.length} 个节点，${currentView.edges.length} 条关系` },
+        aria: { enabled: true, description: `推荐系统研究图谱，${view.nodes.length} 个节点，${view.edges.length} 条关系` },
         tooltip: { trigger: "item", renderMode: "richText", confine: true, formatter: tooltip },
         series: [{
           id: "recsys-graph",
@@ -301,8 +318,7 @@ if (canvas && status && summary && query && searchResults && details && filters 
 
     const refreshVisualState = (): void => {
       if (!chart || !graph) return;
-      const maxWeight = Math.max(1, ...graph.nodes.map(node => node.data.weight));
-      const adapted = adaptGraphDocumentToECharts(currentView, maxWeight);
+      const adapted = adaptGraphDocumentToECharts(displayedView());
       chart.setOption({ series: [{ id: "recsys-graph", data: adapted.nodes.map(nodeOption), links: adapted.links.map(linkOption) }] });
       updateAccessibleState();
     };
@@ -338,16 +354,37 @@ if (canvas && status && summary && query && searchResults && details && filters 
       searchResults.classList.add("hidden");
     };
 
+    const reconcileDisplayedState = (): void => {
+      const view = displayedView();
+      const selected = selectedId ? view.nodes.find(node => node.data.id === selectedId) : undefined;
+      if (selectedId && !selected) {
+        selectedId = null;
+        searchIds = new Set();
+        defaultDetails();
+      } else if (selected) {
+        if (isContentGraphNode(selected)) renderContentDetails(selected.data);
+        else renderTaxonomyDetails(view, selected.data);
+      }
+      if (normalizeGraphSearchText(query.value)) {
+        const matches = searchGraphNodes(view, query.value);
+        searchIds = new Set(matches.map(node => node.data.id));
+        renderSearchResults(matches);
+      } else {
+        const visibleIds = new Set(view.nodes.map(node => node.data.id));
+        searchIds = new Set([...searchIds].filter(id => visibleIds.has(id)));
+      }
+    };
+
     function activate(id: string): void {
       if (!graph) return;
-      const node = graph.nodes.find(value => value.data.id === id);
+      const node = displayedView().nodes.find(value => value.data.id === id);
       if (!node) return;
       selectedId = id;
       searchIds = new Set([id]);
       statusNotice = "";
       closeSearchResults();
       if (isContentGraphNode(node)) renderContentDetails(node.data);
-      else renderTaxonomyDetails(currentView, node.data);
+      else renderTaxonomyDetails(displayedView(), node.data);
       refreshVisualState();
     }
 
@@ -364,7 +401,7 @@ if (canvas && status && summary && query && searchResults && details && filters 
       showAll?.classList.remove("hidden");
       closeSearchResults();
       if (isContentGraphNode(node)) renderContentDetails(node.data);
-      else renderTaxonomyDetails(currentView, node.data);
+      else renderTaxonomyDetails(displayedView(), node.data);
       renderChart(true);
       details?.focus({ preventScroll: desktopViewport.matches });
     }
@@ -374,20 +411,7 @@ if (canvas && status && summary && query && searchResults && details && filters 
       currentView = filterGraphDocument(graph, { ...graphFilters(), now: Date.now() });
       centerMode = false;
       statusNotice = "";
-      if (selectedId && !currentView.nodes.some(node => node.data.id === selectedId)) {
-        selectedId = null;
-        searchIds = new Set();
-        defaultDetails();
-      } else if (selectedId) {
-        const selected = currentView.nodes.find(node => node.data.id === selectedId);
-        if (selected && isContentGraphNode(selected)) renderContentDetails(selected.data);
-        else if (selected) renderTaxonomyDetails(currentView, selected.data);
-      }
-      if (normalizeGraphSearchText(query.value)) {
-        const matches = searchGraphNodes(currentView, query.value);
-        searchIds = new Set(matches.map(node => node.data.id));
-        renderSearchResults(matches);
-      }
+      reconcileDisplayedState();
       showAll.classList.add("hidden");
       renderChart(fit);
     };
@@ -456,7 +480,7 @@ if (canvas && status && summary && query && searchResults && details && filters 
         return;
       }
       if (centerMode) applyCurrentFilters(true);
-      const matches = searchGraphNodes(currentView, normalizedQuery);
+      const matches = searchGraphNodes(displayedView(), normalizedQuery);
       searchIds = new Set(matches.map(node => node.data.id));
       renderSearchResults(matches);
       refreshVisualState();
@@ -505,6 +529,19 @@ if (canvas && status && summary && query && searchResults && details && filters 
     document.addEventListener("pointerdown", event => { if (!searchResults.contains(event.target as Node) && event.target !== query) closeSearchResults(); });
     filters.addEventListener("change", () => { updateFilterCount(); void load().then(() => applyCurrentFilters(true)).catch(() => undefined); });
     for (const control of timeControls) control.addEventListener("change", () => { updateFilterCount(); void load().then(() => applyCurrentFilters(true)).catch(() => undefined); });
+    for (const button of legendButtons) {
+      button.addEventListener("click", () => {
+        const type = button.dataset.graphType as NodeData["type"];
+        void load().then(() => {
+          if (visibleTypes.has(type)) visibleTypes.delete(type);
+          else visibleTypes.add(type);
+          statusNotice = "";
+          syncLegendState();
+          reconcileDisplayedState();
+          renderChart(true);
+        }).catch(() => undefined);
+      });
+    }
     showAll.addEventListener("click", () => { void load().then(() => { centerMode = false; applyCurrentFilters(true); closeSearchResults(); }).catch(() => undefined); });
     fitButton.addEventListener("click", () => { void load().then(() => renderChart(true)).catch(() => undefined); });
     resetButton.addEventListener("click", () => {
@@ -514,6 +551,8 @@ if (canvas && status && summary && query && searchResults && details && filters 
       closeSearchResults();
       selectedId = null;
       searchIds = new Set();
+      visibleTypes = new Set(legendTypes);
+      syncLegendState();
       centerMode = false;
       showAll.classList.add("hidden");
       defaultDetails();
@@ -524,6 +563,7 @@ if (canvas && status && summary && query && searchResults && details && filters 
     desktopViewport.addEventListener("change", setFilterPanelState);
     setFilterPanelState();
     updateFilterCount();
+    syncLegendState();
 
     let observer: IntersectionObserver | null = null;
     if ("IntersectionObserver" in window) {
