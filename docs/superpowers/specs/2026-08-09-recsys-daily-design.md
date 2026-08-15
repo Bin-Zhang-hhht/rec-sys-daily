@@ -660,7 +660,7 @@ storage:
 
 ## 10. 静态站点
 
-前端使用 Astro + TypeScript + Tailwind CSS 4，输出纯静态文件。Tailwind 通过官方推荐的 Vite plugin 接入，不使用已废弃的 `@astrojs/tailwind`；首版不安装 React，搜索和图谱交互分别使用原生 TypeScript 驱动 Pagefind 与 Cytoscape.js。Astro 只为明确包含客户端脚本的页面输出 JavaScript，详情、归档和关于页面保持静态 HTML。
+前端使用 Astro + TypeScript + Tailwind CSS 4，输出纯静态文件。Tailwind 通过官方推荐的 Vite plugin 接入，不使用已废弃的 `@astrojs/tailwind`；首版不安装 React，搜索和图谱交互分别使用原生 TypeScript 驱动 Pagefind 与按需加载的 ECharts Graph。Astro 只为明确包含客户端脚本的页面输出 JavaScript，详情、归档和关于页面保持静态 HTML。
 
 站点固定作为 GitHub Project Pages 部署。`SITE_ORIGIN` 只保存 `https://<owner>.github.io` 这样的 origin，Astro 固定使用 `base: "/rec-sys-daily/"` 和 `trailingSlash: "always"`。所有导航、卡片、详情、归档、图谱、`graph.json`、Pagefind runtime 和搜索结果链接都通过同一 base-aware helper 生成，不硬编码根路径。
 
@@ -730,7 +730,7 @@ storage:
 
 ## 11. 轻量交互知识图谱
 
-图谱使用 Cytoscape.js，仅加载构建时生成的静态 JSON。
+图谱使用 ECharts Graph 的 Canvas renderer，仅在 `/graph/` 且画布接近视口、获得焦点或存在 `?center=` 时加载 ECharts 与构建时生成的静态 JSON。客户端保留原生 DOM 筛选、搜索结果、状态和详情区域；ECharts 只负责图形绘制，不改变 `graph.json` 契约。
 
 节点类型：
 
@@ -753,14 +753,24 @@ storage:
 - 平移、缩放和拖动
 - 在当前已加载图谱节点中，按内容标题以及 taxonomy 的 ID、中文名和英文名快速定位；站内全局内容检索统一跳转 base-aware `/search/`，图谱页不重复加载 Pagefind
 - 按时间、场景、目标、任务和方法筛选，同组 OR、组间 AND；筛选后隐藏不匹配内容、关联边和孤立 taxonomy 节点
-- 单击或按 Enter 只选中节点、高亮一跳邻居并打开侧边栏，不自动导航
+- 单击或按 Enter 只选中节点、高亮一跳邻居并打开侧边栏，不自动导航；详情链接由侧边栏提供
 - 侧边栏展示摘要和唯一的详情页导航链接
 - 从日报或详情页以 `?center=<item-id>` 打开中心节点与一跳邻域；无效 ID 回退到全图并显示状态提示，用户首次手动筛选后退出 center 模式
 - 搜索、时间和 taxonomy 控件位于画布上方；画布约占 `70vh`，桌面右栏只保留节点详情，移动端详情位于画布下方；提供适应画布和重置视图按钮
-- 继续使用 Cytoscape 内置 COSE，布局参数固定为 `nodeRepulsion=12000`、`idealEdgeLength=90`、`gravity=0.25`、`nodeOverlap=16`、`componentSpacing=100`、`numIter=1500`；筛选或中心定位后对可见子图重新布局并适配
-- `graph.json` 节点增加有限正数 `data.weight`，按保留图中不同相邻节点的 degree 计算并映射到约 24--52px；远缩放时隐藏普通标签，只突出选中节点和一跳邻居
+- 使用 ECharts `layout: "force"`，初始布局为 `circular`，固定起始参数为 `repulsion=520`、`gravity=0.04`、`edgeLength=[120,190]`、`friction=0.6`；筛选或中心定位后替换可见 `data/links` 并重新布局。ECharts 参数不与 Cytoscape COSE 做一一等价承诺
+- `graph.json` 节点增加有限正数 `data.weight`，按保留图中不同相邻节点的 degree 计算并用平方根映射到约 16--56px；论文与博客节点始终不在画布中绘制标题，标题通过搜索结果、tooltip 和详情栏提供；taxonomy 只显示中文短标签并使用 `labelLayout.hideOverlap` 隐藏重叠项，远缩放时只突出选中节点、一跳邻居和搜索命中
+- 画布启用 `roam`、桌面节点拖拽和 `scaleLimit`；移动端关闭节点拖拽以避免与页面滚动冲突。使用 `labelLayout.hideOverlap`、`emphasis.focus: "adjacency"` 和 `prefers-reduced-motion` 适配
+- ECharts `aria.enabled` 只作为补充；原生搜索结果列表、可聚焦控件、`aria-live` 状态和详情链接承担键盘与屏幕阅读器路径。动态标题、摘要和关系证据不通过未经转义的 HTML tooltip 插入
 
-### 11.1 防止图谱臃肿
+### 11.1 ECharts 案例调研与视觉取舍
+
+实现参考 ECharts 官方的 [Force-directed Graph](https://echarts.apache.org/examples/en/editor.html?c=graph-force)、[Circular Layout](https://echarts.apache.org/examples/en/editor.html?c=graph-circular-layout)、[WebKit Dependency](https://echarts.apache.org/examples/en/editor.html?c=graph-webkit-dep) 和 [Label Overlap](https://echarts.apache.org/examples/en/editor.html?c=graph-label-overlap) 案例。Force-directed Graph 提供 `force`、拖拽和 `roam` 的基础，本站独立使用 `force.initLayout: "circular"` 获得稳定起始分布；Circular Layout 仅作为非 force 的备用布局参考；WebKit Dependency 只提供分类图的表现参考；Label Overlap 提供 `labelLayout.hideOverlap`、源节点色曲线和度大小层级。站点不照搬案例的预计算坐标、全量标题或内嵌 legend，因为它们不适合本站动态筛选后的子图和较长的中英文学术标题。
+
+视觉编码参考 Label Overlap 案例的实色圆点、度大小层级、分类色曲线和中性短标签，但保留本站的 force 布局：六类节点都使用圆形并默认设置为 50% opacity，论文为实线环、技术博客为虚线环，四类 taxonomy 与站内主题胶囊统一使用目标 sky、场景 emerald、任务 amber、方法 violet；taxonomy 边使用低透明度实线曲线并继承目标 taxonomy 节点颜色，模型生成关系使用继承源内容节点颜色的虚线小箭头；选中节点、一跳邻居和搜索命中分别使用深色、青色和红色描边，存在选中节点时非邻域节点继续降低 opacity。论文与博客不显示画布标题，taxonomy 标签保持不透明、只显示中文名并由 `labelLayout.hideOverlap` 隐藏碰撞项，完整中英文名称仍保留在 tooltip、搜索和详情区域。根据 ECharts 的 [Canvas vs. SVG](https://echarts.apache.org/handbook/en/best-practices/canvas-vs-svg/) 建议，本图谱使用 Canvas，以适配 force 动画、平移缩放和最多约 80 个内容节点；无障碍路径仍由 DOM 控件和详情区承担。
+
+交互采用“概览 → 定位 → 邻域 → 详情”的渐进路径：默认显示裁剪后的全图；搜索结果、taxonomy/time 筛选和 `?center=` 缩小范围；节点单击只选择并高亮邻域，避免拖动画布时误跳转；站内详情跳转只由侧栏中的明确链接触发。移动端保留缩放和平移、关闭节点拖拽，并折叠 taxonomy 筛选，优先保证页面滚动和详情阅读。
+
+### 11.2 防止图谱臃肿
 
 图谱不是无限追加的全历史图，而是每次构建从 `data/items` 派生：
 
@@ -969,7 +979,7 @@ Python 单元与集成测试覆盖：
 20. 任一 stage/job 失败都不写正式 `state.json`；Stage 1 与 deep-read artifact 保留 1 天，最终 publish bundle 保留 3 天，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，或通过只读数据的 `site-only.yml` 重建部署，不重新调用 LLM
 21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv PDF → MinerU full.md → Abstract fallback`，不实现 arXiv HTML、OpenReview、TeX source、本地 PDF 正文提取或视觉阅读
 22. 文本模型使用一个同步 OpenAI-compatible Responses API wrapper；MinerU 使用独立 REST 客户端和 `MINERU_API_KEY`，校验 PDF 上限、公网 URL、batch/data ID、polling deadline 与 ZIP `full.md`，并在所有终态清理临时文件
-23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱的关系生成、筛选和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
+23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱使用按需加载的 ECharts Graph Canvas，关系生成、筛选、center 邻域和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
 24. 自动化测试覆盖与变更相匹配的高价值行为和五组运行时生成的端到端场景，不以任意总数限制作为验收条件，也不建设浏览器集群、页面快照、provider capability 或大量错误组合测试
 25. `rank-integrate` 从挂载父目录中生成尚不存在的 publish bundle 子目录，真实 Docker 挂载场景不出现 mount-root `EBUSY`，任一失败不留下可被下游当作完整 bundle 的部分目录
 26. 深读 artifact 完整区分成功 `items` 和脱敏 `failures`，论文与博客分别达到 80% 才能整合；失败不写持久化重试队列
