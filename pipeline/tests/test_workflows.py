@@ -39,7 +39,7 @@ def test_daily_workflow_permissions_timeouts_and_needs() -> None:
 def test_daily_workflow_has_single_schedule_and_artifact_boundaries() -> None:
     workflow = _load_workflow("daily.yml")
     trigger = workflow["on"]
-    assert trigger["schedule"] == [{"cron": "23 0 * * *"}]
+    assert trigger["schedule"] == [{"cron": "33 19 * * *"}]
     assert "workflow_dispatch" in trigger
     assert workflow["concurrency"] == {"group": "recsys-daily", "cancel-in-progress": False}
     text = (ROOT / ".github" / "workflows" / "daily.yml").read_text(encoding="utf-8")
