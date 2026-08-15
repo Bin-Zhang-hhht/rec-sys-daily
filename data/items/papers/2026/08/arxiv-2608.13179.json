@@ -12,19 +12,18 @@
   "deep_reading": {
     "analysis_basis": "mineru_full_text",
     "business_implications_zh": [
-      "多轮工具调用智能体直接对应客服、办公自动化、API编排等业务场景；CREST在WildToolBench会话级准确率上提升最大，表明对要求端到端多轮完成率的业务指标更有价值。",
-      "CREST不需要外部同族、同tokenizer教师，只用学生自身加特权上下文作为教师，降低了部署复杂度与模型兼容性限制。",
-      "方法保证梯度方向完全由验证器奖励决定，业务方只要提供可靠的逐轮验证奖励，教师信号就不会越过验证器方向，便于在生产中控制训练风险。",
-      "相对标准GRPO只增加一个可调超参数λ，现有RL训练管线较容易集成该方法。"
+      "CREST 能在不依赖外部同族教师模型和分词器匹配的条件下提升多轮工具使用智能体的任务与会话级准确率，对生产环境中的 agent 产品有直接价值。",
+      "相比 OPSD 的高梯度集中和训练不稳定，CREST 通过方向门与熵门控降低了训练崩溃风险，且只引入一个可调超参数，便于工程落地。",
+      "在长轨迹和严格会话级指标上的增益，表明该方法有助于改善真实多轮用户会话中的任务完成率与整体体验。",
+      "教师角色被限制为幅度调制而非更新方向，可让企业继续以验证奖励作为优化上限，降低对高性能教师模型的依赖和部署成本。"
     ],
-    "business_transferability": 0.6,
+    "business_transferability": 0.65,
     "contributions_zh": [
-      "识别并形式化了多轮多步智能体强化学习中的两级信用分配问题（轮次间与轮次内），并通过梯度几何分析解释现有稠密信号方法为何失败。",
-      "提出CREST框架：轮次分段验证奖励优势处理跨轮稀释，熵门控自教师信号处理轮内token贡献；验证器决定梯度方向，教师只调节更新幅度，训练中仅引入一个额外超参数λ。",
-      "实验证明CREST在BFCL V3和WildToolBench两个基准、Qwen3-4B与Qwen3-8B两个模型规模上均一致优于RL与蒸馏基线，例如BFCL V3平均准确率4B达到52.0%，WildToolBench会话准确率8B达到9.38%。",
-      "核心结论是自教师不必决定梯度方向，只需做幅度调制；配合学生不确定性门控，可在不牺牲验证器有界上限的前提下获得稠密信用分配。"
+      "识别并形式化了多轮多步智能体强化学习中的两级信用分配问题，并通过梯度几何分析解释现有密集信号方法失效的原因。",
+      "提出 CREST，一个结合轮次分割验证奖励优势与熵门控自教师 token 重加权的层级信用分配框架；它按构造保持 verifier-bounded，且相比标准 GRPO 只多一个可调超参数 lambda。",
+      "实验证明 CREST 在 BFCL V3 和 WildToolBench 两个基准、Qwen3-4B 与 Qwen3-8B 两种规模上均一致优于 RL 和蒸馏基线，且在长轨迹和严格的会话级指标上提升最大。"
     ],
-    "evidence_quality": 0.65,
+    "evidence_quality": 0.8,
     "evidence_refs": [
       {
         "page": 1,
@@ -40,15 +39,7 @@
       },
       {
         "page": 1,
-        "section": "4.1 Experimental Setup"
-      },
-      {
-        "page": 1,
         "section": "4.2 Main Results"
-      },
-      {
-        "page": 1,
-        "section": "4.3 Training Dynamics Analysis"
       },
       {
         "page": 1,
@@ -57,63 +48,57 @@
       {
         "page": 1,
         "section": "6 Limitations"
-      },
-      {
-        "page": 1,
-        "section": "A Gradient Analysis"
-      },
-      {
-        "page": 1,
-        "section": "C.3 Modulation Strength Sensitivity"
       }
     ],
     "experiments": {
       "baselines": [
-        "未训练基座模型（Qwen3-4B-Instruct / Qwen3-8B）",
-        "GRPO（轨迹级二值奖励）",
-        "MT-GRPO（per-agent-step优势）",
-        "EnvTuning（per-turn过程奖励加权为轨迹级奖励）",
-        "OPD（同族同tokenizer外部教师on-policy蒸馏）",
-        "OPSD（ground-truth条件自教师on-policy自蒸馏）"
+        "GRPO",
+        "MT-GRPO",
+        "EnvTuning",
+        "OPD",
+        "OPSD"
       ],
       "datasets": [
-        "BFCL V3 multi-turn（训练100个固定ID，评估400个非重叠样本，分Base/Missing Functions/Missing Parameters/Long Context）",
-        "WildToolBench（256个多轮会话，128训练/128评估）"
+        "BFCL V3 Multi-Turn",
+        "WildToolBench"
       ],
       "findings_zh": [
-        "CREST在两个基准和两个模型规模上的平均表现均优于所有基线：BFCL V3平均4B为52.00%（较基座+29.88）、8B为50.00%（+16.62）；WildToolBench任务准确率4B为48.44%、8B为52.34%，会话准确率分别为7.03%和9.38%。",
-        "RL类基线整体优于蒸馏类基线；OPSD在Qwen3-4B BFCL Avg上仅38.75%，低于GRPO的43.63%，即使使用了特权教师，说明存在教师有界上限。",
-        "CREST在最长轨迹和最严格会话级指标上增益最大：BFCL Long Context较最强基线4B提升+7.0、8B提升+2.0；WildToolBench Session Accuracy提升+0.78(4B)、+1.57(8B)。",
-        "层级消融表明两个层级互补：仅轮次间分段为47.88%，仅轮次内调制为48.75%，两者组合为52.00%；去掉方向门降到46.75%，去掉熵门降到46.25%，两个门都去掉降到43.50%，接近GRPO水平。",
-        "训练动力学显示CREST约20步达到0.60 rollout准确率并收敛到约0.70；OPSD在约0.49平台后下降；梯度集中度上OPSD前5%token约占77%梯度，GRPO前10%约31%，CREST居中（前10%约57%），说明熵门避免了梯度塌缩。",
-        "λ敏感性显示λ=0.3是最优点；λ=0.5导致梯度过度集中并停滞。"
+        "CREST 在 Qwen3-4B-Instruct 上 BFCL V3 平均准确率达 52.00%，在 Qwen3-8B 上达 50.00%，在 14 个评测单元中取得最佳或并列最佳 13 个。",
+        "在 WildToolBench 上，CREST 在 Qwen3-4B 上任务准确率 48.44%、会话准确率 7.03%；在 Qwen3-8B 上任务准确率 52.34%、会话准确率 9.38%，均优于所有基线。",
+        "RL 类基线（GRPO、MT-GRPO、EnvTuning）整体优于蒸馏类基线（OPD、OPSD）；OPSD 在 Qwen3-4B BFCL 平均成绩 38.75%，低于 GRPO 的 43.63%，支持教师有界上限的分析。",
+        "训练动态显示 CREST 约 20 步内达到约 0.60 rollout accuracy，并收敛到约 0.70，超过 OPSD 的平台期约 0.49；OPSD 后期出现下降。",
+        "梯度集中度上，OPSD 的 top-1% token 占约 42% 梯度、top-5% 占约 77%；CREST 的 top-10% 约占 57%，介于 GRPO 的约 31% 与 OPSD 之间，说明熵门控避免了梯度坍缩。",
+        "消融实验中，仅轮次级信用分配为 47.88，仅 token 级为 48.75，两者结合为 52.00；去掉方向门降至 46.75，去掉熵门降至 46.25，两个门都去掉则降至 43.50。",
+        "调制强度 lambda=0.3 是效果最好的设置；lambda=0.5 时早期有提升但后期停滞，表明过度集中梯度反而有害。"
       ],
       "metrics": [
-        "BFCL V3 Average / Base / Missing Functions / Missing Parameters / Long Context 准确率",
-        "WildToolBench Task Accuracy（任务准确率）",
-        "WildToolBench Session Accuracy（会话准确率）",
-        "训练rollout准确率",
-        "Top-p% token梯度占比（梯度集中度）"
+        "BFCL Average",
+        "BFCL Base",
+        "BFCL Miss Func",
+        "BFCL Miss Param",
+        "BFCL Long Context",
+        "WildToolBench Task Acc",
+        "WildToolBench Session Acc"
       ]
     },
     "limitations_zh": [
-      "实验仅覆盖两个多轮工具使用基准和4B/8B模型规模，泛化到更多基准和更大模型规模仍需验证。",
-      "熵门采用逐token surprisal作为token重要性的启发式代理，在工具调用轨迹中能区分格式token与内容token，但未必在所有生成场景中都能最优衡量token信息量。",
-      "所有训练方法均使用单一训练种子；评估用三次低温解码衡量解码一致性而非独立训练重复。",
-      "方法假设rollout组内轮次索引语义对齐且使用同一固定会话与有序用户轮次；该假设不直接适用于可变轮次结构、仅末端奖励或缺少局部验证的强耦合轮次场景。"
+      "实验仅在两个多轮工具使用基准、4B 和 8B 模型规模上进行，跨更多基准和更大模型规模的验证会更增强泛化性结论。",
+      "熵门控使用 per-token surprisal 作为 token 重要性的代理，虽能区分工具使用轨迹中的格式 token 与内容 token，但在其他生成场景中未必是最优的信息量度量。",
+      "训练设置中轮次索引在 rollout 组内语义对齐，这一假设针对所用基准成立，不能直接推广到可变轮次结构、仅终局奖励或缺乏局部验证的强耦合轮次场景。",
+      "每种方法仅使用单一训练种子，评估时的三次解码主要衡量解码一致性而非训练方差。"
     ],
-    "method_zh": "CREST采用统一on-policy policy gradient，将逐token优势分解为 A_t = A_turn * phi_t。轮次层面：对不同rollout按同一用户轮次分别计算基于验证器奖励的组内相对优势，使失败轮次独立获得负优势，避免轨迹级平均稀释。token层面：用同一模型基于ground-truth上下文构建特权自教师，计算教师与学生逐token对数概率差Δ_t，并将其映射为有界权重w_t；方向门g_dir在教师与验证器符号不一致时完全抑制教师信号，保证方向由验证器决定；熵门基于学生surprisal抑制低不确定性格式token、放大高不确定性内容token；组合门控得到λ_t_eff，最终φ_t=1+λ_t_eff(w_t-1)。论文给出三个形式性质：方向保持(P1)、绝对扰动上界(P2，默认λ=0.3、ε=0.28时每token最大放大8.4%)、符号一致放大(P3)。训练使用GRPO式rollout，组大小G=16，只调λ。",
-    "problem_zh": "多轮多步工具使用智能体在强化学习训练(RLVR)中面临层级化信用分配问题：轨迹级奖励将不同轮次的独立结果混成一个信号，导致跨轮次奖励稀释；而稠密逐token信号的在线蒸馏方法要么受教师模型性能上限约束，要么出现梯度集中在少数低熵格式token上的塌缩。论文需要一种既能保持验证器决定性能上限、又能提供token级稠密信用分配的训练方法。",
+    "method_zh": "CREST 使用统一策略梯度目标，将每个 token 的优势分解为 A_t = A_turn * phi_t。轮次级：对每个轮次独立计算基于验证奖励的组内相对优势，避免轨迹级平均带来的轮次间稀释；token 级：使用以 ground-truth 为特权上下文的自教师计算师生分歧，经方向门控和熵门控生成幅度调制因子 phi_t。方向门保证教师信号只能改变梯度幅度而不能改变由验证奖励决定的梯度方向；熵门控利用学生 token 的 surprisal 做 Z-score 归一化并经 sigmoid 重加权，把梯度预算集中到高不确定性的内容 token、抑制低熵格式 token。最终保留 verifier-bounded 的性能上限，同时获得稠密 token 级信用信号。",
+    "problem_zh": "多轮多步 LLM 智能体的强化学习（RLVR）在轨迹级奖励上做信用分配，会把同一轨迹中不同轮次的异质结果混成一个奖励信号，导致轮次间奖励稀释；另一方面，在线蒸馏/自蒸馏能提供稠密 token 级信号，但要么受教师模型上限约束，要么因梯度集中在少数 token 上而训练不稳定。",
     "technical_depth": 0.85
   },
   "doi": null,
-  "final_score": 0.6075,
+  "final_score": 0.535,
   "graph_relations": [],
   "id": "arxiv-2608.13179",
   "kind": "paper",
   "llm": {
     "degraded": false,
-    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "generated_at": "2026-08-15T20:10:30.692674Z",
     "model": "deepseek-v4-flash"
   },
   "methods": [
@@ -121,12 +106,12 @@
     "large_language_model"
   ],
   "published_at": "2026-08-13T12:44:37Z",
-  "relevance_score": 0.55,
+  "relevance_score": 0.35,
   "scenarios": [
     "text_feed"
   ],
   "source": "arxiv",
-  "summary_zh": "提出CrEST分层信用分配框架，通过回合级验证优势与熵门控自教师调制解决多轮工具使用智能体的轨迹级信用混淆，在BFCL V3和WildToolBench上优于强化学习与蒸馏基线。",
+  "summary_zh": "提出 CrEST 层次化信用分配框架，在保留验证奖励上限的同时引入特权自教师的密集 token 级信号，通过分段验证优势解决回合间信用稀释，并通过熵门控教师调制细化回合内贡献，提升多轮工具使用 LLM 智能体的训练效果。",
   "targets": [
     "content"
   ],

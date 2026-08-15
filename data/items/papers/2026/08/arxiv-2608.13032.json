@@ -1,0 +1,109 @@
+{
+  "abstract": "With the rapid evolution of 5G and emerging 6G networks, reconfigurable intelligent surfaces (RIS) have become a critical technology for enhancing wireless communication scenarios. However, optimizing RIS-assisted multi-user systems typically introduces high-dimensional physical layer variables and non-convex Pareto-optimal rate sets, posing severe computational challenges for real-time applications. To address these limitations, this paper proposes a dimension-reduced, hierarchical reinforcement learning (RL) framework, termed Pareto-aware autoencoder-assisted RL (PAAERL), to optimize online resource allocation in RIS-assisted Internet of Things (IoT) networks. Our approach first substitutes high-dimensional continuous RIS beamforming variables with lower-dimensional weight vectors that strictly represent the Pareto-optimal frontier, theoretically avoiding geometric information loss across both convex and non-convex rate regions. To further mitigate the curse of dimensionality in dense networks, an autoencoder architecture is integrated to execute a secondary, data-driven compression phase, mapping the priority space into a highly condensed continuous latent action space. Extensive simulations conducted across practical communication scenarios, including multi-user mobile edge computing (MEC) networks, demonstrate that the proposed PAAERL framework drastically reduces offline training times, accelerates online policy convergence, and significantly decreases overall network costs compared to state-of-the-art benchmarks, underscoring its exceptional scalability and practical viability for next-generation intelligent IoT environments. With the rapid evolution of 5G and emerging 6G networks, reconfigurable intelligent surfaces (RIS) have become a critical technology for enhancing wireless communication scenarios. However, optimizing RIS-assisted multi-user systems typically introduces high-dimensional physical layer variables and non-convex Pareto-optimal rate sets, posing severe computational challenges for real-time applications. To address these limitations, this paper proposes a dimension-reduced, hierarchical reinforcement learning (RL) framework, termed Pareto-aware autoencoder-assisted RL (PAAERL), to optimize online resource allocation in RIS-assisted Internet of Things (IoT) networks. Our approach first substitutes high-dimensional continuous RIS beamforming variables with lower-dimensional weight vectors that strictly represent the Pareto-optimal frontier, theoretically avoiding geometric information loss across both convex and non-convex rate regions. To further mitigate the curse of dimensionality in dense networks, an autoencoder architecture is integrated to execute a secondary, data-driven compression phase, mapping the priority space into a highly condensed continuous latent action space. Extensive simulations conducted across practical communication scenarios, including multi-user mobile edge computing (MEC) networks, demonstrate that the proposed PAAERL framework drastically reduces offline training times, accelerates online policy convergence, and significantly decreases overall network costs compared to state-of-the-art benchmarks, underscoring its exceptional scalability and practical viability for next-generation intelligent IoT environments.",
+  "arxiv_id": "2608.13032",
+  "authors": [
+    "Wenhan Xu",
+    "Jiashuo Jiang",
+    "Danny H. K. Tsang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该框架面向 5G/B5G/6G 与大规模 IoT 场景，可在 RIS 辅助移动边缘计算网络中实现低时延、低能耗的在线资源分配，对电信基础设施和边缘计算服务商具有潜在部署价值。",
+      "通过显著降低离线训练时间和在线决策复杂度，该方法有助于在动态、密集物联网环境中快速调整资源策略，提升网络运营效率并降低运维成本。",
+      "PAAERL 在用户规模增大时仍保持较平坦的训练时间，意味着其具备支撑大规模设备接入的商业可扩展性。",
+      "训练好的策略可将高维物理层优化从在线求解转移到离线学习，减少对专用优化求解器的实时依赖，有利于产品化部署。",
+      "由于自动编码器压缩会引入轻微性能损失，商用部署需在训练速度/收敛优势与极端最优性之间权衡，尤其是在 RIS 单元规模较大时。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出基于方向最大化最小缩放的 Pareto 映射方法，将高维物理层变量 {f, beta, theta, X} 降为低维权重向量，并声称在凸和非凸速率域均无理论几何信息损失。",
+      "设计自编码器二次压缩机制，将 Pareto 优先权空间进一步嵌入超低维连续潜动作空间，缓解大规模用户场景下的维度灾难。",
+      "构建 PAAERL 分层强化学习框架，将模型驱动的 Pareto 投影与数据驱动的自动编码器压缩级联，显著降低离线训练时间、加速在线策略收敛并降低系统成本。",
+      "在 RIS 辅助移动边缘计算场景中验证所提方法优于常规 RL、加权和速率 RL、Pareto 感知 RL 及自动编码器辅助 RL 等多个基线，并展示其可扩展性。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "III. Proposed Hierarchical Decision Algorithm"
+      },
+      {
+        "page": 1,
+        "section": "IV. Simulation and Application"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "RL：无压缩端到端模型无关强化学习",
+        "WSRRL：加权和速率辅助 RL",
+        "PARL：仅使用 Pareto 方向映射的消融版",
+        "AERL：纯数据驱动自动编码器辅助 RL",
+        "WSRAERL：加权和速率加自动编码器辅助 RL"
+      ],
+      "datasets": [
+        "RIS 辅助多用户 MEC 仿真环境（非公开真实数据集；默认 K=10、M=64，用户数 K 从 4 到 16、RIS 单元数 M 最高到 256 变化）"
+      ],
+      "findings_zh": [
+        "常规无压缩 RL 因动作空间爆炸表现最差，且在观测训练轮次内未能稳定收敛。",
+        "WSRRL 和 WSRAERL 稳定成本明显高于 Pareto 感知方法，原因在于线性标量化在非凸速率域只能逼近外包络，会跳过真实速率区域的凹陷边界，造成几何信息损失。",
+        "PARL 与 PAAERL 均收敛到最低系统成本边界，验证了方向 max-min scaling 映射的有效性。",
+        "PAAERL 在用户数变化时始终优于所有基线，保持最低网络成本并呈亚线性增长；训练时间随 K 增长极为平坦，优于需要处理 K 维优先级向量的 PARL 和 WSRRL。",
+        "当 RIS 单元数 M 增大时，带自动编码器二次压缩的 PAAERL/WSRAERL 处于中等成本层，略高于直接传递权重向量的 PARL/WSRRL，说明自动编码器重建方差会引入轻微性能损失。",
+        "PAAERL 大幅缩短离线训练时间并加速在线策略收敛，展现出良好的可扩展性。"
+      ],
+      "metrics": [
+        "总系统成本（多用户任务执行时延与能耗的加权组合）",
+        "训练迭代数/收敛速度",
+        "训练时间随用户数变化",
+        "用户数 K 对总成本的影响",
+        "RIS 单元数 M 对总成本的影响"
+      ]
+    },
+    "limitations_zh": [
+      "自动编码器是有损压缩：若不能完美重建原始优先级参数，会带来少量性能损失；在 RIS 单元数较大时，潜空间到优先级的重建方差使 PAAERL 无法达到绝对最低成本。",
+      "模型假设信道信息完美且用户具有准静态特性，未考虑信道估计误差与高动态移动性。",
+      "文中指出通过时间共享可把非凸速率区域变为凸包，但频繁重配 RIS 相位和幅度会带来控制链路开销并受硬件切换速率限制，因此实际时隙内速率域仍是非凸的。",
+      "仿真结果主要以曲线图呈现，未给出具体数值表和可复现的公开数据集，量化证据有限。",
+      "仅考虑单小区上行 RIS 辅助系统，未覆盖多小区、STAR-RIS、UAV 动态中继等更复杂部署的详细实现。",
+      "未来工作提到需将双压缩架构扩展到高动态移动模型，说明当前方法对移动性场景的适应性尚未充分验证。"
+    ],
+    "method_zh": "考虑 RIS 辅助多用户上行链路系统，可达速率向量依赖于发射波束成形 f、RIS 相位 theta 和幅度 beta。文章首先用方向向量参数化 Pareto 边界：通过 P3 max-min scaling 问题，对给定方向权重 omega^PT 最大化缩放因子 R_s，使速率向量沿该方向到达 Pareto 边界；外层用二分搜索求 R_s，内层将可行性问题 P4 转化为带松弛的凸子问题，并通过交替优化 AO 和逐次凸近似 SCA 分别求解主动波束成形子问题 P5a 和 RIS 配置子问题 P5b。由此建立从低维权重向量到 Pareto 最优速率向量的双射映射。随后，将动作空间定义为 {omega^PT, X}，用 PPO 学习高维策略；为进一步压缩，离线采集 Pareto 最优优先级样本训练自动编码器，将动作压缩为潜变量 Z，在线执行时 PPO 输出 Z，经解码器重建优先级向量，再交给模型驱动的可行性求解模块，确保物理层配置满足 Pareto 最优性。奖励函数定义为具体应用目标函数的负值，如在 MEC 场景中为加权时延与能耗之和的负值。",
+    "problem_zh": "针对 RIS 辅助大规模 IoT 上行网络中联合主动/被动波束成形与资源分配的高维非凸优化问题：直接使用 RL 优化原始物理变量会引发严重的动作空间爆炸；传统加权和速率线性标量化在非凸可达速率域只能描绘外包络，无法覆盖 Pareto 边界的凹陷区域，造成几何信息损失；同时传统迭代优化难以满足实时在线决策需求。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.43400000000000005,
+  "graph_relations": [],
+  "id": "arxiv-2608.13032",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T20:10:30.692674Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-08-13T10:00:40Z",
+  "relevance_score": 0.28,
+  "scenarios": [
+    "voice_chat",
+    "livestream"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出Pareto感知的层次强化学习资源分配框架PAAERL，通过自编码器降维动作空间并联合优化RIS辅助IoT多用户系统的速率与网络成本，可用于语音、直播等实时通信场景的多目标资源调度优化。",
+  "targets": [
+    "user",
+    "room"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "Pareto-Aware Hierarchical Reinforcement Learning for Online Resource Allocation in RIS-assisted Large-Scale IoT Systems",
+  "url": "https://arxiv.org/abs/2608.13032v1"
+}

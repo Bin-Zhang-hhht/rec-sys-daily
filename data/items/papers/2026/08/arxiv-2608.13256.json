@@ -1,0 +1,118 @@
+{
+  "abstract": "As biomedical research increasingly relies on data-intensive tools, the quality and utility of datasets are critical. Challenges such as imbalances, biases, and ethical or legal constraints often limit access to high-quality data. Synthetic data generation can help overcome these limitations. Here, we present a comparative analysis of generative models for transcriptomic data, investigating strategies to incorporate prior biological knowledge via gene graphs. This ensures that synthetic data capture real-world gene patterns, maintaining their usefulness for downstream tasks. In particular, we introduce and benchmark three variants of the Generative Adversarial Network. Among the alternatives, MK-TGAN - an innovative multi-kernel, Graph Neural Network-based model - stands out for its performance in terms of both the realism and utility of the generated data. Unlike other methods, MK-TGAN leverages prior knowledge graphs by exploiting graph neural networks. Our results show that prior knowledge integration strategies improve performance, and that MK-TGAN consistently produces synthetic samples with superior realism and biological plausibility. As biomedical research increasingly relies on data-intensive tools, the quality and utility of datasets are critical. Challenges such as imbalances, biases, and ethical or legal constraints often limit access to high-quality data. Synthetic data generation can help overcome these limitations. Here, we present a comparative analysis of generative models for transcriptomic data, investigating strategies to incorporate prior biological knowledge via gene graphs. This ensures that synthetic data capture real-world gene patterns, maintaining their usefulness for downstream tasks. In particular, we introduce and benchmark three variants of the Generative Adversarial Network. Among the alternatives, MK-TGAN - an innovative multi-kernel, Graph Neural Network-based model - stands out for its performance in terms of both the realism and utility of the generated data. Unlike other methods, MK-TGAN leverages prior knowledge graphs by exploiting graph neural networks. Our results show that prior knowledge integration strategies improve performance, and that MK-TGAN consistently produces synthetic samples with superior realism and biological plausibility.",
+  "arxiv_id": "2608.13256",
+  "authors": [
+    "Francesca Pia Panaccione",
+    "Sofia Mongardi",
+    "Marco Masseroli",
+    "Pietro Pinoli"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "合成转录组数据可用于数据增强，缓解数据集类别不平衡、技术偏差和数据共享限制，降低对真实患者数据的依赖。",
+      "高质量合成数据可加速受数据稀缺制约的ML/AI生物医学研究，缩短研发周期并降低数据获取成本。",
+      "可支持乳腺癌亚型预测等下游任务，为精准医学和诊断模型开发提供可复用的数据资产。",
+      "但合成数据不能被视为真实数据的完全替代，任何基于合成数据的结论仍需生物学验证。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "系统比较了多种将先验生物学知识通过基因图整合进转录组数据生成模型的方法，提出并评测了三种GAN变体：GM-GAN、GR-GAN和MK-TGAN。",
+      "提出MK-TGAN，一种基于多核图神经网络（GNN）的新型生成对抗网络，在共享知识图谱上并行使用多个GNN核，显式利用基因-基因关系，提升合成数据的真实性和生物学合理性。",
+      "实验表明，整合先验生物学知识可显著提升合成转录组数据的统计保真度和下游任务效用；MK-TGAN在精度、召回、相关度及下游分类任务上均优于现有基线。",
+      "验证了显式图感知架构相比隐式调制或正则化方法更能平衡精度-召回权衡，且参数效率更高。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Data and Methods"
+      },
+      {
+        "page": 1,
+        "section": "Experiments and Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "Results"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GAN",
+        "WGAN-GP",
+        "BioGAN-inspired graph-based generator",
+        "GM-GAN",
+        "GR-GAN",
+        "MK-TGAN"
+      ],
+      "datasets": [
+        "TCGA乳腺癌RNA-seq数据集（1,127个样本，含Basal、Her2、LumA、LumB分子亚型）",
+        "MSigDB中197个EMT相关基因",
+        "GTEx健康乳腺组织396个样本（用于构建先验共表达知识图谱）"
+      ],
+      "findings_zh": [
+        "MK-TGAN在无监督指标上最优：Recall_10=0.784，相关系数=0.914，Precision_10=0.960，在精度和召回之间取得更好的平衡。",
+        "MK-TGAN的可检测性最低（如MLP准确率0.760），而GAN、WGAN-GP和BioGAN接近1.0，说明MK-TGAN生成样本与真实数据更难区分。",
+        "在TSTR下游分类任务中，所有引入先验知识的模型均优于无先验基线；MK-TGAN取得最优LR准确率0.805和MLP准确率0.791。",
+        "单一图流生成器（如BioGAN）可获得高精度（0.837）但召回较低（0.381），表明其容易压缩或丢失真实数据分布的多样性。",
+        "MK-TGAN参数量少于19,000，而其他依赖全连接层的模型超过100,000，显示其参数效率更高。"
+      ],
+      "metrics": [
+        "Precision_10",
+        "Recall_10",
+        "Correlation similarity coefficient",
+        "Detectability（LR/MLP accuracy和F1）",
+        "TSTR utility（LR/MLP accuracy和F1）"
+      ]
+    },
+    "limitations_zh": [
+      "实验验证局限于乳腺癌转录组数据和EMT相关基因集合，可能无法充分反映全转录组数据的异质性、规模与噪声特征。",
+      "生成样本仍存在可区分性（MK-TGAN的MLP检测准确率0.760），说明基于GAN的方法尚未完全捕获转录组复杂性。",
+      "论文未在多癌种、全转录组或更丰富生物网络（如调控、通路、蛋白互作）上验证，未来需进一步评估鲁棒性与泛化性。"
+    ],
+    "method_zh": "所有模型基于条件WGAN-GP对抗框架，生成器以噪声向量和乳腺癌分子亚型标签为输入，生成197个EMT相关基因的表达谱。先验知识为从GTEx健康乳腺组织样本计算的基因-基因Pearson相关矩阵。GM-GAN通过在生成器最后一层以Hadamard乘积方式用相关矩阵调制可学习权重；GR-GAN通过结构相似性正则项和符号一致性惩罚项将先验知识软约束到可学习权重；MK-TGAN的生成器由K=4个并行GNN核组成，每个核在共享生物知识图上进行消息传递，初始节点嵌入由全连接层从输入向量映射得到，最终用可学习权重矩阵W_F融合各核输出，生成基因表达值。评价采用精度/召回、相关系数、可检测性以及TSTR效用协议。",
+    "problem_zh": "生物医学研究越来越依赖数据密集型工具，高质量数据集的获取面临类别不平衡、技术偏差以及伦理和法律限制等挑战。合成数据生成可用于缓解这些问题，但如何将先验生物学知识（如基因-基因关系图）有效整合进生成模型尚未被充分理解，尤其是隐式条件化策略与显式图感知架构之间的优劣仍需系统比较。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.42,
+  "graph_relations": [],
+  "id": "arxiv-2608.13256",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T20:10:30.692674Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-08-13T13:57:47Z",
+  "relevance_score": 0.2,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "比较多种生成模型用于转录组数据合成，并提出基于多核图神经网络的知识引导生成对抗网络 MK-TGAN，通过基因图谱整合先验生物学知识，在合成数据的真实性和下游效用上取得更优表现。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "Novel Knowledge-Guided Generative Methods for Synthetic Transcriptomic Data",
+  "url": "https://arxiv.org/abs/2608.13256v1"
+}

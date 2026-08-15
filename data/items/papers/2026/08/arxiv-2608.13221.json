@@ -1,0 +1,145 @@
+{
+  "abstract": "The evaluation of LLM reasoning is moving from final-answer accuracy to process-level assessment, yet existing methods still fail to capture how models plan reasoning paths and allocate reasoning resources--that is, how they organize search. Prior process-level methods focus on the coherence and redundancy of chain-of-thought (CoT), and most benchmark tasks have a single objective solvable by static capabilities such as derivation and tool use, leaving search organization unmeasured. We introduce TsuGO, a process-level reasoning benchmark for evaluating Search Efficiency in LLM reasoning through Go life-and-death problems. These problems provide closed and verifiable solution spaces with an inherent adversarial structure, making candidate generation, response checking, branch comparison, and backtracking necessary parts of reasoning rather than incidental trace patterns. By constraining the solution space, TsuGO disentangles domain knowledge from search organization, parses CoT into a structured search tree, and reports Search Efficiency together with Token Efficiency and other diagnostic metrics and visualizations. Experiments show that current LLMs remain far from stable tsumego solving: stronger models succeed by finding the correct candidate earlier and sustaining effort on productive branches, but most models still behave much closer to unguided search algorithms than to neural-guided KataGo. Longer CoT or higher Token Efficiency does not necessarily imply better search. Our results identify search organization and reasoning-resource allocation as missing dimensions in LLM reasoning evaluation. The evaluation of LLM reasoning is moving from final-answer accuracy to process-level assessment, yet existing methods still fail to capture how models plan reasoning paths and allocate reasoning resources--that is, how they organize search. Prior process-level methods focus on the coherence and redundancy of chain-of-thought (CoT), and most benchmark tasks have a single objective solvable by static capabilities such as derivation and tool use, leaving search organization unmeasured. We introduce TsuGO, a process-level reasoning benchmark for evaluating Search Efficiency in LLM reasoning through Go life-and-death problems. These problems provide closed and verifiable solution spaces with an inherent adversarial structure, making candidate generation, response checking, branch comparison, and backtracking necessary parts of reasoning rather than incidental trace patterns. By constraining the solution space, TsuGO disentangles domain knowledge from search organization, parses CoT into a structured search tree, and reports Search Efficiency together with Token Efficiency and other diagnostic metrics and visualizations. Experiments show that current LLMs remain far from stable tsumego solving: stronger models succeed by finding the correct candidate earlier and sustaining effort on productive branches, but most models still behave much closer to unguided search algorithms than to neural-guided KataGo. Longer CoT or higher Token Efficiency does not necessarily imply better search. Our results identify search organization and reasoning-resource allocation as missing dimensions in LLM reasoning evaluation.",
+  "arxiv_id": "2608.13221",
+  "authors": [
+    "Shunwen Bai",
+    "Ziping Ma",
+    "Chaoyang Zhang",
+    "Yarong Wang",
+    "Jiale Liu",
+    "Zhen Qin",
+    "Qingpei Guo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "面向企业Agent/推理系统评估时，应把“搜索组织/资源分配”纳入过程指标，而不是只看最终正确率或token成本；长推理不等于更优推理。",
+      "TokenE等成本指标不能单独衡量推理智能；部署规划、对抗验证类任务时需监控正确分支投入、回退和验证行为，以降低无效推理资源浪费。",
+      "当前模型在开放性对抗任务（如对手会反击的规划）中鲁棒性不足，说明面向合作式对话优化的模型可能缺少自主规划控制，这对自动化决策/博弈类产品选型有意义。",
+      "TsuGO这类可验证、多模态、受限/开放候选的评测范式可迁移到其他需要候选生成、分支比较与验证的工业任务，作为推理质量与成本平衡的评测参考。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "提出TsuGO基准，用围棋死活题在可控对抗任务和可验证解空间中评估LLM搜索效率（Search Efficiency）。",
+      "提出搜索轨迹分析框架，将自由形式CoT解析为过程搜索树，并用Search Efficiency及轨迹/规模诊断指标衡量推理资源分配。",
+      "实验表明Search Efficiency比Token Efficiency更贴近搜索组织与任务正确率，且当前包括前沿LLM在内的模型仍远未饱和，落后于KataGo，说明搜索组织是LLM推理评测中待发展的维度。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 TsuGO"
+      },
+      {
+        "page": 1,
+        "section": "4 Search-Trace Analysis Framework"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Insight"
+      },
+      {
+        "page": 1,
+        "section": "B Equivalence-Transform Robustness"
+      },
+      {
+        "page": 1,
+        "section": "C Process-Tree Extraction and Validation"
+      },
+      {
+        "page": 1,
+        "section": "D Metric Definitions and Weight Sensitivity"
+      },
+      {
+        "page": 1,
+        "section": "K Failure Analysis"
+      },
+      {
+        "page": 1,
+        "section": "L Discussion and Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Smargo MCTS/UCT（无引导搜索基线，200 playouts）",
+        "KataGo-b18（神经引导搜索基线，200 visits）",
+        "Logos（围棋领域专用模型，仅定性诊断，未纳入定量表）",
+        "对比LLM：Kimi-K2.5、Qwen3-VL-235B/30B-Thinking、MiniMax-M2.5、DeepSeek-R1-0528/V3.2、GLM-4.6V、Gemini-2.5-Flash、Gemini-3.1-Pro-Preview"
+      ],
+      "datasets": [
+        "TsuGO主评测集：600题，Easy/Med/Hard各200题，K=4与K=None两种候选条件",
+        "TsuGO候选构建审计子集：300题（每难度100题），用于K=4干扰项与搜索可见性审计",
+        "TsuGO题库池：1,500题，五种输入形式",
+        "过程树抽取人工验证集：300题，用于验证抽取质量"
+      ],
+      "findings_zh": [
+        "当前LLM在死活题上远未稳定：K=4 Easy最强开放模型Kimi-K2.5仅52.0，Gemini-3.1-Pro为80.0，但K=None Hard降至19.0。",
+        "从K=4到K=None准确率大幅下降，暴露开放搜索瓶颈；Kimi-K2.5在Easy从52.0/39.9（Acc/SearchE）降至27.8/26.4，GLM-4.6V在开放题上接近盲目搜索水平。",
+        "SearchE比TokenE与正确率相关性更强、聚类更紧；更长CoT或更高TokenE并不必然意味着更好搜索。",
+        "LLM介于盲目搜索与引导搜索之间：MCTS/UCT在K=4可达中档LLM准确率，但K=None开放搜索跌至个位数；KataGo在相同预算下显著更强（Easy K=4 97.0，K=None 49.0）。",
+        "过程树显示强模型更早提出正确候选并在正确分支持续投入；失败模式主要是正确分支缺失、开放搜索发散、状态漂移、对抗验证不足，而非单纯的输出格式或token量。",
+        "等价变换鲁棒性测试显示模型对旋转/镜像/颜色反转等表面变化的一致性仅60.0%-77.8%，说明空间归一化与记忆捷径仍不稳健。"
+      ],
+      "metrics": [
+        "Acc（首手命中率，坐标归一化后）",
+        "SearchE（由SWR、SFH、SCR加权合成）",
+        "TokenE（正确率按可见推理token成本归一化）",
+        "SWR/SFH/SCR/CCER/SSC/SBC（搜索组织指标）",
+        "TMD/TMF/TNC（轨迹树拓扑指标）",
+        "ITT/IPN（规模/成本指标）"
+      ]
+    },
+    "limitations_zh": [
+      "TsuGO测量的是局部对抗搜索组织，而非通用围棋实力或完整推理能力。",
+      "过程指标基于可观察CoT/摘要，不还原隐式计算；闭源模型仅提供压缩摘要时，规模类指标只能作为摘要派生参考。",
+      "K=4限定任务只验证首手选择，不认证所有后续变化；搜索基线（MCTS/UCT、KataGo）以playout/visit为单位，不能与token成本直接等价。",
+      "难度等级的人类段位只是粗略描述；抽取验证存在语义歧义，人工交叉验证共识范围为93%-98%。",
+      "Logos等围棋领域策略模型因输出格式/目标不符，不能直接纳入定量比较。",
+      "等价变换测试不能证明训练数据中无题目，只是表面记忆/坐标捷径的压力测试。"
+    ],
+    "method_zh": "从公开死活题资料整理并标准化为19×19棋盘状态、坐标、轮到方、候选点与参考解树；筛选满足局部性、首手确定性、可验证性的题目。题目以5种模态（符号坐标、数字网格、符号+网格、视觉图像、符号+视觉）呈现，并在K=4受限候选与K=None开放生成两种条件下评测。将模型可见CoT用LLM抽取器（Gemini-2.5-Pro）与规则校验解析为过程搜索树（根/行动/判定节点），定义SearchE=100*(0.5(1-SWR)+0.3SFH+0.2(1-SCR))，TokenE=100*A/(A+ITT/1000)，并报告SWR/SFH/SCR/TMD/TMF/TNC/ITT/IPN等诊断指标；与Smargo MCTS/UCT（无引导搜索）和KataGo（神经引导搜索）在同样棋盘状态上对比。",
+    "problem_zh": "现有LLM推理评测多集中于最终答案正确率或单条CoT轨迹的连贯性/冗余度，无法刻画模型如何在多个候选分支间规划推理路径、验证分支并分配推理资源，即“搜索组织/搜索效率”未被测量。TsuGO用围棋死活题构造封闭、可验证、具有对抗性的搜索空间，以评估LLM在候选生成、分支比较、回退与验证上的搜索组织能力。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.49250000000000005,
+  "graph_relations": [],
+  "id": "arxiv-2608.13221",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T20:10:30.692674Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-13T13:24:47Z",
+  "relevance_score": 0.3,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出 TsuGO 过程级推理基准，通过围棋死活题评测大语言模型的搜索效率，将思维链解析为结构化搜索树，分离领域知识与搜索组织，结果表明当前模型在候选生成、分支比较与回溯方面仍接近无引导搜索算法。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking"
+  ],
+  "title": "TsuGO: Probing Search Efficiency in LLM Reasoning via Go Life-and-Death Problems",
+  "url": "https://arxiv.org/abs/2608.13221v1"
+}

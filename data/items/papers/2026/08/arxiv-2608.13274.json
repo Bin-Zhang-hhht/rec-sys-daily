@@ -1,0 +1,138 @@
+{
+  "abstract": "Causal mediation analysis is typically formulated under no interference, an assumption often violated in networked populations. We develop a nonparametric framework for a single large observed network that allows simultaneous treatment and mediator spillovers and high-dimensional network confounding. Exposure and mediator mappings define causal estimands without restricting the true interference mechanism, separating own from spillover effects without prespecified aggregation models. Under strengthened conditional independence conditions, we identify own controlled direct, natural direct, and natural indirect effects and give primitive sufficient conditions in terms of structural errors. We construct augmented inverse probability weighted estimators that are doubly robust for controlled effects and multiply robust for natural effects, using graph neural networks to learn high-dimensional nuisance functions from node features and the adjacency matrix. Under approximate neighborhood interference, weak network dependence, and suitable first-stage rates, we establish asymptotic normality of the effect estimators and consistency of a network HAC variance estimator. In simulations the graph neural network estimator outperforms machine learning methods built on hand-constructed neighborhood features, and a reanalysis of an agricultural insurance experiment in rural China finds insurance knowledge to be a substantive mediating channel while perception-based mediators are not. Causal mediation analysis is typically formulated under no interference, an assumption often violated in networked populations. We develop a nonparametric framework for a single large observed network that allows simultaneous treatment and mediator spillovers and high-dimensional network confounding. Exposure and mediator mappings define causal estimands without restricting the true interference mechanism, separating own from spillover effects without prespecified aggregation models. Under strengthened conditional independence conditions, we identify own controlled direct, natural direct, and natural indirect effects and give primitive sufficient conditions in terms of structural errors. We construct augmented inverse probability weighted estimators that are doubly robust for controlled effects and multiply robust for natural effects, using graph neural networks to learn high-dimensional nuisance functions from node features and the adjacency matrix. Under approximate neighborhood interference, weak network dependence, and suitable first-stage rates, we establish asymptotic normality of the effect estimators and consistency of a network HAC variance estimator. In simulations the graph neural network estimator outperforms machine learning methods built on hand-constructed neighborhood features, and a reanalysis of an agricultural insurance experiment in rural China finds insurance knowledge to be a substantive mediating channel while perception-based mediators are not.",
+  "arxiv_id": "2608.13274",
+  "authors": [
+    "Peikai Wu",
+    "Zhiguo Xiao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "农业保险推广中，强化信息/金融教育课程能够显著提高投保率，且保险知识是重要传导渠道，说明产品营销应重视知识传递而非仅改变参保率或灾害风险的主观感知。",
+      "网络溢出会使信息通过社会网络传播，因此针对关键农户或意见领袖的强化教育可能通过溢出效应放大整体投保效果。",
+      "默认购买选项显著提高投保率且主要发挥直接作用，提示在符合伦理和监管的前提下，利用默认选项降低主动选择成本可有效提升产品采纳。",
+      "知觉类中介（如感知参保率、主观灾害概率）的自然间接效应接近零，意味着单纯营造“多数人已购买”或“灾害风险高”的感知可能不足以驱动购买行为。",
+      "GNN方法相比传统ML方法更能利用网络结构进行精准效果估计，可用于保险、金融科技等场景中基于社交网络的精准营销与机制拆解。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出了适用于单个大型观测网络的非参数因果中介分析框架，同时允许治疗溢出、中介溢出和高维网络混淆，并沿用Sävje (2024)的思想，让暴露映射与中介映射仅用于定义因果估计量，不限制真实干扰机制，从而清晰区分自身效应与溢出效应。",
+      "构建了基于图神经网络（GNN）的增广逆概率加权（AIPW）估计量：受控直接效应得分具有双稳健性，自然直接和间接效应得分具有多重稳健性，所有高维 nuisance 函数由PNA型GNN直接从节点特征与邻接矩阵学习。",
+      "在近似邻域干扰、弱网络依赖和合适的首阶段收敛率条件下，建立了效应估计量的渐近正态性，并构造了自适应带宽的网络HAC方差估计量且证明其一致性。",
+      "通过模拟和农业保险实地实验的重新分析验证了方法：强化信息/金融教育课程显著提高投保率，保险知识是实质性中介渠道，而知觉类中介（感知参保率、主观灾害概率）的自然间接效应接近零。",
+      "在附录中进一步将框架扩展至干预效应和各类溢出效应（SCDE、SNDE、SNIE、SIDE、SIIE），并提供统一的识别、估计与渐近理论。"
+    ],
+    "evidence_quality": 0.93,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Causal Estimands"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Identification of the Causal Estimands"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Network Augmented Inverse Probability Weighted Estimators"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Graph Neural Network Estimators of the Nuisance Functions"
+      },
+      {
+        "page": 1,
+        "section": "4 Asymptotic Theory"
+      },
+      {
+        "page": 1,
+        "section": "5 Simulation Study"
+      },
+      {
+        "page": 1,
+        "section": "6 Empirical Application"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Appendix C Supplementary Simulation Experiments"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "多层感知机（MLP）",
+        "随机森林（Random Forest）"
+      ],
+      "datasets": [
+        "模拟数据：随机几何图（RGG）网络，平均度8",
+        "模拟数据：Erdős–Rényi图（ER）网络，平均度8",
+        "实证数据：Cai et al. (2015) 中国农村农业保险实地实验数据，清洗后4848人"
+      ],
+      "findings_zh": [
+        "在两种网络生成机制和含高阶非线性溢出的数据生成过程下，GNN（L=2或L=3）在偏差、标准差和置信区间覆盖率上整体优于MLP和随机森林；L=2与真实依赖范围匹配时表现最好。",
+        "L=1的GNN因只聚合一阶邻域信息而产生不随样本量消失的正向偏差，说明聚合范围不足会造成近似偏差。",
+        "MLP的结果几乎不随隐藏层数变化，增加层数无法替代沿网络边的信息传播；随机森林普遍存在明显点估计偏差和方差低估，导致严重低覆盖。",
+        "在Cai et al. (2015)农业保险数据中，强化信息课程显著提高投保率，保险知识作为中介时ONDE和ONIE均显著（GNN估计分别为0.0383和0.0351），表明保险知识是实质性中介渠道。",
+        "当中介为感知参保率或主观灾害概率时，ONIE接近零且不显著，知觉类中介不是强化课程或默认购买选项的作用渠道；默认购买选项主要通过直接渠道起作用。",
+        "网络HAC方差估计量在大样本下表现准确：n=4000时ER网络下SE约为OSE的90%-101%，RGG下约为77%-96%，CI随样本量增大向名义水平靠拢。"
+      ],
+      "metrics": [
+        "点估计均值（Est）",
+        "经验标准差/估计误差标准差（OSE）",
+        "网络HAC标准误（SE）",
+        "95%置信区间覆盖率（CI）",
+        "基于真值标准误的oracle覆盖率（OCI）"
+      ]
+    },
+    "limitations_zh": [
+      "主要理论针对二元治疗和二元中介；连续或多元处理、连续中介需要核局部化和条件密度估计等额外假设与修正。",
+      "识别依赖较强的无未观测网络混淆假设（Assumption 2）及加强的条件独立/跨世界独立假设，这些条件在实际中难以从数据直接验证。",
+      "渐近理论依赖近似邻域干扰、ψ-依赖和nuisance估计达到o_p(n^{-1/4})的MSE率等条件，若网络依赖或首阶段估计不满足这些条件，推断可能失效。",
+      "溢出自然直接/间接效应的识别公式和估计量涉及D_{-i}和M_{-i}的完整高维联合分布，在大网络中必须依赖结构化建模或降维限制。",
+      "网络HAC方差估计量在有限样本下可能低估真实抽样变异性，尤其是在随机几何图网络和小样本中，导致CI低于名义水平。",
+      "实证分析中假定T_i=S_i=1以对应Cai et al. (2015)的设定，但总效应约7-8个百分点，小于原论文的14-15个百分点，解释时需注意样本与调整方式差异。"
+    ],
+    "method_zh": "论文设定未知结构函数生成治疗、中介和结果，其中结果可任意依赖全网络的治疗、中介、协变量和邻接矩阵；在条件于协变量矩阵和邻接矩阵下定义自有受控直接效应（OCDE）、自有自然直接效应（ONDE）和自有自然间接效应（ONIE）。识别依赖于加强的条件独立假设和误差项独立性。估计上构造双稳健/多重稳健的AIPW得分，并使用Principal Neighbourhood Aggregation (PNA)图神经网络估计所有nuisance函数；渐近理论基于近似邻域干扰、条件ψ-依赖和网络中心极限定理，方差估计采用取均匀核与正定核HAC估计量最大值的网络HAC估计量。论文还通过随机几何图与Erdős–Rényi网络模拟，以及中国农村农业保险实验数据（n=4848）进行实证分析。",
+    "problem_zh": "传统因果中介分析建立在无干扰假设之上，但在社交网络中该假设通常不成立，且现有网络中介分析大多局限于部分干扰、线性结构方程或暴露映射限制干扰机制。本文针对单个大型观测网络，在治疗、中介变量同时存在溢出效应且存在高维网络混淆的非参数设定下，研究自有受控直接效应、自然直接效应与自然间接效应的识别、估计和推断问题，并避免暴露映射被错误设定为真实干扰机制。",
+    "technical_depth": 0.95
+  },
+  "doi": null,
+  "final_score": 0.646,
+  "graph_relations": [],
+  "id": "arxiv-2608.13274",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T20:10:30.692674Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-08-13T14:10:55Z",
+  "relevance_score": 0.5,
+  "scenarios": [
+    "friend_recommendation"
+  ],
+  "source": "arxiv",
+  "summary_zh": "针对存在处理和中介变量溢出的大规模观测网络，提出基于图神经网络的非参数因果中介分析框架，构造双重/多重稳健估计量，以同时处理网络混淆和高维干扰函数，并在农业保险数据中识别出保险知识等实质性中介渠道。",
+  "targets": [
+    "user"
+  ],
+  "tasks": [
+    "link_prediction"
+  ],
+  "title": "Causal Mediation Analysis for Network Data with Graph Neural Network",
+  "url": "https://arxiv.org/abs/2608.13274v1"
+}
