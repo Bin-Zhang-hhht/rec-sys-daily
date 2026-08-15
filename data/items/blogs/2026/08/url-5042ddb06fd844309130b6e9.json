@@ -1,0 +1,102 @@
+{
+  "authors": [
+    "Michelle Horton"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "Qwen3.8-2.4T-A95B 采用细粒度混合专家（MoE）架构，总参数量为 2.4T，每个 token 激活 95B 参数；注意力机制为全注意力与线性注意力的混合；上下文窗口最高支持 100 万 token。文章链接标题还提示该模型可在 NVIDIA GB300 NVL72 上提供可配置推理。",
+    "business_implications_zh": [
+      "开放权重的大模型可能为企业提供自托管或私有化部署机会，但需要评估 GB300 NVL72 等级别硬件投入。",
+      "对推荐系统而言，该模型可能用于内容理解或长用户行为序列建模，但原文没有给出任何业务落地证据。",
+      "在企业决策层面，应把本文视为产品发布资讯，而非可依赖的推荐系统性能依据。"
+    ],
+    "business_transferability": 0.15,
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "heading": "Qwen Open Source",
+        "section": "rss_full_content"
+      },
+      {
+        "heading": "Alibaba released the open weights for Qwen3.8-2.4T-A95B",
+        "section": "rss_full_content"
+      },
+      {
+        "heading": null,
+        "section": "Source link"
+      }
+    ],
+    "implementation_zh": "原文摘要未提供具体实现细节；仅能确认文章面向的部署主题是在 NVIDIA GB300 NVL72 上服务该 2.4T 参数模型，并支持可配置推理。",
+    "lessons_zh": [
+      "超大模型可通过细粒度 MoE 控制每次推理激活的参数规模，这是平衡模型容量与服务成本的重要结构选择。",
+      "混合注意力设计是支撑 100 万 token 长上下文的关键架构信息，对长序列建模具有参考意义。",
+      "开放权重模型为企业自托管提供可能，但原文没有给出可复现的工程参数或性能结论。"
+    ],
+    "limitations_zh": [
+      "这里只提供了 RSS 摘要，缺少正文中的部署配置、推理调优、性能测试和硬件资源细节。",
+      "输出长度上限在原文中被截断，无法获得完整规格。",
+      "没有提供任何推荐系统相关的实验、案例或业务指标。",
+      "未提供与其他模型的对比数据，无法验证“接近前沿能力”的具体程度。"
+    ],
+    "production_constraints_zh": [
+      "模型总参数量达 2.4T，即使每 token 只激活 95B 参数，仍需要大规模 GPU 显存与算力支撑。",
+      "文章标题显示部署目标为 NVIDIA GB300 NVL72，这类多卡大规模系统成本高、运维门槛高。",
+      "最长 100 万 token 的上下文窗口会显著增加 KV cache 和推理显存压力，输出长度上限在原文中被截断，具体约束未知。"
+    ],
+    "results_zh": [
+      "阿里巴巴发布了 Qwen3.8-2.4T-A95B 的开放权重，并称其为最大的开放权重模型之一。",
+      "该模型被描述为将接近前沿的能力带入开放生态。",
+      "规格信息包括：2.4T 总参数、95B 激活参数/token、细粒度 MoE、混合全注意力和线性注意力、最高 100 万 token 上下文窗口。",
+      "原文未提供基准测试或实测性能数据。"
+    ],
+    "system_context_zh": "本文是 NVIDIA 开发者博客的 RSS 摘要，介绍阿里巴巴发布的开放权重模型 Qwen3.8-2.4T-A95B（Qwen3.8-Max）。内容给出了模型的总参数量、激活参数量、MoE 架构、混合注意力、上下文窗口等规格，并通过链接指向在 NVIDIA GB300 NVL72 上提供可配置推理服务的完整文章。摘要本身未涉及推荐系统场景。",
+    "technical_depth": 0.25,
+    "tradeoffs_zh": [
+      "2.4T 总参数与 95B 激活参数的 MoE 设计，体现了模型容量与单次推理成本之间的权衡。",
+      "全注意力与线性注意力混合，是在长上下文建模能力和计算/显存开销之间做取舍。",
+      "开放权重带来“接近前沿能力”的可能，但企业需要自行承担大规模推理基础设施成本。"
+    ]
+  },
+  "final_score": 0.22749999999999998,
+  "graph_relations": [
+    {
+      "confidence": 0.85,
+      "evidence": "Qwen3.8-Max 和 Muse Glimmer 都是新发布的开源权重大语言模型。",
+      "generated_by": "rule_based_classifier",
+      "target_id": "url-c42703bc35a6b60354cd65ce",
+      "type": "same_topic"
+    },
+    {
+      "confidence": 0.6,
+      "evidence": "两者都涉及在 NVIDIA 平台上部署大语言模型以支撑 AI 工作负载。",
+      "generated_by": "rule_based_classifier",
+      "target_id": "url-4e1f5a94e87e3f0d42559175",
+      "type": "related_technology"
+    }
+  ],
+  "id": "url-5042ddb06fd844309130b6e9",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-12T18:23:13Z",
+  "relevance_score": 0.2,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "nvidia_developer",
+  "summary_zh": "介绍阿里巴巴开放权重模型 Qwen3.8-2.4T-A95B（Qwen3.8-Max）在 NVIDIA GB300 NVL72 上的部署，该模型拥有 2.4T 参数并支持可配置推理，为开放权重模型带来接近前沿的能力。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "Serve Qwen3.8-2.4T-A95B, a 2.4T-Parameter Model, with Configurable Reasoning on NVIDIA GB300 NVL72",
+  "url": "https://developer.nvidia.com/blog/serve-qwen3-8-2-4t-a95b-a-2-4t-parameter-model-with-configurable-reasoning-on-nvidia-gb300-nvl72"
+}

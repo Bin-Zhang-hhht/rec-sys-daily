@@ -1,0 +1,147 @@
+{
+  "abstract": "Training Multimodal Large Language Models for audio-visual social understanding is a crucial step toward embodied social intelligence. Chain-of-thought (CoT) reasoning has become the dominant approach, with HumanOmniV2 and its IntentBench benchmark as a prominent reference point. In this context, we report three findings. First, IntentBench is highly noisy: $\\sim$7% of questions are broken and $\\sim$23% are trivially answerable without the video input. We remove the affected questions and release Intentbench-Prime. Second, current reasoning approaches are expensive and surprisingly ineffective. A simple Vanilla SFT baseline matches or outperforms existing reasoning methods across three benchmarks at a fraction of the cost, establishing it as an essential baseline for evaluating novel fine-tuning techniques. Third, our analysis reveals that substantial priors can be learned solely from the text modality and that using a textual caption instead of the video yields performance on par with Vanilla SFT. These surprising findings reveal the limitations of current MLLMs when it comes to social understanding. IntentBench-Prime, Vanilla SFT model, and code are publicly available. Training Multimodal Large Language Models for audio-visual social understanding is a crucial step toward embodied social intelligence. Chain-of-thought (CoT) reasoning has become the dominant approach, with HumanOmniV2 and its IntentBench benchmark as a prominent reference point. In this context, we report three findings. First, IntentBench is highly noisy: $\\sim$7% of questions are broken and $\\sim$23% are trivially answerable without the video input. We remove the affected questions and release Intentbench-Prime. Second, current reasoning approaches are expensive and surprisingly ineffective. A simple Vanilla SFT baseline matches or outperforms existing reasoning methods across three benchmarks at a fraction of the cost, establishing it as an essential baseline for evaluating novel fine-tuning techniques. Third, our analysis reveals that substantial priors can be learned solely from the text modality and that using a textual caption instead of the video yields performance on par with Vanilla SFT. These surprising findings reveal the limitations of current MLLMs when it comes to social understanding. IntentBench-Prime, Vanilla SFT model, and code are publicly available.",
+  "arxiv_id": "2608.13239",
+  "authors": [
+    "Koen P. de Vries",
+    "Xavier Alameda-Pineda",
+    "Estefanía Talavera",
+    "Stéphane Lathuilière"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "Vanilla SFT 表明企业可以用极低成本（单卡级LoRA微调、数小时训练）获得与复杂CoT推理模型相当甚至更好的社交音视频QA效果，无需昂贵的推理轨迹蒸馏和GRPO训练。",
+      "推理延迟从约8.3秒降至约1.2秒、输出token从527降至2，可显著降低线上问答服务的计算成本，适合高并发、低延迟场景。",
+      "两阶段“预生成字幕 + 基于字幕回答问题”的流水线可将视频重处理与查询解耦，一次字幕可服务多个问题，从而大幅降低查询时延和算力开销。",
+      "基准噪声清理与严格基线（Vanilla SFT）有助于行业更准确地评估模型真实能力，避免因基准问题或推理噱头造成错误的技术选型和资源浪费。",
+      "公开的排除列表、模型与代码降低了其他团队复现和采用的成本，利于快速落地到实际业务评测流程。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "系统诊断 INTENTBENCH，发现约7.1%问题损坏、22.9%可在无视频/音频输入下仅凭文本回答，并发现选项替换未增加难度反而引入歧义；据此发布清洗后的 INTENTBENCH-PRIME（Clean 与 Hard 两个版本），以排除列表形式发布，便于已有方法直接复用。",
+      "提出极简 Vanilla SFT 基线：仅使用与 HumanOmniV2 相同的训练数据做标准监督微调、直接输出答案，不使用 CoT/GRPO；在 INTENTBENCH-PRIME、WORLDSENSE、DAILY-OMNI 上匹配或超越现有推理方法。",
+      "定量对比显示 Vanilla SFT 相比 HumanOmniV2 训练成本约低11倍、单问题推理延迟约低6.7倍、输出 token 少263倍，同时精度不降反升；作者据此倡导将 Vanilla SFT 作为评估新微调方法的必要基线。",
+      "通过 Question SFT 与 Caption SFT 消融实验发现：模型可仅从文本模态学到大量数据集先验；与问题无关的 ASID-Captioner 文本字幕可达到与完整视频+音频输入相当的问答性能，揭示当前 MLLM 对视频中问题相关信息利用不足。",
+      "公开了 INTENTBENCH-PRIME 排除列表、Vanilla SFT 模型与代码。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 2,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 4,
+        "section": "3 INTENTBENCH-PRIME"
+      },
+      {
+        "page": 6,
+        "section": "4 Ineffectiveness of Reasoning for Social AV-QA"
+      },
+      {
+        "page": 7,
+        "section": "5 Limited Gap Between Video and Caption-Based Answering"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 11,
+        "section": "Supplementary Material C"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Qwen2.5-Omni-7B",
+        "HumanOmniV2",
+        "AVATAR",
+        "AffectOmni",
+        "Question SFT",
+        "Caption SFT",
+        "Granite-4.1-8B（纯文本LLM）",
+        "四个小型LLM集成（Gemma-2-9B、Llama-3.1-8B、Mistral-7B、Qwen3.5-9B）"
+      ],
+      "datasets": [
+        "INTENTBENCH",
+        "INTENTBENCH-PRIME (Clean)",
+        "INTENTBENCH-PRIME (Hard)",
+        "WORLDSENSE",
+        "DAILY-OMNI",
+        "Social-IQ 2.0",
+        "EMER",
+        "MDPE"
+      ],
+      "findings_zh": [
+        "Vanilla SFT (LoRA) 在 INTENTBENCH 上平均准确率70.6%，高于 HumanOmniV2 的69.3%；在 INTENTBENCH-PRIME Hard 上为70.4%对66.9%；WORLDSENSE 上为48.8%对47.1%；DAILY-OMNI 平均为65.2%对58.5%。",
+        "推理效率上，Vanilla SFT 每问题延迟约1.23秒、输出约2个token、训练约18 GPU·h；HumanOmniV2 每问题约8.31秒、输出约527个token、训练约200 GPU·h，延迟差距几乎完全来自自回归解码阶段。",
+        "INTENTBENCH 的 Social-IQ 部分约26.1%的问题可被四个纯文本LLM一致答对；选项替换后仍有24.4%可文本回答，说明“加难”策略未生效。",
+        "清洗后 INTENTBENCH-PRIME 移除192个损坏问题和616个文本可答问题；Hard 版本中纯文本 Qwen2.5-Omni 仍有46.9%准确率，高于随机水平约28%，说明文本先验未完全消除。",
+        "Caption SFT 在 INTENTBENCH-PRIME Hard 上平均68.6%，与 Vanilla SFT 的69.5%非常接近；Question SFT 为62.0%，比 Vanilla SFT 低7.5个百分点，说明仅文本就能学到大量先验。",
+        "在欺骗检测（Deception）这一小规模二分类子集上所有方法均接近随机水平；HumanOmniV2 报告的64.0%未被复现（复现为60.2%），且4/200个视频存在加载错误。"
+      ],
+      "metrics": [
+        "Accuracy",
+        "F1-score（情绪识别类别）",
+        "micro-averaged accuracy",
+        "训练GPU小时数",
+        "每问题输出token数",
+        "每问题推理延迟（prefill/decode/total）"
+      ]
+    },
+    "limitations_zh": [
+      "INTENTBENCH-PRIME 的构建只做删除、不做增改，导致样本量减少且类别分布只得到轻微平衡。",
+      "尽管 Hard 版本排除了大量预训练LLM可答问题，Question SFT 实验显示从同源训练数据微调的模型仍可利用可观的数据集先验。",
+      "所有实验仅使用单一基础模型 Qwen2.5-Omni，结论的通用性受限。",
+      "视频、字幕、纯文本三种输入设置的对比局限于社交领域，无法完全区分格式对齐、源数据先验与其他因素。",
+      "部分对比方法使用了原论文报告数值而非本文复现数值（虽然作者采用保守比较），且欺骗检测子集很小、接近随机，结果不稳定。"
+    ],
+    "method_zh": "以 Qwen2.5-Omni-7B 为基础模型，冻结视频/音频编码器与对齐层，仅对 thinker 部分做 LoRA 微调（学习率1e-4、1 epoch、rank=16、2 FPS、最多32帧），并额外尝试全参数微调。训练数据与 HumanOmniV2 对齐，包含 OmniInstruct、Video-R1、Social-IQ 2.0 训练数据和 EMER 中200条非测试视频，共约20K视频与10K图像；LoRA 训练在4×H100上少于4.5小时。对比方法包括 Qwen2.5-Omni、HumanOmniV2、AVATAR、AffectOmni，并在 INTENTBENCH、INTENTBENCH-PRIME、WORLDSENSE、DAILY-OMNI 上评估；另构造 Question SFT（仅问答文本）和 Caption SFT（仅 ASID-Captioner 字幕）两个参考点。",
+    "problem_zh": "社交音视频问答（AV-QA）中，Chain-of-Thought（CoT）推理已成为主流方法，但其有效性和成本缺乏系统验证；同时主流基准 INTENTBENCH 存在显著噪声，约7%的问题损坏、约23%的问题可仅凭文本回答；此外，多模态大模型（MLLM）究竟在多大程度上真正利用了视频/音频信息仍不清楚。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.7105,
+  "graph_relations": [
+    {
+      "confidence": 0.7,
+      "evidence": "二者均关注多模态大模型在音视频交互中的应用，AMIE面向临床咨询，IntentBench面向社交音视频问答。",
+      "generated_by": "manual_semantic_overlap",
+      "target_id": "url-695b538e38b8d1904f3d2278",
+      "type": "method_overlap"
+    }
+  ],
+  "id": "arxiv-2608.13239",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-13T13:44:35Z",
+  "relevance_score": 0.7,
+  "scenarios": [
+    "voice_chat",
+    "livestream"
+  ],
+  "source": "arxiv",
+  "summary_zh": "论文评估多模态大模型在音视频社交理解问答中的推理能力，发现IntentBench噪声大、复杂CoT推理成本高且效果有限，简单Vanilla SFT即可达到相当性能；对语音聊天、直播场景中的内容理解、检索与排序具有参考意义。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking"
+  ],
+  "title": "Reasoning for Social Audio-Visual Question Answering: Where Do We Stand?",
+  "url": "https://arxiv.org/abs/2608.13239v1"
+}

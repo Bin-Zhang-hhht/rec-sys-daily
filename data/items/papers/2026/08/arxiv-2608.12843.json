@@ -1,0 +1,151 @@
+{
+  "abstract": "Text-based person anomaly retrieval aims to retrieve pedestrians exhibiting anomalous behaviors from a large image gallery using natural language descriptions. Compared with conventional text-based person retrieval, this task requires fine-grained reasoning over pedestrian appearance, behaviors, object interactions, and scene context, making robust cross-modal matching significantly more challenging. This paper presents the GENAI4E team's solution to AI City Challenge 2026 Track 4. Our framework builds upon a strong retrieval backbone and progressively integrates heterogeneous vision-language embedding models through score alignment and iterative ensemble fusion, followed by disagreement-aware VLM reranking for ambiguous queries. On the official Pedestrian Anomaly Behavior (PAB) benchmark, our approach achieves 90.92% mAP, 85.13% Recall@1, 97.72% Recall@5, and 98.68% Recall@10, demonstrating the effectiveness of combining complementary vision-language representations with selective multimodal reasoning for large-scale text-based person anomaly retrieval. Text-based person anomaly retrieval aims to retrieve pedestrians exhibiting anomalous behaviors from a large image gallery using natural language descriptions. Compared with conventional text-based person retrieval, this task requires fine-grained reasoning over pedestrian appearance, behaviors, object interactions, and scene context, making robust cross-modal matching significantly more challenging. This paper presents the GENAI4E team's solution to AI City Challenge 2026 Track 4. Our framework builds upon a strong retrieval backbone and progressively integrates heterogeneous vision-language embedding models through score alignment and iterative ensemble fusion, followed by disagreement-aware VLM reranking for ambiguous queries. On the official Pedestrian Anomaly Behavior (PAB) benchmark, our approach achieves 90.92% mAP, 85.13% Recall@1, 97.72% Recall@5, and 98.68% Recall@10, demonstrating the effectiveness of combining complementary vision-language representations with selective multimodal reasoning for large-scale text-based person anomaly retrieval.",
+  "arxiv_id": "2608.12843",
+  "authors": [
+    "Huu-An Vu",
+    "Cam Tu Tran Thi",
+    "Thanh Toan Le Ngo",
+    "Hoang Vo",
+    "Do Trung Hieu",
+    "Hieu Dinh Trung Pham",
+    "Khang Minh Le",
+    "Huy Minh Nhat Nguyen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可用于公共安全与智慧城市场景中的行人异常行为检索，例如根据自然语言描述快速定位摔倒、奔跑、异常交互等行为目标。",
+      "通过分歧路由将昂贵的 VLM 重排限制在约 15.1% 的模糊查询上，可减少 84.9% 的重排延迟，适合大规模监控视频库的部署。",
+      "异构集成与 RRF 融合不依赖单一模型架构，便于接入商业嵌入 API 与开源视觉语言模型，形成可扩展的多模态检索服务。",
+      "在包含大量干扰图像的现实监控检索场景中，R@1 达到 85.13%，可降低人工逐帧排查成本，提升事后调查与实时告警的效率。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "采用 HUI 基线框架，利用 Local-Global Hybrid Perspective (LHP) 与 Unified Image-Text (UIT) 学习构建强检索骨干。",
+      "将 Voyage Multimodal、BGE-VL-v1.5-mmeb、Qwen3-VL-Embedding-8B 等异构预训练视觉-语言嵌入模型纳入迭代集成，提升跨模态表示的多样性。",
+      "提出分数对齐（score alignment）策略，解决不同嵌入模型画廊排序不一致的问题，使异构模型相似度可以在统一图像索引上进行可靠的分数级融合。",
+      "提出 Ensemble Disagreement 路由机制，仅对模型间分歧较大的模糊查询调用 VLM 交叉编码器重排，并通过 Reciprocal Rank Fusion (RRF) 融合最终排序结果。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Base Retrieval Framework"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Heterogeneous Embedding Ensemble"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Score Alignment"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Disagreement-aware VLM Reranking"
+      },
+      {
+        "page": 1,
+        "section": "3.6 Final Rank Fusion"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Dataset"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Final Challenge Results"
+      },
+      {
+        "page": 1,
+        "section": "5 Discussion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "CLIP",
+        "IRRA",
+        "X-VLM",
+        "RaSa",
+        "CMP",
+        "AnomalyLMM",
+        "SSDC",
+        "HUI",
+        "UIT*+LHP*",
+        "UIT*+LHP",
+        "UIT+LHP",
+        "UIT+LHP+BLIP-2+CLIP",
+        "Voyage+Qwen",
+        "Voyage+E5-Omni+Qwen",
+        "Voyage+Rzen-VL+Qwen",
+        "Voyage+DFN5B+Qwen"
+      ],
+      "datasets": [
+        "Pedestrian Anomaly Behavior (PAB) benchmark / AI City Challenge 2026 Track 4：超过 100 万合成图像-文本训练对，覆盖 1,000 种常规行为和 1,600 种异常行为；评估集含 1,978 条自然语言查询和 36,773 张画廊图像，其中 34,795 张为干扰图。"
+      ],
+      "findings_zh": [
+        "最终系统在官方 PAB 基准（含 34,795 张干扰图的 36,773 图集）上达到 90.92% mAP、85.13% R@1、97.72% R@5、98.68% R@10。",
+        "在标准 PAB 设置下，迭代嵌入集成达到 94.87% mAP、90.09% R@1；加入 VLM 重排与 RRF 后为 94.99% mAP、90.34% R@1。",
+        "消融实验显示，Voyage 固定为首步、Qwen 固定为末步时，BGE-VL-v1.5-mmeb 作为中间模型在完整挑战测试集上取得最优性能（90.90% mAP），优于 Rzen-VL（90.55%）、DFN5B（90.38%）和 E5-Omni（89.80%）。",
+        "Qwen 末位阶段的融合权重很敏感：将 Voyage+Qwen 权重从 0.9:0.92 调整为 0.88:0.9 后，mAP 从 88.96% 提升至 90.25%（+1.29%）。",
+        "零容忍分歧路由将 top-1 预测存在不一致的 299 条查询（占测试集 15.1%）交给 VLM 重排，相比对全部查询重排减少 84.9% 的推理延迟；绝对 mAP 增益虽然有限，但集中在最具歧义的困难样本上。"
+      ],
+      "metrics": [
+        "mAP",
+        "Recall@1",
+        "Recall@5",
+        "Recall@10"
+      ]
+    },
+    "limitations_zh": [
+      "框架通过组合多个嵌入模型并选择性调用 VLM 重排，增加了整体推理成本。",
+      "集成权重和路由策略是基于验证集经验确定的，而非通过训练端到端学习得到。",
+      "作者指出未来可探索自适应集成权重和可学习查询路由，以进一步兼顾检索精度与计算效率。"
+    ],
+    "method_zh": "以 LHP+UIT 的混合、统一、迭代框架作为双编码器检索骨干，用余弦相似度得到初始检索分数；随后按 S ← w_k·S + (1-w_k)·S^(k) 迭代融合多个异构视觉-语言嵌入模型的相似度矩阵，融合前通过映射将每个模型的内部画廊顺序对齐到参考顺序；再基于多个集成配置的 top-1 一致性识别模糊查询，若存在任何不一致则将该查询路由给 gemini-3.1-flash-lite 交叉编码器，对 top-10 候选进行专家式 VLM 重排；最后用带 k=60 的 Reciprocal Rank Fusion 融合原始集成排序与 VLM 重排结果，得到最终排序。",
+    "problem_zh": "面向文本描述的行人异常行为检索（TBAPS）旨在根据自然语言描述从大规模图像库中检索表现出异常行为的行人。相比常规文本行人检索，它需要对行人外观、行为语义、物体交互与场景上下文进行细粒度联合推理，并需要区分视觉相似但语义不同的动作（例如“走下楼梯”与“摔下楼梯”）。在 PAB 基准上，检索还需在含 34,795 张干扰图的 36,773 张图像库中保持准确排序，难度显著。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.7709999999999999,
+  "graph_relations": [],
+  "id": "arxiv-2608.12843",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower",
+    "large_language_model"
+  ],
+  "published_at": "2026-08-13T05:28:50Z",
+  "relevance_score": 0.82,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "面向文本描述的行人异常行为检索任务，提出基于异构图文嵌入模型集成的方案：以强检索骨干为基础，通过分数对齐与迭代集成融合多个视觉语言模型，并对模糊查询使用分歧感知的VLM重排；在PAB基准上取得90.92% mAP。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval",
+    "reranking"
+  ],
+  "title": "Heterogeneous Vision-Language Ensemble with Disagreement-Aware Reranking for Text-Based Person Anomaly Retrieval",
+  "url": "https://arxiv.org/abs/2608.12843v1"
+}

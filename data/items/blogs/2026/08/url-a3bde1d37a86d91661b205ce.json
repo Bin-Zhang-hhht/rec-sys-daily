@@ -1,0 +1,85 @@
+{
+  "authors": [
+    "Jorge Cardoso"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "分层基础设施：compute（计算）、networking（网络）、storage（存储）、orchestration（编排）、applications（应用）；全栈可观测性需要连接跨层遥测，以应对症状与根因可能不在同一层的问题。",
+    "business_implications_zh": [
+      "对运行 AI 基础设施的企业而言，性能问题可能来自非直接可见的层，建立跨层可观测性有助于检测问题。",
+      "文章面向基础设施与运维团队，提示相关团队在 AI 工厂建设中需考虑全栈可观测性投入。",
+      "推荐系统如果运行在类似多层 AI 基础设施上，可参考该全栈可观测性思路；但原文未直接讨论推荐系统。"
+    ],
+    "business_transferability": 0.3,
+    "evidence_quality": 0.25,
+    "evidence_refs": [
+      {
+        "heading": null,
+        "section": "RSS excerpt：AI infrastructure spans multiple layers, from compute and networking to storage, orchestration, and applications"
+      },
+      {
+        "heading": null,
+        "section": "RSS excerpt：A full-stack observability strategy connects telemetry across these layers, helping infrastructure and operations teams detect problems"
+      }
+    ],
+    "implementation_zh": "原文仅指出实现方向是采用全栈可观测性策略连接各层遥测；未给出具体工具、配置、采集方式或部署步骤。",
+    "lessons_zh": [
+      "应把 AI 基础设施视为多层系统，排查性能问题时需考虑跨层传播。",
+      "选择可观测性方案时应采用全栈视角，而不仅观察单个层。"
+    ],
+    "limitations_zh": [
+      "当前材料只是摘要，缺少完整文章中的可观测性方案选择标准和对比。",
+      "没有提及具体 NVIDIA 工具、功能或实测效果。",
+      "没有讨论推荐系统场景。"
+    ],
+    "production_constraints_zh": [
+      "基础设施运维中需要同时覆盖计算、网络、存储、编排和应用多层，不能只依赖单层监控。",
+      "需要把不同层的遥测数据关联起来，因为单层症状可能由堆栈其他层引发。"
+    ],
+    "results_zh": [
+      "原文没有提供实验结果或量化指标。",
+      "声称全栈可观测性能够帮助基础设施与运维团队检测问题，属于预期收益而非已测结果。"
+    ],
+    "system_context_zh": "该博客面向 NVIDIA AI 工厂场景，讨论多层 AI 基础设施的性能问题定位。原文说明 AI 基础设施由 compute、networking、storage、orchestration、applications 多层组成；当性能下降时，某一层观察到的症状可能来自堆栈中的其他层，因此需要全栈可观测性策略来连接各层遥测，帮助基础设施与运维团队检测问题。提供的文本为 RSS 摘要，后续具体选型内容未包含。",
+    "technical_depth": 0.2,
+    "tradeoffs_zh": [
+      "分层监控的局限：某个层表现出的性能症状不一定代表该层是根因。",
+      "全栈可观测性需要跨层连接遥测，相对单层监控增加了观测范围和数据关联要求；原文未展开具体取舍。"
+    ]
+  },
+  "final_score": 0.17000000000000004,
+  "graph_relations": [
+    {
+      "confidence": 0.5,
+      "evidence": "两者都涉及 NVIDIA AI 基础设施的运维与管理，一个侧重可观测性，一个侧重模型路由。",
+      "generated_by": "rule_based_classifier",
+      "target_id": "url-64d8a39417625d36a59676fb",
+      "type": "related_technology"
+    }
+  ],
+  "id": "url-a3bde1d37a86d91661b205ce",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "multi_task_learning"
+  ],
+  "published_at": "2026-08-12T16:13:47Z",
+  "relevance_score": 0.1,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "nvidia_developer",
+  "summary_zh": "面向 NVIDIA AI 工厂的全栈可观测性选型指南，覆盖计算、网络、存储、编排和应用层，帮助在 AI 基础设施性能下降时定位根因并选择合适观测方案。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "How to Choose Full-Stack Observability for NVIDIA AI Factories",
+  "url": "https://developer.nvidia.com/blog/how-to-choose-full-stack-observability-for-nvidia-ai-factories"
+}

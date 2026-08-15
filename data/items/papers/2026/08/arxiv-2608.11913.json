@@ -1,0 +1,141 @@
+{
+  "abstract": "Video-to-audio (V2A) generation faces significant challenges in achieving precise temporal synchronization and high perceptual quality due to the complex, ambiguous relationship between visual and auditory cues. Existing methods typically compress video inputs into single feature representations, leading to significant loss of temporal dynamics and fine-grained visual information. These approaches also rely on reconstruction-based training objectives that poorly correlate with human perceptual judgments of audio quality and appropriateness. We propose HarmoniDPO, a novel framework that integrates preference-based optimization into diffusion-based V2A generation to address these limitations. (1) Our approach leverages a dual video representation: combining global context with frame-wise features to preserve temporal dynamics and semantic detail. (2) Inspired by reinforcement learning from human feedback (RLHF), HarmoniDPO employs online Direct Preference Optimization (online-DPO) to fine-tune a diffusion-based V2A model from preference judgments, enhancing perceptual quality and alignment. (3) Additionally, we introduce Dual-scale Diffusion Search (DDS), a test time scaling algorithm that adaptively optimizes output fidelity during inference. Experiments demonstrate that HarmoniDPO outperforms state-of-the-art methods in audio-video synchronization and subjective audio quality, offering a robust solution for generating realistic, human-preferred audio from video. Video-to-audio (V2A) generation faces significant challenges in achieving precise temporal synchronization and high perceptual quality due to the complex, ambiguous relationship between visual and auditory cues. Existing methods typically compress video inputs into single feature representations, leading to significant loss of temporal dynamics and fine-grained visual information. These approaches also rely on reconstruction-based training objectives that poorly correlate with human perceptual judgments of audio quality and appropriateness. We propose HarmoniDPO, a novel framework that integrates preference-based optimization into diffusion-based V2A generation to address these limitations. (1) Our approach leverages a dual video representation: combining global context with frame-wise features to preserve temporal dynamics and semantic detail. (2) Inspired by reinforcement learning from human feedback (RLHF), HarmoniDPO employs online Direct Preference Optimization (online-DPO) to fine-tune a diffusion-based V2A model from preference judgments, enhancing perceptual quality and alignment. (3) Additionally, we introduce Dual-scale Diffusion Search (DDS), a test time scaling algorithm that adaptively optimizes output fidelity during inference. Experiments demonstrate that HarmoniDPO outperforms state-of-the-art methods in audio-video synchronization and subjective audio quality, offering a robust solution for generating realistic, human-preferred audio from video.",
+  "arxiv_id": "2608.11913",
+  "authors": [
+    "Wenshuo Peng",
+    "Kaipeng Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可用于影视/短视频后期配音、无声视频自动配乐、广告与社交媒体内容制作，降低人工配音与音效制作成本。",
+      "提升生成音频的感知质量与时间同步，可增强视频创作工具、虚拟现实/游戏场景的沉浸式音效体验。",
+      "偏好优化与测试时搜索方法可作为内容平台音频生成服务的质量增强模块，帮助生成更符合用户审美偏好的音频。",
+      "对视频内容无障碍化应用有潜在价值，例如为无声视频自动生成与视觉内容同步的声音描述。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出双视频特征表示：结合InternVid全局视频特征与CLIP细粒度帧级特征，保留时间动态和语义细节，提升音视频同步质量，并支持可选文本条件。",
+      "首次将基于人类偏好的在线直接偏好优化（online-DPO）引入V2A生成，借鉴RLHF思想，通过成对音频偏好比较微调扩散模型，增强感知质量和音画一致性。",
+      "提出Dual-scale Diffusion Search（DDS）测试时缩放算法，通过双尺度采样在推理阶段平衡局部利用与全局探索，优化输出保真度。",
+      "在VGGSound和AVSync15上的实验表明，该方法在音视频同步和主观音频质量上优于现有SOTA方法。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Visual Condition"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Direct Preference Optimization"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Test-time Scaling"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Qualitative Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Online-DPO alignment"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Text condition"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "6 Limitation"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SpecVQGAN",
+        "Diff-Foley",
+        "V2A-Mapper",
+        "Seeing-and-hearing",
+        "FoleyCrafter",
+        "Frieren"
+      ],
+      "datasets": [
+        "VGGSound",
+        "AVSync15"
+      ],
+      "findings_zh": [
+        "在VGGSound上，HarmoniDPO（aligned + DDS）达到MKL 1.82、CLIP 13.65、FID 6.42、FAD 1.59、CLAP 32.57，优于SpecVQGAN、Diff-Foley、V2A-Mapper、FoleyCrafter、Frieren等基线。",
+        "在AVSync15上，HarmoniDPO达到MKL 1.332、CLIP 14.38、FID 31.59，优于SpecVQGAN、Diff-Foley、Seeing and Hearing、FoleyCrafter。",
+        "时间对齐实验中，HarmoniDPO的Onset ACC为32.53、Onset AP为69.97，均优于所有对比方法。",
+        "候选数量实验显示8个候选在VGGSound上取得最佳平衡：MKL 1.856±0.04、CLIP 13.27±0.132、FID 6.54±0.054、FAD 1.64±0.013、CLAP 31.75±0.155；CLAP分数在12个候选时继续提升，但FID/FAD略变差。",
+        "用户研究（AVSync15、8名评估者）显示8候选配置效果最佳，REL分数3.95、OVL分数3.92，优于无对齐及4/12候选配置。",
+        "消融实验表明InternVid视频特征在MKL、CLIP、FID上均优于CLIP平均池化和仅帧级特征；视频+帧级双特征联合又优于仅视频特征。",
+        "文本条件可视化显示更具体的文本提示（如“pouring milk to a cup”）能生成与视觉内容和语义更匹配的音频。"
+      ],
+      "metrics": [
+        "MKL",
+        "CLIP Similarity",
+        "FID",
+        "FAD",
+        "CLAP Similarity",
+        "Onset ACC",
+        "Onset AP"
+      ]
+    },
+    "limitations_zh": [
+      "VGGSound最大可用数据集少于200,000个样本，且每个视频仅10秒，限制模型对长视频和扩展时间动态的泛化能力。",
+      "多数数据集每个视频只提供单一参考音频，而多种声音解释可能同样合理；自动评估指标可能偏向接近参考的音频，而惩罚其他合理生成，导致自动化分数与人类感知偏好不一致。",
+      "大规模人类偏好标注成本高昂，论文采用自动化奖励模型替代真实人类反馈，可能无法完全捕捉主观质量判断的细微差别。"
+    ],
+    "method_zh": "基于预训练Tango-2文本到音频潜在扩散模型（U-Net）作为基础模型并保持冻结。视觉条件采用双流：InternVid视频编码器提取全局视频特征，CLIP图像编码器均匀采样250帧提取帧级特征，经投影层对齐维度后拼接，再用RoPE多头自注意力融合，通过交叉注意力注入扩散模型的去噪过程；可选FLAN-T5文本条件通过交叉注意力引入。第二阶段为Online-DPO：使用CAV-MAE评估音视频对应、CLAP评估音文本一致性、Audiobox-Aesthetics评估内在音频质量，三者归一化后加权得到综合奖励；训练中动态生成N个候选音频，按奖励选取最好和最差样本构造偏好对，并使用Value-Aware DPO（VA-DPO）损失迭代微调，参考模型周期更新。推理阶段使用DDS：维护候选种群，分别以小步长β_s进行局部开发和较大步长β_l进行全局探索，以CLIP和CLAP评分选择最优音频输出。",
+    "problem_zh": "视频到音频（V2A）生成面临精确时间同步和高感知质量的双重挑战；视觉与听觉线索关系复杂且存在一对多映射歧义。现有方法通常把视频压缩为单一特征表示，丢失时间动态和细粒度视觉信息，并使用与人类感知相关性较差的L1/L2重建损失训练，难以优化主观音频质量、真实感和合适性。",
+    "technical_depth": 0.92
+  },
+  "doi": "10.1007/s11263-025-02636-8",
+  "final_score": 0.7270000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.11913",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-12T10:45:26Z",
+  "relevance_score": 0.65,
+  "scenarios": [
+    "livestream"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出HarmoniDPO框架，将偏好优化引入扩散式视频到音频生成，采用全局与帧级双路视频表征、在线直接偏好优化和双尺度扩散搜索，提升音画同步与感知音频质量。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "ranking",
+    "multi_objective_optimization"
+  ],
+  "title": "HarmoniDPO: Video-guided Audio Generation via Preference-Optimized Diffusion",
+  "url": "https://arxiv.org/abs/2608.11913v1"
+}

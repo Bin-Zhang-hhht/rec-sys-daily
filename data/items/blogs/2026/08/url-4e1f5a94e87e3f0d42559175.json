@@ -1,0 +1,75 @@
+{
+  "authors": [
+    "Tanya Lenz"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "NVIDIA Nemotron 3.5 Lightning 是一个开放的 30B 混合专家（MoE）模型，激活参数为 3B，定位是为常驻智能体的执行层提供专用模型。",
+    "business_implications_zh": [
+      "对于需要高频工具调用或结果校验的智能体型推荐管线，采用开放且低激活参数的专用 MoE 模型可能降低推理成本和延迟。",
+      "由于该模型是开放模型，可能较容易集成到业务 harness 中，但文档未提供推荐场景的直接证据。"
+    ],
+    "business_transferability": 0.25,
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "heading": null,
+        "section": "rss_full_content"
+      }
+    ],
+    "implementation_zh": "文档仅说明该模型面向智能体 harness/编排层，适用于工具调用、结果验证和子智能体委派等执行任务；未提供具体实现细节。",
+    "lessons_zh": [
+      "长期运行的智能体应考虑区分推理层与执行层，将高频工具调用、结果校验和子智能体委派交给专用模型处理，而不是所有步骤都使用前沿推理模型。"
+    ],
+    "limitations_zh": [
+      "当前来源仅为 RSS 摘要，未包含模型的具体评测数据、基准测试结果、部署要求或与其他模型的对比。",
+      "文档没有直接讨论推荐系统场景，相关迁移价值需要进一步验证。"
+    ],
+    "production_constraints_zh": [
+      "对每个执行步骤都使用前沿推理模型会带来成本和延迟问题。",
+      "长期运行的智能体需要针对高吞吐执行任务优化的专用模型来控制开销。"
+    ],
+    "results_zh": [],
+    "system_context_zh": "文档描述的是长期运行 AI 智能体的执行层场景：智能体的大部分时间用于工具调用、结果校验、子智能体委派等高吞吐执行任务；如果每一步都使用前沿推理模型，会显著增加成本和延迟。",
+    "technical_depth": 0.3,
+    "tradeoffs_zh": [
+      "使用执行层专用模型替代每步前沿推理，可以在成本和延迟上获得优势。",
+      "文档未量化该模型在通用推理能力上可能作出的牺牲。"
+    ]
+  },
+  "final_score": 0.28500000000000003,
+  "graph_relations": [
+    {
+      "confidence": 0.8,
+      "evidence": "Nemotron 3.5 Lightning 面向长时智能体执行，Switchyard 则在不同模型间路由智能体工作负载，主题高度相关。",
+      "generated_by": "rule_based_classifier",
+      "target_id": "url-64d8a39417625d36a59676fb",
+      "type": "related_technology"
+    }
+  ],
+  "id": "url-4e1f5a94e87e3f0d42559175",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-11T13:01:07Z",
+  "relevance_score": 0.25,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "nvidia_developer",
+  "summary_zh": "NVIDIA Nemotron 3.5 Lightning 面向长时间运行的 AI 智能体，专注于工具调用、结果验证和子智能体委派等高容量执行任务，在保证准确性的同时提供更快、更高效的专用任务执行能力。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "NVIDIA Nemotron 3.5 Lightning Delivers Fast, Accurate Specialized Task Execution for Long-Running Agents",
+  "url": "https://developer.nvidia.com/blog/nvidia-nemotron-3-5-lightning-delivers-fast-accurate-specialized-task-execution-for-long-running-agents"
+}

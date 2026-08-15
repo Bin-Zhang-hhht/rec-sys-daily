@@ -1,0 +1,115 @@
+{
+  "abstract": "Existing predictive models in learning analytics often treat student academic history as a simple sequence, overlooking the concurrent nature of courses taken within a semester. This simplification can lead to inaccurate performance predictions, particularly for students with heavy or challenging course loads. This paper introduces a TRansformer for Academic Course-grade Estimation (TRACE) that addresses this limitation by jointly predicting both the set of courses a student will take and their corresponding grades for an upcoming semester. Our approach encodes courses on a per-semester basis to capture the effects of course concurrency and utilizes a novel loss function combining course-set prediction with grade prediction. We demonstrate that predicting courses taken in addition to the grades in those courses leads to significant improvements in prediction quality. Trained on ten years of institutional data, our joint prediction model reduces mean absolute error by nearly 50% compared to an identical architecture that predicts grades alone. The model also outperforms traditional LSTM-based sequential models, as well as graph neural network-based approaches, and offers natural ways to incorporate student attribute data. This work demonstrates the utility of modern neural architectures for creating interpretable models that can be adapted to new institutions via retraining and recalibration, as well as the importance of key techniques, such as predicting courses taken during training. We discuss how this model could be incorporated into early detection systems at institutions of higher education. Existing predictive models in learning analytics often treat student academic history as a simple sequence, overlooking the concurrent nature of courses taken within a semester. This simplification can lead to inaccurate performance predictions, particularly for students with heavy or challenging course loads. This paper introduces a TRansformer for Academic Course-grade Estimation (TRACE) that addresses this limitation by jointly predicting both the set of courses a student will take and their corresponding grades for an upcoming semester. Our approach encodes courses on a per-semester basis to capture the effects of course concurrency and utilizes a novel loss function combining course-set prediction with grade prediction. We demonstrate that predicting courses taken in addition to the grades in those courses leads to significant improvements in prediction quality. Trained on ten years of institutional data, our joint prediction model reduces mean absolute error by nearly 50% compared to an identical architecture that predicts grades alone. The model also outperforms traditional LSTM-based sequential models, as well as graph neural network-based approaches, and offers natural ways to incorporate student attribute data. This work demonstrates the utility of modern neural architectures for creating interpretable models that can be adapted to new institutions via retraining and recalibration, as well as the importance of key techniques, such as predicting courses taken during training. We discuss how this model could be incorporated into early detection systems at institutions of higher education.",
+  "arxiv_id": "2608.13409",
+  "authors": [
+    "Paul Savala"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可集成到高校早期预警系统，在学生成绩数据每学期更新时后台运行，为学术顾问提供数据驱动的预警信息。",
+      "可帮助识别特定课程组合对学生成功的影响，提供超越简单风险标记的细粒度选课与干预建议。",
+      "成绩预测MAE在[0,4]GPA尺度上约0.1568，大致相当于典型+/-等级差异的一半，被认为足以用于早期预警系统。",
+      "架构无需机构特定特征工程，可在其他高校通过重新训练和校准适配，并可通过类似专业嵌入的方式加入人口统计、高中数据等学生属性。",
+      "可减少对人工教师预警输入的依赖，支持早期干预和“助推”策略的落地。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "将下一学期学业预测建模为单个模型中的课程集合与成绩联合预测任务。",
+      "提出学期级并发编码：同一学期内课程表示置换不变，同时保留跨学期的相对时间顺序。",
+      "提出基于集合的多任务损失（课程集合预测用KL散度，成绩回归用MSE），避免token级交叉熵造成的顺序伪影。",
+      "实验表明联合预测课程与成绩可显著提升成绩预测，较仅预测成绩的Transformer模型MAE降低46.4%，MSE降低约3.5倍。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Methods"
+      },
+      {
+        "page": 1,
+        "section": "3 Results and Discussion"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "OnlyGradesTransformer",
+        "EncDecLSTM",
+        "UniLSTM",
+        "GNN",
+        "XGBoost"
+      ],
+      "datasets": [
+        "St. Edward's University institutional data, Fall 2014-Fall 2023: 5326 students, 360 courses, 48 majors, 18 semesters"
+      ],
+      "findings_zh": [
+        "TRACE在成绩预测上MSE=0.0392、MAE=0.1339；OnlyGradesTransformer为MSE=0.1400、MAE=0.2496，即TRACE的MAE降低46.4%，MSE约为其1/3.5。",
+        "TRACE优于LSTM基线：EncDecLSTM为MSE=0.0530、MAE=0.1608；UniLSTM为MSE=0.0544、MAE=0.1619。Transformer的MSE约低30%，MAE约低15%。",
+        "TRACE优于GNN基线（MSE=0.0495、MAE=0.1640），MSE/MAE约低15%-20%。",
+        "XGBoost表现最差，MSE=1.3317、MAE=0.8818。",
+        "课程预测指标为P=0.5076、R=0.4090、F1=0.4432，而随机选择5门课程的期望精确率仅约0.014。",
+        "去除专业特征的消融实验显示性能略微提升（MSE 0.0360 vs 0.0392；MAE 0.1327 vs 0.1339），说明专业信息可从课程历史中隐式恢复，且显式加入可能带来轻微冗余。",
+        "KL散度与BCE课程损失的消融实验显示两者在成绩预测MAE/MSE上相差仅1%-2%。",
+        "GNN训练时间比TRACE多约50%。"
+      ],
+      "metrics": [
+        "MSE",
+        "MAE",
+        "Precision/Recall/F1 for course prediction"
+      ]
+    },
+    "limitations_zh": [
+      "模型仅基于一所中等规模私立大学的数据训练和测试，学生人口、课程设置和学术严格程度可能不代表其他院校，需在机构特定数据上重新训练或校准。",
+      "特征仅限于专业、课程历史和成绩历史，未包含社会经济地位、学生参与度、非认知技能等已知影响学业成功的因素。",
+      "历史成绩数据可能反映教师、人口或社会经济等系统性偏差，模型可能学习并传播这些偏差。",
+      "新学生无学业历史时存在冷启动问题；新课程不在训练词汇中时会被映射为<OTHER>，限制对新课程的预测能力。",
+      "研究为单一机构验证，缺少跨机构泛化性评估。"
+    ],
+    "method_zh": "TRACE是基于Transformer的编码器-解码器架构。输入包含专业、课程和成绩的独立嵌入表示；同一学期内的课程共享相同位置编码，以体现课程并发性。采用one-step-ahead训练方式，将学生历史按学期截断为多个输入-输出对。课程预测目标为学期课程的归一化one-hot分布，使用KL散度；成绩回归使用MSE，并通过权重ω平衡两类损失。数据来自某美国私立大学十年间5326名学生、360门课程、48个专业、18个学期；过滤少于10门或多于60门课程的学生，低频课程/专业映射为<OTHER>，成绩转换为0-4.3的GPA。训练使用batch size 32、20 epochs、AdamW优化器和余弦退火重启学习率调度器。",
+    "problem_zh": "现有学习分析中的成绩预测模型通常将学生学业历史视为简单序列，忽略同一学期内多门课程同时修读的并发结构，导致对高负荷或困难课业的学生预测不准确；同时课程选择与成绩预测常被分开处理，未利用二者之间的相互依赖关系。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.5725,
+  "graph_relations": [],
+  "id": "arxiv-2608.13409",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling",
+    "multi_task_learning"
+  ],
+  "published_at": "2026-08-13T16:05:22Z",
+  "relevance_score": 0.55,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 TRACE 变压器模型，按学期编码课程以捕捉课程共修效应，联合预测学生下一学期将选修的课程集合及对应成绩；与仅预测成绩的模型相比，联合建模使平均绝对误差降低近 50%，可用于高校早期预警与课程推荐。",
+  "targets": [
+    "user",
+    "content"
+  ],
+  "tasks": [
+    "ranking",
+    "multi_objective_optimization"
+  ],
+  "title": "Jointly Predicting Courses and Grades Using a Transformer-Based Model",
+  "url": "https://arxiv.org/abs/2608.13409v1"
+}

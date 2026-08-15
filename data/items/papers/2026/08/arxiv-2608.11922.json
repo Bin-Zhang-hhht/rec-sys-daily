@@ -1,0 +1,176 @@
+{
+  "abstract": "Predictive-distribution entropy makes a strong selection rule in retrieval-augmented question answering: across five QA benchmarks, keeping the candidate answer that a frozen respondent LLM produces with the lowest answer-token entropy lifts mean answer $F_1$ from 0.4769 to 0.5148 over the retriever's top-ranked passage, with no gold answers. Yet this lowest-entropy rule, which prior entropy-based selectors adopt, fails in a specific and consequential way: a misleading passage makes the respondent confidently wrong, driving its entropy down precisely where the signal looks most trustworthy. We show that the failure comes from the passage the respondent reads -- and the context that passage is read in is an input we can intervene on. We introduce LODESTAR, to our knowledge the first method to score a text intervention by the uncertainty it induces in a third-party frozen respondent, compared across one question's candidates. LODESTAR uses reinforcement learning to train, once and offline, a polarizer -- a short fixed natural-language string inserted into the respondent's prompt and never into its weights; its training labels are built offline from gold answers and two LLM judges, and inference reads neither. Evaluating every competing selector under the same frozen respondent and the same candidate pools on 5,008 questions, LODESTAR attains the highest mean $F_1$ of any inference-ready selector (0.5148 to 0.5339), the highest exact match (0.4136), and the highest GPT-4o judge score of the frozen-respondent configurations judged (0.6435); its three-seed mean wins all 70 method-by-dataset $F_1$ cells against fourteen published configurations while remaining paired-significant against every one. The gain holds both in-domain and out-of-domain, and ablating the polarizer shows it is what makes the respondent read a misleading passage less often (26.0% against 30.3%). Predictive-distribution entropy makes a strong selection rule in retrieval-augmented question answering: across five QA benchmarks, keeping the candidate answer that a frozen respondent LLM produces with the lowest answer-token entropy lifts mean answer $F_1$ from 0.4769 to 0.5148 over the retriever's top-ranked passage, with no gold answers. Yet this lowest-entropy rule, which prior entropy-based selectors adopt, fails in a specific and consequential way: a misleading passage makes the respondent confidently wrong, driving its entropy down precisely where the signal looks most trustworthy. We show that the failure comes from the passage the respondent reads -- and the context that passage is read in is an input we can intervene on. We introduce LODESTAR, to our knowledge the first method to score a text intervention by the uncertainty it induces in a third-party frozen respondent, compared across one question's candidates. LODESTAR uses reinforcement learning to train, once and offline, a polarizer -- a short fixed natural-language string inserted into the respondent's prompt and never into its weights; its training labels are built offline from gold answers and two LLM judges, and inference reads neither. Evaluating every competing selector under the same frozen respondent and the same candidate pools on 5,008 questions, LODESTAR attains the highest mean $F_1$ of any inference-ready selector (0.5148 to 0.5339), the highest exact match (0.4136), and the highest GPT-4o judge score of the frozen-respondent configurations judged (0.6435); its three-seed mean wins all 70 method-by-dataset $F_1$ cells against fourteen published configurations while remaining paired-significant against every one. The gain holds both in-domain and out-of-domain, and ablating the polarizer shows it is what makes the respondent read a misleading passage less often (26.0% against 30.3%).",
+  "arxiv_id": "2608.11922",
+  "authors": [
+    "Po-Jen Ko",
+    "Che-Cheng Wu",
+    "Hung-Chun Hsu",
+    "Li-Yang Chang",
+    "Chuan-Ju Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "LODESTAR 提供了一种几乎零推理开销的 RAG 段落选择改进：只增加一个固定字符串，推理时每候选仅一次前向传播，不需要额外模型或金标准，易于嵌入现有产品。",
+      "可降低企业级问答/客服/文档检索系统中“模型自信地给出错误答案”的风险，因为 polarizer 会让误导性证据在 prompt 中诱发更高不确定性，从而被低熵选择规则避开。",
+      "部署时需要为具体答题模型和领域重新训练 polarizer，并准备标注/判断器构建训练数据；这构成一次性投入成本，但推理端保持轻量。",
+      "对已有冻结 LLM 的系统尤其友好：不需要微调或替换应答模型，只需修改 prompt 模板，降低了合规和模型治理成本。",
+      "该方法的商业价值取决于检索池中误导性段落的比例；论文数据显示更强检索器反而提高误导率，因此这类选择机制在检索质量不稳定时更有价值。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "首次系统地展示：在单问题内部，冻结答题模型的熵不能可靠区分误导性与支持性段落；最低熵规则平均比从十个候选中随机抽取更常选中被判定为误导性的段落（30.3% vs 池自身 28.9%）。",
+      "提出 LODESTAR，据作者所述是第一个通过文本干预来引导第三方冻结答题模型不确定性的方法：用强化学习离线训练一个短自然语言 polarizer 字符串 ψ*，插入段落与问题之间，使误导性段落的熵升高、支持性段落熵保持低位，推理时无需额外模型、采样或金标准。",
+      "将 14 种已发表配置重新实现为段落选择器，在相同冻结答题模型与相同候选池上对比；LODESTAR 在平均 F1（0.5339）、精确匹配 EM（0.4136）和 GPT-4o 判断分数（0.6435）上均取得最高，三种子均值在 F1 上赢下全部 70 个方法×数据集单元格，并相对每个基线达到配对显著性。",
+      "在 Llama-3.1-8B、Qwen2.5-7B 与 Qwen3.5-9B 三种冻结答题模型上完成了 9 个训练-推理组合的 polarizer 迁移图谱，显示对角线上全部有帮助，但迁移到未训练过的模型时可能出现负效应。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Benchmark"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Polarizer Training"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Baselines"
+      },
+      {
+        "page": 1,
+        "section": "5 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "6 The Polarizer Ablation"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "B GRPO Objective and Hyper-parameters"
+      },
+      {
+        "page": 1,
+        "section": "D Paired Significance Tests"
+      },
+      {
+        "page": 1,
+        "section": "F Exact-Match Results and Paired Tests"
+      },
+      {
+        "page": 1,
+        "section": "G LLM-Judge Scores per Dataset"
+      },
+      {
+        "page": 1,
+        "section": "H Learned Polarizer Text and its Effect on the Entropy"
+      },
+      {
+        "page": 1,
+        "section": "J Baseline Configurations and Disclosures"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Semantic entropy",
+        "Self-RAG (reflection)",
+        "SeaKR",
+        "CLeHe",
+        "EPR",
+        "Min-K% Prob",
+        "IGP",
+        "EigenScore",
+        "SPS",
+        "Min-K%++",
+        "GainRAG",
+        "MBA-RAG",
+        "CRITIC-R1",
+        "GEPA",
+        "MIPROv2",
+        "random",
+        "rank1",
+        "oracle"
+      ],
+      "datasets": [
+        "NQ-Open（1,000 题，in-domain）",
+        "SQuAD（1,000 题）",
+        "TriviaQA（1,000 题）",
+        "EntityQuestions（1,008 题）",
+        "WebQuestions（1,000 题）"
+      ],
+      "findings_zh": [
+        "在 5,008 个问题上，LODESTAR 的平均 F1 为 0.5339，高于纯第一 token 熵选择的 0.5148 和检索器 top-1 的 0.4769，提升约 +3.71%。",
+        "LODESTAR 取得最高精确匹配（0.4136，对比最佳基线 semantic entropy 的 0.4039），并在 GPT-4o 判断分数上为 0.6435，高于所有被评测的冻结答题模型配置。",
+        "三训练种子均值在 F1 上赢下全部 70 个 method-by-dataset 单元格；与 14 个已发表配置相比，每个 F1 优势在配对 t 检验和 Wilcoxon 检验下均显著。",
+        "消融实验显示，移除 polarizer 后选中误导性段落的比率从 26.0% 升到 30.3%，而单独的熵选择高于池自身的 28.9%；polarizer 在 5/5 数据集上降低误导选择率。",
+        "域内外提升均存在：NQ 上 F1 从 0.4643 到 0.4789；SQuAD/TriviaQA/EntityQuestions/WebQuestions 平均从 0.5274 到 0.5476。",
+        "跨答题模型实验中，所有对角（同一模型训练并推理）的 polarizer 增益均为正；四个负向迁移单元格全部来自未参与训练的跨模型迁移。"
+      ],
+      "metrics": [
+        "Answer F1（生成答案 vs 金标准答案）",
+        "Exact match (EM)",
+        "GPT-4o LLM-judge 答案等价判定",
+        "被选中段落的 judged-misleading rate",
+        "配对 t 检验与 Wilcoxon 符号秩检验"
+      ]
+    },
+    "limitations_zh": [
+      "金标准自由只属于推理阶段；训练标签仍需金标准答案和两个 LLM 判断器，且判断器一致性 Cohen's κ 为 0.675，并非完全无监督。",
+      "Polarizer 的跨模型迁移并不稳定：图 2 中所有负增益单元格都是迁移到从未训练过的答题模型，说明对新答题模型可能需要重新训练。",
+      "第一 token 熵并非对所有答题模型都天然有效：在 Qwen2.5-7B 上，无 polarizer 的第一 token 熵与检索器 top-1 在 NQ 上统计上不可区分。",
+      "三训练种子中 seed 43 在 EntityQuestions 的 F1 单元格输给 GainRAG；WebQuestions 上三种子平均 EM 也落后 semantic entropy，说明不是每个种子和每个单元格都全面占优。",
+      "最优熵估计器因模型家族而异（Llama 上为第一 token H1，两个 Qwen 模型上为全 token 平均熵），H1 的选择并非普适。",
+      "GPT-4o 判断分数与 F1 在 WebQuestions 上出现单池反转（Self-RAG reflection 的 judge 分数高于 LODESTAR），说明单一指标可能掩盖每池差异。",
+      "训练成本不低：300 步 GRPO 在 4×RTX PRO 6000 Blackwell 上约需 7 小时，且依赖线下标签构建流程。"
+    ],
+    "method_zh": "LODESTAR 保持答题模型 R 完全冻结，只学习一个固定自然语言字符串 ψ*（polarizer），插入格式为 [passage; ψ*; question]。训练阶段使用 Qwen3-4B-Instruct 作为策略模型，通过 GRPO 强化学习优化；奖励不是答案正确率，而是同一问题内误导性段落与支持性段落之间的熵分离度（Δ_Mis-Sup），即提高误导性段落的平均熵、保持支持性段落熵低，并减去不插入 polarizer 时的自然分离度作为基线校正。段落标签由 gpt-oss-120b 与 Qwen2.5-72B-Instruct 两个异构 LLM 判断器共同判定为 MISLEADING/SUPPORTING/NEUTRAL，训练数据来自 1,939 个 NQ-Open 训练问题。论文采用第一个回答 token 的熵 H1 作为选择信号（L=1）。推理时对每个候选段落运行一次冻结答题模型，计算在 ψ* 下的 H1，选择熵最低的答案；整个过程不读取金标准答案、不运行额外模型，也不需要采样。",
+    "problem_zh": "在开放域检索增强生成（RAG）中，冻结的答题模型（frozen respondent）只能读取一条被检索到的候选段落，而检索池中大量段落虽然主题相关但具有误导性。现有基于预测分布熵的最低熵选择规则会被误导性段落欺骗：模型在错误证据上反而变得自信、熵更低，导致选中错误答案。已有方法要么回避该失败模式，要么只记录不修复。论文要解决的核心问题是：在无金标准答案的推理阶段，如何在同一个问题的多个候选段落之间选出真正支持正确回答的段落，避免 confidently-wrong。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.873,
+  "graph_relations": [],
+  "id": "arxiv-2608.11922",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-08-12T11:06:45Z",
+  "relevance_score": 0.9,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出LODESTAR方法，利用强化学习离线训练一个提示极性器，通过干预冻结回答模型的上下文来降低误导性段落对检索增强问答的影响，从而提升候选段落选择的准确性与可靠性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "LODESTAR: Trustworthy Entropy Is Navigated, Not Merely Measured -- Reinforced Polarizer Keeps a Frozen LLM from Being Confidently Misled by the Wrong Evidence",
+  "url": "https://arxiv.org/abs/2608.11922v1"
+}

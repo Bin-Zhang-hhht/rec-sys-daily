@@ -1,0 +1,137 @@
+{
+  "abstract": "Deep search agents operate over trajectories spanning dozens of steps, yet standard reinforcement learning provides only a single outcome reward per trajectory, which is far too sparse for effective credit assignment. On-policy self-distillation (OPSD) addresses this by using the model's own logits as dense token-level teachers, but extending it to search agents introduces a fundamental tension: the teacher, having access to privileged information such as the correct answer, produces a distribution that differs systematically from the student's exploration-based reasoning, and naive distillation causes the student to inherit this information asymmetry rather than learn better search strategies. We resolve this tension through two contributions. First, we construct Evidence Anchors, which are concise, step-level evidence snippets extracted from the web, as privileged information that captures key reasoning steps without revealing the entire answer path. Second, we propose Step-Level Self-Distilled Policy Optimization (SSPO), which converts teacher-student disagreement into step-level advantage weights within GRPO, applied exclusively to incorrect trajectories. This design decouples what to update from how much to update: the outcome reward determines the direction of policy change, while the teacher modulates its magnitude at each step. Correct trajectories are left untouched, preserving their diversity. On Qwen3-8B, SSPO consistently outperforms GRPO across BrowseComp, GAIA, and FRAMES, surpassing or matching GRPO trained with twice as many gradient steps while adding only about 5 percent overhead per step from a single additional forward pass. Deep search agents operate over trajectories spanning dozens of steps, yet standard reinforcement learning provides only a single outcome reward per trajectory, which is far too sparse for effective credit assignment. On-policy self-distillation (OPSD) addresses this by using the model's own logits as dense token-level teachers, but extending it to search agents introduces a fundamental tension: the teacher, having access to privileged information such as the correct answer, produces a distribution that differs systematically from the student's exploration-based reasoning, and naive distillation causes the student to inherit this information asymmetry rather than learn better search strategies. We resolve this tension through two contributions. First, we construct Evidence Anchors, which are concise, step-level evidence snippets extracted from the web, as privileged information that captures key reasoning steps without revealing the entire answer path. Second, we propose Step-Level Self-Distilled Policy Optimization (SSPO), which converts teacher-student disagreement into step-level advantage weights within GRPO, applied exclusively to incorrect trajectories. This design decouples what to update from how much to update: the outcome reward determines the direction of policy change, while the teacher modulates its magnitude at each step. Correct trajectories are left untouched, preserving their diversity. On Qwen3-8B, SSPO consistently outperforms GRPO across BrowseComp, GAIA, and FRAMES, surpassing or matching GRPO trained with twice as many gradient steps while adding only about 5 percent overhead per step from a single additional forward pass.",
+  "arxiv_id": "2608.12764",
+  "authors": [
+    "Haoze Wu",
+    "Chuqiao Kuang",
+    "Tianyi Zhuang",
+    "Xiaoguang Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SSPO 在几乎不增加训练开销（约 5% 额外前向）的情况下显著提升深度搜索智能体的最终性能，并减少达到同等效果所需的训练步数，对希望更快迭代搜索/研究/办公类 LLM agent 产品的团队具有直接成本效益。",
+      "步骤级过程监督能够引导智能体进行更精准、信息密度更高的搜索验证，而不是盲目增加工具调用，有利于在实际业务中控制搜索与浏览 API 成本。",
+      "证据锚点构造依赖外部 LLM 和搜索/浏览 API，当前方法也仅验证了 8B 英文模型，企业落地时需要在数据构建成本、多语言能力和模型规模上进一步权衡。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "首次指出将自蒸馏从单轮推理扩展到多轮深度搜索会打破单轮自蒸馏的假设（教师-学生信息差距小、存在现成特权信息），需要根本不同的设计。",
+      "提出 Evidence Anchors：从网页中提取的紧凑、步骤级证据片段，作为开放式网页搜索中的特权信息，与信息寻求动作的自然粒度对齐。",
+      "提出 Step-Level Self-Distilled Policy Optimization (SSPO)：将教师-学生分歧转化为 GRPO 内的步骤级 advantage 权重，并且只应用于错误轨迹，从而解耦“更新方向”与“更新幅度”。",
+      "在 Qwen3-8B 上，SSPO 在 BrowseComp、GAIA、FRAMES 上持续优于 GRPO，并能以 100 步训练超过 GRPO 训练 200 步的效果，同时每步仅增加约 5% 的训练开销。"
+    ],
+    "evidence_quality": 0.68,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Privileged Information: Evidence Anchors"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Step-Level Self-Distilled Advantage Weights"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Experimental Results"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "5 Case Study: Which Steps are Exempted from Penalty?"
+      },
+      {
+        "page": 1,
+        "section": "E More Experimental Results"
+      },
+      {
+        "page": 1,
+        "section": "G More Details about Evidence Anchors"
+      },
+      {
+        "page": 1,
+        "section": "H Limitations and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Cold-start SFT (Our-8B)",
+        "GRPO 100/200 步",
+        "OPSD adaptation (直接蒸馏)",
+        "RLSD/SRPO adaptation (token级 advantage 加权)",
+        "WebSailor-7B",
+        "MiroThinker-8B-DPO-v0.1",
+        "AFM-WebAgent-7B (RL)",
+        "DeepDive-9B (RL)",
+        "WebExplorer-8B (RL)",
+        "OffSeeker-8B (DPO)"
+      ],
+      "datasets": [
+        "DeepForge (训练QA，约6000条)",
+        "BrowseComp",
+        "GAIA (text-only subset)",
+        "FRAMES",
+        "BC-Sub",
+        "Frames-Sub"
+      ],
+      "findings_zh": [
+        "在 BrowseComp、GAIA、FRAMES 上，SSPO 平均得分 46.0，优于 GRPO 的 43.6 和冷启动基线的 41.2；单基准上分别为 15.7 vs 13.6、49.3 vs 47.3、73.0 vs 69.8。",
+        "SSPO 训练 100 步即可超过 GRPO 训练 200 步，表明步骤级过程监督带来更高的样本效率。",
+        "SSPO 与 GRPO 的平均搜索轮数接近（20.5 vs 20.0），性能提升不是以显著增加推理成本为代价；每训练步仅增加约 5% 的 teacher forward 开销。",
+        "在 BC-Sub 50 步消融中，直接 OPSD 蒸馏得到 11.8，低于 GRPO 的 12.8，说明直接拟合特权信息分布会损害性能；token 级 advantage 加权同样为 11.8，而步骤级 SSPO 达到 14.5。",
+        "消融显示，仅用错误答案反馈不能超过 GRPO（12.4 vs 12.8），仅用 Evidence Anchors 可提升到 14.0，两者结合达到 14.5；Evidence Anchors 主要决定中间搜索步骤的评估，错误答案反馈主要放大最终步骤的惩罚。",
+        "案例分析显示，步骤级特权信息增益为正的步骤使用更少的查询，增益为负的步骤往往是冗长、检索词分散的查询；SSPO 会降低对紧凑、证据明确的验证步骤的惩罚，并放大对宽泛低效搜索的惩罚。"
+      ],
+      "metrics": [
+        "Avg@4",
+        "Accuracy (BC-Sub, Pass@1)",
+        "Average search turns (#Turn)"
+      ]
+    },
+    "limitations_zh": [
+      "受 API 使用成本（Serper、Jina、LLM 服务）限制，冷启动和 on-policy 训练仅使用数千条样本，数据规模与评估规模都较小。",
+      "实验只在 Qwen3-8B 上进行，未验证更大规模模型上的效果。",
+      "由于教师模型 GPT-OSS-120B 的英文思维链特性，训练与评估仅限英文，未包含中文、日文等多语言数据，可能限制结论的泛化性。",
+      "Evidence Anchors 的构建依赖 SOTA LLM 的生成质量，虽然做了 URL 可访问性和标题匹配校验，但仍可能引入额外成本或噪声。"
+    ],
+    "method_zh": "基于 ReAct 范式构建搜索智能体，提供 search 和 browse 两个工具，采用 GRPO 作为基础强化学习算法；先用约 4000 条正确轨迹做冷启动 SFT。为每个训练 QA 对用 DeepSeek-V3.2 构造平均约 5.24 个 Evidence Anchors，并在教师提示中加入学生产生的错误答案作为负反馈。SSPO 只对错误轨迹生效：对每个完整的搜索步骤，分别用教师（带特权信息）和学生（无特权信息）对同一学生生成步骤做 teacher-forcing，计算步骤级联合似然比 Δτ^step = sg(log(P_T/P_S))，再计算权重 w = min(exp(sign(A)*Δ), 1+ε)，把 GRPO 中的序列级 advantage A 替换为 w*A。正确轨迹保持原始 GRPO 目标不动，避免抑制正确解法的多样性。训练中每 50 步用当前策略重新初始化教师模型，超参数 ε=0.2，损失仅在智能体生成的 thought/action/answer token 上计算。",
+    "problem_zh": "深度搜索智能体通常需要执行数十步搜索与浏览动作，但标准强化学习只能为整条轨迹提供单一的结果奖励，奖励过于稀疏，导致信用分配困难。将已有的自蒸馏方法直接扩展到多轮搜索智能体会引入严重的信息不对称：教师模型能看到证据锚点和正确答案，生成轨迹显著变短，而学生模型只能依靠自身的在线探索；直接蒸馏会让模型模仿教师对特权信息的依赖，并在推理时过早放弃工具调用。此外，开放式网页搜索没有现成的参考解答或环境反馈可作为特权信息，需要专门构造与搜索步骤结构对齐的监督信号。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.711,
+  "graph_relations": [],
+  "id": "arxiv-2608.12764",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning",
+    "large_language_model"
+  ],
+  "published_at": "2026-08-13T03:13:18Z",
+  "relevance_score": 0.7,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "针对深度搜索智能体轨迹级奖励稀疏的问题，提出步骤级自蒸馏策略优化SSPO：从网页抽取证据片段作为特权信息，将模型自身logits作为稠密教师，在GRPO中把师生分歧转换为步骤级优势权重，仅对错误轨迹更新，在BrowseComp、GAIA和FRAMES上超越或匹配多训练一倍的GRPO。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Beyond Outcome Rewards: Step-Level Self-Distilled Policy Optimization for Deep Search Agents",
+  "url": "https://arxiv.org/abs/2608.12764v1"
+}

@@ -1,0 +1,145 @@
+{
+  "abstract": "A multiplicative dual-encoder network computes a real-valued output for a pair of inputs as the inner product of their separate encodings. This architecture has been developed independently in operator learning, bipartite matching, contrastive vision-language models, retrieval, and other areas, yet no unified theory guides the basic design decisions: how many interaction modes to represent, how to normalize the encoders, and when the architecture should be avoided. We provide such a foundation by introducing the class of functions of low interaction rank, a class whose intrinsic complexity is measured by its interaction spectrum. Within this framework, approximation error decomposes into a spectral truncation term and an encoder-realization term; sample complexity is governed by the sum of the two encoder complexities rather than their product; and a usability criterion based on spectral decay determines when the architecture can succeed. The same framework exposes a central identifiability problem: the encoders are defined only up to a linear gauge symmetry that leaves the learned coordinates arbitrary. We show that normalization is gauge fixing and that whitening pins the interaction modes up to permutation and sign, thereby explaining the uninterpretability of contrastive dimensions and providing a constructive remedy. Experiments on synthetic kernels, operator learning, and CLIP models validate the theoretical predictions: spectral decay rates match the predicted scaling, whitening recovers the true modes, and independently trained CLIP models are related by a single rotation which, after removal by whitening, exposes interpretable concept axes. The code of this paper is provided at https://github.com/RS2002/Mul-Net . A multiplicative dual-encoder network computes a real-valued output for a pair of inputs as the inner product of their separate encodings. This architecture has been developed independently in operator learning, bipartite matching, contrastive vision-language models, retrieval, and other areas, yet no unified theory guides the basic design decisions: how many interaction modes to represent, how to normalize the encoders, and when the architecture should be avoided. We provide such a foundation by introducing the class of functions of low interaction rank, a class whose intrinsic complexity is measured by its interaction spectrum. Within this framework, approximation error decomposes into a spectral truncation term and an encoder-realization term; sample complexity is governed by the sum of the two encoder complexities rather than their product; and a usability criterion based on spectral decay determines when the architecture can succeed. The same framework exposes a central identifiability problem: the encoders are defined only up to a linear gauge symmetry that leaves the learned coordinates arbitrary. We show that normalization is gauge fixing and that whitening pins the interaction modes up to permutation and sign, thereby explaining the uninterpretability of contrastive dimensions and providing a constructive remedy. Experiments on synthetic kernels, operator learning, and CLIP models validate the theoretical predictions: spectral decay rates match the predicted scaling, whitening recovers the true modes, and independently trained CLIP models are related by a single rotation which, after removal by whitening, exposes interpretable concept axes. The code of this paper is provided at https://github.com/RS2002/Mul-Net .",
+  "arxiv_id": "2608.11661",
+  "authors": [
+    "Zijian Zhao",
+    "Sen Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对双塔检索、向量召回、匹配/排序类系统：交互谱可在训练前从经验核矩阵估计，若谱平坦则应改用早期交互或联合编码，否则双塔头存在无法通过增加容量或数据消除的相对误差下限；若谱快速衰减，双塔架构可同时获得计算和统计优势。",
+      "白化可作为无需重训的事后分析层应用于已部署的 CLIP/双塔模型，使 embedding 坐标从任意旋转变为可解释的概念轴，并可用于模型合并、蒸馏和跨模型探测。",
+      "独立训练的双塔模型之间仅差一个正交旋转，白化后可按维度对齐比较，为多模型集成、版本升级和跨组织模型对齐提供基础。",
+      "交互谱的衰减和谱间隙可直接指导嵌入维度/交互模式数的选择：最优秩随样本量对数增长，且谱间隙同时决定优化条件数、可辨识性和估计误差，可作为生产中秩选择的统一依据。",
+      "对因子分解机、线性注意力、知识图谱嵌入等共享同一数学结构的业务模型，本文给出统一的复杂度、归一化与可用性规则，避免各领域重复试错。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出低交互秩函数类，用交互算子（integral operator）的奇异值定义交互谱与交互秩，统一了至少十类现有方法，并证明 rank-d 头的逼近误差可分解为固有谱截断项与编码器实现项，目标光滑性控制谱衰减速率。",
+      "证明样本复杂度由两个编码器复杂度之和而非乘积控制；线性编码器情形退化为低秩矩阵感知，达到极小极大速率 σ_ε² d(p+q)/n；光滑目标的最优秩随样本预算仅对数增长，从而消除维度灾难。",
+      "给出可用性判据：平坦交互谱使任意 rank-d 头存在相对误差下限 1-d/N，早期交互（early-interaction）模型可逃离该下限；谱衰减速率可在训练前从经验核矩阵估计，使架构选择可操作。",
+      "建立可辨识性的规范理论：归一化本质上是规范固定（gauge fixing）；余弦归一化剩余完整旋转群，因此对比学习维度无固有语义；白化在谱间隙条件下把交互模式固定到置换与符号，并恢复交互谱。",
+      "通过合成核、DeepONet 算子学习和 CLIP 实验验证理论预测：谱衰减标度、白化恢复真实模式、扁平谱误差下限，以及独立训练的 CLIP 模型之间仅差一个旋转。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 The Low-Interaction-Rank Class: Unification and Approximation"
+      },
+      {
+        "page": 1,
+        "section": "3 Identifiability as Gauge-Fixing"
+      },
+      {
+        "page": 1,
+        "section": "4 Sample Complexity and When Not to Use the Head"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Appendix D Proofs for Section 4"
+      },
+      {
+        "page": 1,
+        "section": "Appendix E Finite-Sample Technical Lemmas"
+      },
+      {
+        "page": 1,
+        "section": "Appendix F Experimental Details and Additional Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "七种归一化方案互相对比：none、l2_single、per_coord、clip_cosine、nonneg、whiten_soft、whiten_hard",
+        "早期交互比较器：⟨u,v⟩ 阈值模型与 O(m) 参数 ReLU MLP",
+        "DeepONet 中 SVD 热启动与随机初始化对比",
+        "CLIP 中原始坐标、拟合单一正交旋转后坐标、白化规范坐标对比",
+        "单塔模型（理论最坏情形下界比较）"
+      ],
+      "datasets": [
+        "合成核：移位 Legendre 模式、指定谱的 F(u,v)=Σ_k σ_k a_k(u)b_k(v)",
+        "布尔相等核 F=1[u=v]，定义于 {±1}^m × {±1}^m，N=2^m",
+        "圆周上窄带周期高斯核 F_h(u,v)=ρ_h(u-v)",
+        "DeepONet 四个算子：热半群、Volterra 反导数、粘性 Burgers、Darcy 流",
+        "块-boxcar 算子（m=16 块，完全平坦谱）",
+        "CLIP 骨干对：OpenAI ViT-B/32 对 LAION ViT-B/32，OpenAI ViT-B/32 对 OpenAI RN50，使用 CIFAR-100 测试图像与提示集成文本类嵌入"
+      ],
+      "findings_zh": [
+        "七种归一化按其残差规范群清晰分层：只有硬白化达到模式对齐 1.000、跨种子距离 0.000，并把条件数驱动到理论下限 σ₁²/σ_d²≈9.5；其余更松的规范停留在对齐 0.53–0.65，模式被残差旋转纠缠。",
+        "谱间隙与样本量通过乘积进入识别误差：err·Δ·√n≈2.48，变异系数 0.12，验证了 Corollaries 3 和 6 的 1/Δ 与 n^{-1/2} 标度。",
+        "线性头等价于低秩矩阵感知，实测斜率在 n 为 -1.03、d 为 +0.89、p+q 为 +1.24，接近理论 -1、+1、+1，并拒绝了预测 n^{-1/2} 的宽松一般界。",
+        "布尔相等核的平坦谱使 rank-d 头相对误差恰为 1-d/N，达到 10% 误差需要 d≈0.9·2^m 维，而早期交互阈值仅需 2m+1 个参数且误差为零；窄带周期高斯核的所需秩满足 d_ε=Θ(1/h)。",
+        "DeepONet 上事后白化把学习到的 trunk 基与解析算子本征基的对齐从 0.5–0.6 提升到 0.78–0.94，并把跨种子距离降低约一个数量级；soft whitening 在全部八个分布内/分布外单元中误差最低，热算子的分布外增益达 2.4×。",
+        "独立预训练 CLIP 对的交互谱高度共享（Pearson 0.99/0.98，归一化 L1 0.065/0.096），逐维概念探针原始坐标不迁移（0.28），但拟合单一正交旋转后迁移达 0.92；白化后模式呈现动物、车辆、植物、食物等概念轴，跨骨干框架稳定性优于余弦坐标。"
+      ],
+      "metrics": [
+        "拟合 MSE、模式对齐（mode alignment）、条件数 max(cond Σ_f, cond Σ_g)、跨种子规范距离",
+        "模式识别误差及其与谱间隙和样本量的乘积 err·Δ·√n",
+        "Frobenius 超额风险对 n、d、p+q 的 log-log 斜率",
+        "达到 10% 相对误差所需嵌入维度 d 与 d/N",
+        "DeepONet 的相对 L² 误差（分布内与分布外）、基对齐、跨种子距离",
+        "CLIP 交互谱 Pearson 相关、归一化 L1、逐维探针迁移、单一旋转拟合后的迁移、群信号回归 R²、跨骨干框架稳定性"
+      ]
+    },
+    "limitations_zh": [
+      "两端正非负性规范把残差群缩小到置换×正对角缩放，但代价是表达能力受限：负相关交互模式被排除，实验中拟合误差达 4.25。",
+      "平坦谱下任何 late-interaction 头都需要指数级嵌入维度才能达到常数相对误差；early-interaction 的上界依赖于目标具有低维联合结构，高秩且无结构的目标对两种架构都困难。",
+      "小谱间隙下逐模式可辨识性退化：单模式误差界发散，只能保证对应特征子空间稳定，块内存在旋转不确定性。",
+      "DeepONet 中学到的谱比解析谱衰减更快，论文只声称恢复主导模式和衰减类型，而非逐模式匹配；soft whitening 不降低种子间误差方差，且带惩罚的训练损失不能与无惩罚方案直接比较。",
+      "一般 Rademacher 复杂度上界在 d 的依赖上保守（d^{3/2} 而非线性 d），需要线性情形或局部 Rademacher 论证才能达到极小极大速率。",
+      "余弦归一化的单个坐标没有固有语义；白化需要谱间隙、有界编码器输出和足够样本，其样本复杂度随 1/Δ² 增长。"
+    ],
+    "method_zh": "将目标函数 F(u,v) 视为 L²(μ_U⊗μ_V) 中的核，定义交互算子 T_F 并作 Schmidt 分解，得到交互谱 {σ_k} 和交互模式 {a_k,b_k}；函数可由 rank-d 头表示当且仅当其交互秩≤d。逼近理论把误差拆成谱截断项与编码器实现项；可辨识性方面，用 GL_d 规范作用 (f,g)→(Af,A^{-⊤}g) 描述表示的非唯一性，证明余弦归一化剩余正交群、白化约束 Σ_g=I、Σ_f=Λ（Λ 对角且非增）在谱间隙下把模式固定到置换和符号。估计理论方面，Rademacher 复杂度坍塌为两个边际编码器复杂度之和；线性编码器等价于低秩矩阵感知。最后用有效交互秩 d_ε(F) 和谱平坦性给出何时使用或弃用该头的判据。",
+    "problem_zh": "乘性双编码器头（multiplicative dual-encoder head）在算子学习、对比视觉-语言模型、双塔检索、知识图谱补全、线性注意力、因子分解机等领域被独立重复发明，但缺少统一理论来指导三个基本设计决策：应保留多少交互模式、如何归一化两个编码器、以及何时应完全避免该架构。另一个核心问题是可辨识性：同样的函数可被无穷多对编码器表示，模型只能被定义到线性规范（gauge）对称性，导致学习到的坐标任意、对比学习维度不可解释，且未固定的规范使优化病态。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.777,
+  "graph_relations": [],
+  "id": "arxiv-2608.11661",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower"
+  ],
+  "published_at": "2026-08-12T05:09:44Z",
+  "relevance_score": 0.8,
+  "scenarios": [
+    "text_feed",
+    "friend_recommendation"
+  ],
+  "source": "arxiv",
+  "summary_zh": "该论文建立低交互秩学习框架，统一分析乘法双编码器网络（如双塔模型）的近似误差、样本复杂度与可辨识性，指出归一化是规范固定、白化可恢复交互模式。该理论为推荐系统中的用户-内容匹配、召回和排序提供了基础。",
+  "targets": [
+    "content",
+    "user"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking",
+    "user_matching"
+  ],
+  "title": "Low-Interaction-Rank Learning: Unifying Multiplicative Dual-Encoder Heads",
+  "url": "https://arxiv.org/abs/2608.11661v1"
+}

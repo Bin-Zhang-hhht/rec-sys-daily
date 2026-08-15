@@ -1,0 +1,63 @@
+{
+  "authors": [
+    "Elizabeth Goodman"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": null,
+    "business_implications_zh": [
+      "视频处理被描述为 Jetson 在机器人、智能视频分析、工业自动化、医疗、媒体处理和远程操作等多个业务领域的核心数据路径，因此该平台相关能力的更新可能对这些垂直市场具有潜在影响。"
+    ],
+    "business_transferability": 0.4,
+    "evidence_quality": 0.25,
+    "evidence_refs": [
+      {
+        "heading": "NVIDIA JetPack 7.2.1 Adds Agentic Video Skills and T3000 Emulation",
+        "section": "RSS full content"
+      }
+    ],
+    "implementation_zh": null,
+    "lessons_zh": [],
+    "limitations_zh": [],
+    "production_constraints_zh": [],
+    "results_zh": [],
+    "system_context_zh": "博客面向 NVIDIA Jetson 平台的视频处理场景，指出视频是机器人、智能视频分析、工业自动化、医疗、媒体处理和远程操作等应用中的核心数据路径。文中提到一个系统可能采集多路摄像头、解码网络流、运行 AI 推理或传统视觉处理、绘制结果，并编码视频以用于存储或交付；但正文在“单个调用是……”处截断。博客标题还声称 NVIDIA JetPack 7.2.1 增加了 agentic video skills 和 T3000 仿真能力，但正文未提供进一步说明。",
+    "technical_depth": 0.15,
+    "tradeoffs_zh": []
+  },
+  "final_score": 0.20750000000000002,
+  "graph_relations": [
+    {
+      "confidence": 0.4,
+      "evidence": "两者都涉及在 NVIDIA 平台上运行本地或智能体化的 AI 能力。",
+      "generated_by": "rule_based_classifier",
+      "target_id": "url-c42703bc35a6b60354cd65ce",
+      "type": "same_topic"
+    }
+  ],
+  "id": "url-85020467db5d6b2aae23b216",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-11T19:00:00Z",
+  "relevance_score": 0.15,
+  "scenarios": [
+    "livestream"
+  ],
+  "source": "nvidia_developer",
+  "summary_zh": "NVIDIA JetPack 7.2.1 为 Jetson 平台增加智能体视频技能和 T3000 仿真支持，覆盖机器人、智能视频分析、工业自动化、医疗和媒体等以视频为核心的应用场景。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "NVIDIA JetPack 7.2.1 Adds Agentic Video Skills and T3000 Emulation",
+  "url": "https://developer.nvidia.com/blog/nvidia-jetpack-7-2-1-adds-agentic-video-skills-and-t3000-emulation"
+}

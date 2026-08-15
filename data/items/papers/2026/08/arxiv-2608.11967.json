@@ -1,0 +1,135 @@
+{
+  "abstract": "Large language model agents increasingly rely on long-horizon reasoning to solve complex tasks involving planning, tool use, and memory. A critical capability in such settings is reflection: assessing trajectory progress, identifying missing evidence and unreliable intermediate states, and deciding whether to continue, revise, or abandon the current branch. Learning effective reflection, however, is challenging because reflection is performed locally within the current branch, whereas its utility can only be determined by its contribution to the final trajectory outcome. This local-global mismatch makes outcome-based reinforcement learning provide only local, sparse and delayed supervision for reflective decisions. To solve these, we propose LoongReflect, a training framework that formulates reflection as a memory-control policy. The agent operates over a reversible trajectory tree using explicit reflect and backtrack actions. Reflection consolidates verified facts, missing evidence, and branch-specific risks into working memory, while backtracking removes an unreliable branch from the active context and preserves a concise corrective lesson. To learn this policy, LoongReflect combines two complementary signals through a look-ahead, extragradient-style coordination mechanism. A fast channel distills globally informed reflective behavior from a privileged teacher, with supervision restricted to reflection and backtracking tokens. A slow channel optimizes complete trajectories using outcome-based GRPO, aligning local control decisions with final task success. Experiments on multi-hop retrieval-augmented generation and mathematical reasoning benchmarks demonstrate consistent improvements over outcome-only reinforcement learning and self-distillation baselines. Large language model agents increasingly rely on long-horizon reasoning to solve complex tasks involving planning, tool use, and memory. A critical capability in such settings is reflection: assessing trajectory progress, identifying missing evidence and unreliable intermediate states, and deciding whether to continue, revise, or abandon the current branch. Learning effective reflection, however, is challenging because reflection is performed locally within the current branch, whereas its utility can only be determined by its contribution to the final trajectory outcome. This local-global mismatch makes outcome-based reinforcement learning provide only local, sparse and delayed supervision for reflective decisions. To solve these, we propose LoongReflect, a training framework that formulates reflection as a memory-control policy. The agent operates over a reversible trajectory tree using explicit reflect and backtrack actions. Reflection consolidates verified facts, missing evidence, and branch-specific risks into working memory, while backtracking removes an unreliable branch from the active context and preserves a concise corrective lesson. To learn this policy, LoongReflect combines two complementary signals through a look-ahead, extragradient-style coordination mechanism. A fast channel distills globally informed reflective behavior from a privileged teacher, with supervision restricted to reflection and backtracking tokens. A slow channel optimizes complete trajectories using outcome-based GRPO, aligning local control decisions with final task success. Experiments on multi-hop retrieval-augmented generation and mathematical reasoning benchmarks demonstrate consistent improvements over outcome-only reinforcement learning and self-distillation baselines.",
+  "arxiv_id": "2608.11967",
+  "authors": [
+    "Zhixin Zhang",
+    "Xinke Jiang",
+    "Zhibang Yang",
+    "Weixuan Xu",
+    "Guohong Qiu",
+    "Xu Chu",
+    "Junfeng Zhao",
+    "Yasha Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该方法可直接提升企业级RAG、知识库问答和搜索智能体在长链多跳检索中的准确性和可纠错性，适用于客服、企业知识管理、法律与医疗资料检索等场景。",
+      "显式的反思与回溯机制可以减少错误中间状态污染后续决策，对于需要可追溯、可验证的自动化业务流程具有价值。",
+      "但训练需要特权教师、两阶段拒绝采样和100步双通道强化学习，计算与工程成本较高，实际部署需要权衡收益与成本。",
+      "业务落地时需针对领域检索噪声、答案别名和验证器设计进行适配，否则早期诊断错误可能影响最终回答可靠性。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "将长程智能体的反思形式化为记忆控制策略，在可逆轨迹树上通过显式<reflect>和<backtrack>动作实现，使反思成为对保留、修订或丢弃记忆的确定性控制。",
+      "提出双通道学习框架：快通道用answer-masked特权教师蒸馏提供稠密且全局信息化的反思监督，慢通道用outcome-based GRPO对齐最终任务成功，并通过look-ahead extragradient式更新协调两通道。",
+      "在多跳RAG和数学推理基准上一致优于outcome-only RL和self-distillation基线，并通过消融验证了结构化反思、可逆回溯和双通道优化的各自贡献。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "J Long Reflective Case Study"
+      },
+      {
+        "page": 1,
+        "section": "K Limitations and Ethical Considerations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Base",
+        "CoT",
+        "FS-RAG",
+        "FL-RAG",
+        "ReAct",
+        "IRCoT",
+        "TCRAG",
+        "ReSearch",
+        "Search-R1",
+        "AEPO",
+        "ARPO",
+        "Mem1",
+        "AgenticRAG-R1",
+        "RLSD"
+      ],
+      "datasets": [
+        "2WikiMultiHopQA",
+        "HotpotQA",
+        "Bamboogle",
+        "FRAMES",
+        "MuSiQue",
+        "Natural Questions (NQ)",
+        "TriviaQA",
+        "MATH",
+        "GSM8K"
+      ],
+      "findings_zh": [
+        "LOONGREFLECT在7个QA基准上均取得最高F1：Qwen2.5-3B平均F1为46.15，Qwen2.5-7B为49.21，分别超过最强基线AgenticRAG-R1达12.60和12.61个百分点，且域外基准同样稳定提升。",
+        "组件消融显示，移除<reflect>使平均F1从46.15降至30.84（-15.31），移除<backtrack>降至33.09（-13.06）；移除slow outcome optimization、fast reflection distillation或look-ahead coordination分别下降7.04、5.64和4.94个百分点。",
+        "训练阶段消融显示，SFT相对原始模型平均提升4.43点（3B）和3.54点（7B），双通道RL进一步带来11.39点（3B）和7.94点（7B）的提升。",
+        "在数学推理迁移上，Qwen2.5-3B在MATH和GSM8K分别取得56.0和82.4 F1，优于AgenticRAG-R1（54.8/80.6）和RLSD（53.6/80.7）。",
+        "超参数敏感性显示K=3、w=1最优；内层快更新过少会导致局部适应不足，而快方向权重过大会压制与最终结果对齐的慢方向。"
+      ],
+      "metrics": [
+        "Answer-level F1 (%)",
+        "Average F1 (%)"
+      ]
+    },
+    "limitations_zh": [
+      "方法依赖检索质量和控制器对检查点/恢复的判断，检索噪声可能影响已验证状态构建、检查点选择和压缩更新，早期诊断错误可能沿后续搜索与答案决策传播。",
+      "训练使用的归一化精确匹配奖励可能低估在token F1下获得部分分数的有效语义别名。",
+      "EMA教师只提供二值终端结果作为轨迹级上下文，可能影响局部诊断的风格与内容。",
+      "可逆多轮搜索和three-fast/one-slow look-ahead更新增加了推理和优化成本。",
+      "实验集中在两个训练数据集、七个QA基准、两个数学基准和单一记录种子配置，未做多种子独立重复，也未量化对检索噪声的鲁棒性。"
+    ],
+    "method_zh": "LOONGREFLECT将智能体建模为执行策略与记忆控制策略的联合体，状态为z_t=(x,T_t,P_t,m_t)，其中T_t是累积的轨迹树，P_t是活动路径，m_t是压缩工作记忆。Agent可以输出执行动作或<reflect>/<backtrack>控制动作：<reflect>生成包含已验证证据、风险、返回点和控制意图的结构化摘要；<backtrack>将活动轨迹回滚到可信前缀，并把被废弃分支移出上下文、保留简洁的前瞻性纠错更新。训练采用双通道优化：快通道由特权教师基于全局轨迹树构造answer-masked的结构化提示，仅对<reflect>和<backtrack> token计算masked reverse-KL蒸馏损失；慢通道对完整轨迹使用基于最终答案奖励的GRPO，归一化组内优势并只对最终活动执行中的策略token进行信用分配。两个通道通过look-ahead协调：先执行K次快更新得到临时策略，再用慢通道梯度判断快更新方向是否与结果一致，若冲突则去除快方向中与慢方向对立的成分，最后融合更新参数。",
+    "problem_zh": "大语言模型智能体在长程多步任务中的反思能力面临两个核心问题：一是学习信号困境，反思决策的价值由后续大量动作和最终结果决定，基于结果的强化学习只能提供稀疏、延迟且归属模糊的监督；二是局部与全局视角鸿沟，反思在分支局部上下文中执行，但继续、修改或回溯的收益只有从完整轨迹视角才能判断。现有方法要么把反思当作局部判断，要么依赖与长程结果不完全一致的监督信号，难以学习轨迹级别的反思控制。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.8085,
+  "graph_relations": [],
+  "id": "arxiv-2608.11967",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-08-12T11:56:03Z",
+  "relevance_score": 0.85,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出LoongReflect训练框架，将长程搜索智能体的反思建模为可回溯轨迹树上的记忆控制策略，通过教师蒸馏和基于结果的GRPO联合优化，提升多跳检索增强生成与数学推理中的反思能力。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "LoongReflect: Boosting Long-Horizon Reflection in Search Agents via Global Perspective Distillation",
+  "url": "https://arxiv.org/abs/2608.11967v1"
+}

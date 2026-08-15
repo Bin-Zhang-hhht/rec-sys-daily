@@ -1,0 +1,76 @@
+{
+  "authors": [
+    "Michelle Horton"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "30B 开放权重稠密模型；120K+ 上下文窗口；针对 NVIDIA 边缘、桌面和工作站 AI 平台优化；可在单 GPU 上运行，支持本地数据处理的常驻智能体。",
+    "business_implications_zh": [
+      "Muse Glimmer 强调本地处理，可能降低对云端推理的依赖",
+      "针对 NVIDIA 平台优化，可能推动边缘、桌面和工作站上的本地 AI 应用"
+    ],
+    "business_transferability": 0.1,
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "heading": null,
+        "section": "RSS full content"
+      }
+    ],
+    "implementation_zh": "博客称 Muse Glimmer 在单 GPU 上实现 20K tokens/sec，使智能体能够本地处理数据并执行复杂任务；未提供具体部署代码、推理栈或优化方法。",
+    "lessons_zh": [],
+    "limitations_zh": [
+      "源文档仅为简短发布摘要，缺少模型评估基准、硬件配置、能耗、延迟等验证信息",
+      "20K tokens/sec 的性能声明未给出测试条件与复现细节"
+    ],
+    "production_constraints_zh": [
+      "面向本地 AI 智能体场景",
+      "针对 NVIDIA 边缘、桌面及工作站平台运行",
+      "单 GPU 可运行"
+    ],
+    "results_zh": [
+      "Muse Glimmer 在单 GPU 上实现 20K tokens/sec",
+      "支持常驻智能体在本地处理数据并执行复杂任务"
+    ],
+    "system_context_zh": "博客介绍 Meta 发布 Muse Glimmer，一个 30B 开放权重稠密模型，120K+ 上下文窗口，面向本地 AI 智能体工作负载；内容来自 NVIDIA 开发者博客 RSS 全文，性质为产品发布宣传。",
+    "technical_depth": 0.15,
+    "tradeoffs_zh": [
+      "源文档未给出明确的权衡讨论，仅呈现开放权重、本地运行与性能数字"
+    ]
+  },
+  "final_score": 0.24750000000000005,
+  "graph_relations": [
+    {
+      "confidence": 0.85,
+      "evidence": "Muse Glimmer 是新的开源权重 30B 模型，Qwen3.8-Max 是新的开源权重 2.4T 模型，两者均为开源大语言模型发布。",
+      "generated_by": "rule_based_classifier",
+      "target_id": "url-5042ddb06fd844309130b6e9",
+      "type": "same_topic"
+    }
+  ],
+  "id": "url-c42703bc35a6b60354cd65ce",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-10T13:27:19Z",
+  "relevance_score": 0.25,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "nvidia_developer",
+  "summary_zh": "Meta 发布开源权重模型 Muse Glimmer，一个 30B 参数的稠密模型，支持 120K+ 上下文窗口，可在 NVIDIA 平台上本地运行智能体 AI 工作流。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Run Local Agentic AI Workflows with Meta’s Muse Glimmer on NVIDIA",
+  "url": "https://developer.nvidia.com/blog/run-local-agentic-ai-workflows-with-metas-muse-glimmer-on-nvidia"
+}
