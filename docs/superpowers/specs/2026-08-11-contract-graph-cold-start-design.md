@@ -24,12 +24,12 @@ This change repairs all previously audited P1/P2/P3 deviations, removes only the
 
 The existing `graph.json` node and taxonomy-edge contract remains the source of truth. No content-to-content relationship layer is added.
 
-- Clicking a content node navigates directly to its valid paper or article detail `href`.
-- Content nodes are keyboard activatable with `Enter`.
-- Clicking a taxonomy node displays adjacent paper and blog content in the sidebar, with real detail links for each item.
+- Clicking a content node selects it, highlights its one-hop neighborhood, and displays its summary plus a valid paper or article detail `href` in the sidebar; graph clicks never navigate directly.
+- Native search-result buttons provide the keyboard path to graph nodes with `Enter`; the focused canvas can reactivate an already selected node with `Enter` or Space.
+- Clicking a taxonomy node selects it and displays adjacent paper and blog content in the sidebar, with real detail links for each item.
 - The sidebar distinguishes the selected taxonomy node from its adjacent content and provides an explicit empty state.
 - Missing or invalid content `href` values degrade to a non-link state instead of producing broken navigation.
-- Cytoscape and graph data remain lazy-loaded only on `/graph/`.
+- ECharts Graph Canvas and graph data remain lazy-loaded only on `/graph/`; the existing `graph.json` contract and DOM-backed keyboard/detail path remain unchanged.
 
 ## Repository and documentation cleanup
 

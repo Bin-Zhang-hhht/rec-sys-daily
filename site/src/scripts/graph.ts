@@ -1,51 +1,68 @@
+import type { EChartsType } from "echarts/core";
 import type { GraphDocument, GraphNode } from "../lib/graph";
+import type { EChartsGraphLink, EChartsGraphNode } from "../lib/graph-view";
+import {
+  adaptGraphDocumentToECharts,
+  buildGraphAdjacency,
+  centerGraphDocument,
+  escapeEChartsRichText,
+  filterGraphDocument,
+  filterGraphNodeTypes,
+  GRAPH_NODE_STYLES,
+  graphEdgeColor,
+  graphNodeCanvasLabel,
+  graphNodeLabelVisible,
+  graphNodeNeighborhood,
+  graphNodeOpacity,
+  isContentGraphNode,
+  normalizeGraphSearchText,
+  searchGraphNodes,
+} from "../lib/graph-view";
 
 type NodeData = GraphNode["data"];
-
-type CytoscapeNode = {
-  data: ((key?: string) => unknown);
-  addClass: (name: string) => void;
-  removeClass: (name: string) => void;
-  hasClass: (name: string) => boolean;
+type GroupKey = "targets" | "scenarios" | "tasks" | "methods";
+type GraphEventParams = {
+  dataType?: "node" | "edge";
+  data?: { id?: string; source?: string; target?: string };
 };
 
-type CytoscapeCollection = {
-  addClass: (name: string) => void;
-  removeClass: (name: string) => void;
-  filter: (predicate: (element: CytoscapeNode) => boolean) => CytoscapeCollection;
-};
-
-type CytoscapeInstance = {
-  on: (event: string, selectorOrHandler: string | ((event: { target: CytoscapeNode }) => void), handler?: (event: { target: CytoscapeNode }) => void) => void;
-  elements: () => {
-    addClass: (name: string) => void;
-    removeClass: (name: string) => void;
-    filter: (predicate: (element: CytoscapeNode) => boolean) => CytoscapeCollection;
-  };
-  nodes: () => { forEach: (handler: (node: CytoscapeNode) => void) => void };
-  fit: (collection?: CytoscapeCollection, padding?: number) => void;
-  layout: (options: Record<string, unknown>) => { run: () => void };
-  zoom: () => number;
-};
-
-type CytoscapeFactory = (options: Record<string, unknown>) => CytoscapeInstance;
-
-const canvas = document.querySelector<HTMLElement>("#graph-canvas");
+const canvas = document.querySelector<HTMLDivElement>("#graph-canvas");
 const status = document.querySelector<HTMLElement>("#graph-status");
+const summary = document.querySelector<HTMLElement>("#graph-accessible-summary");
 const query = document.querySelector<HTMLInputElement>("#graph-query");
+const searchResults = document.querySelector<HTMLUListElement>("#graph-search-results");
 const details = document.querySelector<HTMLElement>("#graph-details");
 const filters = document.querySelector<HTMLFormElement>("#graph-filters");
+const filterPanel = document.querySelector<HTMLDetailsElement>("#graph-filter-panel");
+const filterCount = document.querySelector<HTMLElement>("#graph-filter-count");
 const showAll = document.querySelector<HTMLButtonElement>("#graph-show-all");
 const fitButton = document.querySelector<HTMLButtonElement>("#graph-fit");
 const resetButton = document.querySelector<HTMLButtonElement>("#graph-reset");
 const timeControls = [...document.querySelectorAll<HTMLSelectElement>("select[data-graph-time]")];
+const legendButtons = [...document.querySelectorAll<HTMLButtonElement>("button[data-graph-type]")];
+
+const typeLabels: Record<NodeData["type"], string> = {
+  paper: "论文",
+  article: "技术博客",
+  target: "目标",
+  scenario: "场景",
+  task: "任务",
+  method: "方法",
+};
 
 const contentTypes = new Set<NodeData["type"]>(["paper", "article"]);
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const desktopViewport = window.matchMedia("(min-width: 1024px)");
 
 function detailHref(data: NodeData): string | null {
   if (!data.href || !contentTypes.has(data.type)) return null;
   const expected = data.type === "paper" ? "papers" : "articles";
-  const url = new URL(data.href, window.location.origin);
+  let url: URL;
+  try {
+    url = new URL(data.href, window.location.origin);
+  } catch {
+    return null;
+  }
   const base = import.meta.env.BASE_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   if (!new RegExp(`^${base}${expected}/[A-Za-z0-9._~-]+/$`).test(url.pathname)) return null;
   return url.origin === window.location.origin && !url.search && !url.hash ? url.pathname : null;
@@ -62,23 +79,34 @@ function element<K extends keyof HTMLElementTagNameMap>(
   return value;
 }
 
-function appendContentSummary(container: HTMLElement, data: NodeData): void {
-  container.append(element("h2", data.label, "font-semibold text-slate-950"));
-  if (data.summary) container.append(element("p", data.summary, "mt-2 leading-6 text-slate-600"));
+function defaultDetails(): void {
+  details?.replaceChildren(element("p", "选择节点后显示详情。", "text-slate-500"));
+}
+
+function renderContentDetails(data: NodeData): void {
+  if (!details) return;
+  details.replaceChildren();
+  details.append(element("p", typeLabels[data.type], "text-xs font-semibold uppercase tracking-wide text-slate-500"));
+  details.append(element("h2", data.label, "mt-2 font-semibold text-slate-950"));
+  if (data.published_at) {
+    details.append(element("p", new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium" }).format(new Date(data.published_at)), "mt-2 text-xs text-slate-500"));
+  }
+  if (data.summary) details.append(element("p", data.summary, "mt-3 leading-6 text-slate-600"));
   const href = detailHref(data);
   if (href) {
-    const link = element("a", "查看详情", "mt-3 inline-block font-medium text-sky-700");
+    const link = element("a", "查看详情", "mt-4 inline-flex font-medium text-sky-700");
     link.href = href;
-    container.append(link);
+    details.append(link);
   } else {
-    container.append(element("p", "该节点缺少可用的站内详情链接。", "mt-3 text-slate-500"));
+    details.append(element("p", "该节点缺少可用的站内详情链接。", "mt-4 text-slate-500"));
   }
 }
 
 function renderTaxonomyDetails(graph: GraphDocument, data: NodeData): void {
-  details?.replaceChildren();
   if (!details) return;
-  details.append(element("h2", data.label, "font-semibold text-slate-950"));
+  details.replaceChildren();
+  details.append(element("p", typeLabels[data.type], "text-xs font-semibold uppercase tracking-wide text-slate-500"));
+  details.append(element("h2", data.label, "mt-2 font-semibold text-slate-950"));
   const nodes = new Map(graph.nodes.map(node => [node.data.id, node.data]));
   const adjacentIds = new Set<string>();
   for (const edge of graph.edges) {
@@ -112,203 +140,443 @@ function renderTaxonomyDetails(graph: GraphDocument, data: NodeData): void {
   details.append(list);
 }
 
-if (canvas && status && query && details && filters && showAll && fitButton && resetButton) {
-  const run = async () => {
-    try {
-      const graphUrl = canvas.dataset.graphUrl;
-      if (!graphUrl) throw new Error("graph URL is missing");
-      const [{ default: cytoscape }, response] = await Promise.all([
-        import("cytoscape") as unknown as Promise<{ default: CytoscapeFactory }>,
-        fetch(graphUrl),
-      ]);
-      if (!response.ok) throw new Error(`graph request failed: ${response.status}`);
-      const graph = await response.json() as GraphDocument;
-      const maxWeight = Math.max(1, ...graph.nodes.map(node => node.data.weight));
-      const cy = cytoscape({
-        container: canvas,
-        elements: [...graph.nodes, ...graph.edges],
-        style: [
-          { selector: "node", style: { label: "data(label)", width: `mapData(weight, 1, ${maxWeight}, 24, 52)`, height: `mapData(weight, 1, ${maxWeight}, 24, 52)`, "font-size": 9, "background-color": "#2563eb", color: "#172033", "text-wrap": "wrap", "text-max-width": 110, "border-width": 1, "border-color": "#ffffff" } },
-          { selector: "node[type = 'paper']", style: { "background-color": "#2563eb", shape: "round-rectangle" } },
-          { selector: "node[type = 'article']", style: { "background-color": "#059669", shape: "round-rectangle" } },
-          { selector: "node[type = 'target']", style: { "background-color": "#38bdf8", shape: "ellipse" } },
-          { selector: "node[type = 'scenario']", style: { "background-color": "#34d399", shape: "ellipse" } },
-          { selector: "node[type = 'task']", style: { "background-color": "#fbbf24", shape: "ellipse" } },
-          { selector: "node[type = 'method']", style: { "background-color": "#a78bfa", shape: "ellipse" } },
-          { selector: "node.zoom-far", style: { label: "" } },
-          { selector: "node.zoom-far.graph-selected, node.zoom-far.graph-neighbor", style: { label: "data(label)" } },
-          { selector: ".search-hit", style: { "border-width": 4, "border-color": "#dc2626", "border-opacity": 1 } },
-          { selector: ".graph-selected", style: { "border-width": 5, "border-color": "#0284c7", "border-opacity": 1 } },
-          { selector: ".graph-neighbor", style: { "border-width": 3, "border-color": "#38bdf8", "border-opacity": 0.9 } },
-          { selector: ".graph-muted", style: { opacity: 0.18 } },
-          { selector: ".graph-hidden", style: { display: "none" } },
-          { selector: "edge", style: { width: 1, "line-color": "#cbd5e1", "target-arrow-color": "#cbd5e1", "target-arrow-shape": "triangle", opacity: 0.75 } },
-        ],
-        layout: { name: "cose", animate: false, fit: true, padding: 40, nodeRepulsion: 12000, idealEdgeLength: 90, gravity: 0.25, nodeOverlap: 16, componentSpacing: 100, numIter: 1500 },
-      });
-      let selectedNode: NodeData | null = null;
-      const nodesById = new Map(graph.nodes.map(node => [node.data.id, node.data]));
-      const adjacentIds = new Map<string, Set<string>>();
-      for (const edge of graph.edges) {
-        if (!adjacentIds.has(edge.data.source)) adjacentIds.set(edge.data.source, new Set());
-        if (!adjacentIds.has(edge.data.target)) adjacentIds.set(edge.data.target, new Set());
-        adjacentIds.get(edge.data.source)?.add(edge.data.target);
-        adjacentIds.get(edge.data.target)?.add(edge.data.source);
+function graphFilters(): { groups: Map<GroupKey, Set<string>>; year?: string; age?: "7d" | "30d" | "365d" } {
+  const groups = new Map<GroupKey, Set<string>>();
+  for (const input of filters?.querySelectorAll<HTMLInputElement>("input[data-graph-filter]:checked") ?? []) {
+    const group = input.dataset.graphFilter as GroupKey | undefined;
+    if (!group) continue;
+    if (!groups.has(group)) groups.set(group, new Set());
+    groups.get(group)?.add(input.value);
+  }
+  const year = timeControls.find(control => control.dataset.graphTime === "year")?.value || undefined;
+  const ageValue = timeControls.find(control => control.dataset.graphTime === "age")?.value;
+  const age = ageValue === "7d" || ageValue === "30d" || ageValue === "365d" ? ageValue : undefined;
+  return { groups, year, age };
+}
+
+function updateFilterCount(): void {
+  if (!filterCount) return;
+  const selected = graphFilters();
+  const count = [...selected.groups.values()].reduce((total, values) => total + values.size, 0)
+    + (selected.year ? 1 : 0)
+    + (selected.age ? 1 : 0);
+  filterCount.textContent = String(count);
+}
+
+function setFilterPanelState(): void {
+  if (filterPanel) filterPanel.open = desktopViewport.matches;
+}
+
+function richText(value: string, max = 180): string {
+  return escapeEChartsRichText(value.replace(/\s+/g, " ").trim().slice(0, max));
+}
+
+function statusFor(graph: GraphDocument, centered = false): string {
+  const contentCount = graph.nodes.filter(node => contentTypes.has(node.data.type)).length;
+  return centered
+    ? `已定位 ${contentCount} 个内容节点及一跳邻域`
+    : `${contentCount} 个内容节点，${graph.edges.length} 条关系`;
+}
+
+if (canvas && status && summary && query && searchResults && details && filters && filterPanel && showAll && fitButton && resetButton && legendButtons.length) {
+  const run = async (): Promise<void> => {
+    const graphUrl = canvas.dataset.graphUrl;
+    if (!graphUrl) {
+      status.textContent = "图谱加载失败：缺少数据地址";
+      canvas.setAttribute("aria-busy", "false");
+      return;
+    }
+
+    let chart: EChartsType | null = null;
+    let graph: GraphDocument | null = null;
+    let currentView: GraphDocument = { nodes: [], edges: [] };
+    let selectedId: string | null = null;
+    let searchIds = new Set<string>();
+    let centerMode = false;
+    let zoomLevel = 1;
+    let statusNotice = "";
+    let loadPromise: Promise<void> | null = null;
+    let searchTimer: number | undefined;
+
+    const legendTypes = legendButtons
+      .map(button => button.dataset.graphType)
+      .filter((type): type is NodeData["type"] => Boolean(type && type in typeLabels));
+    let visibleTypes = new Set<NodeData["type"]>(legendTypes);
+    const displayedView = (): GraphDocument => filterGraphNodeTypes(currentView, visibleTypes);
+    const syncLegendState = (): void => {
+      for (const button of legendButtons) {
+        const type = button.dataset.graphType as NodeData["type"];
+        const visible = visibleTypes.has(type);
+        button.setAttribute("aria-pressed", String(visible));
+        button.title = `${typeLabels[type]}节点：点击${visible ? "隐藏" : "显示"}`;
       }
-      const collectionFor = (ids: Set<string>) => cy.elements().filter(elementValue => ids.has(String(elementValue.data("id"))));
-      const visibleElements = () => cy.elements().filter(elementValue => !elementValue.hasClass("graph-hidden"));
-      const runLayout = (fit = true) => {
-        const visible = visibleElements();
-        cy.layout({ name: "cose", eles: visible, animate: false, fit: false, padding: 40, nodeRepulsion: 12000, idealEdgeLength: 90, gravity: 0.25, nodeOverlap: 16, componentSpacing: 100, numIter: 1500 }).run();
-        if (fit) cy.fit(visible, 40);
+    };
+
+    const adjacency = (): Map<string, Set<string>> => (graph ? buildGraphAdjacency(displayedView()) : new Map());
+    const focusIds = (): Set<string> => selectedId ? new Set([selectedId, ...(adjacency().get(selectedId) ?? [])]) : new Set();
+
+    const nodeOption = (data: EChartsGraphNode) => {
+      const style = GRAPH_NODE_STYLES[data.type];
+      const focused = focusIds();
+      const neighbor = selectedId !== null && selectedId !== data.id && focused.has(data.id);
+      const selected = selectedId === data.id;
+      const searchHit = searchIds.has(data.id);
+      const size = data.symbolSize;
+      const labelVisible = graphNodeLabelVisible(data.type, zoomLevel, selected || neighbor || searchHit);
+      return {
+        ...data,
+        symbolSize: Math.round(size),
+        draggable: !window.matchMedia("(max-width: 767px)").matches,
+        itemStyle: {
+          color: style.fill,
+          borderColor: selected ? "#0f172a" : searchHit ? "#dc2626" : neighbor ? "#38bdf8" : style.border,
+          borderType: data.type === "article" ? "dashed" : "solid",
+          borderWidth: selected ? 3 : searchHit ? 3 : neighbor ? 2.5 : contentTypes.has(data.type) ? 2 : 1.5,
+          opacity: graphNodeOpacity(selectedId !== null, focused.has(data.id)),
+        },
+        label: {
+          show: labelVisible,
+          formatter: graphNodeCanvasLabel(data),
+          color: "#475569",
+          fontSize: 10,
+          fontWeight: 500,
+          distance: 5,
+          width: 112,
+          overflow: "truncate",
+          position: "right",
+        },
       };
-      const refreshZoomLabels = () => {
-        const far = cy.zoom() < 0.72;
-        cy.nodes().forEach(node => {
-          const id = String(node.data("id"));
-          const keep = selectedNode?.id === id || (selectedNode && (adjacentIds.get(selectedNode.id)?.has(id) ?? false));
-          if (far && !keep) node.addClass("zoom-far");
-          else node.removeClass("zoom-far");
+    };
+
+    const linkOption = (edge: EChartsGraphLink) => {
+      const selected = selectedId !== null && (edge.source === selectedId || edge.target === selectedId);
+      const model = edge.edgeKind === "model";
+      return {
+        ...edge,
+        lineStyle: {
+          ...edge.lineStyle,
+          color: graphEdgeColor(edge.edgeKind),
+          width: model ? 1.15 : 0.9,
+          opacity: selectedId !== null && !selected ? 0.035 : selected ? 0.74 : edge.lineStyle.opacity,
+          curveness: model ? 0.28 : 0.22,
+        },
+      };
+    };
+
+    const tooltip = (params: GraphEventParams): string => {
+      const id = params.data?.id;
+      if (!id || !graph) return "";
+      if (params.dataType === "edge") {
+        const edge = graph.edges.find(value => value.data.id === id)?.data;
+        return edge ? `${richText(edge.type, 80)}\nconfidence ${(edge.confidence * 100).toFixed(0)}%\n${richText(edge.evidence, 140)}` : "";
+      }
+      const node = graph.nodes.find(value => value.data.id === id)?.data;
+      return node ? `${richText(node.label, 180)}\n${typeLabels[node.type]} · degree ${node.weight}` : "";
+    };
+
+    const updateAccessibleState = (): void => {
+      const view = displayedView();
+      const contentCount = view.nodes.filter(node => contentTypes.has(node.data.type)).length;
+      const selected = selectedId ? graph?.nodes.find(node => node.data.id === selectedId)?.data.label : undefined;
+      status.textContent = `${statusFor(view, centerMode)}${selected ? `；已选择 ${selected}` : ""}${statusNotice ? `；${statusNotice}` : ""}`;
+      summary.textContent = `${contentCount} 个内容节点已加载。使用搜索、筛选或键盘结果列表定位节点。`;
+    };
+
+    const renderChart = (fit = true): void => {
+      if (!chart || !graph) return;
+      const view = displayedView();
+      const adapted = adaptGraphDocumentToECharts(view);
+      chart.setOption({
+        animation: !reducedMotion.matches,
+        animationDurationUpdate: reducedMotion.matches ? 0 : 260,
+        aria: { enabled: true, description: `推荐系统研究图谱，${view.nodes.length} 个节点，${view.edges.length} 条关系` },
+        tooltip: { trigger: "item", renderMode: "richText", confine: true, formatter: tooltip },
+        series: [{
+          id: "recsys-graph",
+          type: "graph",
+          layout: "force",
+          data: adapted.nodes.map(nodeOption),
+          links: adapted.links.map(linkOption),
+          categories: adapted.categories,
+          roam: true,
+          draggable: !window.matchMedia("(max-width: 767px)").matches,
+          scaleLimit: { min: 0.4, max: 3 },
+          edgeSymbol: ["none", "none"],
+          force: { initLayout: "circular", repulsion: 520, gravity: 0.04, edgeLength: [120, 190], friction: 0.6, layoutAnimation: !reducedMotion.matches },
+          label: { position: "right", fontSize: 10 },
+          labelLayout: { hideOverlap: true },
+          emphasis: { focus: "adjacency", blurScope: "coordinateSystem", scale: 1.12 },
+          blur: { itemStyle: { opacity: 0.12 }, lineStyle: { opacity: 0.05 } },
+          lineStyle: { color: "source", opacity: 0.28, width: 0.9, curveness: 0.22 },
+          center: ["50%", "50%"],
+          zoom: fit ? 1 : zoomLevel,
+        }],
+      }, { notMerge: true, lazyUpdate: false });
+      if (fit) zoomLevel = 1;
+      updateAccessibleState();
+    };
+
+    const refreshVisualState = (): void => {
+      if (!chart || !graph) return;
+      const adapted = adaptGraphDocumentToECharts(displayedView());
+      chart.setOption({ series: [{ id: "recsys-graph", data: adapted.nodes.map(nodeOption), links: adapted.links.map(linkOption) }] });
+      updateAccessibleState();
+    };
+
+    const renderSearchResults = (matches: GraphNode[]): void => {
+      searchResults.replaceChildren();
+      const visible = matches.slice(0, 8);
+      if (!visible.length || !normalizeGraphSearchText(query.value)) {
+        query.setAttribute("aria-expanded", "false");
+        searchResults.classList.add("hidden");
+        return;
+      }
+      for (const node of visible) {
+        const button = element("button", "", "flex w-full items-start gap-2 rounded px-2.5 py-2 text-left text-xs hover:bg-slate-100 focus:bg-slate-100 focus:outline-none");
+        button.type = "button";
+        button.setAttribute("role", "option");
+        button.setAttribute("aria-selected", node.data.id === selectedId ? "true" : "false");
+        button.dataset.nodeId = node.data.id;
+        button.append(element("span", typeLabels[node.data.type], "shrink-0 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] text-slate-500"));
+        button.append(element("span", node.data.label, "min-w-0 truncate text-slate-800"));
+        button.addEventListener("click", () => locateSearchResult(node.data.id));
+        const item = document.createElement("li");
+        item.role = "presentation";
+        item.append(button);
+        searchResults.append(item);
+      }
+      query.setAttribute("aria-expanded", "true");
+      searchResults.classList.remove("hidden");
+    };
+
+    const closeSearchResults = (): void => {
+      query.setAttribute("aria-expanded", "false");
+      searchResults.classList.add("hidden");
+    };
+
+    const reconcileDisplayedState = (): void => {
+      const view = displayedView();
+      const selected = selectedId ? view.nodes.find(node => node.data.id === selectedId) : undefined;
+      if (selectedId && !selected) {
+        selectedId = null;
+        searchIds = new Set();
+        defaultDetails();
+      } else if (selected) {
+        if (isContentGraphNode(selected)) renderContentDetails(selected.data);
+        else renderTaxonomyDetails(view, selected.data);
+      }
+      if (normalizeGraphSearchText(query.value)) {
+        const matches = searchGraphNodes(view, query.value);
+        searchIds = new Set(matches.map(node => node.data.id));
+        renderSearchResults(matches);
+      } else {
+        const visibleIds = new Set(view.nodes.map(node => node.data.id));
+        searchIds = new Set([...searchIds].filter(id => visibleIds.has(id)));
+      }
+    };
+
+    function activate(id: string): void {
+      if (!graph) return;
+      const node = displayedView().nodes.find(value => value.data.id === id);
+      if (!node) return;
+      selectedId = id;
+      searchIds = new Set([id]);
+      statusNotice = "";
+      closeSearchResults();
+      if (isContentGraphNode(node)) renderContentDetails(node.data);
+      else renderTaxonomyDetails(displayedView(), node.data);
+      refreshVisualState();
+    }
+
+    function locateSearchResult(id: string): void {
+      if (!graph) return;
+      const view = graphNodeNeighborhood(graph, id);
+      const node = graph.nodes.find(value => value.data.id === id);
+      if (!view || !node) return;
+      currentView = view;
+      centerMode = true;
+      selectedId = id;
+      searchIds = new Set([id]);
+      statusNotice = "";
+      showAll?.classList.remove("hidden");
+      closeSearchResults();
+      if (isContentGraphNode(node)) renderContentDetails(node.data);
+      else renderTaxonomyDetails(displayedView(), node.data);
+      renderChart(true);
+      details?.focus({ preventScroll: desktopViewport.matches });
+    }
+
+    const applyCurrentFilters = (fit = true): void => {
+      if (!graph) return;
+      currentView = filterGraphDocument(graph, { ...graphFilters(), now: Date.now() });
+      centerMode = false;
+      statusNotice = "";
+      reconcileDisplayedState();
+      showAll.classList.add("hidden");
+      renderChart(fit);
+    };
+
+    const load = async (): Promise<void> => {
+      if (loadPromise) return loadPromise;
+      loadPromise = (async () => {
+        const [{ default: echarts }, response] = await Promise.all([import("../lib/echarts-graph"), fetch(graphUrl)]);
+        if (!response.ok) throw new Error(`graph request failed: ${response.status}`);
+        const payload = await response.json() as GraphDocument;
+        if (!Array.isArray(payload.nodes) || !Array.isArray(payload.edges)) throw new Error("invalid graph data");
+        graph = payload;
+        const requestedCenter = new URL(window.location.href).searchParams.get("center");
+        chart = echarts.init(canvas, undefined, { renderer: "canvas", devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2) });
+        chart.on("click", params => {
+          const event = params as unknown as GraphEventParams;
+          if (event.dataType === "node" && event.data?.id) {
+            canvas.focus({ preventScroll: true });
+            activate(event.data.id);
+          }
         });
-      };
-      const highlightSelection = (data: NodeData) => {
-        const highlighted = new Set([data.id, ...(adjacentIds.get(data.id) ?? []), ...graph.edges.filter(edge => edge.data.source === data.id || edge.data.target === data.id).map(edge => edge.data.id)]);
-        cy.elements().removeClass("graph-selected");
-        cy.elements().removeClass("graph-neighbor");
-        cy.elements().removeClass("graph-muted");
-        cy.elements().addClass("graph-muted");
-        collectionFor(highlighted).removeClass("graph-muted");
-        collectionFor(new Set([data.id])).addClass("graph-selected");
-        collectionFor(new Set(adjacentIds.get(data.id) ?? [])).addClass("graph-neighbor");
-        refreshZoomLabels();
-      };
-      const remember = (data: NodeData) => {
-        selectedNode = data;
-        canvas.dataset.selectedNode = data.id;
-      };
-      const activate = (data: NodeData) => {
-        remember(data);
-        highlightSelection(data);
-        if (contentTypes.has(data.type)) {
-          details.replaceChildren();
-          appendContentSummary(details, data);
-          return;
-        }
-        renderTaxonomyDetails(graph, data);
-      };
-      const applyFilters = () => {
-        const selected = new Map<string, Set<string>>();
-        for (const input of filters.querySelectorAll<HTMLInputElement>("input[data-graph-filter]:checked")) {
-          const group = input.dataset.graphFilter;
-          if (group) {
-            if (!selected.has(group)) selected.set(group, new Set());
-            selected.get(group)?.add(input.value);
+        chart.on("graphRoam", (...args: unknown[]) => {
+          const event = args[0] as { zoom?: number } | undefined;
+          if (typeof event?.zoom !== "number") return;
+          const wasFar = zoomLevel < 0.72;
+          zoomLevel = Math.max(0.2, Math.min(5, zoomLevel * event.zoom));
+          if (wasFar !== (zoomLevel < 0.72)) refreshVisualState();
+        });
+        const resizeObserver = new ResizeObserver(() => chart?.resize());
+        resizeObserver.observe(canvas);
+        window.addEventListener("pagehide", () => { resizeObserver.disconnect(); chart?.dispose(); chart = null; }, { once: true });
+        const centered = requestedCenter ? centerGraphDocument(graph, requestedCenter) : null;
+        if (centered) {
+          currentView = centered;
+          centerMode = true;
+          selectedId = requestedCenter;
+          const center = centered.nodes.find(node => node.data.id === requestedCenter);
+          if (center) renderContentDetails(center.data);
+          showAll.classList.remove("hidden");
+        } else {
+          currentView = filterGraphDocument(graph, { ...graphFilters(), now: Date.now() });
+          if (requestedCenter) {
+            const displayId = requestedCenter.replace(/\s+/g, " ").trim().slice(0, 80);
+            statusNotice = `未找到中心节点 ${displayId}，已显示全图`;
           }
         }
-        const year = timeControls.find(control => control.dataset.graphTime === "year")?.value;
-        const age = timeControls.find(control => control.dataset.graphTime === "age")?.value;
-        const visibleContent = new Set<string>();
-        for (const node of graph.nodes) {
-          const data = node.data;
-          if (!contentTypes.has(data.type)) continue;
-          const ageDays = data.published_at ? Math.max(0, (Date.now() - Date.parse(data.published_at)) / 86400000) : Infinity;
-          const matches = [...selected.values()].every(values => (data.tags ?? []).some(tag => values.has(tag)))
-            && (!year || data.published_at?.startsWith(year))
-            && (!age || (age === "7d" ? ageDays <= 7 : age === "30d" ? ageDays <= 30 : ageDays <= 365));
-          if (matches) visibleContent.add(data.id);
-        }
-        const visibleNodes = new Set(visibleContent);
-        for (const edge of graph.edges) {
-          const source = nodesById.get(edge.data.source);
-          const target = nodesById.get(edge.data.target);
-          if (visibleContent.has(edge.data.source) && target && !contentTypes.has(target.type)) visibleNodes.add(edge.data.target);
-          if (visibleContent.has(edge.data.target) && source && !contentTypes.has(source.type)) visibleNodes.add(edge.data.source);
-        }
-        cy.elements().removeClass("graph-hidden");
-        for (const node of graph.nodes) if (!visibleNodes.has(node.data.id)) collectionFor(new Set([node.data.id])).addClass("graph-hidden");
-        for (const edge of graph.edges) if (!visibleNodes.has(edge.data.source) || !visibleNodes.has(edge.data.target)) collectionFor(new Set([edge.data.id])).addClass("graph-hidden");
-        showAll.classList.toggle("hidden", visibleNodes.size === graph.nodes.length);
-        runLayout();
-        refreshZoomLabels();
-        status.textContent = `${visibleContent.size} 个内容节点符合筛选`;
-      };
-      filters.addEventListener("change", applyFilters);
-      for (const control of timeControls) control.addEventListener("change", applyFilters);
-      cy.on("tap", "node", event => activate(event.target.data() as NodeData));
-      cy.on("zoom", () => refreshZoomLabels());
-      canvas.addEventListener("keydown", event => {
-        if ((event.key === "Enter" || event.key === " ") && selectedNode) {
-          event.preventDefault();
-          activate(selectedNode);
-        }
+        renderChart(true);
+        canvas.setAttribute("aria-busy", "false");
+      })().catch(error => {
+        status.textContent = `图谱加载失败：${error instanceof Error ? error.message : "未知错误"}`;
+        canvas.setAttribute("aria-busy", "false");
+        throw error;
       });
-      const searchable = graph.nodes;
-      query.addEventListener("input", () => {
-        const text = query.value.trim().toLocaleLowerCase();
-        cy.elements().removeClass("search-hit");
-        if (!text) {
-          selectedNode = null;
-          cy.elements().removeClass("graph-selected");
-          cy.elements().removeClass("graph-neighbor");
-          cy.elements().removeClass("graph-muted");
-          refreshZoomLabels();
-          return;
-        }
-        const matches = searchable.filter(node => `${node.data.id} ${node.data.label} ${(node.data.search_terms ?? node.data.tags ?? []).join(" ")}`.toLocaleLowerCase().includes(text));
-        for (const node of matches) {
-          const found = cy.elements().filter(elementValue => elementValue.data("id") === node.data.id);
-          found.addClass("search-hit");
-        }
-        const first = matches[0]?.data;
-        if (first) {
-          activate(first);
-          cy.fit(collectionFor(new Set([first.id, ...(adjacentIds.get(first.id) ?? [])])), 40);
-        }
-      });
-      const showFullGraph = () => {
-        cy.elements().removeClass("graph-hidden");
-        cy.elements().removeClass("graph-muted");
-        cy.elements().removeClass("graph-selected");
-        cy.elements().removeClass("graph-neighbor");
-        selectedNode = null;
-        showAll.classList.add("hidden");
-        status.textContent = `${graph.nodes.length} 个节点，${graph.edges.length} 条关系`;
-        runLayout();
-        refreshZoomLabels();
-      };
-      showAll.addEventListener("click", showFullGraph);
-      fitButton.addEventListener("click", () => cy.fit(visibleElements(), 40));
-      resetButton.addEventListener("click", () => {
-        query.value = "";
-        for (const input of filters.querySelectorAll<HTMLInputElement>("input[data-graph-filter]")) input.checked = false;
-        for (const control of timeControls) control.value = "";
-        details.textContent = "选择节点后显示详情。";
-        showFullGraph();
-      });
-      const centerId = new URL(window.location.href).searchParams.get("center");
-      if (centerId) {
-        const center = nodesById.get(centerId);
-        if (center && contentTypes.has(center.type)) {
-          const visible = new Set([centerId, ...(adjacentIds.get(centerId) ?? [])]);
-          for (const node of graph.nodes) if (!visible.has(node.data.id)) collectionFor(new Set([node.data.id])).addClass("graph-hidden");
-          for (const edge of graph.edges) if (!visible.has(edge.data.source) || !visible.has(edge.data.target)) collectionFor(new Set([edge.data.id])).addClass("graph-hidden");
-          activate(center);
-          showAll.classList.remove("hidden");
-          status.textContent = `已定位 ${center.label} 及一跳邻域`;
-          runLayout();
-          cy.fit(collectionFor(visible), 40);
-          refreshZoomLabels();
-        } else {
-          status.textContent = `未找到中心节点 ${centerId}，已显示全图`;
-          runLayout();
-        }
-      } else {
-        status.textContent = `${graph.nodes.length} 个节点，${graph.edges.length} 条关系`;
-        runLayout();
+      return loadPromise;
+    };
+
+    const runSearch = async (action?: "focus" | "activate"): Promise<void> => {
+      await load();
+      if (!graph) return;
+      statusNotice = "";
+      const normalizedQuery = normalizeGraphSearchText(query.value);
+      if (!normalizedQuery) {
+        searchIds = new Set();
+        closeSearchResults();
+        refreshVisualState();
+        return;
       }
-    } catch (error) {
-      status.textContent = `图谱加载失败：${error instanceof Error ? error.message : "未知错误"}`;
+      if (centerMode) applyCurrentFilters(true);
+      const matches = searchGraphNodes(displayedView(), normalizedQuery);
+      searchIds = new Set(matches.map(node => node.data.id));
+      renderSearchResults(matches);
+      refreshVisualState();
+      if (action === "activate" && matches[0]) locateSearchResult(matches[0].data.id);
+      if (action === "focus") searchResults.querySelector<HTMLButtonElement>("button")?.focus();
+    };
+
+    query.addEventListener("input", () => {
+      window.clearTimeout(searchTimer);
+      statusNotice = "";
+      searchIds = new Set();
+      closeSearchResults();
+      if (chart) refreshVisualState();
+      if (!normalizeGraphSearchText(query.value)) return;
+      searchTimer = window.setTimeout(() => {
+        void runSearch().catch(() => undefined);
+      }, 120);
+    });
+    query.addEventListener("keydown", event => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        window.clearTimeout(searchTimer);
+        void runSearch("focus").catch(() => undefined);
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        window.clearTimeout(searchTimer);
+        void runSearch("activate").catch(() => undefined);
+      } else if (event.key === "Escape") closeSearchResults();
+    });
+    searchResults.addEventListener("keydown", event => {
+      const target = event.target as HTMLButtonElement;
+      if (target.tagName !== "BUTTON") return;
+      const buttons = [...searchResults.querySelectorAll<HTMLButtonElement>("button")];
+      const index = buttons.indexOf(target);
+      if (event.key === "ArrowDown" && buttons[index + 1]) { event.preventDefault(); buttons[index + 1].focus(); }
+      if (event.key === "ArrowUp") { event.preventDefault(); (buttons[index - 1] ?? query).focus(); }
+      if (event.key === "Escape") { event.preventDefault(); closeSearchResults(); query.focus(); }
+    });
+    canvas.addEventListener("focus", () => { void load().catch(() => undefined); });
+    canvas.addEventListener("keydown", event => {
+      if ((event.key === "Enter" || event.key === " ") && selectedId) {
+        event.preventDefault();
+        activate(selectedId);
+      }
+    });
+    document.addEventListener("pointerdown", event => { if (!searchResults.contains(event.target as Node) && event.target !== query) closeSearchResults(); });
+    filters.addEventListener("change", () => { updateFilterCount(); void load().then(() => applyCurrentFilters(true)).catch(() => undefined); });
+    for (const control of timeControls) control.addEventListener("change", () => { updateFilterCount(); void load().then(() => applyCurrentFilters(true)).catch(() => undefined); });
+    for (const button of legendButtons) {
+      button.addEventListener("click", () => {
+        const type = button.dataset.graphType as NodeData["type"];
+        void load().then(() => {
+          if (visibleTypes.has(type)) visibleTypes.delete(type);
+          else visibleTypes.add(type);
+          statusNotice = "";
+          syncLegendState();
+          reconcileDisplayedState();
+          renderChart(true);
+        }).catch(() => undefined);
+      });
     }
+    showAll.addEventListener("click", () => { void load().then(() => { centerMode = false; applyCurrentFilters(true); closeSearchResults(); }).catch(() => undefined); });
+    fitButton.addEventListener("click", () => { void load().then(() => renderChart(true)).catch(() => undefined); });
+    resetButton.addEventListener("click", () => {
+      query.value = "";
+      for (const input of filters.querySelectorAll<HTMLInputElement>("input[data-graph-filter]")) input.checked = false;
+      for (const control of timeControls) control.value = "";
+      closeSearchResults();
+      selectedId = null;
+      searchIds = new Set();
+      visibleTypes = new Set(legendTypes);
+      syncLegendState();
+      centerMode = false;
+      showAll.classList.add("hidden");
+      defaultDetails();
+      updateFilterCount();
+      void load().then(() => applyCurrentFilters(true)).catch(() => undefined);
+    });
+    reducedMotion.addEventListener("change", () => { if (chart) renderChart(false); });
+    desktopViewport.addEventListener("change", setFilterPanelState);
+    setFilterPanelState();
+    updateFilterCount();
+    syncLegendState();
+
+    let observer: IntersectionObserver | null = null;
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) {
+          observer?.disconnect();
+          void load().catch(() => undefined);
+        }
+      }, { rootMargin: "200px" });
+    }
+    if (observer) observer.observe(canvas);
+    else void load().catch(() => undefined);
+    if (new URL(window.location.href).searchParams.has("center")) void load().catch(() => undefined);
   };
   void run();
 }
