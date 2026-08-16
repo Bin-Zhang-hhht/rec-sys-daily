@@ -1,0 +1,21 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-695b538e38b8d1904f3d2278",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Google Research 介绍 AMIE 在健康与生物科学领域的进展，目标是实现专家级的视听临床咨询能力。"
+    },
+    {
+      "item_id": "url-d948ecd6776f0c29d74bd349",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：用户关联 Discord 与 Battle.net 账号后，可在 Discord 和《魔兽世界》之间同步公会聊天，实现跨平台沟通。"
+    },
+    {
+      "item_id": "url-013d947137ee64f44fa4eed4",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Discord 在 2026 年 8 月 11 日发布的更新日志，汇总近期应用更新，帮助用户及时了解新功能与变化。"
+    }
+  ],
+  "date": "2026-08-16",
+  "papers": []
+}
