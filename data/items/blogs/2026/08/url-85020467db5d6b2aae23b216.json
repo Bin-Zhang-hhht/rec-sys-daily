@@ -6,52 +6,63 @@
     "analysis_basis": "rss_full_content",
     "architecture_zh": null,
     "business_implications_zh": [
-      "视频处理被描述为 Jetson 在机器人、智能视频分析、工业自动化、医疗、媒体处理和远程操作等多个业务领域的核心数据路径，因此该平台相关能力的更新可能对这些垂直市场具有潜在影响。"
+      "源文档将 Jetson 定位为横跨机器人、智能视频分析、工业自动化、医疗、媒体处理和远程操作的视频核心数据路径，暗示相关行业可能受 JetPack 7.2.1 更新影响。"
     ],
-    "business_transferability": 0.4,
-    "evidence_quality": 0.25,
+    "business_transferability": 0.2,
+    "evidence_quality": 0.1,
     "evidence_refs": [
       {
-        "heading": "NVIDIA JetPack 7.2.1 Adds Agentic Video Skills and T3000 Emulation",
+        "heading": null,
         "section": "RSS full content"
+      },
+      {
+        "heading": null,
+        "section": "Source URL slug"
       }
     ],
     "implementation_zh": null,
     "lessons_zh": [],
-    "limitations_zh": [],
+    "limitations_zh": [
+      "RSS 正文在描述视频处理调用时被截断，无法获得关于 Agentic Video Skills、T3000 模拟、性能或实现方式的任何实质性信息。",
+      "分析只能基于导言和链接 slug，不能推断未出现在源文档中的架构、配置或评测结论。"
+    ],
     "production_constraints_zh": [],
-    "results_zh": [],
-    "system_context_zh": "博客面向 NVIDIA Jetson 平台的视频处理场景，指出视频是机器人、智能视频分析、工业自动化、医疗、媒体处理和远程操作等应用中的核心数据路径。文中提到一个系统可能采集多路摄像头、解码网络流、运行 AI 推理或传统视觉处理、绘制结果，并编码视频以用于存储或交付；但正文在“单个调用是……”处截断。博客标题还声称 NVIDIA JetPack 7.2.1 增加了 agentic video skills 和 T3000 仿真能力，但正文未提供进一步说明。",
-    "technical_depth": 0.15,
+    "results_zh": [
+      "文档标题/链接显示 JetPack 7.2.1 新增了 Agentic Video Skills 与 T3000 模拟支持。",
+      "Jetson 应用中的典型视频数据路径包括：采集多个摄像头、解码网络流、运行 AI 推理或传统视觉处理、绘制结果，以及为存储或分发进行视频编码。"
+    ],
+    "system_context_zh": "该文档是 NVIDIA 开发者博客的一篇 RSS 全文/摘录，主题涉及 JetPack 7.2.1 的 Agentic Video Skills 与 T3000 模拟支持。可见正文仅以导言形式说明视频是 NVIDIA Jetson 应用的核心数据路径，并列举了典型视频流水线环节，随后在“The individual calls are…”处截断，未包含任何后续技术细节。",
+    "technical_depth": 0.1,
     "tradeoffs_zh": []
   },
-  "final_score": 0.20750000000000002,
+  "final_score": 0.3075,
   "graph_relations": [
     {
-      "confidence": 0.4,
-      "evidence": "两者都涉及在 NVIDIA 平台上运行本地或智能体化的 AI 能力。",
-      "generated_by": "rule_based_classifier",
-      "target_id": "url-c42703bc35a6b60354cd65ce",
-      "type": "same_topic"
+      "confidence": 0.3,
+      "evidence": "Both relate to NVIDIA platform infrastructure topics",
+      "generated_by": "topic_match",
+      "target_id": "url-a3bde1d37a86d91661b205ce",
+      "type": "related_to"
     }
   ],
   "id": "url-85020467db5d6b2aae23b216",
   "kind": "blog",
   "llm": {
     "degraded": false,
-    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "generated_at": "2026-08-17T20:00:53.628890Z",
     "model": "deepseek-v4-flash"
   },
   "methods": [
-    "large_language_model"
+    "large_language_model",
+    "sequence_modeling"
   ],
   "published_at": "2026-08-11T19:00:00Z",
-  "relevance_score": 0.15,
+  "relevance_score": 0.45,
   "scenarios": [
     "livestream"
   ],
   "source": "nvidia_developer",
-  "summary_zh": "NVIDIA JetPack 7.2.1 为 Jetson 平台增加智能体视频技能和 T3000 仿真支持，覆盖机器人、智能视频分析、工业自动化、医疗和媒体等以视频为核心的应用场景。",
+  "summary_zh": "介绍 NVIDIA JetPack 7.2.1 在 Jetson 上新增 Agentic Video Skills 和 T3000 仿真，面向机器人、视频分析、工业自动化、医疗与媒体等视频核心应用。",
   "targets": [
     "content"
   ],

@@ -4,68 +4,73 @@
   ],
   "deep_reading": {
     "analysis_basis": "rss_full_content",
-    "architecture_zh": null,
+    "architecture_zh": "文档仅提示存在一种跨模型路由机制（NVIDIA NeMo Switchyard），让 AI agent 工作负载按任务步骤分发到不同模型；RSS 摘要未给出组件、接口或数据流等架构细节。",
     "business_implications_zh": [
-      "在包含分类、推理和例行跟进等不同步骤的 Agent 场景中，按步骤选择不同模型可能有助于在能力与成本之间取得更好平衡，例如例行任务使用更小模型。"
+      "模型成本随负载变化，通过路由控制成本是 AI 应用商业化的重要考虑",
+      "若迁移到推荐系统，可借鉴按阶段选择不同规模模型/排序器的思路，但文档本身未提供推荐系统证据"
     ],
-    "business_transferability": 0.3,
-    "evidence_quality": 0.2,
+    "business_transferability": 0.25,
+    "evidence_quality": 0.3,
     "evidence_refs": [
       {
         "heading": null,
         "section": "rss_full_content"
       }
     ],
-    "implementation_zh": null,
+    "implementation_zh": "未提供实现细节；唯一可确认的做法是“不把所有请求发送给最大模型”，而是为分类、推理、例行跟进等步骤选择合适规模的模型。",
     "lessons_zh": [
-      "构建 AI Agent 的起点不是选定单一模型，而是考虑按任务步骤将工作负载路由到合适的模型。"
+      "AI agent 的模型选型应以任务步骤为单位，而不是全局只选一个模型",
+      "应使用路由机制将分类、推理、例行跟进等不同负载分配给最适合的模型"
     ],
     "limitations_zh": [
-      "提供的源文本仅为 RSS 摘要/节选，内容被截断，未包含具体实验数据、性能比较或实现细节。",
-      "源文本未说明 NVIDIA NeMo Switchyard 的具体机制、评估方法或实际效果。"
+      "RSS 摘要未包含任何实验数据、评测结果或生产案例",
+      "无法从当前文本评价 NeMo Switchyard 的实际效果、延迟或可靠性"
     ],
     "production_constraints_zh": [
-      "每个模型的能力、弱点和成本画像会随工作负载变化，甚至在同一工作负载内也会变化，不能固定使用单一模型应对所有步骤。"
+      "模型的能力与成本会随工作负载变化，需要按步骤/请求动态权衡",
+      "需要具备多模型路由/调度能力，才能避免全部请求都打到最大模型"
     ],
     "results_zh": [],
-    "system_context_zh": "博客讨论构建 AI Agent 时的模型选择与路由问题，提出不应止步于选择单一模型，而应根据工作负载中不同步骤的需求（如分类、推理、例行跟进）在多个模型之间分配请求，并涉及 NVIDIA NeMo Switchyard。",
-    "technical_depth": 0.1,
+    "system_context_zh": "文档背景是构建 AI agent 时不能只选择一个模型：不同模型在不同工作负载甚至同一工作负载内部有不同的优劣势和成本；一个 agentic 任务可能在分类、推理、例行跟进等步骤需要不同模型，把每个请求都发给最大模型并非最优。来源指向 NVIDIA NeMo Switchyard 的模型路由方案。",
+    "technical_depth": 0.15,
     "tradeoffs_zh": [
-      "单一模型 vs 多模型路由：一个 Agent 任务可能在同一流程中需要分类、推理和例行跟进，单一模型难以同时最优满足这些不同需求。",
-      "把每个请求都发送给最大模型并非显然最优，需要根据步骤匹配模型能力与成本。"
+      "最大模型不一定对所有请求最优，存在成本与能力的权衡",
+      "不同模型各有优缺点，单一模型难以同时满足 agentic 任务中的多种步骤"
     ]
   },
-  "final_score": 0.26,
+  "final_score": 0.47000000000000003,
   "graph_relations": [
     {
-      "confidence": 0.8,
-      "evidence": "Switchyard 管理智能体工作负载的模型路由，Nemotron Lightning 则面向智能体高效执行，二者均关注长时 AI 智能体工作流。",
-      "generated_by": "rule_based_classifier",
+      "confidence": 0.5,
+      "evidence": "Both focus on AI agent workload execution and model routing",
+      "generated_by": "topic_match",
       "target_id": "url-4e1f5a94e87e3f0d42559175",
-      "type": "related_technology"
+      "type": "related_to"
     }
   ],
   "id": "url-64d8a39417625d36a59676fb",
   "kind": "blog",
   "llm": {
     "degraded": false,
-    "generated_at": "2026-08-15T09:50:45.267671Z",
+    "generated_at": "2026-08-17T20:00:53.628890Z",
     "model": "deepseek-v4-flash"
   },
   "methods": [
-    "large_language_model"
+    "large_language_model",
+    "multi_task_learning"
   ],
   "published_at": "2026-08-11T13:00:00Z",
-  "relevance_score": 0.3,
+  "relevance_score": 0.65,
   "scenarios": [
     "text_feed"
   ],
   "source": "nvidia_developer",
-  "summary_zh": "NVIDIA NeMo Switchyard 介绍如何在多个大语言模型之间路由 AI 智能体工作负载，根据各模型在不同任务上的优势、劣势和成本动态分配请求，以优化整体效果、延迟与成本。",
+  "summary_zh": "介绍 NVIDIA NeMo Switchyard，用于在多个模型之间路由 AI agent 工作负载，因为不同模型的优势、弱点和成本各不相同，需按任务动态选择模型。",
   "targets": [
     "content"
   ],
   "tasks": [
+    "ranking",
     "multi_objective_optimization"
   ],
   "title": "Route AI Agent Workloads Across Models with NVIDIA NeMo Switchyard",

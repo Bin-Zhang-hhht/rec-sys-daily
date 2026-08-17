@@ -1,0 +1,91 @@
+{
+  "authors": [],
+  "deep_reading": {
+    "analysis_basis": "article_html",
+    "architecture_zh": null,
+    "business_implications_zh": [
+      "依赖Discord进行视频协作或屏幕共享的巴西游戏社区、开发者和中小企业将面临短期业务中断",
+      "公司希望通过用户主动分享故事来影响立法者/监管者，从而降低未来业务风险",
+      "该事件可能影响Discord在巴西的可用性与用户信任，但公司以继续提供其他功能来缓和影响",
+      "其他运行用户社区或提供实时通信的平台应关注巴西监管机构对涉及青少年安全的跨平台案件的执法态度"
+    ],
+    "business_transferability": 0.5,
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "heading": null,
+        "section": "Blog body"
+      },
+      {
+        "heading": "What continues to work",
+        "section": "Blog body"
+      },
+      {
+        "heading": "Thanks for your support",
+        "section": "Blog body"
+      }
+    ],
+    "implementation_zh": null,
+    "lessons_zh": [
+      "当监管限制影响核心功能时，平台应立即明确告知用户哪些能力仍然可用，以稳定社区预期",
+      "较小或监管者不熟悉的平台可以通过动员用户讲述真实使用场景来补充政策沟通",
+      "严重安全事故可能触发平台功能层面的监管干预，平台需要同时进行合规、执法协作和用户沟通",
+      "就推荐系统而言，本文没有提供算法、数据或实验经验"
+    ],
+    "limitations_zh": [
+      "仅为一篇面向用户的公告，非技术文档，未提供架构、实施机制或恢复方案",
+      "未涉及任何推荐系统、排序、个性化或内容分发细节",
+      "无时间表、量化指标或法律程序进展",
+      "为单方面陈述，未包含ANPD或第三方的独立核实",
+      "文中的英语与葡萄牙语内容重复，无额外技术信息"
+    ],
+    "production_constraints_zh": [
+      "必须立即遵守ANPD命令，使巴西用户无法使用屏幕共享和视频通话",
+      "在合规的同时保持Discord整体在巴西可用，尽量不中断其他功能",
+      "继续与该案执法机关合作打击恶意行为",
+      "作为自称比大型全球通讯平台小且不为监管者熟悉的公司，需要争取用户支持以传递平台价值",
+      "公司称正在努力尽快恢复受影响功能"
+    ],
+    "results_zh": [
+      "自公告发布起，巴西用户的屏幕共享和视频通话功能不可用",
+      "Discord仍在巴西可用，直接消息、群组消息、各类服务器、语音频道和纯音频通话继续运行",
+      "公司表示正在与ANPD合作并努力恢复功能，但未提供具体时间表",
+      "公司称一直且继续与执法部门合作，但未披露更多调查细节"
+    ],
+    "system_context_zh": "本文是Discord关于巴西ANPD命令的官方公告。Discord是集文字、语音、视频和屏幕共享于一体的社区/协作平台；该命令针对视频相关功能，因此平台在巴西继续提供除视频与屏幕共享外的服务。文档不涉及推荐系统，主要表达合规行动、继续可用功能和对社区支持的呼吁。",
+    "technical_depth": 0.1,
+    "tradeoffs_zh": [
+      "为满足监管要求，巴西用户失去视频通话和屏幕共享，但保留DMs、群DMs、服务器、语音频道和纯音频通话",
+      "限制针对视频功能而非整个平台，以降低对巴西社区、玩家、开发者和企业的服务中断",
+      "公司以透明公告和用户故事呼吁来应对监管认知不足，而非仅依靠技术或法律手段"
+    ]
+  },
+  "final_score": 0.30250000000000005,
+  "graph_relations": [],
+  "id": "url-cb42944b171bbb76cec0b1fe",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-17T20:00:53.628890Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-17T00:00:00Z",
+  "relevance_score": 0.25,
+  "scenarios": [
+    "voice_chat"
+  ],
+  "source": "discord_engineering",
+  "summary_zh": "Discord 针对巴西 ANPD 要求暂停屏幕共享和视频功能发布公开信，说明公司如何遵守监管命令并表达对巴西社区的承诺。",
+  "targets": [
+    "user",
+    "room"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "A letter to the Discord community in Brazil",
+  "url": "https://discord.com/blog/a-letter-to-the-discord-community-in-brazil"
+}
