@@ -1,0 +1,120 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "在双塔 query tower 中新增 context layer：将 Transformer encoder 对历史行为序列的输出与 context layer 的输出拼接，再送入最终 MLP 得到用户 embedding。Related Pins 的上下文特征来自用户当前浏览的 subject Pin 的 top interest categories 聚合 embedding，并按置信度加权；同时用户表示层加入年龄、国家、性别等 demographic embedding。",
+    "business_implications_zh": [
+      "广告相关性提升可带来 measurable 的 ROAS 提升，说明该方向对广告收入有直接正面影响。",
+      "主要国家获得更高 ROAS 提升，意味着对核心收入地区价值更明显。",
+      "候选交付量翻倍和相关性提升有助于改善广告主投放效果与用户体验。",
+      "若能扩展到 Search 等高上下文表面，可能进一步扩大收益。"
+    ],
+    "business_transferability": 0.6,
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "heading": "Motivation: The Need for Real-Time Context",
+        "section": "body"
+      },
+      {
+        "heading": "Model Architecture: Integrating the Context Layer",
+        "section": "body"
+      },
+      {
+        "heading": "Model Training with Synthetic Context",
+        "section": "body"
+      },
+      {
+        "heading": "Hybrid User Embedding Inference",
+        "section": "body"
+      },
+      {
+        "heading": "Offline evaluation",
+        "section": "Results and Business Impact"
+      },
+      {
+        "heading": "Survival Rate & Relevance",
+        "section": "Results and Business Impact"
+      },
+      {
+        "heading": "Topline Business Metrics",
+        "section": "Results and Business Impact"
+      },
+      {
+        "heading": "Future work",
+        "section": "body"
+      }
+    ],
+    "implementation_zh": "训练时使用 synthetic augmented data：从正样本（转化事件）的 interest category 特征构造伪上下文注入输入序列，并在 context layer 使用高 dropout，使模型仍依赖历史序列。推理采用 hybrid serving：离线预计算并存储 Transformer encoder 最后隐状态（每日刷新），在线服务时用实时上下文特征和预计算用户信号计算 context layer 与最终 MLP head，生成受上下文影响的用户 embedding。",
+    "lessons_zh": [
+      "对强上下文广告表面，将实时上下文纳入用户 embedding 能显著提升候选相关性和下游交付。",
+      "当真实在线上下文无法用于训练时，用正样本构造 synthetic context 并配合高 dropout 是可行训练策略。",
+      "混合推理将用户 tower 拆成离线预计算与在线 context 计算，兼顾个性化历史信号与实时上下文。",
+      "上下文信号的收益可转化为广告业务指标（如 ROAS），尤其在收入占比较大的国家。",
+      "下一步要扩展到 Search，并尝试 cross-attention 融合，说明该思路有进一步泛化和改进空间。"
+    ],
+    "limitations_zh": [
+      "原文未披露模型超参、数据规模、训练算力等细节，指标为 Pinterest 内部实验/线上结果。",
+      "离线 Recall@K 评估以通过排序漏斗并最终展示的候选为正样本，可能受既有漏斗偏差影响。",
+      "使用 synthetic context 而非真实在线上下文训练，可能与真实 serving 上下文存在分布差异。",
+      "目前只详细报告 Related Pins 表面的应用，Search 等表面尚未落地。",
+      "上下文与序列采用简单 concatenation，未建模历史事件与当前上下文的动态重要性交互。"
+    ],
+    "production_constraints_zh": [
+      "实时上下文只有在广告请求（在线）时才知道，无法直接在离线训练中作为特征。",
+      "站内与站外数据合并存在显著技术困难，因此未直接使用真实上下文数据训练。",
+      "无法保证用户两次站外事件之间看过 Related Pins 广告展示。",
+      "用户 tower 大部分离线推理结果需存入 feature store，并每日为有新站外活动的用户刷新。",
+      "候选生成结果必须通过下游排序和竞价阶段，初始模型候选存活率低。"
+    ],
+    "results_zh": [
+      "离线评估中，相对于生产模型，Recall@K 提升 3x 到 10x。",
+      "Related Pins 上该 CG 候选的 median relevance 提升约 275–300%。",
+      "Related Pins 整体广告相关性指标提升 1.08%。",
+      "候选 delivery 提升：2x 更多被检索的广告候选最终到达展示。",
+      "转化相关业务指标 ROAS 提升约 0.7%；主要国家（占大部分收入）ROAS 提升约 1.4%。"
+    ],
+    "system_context_zh": "该文章介绍 Pinterest 广告候选生成（CG）系统中的 Contextual Sequential Two-Tower Model。原有基于用户站外转化历史序列的 Transformer 双塔模型离线生成用户 embedding，但缺少广告请求时刻的在线上下文，导致在 Related Pins 等强上下文场景中候选难以通过下游排序和竞价，最初该 CG 在 Related Pins 上贡献的展示占比不足 1%。",
+    "technical_depth": 0.7,
+    "tradeoffs_zh": [
+      "相比完全离线、无在线上下文的顺序模型，新模型引入 context layer 以提升 Related Pins 等表面的相关性，但增加了在线计算部分。",
+      "选择 synthetic augmented data 而非真实上下文数据，源于站内/站外数据合并困难和无法保证浏览事件存在。",
+      "训练时依靠高 dropout 防止模型过度依赖伪上下文，从而保留历史序列信号。",
+      "当前用简单拼接融合 context 与序列输出；作者提出未来用 cross-attention 融合以动态加权历史事件，说明拼接方式可能无法充分建模交互。"
+    ]
+  },
+  "final_score": 0.7949999999999999,
+  "graph_relations": [
+    {
+      "confidence": 0.6,
+      "evidence": "两者均为推荐系统中的用户序列与候选生成提供建模或数据工程支撑。",
+      "generated_by": "llm_taxonomy_classifier",
+      "target_id": "url-2660fad3381f92db1c6d485c",
+      "type": "related_by_topic"
+    }
+  ],
+  "id": "url-efe96dcd75f9bde404ee3c9a",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-05-08T19:01:00Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "pinterest_engineering",
+  "summary_zh": "介绍Pinterest广告候选生成中的上下文序列双塔模型，通过在查询塔加入实时上下文层并使用合成上下文训练，使广告推荐能结合用户当前浏览内容与历史转化行为。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Enhancing Ad Relevance: Integrating Real-Time Context into Sequential Recommender Models",
+  "url": "https://medium.com/pinterest-engineering/enhancing-ad-relevance-integrating-real-time-context-into-sequential-recommender-models-bc3a2f9b682e?source=rss----4c5a5f6279b6---4"
+}

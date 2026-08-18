@@ -1,0 +1,143 @@
+{
+  "abstract": "Sequential recommenders often struggle with sparse and noisy histories, limiting generalization to unseen interactions. Knowledge distillation mitigates this by transferring dense supervision from a teacher to a student. However, most distillation methods run teacher and student independently, then match student outputs or representations to the teacher. Such supervision entangles student-component effects, blurring whether weak generalization stems from unreliable embeddings, overfitted encoding, or co-adaptation to sparse histories. In this paper, we propose Graft-Oriented Distillation (GOD), a component-level distillation framework for improved generalization through grafting. Grafting denotes replacing selected frozen-teacher components with trainable student counterparts to build hybrid source models. GOD uses these hybrid models to evaluate student embeddings with the teacher encoder and the student encoder with teacher embeddings, providing component-level feedback. At inference, GOD uses only the student, incurring no additional cost. Across three real-world datasets, GOD outperforms state-of-the-art baselines by up to 13.92%. Sequential recommenders often struggle with sparse and noisy histories, limiting generalization to unseen interactions. Knowledge distillation mitigates this by transferring dense supervision from a teacher to a student. However, most distillation methods run teacher and student independently, then match student outputs or representations to the teacher. Such supervision entangles student-component effects, blurring whether weak generalization stems from unreliable embeddings, overfitted encoding, or co-adaptation to sparse histories. In this paper, we propose Graft-Oriented Distillation (GOD), a component-level distillation framework for improved generalization through grafting. Grafting denotes replacing selected frozen-teacher components with trainable student counterparts to build hybrid source models. GOD uses these hybrid models to evaluate student embeddings with the teacher encoder and the student encoder with teacher embeddings, providing component-level feedback. At inference, GOD uses only the student, incurring no additional cost. Across three real-world datasets, GOD outperforms state-of-the-art baselines by up to 13.92%.",
+  "arxiv_id": "2608.16073",
+  "authors": [
+    "WooJoo Kim",
+    "JunYoung Kim",
+    "JaeHyung Lim",
+    "HwanJo Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "推理阶段仅使用非嫁接的学生模型，不引入教师或混合模型，因此在线服务延迟和内存成本与普通紧凑学生模型一致。",
+      "对稀疏交互、冷启动/短历史用户有更明显的推荐精度提升，可改善新用户与长尾场景的推荐质量。",
+      "训练 wall-clock 低于 BD、EMKD 等强基线，且内存占用和每 epoch 时间可控，适合资源受限的工业训练环境。",
+      "方法在 RNN、MLP、Transformer 三类序列推荐 backbone 上均有效，具备跨架构接入现有推荐系统的潜力。",
+      "在教师容量、教师训练充分度、序列长度和噪声水平变化下表现稳定，有利于实际部署中的模型迭代与鲁棒性保障。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "从组件级视角重新审视序列推荐中的知识蒸馏，指出现有分离式教师-学生路径在稀疏历史下会削弱泛化，且难以定位瓶颈组件。",
+      "提出 Graft-Oriented Distillation (GOD)，一种组件级蒸馏框架：将可训练的学生嵌入表或序列编码器嫁接到冻结教师中，构造混合源模型，为学生嵌入和学生编码器分别提供组件级反馈。",
+      "提出 Grafted Encoding (GE)，在 Transformer-based 序列推荐器中拼接教师侧与学生侧嵌入并允许互注意力，以稳定混合源模型的表示生成。",
+      "提出 Graft-aware Contrastive Learning (GCL)，对四个源/目标表示的两两对比对按相似度自适应降权，动态分配蒸馏预算。",
+      "在 Amazon Beauty、Yelp、MovieLens 1M 三个数据集和 GRU4Rec、FMLPRec、SASRec 三种 backbone 上，GOD 一致超越现有 KD 与自监督基线，相对最强基线最高提升 13.92%，且推理只使用学生模型、无额外推理成本。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Grafting Analysis for Distillation"
+      },
+      {
+        "page": 4,
+        "section": "4 Proposed Framework: GOD"
+      },
+      {
+        "page": 5,
+        "section": "5.1 Experimental Setup"
+      },
+      {
+        "page": 6,
+        "section": "5.2 Overall Performance"
+      },
+      {
+        "page": 7,
+        "section": "5.3 Generalization and Robustness"
+      },
+      {
+        "page": 8,
+        "section": "5.4 Ablation Study"
+      },
+      {
+        "page": 9,
+        "section": "5.5 Efficiency and Parameter Sensitivity"
+      },
+      {
+        "page": 11,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Student (no KD)",
+        "Teacher",
+        "RD",
+        "CD",
+        "DE",
+        "RRD",
+        "HTD",
+        "BD",
+        "AdaRec",
+        "MSKDIK",
+        "EMKD",
+        "CL4SRec",
+        "MCLRec",
+        "CT4Rec",
+        "DuoRec",
+        "RCL"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Yelp",
+        "MovieLens 1M"
+      ],
+      "findings_zh": [
+        "GOD 在全部数据集、全部 backbone（GRU4Rec、FMLPRec、SASRec）和全部评估指标上取得最佳结果；相对最强基线最高提升 13.92%（Yelp/SASRec/NDCG@10），相对无 KD 的 Student 最高提升约 37.69%。",
+        "在更稀疏的 Amazon Beauty 和 Yelp 上，GOD 相对 Student 的提升大于更密集的 MovieLens 1M，支持“嫁接有助于稀疏交互下泛化”的动机。",
+        "在教师与学生容量相同的自蒸馏设置（dS=dT=64）下，GOD 也优于 KD 基线和 CL4SRec、MCLRec、CT4Rec、DuoRec、RCL 等自监督基线，最高提升 8.12%，说明收益不单纯来自模型压缩或通用对比学习。",
+        "鲁棒性分析显示，GOD 在短序列用户组、高噪声注入比例、更小学生容量以及更弱的教师 checkpoint 下均保持最佳表现，说明教师条件化的嫁接监督更具泛化与鲁棒性。",
+        "CKA 分析显示，Graft-Embed 与 Graft-Encoder 比 DE、RRD、BD 有更小的 train/test NDCG gap，并出现层间对角对齐，说明嫁接带来过程对齐而非单纯输出模仿。",
+        "消融实验表明，移除任一混合源模型或 Non-Grafted Teacher 均导致性能下降；去除 GE、去除 GCL、只保留 source-target 对、或使用可学习 pair weight 也均低于完整 GOD。",
+        "效率分析中，GOD 的每 epoch 训练时间高于 Student，但达到最佳验证点的 wall-clock 时间低于 BD、EMKD，甚至在 Amazon Beauty 上低于 Student，同时获得最佳 NDCG@20。"
+      ],
+      "metrics": [
+        "HR@10",
+        "HR@20",
+        "NDCG@10",
+        "NDCG@20"
+      ]
+    },
+    "limitations_zh": [
+      "Grafted Encoding 只针对 Transformer-based 序列推荐模型；GOD 总体适用于可分离 embedding 和 encoder 的模型，但 GE 部分并非对任意架构直接可用。",
+      "实验聚焦于 ID-based、相同输入与相同 backbone 的 KD，未包含 LLM-based KD 或使用外部语言知识/语言模型学生的场景。",
+      "训练时 GE 将注意力计算从四条长度-N 路径变为两条长度-2N 路径，注意力计算量约翻倍；虽然实际训练可更快收敛并带来更强监督，但仍是训练期开销。",
+      "在较密集的 MovieLens 1M 上，蒸馏系数 lambda 过大会造成性能下降，说明过强蒸馏会过度正则化学生，需要在实践中调节。",
+      "论文尚未扩展到异构教师-学生架构，作者也将其列为未来工作；当前实验主要覆盖同构架构下的嵌入/编码器嫁接。"
+    ],
+    "method_zh": "GOD 将序列推荐模型拆分为 embedding 表和 sequence encoder。训练时构造四个表示：Non-Grafted Teacher (T,T) 使用教师嵌入和教师编码器；Embed-Grafted Teacher (S,T) 使用学生嵌入表替换教师嵌入并送入冻结教师编码器；Encoder-Grafted Teacher (T,S) 使用学生编码器处理教师嵌入；Non-Grafted Student (S,S) 作为目标模型。四个表示通过共享线性投影 W_down/W_up 对齐维度。对于 Transformer 模型，GE 将教师侧和学生侧嵌入按维度适配后拼接成长度 2N 的序列，通过共享编码器和块状因果注意力掩码进行互注意力，取两侧最后有效位置作为四个表示。GCL 对四表示两两组合得到六个对比对，以批量内表示点积相似度为依据计算 pair weight（stop-gradient），相似度过高的关系被降权，最终蒸馏损失 L_kd 与推荐损失 L_rec 联合优化。推理阶段仅使用 Non-Grafted Student，不依赖教师或混合源模型。",
+    "problem_zh": "序列推荐中用户行为历史通常稀疏且含噪，模型容易过拟合观察到的共现或虚假转换，导致对新交互的泛化能力受限。现有知识蒸馏方法通常让教师和学生分别独立前向，再将学生输出或表示与教师信号匹配；这种分离路径使学生嵌入和编码器的误差相互纠缠，难以判断弱泛化源于嵌入不可靠、编码过拟合还是二者对稀疏历史的共同适应，缺少组件级反馈。GOD 通过“嫁接”构造混合源模型，以组件级蒸馏改进泛化。",
+    "technical_depth": 0.9
+  },
+  "doi": "10.1145/3799682.3841117",
+  "final_score": 0.9325,
+  "graph_relations": [],
+  "id": "arxiv-2608.16073",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-17T04:11:49Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向序列推荐的组件级知识蒸馏框架 GOD，通过将冻结教师组件与可训练学生组件嫁接来提供组件级反馈，从而提升泛化能力且推理阶段无额外开销。",
+  "targets": [],
+  "tasks": [],
+  "title": "GOD: Enhancing Generalization via Deep Grafting for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2608.16073v1"
+}

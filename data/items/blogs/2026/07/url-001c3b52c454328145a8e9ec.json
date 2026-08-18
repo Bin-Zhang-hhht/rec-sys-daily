@@ -1,0 +1,131 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "UIC 建立在 OmniSage 多实体图嵌入空间之上：对用户最近 500 个行为（closeup、save、click）的 Pin 嵌入执行 personalized 层次聚类，每个簇由 medoid 和一组 landmark Pins 表示；簇数量由一致性阈值 τ 动态决定，而非固定 k。每个 UIC 携带 temporal/behavioral 生命周期元数据（recency、frequency）。系统层面，UIC 被外部化到共享特征存储，附着到 User UFR 节点，避免多模型重复拉取。下游集成包括：UIC-conditioned CLR 替代 followed-interests 作为检索条件；L1 Utility 对候选按 UIC 去重施加惩罚；ranking 用状态依赖的 utility 权重把 Pinnability 原始预测转换为最终分数；Blending 层 SSD 加入 UIC 覆盖率惩罚，调节 feed 的用例分布。",
+    "business_implications_zh": [
+      "将留存/WAU 作为一等目标而非仅追求 engagement，可支撑可持续增长；最稳定周活用户的特点不是活动广度，而是围绕具体 use-case 形成的习惯。",
+      "use-case 采纳可作为用户价值代理指标；其非线性/阈值效应提示，帮助用户建立多个持久用例可能显著提升留存。",
+      "在 feed 中平衡已成熟兴趣与新兴兴趣，不仅能提高互动多样性，还能延长 session，对周活增长有利。",
+      "UIC-conditioned retrieval 跳过陈旧/衰减兴趣，降低 overfetch 和基础设施成本，具有效率与成本效益。",
+      "对 Pinterest 而言，围绕 DIY 灵感、菜谱发现、fandom 等具体用例建立重复访问习惯，比只给用户更多已有偏好的内容更能带来长期价值。"
+    ],
+    "business_transferability": 0.7,
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "heading": "Introduction",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "When Engagement Optimization Is Not Enough",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "User Interest Clusters: A Stateful Interest Representation",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "From PinnerSage/OmniSage to UICs",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "The Embedding Space",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "Signal Construction",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "System-Level Integration",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "Retrieval",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "L1 Utility",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "Ranking",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "Diversity",
+        "section": "Pinner Progression (Part 1)"
+      },
+      {
+        "heading": "What’s Coming",
+        "section": "Pinner Progression (Part 1)"
+      }
+    ],
+    "implementation_zh": "信号构造：收集用户最近 500 个 Pinterest 动作，对动作的 OmniSage embedding 做 Complete Linkage Agglomerative Hierarchical Clustering；簇间相似度定义为两簇中“最不相似一对”的余弦相似度，仅当该值超过阈值 τ 时合并，直到没有簇对超过阈值或达到最大簇数。检索侧：UIC-conditioned CLR 从用户簇中采样（例如 10 个簇中取 5 个）并检索候选；早期 landmark 选择按 recency 和 action-type 加权，偏 exploit-heavy；后续 frontier sampling 取距 medoid 最远的边界 Pin，以偏向探索。L1 Utility：候选 Pin 通过与 UIC medoid 的余弦相似度做 UIC 标注，利用 UIC_dupes 计数惩罚已充分代表的簇。SSD：Pin 按与 medoid 的最高余弦相似度分配 UIC，阈值 0.85，未匹配项进入 default group；已选集合中某 UIC 覆盖率越高，后续该簇 Pin 的惩罚越大。",
+    "lessons_zh": [
+      "单一 embedding 不足以表达用户多个活跃用例；PinnerSage/OmniSage 等 multi-embedding 表示是理解用户多样兴趣的基础。",
+      "在用户已互动内容上做个性化聚类、而非全局聚类，能使簇对应个人生活中的真实 use-case；同一 Pin 对不同用户可以有不同簇归属。",
+      "OmniSage 空间中“接近”同时编码视觉相似性与功能效用，支持把共同策划、共同互动的物品归到同一个用户用例。",
+      "UIC 作为跨 retrieval/ranking/diversity 的共享抽象，能让不同阶段一致地对待 established、emerging 和待培养的兴趣。",
+      "把生命周期信息（recency/frequency）注入 ranking utility，可以改变“什么算好推荐”的定义，而无需新增模型预测头。",
+      "新兴趣可以依靠 diversity 惩罚在 feed 后期自然浮现，而非在顶部强行覆盖强相关结果。",
+      "use-case 采纳比浅层好奇行为更能代表用户价值，适合作为长期留存优化的代理指标。"
+    ],
+    "limitations_zh": [
+      "该篇为 Part 1，未提供量化实验指标、A/B 增幅或预测 UIC 的验证结果。",
+      "作者自述 UIC 的状态化元数据不能完全解决区分短暂好奇与真正新兴习惯的问题。",
+      "SSD 的 UIC 分配依赖固定相似度阈值 0.85，并有 default group 处理未匹配项。",
+      "检索端一次只采样部分簇（例如 10 个簇取 5 个），可能无法覆盖所有活跃簇。",
+      "use-case adoption 与留存的关系来自数据分析，文中未断言因果性。",
+      "动态簇数受一致性阈值 τ 和最大簇数上限影响，阈值选择可能影响簇质量与系统表现。"
+    ],
+    "production_constraints_zh": [
+      "UIC 必须控制服务延迟：外部化到共享特征存储，候选集只标注一次，避免多次拉取；ranking 的 utility 权重调整不增加新预测头，以免增加 serving 延迟。",
+      "检索端必须做预算控制，避免 UIC 条件产生过多候选淹没下游阶段；只对含近期行为且超过一致性阈值的活跃簇取候选，跳过 stale/decayed interests。",
+      "在引入 UIC-conditioned retrieval 后需保持总候选量不变，同时通过减少 overfetch 获得基础设施成本节省。",
+      "SSD 中 Pin 到 UIC 的分配依赖相似度阈值 0.85，未匹配 Pin 落入 default group，以控制噪声分配。",
+      "作者计划将 UIC 扩展为紧凑、信息密集的长序列表示，需在保留时间动态（含 decay）的同时保持计算、存储和服务效率。",
+      "动态簇数受一致性阈值 τ 和最大簇数上限约束。"
+    ],
+    "results_zh": [
+      "数据分析显示 use-case 采纳与留存正相关且呈非线性关系：中等程度的采纳提升带来的留存收益有限，而最高十分位的采纳广度会显著加速留存，提示存在阈值/复利效应。",
+      "UIC-conditioned retrieval 在总候选量不变的情况下降低了 overfetch，并带来基础设施成本节省。",
+      "在线实验中，UIC-aware SSD 带来有意义的 engagement 提升、互动内容多样性显著提高，以及更长 session 的增加。",
+      "本文为 Part 1，未给出具体 A/B 指标数值；预测 UIC、serendipity 预测和 RL 探索回路将在 Part 2 介绍。"
+    ],
+    "system_context_zh": "Pinterest 首页信息流（home feed）是多阶段推荐流水线，由检索、轻量打分、排序、重排等阶段构成，服务数亿用户、展示数十亿 Pin。历史上该系统主要围绕 engagement（点击、保存、下载、closeup）进行优化，但本文提出将 retention（周活、长期关系）作为一等目标，用“用户用例（use-case）”的持久表示补充逐动作的序列化用户理解。核心信号是 User Interest Clusters（UIC），作为跨 retrieval、L1 Utility、ranking、diversity 各层共享的抽象，UIC 被外部化到共享特征存储（GSS），一次性获取后供各阶段使用。",
+    "technical_depth": 0.85,
+    "tradeoffs_zh": [
+      "单向量用户表示 vs 多簇 UIC：单向量难以同时表达多个活跃用例，UIC 保留多样用例但需要更复杂的表示与检索。",
+      "engagement 优化 vs retention 优化：engagement 只优化即时相关性，可能让用户持续看到旧偏好；retention 导向需要引入 lifecycle 和 serendipity。",
+      "landmark 按 recency/action-type 加权能提升相关性但偏 exploit-heavy；frontier sampling 更探索，但可能牺牲部分即时 engagement（文中称在不牺牲 engagement 的情况下更探索）。",
+      "L1 Utility 和 SSD 的惩罚机制在强相关簇与弱势新兴簇之间做权衡；新兴趣不是在 feed 顶部强行覆盖，而是在后期靠累积惩罚自然胜出。",
+      "stateful lifecycle 元数据能提供结构化信号，但作者自述并未完全解决“短暂好奇 vs 新兴习惯”的判别难题。",
+      "视觉多样性不等同于 use-case 多样性：Pin 级 variety 优化可能仍让单一兴趣类别主导 feed，因此需要在更高层级加入 UIC 约束。"
+    ]
+  },
+  "final_score": 0.904,
+  "graph_relations": [],
+  "id": "url-001c3b52c454328145a8e9ec",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-07-27T16:01:02Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "pinterest_engineering",
+  "summary_zh": "该文介绍 Pinterest 首页推荐系统的 Pinner Progression 计划，利用用户兴趣簇等用例表示将留存作为一等目标，并整合进检索、排序和重排的多阶段推荐流水线。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Pinner Progression: Better Use-Case Representation Driving Weekly Active User Growth at Pinterest",
+  "url": "https://medium.com/pinterest-engineering/pinner-progression-better-use-case-representation-driving-weekly-active-user-growth-at-pinterest-bd2131ab238a?source=rss----4c5a5f6279b6---4"
+}

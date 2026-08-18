@@ -1,0 +1,131 @@
+{
+  "authors": [
+    "Isobel Scott"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "整体流程为：从 feature store 和 BigQuery 获取用户活动数据与 listing 信息 -> 将 session 数据构造为 prompt -> 调用 LLM 生成结构化 buyer profile（类别兴趣、置信度 hashmap、解释文本、观察到的兴趣）-> 存储画像 -> 使用 Airflow DAG 按 user_id 分批错峰调度刷新。应用层包括查询改写（例如 'cool posters' 改写为 'cool posters + hippie|boho|vintage|nature'）和搜索界面中的个性化 refinement pills（例如将 'car accessories' 前置为 'daisy car accessories'）。",
+    "business_implications_zh": [
+      "个性化查询改写和 refinement pills 有望让搜索感觉更贴合每位买家，从而提升发现性和购物体验。",
+      "成本降低 94% 使得为千万级用户生成 LLM 画像在商业上可承受，为大规模个性化落地提供条件。",
+      "若 CTR 和转化率提升得到验证，这类画像可直接影响搜索流量、成交率和买家长期参与度。",
+      "Etsy 强调 privacy by design，表明个性化能力可以与隐私保护并存，降低合规顾虑。",
+      "冷启动方案的探索可帮助新用户更早获得个性化体验，扩大个性化覆盖的买家基数。"
+    ],
+    "business_transferability": 0.68,
+    "evidence_quality": 0.62,
+    "evidence_refs": [
+      {
+        "heading": "Understanding Buyer Profiles",
+        "section": null
+      },
+      {
+        "heading": "Technical Implementation",
+        "section": null
+      },
+      {
+        "heading": "Bringing Personalization to Scale",
+        "section": null
+      },
+      {
+        "heading": "Experiments and Applications",
+        "section": null
+      },
+      {
+        "heading": "Query Rewriting",
+        "section": null
+      },
+      {
+        "heading": "Refinement Pills",
+        "section": null
+      },
+      {
+        "heading": "Measuring Success",
+        "section": null
+      },
+      {
+        "heading": "Key Accuracy Metrics",
+        "section": null
+      },
+      {
+        "heading": "Profile Refresh Strategy",
+        "section": null
+      },
+      {
+        "heading": "Future Work",
+        "section": null
+      },
+      {
+        "heading": "The Cold Start User Problem",
+        "section": null
+      },
+      {
+        "heading": "Conclusion",
+        "section": null
+      }
+    ],
+    "implementation_zh": "实现细节包括：数据源从 API endpoints 迁移到 clustered/partitioned BigQuery 表以提升查询效率；将输入会话窗口从约 2 年缩短到最近 9 个月，以降低 token 量和假日购物权重；增大 LLM 和 BigQuery 批处理规模；使用 managed concurrency 做并行处理以避免请求速率限制；扩展 session 数据检索和 LLM 处理的计算资源；通过 prompt 调整让较小模型产出高质量结果以降低成本和实现规模化；用 Airflow 按 user_id 分批错峰调度 buyer profile 刷新。",
+    "lessons_zh": [
+      "LLM 可以从用户 session 数据中生成结构化画像，用于捕捉风格、品类和购物使命等细腻兴趣。",
+      "规模化个性化必须配套数据基础设施优化，如迁移到 BigQuery 分区表、增大 batch、并行处理和资源扩展。",
+      "Prompt 工程和输入窗口调整可以在保持质量的同时降低模型规模和成本。",
+      "Airflow 按 user_id 分批错峰调度可平衡并行度与 API 速率限制。",
+      "需要建立 CTR lift、转化率、refinement pill 点击等指标来验证画像准确性。",
+      "冷启动问题可以通过相似用户画像继承的 collaborative filtering 思路缓解。"
+    ],
+    "limitations_zh": [
+      "文章明确说明该工作仍在 experimentation 阶段，尚未完全上线。",
+      "尚未公布最终的 CTR、转化率、refinement pill 点击等定量实验结果，只描述了计划中的验证指标。",
+      "当 LLM 没有足够支持数据时，类别兴趣字段和置信度 hashmap 可能为空，画像覆盖有限。",
+      "冷启动用户画像继承是实验性探索，准确性未验证。",
+      "画像刷新策略（按活跃度、兴趣漂移、季节、性能下降）仍是规划方向，不是已落地结果。",
+      "优化方案可能高度依赖 Etsy 的数据规模和基础设施，具体数字不一定直接迁移到其他平台。"
+    ],
+    "production_constraints_zh": [
+      "为约 9000 万买家全量生成画像最初成本极高、更新需数周，无法直接上线。",
+      "初始使用 API endpoints 获取 listing 数据效率低，需改为 BigQuery 分区分桶表。",
+      "输入 token 量和 prompt corrections 太大，影响成本和缓存效率。",
+      "BigQuery 与 OpenAI API 存在请求速率限制，需要控制并发。",
+      "session 数据检索和 LLM 处理都需要大量计算资源。",
+      "冷启动用户缺乏足够行为数据，难以生成高质量画像。",
+      "画像准确性需要持续维护，包括兴趣漂移、季节性和效果下降监控。"
+    ],
+    "results_zh": [
+      "通过优化，10 万用户画像生成时间从 21 天降至 3 天。",
+      "通过成本管理和较小模型，估算每百万用户成本降低了 94%。",
+      "查询改写示例显示个性化可显著提升相关性：'cool posters' 被改写为 'cool posters + hippie|boho|vintage|nature'。",
+      "文中展示了使用 buyer profile 后 refinement pills 从通用变为个性化（例如 'daisy car accessories'）。",
+      "实验证明可以为 10 万用户规模生成含结构化字段、置信度和解释的买家画像。"
+    ],
+    "system_context_zh": "Etsy 是一个拥有近 9000 万买家、超过 1 亿在售商品的电商 marketplace。本文介绍的是尚在实验阶段的个性化搜索方案：以 privacy by design 为原则，用 LLM 根据买家匿名化的浏览、搜索、购买、收藏等行为生成结构化买家画像，并将画像用于查询改写和 refinement pills，使搜索结果更贴合个人风格、品类偏好和购物使命。",
+    "technical_depth": 0.6,
+    "tradeoffs_zh": [
+      "较长会话窗口能提供更多用户信号，但成本高且受假日购物影响；缩短到 9 个月可降低成本并降低季节权重。",
+      "较大模型可能更容易生成高质量画像，但通过 prompt 调整改用较小模型可显著降低成本。",
+      "增大批处理和并发可提升吞吐，但会逼近 BigQuery/OpenAI 速率限制，需要错峰和 managed concurrency 平衡。",
+      "查询改写和 refinement pills 可能比原始查询更贴近预测兴趣，但也有偏离用户本来意图的风险。",
+      "只展示高置信度兴趣可提升精准性，但会减少对低信号用户的覆盖率；冷启动继承画像则可能牺牲准确性。"
+    ]
+  },
+  "final_score": 0.7589999999999999,
+  "graph_relations": [],
+  "id": "url-2c56e497bbcde2d1b89e8fa7",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2025-09-03T21:40:15Z",
+  "relevance_score": 0.86,
+  "scenarios": [],
+  "source": "etsy_codeascraft",
+  "summary_zh": "本文介绍 Etsy 使用大语言模型从用户浏览和购买行为生成买家画像，以增强搜索与个性化推荐体验的工程实践。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Building Etsy Buyer Profiles with LLMs",
+  "url": "https://www.etsy.com/codeascraft/building-etsy-buyer-profiles-with-llms"
+}

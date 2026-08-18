@@ -1,0 +1,116 @@
+{
+  "abstract": "Post-click conversion rate (PCVR) prediction is a core ranking task in industrial recommender systems. Modern ranking models must jointly capture heterogeneous non-sequential features, multi-behavior user sequences, and target-item-aware user interests, while remaining robust to high-cardinality sparse features, missing values, and train-inference inconsistencies. In this paper, we present STAR (Structured Tokenization and Target-Aware Interest Representation), a practical framework for the KDD Cup 2026 Tencent UniRec Challenge. STAR combines structured feature tokenization with target-aware interest representation on top of a HyFormer-style multi-sequence backbone. It introduces high-cardinality signal recovery, explicit user-item interaction tokens, target-aware sequence decoding, and a weighted user-item contrastive auxiliary objective inspired by InfoNCE. We further align the training and inference pipelines by reconstructing feature remapping tables and structural hyperparameters from the saved training configuration. Experiments on the challenge dataset identify the components that most reliably improve ranking AUC, while LogLoss is reported as a calibration diagnostic. The main ablation study shows a large gain from temporal context, with smaller but useful contributions from contrastive alignment, target-aware interest encoding, and high-cardinality sequence feature recovery. Post-click conversion rate (PCVR) prediction is a core ranking task in industrial recommender systems. Modern ranking models must jointly capture heterogeneous non-sequential features, multi-behavior user sequences, and target-item-aware user interests, while remaining robust to high-cardinality sparse features, missing values, and train-inference inconsistencies. In this paper, we present STAR (Structured Tokenization and Target-Aware Interest Representation), a practical framework for the KDD Cup 2026 Tencent UniRec Challenge. STAR combines structured feature tokenization with target-aware interest representation on top of a HyFormer-style multi-sequence backbone. It introduces high-cardinality signal recovery, explicit user-item interaction tokens, target-aware sequence decoding, and a weighted user-item contrastive auxiliary objective inspired by InfoNCE. We further align the training and inference pipelines by reconstructing feature remapping tables and structural hyperparameters from the saved training configuration. Experiments on the challenge dataset identify the components that most reliably improve ranking AUC, while LogLoss is reported as a calibration diagnostic. The main ablation study shows a large gain from temporal context, with smaller but useful contributions from contrastive alignment, target-aware interest encoding, and high-cardinality sequence feature recovery.",
+  "arxiv_id": "2608.12986",
+  "authors": [
+    "Yimeng Xu",
+    "Ruihao Zhang",
+    "Yingqi Song",
+    "Ying Jiang",
+    "Lan Ma"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "论文以提升工业PCVR排序质量为目标，实验显示在挑战赛数据上可显著提升测试AUC，相关组件可用于实际推荐系统的排序阶段。",
+      "高基数特征恢复和目标感知兴趣建模有助于利用长尾信号和候选物品相关的历史行为，但收益需要结合具体数据和工程成本验证。",
+      "AUC与LogLoss的不同变化说明排序质量和概率校准可能冲突；对校准敏感的部署需要在focal loss与BCE之间做选择或引入后处理校准。",
+      "部署时需将词表、频率映射、哈希配置等工件与模型检查点一起版本化管理，并保证训练与推理的特征布局一致，否则存在线上不一致风险。",
+      "论文使用匿名化推荐数据，声明不需要个人身份信息；同时指出在真实生产部署前应监测潜在的公平性和反馈循环效应。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "设计了结构化特征分词（structured feature tokenization）流水线，包括高基数特征截断、频率重映射、序列哈希、缺失值与填充零值消歧、时间特征和元摘要特征，以及按语义处理稠密特征。",
+      "提出并评估了目标感知兴趣表示增强，包括DIN风格的查询解码器、兴趣token、对齐稀疏-稠密配对池化和用户-物品非序列逐元素对积token。",
+      "引入受InfoNCE启发的加权用户-物品对比辅助目标，以及训练-推理一致性机制，通过保存的训练配置和特征模式重建特征重映射表与模型结构。"
+    ],
+    "evidence_quality": 0.68,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Full-System Reference"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Model Scaling"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Main Modeling Ablations"
+      },
+      {
+        "page": 1,
+        "section": "5 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "C Additional Ablations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Official baseline（HyFormer风格的官方基线）"
+      ],
+      "datasets": [
+        "KDD Cup 2026 Tencent UniRec Challenge PCVR数据集，包含20,000,000条训练样本，4个行为序列域"
+      ],
+      "findings_zh": [
+        "全量优化模型在验证/测试AUC上比官方基线提升0.014921/0.016585（基线0.829582/0.819961，全模型0.844503/0.836546），但LogLoss更高，因此以AUC为主指标、LogLoss作为校准诊断。",
+        "缩放实验显示隐藏宽度和深度带来稳定增益：d_model从128增至192/256时验证AUC分别提升3.22/4.61（单位1e-4），测试AUC提升0.000179/0.000219；4个HyFormer block相比2个block使测试AUC提升0.000199；嵌入维度扩展的增益较不单调。",
+        "主消融中，去掉绝对时间特征对测试AUC的损害最大（-0.002043），其次是去掉填充零值消歧（-0.001327）、去掉InfoNCE（-0.000336）、去掉DIN查询解码器（-0.000193）、去掉序列哈希/频率重映射（-0.000124）以及去掉用户-物品对积token（-0.000032）。",
+        "训练协议消融中，去掉EMA使测试AUC下降-0.002143，去掉洗牌策略下降-0.000697；将focal loss替换为BCE会使验证LogLoss大幅降低（0.212041 vs 0.296215），但测试AUC略降-0.000135。",
+        "融合DIN token、配对池化、特征丢弃和元上下文等模块在当前单次运行中移除后测试AUC反而升高，因此未被列入核心建模贡献。",
+        "模型能力扩展的收益依赖特征处理和足够的数据量；扩大嵌入维度存在边际收益递减，且部分缩放设置同时改变d_model，无法将测试集增益单独归因于稀疏参数扩展。"
+      ],
+      "metrics": [
+        "Validation AUC",
+        "Validation LogLoss",
+        "Test AUC",
+        "Δ Test AUC"
+      ]
+    },
+    "limitations_zh": [
+      "研究仅限于离线挑战赛环境，没有在线A/B测试，因此不能直接声称在线业务指标提升。",
+      "主要消融为单次运行的控制实验，部分边际效果（如用户-物品对积token）需要多随机种子进一步确认。",
+      "全量模型在提升AUC的同时LogLoss更高：focal loss通过加权难样本提升排序性能，但损害了预测概率的绝对校准。",
+      "紧凑词表、频率映射和哈希白名单等需要作为sidecar工件与检查点一起版本化；固定全局batch清单和严格的推理重建机制使训练流程比官方基线更复杂，运维成本更高。",
+      "若干在初赛有效的修改（如FGSM对抗训练、离散星期特征、Transformer序列编码器）在最终阶段无效或难以组合；一些局部最优的架构改动在最终集成中并非全局最优。"
+    ],
+    "method_zh": "STAR以HyFormer风格的多序列骨干为基础，将非序列特征（用户、物品、稠密、辅助token）和多个行为序列分别token化，并使用DIN风格的查询解码器生成目标感知的兴趣表示。高基数稀疏特征通过cardinality capping、频率重映射和序列哈希恢复；缺失值与填充零值通过非零掩码和ID偏移消歧；绝对时间特征、序列长度/截断率/时间跨度等元摘要特征被注入预测路径和查询生成路径。模型还加入对齐稀疏-稠密配对池化、用户-物品非序列对积token，并使用加权的InfoNCE对比损失作为辅助目标，主损失默认采用focal loss（gamma=2.0，alpha=0.366）。训练时采用bf16混合精度、梯度累积、稠密参数EMA、固定全局batch清单和两级缓冲洗牌；推理时从训练配置重建数据集和模型，并重新加载基数截断表与频率映射表以保证嵌入布局与检查点一致。",
+    "problem_zh": "论文针对工业推荐系统中的点击后转化率（PCVR）预测任务，指出现代排序模型需要同时建模异构非序列特征、多行为用户序列和目标物品感知的用户兴趣，并需要应对高基数稀疏特征、缺失值、填充零值以及训练-推理不一致等实际挑战。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8514999999999999,
+  "graph_relations": [],
+  "id": "arxiv-2608.12986",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-13T09:09:54Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出STAR框架，将结构化特征令牌化与目标感知兴趣表示用于工业推荐系统的点击后转化率（PCVR）预测排序，并针对KDD Cup 2026挑战赛进行优化。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "STAR: Structured Tokenization and Target-Aware Interest Representation for PCVR Prediction",
+  "url": "https://arxiv.org/abs/2608.12986v2"
+}

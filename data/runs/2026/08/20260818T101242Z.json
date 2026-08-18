@@ -1,0 +1,146 @@
+{
+  "blog_candidates": 8,
+  "blog_recommendations": 8,
+  "completed_at": "2026-08-18T10:56:59.199050Z",
+  "config_snapshot": {
+    "fail_pages_artifact_mb": 900,
+    "graph_max_content_nodes": 80,
+    "graph_recent_days": 90,
+    "max_blog_excerpt_chars": 4000,
+    "max_item_bytes": 32768,
+    "minimum_final_score": 0.5,
+    "minimum_metadata_relevance_score": 0.65,
+    "target_item_bytes": 16384,
+    "warn_pages_artifact_mb": 500,
+    "warn_repository_data_mb": 500
+  },
+  "llm_calls": 13,
+  "paper_candidates": 20,
+  "paper_recommendations": 10,
+  "run_id": "20260818T101242Z",
+  "sources": [
+    {
+      "source_id": "arxiv",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "meta_engineering",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "netflix_techblog",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "spotify_engineering",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "pinterest_engineering",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "discord_engineering",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "airbnb_tech",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "etsy_codeascraft",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "google_research",
+      "success": true,
+      "warning": null
+    },
+    {
+      "source_id": "nvidia_developer",
+      "success": true,
+      "warning": null
+    }
+  ],
+  "stage_report": {
+    "collected_blog_candidates": 364,
+    "collected_paper_candidates": 100,
+    "metadata_degraded_count": 8,
+    "metadata_label_rejections": 104,
+    "metadata_llm_calls": 13,
+    "metadata_llm_success_rate": 0.9230769230769231,
+    "metadata_relevance_rejections": 36,
+    "prefilter_blog_candidates": 9,
+    "prefilter_paper_candidates": 89,
+    "shortlist_blog_candidates": 8,
+    "shortlist_paper_candidates": 20,
+    "sources": [
+      {
+        "source_id": "arxiv",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "meta_engineering",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "netflix_techblog",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "spotify_engineering",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "pinterest_engineering",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "discord_engineering",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "airbnb_tech",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "etsy_codeascraft",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "google_research",
+        "success": true,
+        "warning": null
+      },
+      {
+        "source_id": "nvidia_developer",
+        "success": true,
+        "warning": null
+      }
+    ],
+    "warnings": []
+  },
+  "started_at": "2026-08-18T10:56:59.199050Z",
+  "structured_analysis_success_rate": 0.9230769230769231,
+  "warnings": [
+    "pruned 1 graph relation(s) with unknown target id(s) from arxiv-2608.10187 (first: arxiv-2608.16704)",
+    "pruned 1 graph relation(s) with unknown target id(s) from url-efe96dcd75f9bde404ee3c9a (first: arxiv-2608.07055)",
+    "pruned 1 graph relation(s) with unknown target id(s) from url-2660fad3381f92db1c6d485c (first: arxiv-2608.07055)"
+  ]
+}

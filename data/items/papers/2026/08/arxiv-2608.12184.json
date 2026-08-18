@@ -1,0 +1,118 @@
+{
+  "abstract": "Large language models (LLMs) have been widely adopted as backbones for recommender systems. However, their language-centric pretraining makes it difficult to capture collaborative signals implicit in user-item interactions, which are crucial for personalized recommendation. Existing methods either inject collaborative representations produced by external recommenders or model only intra-sequence dependencies, limiting their ability to exploit global collaborative patterns. To address this limitation, we propose GALLM, a graph-aware LLM framework for sequential recommendation. GALLM constructs a collaborative graph over text tokens and item tokens, and models three types of relations: Text--Text relations for preserving semantic dependencies, Item--Text relations for aligning item tokens with their textual descriptions, and Item--Item relations derived from global item co-occurrence patterns. These relations are transformed into lightweight learnable attention biases and incorporated into the LLM attention mechanism, enabling collaborative-aware token interactions without introducing an additional graph encoder. Experiments on four real-world benchmarks show that GALLM achieves the best performance among the compared baselines, improving over the strongest baseline by 9.76\\% on average in HR@5. Large language models (LLMs) have been widely adopted as backbones for recommender systems. However, their language-centric pretraining makes it difficult to capture collaborative signals implicit in user-item interactions, which are crucial for personalized recommendation. Existing methods either inject collaborative representations produced by external recommenders or model only intra-sequence dependencies, limiting their ability to exploit global collaborative patterns. To address this limitation, we propose GALLM, a graph-aware LLM framework for sequential recommendation. GALLM constructs a collaborative graph over text tokens and item tokens, and models three types of relations: Text--Text relations for preserving semantic dependencies, Item--Text relations for aligning item tokens with their textual descriptions, and Item--Item relations derived from global item co-occurrence patterns. These relations are transformed into lightweight learnable attention biases and incorporated into the LLM attention mechanism, enabling collaborative-aware token interactions without introducing an additional graph encoder. Experiments on four real-world benchmarks show that GALLM achieves the best performance among the compared baselines, improving over the strongest baseline by 9.76\\% on average in HR@5.",
+  "arxiv_id": "2608.12184",
+  "authors": [
+    "Fenglin Yan",
+    "Bohao Wang",
+    "Jian Zhang",
+    "Yu Cui",
+    "Tongya Zheng",
+    "Ye Feng",
+    "Can Wang",
+    "Jiawei Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在电商、图书、电影等序列推荐场景中，GALLM通过更准确的命中率和排序质量提升，可直接改善推荐列表的用户体验，并可能带来更高的点击、购买或观看转化。",
+      "由于GALLM不引入额外图编码器且兼容现有LLM架构，仅增加轻量注意力偏置，企业可复用已有的LLM基础设施，降低推荐模型改造和部署的工程成本。",
+      "该方法需要基于用户-物品交互历史离线计算全局物品共现关系并定期更新；在业务落地时需建设高效的共现统计与增量更新流程，以应对稀疏和高偏斜的长尾分布。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "指出现有LLM推荐增强CF建模的两类主要局限（外部信号注入的表征不对齐问题、注意力掩码只捕获序列内依赖），并提出将全局协同图结构直接融入LLM以解决这些问题。",
+      "提出GALLM，一个图感知LLM推荐框架：构建由Text-Text、Item-Text、Item-Item三类关系组成的token级协同图，并将图关系转化为轻量可学习注意力偏置注入LLM自注意力，无需额外图编码器。",
+      "在Toys、Clothing、Book、MovieLens四个公开数据集上进行实验，GALLM相对最强基线在HR@5上平均提升9.76%，在NDCG@5上平均提升7.62%。"
+    ],
+    "evidence_quality": 0.92,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Experiments"
+      },
+      {
+        "page": 1,
+        "section": "A.3 Evaluation and Implementation Details"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "LightGCN",
+        "LLMRec",
+        "CORONA",
+        "HeLLM",
+        "G2Rec",
+        "BIGRec",
+        "LLaRA",
+        "HatLLM",
+        "TCA4Rec"
+      ],
+      "datasets": [
+        "Amazon Toys and Games",
+        "Amazon Clothing",
+        "Amazon Books",
+        "MovieLens-10M"
+      ],
+      "findings_zh": [
+        "GALLM在四个数据集的所有指标上均取得最优结果，相对最强基线在HR@5上平均提升9.76%，最高达16.30%（Book数据集）。",
+        "在LLaMA3-1B、3B、8B三种参数规模下，GALLM均一致优于BIGRec和LLaRA，说明图感知机制在不同模型容量下均有效。",
+        "消融实验显示移除Text-Text、Item-Text、Item-Item任意一类关系都会导致性能下降，说明三类关系提供互补信息；其中移除Item-Item关系持续损害性能，验证了全局物品共现协同信号的重要性。",
+        "注意力分析显示，GALLM的Item-Text注意力在Toy和Book上分别从0.0039提升到0.0060、从0.0053提升到0.0059；Item-Item注意力随物品共现强度增强而增大，说明GALLM有效重塑了LLM注意力模式。"
+      ],
+      "metrics": [
+        "HR@5",
+        "NDCG@5",
+        "HR@10",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "作者在结论中表示未来将探索更自适应的图构建策略，说明当前基于固定共现频次分桶的图构建方式仍有改进空间。",
+      "论文主要聚焦离线公开数据集上的序列推荐实验，未讨论在线部署、冷启动物品或大规模动态更新场景下的表现。"
+    ],
+    "method_zh": "GALLM首先构造混合提示词：对每个历史物品，将其文本描述token化为Text token，并在其后加入一个专属Item token；将指令文本与各物品的文本token和Item token拼接。随后构造token级协同图：Text-Text边保留文本语义依赖；Item-Text边将每个Item token与其对应物品的文本token对齐；Item-Item边基于全局训练集物品共现频次C(i,j)，并经等频分桶离散化为若干协同强度类别。在LLM每个Transformer层中，将三类图关系编码为可学习的注意力偏置（b_TT、b_IT、b_II,R），加到原始因果注意力的softmax前logits上，使每层自注意力在保持因果掩码的同时进行关系感知的token聚合。模型使用LoRA微调LLaMA-3.2-3B，Item token嵌入初始化为SASRec学到的物品表示并经两层MLP映射到LLM隐空间，以标准因果语言建模损失训练。",
+    "problem_zh": "基于大语言模型（LLM）的序列推荐虽然具备语义理解能力，但其以语言为中心的预训练难以捕获用户-物品交互中隐含的协同过滤（CF）信号。现有方法要么依赖外部推荐模型注入协同表示，导致协同表示空间与文本语义空间不对齐、对预测贡献有限；要么通过注意力掩码只建模序列内的物品依赖，忽略了跨用户交互序列的全局协同依赖。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.913,
+  "graph_relations": [],
+  "id": "arxiv-2608.12184",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-12T15:38:05Z",
+  "relevance_score": 0.98,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出图感知大语言模型GALLM，将文本、物品及协同共现关系转化为注意力偏置以增强序列推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Making Collaborative Signals Count: Graph-Aware Large Language Models for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2608.12184v2"
+}

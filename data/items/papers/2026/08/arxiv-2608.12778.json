@@ -1,0 +1,137 @@
+{
+  "abstract": "Industrial video recommendation systems typically adopt a multi-stage architecture. At the ensemble ranking stage, multi-dimensional user preference predictions (pxtrs) from an upstream multi-task model are fused into a unified ranking score to reflect user satisfaction. Since users' true satisfaction is difficult to observe directly, ensemble ranking models commonly use pxtrs both as input features and as a source for constructing proxy preferences. However, as outputs of an upstream prediction model, pxtrs inevitably contain prediction noise, which propagates to downstream learning across two sides. On the supervision side, noisy pxtrs may flip proxy preferences and introduce erroneous gradients. On the feature side, pxtr noise may propagate through model inputs and destabilize ranking scores. Existing ensemble ranking methods typically treat pxtrs as reliable signals and overlook such prediction noise. To address this, we propose DrEM, a dual-side robust ensemble ranking framework. Our DrEM introduces a risk-denoising robust loss that corrects the empirical risk using estimated preference flip probability. Meanwhile, it samples perturbations from the distribution of prediction noise and introduces a preference-preserving ranking consistency regularizer to improve feature-side output stability. Theoretically, we obtain an approximate distribution of the prediction noise and prove that the robust loss remains superior under flip probability estimation error. Extensive offline experiments and large-scale online A/B tests demonstrate the effectiveness and robustness of our DrEM. Industrial video recommendation systems typically adopt a multi-stage architecture. At the ensemble ranking stage, multi-dimensional user preference predictions (pxtrs) from an upstream multi-task model are fused into a unified ranking score to reflect user satisfaction. Since users' true satisfaction is difficult to observe directly, ensemble ranking models commonly use pxtrs both as input features and as a source for constructing proxy preferences. However, as outputs of an upstream prediction model, pxtrs inevitably contain prediction noise, which propagates to downstream learning across two sides. On the supervision side, noisy pxtrs may flip proxy preferences and introduce erroneous gradients. On the feature side, pxtr noise may propagate through model inputs and destabilize ranking scores. Existing ensemble ranking methods typically treat pxtrs as reliable signals and overlook such prediction noise. To address this, we propose DrEM, a dual-side robust ensemble ranking framework. Our DrEM introduces a risk-denoising robust loss that corrects the empirical risk using estimated preference flip probability. Meanwhile, it samples perturbations from the distribution of prediction noise and introduces a preference-preserving ranking consistency regularizer to improve feature-side output stability. Theoretically, we obtain an approximate distribution of the prediction noise and prove that the robust loss remains superior under flip probability estimation error. Extensive offline experiments and large-scale online A/B tests demonstrate the effectiveness and robustness of our DrEM.",
+  "arxiv_id": "2608.12778",
+  "authors": [
+    "Canwei Huang",
+    "Tiantian He",
+    "Xiaoxiao Xu",
+    "Jun Zhang",
+    "Ziran Deng",
+    "Weike Pan",
+    "Chunjie Chen",
+    "Kaiqiao Zhan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "DrEM 可作为即插即用模块叠加在 EMER、EASQ 等生产级 backbone 上，无需修改 backbone 结构，适合在已有工业推荐管线上工程化落地。",
+      "线上 A/B 测试表明，DrEM 可显著提升关注、评论、转发等显式互动指标，以及视频观看、长观看、App 停留时长等消费指标，并带来 LT7 留存提升，有助于改善用户长期满意度。",
+      "稀疏交互行为（关注、评论、转发）的增益显著高于稠密消费行为，说明该方法对高价值、低频显式互动指标的优化尤其有价值。",
+      "仅增加训练阶段计算开销，且训练与延迟敏感的推理过程解耦，不增加线上推理延迟，具备工业化部署的可行性。",
+      "迁移门槛较高：需要拥有大规模 pxtrs 预测管线、后验反馈数据以及分桶方差估计能力的平台；中小平台或缺少上游多任务模型的场景下适用性受限。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "明确识别了 pxtrs 在工业视频推荐集成排序中因双重角色而产生的预测噪声问题，并系统刻画了噪声在监督侧和特征侧的传播机制。",
+      "设计了风险去噪鲁棒成对损失（risk-denoising robust pairwise loss），通过推导偏好翻转概率的近似解来校正经验风险，使其在翻转概率估计准确时等于干净风险。",
+      "提出了保持偏好的排序一致性正则化器（preference-preserving ranking consistency regularizer），使用从预测噪声分布采样的扰动来稳定模型输出，并通过偏好保持过滤避免与主排序目标冲突。",
+      "在工业短视频推荐平台上开展了大量离线实验和线上 A/B 测试，验证了 DrEM 在多个任务上的有效性、鲁棒性和跨 backbone 的泛化性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 5,
+        "section": "4 Theoretical Analysis"
+      },
+      {
+        "page": 6,
+        "section": "5.2 Overall Performance (RQ1)"
+      },
+      {
+        "page": 7,
+        "section": "5.3 Ablation Analysis w.r.t Perturbations (RQ2)"
+      },
+      {
+        "page": 8,
+        "section": "5.4 Online A/B Test (RQ3)"
+      },
+      {
+        "page": 8,
+        "section": "5.5 Further Analysis (RQ4)"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "EMER",
+        "EASQ",
+        "SSM",
+        "PSL",
+        "GaussAug (GA)",
+        "LSPR",
+        "DrEM:S（仅监督侧校正）",
+        "DrEM:F（仅特征侧正则化）"
+      ],
+      "datasets": [
+        "工业级短视频社交平台真实数据（数亿 DAU；上游多任务模型输出 pctr/pvtr/plvtr/pltr/pwtr/pcmtr/pftr 等多维 pxtrs）",
+        "公开短视频数据集（如 KuaiRec、KuaiSAR、内容驱动微视频数据集）因缺少上游 pxtr 输出，无法用于本文方法评估"
+      ],
+      "findings_zh": [
+        "在 α=1.0 扰动下，DrEM 在 EMER 与 EASQ 两个 backbone 上均取得最佳或可比 GAUC，且跨 backbone 一致优于 Base；而 SSM、PSL、GA、LSPR 等单侧基线在不同任务上有升有降，效果不稳定。",
+        "消融实验表明：随扰动强度 α 从 0.5 增至 2.0，监督侧校正与特征侧正则化的贡献均增大；完整 DrEM 始终优于任一单侧变体，说明双侧干预的增益是互补而非冗余。",
+        "线上 A/B 测试（每组 5.1% 流量、运行 7 天、p<0.005）中，EMER+DrEM 在关注 +1.197%、评论 +1.388%、视频观看 +0.691%、长观看 +0.401% 等指标上显著提升；EASQ+DrEM 也获得一致正向提升，但幅度相对更小。",
+        "按估计翻转概率分层的分析显示：翻转概率越高的配对，DrEM 相对 Base 的 GAUC 提升越大；稀疏行为任务（如 pcmtr、pftr）在低翻转概率下已有正增益，稠密行为任务在高翻转概率区间增益更陡。",
+        "稀疏行为（关注、评论、转发等）的线上增益大于稠密消费行为（视频观看、长观看等），与稀疏任务 pxtr 预测方差更大、翻转概率更高的理论分析一致。"
+      ],
+      "metrics": [
+        "GAUC（Group AUC）",
+        "LT7（7日留存）",
+        "App 停留时长",
+        "视频观看量",
+        "长观看量",
+        "点赞量",
+        "关注量",
+        "转发量",
+        "评论量",
+        "统计显著性 p<0.005"
+      ]
+    },
+    "limitations_zh": [
+      "方法依赖上游多任务模型输出的 pxtrs 以及大规模后验行为反馈来估计噪声方差；公开短视频数据集缺少 pxtr 输出，无法直接用于复现或评估。",
+      "方法假设预测噪声在 logit 空间为加性、零均值、独立高斯噪声，并采用 sigmoid 的 probit 近似与分桶内同方差假设；若真实噪声偏离这些假设，噪声方差和翻转概率估计可能有偏。",
+      "理论上的方差估计要求分桶直径趋于 0 且桶内样本数趋于无穷，实际数据只能近似满足；高翻转概率桶中样本稀少时，GAUC 估计受统计噪声影响，EMER 上 pctr/plvtr 的最高翻转概率桶甚至出现轻微负增益。",
+      "EASQ 因问卷信号对齐已部分缓解监督侧噪声，DrEM 在其上的改进空间小于 EMER，线上增益幅度也较小。",
+      "训练阶段需要额外一次扰动前向传播，训练计算成本高于基础模型；虽然推理无额外成本且训练可异步，仍需要额外算力投入。"
+    ],
+    "method_zh": "DrEM 在 logit 空间建立共享的加性高斯噪声模型：z_i = z_i* + ξ_i，ξ_i~N(0, σ_i^2)。监督侧：根据共享噪声模型估计每对样本的偏好翻转概率 ε̂_ij = Φ(−(z_i−z_j)/√(σ_i^2+σ_j^2))，构造风险去噪鲁棒成对损失 L_rob = Σ[(1−ε̂_ij)ℓ(s_i,s_j) − ε̂_ijℓ(s_j,s_i)]/(1−2ε̂_ij)，以逐对校正含噪代理监督；噪声方差通过 probit 近似和分桶聚合策略从后验行为与预测率之间的系统性偏差估计。特征侧：从同一噪声分布采样扰动 ε_i~N(0, σ_i^2)，对 pxtr logits 加噪并映射回概率空间，构造保持偏好的排序一致性正则化 L_cons = Σ m_ij [y_ij ℓ(s̃_i,s̃_j) + (1−y_ij)ℓ(s̃_j,s̃_i)]，仅约束扰动前后偏好一致的配对。总目标为 L = L_rob + λ_cons L_cons。双侧共享同一 logit 空间噪声模型与参数，推理阶段无额外成本，训练阶段增加一次扰动前向传播。",
+    "problem_zh": "在工业短视频推荐的集成排序（ensemble ranking）阶段，上游多任务模型输出的多维用户偏好预测（pxtrs）既被用作构造代理监督信号的依据，也被用作排序模型的输入特征；但 pxtrs 作为预测结果不可避免地含有预测噪声。该噪声在监督侧会导致代理偏好翻转并引入错误梯度，在特征侧会通过模型输入传播并 destabilize 排序分数。现有集成排序方法通常将 pxtrs 视为可靠信号，未显式建模预测噪声及其跨任务、跨物品、跨配对的异质性。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.8885,
+  "graph_relations": [],
+  "id": "arxiv-2608.12778",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-13T03:36:09Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出DrEM，一种面向视频推荐集成排序阶段的双侧鲁棒排序框架，从监督与特征两侧抑制上游多任务偏好预测中的噪声。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "DrEM: Dual-Side Robust Ensemble Ranking from Noisy User Preference Predictions in Video Recommendation",
+  "url": "https://arxiv.org/abs/2608.12778v1"
+}

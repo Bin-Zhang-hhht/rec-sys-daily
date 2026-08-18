@@ -1,0 +1,152 @@
+{
+  "abstract": "Capturing user preference from a user's interaction sequence is the central challenge of Sequential Recommendation (SR). This preference intuitively emerges from inter-item relations: each item transition reflects a preference embedded in the relations between items, making the faithful capture of these relations essential for accurate recommendation. For this reason, self-attention is dominant in sequential recommendation for its ability to compute pairwise item interactions, yet our empirical analysis reveals that it consistently suffers from similarity bias across various types of transformer-based SR models: dot-product attention scores disproportionately favor similar items, systematically overlooking heterogeneous relations with meaningful preference signals and directly limiting recommendation performance. To address this, we propose PRISM (Perspective-based Relational Insight Synthesis Module), a module that re-examines item relations from multiple perspectives. PRISM employs K Perspective Lenses to calibrate attention from distinct viewpoints, combining an Affinity View that refines homogeneous relations and a Contrast View that exposes heterogeneous ones suppressed by similarity bias, enabling the model to capture the full spectrum of user preferences. Extensive experiments on seven real-world benchmarks demonstrate that PRISM consistently outperforms state-of-the-art baselines. Our code is available at https://github.com/327aem/PRISM/. Capturing user preference from a user's interaction sequence is the central challenge of Sequential Recommendation (SR). This preference intuitively emerges from inter-item relations: each item transition reflects a preference embedded in the relations between items, making the faithful capture of these relations essential for accurate recommendation. For this reason, self-attention is dominant in sequential recommendation for its ability to compute pairwise item interactions, yet our empirical analysis reveals that it consistently suffers from similarity bias across various types of transformer-based SR models: dot-product attention scores disproportionately favor similar items, systematically overlooking heterogeneous relations with meaningful preference signals and directly limiting recommendation performance. To address this, we propose PRISM (Perspective-based Relational Insight Synthesis Module), a module that re-examines item relations from multiple perspectives. PRISM employs K Perspective Lenses to calibrate attention from distinct viewpoints, combining an Affinity View that refines homogeneous relations and a Contrast View that exposes heterogeneous ones suppressed by similarity bias, enabling the model to capture the full spectrum of user preferences. Extensive experiments on seven real-world benchmarks demonstrate that PRISM consistently outperforms state-of-the-art baselines. Our code is available at https://github.com/327aem/PRISM/.",
+  "arxiv_id": "2608.11846",
+  "authors": [
+    "Junyoung Kim",
+    "Wonbin Kweon",
+    "Woojoo Kim",
+    "Jaehyung Lim",
+    "Dongha Kim",
+    "Hwanjo Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可用于电商、视频/内容、音乐等场景的下一代推荐，通过恢复被相似性偏差忽视的跨品类关系来提升推荐准确率与用户多样性偏好覆盖。",
+      "冷启动（T<5）和长序列场景的鲁棒性意味着新用户/少量交互用户以及长期活跃用户都能受益，有助于改善留存和个性化体验。",
+      "与MoE基线相比，PRISM参数更少、训练更快、显存占用更低，且在大规模Electronics数据集上仍高效，说明其具备实际部署潜力。",
+      "超参数K提供语义容量与计算成本的显式权衡，业务方可在预算内调节视角数量；代码开源便于工程落地与二次开发。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "识别并实证了自注意力中的相似性偏差：注意力分数与物品对目标预测的因果重要性对齐度低甚至为负，导致重要的异质关系被系统性忽视。",
+      "提出PRISM（Perspective-based Relational Insight Synthesis Module），在Transformer层之间用K个Perspective Lenses从多视角重审物品关系；Affinity View精炼同质关系，Contrast View恢复被相似性偏差压制的异质关系。",
+      "设计Semantic Anchor Router与双视角校准机制，并引入两个训练目标：L_SPCL（序列级偏好对比损失，含same-target增强和随机视角掩码）和L_CCL（跨视角一致性损失），在不坍缩视角多样性的前提下对齐序列级偏好与跨视角表示。",
+      "在7个真实基准数据集上的实验表明PRISM持续优于SOTA基线，且对冷启动、长序列、超参数选择和大规模数据具有鲁棒性；代码已公开。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Motivating Analysis: Overlooked Relations in Self-Attention"
+      },
+      {
+        "page": 1,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Performance Comparison"
+      },
+      {
+        "page": 1,
+        "section": "5.3.1 Revisiting the Preliminary Diagnostics"
+      },
+      {
+        "page": 1,
+        "section": "5.3.2 Ablation of Training Objectives"
+      },
+      {
+        "page": 1,
+        "section": "5.3.3 Ablation of Dual-View Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5.3.5 Analysis of Mitigating Similarity Bias"
+      },
+      {
+        "page": 1,
+        "section": "5.3.6 Analysis Across Sequence Lengths"
+      },
+      {
+        "page": 1,
+        "section": "5.3.7 Scalability and Efficiency Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5.3.8 Hyperparameter Sensitivity"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "BERT4Rec",
+        "GRU4Rec",
+        "AC-SASRec",
+        "CL4SRec",
+        "DuoRec",
+        "ICLRec",
+        "IOCRec",
+        "ICSRec",
+        "ELCRec",
+        "FAME",
+        "FamouSRec",
+        "STAR-Rec"
+      ],
+      "datasets": [
+        "Toys",
+        "Beauty",
+        "Games",
+        "Sports",
+        "ML-1M",
+        "Yelp",
+        "Electronics"
+      ],
+      "findings_zh": [
+        "在Toys、Beauty、Games、Sports、ML-1M、Yelp、Electronics七个数据集上，PRISM在H@5/10/20和N@5/10/20上均优于全部13个基线，例如Yelp上N@10提升11.15%（0.0319 vs 0.0287，p<0.05）。",
+        "诊断实验（Spearman相关ρ(A,I)和Align@1）显示PRISM的注意力与因果重要性对齐度优于所有基线；对PRISM的注意力干预（C1–C4）几乎不提升甚至降低目标置信度，说明其注意力已被良好校准。",
+        "消融实验显示去掉L_SPCL性能下降最大；去掉Same Target或SPM均降低性能；去掉L_CCL也降低性能；仅用Affinity或仅用Contrast都弱于完整双视角；去掉PGA校准（w/o PGA）甚至低于单视角变体。",
+        "冷启动场景（T<5）中PRISM较ICSRec提升12.44%；长序列场景（T≥300）中PRISM性能下降最小（-42.99%，而ICSRec为-50.02%）。",
+        "在低序列-目标相似度的Novel Set上，PRISM的N@20为0.0797，优于SASRec和ICSRec；ML-1M定性案例中PRISM能通过桥接物品的次要类型信号将目标排到第3/第9名，且掩码桥接物品时置信度大幅下降。",
+        "规模效率方面，K从2增至8仅增加768个参数；K=4时PRISM以909K参数、20.99秒/epoch训练时间、3.1GB训练显存超越FamouSRec（965K参数、103.55秒/epoch、4.5GB），且在大规模Electronics数据集上训练成本更低。"
+      ],
+      "metrics": [
+        "H@5",
+        "H@10",
+        "H@20",
+        "N@5",
+        "N@10",
+        "N@20"
+      ]
+    },
+    "limitations_zh": [
+      "原文未设专门的Limitations章节，未讨论失败案例、无效场景或社会影响等。",
+      "实验配置固定为2层Transformer、2个注意力头、d=64，未系统验证更深或更宽模型下PRISM的稳定性。",
+      "PRISM需要调节视角数K、辅助损失权重λ和温度τ等超参数，且K增大会带来时间和显存开销的线性增长。",
+      "评估基于公开数据集和离线指标（H@K、N@K），未报告在线A/B测试或真实系统部署效果。"
+    ],
+    "method_zh": "PRISM插入在L层Transformer的相邻层之间（共L-1个模块）。其架构包括：(1) Semantic Anchor Router：通过带噪声门控计算物品i对各语义组k的路由logits，经Softmax得到语义构成比例g_i^l，并取argmax得到Primary Semantic Anchor（PSA）；(2) Mixture of Perspective Lenses：每个视角透镜PL_k根据PSA构造二值Semantic Focus Mask M^{l,k}，只选中PSA=k的键位置；再计算Relational Boost Signal S^{l,k}（查询对某语义组键的平均注意力logits乘以掩码），并加到上一层注意力logits上形成Perspective Guided Attention logits A^{l,PGA_k}=A^l+exp(β^l·S^{l,k})，经Softmax后与共享的V'加权并过Linear得到透镜输出z^{l,k}；所有透镜共享参数，仅因视角掩码不同而输出不同。(3) 双视角涌现：当查询物品的PSA等于透镜语义组k时为Affinity View，强化同组同质关系；否则为Contrast View，恢复跨组异质关系；每个物品恰好被1个Affinity View和K-1个Contrast View分析。(4) Relational Insight Synthesis：用g_i^l对K个透镜输出加权求和，再过FeedForward得到h_i^{l,PRISM}，输入下一Transformer层。训练目标包括主交叉熵损失L_rec，以及L_SPCL（以同目标序列为正样本对，并用随机视角掩码SPM防止过度对齐的序列级对比损失）和L_CCL（对透镜输出在采样物品嵌入上的相似度分布做加权对称KL散度，保持跨透镜一致性而不坍缩多样性），总损失L=L_rec+λ(L_SPCL+L_CCL)。",
+    "problem_zh": "顺序推荐（Sequential Recommendation）中，基于Transformer的自注意力通过点积相似度计算物品间关系，但存在“相似性偏差”：注意力分数不成比例地偏向与查询物品相似的物品，系统性忽视异质物品关系（heterogeneous relations），而这些被忽视的关系往往携带对目标预测有意义的偏好信号。论文通过多种Transformer类SR基线的注意力-因果重要性相关分析、以及反事实注意力干预实验验证了这一问题，并指出该偏差导致模型只能捕获部分用户偏好，限制推荐性能。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8724999999999999,
+  "graph_relations": [],
+  "id": "arxiv-2608.11846",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-12T09:39:04Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出PRISM多视角注意力模块，通过同质与异质关系视角校准自注意力，以缓解序列推荐中的相似性偏差。",
+  "targets": [],
+  "tasks": [],
+  "title": "From Overlooked to Explored: Recovering Item Relations via Mixture of Perspectives for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2608.11846v1"
+}

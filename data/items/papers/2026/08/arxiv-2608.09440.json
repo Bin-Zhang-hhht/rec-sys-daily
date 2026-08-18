@@ -1,0 +1,143 @@
+{
+  "abstract": "Industrial recommender systems rank heterogeneous content under coupled user, business, commercial, and experience objectives. Existing generative ranking methods typically construct item sequences directly, making them difficult to integrate with mature predictive models, operational rules, and field-level guardrails. We present MetaStrategy, a framework that instead generates a structured, executable ranking strategy. Conditioned on request context, a large language model (LLM) policy emits a typed JSON bundle controlling objective weights, content and category preferences, experience constraints, and position policies. A deterministic validator and compiler instantiate an isolated Generator that competes atomically with incumbents under the list-level Evaluator of the Generator-Evaluator (GE) architecture. We train the policy in a production-path replay environment that re-executes logged requests through the current re-ranking stack without user exposure. The method combines selection, relative-rank, and baseline-lift rewards, a self-competitive curriculum that feeds frequent strategies back as competitors, and Evaluator-routed reward-augmented on-policy distillation that transfers complementary 4B-parameter Teachers into a compact 0.8B-parameter Student. We deploy MetaStrategy in Taobao Homepage Guess You Like through diff-triggered nearline generation; LLM inference remains outside synchronous ranking, with no observable increase in response time (RT). In a seven-day user-randomized online A/B test, MetaStrategy wins 27.93% of treatment-side GE calls and significantly improves click page views (click PV) by 2.11%, item-detail page views (IPV) by 3.12%, and transaction amount by 2.83%. Industrial recommender systems rank heterogeneous content under coupled user, business, commercial, and experience objectives. Existing generative ranking methods typically construct item sequences directly, making them difficult to integrate with mature predictive models, operational rules, and field-level guardrails. We present MetaStrategy, a framework that instead generates a structured, executable ranking strategy. Conditioned on request context, a large language model (LLM) policy emits a typed JSON bundle controlling objective weights, content and category preferences, experience constraints, and position policies. A deterministic validator and compiler instantiate an isolated Generator that competes atomically with incumbents under the list-level Evaluator of the Generator-Evaluator (GE) architecture. We train the policy in a production-path replay environment that re-executes logged requests through the current re-ranking stack without user exposure. The method combines selection, relative-rank, and baseline-lift rewards, a self-competitive curriculum that feeds frequent strategies back as competitors, and Evaluator-routed reward-augmented on-policy distillation that transfers complementary 4B-parameter Teachers into a compact 0.8B-parameter Student. We deploy MetaStrategy in Taobao Homepage Guess You Like through diff-triggered nearline generation; LLM inference remains outside synchronous ranking, with no observable increase in response time (RT). In a seven-day user-randomized online A/B test, MetaStrategy wins 27.93% of treatment-side GE calls and significantly improves click page views (click PV) by 2.11%, item-detail page views (IPV) by 3.12%, and transaction amount by 2.83%.",
+  "arxiv_id": "2608.09440",
+  "authors": [
+    "Chengyu Lai",
+    "Jiuning Lin",
+    "Zhibo Xiao",
+    "Xiaodong Zhu",
+    "Ruiquan Lan",
+    "Bin Zhang",
+    "Zihong Huang",
+    "Wendong Zhang",
+    "Chuxin Chen",
+    "Yinjiang Cai",
+    "Shuai Zhong",
+    "Lingqing Zhang",
+    "Dimin Wang",
+    "Jialin Zhu",
+    "Han Zhu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "方案是加性集成：不修改现有Generator、列表级Evaluator和回退分支，新增LLM策略仅在GE原子竞争中胜出时被曝光，支持逐步放量、请求级归因和即时回滚。",
+      "LLM推理位于异步近线分支，diff触发刷新、校验后发布和确定性默认回退使同步排序路径无LLM推理，线上响应时间无可观察增加。",
+      "七日在线上A/B中曝光PV、点击PV、IPV和成交金额分别提升1.49%、2.11%、3.12%和2.83%，且广告成本方向为正（+0.87%），显示对用户活跃、内容消费和平台商业价值的综合正向作用。",
+      "部署在淘宝首页“猜你喜欢”上，日常服务数亿用户，说明该方法能在高流量真实生产环境中承载实际推荐流量。",
+      "策略以带边界和枚举的JSON配置表达，业务决策可审计、可解释且可按字段设置上限，有利于跨团队协作和监管合规。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "将生成式排序重新定义为基于请求条件生成可执行的联合排序策略：LLM输出受模式约束的JSON策略包，而非物品ID或排列，从而保留自回归策略的表达能力，同时保持现有排序器的控制面、校验、隔离与回退能力。",
+      "构建生产路径回放环境：在单次Generator-Evaluator原子调用中，让LLM控制的Generator与约十个在线生产Generator竞争，使用选择、相对排名和基线提升三类奖励提供请求级反馈，回放流量不暴露给用户。",
+      "提出自竞争课程：将频繁出现的已编译策略冻结为新的竞争Generator，迫使策略在后续训练中不能靠重复已有模式获得奖励，缓解对学习型Evaluator的利用性坍缩。",
+      "提出Evaluator路由的奖励增强在线策略蒸馏（OPD）：逐请求由共享列表级Evaluator在多个4B Teacher中选出最优有效Teacher，在其在线策略信号上以奖励优势加权压缩为0.8B Student，并保留Student自身的GE奖励。",
+      "在淘宝首页“猜你喜欢”完成非侵入式部署：近线diff触发生成，LLM推理不同步进入排序链路，不增加线上响应时间；七日在线上A/B测试中，曝光PV、点击PV、IPV和成交金额分别提升1.49%、2.11%、3.12%和2.83%。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Setting and Problem Formulation"
+      },
+      {
+        "page": 1,
+        "section": "4 MetaStrategy"
+      },
+      {
+        "page": 1,
+        "section": "5 Production Deployment"
+      },
+      {
+        "page": 1,
+        "section": "6 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "A Complete Strategy Action Schema"
+      },
+      {
+        "page": 1,
+        "section": "B Detailed Production Deployment"
+      },
+      {
+        "page": 1,
+        "section": "C Limitations and Responsible Deployment"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BaseG（贪心按生产分数填充位置）",
+        "GNR G（序列化上下文感知生产Generator）",
+        "NAR G（非自回归列表构造Generator）",
+        "Single-objective perturbation G（单目标扰动生产Generator）",
+        "Prompt-only 0.8B/4B LLM策略",
+        "RL 0.8B/4B（无课程、无路由蒸馏）",
+        "Curriculum RL 4B"
+      ],
+      "datasets": [
+        "淘宝首页“猜你喜欢”工业回放数据集：连续8天、每天随机采样8192个请求，共65536个请求；第1-6天训练（49152），第7天验证（8192），第8天测试（8192）",
+        "2026年7月七日在线上A/B测试：控制/实验各1%流量（各数百万用户），按用户级确定性哈希分桶"
+      ],
+      "findings_zh": [
+        "NAR是离线最强生产基线：Evaluator提升+2.75%、选中率13.70%、Beat Base 63.40%；GNR虽有+1.68%Evaluator提升但选中率仅6.09%，单目标扰动提升pCTR/pIPV但Evaluator提升仅+1.21%且选中率4.94%，说明单点指标提升不等于异构列表在平台目标下更优。",
+        "规模主要提升可执行性：Prompt-only从0.8B到4B使Valid从4.39%升至80.86%、Selected从0.39%升至7.87%、ΔGE从0.02%升至0.34%；回放RL使0.8B的Valid达97.12%、ΔGE 0.38%，略超Prompt-only 4B。",
+        "直接RL会集中坍缩：0.8B直接RL对ranking_weight_boost的Top-1完整元组频率为59.9%（(0,2,-1,-1)），4B为76.8%（(1,2,0,0)）；自竞争课程在4B下把Top-1频率从76.8%降到41.2%，同时Valid保持98.85%左右、Selected从7.93%升至11.27%、ΔGE从0.45%升至0.57%。",
+        "路由奖励增强OPD在0.8B下将Top-1频率从59.9%降到33.0%，Valid从97.12%升到98.03%，Selected从8.56%升到16.24%，ΔGE从0.38%升到0.73%；最终Student在所有方法中取得最高Selected和ΔGE，尽管Evaluator提升+2.53%略低于NAR。",
+        "七日在线上A/B中，MetaStrategy赢得27.93%处理侧GE原子调用；曝光PV +1.49%、点击PV +2.11%、IPV +3.12%、成交金额 +2.83%、广告成本+0.87%均正向，其中曝光PV、点击PV、IPV和成交金额显著；成交笔数-0.24%不显著。"
+      ],
+      "metrics": [
+        "ΔpCTR / ΔpCVR / ΔpIPV / ΔpGMV（列表内点级预测分数诊断）",
+        "ΔEvaluator（相对BaseG的Evaluator提升）",
+        "Valid（策略可执行率）",
+        "Selected（被Evaluator选中的调用占比）",
+        "ΔGE（加入该Generator后对既有生产池的增量GE提升）",
+        "Beat Base（相对BaseG胜率）",
+        "Top-1 frequency（策略模块决策集中度）",
+        "线上指标：Exposure PV、Click PV、IPV、Transaction Count、Transaction Amount、Ad Cost"
+      ]
+    },
+    "limitations_zh": [
+      "MetaStrategy优化的是学习型Evaluator而非线上价值本身，自竞争只能提高利用高频策略模式的成本，无法消除Evaluator规格错误（misspecification）。",
+      "Evaluator等生产模型会随线上版本变化；原子回放只保证同一次调用内Generator可比，不保证跨回放调用或模型版本可比。",
+      "回放固定了日志中的候选集和精排分数，只能评估当前重排路径内的策略效果，无法评估需要不同召回或上游精排预测的增益。",
+      "回放不模拟点击、成交或后续用户状态转移，回放结果只是列表级代理效用，需由随机在线实验验证。",
+      "类型化动作模式把策略限制在生产排序器暴露的机制内，便于审计和回滚，但可能排除有价值的新策略。",
+      "线上A/B中成交笔数变化为-0.24%且不显著，广告成本提升+0.87%也不显著，商业指标并非全部同时显著改善。"
+    ],
+    "method_zh": "MetaStrategy让一个大语言模型策略接收上游意图模型的实时多意图表示、历史统计和近期行为序列，输出包含五个有序可执行模块的JSON策略包：ranking_weight_boost（CTR/IPV/CVR/GMV权重调整）、cardtype_preference（内容类型偏好）、category_preference（类目偏好）、experience_constraints（体验约束）和top_ctr_strategy（页级置顶策略）。确定性解析器、模式校验器和编译器将语义动作映射为生产参数，并只挂载到隔离的MetaStrategy Generator上；该Generator与现有生产Generators共享候选集，在同一个列表级Evaluator下原子竞争。训练使用生产路径回放：从线上请求日志初始化每个回合，执行当前重排栈但不对用户曝光，返回选择、排名和基线提升三类GE奖励。为避免策略坍缩，自竞争课程把高频已编译策略加入下一轮Generator池；为压缩模型，Evaluator按请求在多个4B Teacher中路由最优有效Teacher，在Student采样的token轨迹上计算反向KL奖励惩罚与GE优势混合，用标准clip策略目标更新0.8B Student。线上部署采用近线异步生成、diff触发刷新、校验后发布、确定性问题解析，同步排序只做配置查找，LLM推理不进入同步路径。",
+    "problem_zh": "工业推荐系统需要在用户价值、商业目标和体验约束下对异构内容排序，但现有策略层依赖全局多目标公式和人工规则，难以针对请求个性化地联合调整目标权重、内容构成、类目偏好、曝光约束和位置策略。现有生成式排序方法直接生成物品序列或排列，难以与线上成熟的预测模型、运营规则和字段级护栏集成，也无法逐项审计和修正业务决策。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.9390000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.09440",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-10T11:16:09Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出MetaStrategy，用大语言模型生成可执行排序策略并应用在淘宝首页猜你喜欢推荐中，显著提升点击PV、IPV与成交额。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MetaStrategy: Generative Ranking with Executable LLM Strategies",
+  "url": "https://arxiv.org/abs/2608.09440v1"
+}

@@ -1,0 +1,133 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "平台由六部分组成：流式/批量接入；共享执行引擎将原始事件按配置过滤、join、transform 为富化记录；实时索引器以低延迟方式写入增量更新；批量索引与回填 pipeline 从历史原始事件生成长序列和可复用中间数据集；列式、按时间分区、具备表语义的存储；在线 serving API 按信号名请求序列并做请求时富化和截断。核心原则是“一次定义、多运行时”：同一个信号定义被实时索引、批量索引/回填和在线 serving 三种工作负载消费，避免训练与线上序列视图漂移。",
+    "business_implications_zh": [
+      "对依赖用户行为序列的推荐、搜索和广告系统，统一序列平台可降低存储与网络成本，并加速新特征和新事件类型的实验周期。",
+      "配置驱动的接入模式让 ML/产品团队聚焦“想要什么”，平台团队聚焦“如何执行”，缩短新信号上线时间，直接提升生产力。",
+      "序列质量（新鲜度、完整性、一致性）影响用户体验和收入，文章中主要推荐表面参与度提升说明数据平台投资可以转化为业务效果。",
+      "多租户共享平台需要持续投入可观测性和迁移验证，避免序列质量回归造成大范围用户体验和收入损失。",
+      "其他公司可借鉴“一次定义、多运行时”、共享执行引擎和列式存储等思路，但需根据自身规模、现网复杂度和迁移成本进行取舍。"
+    ],
+    "business_transferability": 0.8,
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "heading": "What We Mean by “User Sequence”",
+        "section": null
+      },
+      {
+        "heading": "Context: Where Sequences Show Up and Why Quality Is Hard",
+        "section": null
+      },
+      {
+        "heading": "Goals (and Non-Goals)",
+        "section": null
+      },
+      {
+        "heading": "The Core Idea: One Definition, Many Runtimes",
+        "section": null
+      },
+      {
+        "heading": "Architecture Overview",
+        "section": null
+      },
+      {
+        "heading": "Design Decision 1: Configuration-as-Code for Sequences and Enrichments",
+        "section": null
+      },
+      {
+        "heading": "Design Decision 2 — Shared Execution Engine with Pluggable Executors",
+        "section": null
+      },
+      {
+        "heading": "Design Decision 3: Lambda Architecture for Fresh and Complete Sequences",
+        "section": null
+      },
+      {
+        "heading": "Design Decision 4: Columnar, Time-Partitioned Storage with Table Semantics",
+        "section": null
+      },
+      {
+        "heading": "Migration, Rollout, and Measurement",
+        "section": null
+      },
+      {
+        "heading": "Future Work",
+        "section": null
+      }
+    ],
+    "implementation_zh": "采用 Python 编写配置即代码来定义序列、事件类型和富化逻辑；配置经过校验、编译为 JSON、存入内部对象存储，由共享执行引擎在流、批和 serving 中消费。执行引擎内置可插拔 executor：框架负责数据源/汇、并发、重试、背压、配置解析和校验，executor 负责事件过滤、特征化和原始事件到规范化用户事件表示的映射。采用 Lambda 架构：流式路径维护近实时“当前”视图，批量路径负责修正历史、回填和离线分析。存储从整块“富化事件 blob”改为列式、按时间分区、类似表的布局，模型只读取所需列，减少 I/O 和网络带宽。",
+    "lessons_zh": [
+      "将“事件→富化信号→序列”定义为单一契约，并由共享执行引擎在流式、批量和 serving 中复用，可避免训练与在线视图漂移。",
+      "配置即代码使变更具备人类可读 diff、代码所有者审查、回滚和版本历史，并显著缩短新信号从概念到生产的时间。",
+      "迁移应作为一等项目：并行运行影子序列、分层验证、A/B 实验、逐事件类型受控切换后再弃用旧路径。",
+      "可观测性至关重要：需要 dashboard 跟踪新鲜度/滞后、事件与富化覆盖率、schema 漂移、配置发布状态、serving 延迟与错误率。",
+      "列式存储、时间分区和表语义便于检查异常天或事件类型、验证新富化并并排比较新旧 pipeline。"
+    ],
+    "limitations_zh": [
+      "文章明确表示受公司政策限制，只提供定性结果，没有披露成本、参与度或延迟的具体数字。",
+      "由于在线系统性质，新 pipeline 与旧系统输出不可能 100% 匹配，必须依赖多层验证来保证近似一致。",
+      "本次重设计未包含下游模型或排序架构，也未改变点击、保存、转化等事件的产品定义，这些语义仍由产品/日志团队负责。",
+      "未来工作仍包含更丰富的自助工具、静态分析、自动化回填编排和更强的正确性保证，说明当前自助能力和异常检测仍有局限。",
+      "文章没有提供完整配置 schema、执行引擎 API 或具体存储引擎实现细节，无法直接照搬复现。"
+    ],
+    "production_constraints_zh": [
+      "序列同时需要新鲜度和完整性：流式路径保证近实时更新，批量路径保证迟到事件、更正和回填最终反映。",
+      "平台是多租户的，必须支持多个团队和模型的不同生命周期，正确性、可观测性和可运维性与吞吐/延迟同等重要。",
+      "训练、离线分析和在线推理都依赖序列，因此需要一致的富化、可版本化且可预期的 schema。",
+      "在线推理延迟敏感，不能每次请求都拉取完整的大 payload。",
+      "迁移时新旧系统输出无法 100% 匹配，必须采用事件级比较、序列级比较和 A/B 实验来建立信心。",
+      "公司政策限制，论文/博客只能描述定性结果，不能披露具体量化指标。"
+    ],
+    "results_zh": [
+      "大型事件类型完全迁移后，基础设施成本显著下降，主要来自更高效的存储格式、适当减少副本和每次请求更低的网络传输。",
+      "新增富化和事件类型的接入时间大幅缩短，大多数变更从定制 pipeline 变为配置更新和小型可组合 executor。",
+      "主要推荐表面的参与度指标在使用新平台产生的序列后有所提升，同时保持在质量和安全预期内。",
+      "通过事件级和序列级两层比较以及 A/B 实验，团队确认新系统产生与旧系统近似相同的序列后，完成了逐事件类型的受控切换。"
+    ],
+    "system_context_zh": "本文介绍 Pinterest 工程团队对用户序列平台的重构。用户序列被定义为用户最近相关事件的有序列表，并附带每个事件的富化信号（如嵌入、上下文特征、派生属性/计数器）。这些序列支撑首页信息流、相关 Pin、搜索结果及广告等推荐/检索/排序场景，同时用于训练数据集、离线分析和在线推理。平台需要兼具新鲜度、完整性、一致的富化、稳定的 schema，并且是多租户、延迟敏感的在线数据基础设施。",
+    "technical_depth": 0.85,
+    "tradeoffs_zh": [
+      "Lambda 架构同时追求新鲜与完整，但需要明确两条路径如何合并以及何时以批量修正结果为准。",
+      "列式、按时间分区存储提高压缩率并降低网络传输，但需要管理分区和表语义，增加存储布局复杂度。",
+      "配置驱动显著降低新事件/富化接入成本，但部分逻辑仍需少量代码，必须在框架与插件间划清边界。",
+      "共享执行引擎减少批/流行为和逻辑漂移，但要求 executor 插件化，否则新事件类型容易侵入框架。",
+      "影子迁移提高了切换安全性，但由于在线系统特性，新老系统近似匹配而非精确一致，需要额外的验证层级。"
+    ]
+  },
+  "final_score": 0.785,
+  "graph_relations": [
+    {
+      "confidence": 0.6,
+      "evidence": "两者均为推荐/广告系统提供用户序列与候选生成的工程和建模实践。",
+      "generated_by": "llm_taxonomy_classifier",
+      "target_id": "url-efe96dcd75f9bde404ee3c9a",
+      "type": "related_by_topic"
+    }
+  ],
+  "id": "url-2660fad3381f92db1c6d485c",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-05-21T16:01:00Z",
+  "relevance_score": 0.8,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "pinterest_engineering",
+  "summary_zh": "介绍Pinterest用户序列数据平台的重构，强调新鲜度、完整性和一致性富化，支持首页信息流、相关推荐和搜索等场景下的训练数据与在线推理所依赖的排序和召回模型。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Making User-Sequence Data More Cost-Efficient, Faster, and Easier to Use",
+  "url": "https://medium.com/pinterest-engineering/making-user-sequence-data-more-cost-efficient-faster-and-easier-to-use-2a56a928cae1?source=rss----4c5a5f6279b6---4"
+}

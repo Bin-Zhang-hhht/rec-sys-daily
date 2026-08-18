@@ -1,0 +1,106 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "采用两塔（two-tower）检索架构，用户侧和 Pin 侧分别编码，因检索阶段没有显式 user-Pin 交互特征。每个塔使用并行 DCN v2 与 MLP 交叉层架构：DCN v2 交叉网络从原始输入逐层构造高阶显式特征交叉，3 层 MLP 并行学习隐式抽象模式，两者输出融合得到更丰富的表示。损失/任务设计上，从 2023 年的共享编码器多任务多头架构（engagement head + conversion head）演进为 2025 年的统一单头多任务架构（unified single-head multi-task），并引入 advertiser-level loss 作为额外训练目标，以更稳定地捕捉转化信号。",
+    "business_implications_zh": [
+      "转化广告对 Pinterest 连接用户和商品、同时为广告主创造价值至关重要",
+      "专门为转化优化的候选生成模型可同时提升广告主 RoAS 和用户购物体验，如 CTR 提升",
+      "2023 年上线即带来购物转化量 +2.3% 和曝光到转化率 +2.7% 的广告主价值提升",
+      "2025 年迭代进一步带来美国购物广告 RoAS +3.1% 的提升",
+      "该架构被所有生产 engagement 检索模型采纳，说明技术改进可在组织内部复用并放大收益"
+    ],
+    "business_transferability": 0.6,
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "heading": "Introduction",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Training Data Design",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Feature Engineering",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Model Architecture and Loss function Design",
+        "section": "Pinterest Engineering Blog"
+      },
+      {
+        "heading": "Conclusion",
+        "section": "Pinterest Engineering Blog"
+      }
+    ],
+    "implementation_zh": "训练数据方面：在所有购物表面上训练单一模型以避免稀疏转化标签被进一步拆分，同时加入 surface-specific 特征；使用转化+点击/repin 双正样本，并基于点击时长 t 用 log-based 重加权函数 w 降低误点击噪声；负样本在 in-batch negatives 基础上加入无 engagement 的广告曝光作为 harder negatives。特征方面，用户侧分为实时上下文特征（如 subject Pin 的视觉和 GraphSAGE 嵌入）和长期偏好/历史特征（如 demographics、聚合历史行为、Transformer 处理的序列用户历史嵌入）；Pin 侧包含 ID 特征、多模态/内容特征和 engagement 表现特征。训练采用 sampled softmax loss；serving 时只使用 conversion 对应的 Pin 和 query embedding。",
+    "lessons_zh": [
+      "转化事件的稀疏性和噪声是上一代模型性能的主要瓶颈，数据设计比单纯堆模型更重要",
+      "多表面统一建模有助于避免稀疏转化标签碎片化，并提升泛化能力",
+      "并行 DCN v2 与 MLP 的关键收益是消除信息瓶颈，让交叉网络在每一层都参考原始输入",
+      "从多头架构演进到统一单头多任务架构，能让 serving 时使用的 embedding 直接受益于多任务优化",
+      "advertiser-level 的转化监督比 Pin-level 更稳定，能更好地对齐转化信号的自然粒度",
+      "engagement 辅助任务可以稳定训练并提升广告漏斗存活率，但需要谨慎平衡权重",
+      "点击时长重加权可降低误点击噪声，提升点击数据的质量",
+      "好的广告主结果和好的用户体验并非对立，而是相互促进"
+    ],
+    "limitations_zh": [
+      "文中的 recall、CTR、RoAS 等指标均为 Pinterest 内部数据（美国，2023-2025），未提供外部复现或第三方验证",
+      "未披露 DCN v2 层数、MLP 维度、embedding 维度、batch size、训练成本等关键实现细节",
+      "未说明点击时长重加权函数中 tₘₐₓ 的具体取值和调参方式",
+      "未讨论冷启动、新广告主/新 Pin 的覆盖问题",
+      "未分析 advertiser-level loss 可能带来的偏差或对中小广告主的影响",
+      "未给出在线推理延迟的具体数值或资源消耗对比"
+    ],
+    "production_constraints_zh": [
+      "转化事件离站、稀疏、噪声大、延迟上报，需要额外设计缓解数据质量问题",
+      "检索阶段必须保持低延迟，因此采用两塔架构而非全交互模型",
+      "需要在转化信号与更频繁的 engagement 数据之间做平衡，避免高价值转化信号被稀释",
+      "单一模型需同时服务 Homefeed、Related Pins、Search 等多个表面，需用 surface-specific 特征区分上下文",
+      "模型需要部署到 600+ 百万月活用户的 Pinterest 生产环境，并最终被所有生产 engagement 检索模型采纳",
+      "Pin 级转化数据方差高，单纯 Pin 级监督难以可靠建模购买意图"
+    ],
+    "results_zh": [
+      "并行 DCN v2 与 MLP 架构在转化任务上带来 +11% 的离线 recall@1000 提升",
+      "该并行架构随后被所有生产 engagement 检索模型采用，取得类似的 recall 提升和显著的在线指标收益",
+      "从 2023 模型到加入 advertiser-level loss 等改进后的模型，转化任务平均 recall@100 提升 +42%",
+      "2023 年引入新的 conversion candidate generation 后，购物转化量提升 2.3%，购物曝光到转化率提升 2.7%",
+      "CTR 提升 1.5%，30 秒以上 CTR 提升 2.2%",
+      "2025 年的进一步迭代使美国购物活动的 RoAS 提升 3.1%"
+    ],
+    "system_context_zh": "Pinterest 的购物广告（shopping ads）候选生成（candidate generation）系统，服务于 600+ 百万月活用户的购物转化优化。转化事件发生在站外，由广告主上报，相比站内点击等 engagement 信号更稀疏、噪声更大且存在延迟。历史检索模型主要基于 engagement 优化，本文介绍为 lower-funnel 转化目标专门构建的候选生成模型，覆盖 Homefeed、Related Pins、Search 等多个购物表面。",
+    "technical_depth": 0.85,
+    "tradeoffs_zh": [
+      "顺序 DCN+MLP 与并行 DCN+MLP：顺序结构存在信息瓶颈，MLP 只能学习 DCN 处理后的特征；并行结构让两条通路直接学习原始输入，表达更强但实现更复杂",
+      "多任务多头架构与统一单头多任务架构：多头可分别优化 engagement 和 conversion，但 serving 时只用 conversion 头；统一单头让最终 embedding 直接受益于多任务优化，在低转化覆盖区域更稳定",
+      "转化标签与 engagement 辅助标签：转化更有价值但稀疏，engagement 更丰富但噪声大，需用 loss 权重和点击时长重加权平衡",
+      "Pin 级转化 loss 与 advertiser-level loss：Pin 级方差高，advertiser-level 粒度更稳定，但可能牺牲 Pin 级个性化粒度",
+      "单一全表面模型与按表面独立模型：全表面模型避免转化标签碎片化，但需额外特征建模表面差异",
+      "in-batch negatives 与无 engagement 广告曝光 negatives：后者更贴近 serving 时的真实广告分布，但可能增加训练难度"
+    ]
+  },
+  "final_score": 0.8305,
+  "graph_relations": [],
+  "id": "url-ab1787e03eb4807379306b7b",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-04-27T16:01:05Z",
+  "relevance_score": 0.93,
+  "scenarios": [],
+  "source": "pinterest_engineering",
+  "summary_zh": "Pinterest面向购物转化广告构建候选生成模型，通过多表面训练、多任务学习、Transformer用户序列建模和GraphSAGE特征来提升转化召回。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "From Clicks to Conversions: Architecting Shopping Conversion Candidate Generation at Pinterest",
+  "url": "https://medium.com/pinterest-engineering/from-clicks-to-conversions-architecting-shopping-conversion-candidate-generation-at-pinterest-04cae5e1455b?source=rss----4c5a5f6279b6---4"
+}

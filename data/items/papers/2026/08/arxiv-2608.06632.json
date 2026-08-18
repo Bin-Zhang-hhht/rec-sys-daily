@@ -1,0 +1,161 @@
+{
+  "abstract": "Industrial recommendation systems predominantly adopt a passive ranking paradigm that infers user preferences from implicit behavioral signals (e.g., clicks, dwell time) rather than explicit, natural language inputs. As a result, users experience a persistent discrepancy between their explicit interests and what passive behavioral algorithms deliver, limiting their ability to express nuanced preferences or steer their feed in real time. To address this growing gap between how recommendations are optimized and how users wish to articulate their interests, we present Shape Your Feed (SYF), an LLM-based agentic recommendation framework that enables real-time, multimodal co-curation of content. SYF employs a three-tier architecture: (i) a Perception Flow that captures fine-grained user intent from text prompts, voice commands, and UI interactions; (ii) a Serving Flow that performs real-time agentic re-ranking and pruning of candidate items, grounded in a persistent Semantic Profile encoding evolving user preferences; and (iii) a Self-Evolution Flow that aligns system behavior with human judgments via Direct Preference Optimization (DPO) and an LLM-as-a-Judge ensemble. Offline evaluations show that SYF's alignment scoring module achieves 98.85% accuracy, substantially improving over strong few-shot baselines. Large-scale online A/B experiments on production traffic further demonstrate that SYF improves feed relevance and user sentiment, indicating a practical and scalable path toward interactive, user-steerable recommendation in industrial settings. Industrial recommendation systems predominantly adopt a passive ranking paradigm that infers user preferences from implicit behavioral signals (e.g., clicks, dwell time) rather than explicit, natural language inputs. As a result, users experience a persistent discrepancy between their explicit interests and what passive behavioral algorithms deliver, limiting their ability to express nuanced preferences or steer their feed in real time. To address this growing gap between how recommendations are optimized and how users wish to articulate their interests, we present Shape Your Feed (SYF), an LLM-based agentic recommendation framework that enables real-time, multimodal co-curation of content. SYF employs a three-tier architecture: (i) a Perception Flow that captures fine-grained user intent from text prompts, voice commands, and UI interactions; (ii) a Serving Flow that performs real-time agentic re-ranking and pruning of candidate items, grounded in a persistent Semantic Profile encoding evolving user preferences; and (iii) a Self-Evolution Flow that aligns system behavior with human judgments via Direct Preference Optimization (DPO) and an LLM-as-a-Judge ensemble. Offline evaluations show that SYF's alignment scoring module achieves 98.85% accuracy, substantially improving over strong few-shot baselines. Large-scale online A/B experiments on production traffic further demonstrate that SYF improves feed relevance and user sentiment, indicating a practical and scalable path toward interactive, user-steerable recommendation in industrial settings.",
+  "arxiv_id": "2608.06632",
+  "authors": [
+    "Ziyun Xu",
+    "Bosen Ding",
+    "Yue Zhang",
+    "Ji Qi",
+    "Qingyuan Song",
+    "Jizhou Huang",
+    "Liwei Wang",
+    "Jefferey Santelli",
+    "Yue Weng",
+    "Qichao Que",
+    "Zhenheng Yang",
+    "Junfeng Pan",
+    "Linhong Zhu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "信息流产品可将推荐从被动预测升级为用户可实时协作的形态，通过文本、语音和 UI 胶囊收集显式意图，提升用户掌控感与满意度，可能带来更好的留存和长期参与度。",
+      "线上数据显示完整 SYF 系统可显著降低负面反馈（Post Dismiss -1.70%、Post Dislike -2.74%），有助于减少用户厌恶内容、改善内容生态和用户体验。",
+      "新兴趣消费 +0.16% 的显著提升说明系统能帮助用户探索潜在兴趣，对内容分发多样性、长尾内容消费和创作者生态具有商业价值。",
+      "上下文感知反馈胶囊获得 76.02% 的用户交互份额，说明用户更偏好语义化、细粒度的控制选项，可直接作为产品交互设计的落地切入点。",
+      "SYF 对生产管道的额外延迟很小（critical path +0.043%、direct tier +0.412%），具备工业规模部署可行性，但需要相应的 LLM 推理/训练基础设施与持续的数据飞轮来维持效果。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "提出 Shape Your Feed（SYF），一个面向信息流推荐的可扩展 agentic 架构，将 LLM 意图理解、持久化记忆与生产级排序流结合，实现多轮稳定、目录可落地的对话式推荐。",
+      "将文本、语音、UI 控件等多模态用户反馈统一为一致的 Semantic Profile 偏好状态，提升个性化、透明度与用户感知的掌控感。",
+      "通过离线实验与大流量在线 A/B 实验验证 SYF 可提升信息流相关性和用户情感/参与度，并给出工业落地中的关键洞见与开放挑战。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Problem Scope"
+      },
+      {
+        "page": 1,
+        "section": "4 System Overview"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Perception Flow"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Serving Flow"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Self-Evolution Flow"
+      },
+      {
+        "page": 1,
+        "section": "5 Dual-Feedback Policy Alignment"
+      },
+      {
+        "page": 1,
+        "section": "5.1 SFT Stage"
+      },
+      {
+        "page": 1,
+        "section": "5.2 DPO Stage"
+      },
+      {
+        "page": 1,
+        "section": "6 Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "6.1 Offline Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "6.2 Online Evaluation: System-Wide Performance"
+      },
+      {
+        "page": 1,
+        "section": "6.3 System Efficiency"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Few-shot Llama3-8B baseline",
+        "传统排序信号 P(CSL) 与 P(CSM)",
+        "Production baseline（静态反馈选项 + 标准排序栈）",
+        "Pills Only 在线消融（仅部署上下文感知反馈胶囊）",
+        "Llama 3 70B / Llama 3 8B / Llama 3.2 1B 零样本模型规模对比"
+      ],
+      "datasets": [
+        "LLM judge 集成标注的离线评测集（与 SFT 训练数据同分布）",
+        "独立人工标注黄金测试集（1029 个样本，完全隔离于 LLM judge 流程）",
+        "线上 A/B 生产流量（US/Canada 18+ 用户，持续数月）"
+      ],
+      "findings_zh": [
+        "SFT 显著优于 few-shot baseline（accuracy 98.21% vs 83.84%，precision 78.20% vs 47.06%，latency 由 650ms 降至 325ms）；SFT+DPO 进一步达到 accuracy 98.85%、precision 79.16%、recall 79.41%、F1 79.51%、latency 323ms。",
+        "传统隐式信号 P(CSL)/P(CSM) 在内容匹配与不匹配用户显式画像时区分度极低（P90(P(CSL)) 0.208 vs 0.199，P90(P(CSM)) 0.289 vs 0.212）；SYF 的 alignment scoring 对不匹配内容判别准确率达 99.4%，对匹配内容为 79.4%。",
+        "在独立人工标注的 1029 样本黄金集上，模型 accuracy 95.8%、precision 75.6%、recall 74.7%、F1 75.1%，与自动化评测高度一致，说明未明显过拟合 LLM judge 合成标注。",
+        "LLM judge 集成在 multi-reviewed benchmark 上与人类判断达到 96% 的一致率，可有效扩充稀疏的显式反馈标注。",
+        "模型规模选择上，Llama3-8B 在语义对齐能力、内存占用与关键路径延迟之间取得最优平衡；70B 虽 precision 更高但无法部署到 serving 关键路径，1B 模型能力不足（F1 仅 12.9%）。",
+        "线上 A/B 中，上下文感知反馈胶囊获得 76.02% 的交互份额（静态选项仅 23.98%）；完整 SYF 系统使 Post Dismiss 相对下降 1.70%、Post Dislike 下降 2.74%、新兴趣消费提升 0.16%，均具统计显著性。",
+        "在线消融显示，仅部署上下文感知胶囊可提升 UI 点击 +3.30%*，但单独无法降低 dismiss/dislike 或提升兴趣消费；必须配合 Serving Flow 的剪枝、重排序和候选增强才能带来信息流质量改进。",
+        "系统效率方面，SYF 仅增加 critical path latency +0.043%、direct tier latency +0.412%，主要成本来自 alignment scoring 单次列表式推理（323ms），异步候选挖掘与离线自进化可有效隐藏/吸收其余开销。"
+      ],
+      "metrics": [
+        "Accuracy / Precision / Recall / F1",
+        "Latency (ms)",
+        "P90(P(CSL)) 与 P90(P(CSM))",
+        "Post Dismiss Rate / Post Dislike Rate / Interest Consumption / UI Click",
+        "Static vs Context-Aware Pills Selection Share",
+        "Critical path latency overhead / direct tier latency overhead"
+      ]
+    },
+    "limitations_zh": [
+      "当前框架依赖用户主动提供显式输入来触发主动个性化循环；在高频信息流中，主动使用自然语言或 UI 反馈的用户比例有限，不常交互的被动用户基本回落至基线排序。",
+      "论文仅在 alignment scoring 模块上进行了系统的 SFT/DPO 监督优化；其他 LLM 组件主要依赖 prompt engineering 和 LLM-as-a-Judge 离线验证，缺少同等强度的线上或人工验证。",
+      "线上实验为隔离算法与界面影响，仅启用了 Context-Aware Feedback Pills 一种交互入口，文本/语音对话式入口在真实流量中的增量效果未被直接评估。",
+      "实验与系统实现基于 Meta 内部生产环境，未公开数据集或完整可复现细节，跨平台迁移时需重新验证效果与基础设施成本。"
+    ],
+    "method_zh": "SYF 采用三流程闭环架构。Perception Flow 通过上下文感知反馈胶囊、内容偏好设置、MetaAI Assistant 三种入口接收多模态输入，由 Orchestrator 解析意图并路由任务；Recommendation Toolchain 执行意图检测、偏好合成（去重、强化、冲突消解、语义扩展）和异步候选挖掘，维护 Semantic Profile、Intent Trajectory 与 Candidate Cache。Serving Flow 将数值排序信号解码为语义上下文，基于 Semantic Profile 构造对齐提示，并对候选池执行增强（Augmentation）、列表式双向对齐打分（Alignment Scoring）、硬性剪枝（Pruning）、重排序（s_final = α·ŷ_{v|S_t} + (1-α)·ŷ_{u,v}）和自然语言理由生成（Justification）。Self-Evolution Flow 通过 Agentic-to-Production Propagation 将语义画像注入生产排序（表征增强、检索增强、late-stage 个性化），并通过 Dual-Feedback Policy Alignment 将线上真实行为反馈与离线 LLM-as-a-Judge 集成标注结合，先用 SFT 建立基础策略、再用 DPO 进行偏好对齐。记忆持久化层统一维护 Semantic Profile、Intent Trajectory、Candidate Cache 和 Behavioral Feedback。",
+    "problem_zh": "工业推荐系统普遍采用被动排序范式，仅从点击、停留时长等隐式行为信号推断用户偏好，无法直接接受用户用自然语言、语音或UI表达的真实意图。由此导致用户明确兴趣与实际推荐内容之间存在持续错位，用户缺乏实时、可解释、细粒度的信息流控制手段。现有对话式推荐方法多面向静态目录（如电影、商品），难以支撑高吞吐信息流环境下多模态反馈、实时负面约束和持久状态跟踪的工业级需求。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.9065000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.06632",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-06T22:54:16Z",
+  "relevance_score": 0.98,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出Shape Your Feed，一个基于大语言模型的智能体推荐框架，通过实时多模态交互、语义画像与重排机制实现用户可引导的内容流推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Shape Your Feed: An LLM-based Agentic System for Conversational Recommendation",
+  "url": "https://arxiv.org/abs/2608.06632v1"
+}

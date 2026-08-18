@@ -1,0 +1,137 @@
+{
+  "abstract": "Cross-domain recommendation (CDR) transfers preference knowledge across related domains, but federated deployment makes cross-domain alignment difficult because the behavioral anchors that align item spaces, such as overlapping users and shared interaction signals, are often sparse, unavailable, or privacy-sensitive across clients. To address this tension, we revisit federated CDR as generation over a stable semantic item language. By representing items as discrete semantic ID (SID) sequences derived from public item-side metadata, cross-domain item alignment is induced by a shared vocabulary rather than by exchanging private interactions or aligning domain-specific embeddings. Directly federating SID-based generators, however, introduces two design constraints: the SID tokenizer must remain fixed to preserve cross-client token consistency, which creates a semantic-only bottleneck because local collaborative filtering (CF) signals cannot be globally shared or aligned; meanwhile, standard federated averaging can cause negative transfer under domain heterogeneity. To overcome these constraints, we propose FedCGR, a federated generative CDR framework that keeps the item language stable and makes adaptation explicit. FedCGR injects local CF evidence through a reliability-aware semantic interface and trains a prototype-personalized generator that selectively aggregates shared parameters according to domain relatedness while keeping domain-specific quantities local. Experiments on six Amazon cross-domain scenarios show that FedCGR consistently outperforms federated generative baselines and achieves competitive performance against strong sequential and federated CDR methods under both full-ranking and sampled evaluation protocols. Cross-domain recommendation (CDR) transfers preference knowledge across related domains, but federated deployment makes cross-domain alignment difficult because the behavioral anchors that align item spaces, such as overlapping users and shared interaction signals, are often sparse, unavailable, or privacy-sensitive across clients. To address this tension, we revisit federated CDR as generation over a stable semantic item language. By representing items as discrete semantic ID (SID) sequences derived from public item-side metadata, cross-domain item alignment is induced by a shared vocabulary rather than by exchanging private interactions or aligning domain-specific embeddings. Directly federating SID-based generators, however, introduces two design constraints: the SID tokenizer must remain fixed to preserve cross-client token consistency, which creates a semantic-only bottleneck because local collaborative filtering (CF) signals cannot be globally shared or aligned; meanwhile, standard federated averaging can cause negative transfer under domain heterogeneity. To overcome these constraints, we propose FedCGR, a federated generative CDR framework that keeps the item language stable and makes adaptation explicit. FedCGR injects local CF evidence through a reliability-aware semantic interface and trains a prototype-personalized generator that selectively aggregates shared parameters according to domain relatedness while keeping domain-specific quantities local. Experiments on six Amazon cross-domain scenarios show that FedCGR consistently outperforms federated generative baselines and achieves competitive performance against strong sequential and federated CDR methods under both full-ranking and sampled evaluation protocols.",
+  "arxiv_id": "2608.10929",
+  "authors": [
+    "Zhuodong Liu",
+    "Hugen Lv",
+    "Xiangyu Li",
+    "Bohan Guo",
+    "Peiyu Hu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "FedCGR使不同平台或业务单元在不集中原始交互数据的情况下协作训练跨域推荐模型，适合组织隔离的跨域数据合作场景。",
+      "原始用户序列、本地CF嵌入、置信度、门控、域嵌入等敏感信息均保留在客户端，仅共享生成器参数和低维域原型，降低跨机构数据传输暴露面。",
+      "稳定SID词表基于公开物品元数据构建，对交互稀疏的新用户有冷启动改善，可提升新平台或新品类冷启动期的推荐质量。",
+      "虽然每轮通信开销略高，但更快收敛使达到相同精度的总通信预算降低34%-45%，对带宽受限的跨域联邦部署具有成本吸引力。",
+      "学习到的门控与置信度可按域自动校准CF贡献，减少人工调参，便于在不同数据质量域之间部署。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "将联邦跨域推荐形式化为在稳定语义物品语言上的生成问题：由公开物品侧元数据训练固定SID词表，原始交互保持在客户端本地。",
+      "提出FedCGR框架，同时解决联邦SID生成的两个设计约束：冻结分词导致的语义-only瓶颈，以及域异质性下统一聚合导致的负迁移。",
+      "设计可靠性感知语义接口：通过物品级置信度与客户端本地门控，将本地CF证据以残差形式注入固定SID表示；并设计原型个性化生成器，按域相关性选择性聚合共享参数，域私有组件保留在本地。",
+      "在六个Amazon跨域场景上的实验表明，FedCGR一致优于联邦生成式基线，在全量排序下与强序列推荐方法相当，在采样评估下达到联邦CDR方法最佳；消融实验显示CF增强与个性化聚合在不同相关性区间下分别成为关键约束。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Reliability-Aware Semantic Interface"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Prototype-Personalized Federated Generator"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Cold-Start Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Sensitivity and Diagnostic Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.6 Efficiency Analysis"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "TIGER",
+        "TIGER+FedAvg",
+        "TIGER+FedProx",
+        "LocalSASRec",
+        "LocalCL4SRec",
+        "LocalDuoRec",
+        "FedSASRec",
+        "FedCL4SRec",
+        "FedDCSR"
+      ],
+      "datasets": [
+        "Amazon Review数据集，5-core过滤后的五个领域：Grocery、Beauty、Sports、Food、Kitchen",
+        "六个跨域场景：FK（Food-Kitchen）、GB（Grocery-Beauty）、GS（Grocery-Sports）、FKB（Food-Kitchen-Beauty）、GBS（Grocery-Beauty-Sports）、GKBS（Grocery-Kitchen-Beauty-Sports）"
+      ],
+      "findings_zh": [
+        "全量排序下，FedCGR在所有22个域-指标单元格上一致优于TIGER+FedAvg和TIGER+FedProx；在异质性最强的GKBS场景中，Grocery N@10相对TIGER+FedProx提升19.4%，相对TIGER+FedAvg提升25.4%。",
+        "存在TIGER→TIGER+FedAvg→TIGER+FedProx→FedCGR的渐进提升，说明跨域知识迁移有利于SID生成，但近端正则不足以解决域异质性。",
+        "FedCGR在多数全量排序单元格中达到最佳，包括GKBS全部8个单元格、FK全部4个单元格和GS两个域；在交互密集的GBS Beauty等域，判别式SASRec仍有优势。",
+        "999-neg采样协议下，FedCGR在全部六个场景的H@10和N@10上均为最佳；相对最强基线FedDCSR，GKBS H@10提升3.3%，GS H@10提升22.4%。",
+        "朴素联邦化可造成负迁移，如GKBS上FedSASRec的H@10从LocalSASRec的0.144降至0.129。",
+        "消融显示：去掉CF残差平均下降12.8%；去掉个性化聚合改为FedAvg平均下降11.2%；两者同时去掉下降14.9%。高亲和FK场景中CF证据更重要，高异质GKBS场景中个性化聚合更重要。",
+        "冷启动分析表明，稳定SID词表是冷启动用户的主要收益来源，可靠性感知CF残差随用户活跃度增加贡献增大。",
+        "效率分析显示，FedCGR每轮上传约20.6MB，比基线高约18%，但达到相同精度目标的总通信量相比FedAvg降低34%（GBS）至45%（GKBS）。"
+      ],
+      "metrics": [
+        "H@10（全量排序与999负采样两种协议）",
+        "NDCG@10（全量排序与999负采样两种协议）"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确不声称提供正式差分隐私保证，安全聚合与差分隐私被视为可后续集成的正交机制。",
+      "实验仅基于Amazon Review的五个领域和六个跨域场景，未覆盖真实生产级跨平台数据或更多样化的域组合。",
+      "方法依赖公开可用的物品侧元数据来训练固定SID分词器，若元数据缺失或质量差，跨域语义对齐可能受限。",
+      "SID分词器在联邦训练前固定，无法利用联邦训练过程中的交互反馈更新词表，可能限制语义表示的自适应性。",
+      "论文将端到端置信度学习、安全聚合以及新域/新物品增量加入联邦等列为未来工作，说明当前版本在这些方面尚未覆盖。"
+    ],
+    "method_zh": "FedCGR包含两个核心机制。第一，稳定性语义接口：使用冻结的BGE文本编码器和RQ-VAE分分词器将物品元数据映射为离散SID序列，形成跨客户端一致的共享词表；每个客户端用本地SASRec训练并固定本地CF物品嵌入，按交互频率计算物品可靠性ρ，经客户端本地门控g和适配器A注入SID表示，并辅以训练专用的置信度加权InfoNCE稠密正则损失。第二，原型个性化联邦生成器：共享参数包括SID token嵌入、Transformer编码/解码层、预测头、共享专家等；每个客户端含共享-私有MoE专家块，私有专家与私有路由不上传；客户端用局部batch的编码器记忆计算域原型并做EMA归一化，服务端按原型余弦相似度与数据量加权为每个目标域生成个性化聚合参数，τ_a→∞时退化为FedAvg。训练目标为SID自回归生成损失加稠密损失、负载均衡辅助损失和仅作用于共享参数近端正则项；推理时用目标域有效SID前缀树做域约束beam search。",
+    "problem_zh": "联邦跨域推荐面临根本矛盾：用于对齐跨域物品空间的用户重叠、共同交互等行为锚点在联邦隔离下变得稀疏、不可用或涉及隐私；现有联邦CDR方法多为判别式模型，依赖对齐各客户端私有的连续物品表示，导致隐私保护与跨域对齐效果相互耦合。此外，直接将基于语义ID（SID）的生成式推荐联邦化会带来两个约束：固定SID分词器造成仅依赖语义的瓶颈，无法引入本地协同过滤信号；标准联邦平均在域异质性下会引发负迁移。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8975,
+  "graph_relations": [],
+  "id": "arxiv-2608.10929",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-08-11T13:58:55Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出联邦跨域生成式推荐框架FedCGR，以稳定语义ID语言为跨域桥梁，并注入本地协同过滤证据和原型个性化聚合来缓解负迁移。",
+  "targets": [],
+  "tasks": [],
+  "title": "FedCGR: Federated Cross-Domain Generative Recommendation",
+  "url": "https://arxiv.org/abs/2608.10929v1"
+}

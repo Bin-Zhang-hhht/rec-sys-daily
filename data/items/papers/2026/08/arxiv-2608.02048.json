@@ -1,0 +1,143 @@
+{
+  "abstract": "Generative recommendation (GR) has emerged as a promising paradigm for recommender systems. Scaling up GR models can improve recommendation performance, but it also substantially increases inference cost. Knowledge distillation provides a practical solution by transferring knowledge from a large GR model to a lightweight one. However, existing distillation methods do not account for two GR-specific challenges: imbalanced distillation difficulty across the semantic ID (SID) hierarchy and incorrect prefix pruning during beam search. To address these challenges, we propose SmartGR, a novel distillation framework that utilizes Hierarchy-Aware SID Distillation to transfer the teacher's modeling capability across the hierarchy and leverages Beam-Aware Ranking Distillation to distill the teacher's ranking preferences during beam search. Extensive experiments on four benchmark datasets demonstrate the effectiveness and efficiency of SmartGR, improving the performance by 8.6% while achieving a 2.39$\\times$ inference speedup on average. Generative recommendation (GR) has emerged as a promising paradigm for recommender systems. Scaling up GR models can improve recommendation performance, but it also substantially increases inference cost. Knowledge distillation provides a practical solution by transferring knowledge from a large GR model to a lightweight one. However, existing distillation methods do not account for two GR-specific challenges: imbalanced distillation difficulty across the semantic ID (SID) hierarchy and incorrect prefix pruning during beam search. To address these challenges, we propose SmartGR, a novel distillation framework that utilizes Hierarchy-Aware SID Distillation to transfer the teacher's modeling capability across the hierarchy and leverages Beam-Aware Ranking Distillation to distill the teacher's ranking preferences during beam search. Extensive experiments on four benchmark datasets demonstrate the effectiveness and efficiency of SmartGR, improving the performance by 8.6% while achieving a 2.39$\\times$ inference speedup on average.",
+  "arxiv_id": "2608.02048",
+  "authors": [
+    "Ziheng Zhang",
+    "Yu Cui",
+    "Bohao Wang",
+    "Yong He",
+    "Chao Yu",
+    "Chuan Yuan",
+    "Wujie Sun",
+    "Can Wang",
+    "Jiawei Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SmartGR在不改变学生模型架构的前提下，使OneRec-1.7B相对OneRec-8B获得1.92倍–2.89倍的推理加速（平均2.39倍），可以直接降低生成式推荐系统的在线推理时延与算力成本。",
+      "蒸馏后学生平均推荐效果提升8.6%，且16项指标中15项超过现有最强蒸馏基线，说明模型压缩与推荐精度可以同时改善，适合对延迟敏感的大规模推荐场景。",
+      "方法在电商（Amazon）和短视频/广告（Kuaishou Ad/Video）等真实推荐数据上都有效，具备跨域落地潜力。",
+      "BEAM loss采用两束配对监督，相比Top-4/Top-8 listwise监督训练时间减少39%–47%，且效果更好，有利于控制蒸馏训练成本。",
+      "实际部署需要承担教师模型推理和离线缓存成本，但缓存的是稀疏Top-K_tok token分布，推理阶段两个辅助损失完全移除、无额外在线开销。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "指出了生成式推荐蒸馏的两个核心挑战：SID层次上的蒸馏难度不均衡，以及束搜索过程中的错误前缀剪枝。",
+      "提出SmartGR蒸馏框架，用Hierarchy-Aware SID Distillation按SID层级学习可感知层级的蒸馏权重，将教师的分层条件分布能力迁移给学生。",
+      "提出Beam-Aware Ranking Distillation，利用教师束搜索中正负束的累计前缀得分构造偏好分布，蒸馏教师在束搜索中的前缀排序偏好，降低高最终得分物品被错误剪枝的风险。",
+      "在Beauty、Toys、Kuaishou Ad和Kuaishou Video四个数据集上验证了SmartGR，平均提升推荐效果8.6%，同时平均获得2.39倍推理加速。"
+    ],
+    "evidence_quality": 0.86,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Performance Comparison"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Efficiency Study"
+      },
+      {
+        "page": 1,
+        "section": "B.5 Kuaishou Component Ablation"
+      },
+      {
+        "page": 1,
+        "section": "C.1 Shared-Prefix Distribution"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "CD",
+        "PCKD",
+        "RCE-KD",
+        "DLLM2Rec",
+        "SLMRec",
+        "C2KD",
+        "KD",
+        "SeqKD",
+        "TVDKD",
+        "MiniLLM",
+        "LOHRec",
+        "SID-MLP"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Toys",
+        "Kuaishou Ad",
+        "Kuaishou Video"
+      ],
+      "findings_zh": [
+        "与原始OneRec-1.7B学生相比，SmartGR在全部16项指标上提升2.3%–17.5%，平均提升8.6%，并在16项指标中的15项上取得最佳学生结果。",
+        "与KD-for-RS基线相比，SmartGR平均提升12.1%，且所有六个KD-for-RS基线均低于原始学生。",
+        "与最强的KD-for-LLMs基线相比，SmartGR平均提升约1.0%；与LOHRec和SID-MLP这两个GR蒸馏基线相比，分别平均提升20.4%和27.3%。",
+        "消融实验中，去掉SID loss和BEAM loss分别带来平均约2.8%和3.3%的相对下降；去掉最长前缀选择或重叠位置过滤均带来平均约9.1%的下降，说明教师束与目标SID的一致性至关重要。",
+        "推理效率方面，蒸馏后的OneRec-1.7B比OneRec-8B快1.92倍到2.89倍，平均2.39倍；增大教师束宽从2到16可带来约8.5%的平均效果提升，而蒸馏总时间约增加至1.53倍。",
+        "BEAM loss将学生全局Top-1物品的平均前缀排名平均降低46.5%；SID loss将学生相对教师的prefix retention差距平均缩小28.0%。",
+        "在Kuaishou上，满足最小共享前缀阈值（min_lcp=3）的样本不足5%，但限制在目标兼容前缀上进行蒸馏仍能带来显著提升，说明蒸馏收益更取决于教师信号可靠性而非覆盖比例。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "Recall@16",
+        "Recall@32",
+        "Pass@16",
+        "Pass@32"
+      ]
+    },
+    "limitations_zh": [
+      "论文没有设置专门的局限性章节；实验表中可见在Kuaishou Video的Pass@16上，SmartGR相对最佳KD基线的提升为-0.4%，说明并非所有指标都一致超过最强基线。",
+      "Kuaishou数据集中满足最小共享前缀阈值的样本占比很低（Ad约6.14%、Video约3.01%达到L*>=2），基于前缀的蒸馏覆盖有限，大量样本主要依赖硬监督。",
+      "方法依赖教师束与目标SID存在可用的共同前缀；当L*=0或正样本束已是最后一束时，SID loss/BEAM loss会被跳过，可能损失部分蒸馏监督。",
+      "离线教师缓存与训练开销随束宽和token支持数增加，缓存复杂度为O(N*K_beam*L*(1+K_tok))；将K_beam从2增至16时总蒸馏时间约为2.57小时到3.16小时。",
+      "不同数据集对min_lcp阈值偏好不同（Amazon用2、Kuaishou用3），实际应用需要按数据集调节可靠性与覆盖率的权衡。",
+      "教师束与目标SID不一致时，若不做最长前缀选择或重叠位置过滤，会引入有害监督并造成明显性能下降。"
+    ],
+    "method_zh": "SmartGR采用从OneRec-8B到OneRec-1.7B的离线蒸馏。首先以束宽K_beam缓存教师束，并缓存每个有效SID位置的Top-K_tok教师token分布。SID蒸馏部分：从缓存教师束中选择与目标SID共享最长前缀的束作为蒸馏依据，只在该重叠前缀位置计算KL散度；每个SID层的蒸馏权重由可学习单调tanh函数f_theta(d)=tanh(theta*d/tau_lev)/tanh(theta/tau_lev)从归一化深度映射得到并做归一化，使越深的SID层获得不更小的权重。BEAM蒸馏部分：将上述选中的教师束作为正例，把教师排序中紧随其后的下一束作为困难负例，在重叠前缀的各SID层把正负束的累计前缀得分除以层数ell并按temperature tau构造softmax偏好分布，再用KL散度匹配教师与学生偏好。最终损失为L_hard + lambda_SID * L_SID + lambda_BEAM * L_BEAM；训练时学生不做完整束搜索，只对两个缓存束做forced scoring。默认设置K_beam=16、lambda_SID=0.6、lambda_BEAM=0.3。",
+    "problem_zh": "生成式推荐（GR）将物品表示为层次化语义ID（SID）并通过自回归生成与束搜索解码进行推荐。增大GR模型可以提升推荐效果，但会显著增加推理时延，难以直接用于真实推荐系统。知识蒸馏可以将大模型能力迁移到轻量学生模型，但现有蒸馏方法没有针对GR的两个核心挑战：一是SID层级由粗到细，不同SID位置的蒸馏难度不均衡，教师模型的优势在更深层级更明显；二是束搜索按累计前缀得分逐层剪枝，即使某个物品最终得分很高，也可能因中间前缀得分低而被错误剪掉，而仅对齐单点分布无法消除这种前缀剪枝错误。此外，传统推荐蒸馏和面向LLM的蒸馏方法也难以直接迁移到SID+束搜索的GR机制上。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.92,
+  "graph_relations": [],
+  "id": "arxiv-2608.02048",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-03T10:46:51Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 SmartGR 蒸馏框架，通过层次感知的语义ID蒸馏和束感知的排序蒸馏，将大规模生成式推荐模型的知识迁移到轻量模型，在提升性能的同时加速推理。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SmartGR: Hierarchy and Beam-Aware Knowledge Distillation for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2608.02048v1"
+}

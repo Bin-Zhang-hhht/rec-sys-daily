@@ -1,0 +1,122 @@
+{
+  "abstract": "Multimodal sequential recommender systems commonly fuse visual and collaborative signals uniformly, treating visual features as generically informative regardless of item or user context. We argue that visual utility, defined as the contribution of visual signals to recommendation quality, is a latent contextual variable that depends on both the item and the user's interaction history rather than a fixed item property. To model this variability, we introduce VisGate, a framework that makes adaptive item-level fusion decisions conditioned on item embeddings and the user's current sequence context. Visual representations are learned through a contrastive objective over sequential co-occurrence patterns, preserving complementarity with collaborative embeddings rather than aligning them into a shared space. Beyond achieving competitive recommendation performance, VisGate's learned gate serves as a measurement tool for understanding when and why visual information is beneficial. Our analyses show that visual utility varies across items, increases under interaction sparsity when collaborative signals are weak, and correlates with visual distinctiveness in semantically meaningful ways. Together, these findings highlight the importance of both fine-grained fusion and modality complementarity, while demonstrating that item-level visual utility can be estimated and interpreted through learned gating behaviour. Multimodal sequential recommender systems commonly fuse visual and collaborative signals uniformly, treating visual features as generically informative regardless of item or user context. We argue that visual utility, defined as the contribution of visual signals to recommendation quality, is a latent contextual variable that depends on both the item and the user's interaction history rather than a fixed item property. To model this variability, we introduce VisGate, a framework that makes adaptive item-level fusion decisions conditioned on item embeddings and the user's current sequence context. Visual representations are learned through a contrastive objective over sequential co-occurrence patterns, preserving complementarity with collaborative embeddings rather than aligning them into a shared space. Beyond achieving competitive recommendation performance, VisGate's learned gate serves as a measurement tool for understanding when and why visual information is beneficial. Our analyses show that visual utility varies across items, increases under interaction sparsity when collaborative signals are weak, and correlates with visual distinctiveness in semantically meaningful ways. Together, these findings highlight the importance of both fine-grained fusion and modality complementarity, while demonstrating that item-level visual utility can be estimated and interpreted through learned gating behaviour.",
+  "arxiv_id": "2608.10700",
+  "authors": [
+    "Natalija Glisovic",
+    "Danica Kragic",
+    "Martin Tegner"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在电商场景中，商品图片往往比文本描述更易获得且信息量更大；VisGate 的自适应融合可直接用于文本稀疏或缺失的商品目录，提升推荐质量。",
+      "视觉效用在交互稀疏时最强，说明该方法对短交互历史用户、冷启动物品和稀疏类目有较高实用价值。",
+      "可解释的门控行为可作为诊断工具，帮助平台理解哪些物品、哪些用户状态下视觉信息真正影响购买决策。",
+      "IKEA 与多个 Amazon 类目数据集上的提升表明，该思路可迁移到家具、日用品、游戏等不同电商品类的推荐系统中。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出 modality utility（模态效用）概念，将其建模为由交互历史与用户状态塑造的潜在上下文变量，而非固定的物品属性。",
+      "提出 VisGate 框架，结合共现引导的视觉投影和物品级别的上下文自适应门控机制，融合决策同时取决于物品嵌入和用户当前序列上下文。",
+      "通过四个数据集验证三个假设：视觉效用具有物品依赖性、在交互稀疏时增强、并与视觉独特性相关，提供经验证据表明融合粒度和模态互补性保持与融合机制本身同样重要。",
+      "分析门控失败案例，识别出视觉独特但交互稀疏物品的系统性失误，并提出交互次数阈值作为事后修正方向。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "5 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BERT4Rec",
+        "SASRec",
+        "GRU4Rec",
+        "VBPR",
+        "DVBPR",
+        "AMR",
+        "MMGCN",
+        "FREEDOM",
+        "UniSRec",
+        "MP4SR",
+        "MMSR",
+        "HM4SR"
+      ],
+      "datasets": [
+        "IKEA",
+        "Amazon Scientific",
+        "Amazon Video Games",
+        "Amazon Health & Household"
+      ],
+      "findings_zh": [
+        "VisGate 在四个数据集上整体取得最佳表现，最大提升出现在最稀疏的 IKEA 和 Amazon Scientific 数据集；在更稠密的数据集上增益较小，含文本模态的方法如 FREEDOM 和 HM4SR 更具竞争力。",
+        "物品级别门控优于固定门值的均匀融合；门值分布宽泛，说明模型确实在做物品级而非全局或序列级融合决策。",
+        "象限分析显示互补模式：强图像/弱 ID 物品获得低门值（IKEA 平均约 0.21），强 ID/弱图像物品获得高门值（约 0.76），互补象限间门值差距约 0.55–0.67。",
+        "交互序列早期交互比近期交互获得更低门值，即视觉依赖更强，且该效应在稀疏数据集 IKEA 和 Amazon Scientific 上最明显。",
+        "门值与视觉独特性相关：低门值物品常为图案床品、品牌商品等外观直接影响购买决策的物品，高门值物品多为外观普通的通用商品。",
+        "消融实验表明，移除对比损失影响最大，移除门控影响次之；去掉序列上下文会降低性能，联合端到端训练也差于两阶段设计。"
+      ],
+      "metrics": [
+        "Hit@5",
+        "NDCG@5",
+        "Hit@10",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "学习到的门控只是视觉效用的不完美代理：对视觉独特但交互稀疏的物品，门控会错误推断视觉信号可靠，而此时两种信号都因共现监督不足而不够可靠。",
+      "交互次数阈值仅被提出作为事后修正方向，作者表示应在未来工作中验证，未给出已实现的结果。",
+      "当前框架只使用视觉模态，未纳入文本模态；扩展文本及更广泛序列级上下文被列为未来工作。",
+      "最优融合粒度（物品级、步骤级、序列级）能否仅从数据集统计量预测，仍是一个未解决的理论问题。",
+      "联合端到端训练效果差于两阶段训练，说明训练方式对最终融合性能存在额外约束。"
+    ],
+    "method_zh": "VisGate 包含三个核心组件。第一，共现引导的视觉投影：用 MLP 将预训练视觉特征投影到基于序列共现模式学习的空间，使用对比损失拉近时间窗口内共同出现物品的视觉表示，同时刻意不把视觉表示对齐到协同嵌入空间以保持互补性。第二，上下文自适应门控：门控函数将物品 ID 嵌入、投影后的视觉嵌入和 Transformer 在掩码位置的最终隐藏状态拼接后经 MLP 输出逐元素门值，融合表示为 g_i * LN(e_i) + (1-g_i) * alpha * LN(f(v_i))，使融合权重能随用户当前序列状态调整。第三，训练过程：在 BERT4Rec 式掩码语言建模损失之外加入门控稀疏性和利用率正则，预训练投影器保持冻结，联合端到端训练反而损害性能。",
+    "problem_zh": "多模态序列推荐系统通常将视觉特征与协同信号统一融合，默认视觉特征对所有物品和用户都具有同等信息量，忽略了视觉信息的实际效用会随物品属性、用户交互历史和当前推荐上下文而变化。在电商场景中，商品文本描述往往稀疏、笼统甚至缺失，产品图片反而承载更多影响购买决策的信息，因此需要判断何时应依赖视觉信息、何时应依赖协同信号。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.8915,
+  "graph_relations": [],
+  "id": "arxiv-2608.10700",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-11T09:21:20Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出VisGate门控多模态融合框架，依据物品嵌入和用户序列上下文自适应决定何时采用视觉信息以改进序列推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Deciding When to Rely on Visual Information: Gated Multimodal Fusion in Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2608.10700v1"
+}

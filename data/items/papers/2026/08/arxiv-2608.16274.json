@@ -1,0 +1,135 @@
+{
+  "abstract": "Positional encoding is a fundamental component of Transformer-based generative recommendation models, where user histories are modeled as autoregressive item sequences. Most positional encoding methods are inherited from natural language processing and mainly represent discrete item order. However, recommendation sequences go beyond ordered lists, as timestamps and temporal effects also shape item relations. Our work is motivated by a real-world food delivery and instant retail recommendation system, where user behavior exhibits multi-level temporal regularities, including recency effects, meal-time peaks, weekday-weekend shifts, and promotion-driven traffic bursts. Existing methods partially address this issue through timestamp features, interval embeddings, decay functions, or attention biases, but they usually inject heterogeneous temporal signals through a unified representation or a single modeling pathway, making it difficult to distinguish broad temporal dynamics from local order cues. To address this limitation, we propose Decoupled Temporal Encoding, a lightweight framework for generative recommendation. DTE separates temporal dynamics from order information through two complementary modules: a personalized macro-temporal module that injects compact temporal primitives into item embeddings, and a time-gated micro-sequential module that introduces relative-order bias only when interactions are temporally dense. DTE is also parameter-efficient and deployment-friendly, allowing easy integration into existing systems. Positional encoding is a fundamental component of Transformer-based generative recommendation models, where user histories are modeled as autoregressive item sequences. Most positional encoding methods are inherited from natural language processing and mainly represent discrete item order. However, recommendation sequences go beyond ordered lists, as timestamps and temporal effects also shape item relations. Our work is motivated by a real-world food delivery and instant retail recommendation system, where user behavior exhibits multi-level temporal regularities, including recency effects, meal-time peaks, weekday-weekend shifts, and promotion-driven traffic bursts. Existing methods partially address this issue through timestamp features, interval embeddings, decay functions, or attention biases, but they usually inject heterogeneous temporal signals through a unified representation or a single modeling pathway, making it difficult to distinguish broad temporal dynamics from local order cues. To address this limitation, we propose Decoupled Temporal Encoding, a lightweight framework for generative recommendation. DTE separates temporal dynamics from order information through two complementary modules: a personalized macro-temporal module that injects compact temporal primitives into item embeddings, and a time-gated micro-sequential module that introduces relative-order bias only when interactions are temporally dense. DTE is also parameter-efficient and deployment-friendly, allowing easy integration into existing systems.",
+  "arxiv_id": "2608.16274",
+  "authors": [
+    "Pengfei Jia",
+    "Jingjian Wang",
+    "Jingmao Li",
+    "Ge Zhang",
+    "Feng Shi"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "DTE已在淘宝App上购买物广告推荐系统全量部署（2026年1月起），在线A/B测试显示CTR +1.8%、RPM +3.0%，服务延迟仅增加+0.3%，具有直接可衡量的业务价值。",
+      "由于仅需238个额外参数和约0.47KB内存，DTE可轻量即插即用地集成到现有Transformer排序管线，适合对延迟和内存要求严格的大规模工业推荐系统。",
+      "针对外卖/即时零售的多层时间规律（餐时峰、周末差异、促销突发），DTE能提升排序质量，且公共数据集上的一致增益表明其有潜力迁移到更广泛的推荐场景。",
+      "部署经验显示近因和周期性成分在多种流量条件下均有帮助，而burst成分应按场景选择性使用，为团队在类似系统中引入时间编码提供了实用参考。"
+    ],
+    "business_transferability": 0.9,
+    "contributions_zh": [
+      "指出现有位置编码方法在生成式推荐中的一个实际局限：时间效应（如近期性、周期性）与局部顺序信息互补，却常被混杂在单一表示中。",
+      "提出DTE（Decoupled Temporal Encoding），通过个性化宏观时间模块（在输入层注入紧凑时间原语）和时间门控微观顺序模块（在注意力层引入相对顺序偏置）显式解耦宏观时间动态与微观顺序信息。",
+      "设计上强调高效和易部署：仅引入238个额外参数、0.47KB FP16内存，离线推理延迟3.02ms，可即插即用集成到现有Transformer生成式推荐系统。",
+      "在公共基准KuaiRand和大型工业数据集上离线验证，并通过淘宝上购买物广告推荐系统的在线A/B测试和全量部署验证了实际业务价值。"
+    ],
+    "evidence_quality": 0.92,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Datasets and Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Offline Experiments"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Component Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Sensitivity and Robustness Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Efficiency Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.6 Online A/B Test"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Sinusoidal",
+        "RoPE",
+        "ALiBi",
+        "BST",
+        "TiSASRec",
+        "RAB",
+        "BST + ALiBi（生产基线）",
+        "内部变体：w/o Macro、w/o Micro、w/o Recency、w/o Periodicity、w/o Burst、w/o Soft Gate"
+      ],
+      "datasets": [
+        "Industrial dataset：Shangou/Taobao广告推荐数据，400M用户、5M物品、2.5B样本",
+        "KuaiRand 1K：公开基准，1000用户、4.4M物品、11.7M样本"
+      ],
+      "findings_zh": [
+        "离线对比中DTE在两个数据集均最优：工业数据集GAUC 0.7098（优于BST+ALiBi的0.6982），KuaiRand GAUC 0.9243（优于RAB的0.9113），Logloss也最低。",
+        "消融实验显示去掉宏观模块或微观模块均带来明显性能下降；去掉soft gate也下降，说明顺序偏置按时间密度选择性激活更有效。",
+        "burst项在工业数据集影响更大，在KuaiRand影响较小，与其目标侧流量波动强度的差异一致。",
+        "敏感性分析显示DTE在密集交互序列和周期性强的用户上增益更大，在不同历史长度分组中均稳定优于基线。",
+        "注意力可视化显示DTE保留因果近因结构，同时在周期性位置增强注意力。",
+        "效率分析显示DTE仅238个额外参数、0.47KB FP16内存，离线推理3.02ms，低于BST和TiSASRec，接近RAB。",
+        "在线A/B测试三周内CTR提升+1.8%、RPM提升+3.0%，平均服务延迟仅增加+0.3%（15.4ms到15.5ms），且统计显著（p<0.01），2026年1月已全量上线。"
+      ],
+      "metrics": [
+        "GAUC",
+        "Logloss",
+        "CTR",
+        "RPM",
+        "服务延迟",
+        "参数量/FP16内存/离线推理延迟"
+      ]
+    },
+    "limitations_zh": [
+      "对于历史稀疏或时间周期性弱的用户，时间原语提供的信号有限，DTE的增益较小。",
+      "为了低内存和易集成，DTE有意使用紧凑时间原语和软门控顺序偏置，而非大型区间嵌入表或更精细的逐对参数化，牺牲了一定的建模灵活性。",
+      "burst敏感变化是可选且场景相关的组件，仅在实体级流量相对历史基线存在明显波动时收益较大，并非在所有场景都必要。"
+    ],
+    "method_zh": "DTE基于decoder-only Transformer生成式推荐框架。宏观时间模块将每个交互的时间戳编码为紧凑时间信号m(t_i)，并通过可学习投影向量r注入物品embedding：e_tilde_i = e_i + r * m(t_i)。m(t_i)是四种时间原语的自适应混合：指数近因衰减exp(-lambda*Delta t)、日内周期性sin(2π*hour/24)、周周期性sin(2π*weekday/7)、目标侧突发变化log(1+ReLU((x_t - xbar)/(xbar+epsilon)))；混合权重由用户历史embedding均值经轻量MLP和softmax生成，实现个性化。微观顺序模块在自注意力中加入时间门控相对顺序偏置B_ij = -alpha * sigma((tau - |t_i-t_j|)/gamma) * |i-j|，其中tau为可学习阈值，gamma为固定温度，使顺序偏置只在交互时间密集时有意义地激活；最终注意力分数为宏观增强输入下的注意力加上该偏置。这种设计将长期时间上下文与局部顺序分离，保持轻量并易于部署。",
+    "problem_zh": "生成式推荐中Transformer的位置编码主要继承自NLP，只表征离散物品顺序，无法充分利用用户行为时间戳中丰富、多层次的连续时间语义，如近期效应、餐时高峰、工作日/周末差异和促销流量突发。已有时间感知方法往往把异质时间信号和顺序信息注入到统一表示或单一建模通路中，难以区分宏观时间动态与局部顺序线索；同时大型时间区间嵌入表或复杂逐对参数化会增加稀疏性与部署成本。该问题在外卖和即时零售推荐场景尤为突出，需要轻量、易集成且能同时建模时间与顺序的位置编码方案。",
+    "technical_depth": 0.95
+  },
+  "doi": null,
+  "final_score": 0.9365,
+  "graph_relations": [],
+  "id": "arxiv-2608.16274",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-17T08:47:21Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出解耦时间编码（DTE），将宏观时间动态与微观顺序信息分离，用于生成式推荐中的位置编码。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Decoupled Temporal Encoding for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2608.16274v1"
+}

@@ -1,0 +1,148 @@
+{
+  "abstract": "Semantic-ID generative recommenders represent each item as a short sequence of discrete semantic tokens and predict the next item by autoregressively generating this token sequence. This paradigm enables a unified generation interface for item IDs, histories, and item text, but it also creates a structured optimization bottleneck during reward-based post-training: when an early semantic token enters the wrong branch of the item-token space, finite rollout groups rarely reach the ground-truth item, so group-relative optimization receives identical zero rewards and produces no useful advantage. We propose Hint-Conditioned Generative Recommendation (HCGRec), a semantic-ID generative recommendation framework that recovers learning signal for such hard training instances. HCGRec diagnoses each instance with checkpoint rollouts and supplies a minimal target-prefix hint only when the current generator cannot reach the correct item. The model then generates the unhinted suffix under the hinted semantic branch, turning zero-reward groups into informative comparisons over item-token completions. Hinting also changes token identity: hinted prefix tokens are oracle-provided item context, while unhinted suffix tokens are sampled generation actions. We therefore introduce hint-aware credit decomposition, using supervised learning to preserve item-semantic and prefix-structure alignment for hinted tokens and GRPO to optimize the sampled suffix. Experiments on sequential recommendation benchmarks show that HCGRec substantially improves over supervised fine-tuning and vanilla reward-based post-training, while reducing zero-advantage training samples from over 70% to below 20%. The code is accessible at https://github.com/WncFht/GRec. Semantic-ID generative recommenders represent each item as a short sequence of discrete semantic tokens and predict the next item by autoregressively generating this token sequence. This paradigm enables a unified generation interface for item IDs, histories, and item text, but it also creates a structured optimization bottleneck during reward-based post-training: when an early semantic token enters the wrong branch of the item-token space, finite rollout groups rarely reach the ground-truth item, so group-relative optimization receives identical zero rewards and produces no useful advantage. We propose Hint-Conditioned Generative Recommendation (HCGRec), a semantic-ID generative recommendation framework that recovers learning signal for such hard training instances. HCGRec diagnoses each instance with checkpoint rollouts and supplies a minimal target-prefix hint only when the current generator cannot reach the correct item. The model then generates the unhinted suffix under the hinted semantic branch, turning zero-reward groups into informative comparisons over item-token completions. Hinting also changes token identity: hinted prefix tokens are oracle-provided item context, while unhinted suffix tokens are sampled generation actions. We therefore introduce hint-aware credit decomposition, using supervised learning to preserve item-semantic and prefix-structure alignment for hinted tokens and GRPO to optimize the sampled suffix. Experiments on sequential recommendation benchmarks show that HCGRec substantially improves over supervised fine-tuning and vanilla reward-based post-training, while reducing zero-advantage training samples from over 70% to below 20%. The code is accessible at https://github.com/WncFht/GRec.",
+  "arxiv_id": "2608.11980",
+  "authors": [
+    "Kangning Zhang",
+    "Haotian Fang",
+    "Xukun Luo",
+    "Hao Yin",
+    "Yang Gao",
+    "Peng Yan",
+    "Weiwen Liu",
+    "Weinan Zhang",
+    "Yong Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "奖励函数可纳入用户偏好与业务目标，HCGRec 在奖励后训练中恢复困难样本的学习信号，有助于生成式推荐对齐业务指标。",
+      "推理接口不变，训练期 hint 不增加线上额外信息，便于部署到现有语义 ID 生成式推荐系统。",
+      "降低零梯度/无效训练样本比例，可提高后训练数据利用效率，对大规模生成式推荐训练成本有正面意义。",
+      "论文作者单位包括美团、华为等工业界机构，且相关工作（OneRec/GenRec）说明该方法与工业界生成式推荐优化路径相关。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "识别出有限 rollout 不可达奖励组是语义ID生成式推荐的主要瓶颈：多 token 物品标识使早期 token 错误导致大多数基于奖励的训练组归零优势。",
+      "提出 HCGRec，使用 checkpoint rollout 对不可达训练实例进行诊断，仅对困难样本提供最短目标前缀 hint，在不改变推理接口的情况下恢复有信息量的后缀生成比较。",
+      "提出 hint-aware credit decomposition：将 hint 前缀视为 oracle 提供的物品上下文并用监督学习保持语义对齐，将采样后缀视为模型生成动作并用 GRPO 优化。",
+      "实验表明 HCGRec 在多个生成式推荐指标上提升，并将训练中零 advantage/零梯度样本比例大幅降低：训练结束时的零奖励方差 rollout 组比例从约 0.55–0.63 降至约 0.12–0.17。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4.2 RQ1: Overall Recommendation Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 RQ2: Deep Analysis for Prefix Hint"
+      },
+      {
+        "page": 1,
+        "section": "4.4 RQ3: Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "4.5 RQ4: Effect of Hint-Aware Credit Decomposition Weight"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "BERT4Rec",
+        "SASRec",
+        "TIGER",
+        "LC-Rec",
+        "GRPO Rule-only",
+        "MiniOneRec",
+        "HCGRec (offline hint)"
+      ],
+      "datasets": [
+        "Amazon Musical Instruments",
+        "Amazon Arts, Crafts and Sewing",
+        "Amazon Video Games"
+      ],
+      "findings_zh": [
+        "HCGRec 在 Instruments 上取得最佳 HR@50 (0.1985) 和 NDCG@50 (0.1118)；在 Arts 和 Games 上在 HR@5/HR@10 和 NDCG@10 等主要指标上最强或并列最强，但 TIGER 在 HR@50 上仍领先。",
+        "与无 hint 的 vanilla 后训练相比，prefix hinting 将训练结束时的零奖励方差 rollout 组比例从约 0.55–0.63 降至约 0.12–0.17，证明 hint 恢复了大量样本的奖励学习信号。",
+        "离线最小 hint 策略在大多数指标上强于动态 hint，固定可达分支可提供更稳定训练信号且 rollout 成本更低。",
+        "任务范围消融中，SeqRec+title-seqrec+title/desc2index 全任务设置最强，更多任务覆盖改善泛化而非仅增加噪声。",
+        "损失分解消融中，prefix SFT + suffix-only GRPO 最强；全序列 SFT+GRPO 不优于前缀监督设计。",
+        "前缀锚定权重 lambda 在 0.001–0.01 左右最佳，过大的 0.1 会降低推荐质量，说明该权重是校准旋钮而非越大越好。"
+      ],
+      "metrics": [
+        "HR@5",
+        "HR@10",
+        "HR@50",
+        "NDCG@5",
+        "NDCG@10",
+        "NDCG@50"
+      ]
+    },
+    "limitations_zh": [
+      "HCGRec 并非在所有指标上统一最优；例如 Instruments 的极早排名 cutoff 上 GRPO Rule-only 更强，Arts/Games 的 HR@50 上 TIGER 仍领先。",
+      "可达性诊断基于固定 SFT checkpoint 和有限 rollout 预算；若在预算内找不到使目标可达的 hint，实例会被记为 unresolved，不能获得 hint 训练。",
+      "离线 hint 策略固定 hint 长度，不随训练中模型变化更新；论文将在线可达性估计列为未来工作。",
+      "实验限于三个 Amazon 公开数据集和精确目标匹配奖励，尚未在真实工业推荐系统或更复杂业务奖励上验证。"
+    ],
+    "method_zh": "HCGRec 以 SFT checkpoint 为起点。首先对每个训练实例 (x, y*) 执行离线可达性诊断：依次尝试 hint 长度 h=0..H_max，将目标语义 ID 前 h 个 token 作为前缀拼接到输入，用 checkpoint 采样 G_d 个后缀；若任一完整 ID 等于目标 ID，则该 h 通过测试。选择最短通过长度 h*；若 h*=0 则按原始无 hint 训练。后训练时，对 h*>0 的样本在带 hint 前缀的条件下采样 G 个后缀，使用精确目标匹配奖励对完整 ID 打分并计算组内 advantage；后缀 token 使用 GRPO 优化，hint 前缀 token 不参与 GRPO，而是用监督 SFT loss 做前缀锚定：L = L_suffix_GRPO + lambda * L_prefix_SFT。推理时完全不使用 hint，模型仍从用户上下文自回归生成完整语义 ID。",
+    "problem_zh": "语义ID生成式推荐在奖励后训练阶段存在有限 rollout 不可达（finite-rollout unreachable）问题：物品由多 token 语义 ID 表示，早期 token 一旦进入错误语义分支，后续 rollout 几乎无法到达目标物品，同一 prompt 的 rollout 组奖励完全相同，GRPO 组间相对优势为零，大量训练样本无法提供有效梯度信号。",
+    "technical_depth": 0.9
+  },
+  "doi": "10.1145/3799682.3840842",
+  "final_score": 0.8885,
+  "graph_relations": [
+    {
+      "confidence": 0.7,
+      "evidence": "两者均为生成式推荐方法并使用强化学习优化推荐输出。",
+      "generated_by": "llm_taxonomy_classifier",
+      "target_id": "url-f7ea41897b8edc1d893d7d6c",
+      "type": "related_by_method"
+    },
+    {
+      "confidence": 0.6,
+      "evidence": "两者均在大规模推荐模型中结合生成式/大语言模型建模与强化学习训练。",
+      "generated_by": "llm_taxonomy_classifier",
+      "target_id": "arxiv-2608.10187",
+      "type": "related_by_method"
+    }
+  ],
+  "id": "arxiv-2608.11980",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "reinforcement_learning",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-12T12:13:08Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出Hint-Conditioned生成式推荐框架HCGRec，通过目标前缀提示与提示感知信用分解，缓解语义ID生成式推荐中强化学习后训练面临的零奖励问题，并显著提升序列推荐效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "Learning from Unreachable Rewards: Hint-Conditioned Reinforcement Learning for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2608.11980v2"
+}

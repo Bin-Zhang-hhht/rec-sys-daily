@@ -1,0 +1,102 @@
+{
+  "authors": [
+    "Pat Geitner"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "以开源 Qwen3-VL-8B 作为基础模型，使用强化学习（GRPO）微调，使其生成自然语言商品摘要。训练数据采用搜索交互三元组：query、engaged listing、non-engaged listing。模型为两个 listing 各生成多个候选摘要，候选摘要输入冻结的 two-tower dense retriever，计算 query 与 engaged 摘要、query 与 non-engaged 摘要的相似度，以二者 margin 作为 reward。该架构的目标是让 engaged 摘要更接近 query、non-engaged 摘要更远离 query，从而学出对下游检索模型真正重要的商品细节。",
+    "business_implications_zh": [
+      "更好的商品摘要可帮助搜索与推荐系统匹配买家 taste、style 和 interests。",
+      "该方法能凸显卖家 craftsmanship 和商品的独特细节，而不仅依赖标题或类目。",
+      "Semantic Relevance 模型的提升有助于搜索过滤和搜索系统评估。",
+      "摘要与下游模型之间的潜在反馈闭环可为推荐系统带来持续改进。"
+    ],
+    "business_transferability": 0.65,
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "heading": "The Gap Between Raw Data and Rich Product Understanding",
+        "section": null
+      },
+      {
+        "heading": "Unlocking Deeper Product Understanding with Contrastive Signal",
+        "section": null
+      },
+      {
+        "heading": "Measuring Downstream Impact",
+        "section": null
+      },
+      {
+        "heading": "Human Evaluation",
+        "section": null
+      },
+      {
+        "heading": "Quantitative Offline Evaluation",
+        "section": null
+      },
+      {
+        "heading": "Why This Matters",
+        "section": null
+      }
+    ],
+    "implementation_zh": "engaged 列表定义为买家对某 query 点击、购买或收藏的 listing；non-engaged 是同一搜索结果中未被交互的 listing，并混入随机采样 listing。训练时在同一 batch 内联合生成和评估配对的 engaged/non-engaged 摘要，以保证 margin 奖励的有效性。奖励通过 GRPO 更新生成模型。文章还描述了人工评估：由 Etsy 库存专家对照原始 listing 数据审查摘要，判断摘要是否 grounded、是否包含标题之外具体且具区分度的细节，以及这些细节是否为最重要的补充信息。离线评估则将 RL 微调后的摘要输入 Semantic Relevance 模型，与使用描述 n-grams 作为输入的基线对比。",
+    "lessons_zh": [
+      "可以用下游模型作为 reward，直接教会 LLM 生成对下游任务有用的表示。",
+      "对比式买家交互信号能揭示哪些商品细节在具体上下文中更重要，而无需手动定义完整 schema。",
+      "基于 margin 的成对奖励可以同时拉近 engaged 与 query、推远 non-engaged 与 query，并自然抑制 reward hacking。",
+      "更高质量的摘要给下游模型提供更丰富信号，更好的下游模型又产生更强 reward，形成潜在反馈环路。"
+    ],
+    "limitations_zh": [
+      "文章明确说明线上实验仍在规划中，尚未给出生产环境结果。",
+      "离线评估只针对 Semantic Relevance 这个单一评测任务及人工标注评测集。",
+      "人工评估由一位 Etsy 库存专家执行的描述，样本覆盖范围有限。",
+      "由于商品和上下文差异极大，什么样的摘要算“好”难以在训练前统一定义。",
+      "文章未提供训练超参数、推理成本、部署延迟等工程细节。"
+    ],
+    "production_constraints_zh": [
+      "生产模型延迟约束严格，难以对所有原始数据做实时深度推理。",
+      "并非所有系统都能处理图片，因此需要将视觉信息转换为文本摘要。",
+      "原始 listing 数据冗长、噪声大、表达不一致。",
+      "固定属性 schema 无法在规模上覆盖商品差异。",
+      "摘要需要简洁、有表现力，且易于接入下游模型。",
+      "线上实验仍在规划中，当前主要验证来自离线与人工评估。"
+    ],
+    "results_zh": [
+      "人工评估显示，模型能持续提取标题之外具体、准确的商品细节，且奖励信号使生成内容保持 grounded。",
+      "将 RL 微调后的摘要作为 Semantic Relevance 模型输入，相比使用描述 n-grams，macro F1 相对提升 8.7%。",
+      "摘要对完全不同的模型和目标也能带来增益，说明其捕获了普遍重要的商品细节。",
+      "训练前后示例显示：基础模型更多重复标题，RL 微调后能忽略无关噪声并提取 listing 真正的独特细节。"
+    ],
+    "system_context_zh": "Etsy 的搜索/推荐系统面对海量且高度多样化的商品。Listing 数据包含标题、图片、描述、标签、变体与属性等，但最关键的区分性细节常常埋在冗长、不一致的描述中，并夹杂物流、退换政策、尺码等噪声。生产环境有严格的延迟约束，且并非所有下游系统都能处理图片。文章提到并行工作将部分原始信号抽取为结构化属性，但固定 schema 难以覆盖 one-of-a-kind 商品的全部细节，因此需要更灵活的非结构化自然语言摘要来表示商品，帮助搜索与推荐模型理解商品是什么、如何制作以及适合哪些买家。",
+    "technical_depth": 0.7,
+    "tradeoffs_zh": [
+      "结构化属性适合分析与手写特征，但非结构化摘要更灵活，能捕获更多样信息。",
+      "用 prompt 或 schema 定义重要性需要预先知道检索/推荐系统需要哪些细节，而直接从买家交互信号学习可避免这种前置假设。",
+      "margin 奖励结构使 generic 或关键词堆砌摘要无法同时拉高 engaged 相似度并降低 non-engaged 相似度，从而抑制 reward hacking。",
+      "摘要虽然是针对神经检索模型优化的，但在另一个不同目标的 Semantic Relevance 任务上也带来提升，说明不是单纯过拟合奖励信号。"
+    ]
+  },
+  "final_score": 0.6925,
+  "graph_relations": [],
+  "id": "url-de494392552bfa7589a583be",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-05-26T18:13:10Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "etsy_codeascraft",
+  "summary_zh": "Etsy使用对比强化学习从买家互动信号中学习并塑造商品表征，以增强搜索和推荐系统对商品细节的理解。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Shaping Product Understanding with Contrastive Reinforcement Learning",
+  "url": "https://www.etsy.com/codeascraft/shaping-product-understanding-with-contrastive-reinforcement-learning"
+}

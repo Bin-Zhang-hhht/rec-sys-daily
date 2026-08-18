@@ -1,0 +1,117 @@
+{
+  "abstract": "Industrial recommender systems are commonly deployed as multi-stage cascades with separate candidate generators, pre-rankers, and final rankers. Although effective, these cascades require repeated user-history processing, complex feature pipelines, and multiple serving stages. Semantic-ID-based generative retrieval offers a path toward simpler end-to-end systems, but next-item prediction alone does not capture the fine-grained preferences encoded by production ranking objectives. We present Gryphon-v2, a unified generate-and-rank architecture for end-to-end recommendation. The model encodes a user history once, generates Semantic-ID candidates with an autoregressive decoder, resolves them to catalogue items, and ranks them with an item-level Ranking Module that reuses the shared encoder states. To transfer fine-grained production ranking preferences without adding an expensive second model to the serving path, we distill a high-capacity, training-only Teacher Ranker into the Ranking Module. Gryphon-v2 is trained with Rollout Distillation: teacher scores are the only ranking supervision, and they are collected over two complementary candidate distributions. Rollouts from the current decoder expose the Ranking Module to candidates produced by the same generation mechanism used at serving time, while logged impressions cover items users were actually shown. In an online A/B experiment on a large-scale recommendation surface at Yandex Music, a single Gryphon-v2 model replaces a production cascade comprising more than 15 candidate generators, pre-ranking, and final ranking. The deployment increases the number of active users by 1.41% at serving latency comparable to the production cascade. These results support the practical viability of a generative retriever with a Ranking Module distilled from the Teacher Ranker as an end-to-end alternative to a production cascade. Industrial recommender systems are commonly deployed as multi-stage cascades with separate candidate generators, pre-rankers, and final rankers. Although effective, these cascades require repeated user-history processing, complex feature pipelines, and multiple serving stages. Semantic-ID-based generative retrieval offers a path toward simpler end-to-end systems, but next-item prediction alone does not capture the fine-grained preferences encoded by production ranking objectives. We present Gryphon-v2, a unified generate-and-rank architecture for end-to-end recommendation. The model encodes a user history once, generates Semantic-ID candidates with an autoregressive decoder, resolves them to catalogue items, and ranks them with an item-level Ranking Module that reuses the shared encoder states. To transfer fine-grained production ranking preferences without adding an expensive second model to the serving path, we distill a high-capacity, training-only Teacher Ranker into the Ranking Module. Gryphon-v2 is trained with Rollout Distillation: teacher scores are the only ranking supervision, and they are collected over two complementary candidate distributions. Rollouts from the current decoder expose the Ranking Module to candidates produced by the same generation mechanism used at serving time, while logged impressions cover items users were actually shown. In an online A/B experiment on a large-scale recommendation surface at Yandex Music, a single Gryphon-v2 model replaces a production cascade comprising more than 15 candidate generators, pre-ranking, and final ranking. The deployment increases the number of active users by 1.41% at serving latency comparable to the production cascade. These results support the practical viability of a generative retriever with a Ranking Module distilled from the Teacher Ranker as an end-to-end alternative to a production cascade.",
+  "arxiv_id": "2608.06213",
+  "authors": [
+    "Anna Lipkina",
+    "Daria Tikhonovich",
+    "Viktor Yanush",
+    "Mariia Ulianova",
+    "Oleg Sorokin",
+    "Vladislav Dodonov",
+    "Ilya Murzin",
+    "Denis Burshtein",
+    "Nikolay Savushkin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可用一个服务模型替代由超过 15 个候选生成器、预排序器和最终排序器组成的生产级联，简化服务链路、减少跨服务状态传递和重复历史编码。",
+      "候选扇出从约 10,000/请求降至最多 1,200/请求，同时端到端时延与生产级联相当，可在保持延迟预算内显著降低排序阶段资源开销。",
+      "高容量 Teacher Ranker 仅参与训练和每日刷新，不进入服务路径，使离线模型规模扩大不增加在线服务成本。",
+      "在线实验显示活跃用户、总收听时长、点赞和 Repeat 等核心用户参与指标均有统计显著提升，说明该架构对音乐推荐业务有直接正面价值。",
+      "但实验局限于单一音乐推荐表面和短期流量，迁移到其他业务或全量人群前需验证长期效果、长尾覆盖和多样性影响。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "提出 Gryphon-v2，一种统一的生成-排序（generate-and-rank）推荐架构：用户历史只编码一次，自回归解码器生成 Sematic-ID 候选并解析为目录条目，再通过复用共享编码器状态的条目级 Ranking Module 进行排序。",
+      "提出 Rollout Distillation 训练方法：仅用高容量、仅训练用的 Teacher Ranker 分数作为排序监督，候选来源包括当前解码器 beam-search 生成的结果和日志曝光条目，使训练分布与线上解码机制一致。",
+      "在线 A/B 实验中，单个 Gryphon-v2 模型替代了超过 15 个候选生成器、预排序和最终排序组成的生产流水线，在服务时延与生产级联相当的情况下将活跃用户数提升 1.41%。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Experiments"
+      },
+      {
+        "page": 1,
+        "section": "Limitations and Future Work"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Generative retrieval：仅 SID 解码器、按 beam 似然排序的生成式检索基线",
+        "Gryphon：共享编码器加 Ranking Module，但 Ranking Module 使用下一项监督而非 Teacher Ranker 蒸馏",
+        "Production ranker（参考排序器，仅报告 WPA）",
+        "Teacher Ranker（参考排序器，仅报告 WPA，提供蒸馏目标）"
+      ],
+      "datasets": [
+        "大型音乐推荐服务（Yandex Music）两周交互日志的请求级训练/测试集，时间切分，测试请求严格晚于训练窗口并覆盖最后一天日志",
+        "纯推荐驱动的无限个性化音乐流表面，无搜索或编辑上下文；仅保留至少一个正向曝光（like 或长播放且未 dislike）的请求",
+        "在线实验从四周检查点初始化并持续在线更新，控制组与实验组各占 8% 合格用户"
+      ],
+      "findings_zh": [
+        "离线测试中 Gryphon-v2 的 R@1000 为 0.8615，位于两个生成式基线之间且差异在约 0.003 的 run-to-run 标准差内，说明蒸馏 Ranking Module 不牺牲候选生成质量。",
+        "未蒸馏的 beam 排序和 Gryphon 下一项监督排序 T-R@10 均低于 0.04；Gryphon-v2 蒸馏后 T-R@10 达 0.5654、T-R@100 达 0.7344，教师一致性提升一个数量级以上。",
+        "生成式模型中 Gryphon-v2 的 WPA 最高（0.5892），其他生成式模型最高 0.5528；相对参考排序器，蒸馏分别缩小了与 Teacher Ranker（0.6199）差距的 54% 和与生产排序器（0.6141）差距的 59%。",
+        "在线 A/B 实验中，Gryphon-v2 替代完整生产级联后，活跃用户数 +1.41%，总收听时长 +1.62%，点赞 +7.12%，Repeat 命令 +15.25%，未完成曲目比例 -9.65%，且 p < 0.001。",
+        "服务端对比显示 Gryphon-v2 将候选数从级联的约 10,000 降至不超过 1,200，端到端时延与生产级联相当，吞吐量约为“生成式主干 + Teacher Ranker”路径的 4 倍。",
+        "消融实验表明 rollout + impressions 混合候选源达到部署配置效果；仅用 impressions 时 T-R@10 降至 0.2983；训练 rollout beam size 从 32 增至 128 的离线指标提升有限；不同蒸馏损失各有优势，MSE 在 T-R@10 和 WPA 上最佳，但为离线发现。"
+      ],
+      "metrics": [
+        "Recall@1000（R@1000）：候选生成召回率",
+        "TeacherRecall@10 / TeacherRecall@100（T-R@10 / T-R@100）：与 Teacher Ranker top-k 选择的一致性",
+        "Weighted Pair Accuracy（WPA）：按 like > play > skip > dislike 加权配对排序准确率",
+        "在线指标：活跃用户数（每日收听 >= 7 分钟）、总收听时长、点赞数、Repeat 命令数、未完成曲目比例"
+      ]
+    },
+    "limitations_zh": [
+      "在线 A/B 实验检验的是替换完整生产级联的总体效果，无法分离 Rollout Distillation、Ranking Module 或在线更新的各自贡献。",
+      "实验仅在单一音乐推荐表面上进行，且控制/实验组各占合格人群 8%，只验证短期可行性，未评估全量部署或长期效果。",
+      "未评估长尾目录覆盖、歌手多样性、新颖性或曝光集中度。",
+      "TeacherRecall@k 使用的教师模型正是提供蒸馏目标的同一模型，因此只衡量蒸馏保真度；WPA 基于生产级联曝光策略下的日志曝光对，不能衡量 Gryphon-v2 自身曝光条目的排序质量。",
+      "Rollout Distillation 是有监督蒸馏，不使用策略梯度也不直接针对奖励优化解码器，且未与基于强化学习的 post-training 做受控比较，无法得出相对质量、稳定性或计算效率结论。"
+    ],
+    "method_zh": "Gryphon-v2 基于 Gryphon 的共享编码器架构：双向历史编码器对用户历史 H_u 编码一次得到状态 E_u；自回归 SID 解码器交叉注意力到 E_u，并通过目录前缀树约束的 beam search 生成有效 SID；碰撞解析后以条目预算 B_item 截断候选池；条目级 Ranking Module 以候选表示作为 query 对 E_u 做 cross-attention，经任务特定输出头产生多个排序任务分数，并用固定权重组合成最终排序分数。训练目标为联合损失 L = L_NTP + L_distill，其中 NTP 损失训练生成路径，Rollout Distillation 由两部分组成：对当前解码器 beam 生成并解析的候选集合 G_u 使用逐任务 MAE 蒸馏 Teacher Ranker 分数，对日志曝光候选集合 M_u 使用同样的 MAE 蒸馏。Teacher Ranker 是训练专用的大规模序列模型，条件长度为 8000 事件，不参与服务图；在线服务采用 GPU Triton，模型每十分钟在线更新，最终直接输出排序结果，无下游预排序或排序阶段。",
+    "problem_zh": "工业推荐系统通常部署为多级流水线，包含多个候选生成器、预排序器和最终排序器，虽然有效但需要重复处理用户历史、复杂特征管道和多个服务阶段。基于语义ID（Semantic-ID）的生成式检索虽然能简化端到端系统，但仅做下一项预测无法捕捉生产环境排序目标所编码的细粒度用户偏好，因此需要一种既能生成候选又能进行高质量排序、同时保持可服务性的统一模型。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.924,
+  "graph_relations": [],
+  "id": "arxiv-2608.06213",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-06T16:04:21Z",
+  "relevance_score": 0.98,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出Gryphon-v2统一生成-排序推荐架构，通过自回归生成Semantic-ID候选并复用编码器状态进行排序，以单个模型替代生产级多级推荐级联。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Gryphon-v2: One Model in Place of a Cascade - Generate-and-Rank Recommender with Rollout Distillation",
+  "url": "https://arxiv.org/abs/2608.06213v1"
+}

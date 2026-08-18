@@ -1,0 +1,113 @@
+{
+  "abstract": "Modern recommender systems produce predictions that users cannot interrogate. The two dominant improvements, collaborative filtering and LLM-based reasoning, each fall short: collaborative filtering captures behavioural signals but offers no reasoning, while large language models (LLMs) generate fluent explanations but hallucinate and are poorly grounded in a user's history. We present X-KGRank, a knowledge graph retrieval augmented framework that unifies structural collaborative filtering with LLM-based explanation. From the MovieLens-1M dataset (6,040 users, 3,704 items, 988,129 interactions) we construct a heterogeneous knowledge graph of 9,762 nodes and 999,264 edges spanning three relation types (RATED, HAS_GENRE, and CO_RATED) persisted in Neo4j. We train a LightGCN ranker with content-aware SBERT initialization and a rating weighted BPR objective, and apply a popularity selective routing strategy that grounds long-tail items (1,855 of 3,704) in knowledge-graph paths while serving popular items from pre-trained knowledge, reducing KG-augmented generations by roughly 50%. On the MovieLens-1M test set under a 99-sample protocol, X-KGRank achieves NDCG@10 = 0.2956 and Recall@10 = 0.5371, improving over a strong popularity baseline by 17.1% on both metrics, by 15.6% on NDCG@20 (0.3449 vs. 0.2983), and by 14.6% on MRR (0.2435 vs. 0.2124). Across three LLM backbones evaluated on 16 cases, a 1.5-billion-parameter model (Qwen2.5-1.5B) matches a 7-billion-parameter model (Mistral-7B) on heuristic explanation quality (0.97 vs. 0.94), yet qualitative analysis shows the smaller model is more prone to factual fabrication. Modern recommender systems produce predictions that users cannot interrogate. The two dominant improvements, collaborative filtering and LLM-based reasoning, each fall short: collaborative filtering captures behavioural signals but offers no reasoning, while large language models (LLMs) generate fluent explanations but hallucinate and are poorly grounded in a user's history. We present X-KGRank, a knowledge graph retrieval augmented framework that unifies structural collaborative filtering with LLM-based explanation. From the MovieLens-1M dataset (6,040 users, 3,704 items, 988,129 interactions) we construct a heterogeneous knowledge graph of 9,762 nodes and 999,264 edges spanning three relation types (RATED, HAS_GENRE, and CO_RATED) persisted in Neo4j. We train a LightGCN ranker with content-aware SBERT initialization and a rating weighted BPR objective, and apply a popularity selective routing strategy that grounds long-tail items (1,855 of 3,704) in knowledge-graph paths while serving popular items from pre-trained knowledge, reducing KG-augmented generations by roughly 50%. On the MovieLens-1M test set under a 99-sample protocol, X-KGRank achieves NDCG@10 = 0.2956 and Recall@10 = 0.5371, improving over a strong popularity baseline by 17.1% on both metrics, by 15.6% on NDCG@20 (0.3449 vs. 0.2983), and by 14.6% on MRR (0.2435 vs. 0.2124). Across three LLM backbones evaluated on 16 cases, a 1.5-billion-parameter model (Qwen2.5-1.5B) matches a 7-billion-parameter model (Mistral-7B) on heuristic explanation quality (0.97 vs. 0.94), yet qualitative analysis shows the smaller model is more prone to factual fabrication.",
+  "arxiv_id": "2608.01732",
+  "authors": [
+    "Meenakshi Rajpurohit",
+    "Jainish Patel"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对推荐产品团队而言，流行度选择性路由能显著降低知识图谱检索与LLM增强生成的成本，约减少50%的KG增强调用。",
+      "带外部KG路径证据的提示使1.5B模型在启发式解释质量上匹配7B模型，说明在资源受限场景可用较小LLM生成解释，但需额外校验事实准确性。",
+      "可解释的KG路径（RATED、CO_RATED、共享类型桥）可作为用户可见的证据，提升推荐可信度；论文将其视为设计目标，但未进行用户研究验证。",
+      "由于只在电影领域验证，迁移到电商、新闻等领域需要重新构建内容知识图谱并做领域内评估。",
+      "小模型在解释上“流畅但会编造事实”的风险意味着商业化部署时应优先使用较大模型或用知识图谱证据强约束并加入事实校验。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出X-KGRank，一个端到端的知识图谱检索增强推荐框架，将结构化协同过滤（LightGCN）、图模式挖掘与基于知识图谱路径的LLM解释统一起来。",
+      "提出流行度选择性路由策略：对长尾（cold）物品做知识图谱路径检索，对热门（warm）物品使用LLM预训练知识，显著减少约50%的KG增强生成。",
+      "在MovieLens-1M上提供完整开源实现，并对比Flan-T5-large、Qwen2.5-1.5B、Mistral-7B三种LLM，揭示小模型解释质量可匹配大模型但事实性更差。",
+      "构建了含9,762节点、999,264边的异构知识图谱，并引入SBERT初始化的LightGCN、node2vec/社区特征、KG到LLM的MLP投影等完整技术管线。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "IV. Methodology"
+      },
+      {
+        "page": 1,
+        "section": "V. Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "VI. Results"
+      },
+      {
+        "page": 1,
+        "section": "VII. Qualitative Analysis"
+      },
+      {
+        "page": 1,
+        "section": "VIII. Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Random",
+        "Popularity",
+        "LightGCN+SBERT（论文定义的结构排序基线，不含KG路径检索与LLM重排）"
+      ],
+      "datasets": [
+        "MovieLens-1M（6,040用户、3,704电影、988,129训练交互；验证/测试各6,040；5-core过滤）"
+      ],
+      "findings_zh": [
+        "在99采样协议下，X-KGRank相对Popularity的提升为：NDCG@10 0.2956 vs 0.2525（+17.1%）、Recall@10 0.5371 vs 0.4586（+17.1%）、NDCG@20 0.3449 vs 0.2983（+15.6%）、MRR 0.2435 vs 0.2124（+14.6%）、Recall@20提升+14.5%。",
+        "三LLM在16个案例上的平均解释质量：Qwen2.5-1.5B为0.97、Mistral-7B为0.94、Flan-T5-large为0.46；延迟分别为4.2秒、4.5秒、1.1秒；1.5B模型在启发式解释质量上匹配7B模型且参数量不到其四分之一。",
+        "定性分析显示Qwen2.5-1.5B会产生流畅但虚构的解释（如把52 Pick-Up误写成1973年John Landis执导并含Dan Aykroyd），而Mistral-7B解释事实准确但存在词元拼接伪影（如“amust watch”）；启发式质量指标会把流畅但错误的输出排在准确输出之上。",
+        "失败案例中，基于类型标签的SBERT-FAISS把灾难片Twister（1996）检索为“mind-bending thriller”候选；稀疏历史用户的最短路径反复经过同一高连接桥节点，使What Lies Beneath和Twister得到完全相同的KG路径，路径无法区分候选。",
+        "流行度选择性路由将3,704部电影按中位数分为1,855个cold和1,849个warm物品，仅对cold物品执行KG路径检索，约减少50%的KG增强生成。"
+      ],
+      "metrics": [
+        "NDCG@K（K=5/10/20）",
+        "Recall@K（K=5/10/20）",
+        "HR@10",
+        "MRR",
+        "解释质量启发式分数（长度充分性、标题引用率、句子结构、推理关键词，范围[0,1]）",
+        "单条解释延迟（秒）"
+      ]
+    },
+    "limitations_zh": [
+      "仅在MovieLens-1M单领域验证，未在电商、新闻等其它领域验证。",
+      "SBERT-FAISS候选检索基于标题和类型标签而非剧情内容，导致同标签但语义不符的物品被召回。",
+      "用户历史稀疏时最短路径会退化为重复经过同一个高连接桥节点，KG路径缺乏候选区分度。",
+      "解释质量是启发式代理指标，不直接评估事实准确性；人工检查确认高分解释仍含事实错误，严格评估需要人类标注。",
+      "社区发现模块度低（Q=0.082），只作为弱上下文特征使用。",
+      "LLM骨干对比仅基于16个案例，足以排序三模型（Qwen≈Mistral≫Flan-T5），但不足以精确支持Qwen与Mistral之间的分数差距。",
+      "最终排名由LightGCN分数决定，LLM生成解释不参与排序，这与“LLM re-ranking”的名称存在不一致（论文在方法部分明确说明）。"
+    ],
+    "method_zh": "X-KGRank为六阶段管线：(1) 从MovieLens-1M构建异构知识图谱，节点为用户/电影/类型，边为RATED、HAS_GENRE、CO_RATED，存入Neo4j；(2) 训练3层、128维的LightGCN排序器，电影嵌入用SBERT（all-MiniLM-L6-v2）语义向量经线性投影初始化，并以rating-weighted BPR和50/50 hard/uniform负样本训练；(3) 用node2vec生成64维图嵌入，并用贪心模块度社区发现得到11个社区（Q=0.082）作为弱上下文特征；(4) 按训练交互数中位数将物品分为cold/warm两组，候选检索使用SBERT-FAISS（自然语言查询）或LightGCN高分段（用户查询），cold物品触发2-hop KG路径检索，warm物品用开放提示词；(5) 训练MLP投影器将64维KG嵌入映射到768维LLM嵌入空间，采用InfoNCE目标，但运行管线中以文本形式提供KG路径而非软提示；(6) LLM基于用户画像、候选元数据和KG路径生成固定两句话的解释，路径采用四层回退：直接最短路径、共享类型桥、CO_RATED行为桥、嵌入相似度占位边；最终排名仍由LightGCN分数决定，LLM只负责解释。",
+    "problem_zh": "现代推荐系统的预测结果用户难以追问和验证：协同过滤能捕捉行为信号但不提供推理；纯LLM推荐能生成流畅解释但会幻觉且缺少对用户具体历史的 grounding；基于类型标签的内容检索又会把同标签但语义不符的物品召回。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.815,
+  "graph_relations": [],
+  "id": "arxiv-2608.01732",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-08-03T05:56:40Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 X-KGRank，将知识图谱、协同过滤和LLM重排序结合，为长尾物品生成可解释推荐，并在 MovieLens-1M 上显著提升排序指标。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "X-KGRank: A Knowledge Graph RAG Framework for Explainable Recommendations via Pattern Mining and LLM Re-Ranking",
+  "url": "https://arxiv.org/abs/2608.01732v1"
+}

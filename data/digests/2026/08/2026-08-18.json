@@ -1,0 +1,97 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-001c3b52c454328145a8e9ec",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文介绍 Pinterest 首页推荐系统的 Pinner Progression 计划，利用用户兴趣簇等用例表示将留存作为一等目标，并整合进检索、排序和重排的多阶段推荐流水线。"
+    },
+    {
+      "item_id": "url-f7ea41897b8edc1d893d7d6c",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：介绍Netflix的GenPage，将用户上下文作为提示、整页首页作为响应，由单个生成式Transformer自回归生成行、实体和布局，并用强化学习做整页级优化以替代多阶段推荐流水线。"
+    },
+    {
+      "item_id": "url-ab1787e03eb4807379306b7b",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Pinterest面向购物转化广告构建候选生成模型，通过多表面训练、多任务学习、Transformer用户序列建模和GraphSAGE特征来提升转化召回。"
+    },
+    {
+      "item_id": "url-efe96dcd75f9bde404ee3c9a",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：介绍Pinterest广告候选生成中的上下文序列双塔模型，通过在查询塔加入实时上下文层并使用合成上下文训练，使广告推荐能结合用户当前浏览内容与历史转化行为。"
+    },
+    {
+      "item_id": "url-2660fad3381f92db1c6d485c",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：介绍Pinterest用户序列数据平台的重构，强调新鲜度、完整性和一致性富化，支持首页信息流、相关推荐和搜索等场景下的训练数据与在线推理所依赖的排序和召回模型。"
+    },
+    {
+      "item_id": "url-2c56e497bbcde2d1b89e8fa7",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文介绍 Etsy 使用大语言模型从用户浏览和购买行为生成买家画像，以增强搜索与个性化推荐体验的工程实践。"
+    },
+    {
+      "item_id": "url-57deba14677af6256df5f6c1",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Pinterest工程团队通过诊断NCCL通信瓶颈并优化EFA网络，使支撑Home feed与Related Pins排序的推荐基础模型训练扩展性提升到近线性。"
+    },
+    {
+      "item_id": "url-de494392552bfa7589a583be",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Etsy使用对比强化学习从买家互动信号中学习并塑造商品表征，以增强搜索和推荐系统对商品细节的理解。"
+    }
+  ],
+  "date": "2026-08-18",
+  "papers": [
+    {
+      "item_id": "arxiv-2608.09440",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出MetaStrategy，用大语言模型生成可执行排序策略并应用在淘宝首页猜你喜欢推荐中，显著提升点击PV、IPV与成交额。"
+    },
+    {
+      "item_id": "arxiv-2608.16274",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出解耦时间编码（DTE），将宏观时间动态与微观顺序信息分离，用于生成式推荐中的位置编码。"
+    },
+    {
+      "item_id": "arxiv-2608.16073",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向序列推荐的组件级知识蒸馏框架 GOD，通过将冻结教师组件与可训练学生组件嫁接来提供组件级反馈，从而提升泛化能力且推理阶段无额外开销。"
+    },
+    {
+      "item_id": "arxiv-2608.06213",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出Gryphon-v2统一生成-排序推荐架构，通过自回归生成Semantic-ID候选并复用编码器状态进行排序，以单个模型替代生产级多级推荐级联。"
+    },
+    {
+      "item_id": "arxiv-2608.15780",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出双过滤器框架 SDF，在 Google Discover 推荐信息流中分别检测条目被新内容取代和相关性自然衰减两类过时机制，并在排序阶段之前剪除陈旧候选。"
+    },
+    {
+      "item_id": "arxiv-2608.02048",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出 SmartGR 蒸馏框架，通过层次感知的语义ID蒸馏和束感知的排序蒸馏，将大规模生成式推荐模型的知识迁移到轻量模型，在提升性能的同时加速推理。"
+    },
+    {
+      "item_id": "arxiv-2608.12184",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出图感知大语言模型GALLM，将文本、物品及协同共现关系转化为注意力偏置以增强序列推荐。"
+    },
+    {
+      "item_id": "arxiv-2608.06632",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出Shape Your Feed，一个基于大语言模型的智能体推荐框架，通过实时多模态交互、语义画像与重排机制实现用户可引导的内容流推荐。"
+    },
+    {
+      "item_id": "arxiv-2608.12845",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出FSGR，通过在语义ID构建和训练阶段缓解token频率偏差，提升生成式推荐的公平性并保持推荐精度。"
+    },
+    {
+      "item_id": "arxiv-2608.10929",
+      "rank": 10,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出联邦跨域生成式推荐框架FedCGR，以稳定语义ID语言为跨域桥梁，并注入本地协同过滤证据和原型个性化聚合来缓解负迁移。"
+    }
+  ]
+}

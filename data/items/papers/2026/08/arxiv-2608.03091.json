@@ -1,0 +1,117 @@
+{
+  "abstract": "Large language models (LLMs) have emerged as promising listwise rerankers for recommender systems, but their reliability under equivalent candidate permutations remains unclear. Since recommendation candidates form an unordered set, a reranker should not depend on the arbitrary order used to serialize them. However, decoder-only LLM rerankers can allow input order to affect model scores, pairwise preferences, and rankings. We study how position bias affects the ranking process induced by LLM-based rerankers. Instead of measuring only changes in final ranked lists, we treat rankings produced under equivalent candidate permutations as observations of an induced preference system. We introduce an evaluation framework measuring pairwise preference instability, global preference inconsistency, and listwise output consistency. This framework characterizes candidate-order sensitivity at the pairwise, global, and output levels. Experiments across multiple LLMs, datasets, and list lengths show that these consistency measures are closely aligned, but can diverge from recommendation effectiveness and marginal position-exposure bias. Improving relevance or flattening exposure across positions does not necessarily restore stable pairwise preferences, globally coherent preference structures, or consistent ranked outputs. These results show that reducing marginal exposure skew is insufficient to establish ranking-function validity in LLM-based reranking. Code is available at https://github.com/ejbito/InvariRank . Large language models (LLMs) have emerged as promising listwise rerankers for recommender systems, but their reliability under equivalent candidate permutations remains unclear. Since recommendation candidates form an unordered set, a reranker should not depend on the arbitrary order used to serialize them. However, decoder-only LLM rerankers can allow input order to affect model scores, pairwise preferences, and rankings. We study how position bias affects the ranking process induced by LLM-based rerankers. Instead of measuring only changes in final ranked lists, we treat rankings produced under equivalent candidate permutations as observations of an induced preference system. We introduce an evaluation framework measuring pairwise preference instability, global preference inconsistency, and listwise output consistency. This framework characterizes candidate-order sensitivity at the pairwise, global, and output levels. Experiments across multiple LLMs, datasets, and list lengths show that these consistency measures are closely aligned, but can diverge from recommendation effectiveness and marginal position-exposure bias. Improving relevance or flattening exposure across positions does not necessarily restore stable pairwise preferences, globally coherent preference structures, or consistent ranked outputs. These results show that reducing marginal exposure skew is insufficient to establish ranking-function validity in LLM-based reranking. Code is available at https://github.com/ejbito/InvariRank .",
+  "arxiv_id": "2608.03091",
+  "authors": [
+    "Ethan Bito",
+    "Yongli Ren",
+    "Estrid He"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "生产环境中的 LLM 推荐重排序不能只看 HR/nDCG 等有效性指标，还需要监控候选排列一致性，否则同一批候选以不同顺序输入可能产生不一致的用户可见排名。",
+      "某些提升点击或命中率的缓解方法可能同时增加偏好不稳定性和输出不一致性，给用户体验和系统可信度带来风险。",
+      "边际位置曝光校正本身不足以保障排名函数有效性；业务方应采用有效性、置换一致性、曝光偏差和推理成本联合评估。",
+      "SGS 一类一致性更强的方法需要 K 次顺序推理，在实时推荐场景中会带来更高延迟和计算成本，部署时需权衡一致性与服务成本。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出一个多层级评估框架，用成对偏好不稳定性（PPI）、全局偏好不一致性（GPI）和列表输出一致性（LOC）来刻画 LLM listwise 重排序对候选排列顺序的敏感性。",
+      "将同一候选集在不同排列下产生的排名视为诱导偏好系统的观测，从而把位置偏差从输出层面扩展到成对偏好和全局偏好结构层面。",
+      "通过多个模型、数据集和列表长度的实验表明，PPI、GPI、LOC 彼此高度一致，但可能与推荐有效性和边际位置曝光偏差脱节。",
+      "发现边际曝光校正不足以建立排列一致的 LLM 重排序，主张同时评估有效性与一致性。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Related Work"
+      },
+      {
+        "page": 2,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 3,
+        "section": "4 Experimental Setup"
+      },
+      {
+        "page": 3,
+        "section": "5 Results"
+      },
+      {
+        "page": 5,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Zero-shot listwise reranking",
+        "Bootstrapping（Borda count 聚合）",
+        "SGS（sequential selection）",
+        "STELLA_LW（STELLA 的 listwise 适配版本）"
+      ],
+      "datasets": [
+        "MovieLens-32M",
+        "Amazon Books"
+      ],
+      "findings_zh": [
+        "在全部六种模型-数据集组合下，PPI 和 GPI 的方法排序一致：Bootstrapping 相对 zero-shot 降低不稳定性和不一致性，SGS 产生最低 PPI 和 GPI，而 STELLA_LW 的 PPI 和 GPI 最高。",
+        "LOC 与 PPI、GPI 的方法排序一致；在所有设置中 STELLA_LW 的 LOC 最低，且均低于 0.13。",
+        "STELLA_LW 在所有模型和数据集上取得最高 HR@5，但在三个一致性指标上表现最差；最佳 nDCG@5 的方法因模型和数据集而异，说明有效性指标不能一致地选出同一缓解方法。",
+        "zero-shot 重排序表现出明显的输入位置曝光偏斜，Bootstrapping 减少但未消除该偏斜，STELLA_LW 和 SGS 产生更平坦的曝光曲线。",
+        "STELLA_LW 虽然平坦化了位置曝光，却仍产生最高 PPI/GPI 和最低 LOC，说明降低边际曝光偏差并不足以恢复偏好与输出的一致性。",
+        "SGS 在评测中同时改善边际曝光和三个一致性指标，但需要 K 次顺序推理，推理成本明显更高。"
+      ],
+      "metrics": [
+        "HR@5",
+        "nDCG@5",
+        "PPI",
+        "GPI",
+        "LOC（Kendall's tau）",
+        "Top-k 输入位置曝光偏差"
+      ]
+    },
+    "limitations_zh": [
+      "本文主要提出评估框架和实证分析，并未提出新的缓解位置偏差的方法。",
+      "GPI 的精确最小化需要在所有排名上搜索，因此采用基于聚合胜分初始化和贪心交换的近似求解。",
+      "实验仅覆盖三个指令微调 decoder-only LLM、两个数据集、K∈{15,25,50} 和每查询 20 个候选排列。",
+      "排名提取使用候选标记的 token log-probability 而非生成文本，因此未覆盖解码随机性或解析失败对一致性的影响。"
+    ],
+    "method_zh": "给定用户上下文 H 和候选集 C，对 C 采样 M 个排列并让 LLM listwise reranker 分别生成排名。由所有排列下的排名定义成对偏好概率 q(i,j)，进而计算 PPI（按位置桶分组建模偏好随输入位置的变化）、GPI（用加权 Kemeny 排序聚合目标寻找最佳拟合排名并度量偏好矛盾程度）和 LOC（用 Kendall's tau 度量不同排列下完整排名输出的一致性）。此外，用输入位置的 top-k 曝光概率估计边际位置曝光偏差。实验比较 zero-shot、Bootstrapping、SGS 和 STELLA_LW 四种方法。",
+    "problem_zh": "大型语言模型（LLM）作为 listwise 重排序器用于推荐系统时，候选集本质上是无序集合，但模型输出排名会随候选的输入序列排列方式而改变，形成位置偏差。这种偏差破坏了排名函数的有效性；现有评估多关注推荐有效性或边际位置曝光偏差，而没有直接刻画候选排列对诱导偏好结构造成的成对、全局和输出层面的不一致。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.835,
+  "graph_relations": [],
+  "id": "arxiv-2608.03091",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-04T04:04:12Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究基于大语言模型的列表式重排序器在推荐系统中因候选输入顺序而引入的位置偏差，并提出在成对偏好、全局偏好和输出列表三个层面度量偏好一致性的评估框架。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Position Bias Undermines Preference Consistency in Listwise LLM-Based Reranking",
+  "url": "https://arxiv.org/abs/2608.03091v1"
+}

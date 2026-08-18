@@ -1,0 +1,131 @@
+{
+  "abstract": "Stale recommendations are a pervasive challenge and a leading source of user complaints on large-scale content platforms. Items lose relevance through two primary mechanisms: supersession, where emerging updates render prior coverage stale, and relevance decay, where an item's informational value naturally diminishes over its lifecycle. Traditional countermeasures serve as crude proxies: age cutoffs poorly reflect actual relevance loss, while engagement heuristics rely on lagging signals, broadly exposing users to stale content before the system adapts. We present SDF (Supersession-Decay Filtering), a staleness filtering system fully deployed in Google Discover, a personalized recommendation feed with hundreds of millions of daily and billions of monthly active users. SDF targets both mechanisms with complementary filters, each powered by a learned model: a relational staleness model that detects supersession between item pairs, and a predicted traffic ratio (PTR) model that forecasts relevance decay from the item's content, trained on lifetime visit traffic. Applied via disjunction upstream of the ranking stage, SDF prunes stale candidates, measurably reducing downstream serving costs. Online experiments demonstrate that these filters significantly reduce the prevalence of stale content while improving user engagement. Over a two-year production deployment, user-filed staleness reports (in-product user feedback) declined by 54.9% relative to the pre-deployment baseline, establishing SDF as a robust and scalable paradigm for resolving content staleness at industrial scale. Stale recommendations are a pervasive challenge and a leading source of user complaints on large-scale content platforms. Items lose relevance through two primary mechanisms: supersession, where emerging updates render prior coverage stale, and relevance decay, where an item's informational value naturally diminishes over its lifecycle. Traditional countermeasures serve as crude proxies: age cutoffs poorly reflect actual relevance loss, while engagement heuristics rely on lagging signals, broadly exposing users to stale content before the system adapts. We present SDF (Supersession-Decay Filtering), a staleness filtering system fully deployed in Google Discover, a personalized recommendation feed with hundreds of millions of daily and billions of monthly active users. SDF targets both mechanisms with complementary filters, each powered by a learned model: a relational staleness model that detects supersession between item pairs, and a predicted traffic ratio (PTR) model that forecasts relevance decay from the item's content, trained on lifetime visit traffic. Applied via disjunction upstream of the ranking stage, SDF prunes stale candidates, measurably reducing downstream serving costs. Online experiments demonstrate that these filters significantly reduce the prevalence of stale content while improving user engagement. Over a two-year production deployment, user-filed staleness reports (in-product user feedback) declined by 54.9% relative to the pre-deployment baseline, establishing SDF as a robust and scalable paradigm for resolving content staleness at industrial scale.",
+  "arxiv_id": "2608.15780",
+  "authors": [
+    "Di Bai",
+    "Feng Han",
+    "Zhenwei Tang",
+    "Jintao Liu",
+    "Luoshu Wang",
+    "Jialu Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "通过排序前主动剪枝，SDF 在两年部署中减少 54.9% 用户过时抱怨，提升用户满意度。",
+      "在线实验中降低用户 dismissal、提升 feed diversity 和 positive engagement，支持长期系统健康。",
+      "剪枝减少了稠密打分等下游重计算，2026 Q1 估计合计节省约 8.74% serving CPU/TPU 小时，直接转化为成本降低。",
+      "作为独立于排序的候选集精炼模块，SDF 可迁移到其他使用年龄截断和互动启发式的工业推荐系统，用于新鲜度管理和算力优化。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "将推荐系统中的内容过时分解为两个互补机制：新内容导致的替代（supersession）和内容自身生命周期导致的相关性衰减（relevance decay），并形式化两个检测任务。",
+      "提出 SDF（Supersession-Decay Filtering）双过滤器框架：关系型过时过滤器使用 LLM 蒸馏的成对分类学生模型检测替代；内在过时过滤器使用基于多模态内容的预测流量比（PTR）模型预测相关性衰减。",
+      "通过 OR 融合将两个过滤器置于排序阶段上游，主动剪枝过时候选，减少下游计算成本。",
+      "在 Google Discover 全量部署两年，用户提交的过时报告相对部署前下降 54.9%（替代类下降 64.0%，衰减类下降 34.4%），并在在线 A/B 中降低过时率、提升用户参与度和多样性。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Relational Staleness Detection"
+      },
+      {
+        "page": 3,
+        "section": "3.3 Intrinsic Staleness Detection"
+      },
+      {
+        "page": 4,
+        "section": "4.1 Offline Evaluation"
+      },
+      {
+        "page": 5,
+        "section": "4.2 Online A/B Testing"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Online Deployment"
+      },
+      {
+        "page": 7,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "年龄截断+互动悬崖（age-cutoff + engagement-cliff）基线",
+        "后融合（late-fusion）多模态基线",
+        "判别式（Disc，仅类别监督）配置",
+        "判别式+NLI 配置",
+        "生成式（Gen，CoT 理由监督）配置"
+      ],
+      "datasets": [
+        "LLM 生成的 1,100,133 个成对标注样本（train/val/test: 880,027/109,951/110,155）",
+        "300 对人工标注的开发 golden 集",
+        "550 对人工标注的 held-out golden 测试集",
+        "由 5 名人工评分者标注的 PTR 持出样本池",
+        "在线 A/B 中连续 4 周每周采样的条目（按 view delta 差分抽样）",
+        "两个月联合 holdback 用户实验"
+      ],
+      "findings_zh": [
+        "关系过滤器部署配置 Gen+NLI 在测试集上 F1 最高（84.79），生成式理由监督和 NLI 均带来一致提升；在 550 对持出黄金集上达到 83.5% 精度和 95% 召回。",
+        "早期融合 PTR 在编辑标注时间敏感性分类上准确率 80%，高于后期融合基线 76%；在 5 人评分一致（Unanimous）cut 下 F1 从 Majority cut 的 78.07% 升至 87.50%，各类别精度均超过 88%。",
+        "在线 A/B 中，基线 Δ_stale = -0.10 ± 1.22%，SDF 单独达到 -6.91 ± 2.23%，关系过滤器和内在过滤器单独分别为 -4.19 ± 2.25% 和 -3.10 ± 2.56%，均显著为负。",
+        "两个月 joint-holdback 中，SDF 使用户 dismissal rate 下降 -0.16 ± 0.07%，feed diversity 提升 +0.13 ± 0.04%，positive engagement 提升 +0.26 ± 0.18%（95% CI）。",
+        "两年部署后总用户过时报告下降 54.9%，其中替代类下降 64.0%，衰减类下降 34.4%，且分别主要由对应过滤器驱动。",
+        "2026 Q1 监测中，关系过滤器节省 4.76% serving CPU/TPU 小时，内在过滤器额外节省 3.98%。"
+      ],
+      "metrics": [
+        "Accuracy、Precision、Recall、F1",
+        "过时率流行度增量 Δ_stale = promoted stale rate - demoted stale rate",
+        "用户 dismissal rate、feed diversity、positive engagement",
+        "用户提交过时报告数量（7 天/28 天滚动）",
+        "Serving CPU/TPU 小时节省",
+        "PTR 二分类 Accuracy/F1/precision"
+      ]
+    },
+    "limitations_zh": [
+      "关系过滤器对政治评论等观点与事实混合的内容判断存在歧义，难以用单一新条目干净地判定替代。",
+      "PTR 会漏掉长尾的逐渐衰减条目：预测流量比始终未达阈值，部分条目会中等程度过时而不被捕获。",
+      "剩余的用户过时报告中有相当一部分是用户已在 Discover 或其他地方看过的内容，这种用户感知的过时不在 SDF 的 supersession/decay 范围内。",
+      "关系过滤器离线相对提升幅度较小，且依赖 LLM teacher 质量和启发式配对采样分布。"
+    ],
+    "method_zh": "SDF 将两个过滤器的结果做 OR 融合：若新到相关条目使旧条目失效（关系过滤器），或 PTR 预测在已流逝的年龄处累计了超过阈值 θ 的生命周期流量（内在过滤器），则移除候选。关系过滤器使用 PaLM 2-L 作为 LLM teacher，通过聚类去重和相似度带加权采样构造成对数据，教师输出类别和理由并经多数投票聚合，再通过知识蒸馏训练 T5 11B 学生模型，训练时同时监督理由（CoT 风格）并加入 NLI 辅助任务。PTR 模型以文本、图像、视频 token 早期融合输入共享多模态编码器，按多个 horizon（12h/1d/3d/5d/7d/10d/14d）分别预测到 30 天窗口内流量占比，使用搜索点击日志作为训练信号，在推理时选择已流逝的最大 horizon 的预测与阈值 θ 比较。两个过滤器都在用户请求路径外计算，服务时只需按请求时间戳查表，无需在线模型推理。",
+    "problem_zh": "在大规模推荐系统（如 Google Discover）中，内容过时（staleness）是普遍问题且是用户不满的主要来源。现有手段只是粗略代理：年龄截断无法准确反映相关性损失，而点击率等互动启发式依赖滞后信号，用户在系统适应之前就会持续看到过时内容。论文将过时分解为两类机制：新内容导致的替代（supersession）和内容自身生命周期导致的相关性衰减（relevance decay）。",
+    "technical_depth": 0.88
+  },
+  "doi": "10.1145/3799682.3840082",
+  "final_score": 0.922,
+  "graph_relations": [],
+  "id": "arxiv-2608.15780",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-16T15:00:24Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出双过滤器框架 SDF，在 Google Discover 推荐信息流中分别检测条目被新内容取代和相关性自然衰减两类过时机制，并在排序阶段之前剪除陈旧候选。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Decomposing Staleness in Recommender Systems: A Dual-Filter Framework for Supersession and Decay",
+  "url": "https://arxiv.org/abs/2608.15780v1"
+}

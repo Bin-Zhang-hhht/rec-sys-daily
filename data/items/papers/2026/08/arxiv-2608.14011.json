@@ -1,0 +1,119 @@
+{
+  "abstract": "Generative recommendation autoregressively generates the semantic IDs of the target item, unifying preference modeling and index retrieval within the shared token space. Recent attempts have introduced Multi-Token Prediction (MTP) into this field, yet they primarily inherit its efficiency merit, leaving its potential as dense supervision unexplored. Unlocking this potential hinges on whether future behaviors qualify as informative supervision. Our analysis reveals that future behaviors carry a semantic echo of the current one far above that of random pairs, which nevertheless decays along horizons under intent transitions, making them informative yet order-dependent signals. Motivated by this, we propose EchoRec, which empowers MTP with cycle-consistent holistic preference alignment across multi-horizon for generative recommendation. It comprises two synergistic modules. Horizon-aware Preference Generation (HPG) sequentially chains lightweight auxiliary branches upon the base recommender, where each branch conditions on its predecessor to respect preference evolution. Verifiable Holistic-Preference Alignment (VHA) further consolidates them into the holistic preference and echoes it back through cycle-consistent projectors to suppress spurious alignment, with theoretical guarantees that exclude the rank-collapse form of spurious alignment under an invertible transport, enabling the holistic preference to be retained in the decoding representation. All auxiliary components serve as disposable scaffolding discarded at inference, introducing negligible online serving overhead. Extensive experiments on three datasets demonstrate the superiority of our EchoRec, together with its naturally acquired multi-item generation ability. Our code and datasets will be available upon acceptance. Generative recommendation autoregressively generates the semantic IDs of the target item, unifying preference modeling and index retrieval within the shared token space. Recent attempts have introduced Multi-Token Prediction (MTP) into this field, yet they primarily inherit its efficiency merit, leaving its potential as dense supervision unexplored. Unlocking this potential hinges on whether future behaviors qualify as informative supervision. Our analysis reveals that future behaviors carry a semantic echo of the current one far above that of random pairs, which nevertheless decays along horizons under intent transitions, making them informative yet order-dependent signals. Motivated by this, we propose EchoRec, which empowers MTP with cycle-consistent holistic preference alignment across multi-horizon for generative recommendation. It comprises two synergistic modules. Horizon-aware Preference Generation (HPG) sequentially chains lightweight auxiliary branches upon the base recommender, where each branch conditions on its predecessor to respect preference evolution. Verifiable Holistic-Preference Alignment (VHA) further consolidates them into the holistic preference and echoes it back through cycle-consistent projectors to suppress spurious alignment, with theoretical guarantees that exclude the rank-collapse form of spurious alignment under an invertible transport, enabling the holistic preference to be retained in the decoding representation. All auxiliary components serve as disposable scaffolding discarded at inference, introducing negligible online serving overhead. Extensive experiments on three datasets demonstrate the superiority of our EchoRec, together with its naturally acquired multi-item generation ability. Our code and datasets will be available upon acceptance.",
+  "arxiv_id": "2608.14011",
+  "authors": [
+    "Haokai Ma",
+    "Aoqi Hu",
+    "Yueao Xing",
+    "Ruobing Xie",
+    "Yonghui Yang",
+    "Teng Tu",
+    "Lei Meng",
+    "Tat-Seng Chua"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "生成式推荐面向电商与流媒体，EchoRec在HR/NDCG上的稳定提升意味着更准的命中与排序，且其多商品生成能力可输出连贯的多步推荐轨迹。",
+      "辅助模块推理时全部丢弃，在线延迟和显存与骨干几乎一致，适合对实时性敏感的工业推荐部署。",
+      "EchoRec可插拔到不同生成式骨干（RPG、SETRec），降低了在现有系统上采用新方法的迁移成本。",
+      "对噪声交互的鲁棒性表明在真实世界含噪行为日志中可能更稳定，减少个别噪声交互对推荐结果的扭曲。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出EchoRec，将MTP解锁为顺序依赖的未来行为监督，通过循环一致的整体偏好对齐提升生成式推荐；据作者所述，这是该方向的早期探索之一。",
+      "设计HPG模块，用顺序串联的轻量MTP分支将下一项目标扩展到多horizon，每个分支依赖前序表示以捕捉意图跃迁；设计VHA模块，将分支表征聚合为整体偏好并循环一致地回映到解码表征，理论保证排除秩坍缩形式的虚假对齐。",
+      "在Game、Baby、Arts三个数据集上验证EchoRec一致超过RPG与SETRec等骨干，并自然获得多商品生成能力，推理开销可忽略。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Motivation Analysis on Future Behaviors"
+      },
+      {
+        "page": 1,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "EAGER",
+        "TIGER",
+        "LETTER",
+        "ETEGRec",
+        "SETRec",
+        "RPG",
+        "EchoRec (RPG)",
+        "EchoRec (SETRec)"
+      ],
+      "datasets": [
+        "Game（Amazon Reviews '23）",
+        "Baby（Amazon Reviews '23）",
+        "Arts（Amazon Reviews '23）"
+      ],
+      "findings_zh": [
+        "EchoRec相对RPG骨干在三个数据集上稳定显著提升：Game上HR@10 +11.17%、NDCG@10 +11.35%，Baby上+17.68%/+21.40%，Arts上+14.56%/+18.29%；相对SETRec的提升为+6.40%~+17.68%（按指标不同），且NDCG相对提升通常高于HR，说明不仅召回更好且排序更准。",
+        "组件消融显示VHA的循环一致约束有效：去掉L_cyc只保留单向对齐仍有提升，但加入循环一致后效果最好，说明它抑制了单向投影器无法排除的虚假对齐。",
+        "多horizon结构消融显示，顺序串联的RPG+HPG在i_{n+1}、i_{n+2}上均最优且不损害立即目标，inter-horizon重叠最低；并行RPG-Par.在i_{n+1}上反而退化，证实HPG避免了horizon同质化。",
+        "鲁棒性实验显示，在0%~80%随机噪声替换下EchoRec在中低噪声下持续优于RPG，且在Baby HR@10上相对提升从eta=0的17.68%扩大到eta=20的54.89%，极端噪声下两者才退化到接近。",
+        "效率对比显示EchoRec训练延迟高于RPG（如Baby从11.25ms到32.81ms），但推理延迟和GPU内存与RPG基本一致，证明辅助组件都在推理时被丢弃。"
+      ],
+      "metrics": [
+        "HR@10",
+        "NDCG@10",
+        "HR@20",
+        "NDCG@20",
+        "训练/推理延迟 (ms)",
+        "推理GPU内存 (MiB)"
+      ]
+    },
+    "limitations_zh": [
+      "论文指出未来行为语义回声会随horizon衰减，但EchoRec目前使用固定三horizon监督，未自适应校准监督强度。",
+      "相比基础推荐器，EchoRec训练延迟增加（如Baby上11.25ms→32.81ms），训练开销更高。",
+      "在极端噪声（eta>=60%）下，EchoRec与基线都退化到可用性很低的水平。",
+      "作者提到的未来工作还包括更细粒度、跨token与item的mesh式预测架构，说明当前架构在细粒度关联演化建模上仍有空间。"
+    ],
+    "method_zh": "基础推荐器采用RPG：物品经优化乘积量化得到k-token语义ID，并将token嵌入聚合为单一表示；Transformer编码用户序列后，共享输出头按codebook分裂并计算token级分布，推理时基于相似图做图约束解码。HPG在基础分支MTP-0之上串联MTP-1、MTP-2：每个辅助分支将前序分支表示与移位后的物品嵌入拼接（RMSNorm + Proj + 单层Transformer），再共用输出头/嵌入/解码图分别预测i_{n+2}、i_{n+3}，从而把未来行为变成顺序依赖监督。VHA用MLP_future对z_n^0、z_{n+1}^1、z_{n+2}^2（均stop-gradient）聚合出整体偏好z_f，再用L_trace=1-cos(Proj_{0->f}(z_n^0), z_f)把解码表示拉向z_f；同时引入反向投影器并施加双向循环一致损失L_cyc，保证往返传输可逆，借助Lemma 1和Theorem 2排除秩坍缩式虚假对齐。总损失L=L_HPG+L_VHA，其中L_HPG=L0+λ1L1+λ2L2，L_VHA=λ_trace L_trace+λ_cyc L_cyc；推理时仅保留MTP-0，所有辅助分支和投影器均被丢弃。",
+    "problem_zh": "当前生成式推荐主要采用下一项预测目标，未充分利用未来行为作为监督；虽有工作引入多 token 预测(MTP)，但只继承了效率和表达能力优势，未挖掘其密集监督潜力。论文通过SID重叠分析发现未来行为与当前交互存在语义回声（语义SID重叠提升最高21.02倍），但随意图跃迁沿horizon衰减，因此未来行为是有信息量且顺序相关的信号；同时并行MTP会把多horizon预测同质化并干扰立即目标，单向表征对齐可能被投影器以捷径满足而产生无法验证的虚假对齐。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.8724999999999999,
+  "graph_relations": [],
+  "id": "arxiv-2608.14011",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-14T06:59:12Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出EchoRec，在生成式推荐中利用多词预测与循环一致的整体偏好对齐，跨多时间窗口建模偏好演化并支持多物品生成。",
+  "targets": [],
+  "tasks": [],
+  "title": "EchoRec: Multi-Item Prediction-Empowered Generative Recommendation via Cycle-Consistent Preference Alignment",
+  "url": "https://arxiv.org/abs/2608.14011v1"
+}

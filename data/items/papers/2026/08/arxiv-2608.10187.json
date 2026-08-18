@@ -1,0 +1,153 @@
+{
+  "abstract": "Modern recommendation systems on social media platforms such as Meta must model complex social relationships, including friendships, group memberships, and creator interactions, alongside massive and heterogeneous content such as text and video. Traditional recommendation models, however, often omit these signals or treat them independently, lacking the reasoning capability to integrate multi-relational context for fine-grained personalization. We present ConnectionMind, a production-ready recommendation framework that tightly integrates the social network structure with large language models (LLMs) to enable scalable, interpretable, and reasoning-aware personalization in Meta. ConnectionMind constructs a heterogeneous graph connecting users, items, friends, groups, and creator pages, and formulates recommendation as a graph reasoning problem: discovering personalized paths from users to candidate items. An LLM-based policy is employed to reason over these graph structures and guide recommendation decisions. To train the system at scale, ConnectionMind adopts a two-stage learning strategy. We first perform supervised fine-tuning (SFT) on large-scale user-item interaction trajectories to initialize the reasoning policy, followed by end-to-end reinforcement learning (RL) to refine the model's ability to reason over social graphs for personalized recommendation. Extensive experiments on multiple real-world datasets demonstrate the effectiveness of ConnectionMind compared to representative baselines. More importantly, ConnectionMind has been deployed in Meta's large-scale recommendation pipeline and has been evaluated through online A/B tests, achieving a 0.43% improvement in video watch time. These results demonstrate measurable real-world impact in a production recommendation system. Modern recommendation systems on social media platforms such as Meta must model complex social relationships, including friendships, group memberships, and creator interactions, alongside massive and heterogeneous content such as text and video. Traditional recommendation models, however, often omit these signals or treat them independently, lacking the reasoning capability to integrate multi-relational context for fine-grained personalization. We present ConnectionMind, a production-ready recommendation framework that tightly integrates the social network structure with large language models (LLMs) to enable scalable, interpretable, and reasoning-aware personalization in Meta. ConnectionMind constructs a heterogeneous graph connecting users, items, friends, groups, and creator pages, and formulates recommendation as a graph reasoning problem: discovering personalized paths from users to candidate items. An LLM-based policy is employed to reason over these graph structures and guide recommendation decisions. To train the system at scale, ConnectionMind adopts a two-stage learning strategy. We first perform supervised fine-tuning (SFT) on large-scale user-item interaction trajectories to initialize the reasoning policy, followed by end-to-end reinforcement learning (RL) to refine the model's ability to reason over social graphs for personalized recommendation. Extensive experiments on multiple real-world datasets demonstrate the effectiveness of ConnectionMind compared to representative baselines. More importantly, ConnectionMind has been deployed in Meta's large-scale recommendation pipeline and has been evaluated through online A/B tests, achieving a 0.43% improvement in video watch time. These results demonstrate measurable real-world impact in a production recommendation system.",
+  "arxiv_id": "2608.10187",
+  "authors": [
+    "Haoyu Han",
+    "Yuming Liu",
+    "Lei Huang",
+    "Lizhu Zhang",
+    "Jiliang Tang",
+    "Xiangjun Fan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在线 A/B 测试中 Exposure +0.33% 被解读为语义图增密有助于将长尾内容推荐给冷启动用户，可能打破流行度反馈循环。",
+      "Watch Time +0.43% 的提升表明，通过社交关系解释推荐理由可以增强用户信任和消费深度。",
+      "Video Sessions +0.22% 的提升表明，社交相关推荐可能增强社区感，提高用户打开和回访频率。",
+      "Teacher-Student 混合推理架构使高成本的 LLM 路径推理能通过蒸馏扩展到全部用户流量，同时保持毫秒级服务延迟，适合大规模生产推荐系统落地。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 CONNECTIONMIND，一个生产级推荐框架，将社交推荐重新表述为基于查询条件的异构社交–物品交互图上的路径探索，显式建模用户、朋友、群组、创作者页面和物品。",
+      "设计 LLM 引导的推理策略，通过监督微调（SFT）初始化、再经端到端强化学习（RL）训练，能够选择性发现信息性社交与语义路径，并输出可解释的证据路径。",
+      "在 Delicious 和 Foursquare 公开基准上优于多个代表性基线，并在 Meta 生产系统中完成在线 A/B 测试，取得视频观看时长 +0.43% 等可度量提升。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Heterogeneous Social-item Interaction Graph Construction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Recommendation as Path Discovery"
+      },
+      {
+        "page": 1,
+        "section": "4.1 LLM-guided Graph Exploration"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Stage I: Supervised Fine-Tuning (SFT)"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Stage II: End-to-End Reinforcement Learning"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Experimental Settings"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Overall Performance Comparison"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "6.1 Hybrid Inference Infrastructure"
+      },
+      {
+        "page": 1,
+        "section": "6.2 Experimental Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "TrustMF",
+        "GraphRec",
+        "MHCN",
+        "SEPT",
+        "DiffNet",
+        "DiffNet++",
+        "RecDIFF",
+        "SGIL",
+        "BIGRec (Llama 3.2-3B-Instruct)",
+        "Production GNN baseline",
+        "Llama 3.3-70B-Instruct（生产离线对比）"
+      ],
+      "datasets": [
+        "Delicious",
+        "Foursquare",
+        "Meta 生产短视频平台离线日志与在线流量"
+      ],
+      "findings_zh": [
+        "在 Delicious 和 Foursquare 上，CONNECTIONMIND 在全部 Recall@K 和 Precision@K 指标上一致优于所有基线；8B 骨干模型整体优于 3B 骨干模型。",
+        "消融实验显示，未经适配的 Llama 3.2-3B-Instruct 在两个数据集上 Recall 接近零；仅 SFT 就能带来显著提升，完整 SFT+RL 进一步改善 Recall，验证了两阶段训练的有效性。",
+        "生产离线评估中，CONNECTIONMIND 的 Recall@10 相比生产 GNN 基线提升 88%，相比不使用图推理的 Llama 3.3-70B-Instruct 提升 39%。",
+        "在线 A/B 测试（数千万用户、连续多周）显示 Exposure +0.33% ± 0.08%、Watch Time +0.43% ± 0.14%、Video Sessions +0.22% ± 0.13%。",
+        "GNN 类社交推荐器通常优于 MF 和影响传播基线；未利用社交关系的 BIGRec 在 Delicious 上甚至低于若干传统社交推荐方法，说明仅靠语义建模不足以替代社交关系上下文。"
+      ],
+      "metrics": [
+        "Recall@K",
+        "Precision@K",
+        "Recall@10（生产离线评估）",
+        "Exposure 相对提升",
+        "Watch Time 相对提升",
+        "Video Sessions 相对提升"
+      ]
+    },
+    "limitations_zh": [
+      "由于隐私和平台政策限制，关于 Meta 生产规模社交消费模式的分析仅做定性报告，未披露具体统计数据。",
+      "为满足延迟约束，完整 LLM 推理只服务最活跃的 5–10% 用户，其余用户使用蒸馏 Student GNN，可能无法完全保留教师推理策略的表达能力。",
+      "在线指标提升幅度相对较小（+0.22% 到 +0.43%），论文也指出在成熟的十亿用户优化环境中这类百分比增益通常是增量式的。"
+    ],
+    "method_zh": "构造带时间戳和权重的异构社交–物品图，关系类型包括好友、相似用户、关注、群组、群组分享、页面发布、共看、语义相似；物品通过 OCR、ASR、视频大模型等生成文本表示并由 LLM 压缩为紧凑语义描述，用户和页面也通过聚合其相关物品文本生成语义画像。对每个目标用户采样多个紧凑局部子图，将推荐视为从用户节点出发的带类型路径探索：LLM 策略观察当前路径、前沿节点可选边和节点语义，输出路径扩展与物品–路径对，终止后得到候选物品集合和证据路径集合。训练采用两阶段：先用正向交互对应的最短路径构造逐步状态–动作轨迹进行 SFT，使策略学会关系一致和图遍历能力；再用规则奖励（格式奖励、基于 F1 的最终推荐奖励、逐步 shaping 奖励）结合 GRPO 进行端到端 RL。生产部署采用 Teacher-Student 混合推理：最活跃的 5–10% 用户走完整 LLM 推理，普通流量由离线蒸馏出的轻量 Student GNN 以毫秒级延迟服务。",
+    "problem_zh": "现代社交媒体平台的推荐系统需要建模好友、群组、创作者等异构社交关系与海量多模态内容，但传统推荐模型要么忽略社交信号，要么将社交信息通过固定邻域聚合或扩散压缩成稠密嵌入，缺乏针对具体推荐情境的选择性、可解释性和基于图结构的推理能力；同时语义信息通常被当作静态特征，无法主动引导关系选择。论文将个性化推荐重新定义为在异构社交–物品交互图上的路径探索问题。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8624999999999999,
+  "graph_relations": [
+    {
+      "confidence": 0.6,
+      "evidence": "两者均将大语言模型/生成式策略与强化学习引入推荐系统训练。",
+      "generated_by": "llm_taxonomy_classifier",
+      "target_id": "arxiv-2608.11980",
+      "type": "related_by_method"
+    }
+  ],
+  "id": "arxiv-2608.10187",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T10:56:59.199050Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-08-10T20:02:31Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出ConnectionMind，将朋友、群组和创作者等社交关系构建为异构图，并用LLM策略以图推理方式指导个性化推荐，通过SFT和强化学习两阶段训练在Meta推荐流水线中取得线上效果提升。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "ConnectionMind: Leveraging Social Networks and Large Language Models for Personalized Recommendation at Meta",
+  "url": "https://arxiv.org/abs/2608.10187v1"
+}
