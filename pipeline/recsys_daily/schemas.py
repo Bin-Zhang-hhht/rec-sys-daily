@@ -284,6 +284,7 @@ class BuildConfigSnapshot(ArtifactModel):
     graph_max_content_nodes: int = Field(ge=1)
     graph_recent_days: PositiveInt
     minimum_final_score: float = Field(ge=0, le=1)
+    minimum_metadata_relevance_score: float = Field(ge=0, le=1)
     target_item_bytes: PositiveInt
     max_item_bytes: PositiveInt
     max_blog_excerpt_chars: PositiveInt
@@ -295,9 +296,17 @@ class BuildConfigSnapshot(ArtifactModel):
 class StageReport(ArtifactModel):
     sources: list[SourceRunStatus] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
+    collected_paper_candidates: int = Field(default=0, ge=0)
+    collected_blog_candidates: int = Field(default=0, ge=0)
+    prefilter_paper_candidates: int = Field(default=0, ge=0)
+    prefilter_blog_candidates: int = Field(default=0, ge=0)
+    shortlist_paper_candidates: int = Field(default=0, ge=0)
+    shortlist_blog_candidates: int = Field(default=0, ge=0)
     metadata_llm_calls: int = Field(default=0, ge=0)
     metadata_llm_success_rate: float = Field(default=1.0, ge=0, le=1)
     metadata_degraded_count: int = Field(default=0, ge=0)
+    metadata_label_rejections: int = Field(default=0, ge=0)
+    metadata_relevance_rejections: int = Field(default=0, ge=0)
 
 
 class RunReport(ArtifactModel):

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from recsys_daily.collect import Candidate, stable_id
 from recsys_daily.config import load_config
-from recsys_daily.filtering import deterministic_sort_key, prefilter
+from recsys_daily.filtering import collection_evidence, deterministic_sort_key, prefilter
 from recsys_daily.schemas import State
 
 
@@ -65,3 +65,27 @@ def test_prefilter_uses_stable_tie_breakers() -> None:
 
     assert [candidate.source_id for candidate in result] == ["airbnb_tech", "meta_engineering"]
     assert result == sorted(result, key=deterministic_sort_key)
+
+
+def test_prefilter_rejects_generic_ai_even_when_source_has_scenario_context() -> None:
+    config = load_config(Path(__file__).parents[2])
+    generic = Candidate(
+        kind="blog",
+        source_id="meta_engineering",
+        title="A General Agentic AI Runtime",
+        url="https://engineering.example/agent-runtime",
+        published_at=NOW,
+        excerpt="A foundation model and reinforcement learning infrastructure update.",
+        source_weight=1.0,
+        source_scenarios=("text_feed", "friend_recommendation"),
+    )
+
+    assert collection_evidence(generic, config) == 0
+    assert prefilter([generic], config, State(), now=NOW) == []
+
+
+def test_prefilter_accepts_explicit_recommendation_evidence() -> None:
+    config = load_config(Path(__file__).parents[2])
+    candidate = _candidate(1, "blog", source_id="pinterest_engineering")
+    assert collection_evidence(candidate, config) > 0
+    assert prefilter([candidate], config, State(), now=NOW)

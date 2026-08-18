@@ -22,7 +22,7 @@ function readSnapshot(bundle) {
   const report = JSON.parse(fs.readFileSync(runs.at(-1), "utf8"));
   const snapshot = report.config_snapshot;
   const fields = [
-    "graph_max_content_nodes", "graph_recent_days", "minimum_final_score", "target_item_bytes", "max_item_bytes",
+    "graph_max_content_nodes", "graph_recent_days", "minimum_final_score", "minimum_metadata_relevance_score", "target_item_bytes", "max_item_bytes",
     "max_blog_excerpt_chars", "warn_repository_data_mb", "warn_pages_artifact_mb", "fail_pages_artifact_mb",
   ];
   if (!snapshot || fields.some(field => typeof snapshot[field] !== "number" || !Number.isFinite(snapshot[field]) || snapshot[field] <= 0)) {

@@ -115,7 +115,7 @@ def test_publish_bundle_allowlist(tmp_path: Path) -> None:
 def test_integrate_rejects_stage_one_candidate_overflow(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
     papers_path = stages.stage1 / "papers.jsonl"
-    extra_papers = [_paper(f"paper-{index}", 0.1) for index in range(10, 17)]
+    extra_papers = [_paper(f"paper-{index}", 0.1) for index in range(10, 22)]
     with papers_path.open("a", encoding="utf-8") as stream:
         for item in extra_papers:
             record = {key: value for key, value in item.items() if key != "deep_reading"}
@@ -386,6 +386,7 @@ def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_pa
         graph_max_content_nodes=CONFIG.settings.graph_max_content_nodes,
         graph_recent_days=CONFIG.settings.graph_recent_days,
         minimum_final_score=CONFIG.settings.minimum_final_score,
+        minimum_metadata_relevance_score=CONFIG.settings.minimum_metadata_relevance_score,
         target_item_bytes=CONFIG.settings.storage.target_item_bytes,
         max_item_bytes=CONFIG.settings.storage.max_item_bytes,
         max_blog_excerpt_chars=CONFIG.settings.storage.max_blog_excerpt_chars,

@@ -297,8 +297,15 @@ def _header(headers: Mapping[str, str], name: str) -> str | None:
 
 
 def _arxiv_url(config: AppConfig, window: QueryWindow) -> str:
-    terms = [term for category in (config.topics.targets, config.topics.scenarios, config.topics.tasks, config.topics.methods) for entry in category for term in entry.terms]
-    term_query = " OR ".join(f'all:"{term}"' for term in dict.fromkeys(terms)) or 'all:"recommendation"'
+    terms = list(config.topics.collection_terms)
+    if not terms:
+        terms = [
+            term
+            for category in (config.topics.targets, config.topics.scenarios, config.topics.tasks)
+            for entry in category
+            for term in entry.terms
+        ]
+    term_query = " OR ".join(f'all:"{term}"' for term in dict.fromkeys(terms)) or 'all:"recommender system"'
     submitted_window = (
         f"submittedDate:[{window.papers_since:%Y%m%d%H%M} TO "
         f"{window.until:%Y%m%d%H%M}]"

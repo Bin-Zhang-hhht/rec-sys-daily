@@ -20,6 +20,25 @@ def _term_score(terms: Iterable[str], text: str) -> float:
     return min(1.0, matched / len(terms))
 
 
+def _collection_terms(config: AppConfig) -> tuple[str, ...]:
+    configured = tuple(term for term in config.topics.collection_terms if term and term.strip())
+    if configured:
+        return configured
+    return tuple(
+        term
+        for category in (config.topics.targets, config.topics.scenarios, config.topics.tasks)
+        for entry in category
+        for term in entry.terms
+        if term and term.strip()
+    )
+
+
+def collection_evidence(candidate: Candidate, config: AppConfig) -> float:
+    """Return configured recommendation-domain evidence from source metadata."""
+    text = normalize_title(f"{candidate.title} {candidate.excerpt} {' '.join(candidate.categories)}")
+    return _term_score(_collection_terms(config), text)
+
+
 def _history_ids(history: State | Iterable[str] | None) -> set[str]:
     if history is None:
         return set()
@@ -33,11 +52,11 @@ def _score(candidate: Candidate, config: AppConfig, history_ids: set[str], now: 
     topic_terms = [term for category in (config.topics.targets, config.topics.tasks, config.topics.methods) for entry in category for term in entry.terms]
     scenario_terms = [term for entry in config.topics.scenarios for term in entry.terms]
     topic_relevance = _term_score(topic_terms, text)
-    scenario_relevance = min(1.0, max(_term_score(scenario_terms, text), _term_score(candidate.source_scenarios, text)))
+    scenario_relevance = _term_score(scenario_terms, text)
     max_weight = max((source.weight for source in [*config.sources.academic, *config.sources.blogs]), default=1.0)
     source_quality = max(0.0, min(1.0, candidate.source_weight / max_weight))
     novelty = 0.0 if stable_id(candidate) in history_ids else 1.0
-    practical_value = min(1.0, (topic_relevance + scenario_relevance + (1.0 if candidate.kind == "blog" else 0.0)) / 2.0)
+    practical_value = min(1.0, (topic_relevance + scenario_relevance) / 2.0)
     age_days = max(0.0, (now - candidate.published_at).total_seconds() / 86_400)
     recency = max(0.0, min(1.0, 1.0 - age_days / (1_095 if candidate.kind == "blog" else 1_825)))
     weights = config.settings.metadata_weights
@@ -70,6 +89,8 @@ def prefilter(
     unique: dict[str, Candidate] = {}
     for candidate in candidates:
         if stable_id(candidate) in ids:
+            continue
+        if collection_evidence(candidate, config) <= 0:
             continue
         score = _score(candidate, config, ids, current)
         scored = replace(candidate, metadata_score=score)

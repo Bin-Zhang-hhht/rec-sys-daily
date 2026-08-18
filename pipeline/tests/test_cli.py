@@ -162,7 +162,7 @@ def test_cli_deep_read_removes_candidate_input_after_processing(tmp_path: Path) 
 
     assert not (output / "candidate-input").exists()
     payload = json.loads((output / "blog-deep-readings.json").read_text(encoding="utf-8"))
-    assert len(payload["items"]) == 16
+    assert len(payload["items"]) == 20
     assert payload["failures"] == []
 
 

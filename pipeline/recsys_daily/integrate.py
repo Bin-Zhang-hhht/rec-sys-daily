@@ -270,6 +270,7 @@ def _build_snapshot(config: AppConfig) -> BuildConfigSnapshot:
         graph_max_content_nodes=settings.graph_max_content_nodes,
         graph_recent_days=settings.graph_recent_days,
         minimum_final_score=settings.minimum_final_score,
+        minimum_metadata_relevance_score=settings.minimum_metadata_relevance_score,
         target_item_bytes=storage.target_item_bytes,
         max_item_bytes=storage.max_item_bytes,
         max_blog_excerpt_chars=storage.max_blog_excerpt_chars,

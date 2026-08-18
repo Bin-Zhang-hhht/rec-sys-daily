@@ -1,5 +1,6 @@
-daily_target: 8
+daily_target: 10
 minimum_final_score: 0.50
+minimum_metadata_relevance_score: 0.65
 request_user_agent: RecSysDaily/1.0
 structured_analysis_min_success_rate: 0.80
 metadata_weights:
@@ -23,7 +24,7 @@ limits:
   retry_max_delay_seconds: 30
   max_papers_per_run: 100
   max_blogs_per_run: 50
-  deep_reading_candidates_per_type: 16
+  deep_reading_candidates_per_type: 20
   pdf_download_concurrency: 1
   blog_download_concurrency_per_domain: 1
   blog_min_interval_seconds_per_domain: 2

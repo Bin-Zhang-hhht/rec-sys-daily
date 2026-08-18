@@ -176,7 +176,7 @@ def _run_deep_read(
     services: DeepReadServices,
     run_id: str,
     *,
-    max_candidates: int = 16,
+    max_candidates: int = 20,
 ) -> None:
     candidates = [
         json.loads(line)

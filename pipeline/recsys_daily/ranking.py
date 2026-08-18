@@ -58,7 +58,7 @@ def _final_score(item: PaperItem | BlogItem, weights: FinalScoreWeights) -> floa
 def rank_items(
     items: Iterable[ContentItem],
     kind: str,
-    limit: int = 8,
+    limit: int = 10,
     *,
     final_weights: FinalScoreWeights | None = None,
     minimum_final_score: float = 0.0,

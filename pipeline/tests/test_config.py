@@ -14,6 +14,7 @@ def _write_yaml(path: Path, data: object) -> None:
 def _write_config(root: Path) -> None:
     topic = lambda identifier: {"id": identifier, "name_zh": identifier, "name_en": identifier, "terms": [identifier]}
     _write_yaml(root / "config/topics.yaml", {
+        "collection_terms": ["recommendation"],
         "targets": [topic("content")], "scenarios": [topic("text_feed")],
         "tasks": [topic("ranking")], "methods": [topic("two_tower")],
     })
@@ -31,13 +32,14 @@ def _write_config(root: Path) -> None:
         "common": {"timeout_seconds": 600, "retries": 3},
     }})
     _write_yaml(root / "config/settings.yaml", {
-        "daily_target": 8,
+        "daily_target": 10,
         "minimum_final_score": 0.5,
+        "minimum_metadata_relevance_score": 0.65,
         "request_user_agent": "RecSysDaily/1.0",
         "structured_analysis_min_success_rate": .80,
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
-        "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 16, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
+        "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 20, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
         "graph_max_content_nodes": 80,
         "graph_recent_days": 90,
         "storage": {"target_item_bytes": 16_384, "max_item_bytes": 32_768, "max_blog_excerpt_chars": 4_000, "warn_repository_data_mb": 500, "warn_pages_artifact_mb": 500, "fail_pages_artifact_mb": 900},
@@ -54,6 +56,7 @@ def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> Non
     _write_config(tmp_path)
     config = load_config(tmp_path)
     assert config.models.text.model == "deepseek-v4-flash"
+    assert config.settings.minimum_metadata_relevance_score == 0.65
     assert not hasattr(config.settings.limits, "llm_target_rpm")
     assert config.models.mineru.model_version == "vlm"
 

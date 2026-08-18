@@ -317,7 +317,7 @@ def _write_deep_stages(
         values = [json.loads(line) for line in (stage / f"{kind}s.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
         (input_dir / f"{kind}-candidates.json").write_text(json.dumps(values), encoding="utf-8")
         output = root / f"deep-reading-{kind}"
-        deep_read(kind, input_dir, output, services=services, max_candidates=16)
+        deep_read(kind, input_dir, output, services=services, max_candidates=20)
         write_json(output / "manifest.json", {"run_id": run_id, "schema_version": "1"})
         shutil.rmtree(input_dir, ignore_errors=True)
         deep_dirs[kind] = output
@@ -474,6 +474,7 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
         graph_max_content_nodes=config.settings.graph_max_content_nodes,
         graph_recent_days=config.settings.graph_recent_days,
         minimum_final_score=config.settings.minimum_final_score,
+        minimum_metadata_relevance_score=config.settings.minimum_metadata_relevance_score,
         target_item_bytes=storage.target_item_bytes,
         max_item_bytes=storage.max_item_bytes,
         max_blog_excerpt_chars=storage.max_blog_excerpt_chars,

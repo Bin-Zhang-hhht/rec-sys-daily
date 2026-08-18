@@ -35,6 +35,7 @@ export type BuildConfigSnapshot = {
   graph_max_content_nodes: number;
   graph_recent_days: number;
   minimum_final_score: number;
+  minimum_metadata_relevance_score: number;
   target_item_bytes: number;
   max_item_bytes: number;
   max_blog_excerpt_chars: number;
@@ -43,7 +44,20 @@ export type BuildConfigSnapshot = {
   fail_pages_artifact_mb: number;
 };
 export type RunSourceStatus = { source_id: string; success: boolean; warning: string | null };
-export type RunStageReport = Record<string, unknown> & { sources: RunSourceStatus[] };
+export type RunStageReport = {
+  sources: RunSourceStatus[];
+  collected_paper_candidates: number;
+  collected_blog_candidates: number;
+  prefilter_paper_candidates: number;
+  prefilter_blog_candidates: number;
+  shortlist_paper_candidates: number;
+  shortlist_blog_candidates: number;
+  metadata_llm_calls: number;
+  metadata_llm_success_rate: number;
+  metadata_degraded_count: number;
+  metadata_label_rejections: number;
+  metadata_relevance_rejections: number;
+};
 export type RunReport = { run_id: string; config_snapshot: BuildConfigSnapshot; stage_report: RunStageReport };
 
 const defaultRoot = "/workspace/publish-bundle";
@@ -85,6 +99,11 @@ function optionalStrings(value: unknown, context: string): string[] {
 function score(value: unknown, context: string): number {
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1) fail(context, "expected a number between 0 and 1");
   return value;
+}
+
+function nonNegativeInteger(value: unknown, context: string): number {
+  if (!Number.isInteger(value) || (value as number) < 0) fail(context, "expected a non-negative integer");
+  return value as number;
 }
 
 function dateTime(value: unknown, context: string): string {
@@ -217,7 +236,7 @@ function validateItem(value: unknown, taxonomy: Taxonomy, context: string): Item
   if (!routeIdPattern.test(id)) fail(`${context}.id`, "contains unsafe route characters");
   const tagValues = {} as Record<TaxonomyGroup, string[]>;
   for (const group of taxonomyGroups) {
-    const values = strings(raw[group], `${context}.${group}`, false);
+    const values = strings(raw[group], `${context}.${group}`);
     const allowed = new Set(taxonomy[group].map(entry => entry.id));
     const unknown = values.find(value => !allowed.has(value));
     if (unknown) fail(`${context}.${group}`, `unknown taxonomy id ${unknown}`);
@@ -272,6 +291,7 @@ function validateSnapshot(value: unknown): BuildConfigSnapshot {
     }
   }
   score(snapshot.minimum_final_score, "run report config_snapshot.minimum_final_score");
+  score(snapshot.minimum_metadata_relevance_score, "run report config_snapshot.minimum_metadata_relevance_score");
   return snapshot as BuildConfigSnapshot;
 }
 
@@ -289,7 +309,20 @@ function validateStageReport(value: unknown): RunStageReport {
     if (source.warning !== null && typeof source.warning !== "string") fail(`${context}.warning`, "expected a string or null");
     return { source_id: sourceId, success: source.success, warning: source.warning };
   });
-  return { ...stageReport, sources };
+  return {
+    sources,
+    collected_paper_candidates: nonNegativeInteger(stageReport.collected_paper_candidates, "RunReport.stage_report.collected_paper_candidates"),
+    collected_blog_candidates: nonNegativeInteger(stageReport.collected_blog_candidates, "RunReport.stage_report.collected_blog_candidates"),
+    prefilter_paper_candidates: nonNegativeInteger(stageReport.prefilter_paper_candidates, "RunReport.stage_report.prefilter_paper_candidates"),
+    prefilter_blog_candidates: nonNegativeInteger(stageReport.prefilter_blog_candidates, "RunReport.stage_report.prefilter_blog_candidates"),
+    shortlist_paper_candidates: nonNegativeInteger(stageReport.shortlist_paper_candidates, "RunReport.stage_report.shortlist_paper_candidates"),
+    shortlist_blog_candidates: nonNegativeInteger(stageReport.shortlist_blog_candidates, "RunReport.stage_report.shortlist_blog_candidates"),
+    metadata_llm_calls: nonNegativeInteger(stageReport.metadata_llm_calls, "RunReport.stage_report.metadata_llm_calls"),
+    metadata_llm_success_rate: score(stageReport.metadata_llm_success_rate, "RunReport.stage_report.metadata_llm_success_rate"),
+    metadata_degraded_count: nonNegativeInteger(stageReport.metadata_degraded_count, "RunReport.stage_report.metadata_degraded_count"),
+    metadata_label_rejections: nonNegativeInteger(stageReport.metadata_label_rejections, "RunReport.stage_report.metadata_label_rejections"),
+    metadata_relevance_rejections: nonNegativeInteger(stageReport.metadata_relevance_rejections, "RunReport.stage_report.metadata_relevance_rejections"),
+  };
 }
 
 export function loadBundle(root?: string) {

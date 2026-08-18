@@ -197,7 +197,7 @@ def deep_read(
     output_dir: Path,
     *,
     services: DeepReadServices | None = None,
-    max_candidates: int = 16,
+    max_candidates: int = 20,
 ) -> Path:
     if kind not in {"paper", "blog"}:
         raise ValueError("kind must be paper or blog")

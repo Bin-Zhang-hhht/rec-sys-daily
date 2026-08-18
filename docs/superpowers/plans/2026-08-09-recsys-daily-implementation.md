@@ -14,7 +14,7 @@
 - Local real secrets live only in `.env`; commit only `.env.example` with blank key values. Tests and fixture builds require no real key.
 - Academic collection is arXiv only; do not implement OpenReview or TeX source reading.
 - Cold start and daily update use the same pipeline; only the state-derived time range changes.
-- Preserve the limits of 100 paper candidates, 50 blog candidates, 16 deep reads per kind, target 8 recommendations per kind, 30 target RPM, 40 hard RPM, and one in-flight request per full-reading worker.
+- Preserve the limits of 100 paper candidates, 50 blog candidates, 20 deep reads per kind, target 10 recommendations per kind, and one in-flight request per full-reading worker.
 - Never commit, cache, log, publish, or place in cross-job artifacts any PDF, extracted full text, source HTML, critical-page image, model reasoning trace, complete prompt, complete response, or API key.
 - Use Astro + TypeScript + Tailwind CSS 4 without React. Generate search filters from the taxonomy snapshot and load Pagefind/Cytoscape only on their routes.
 - Use PowerShell and Docker for supported local workflows.
@@ -272,7 +272,7 @@ git commit -m "feat: add bounded text and vision model clients"
 - Create: `fixtures/content/blog.html`
 
 **Interfaces:**
-- Consumes: Top-16 candidate artifact, text/vision clients, temporary working directory.
+- Consumes: Top-20 candidate artifact, text/vision clients, temporary working directory.
 - Produces: `deep_read_paper(candidate, services) -> PaperItem`; `deep_read_blog(candidate, services) -> BlogItem`; `deep_read(kind, input_dir, output_dir) -> Manifest`.
 
 - [ ] **Step 1: Write failing fallback and cleanup tests**
@@ -328,7 +328,7 @@ git commit -m "feat: add bounded paper and blog deep reading"
 
 **Interfaces:**
 - Consumes: stage-1 and both deep-reading artifacts sharing one `run_id` and `schema_version`.
-- Produces: exactly `manifest.json`, `taxonomy.json`, and `pending-data/`; `rank_items(items, kind, limit=8) -> list[Item]`; `integrate(stages, output, config, state) -> PublishBundle`.
+- Produces: exactly `manifest.json`, `taxonomy.json`, and `pending-data/`; `rank_items(items, kind, limit=10) -> list[Item]`; `integrate(stages, output, config, state) -> PublishBundle`.
 
 - [ ] **Step 1: Write failing transaction and bundle tests**
 
@@ -350,8 +350,8 @@ def test_mismatched_manifest_is_rejected_without_state(tmp_path):
 def test_digest_references_ids_and_caps_each_kind(bundle_path):
     bundle = integrate(fixture_stages(), bundle_path, fixture_config(), state=None)
     digest = load_digest(bundle)
-    assert len(digest.papers) <= 8
-    assert len(digest.blogs) <= 8
+    assert len(digest.papers) <= 10
+    assert len(digest.blogs) <= 10
     assert all(isinstance(entry.item_id, str) for entry in digest.papers + digest.blogs)
 ```
 

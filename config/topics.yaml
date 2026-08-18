@@ -1,8 +1,40 @@
+collection_terms:
+  - recommender system
+  - recommender systems
+  - recommendation system
+  - recommendation systems
+  - personalized recommendation
+  - content recommendation
+  - item recommendation
+  - user recommendation
+  - people recommendation
+  - room recommendation
+  - live room recommendation
+  - feed ranking
+  - news feed
+  - post recommendation
+  - candidate retrieval
+  - candidate generation
+  - session-based recommendation
+  - sequential recommendation
+  - generative recommendation
+  - multi-objective recommendation
+  - friend recommendation
+  - follow recommendation
+  - social recommendation
+  - social link prediction
+  - people you may know
+  - user matching
+  - listener matching
+  - host recommendation
+  - bandit recommendation
+  - recommendation reranking
+
 targets:
   - id: content
     name_zh: 内容推荐
     name_en: Content Recommendation
-    terms: [content recommendation, item recommendation]
+    terms: [content recommendation, item recommendation, recommender system, recommender systems, recommendation system, recommendation systems]
   - id: user
     name_zh: 用户推荐
     name_en: User Recommendation
@@ -52,7 +84,7 @@ tasks:
   - id: multi_objective_optimization
     name_zh: 多目标优化
     name_en: Multi-objective Optimization
-    terms: [multi-objective recommendation, multi-objective optimization]
+    terms: [multi-objective recommendation]
 methods:
   - id: collaborative_filtering
     name_zh: 协同过滤

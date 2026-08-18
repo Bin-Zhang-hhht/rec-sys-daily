@@ -1,5 +1,5 @@
 ---
-import { AlertTriangle, CheckCircle2, Cpu, ExternalLink, FileSearch, Gauge, Tags } from "@lucide/astro";
+import { AlertTriangle, CheckCircle2, Cpu, ExternalLink, FileSearch, Gauge, ShieldCheck, Tags } from "@lucide/astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { loadBundle, taxonomyGroups } from "../lib/data";
 
@@ -9,6 +9,7 @@ const latestItems = [...data.latestDigest.papers, ...data.latestDigest.blogs]
   .filter(item => item !== undefined);
 const models = [...new Set(latestItems.flatMap(item => item.llm?.model ? [item.llm.model] : []))].sort();
 const bases = [...new Set(latestItems.map(item => item.deep_reading.analysis_basis))].sort();
+const stageReport = data.runReport.stage_report;
 const basisLabels: Record<string, string> = {
   mineru_full_text: "论文：MinerU 全文",
   abstract_fallback: "论文：Abstract 降级",
@@ -58,21 +59,50 @@ const repository = "https://github.com/Bin-Zhang-hhht/rec-sys-daily";
     </div>
   </section>
 
+  <section class="border-b border-slate-200 py-9">
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <div>
+        <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-slate-950"><ShieldCheck size={20} stroke-width={1.8} aria-hidden="true" />质量筛选</h2>
+        <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">论文与博客每日各以 10 篇为目标；候选不足时允许少于目标数量，不以低相关或重复内容补足。</p>
+        <dl class="mt-4 divide-y divide-slate-200 border-y border-slate-200 text-sm">
+          <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">召回门禁</dt><dd class="leading-6 text-slate-800">候选自身的标题、摘要或短 excerpt、来源条目分类必须命中独立的 <code class="text-xs">collection_terms</code>，才进入元数据分析。</dd></div>
+          <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">标签证据</dt><dd class="leading-6 text-slate-800">taxonomy 标签只有在候选自身文本中存在对应 term 证据时才保留；每个标签组允许为空，进入深读的内容至少保留一个有证据标签。</dd></div>
+          <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">来源场景</dt><dd class="leading-6 text-slate-800"><code class="text-xs">source_scenarios</code> 只描述来源覆盖范围，不作为内容相关性或标签证据。</dd></div>
+          <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">深读上限</dt><dd class="leading-6 text-slate-800">元数据初排后，每类最多进入 20 篇深度解读，再按深读质量重排日报。</dd></div>
+          <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">补足策略</dt><dd class="leading-6 text-slate-800">不使用泛 AI、Agent、LLM 或基础设施内容凑数。</dd></div>
+        </dl>
+      </div>
+
+      <div>
+        <h3 class="text-base font-semibold text-slate-950">本次运行筛选漏斗</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">数字按“论文 / 博客”展示，来自最新运行报告与日报。</p>
+        <dl class="mt-4 divide-y divide-slate-200 border-y border-slate-200 text-sm">
+          <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">采集候选</dt><dd class="font-medium tabular-nums text-slate-900">{stageReport.collected_paper_candidates} / {stageReport.collected_blog_candidates}</dd></div>
+          <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">相关性预筛后</dt><dd class="font-medium tabular-nums text-slate-900">{stageReport.prefilter_paper_candidates} / {stageReport.prefilter_blog_candidates}</dd></div>
+          <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">进入深读</dt><dd class="font-medium tabular-nums text-slate-900">{stageReport.shortlist_paper_candidates} / {stageReport.shortlist_blog_candidates}</dd></div>
+          <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">日报入选</dt><dd class="font-medium tabular-nums text-slate-900">{data.latestDigest.papers.length} / {data.latestDigest.blogs.length}</dd></div>
+        </dl>
+        <p class="mt-3 text-xs leading-5 text-slate-500">相关性门槛淘汰 {stageReport.metadata_relevance_rejections} 条候选，移除 {stageReport.metadata_label_rejections} 个无证据标签；元数据模型成功率 {(stageReport.metadata_llm_success_rate * 100).toFixed(0)}%，降级 {stageReport.metadata_degraded_count} 条，共调用 {stageReport.metadata_llm_calls} 次。</p>
+      </div>
+    </div>
+  </section>
+
   <section id="scoring" class="scroll-mt-24 border-b border-slate-200 py-9">
     <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-slate-950"><Gauge size={20} stroke-width={1.8} aria-hidden="true" />评分计算</h2>
     <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">卡片中的两个分数均归一化到 0–1，用于同类内容的排序与入选判断。</p>
     <dl class="mt-4 max-w-3xl divide-y divide-slate-200 border-y border-slate-200 text-sm">
-      <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">相关性</dt><dd class="leading-6 text-slate-800">元数据分析阶段根据内容与推荐系统主题、场景及任务的匹配程度给出，作为深读候选的初排依据。</dd></div>
+      <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">相关性</dt><dd class="leading-6 text-slate-800">元数据分析阶段根据候选自身内容与推荐系统主题的匹配程度给出，作为深读候选的初排依据。</dd></div>
       <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">综合得分</dt><dd class="leading-6 text-slate-800"><code class="text-xs">0.55 × 相关性 + 0.20 × 证据质量 + 0.15 × 业务可迁移性 + 0.10 × 技术深度</code>，计算后限制在 0–1。</dd></div>
-      <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">入选阈值</dt><dd class="tabular-nums text-slate-800">本次构建快照：{data.runReport.config_snapshot.minimum_final_score.toFixed(2)}</dd></div>
+      <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">元数据门槛</dt><dd class="leading-6 tabular-nums text-slate-800">本次构建快照：{data.runReport.config_snapshot.minimum_metadata_relevance_score.toFixed(2)}；低于该相关性分数的候选不进入深读。</dd></div>
+      <div class="grid gap-1 py-3 sm:grid-cols-[7rem_1fr]"><dt class="font-medium text-slate-600">最终入选门槛</dt><dd class="leading-6 tabular-nums text-slate-800">本次构建快照：{data.runReport.config_snapshot.minimum_final_score.toFixed(2)}；低于该综合得分的内容不进入日报。</dd></div>
     </dl>
     <p class="mt-3 max-w-3xl text-xs leading-5 text-slate-500">公式展示仓库当前默认权重；生产运行以当次使用的配置为准，publish bundle 不公开完整权重快照。</p>
     <a class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium" href={`${repository}/blob/main/config/settings.yaml`} target="_blank" rel="noopener noreferrer">查看评分权重配置 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
   </section>
 
   <section class="mt-9">
-    <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-slate-950"><Tags size={20} stroke-width={1.8} aria-hidden="true" />主题控制词表</h2>
-    <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">以下 ID 与中英文名称由本次构建的 <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">taxonomy.json</code> 动态生成；检索 terms 不进入公开 bundle。</p>
+    <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-slate-950"><Tags size={20} stroke-width={1.8} aria-hidden="true" />分类标签词表</h2>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">以下 ID 与中英文名称由本次构建的 <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">taxonomy.json</code> 动态生成，只用于分类展示。独立的 <code class="text-xs">collection_terms</code> 用于召回和相关性门禁；两类 terms 均不进入公开 bundle。</p>
     <div class="mt-5 grid gap-x-8 gap-y-7 md:grid-cols-2">
       {taxonomyGroups.map(group => (
         <section>
@@ -83,7 +113,7 @@ const repository = "https://github.com/Bin-Zhang-hhht/rec-sys-daily";
         </section>
       ))}
     </div>
-    <a class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium" href={`${repository}/blob/main/config/topics.yaml`} target="_blank" rel="noopener noreferrer">查看检索 terms 与完整主题配置 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
+    <a class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium" href={`${repository}/blob/main/config/topics.yaml`} target="_blank" rel="noopener noreferrer">查看 collection_terms、taxonomy terms 与完整主题配置 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
   </section>
 
   <aside class="mt-10 border-l-2 border-amber-300 pl-4 text-sm leading-7 text-slate-600">LLM 生成内容可能存在错误，请通过每条详情页的原文链接核验。来源 URL、检索词和完整模型参数以 GitHub 配置文件为准。</aside>

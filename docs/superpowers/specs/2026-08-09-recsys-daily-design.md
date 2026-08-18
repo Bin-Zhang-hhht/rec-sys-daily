@@ -45,12 +45,12 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 | 内容类型 | 每日数量 | 规则 |
 | --- | ---: | --- |
-| 学术论文 | 目标 8 篇 | 优先新论文；不足时允许少于 8 篇，不填充低相关或重复论文 |
-| 技术博客 | 目标 8 篇 | 优先未推荐的近期文章；不足时允许少于 8 篇，不为凑数降低阈值 |
+| 学术论文 | 目标 10 篇 | 优先新论文；不足时允许少于 10 篇，不填充低相关或重复论文 |
+| 技术博客 | 目标 10 篇 | 优先未推荐的近期文章；不足时允许少于 10 篇，不为凑数降低阈值 |
 
-因此每日页面最多展示 16 条新推荐。
+因此每日页面最多展示 20 条新推荐。
 
-系统按日运行。存在成功状态时，论文从 `last_success_at - 48 小时` 开始查询，博客从 `last_success_at - 7 天` 开始查询；重叠窗口用于容忍来源延迟和偶发漏跑，历史日报去重保证内容不会被重复推荐。任一类型不足 8 篇时允许少于 8 篇，并在运行报告中记录原因。
+系统按日运行。存在成功状态时，论文从 `last_success_at - 48 小时` 开始查询，博客从 `last_success_at - 7 天` 开始查询；重叠窗口用于容忍来源延迟和偶发漏跑，历史日报去重保证内容不会被重复推荐。任一类型不足 10 篇时允许少于 10 篇，并在运行报告中记录原因。
 
 每条推荐至少包含：
 
@@ -75,7 +75,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 | `state.json` 不存在 | 当前时间减 5 年 | 当前时间减 3 年 |
 | 存在有效状态 | `last_success_at - 48 小时` | `last_success_at - 7 天` |
 
-每次运行统一使用论文最多 100 篇、博客最多 50 篇，完成元数据分析后各取最多 16 篇进行临时全文解读，再分别重排出目标 8 篇。无有效状态与有效状态分支使用完全相同的候选数、深读数和筛选代码，唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
+每次运行统一使用论文最多 100 篇、博客最多 50 篇，完成元数据分析后各取最多 20 篇进行临时全文解读，再分别重排出目标 10 篇。无有效状态与有效状态分支使用完全相同的候选数、深读数和筛选代码，唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
 
 ### 4.2 成功条件
 
@@ -99,7 +99,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 - 根据来源游标、发布日期和内容 ID 拉取新增候选
 - 使用 arXiv ID、Canonical URL、DOI 和标准化标题去重
-- 从候选中分别生成论文目标 8 篇、博客目标 8 篇
+- 从候选中分别生成论文目标 10 篇、博客目标 10 篇
 - 无新博客时仍正常发布论文日报
 - 未产生任何新内容时只记录成功运行，不生成空日报
 
@@ -237,11 +237,43 @@ Canonical URL 相同的文章只保留一条。
 主题、场景、任务和方法都由 `config/topics.yaml` 控制。该文件同时是抓取词表、LLM 标签约束、搜索筛选项和知识图谱分类节点的唯一配置来源；用户增加新方向时无需修改代码。
 
 ```yaml
+collection_terms:
+  - recommender system
+  - recommender systems
+  - recommendation system
+  - recommendation systems
+  - personalized recommendation
+  - content recommendation
+  - item recommendation
+  - user recommendation
+  - people recommendation
+  - room recommendation
+  - live room recommendation
+  - feed ranking
+  - news feed
+  - post recommendation
+  - candidate retrieval
+  - candidate generation
+  - session-based recommendation
+  - sequential recommendation
+  - generative recommendation
+  - multi-objective recommendation
+  - friend recommendation
+  - follow recommendation
+  - social recommendation
+  - social link prediction
+  - people you may know
+  - user matching
+  - listener matching
+  - host recommendation
+  - bandit recommendation
+  - recommendation reranking
+
 targets:
   - id: content
     name_zh: 内容推荐
     name_en: Content Recommendation
-    terms: [content recommendation, item recommendation]
+    terms: [content recommendation, item recommendation, recommender system, recommender systems, recommendation system, recommendation systems]
   - id: user
     name_zh: 用户推荐
     name_en: User Recommendation
@@ -298,7 +330,7 @@ tasks:
   - id: multi_objective_optimization
     name_zh: 多目标优化
     name_en: Multi-objective Optimization
-    terms: [multi-objective recommendation, multi-objective optimization]
+    terms: [multi-objective recommendation]
 
 methods:
   - id: collaborative_filtering
@@ -332,6 +364,8 @@ methods:
 ```
 
 四类条目统一使用 `id`、`name_zh`、`name_en` 和 `terms`，避免前端硬编码标签或根据 ID 猜测展示名称。系统启动时验证 ID 唯一性、字段完整性和引用关系；canonical item 中的每个标签都必须引用这里已声明的 ID。配置错误会使构建明确失败，不会静默忽略。
+
+`topics.yaml` 另提供独立的 `collection_terms`。它只用于 arXiv 查询和确定性相关性门禁，不能把通用方法词（例如独立的 `graph learning`、`reinforcement learning`、`multi-task learning`）当作推荐系统召回词。taxonomy 条目的 `terms` 仍用于标签定义和证据校验；两套词表必须保持职责分离。
 
 `rank-integrate` 将本次运行实际使用的配置标准化为 `publish-bundle/taxonomy.json`。该小文件只保留四类条目的 ID、中文名、英文名和配置顺序，不包含抓取词表；Astro 使用它生成搜索筛选项和图谱分类标签。这样重跑 `build_deploy` 时仍使用与数据处理阶段完全一致的分类快照，网站构建不需要再次解析 YAML。
 
@@ -394,9 +428,11 @@ flowchart LR
 - 发布时间和新颖度
 - 与历史已推荐内容的重复判定
 
-每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析；博客即使没有 feed excerpt，也必须根据标题和已有元数据生成中文摘要。`summary_zh` 必须包含 CJK 字符，纯英文模型结果视为批次失败；降级时仅可复用本身含 CJK 的 excerpt，纯英文或空 excerpt 不得作为中文摘要发布。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 16 进入全文深读；若不足 16 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 16 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
+每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析；博客即使没有 feed excerpt，也必须根据标题和已有元数据生成中文摘要。`summary_zh` 必须包含 CJK 字符，纯英文模型结果视为批次失败；降级时仅可复用本身含 CJK 的 excerpt，纯英文或空 excerpt 不得作为中文摘要发布。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 20 进入全文深读；若不足 20 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 20 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 10 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
 
-历史防重的唯一事实来源是有效 `state.json` 和历史 digest 中真正发布过的 item ID。仅因某条内容已有 canonical item 或曾进入 Top 16 而未被推荐，不得把它记为已推荐；这类条目仍可在后续时间窗口中参与竞争。
+确定性推荐系统相关性门禁在 metadata 分析前执行：候选标题、摘要/短 excerpt 或来源条目分类中必须出现 `collection_terms` 证据；来源配置中的 `source_scenarios` 只能描述来源覆盖范围，不能作为内容相关性或标签证据。LLM metadata 的 `relevance_score` 低于 `config/settings.yaml` 的 `minimum_metadata_relevance_score`（当前为 `0.65`）的候选不会进入深读；每个 taxonomy 分组允许为空，且模型生成但无法在候选源文本中找到对应 term 证据的标签会被移除。这样宁可少于每日目标数量，也不使用泛 AI、Agent、LLM 或基础设施内容凑数。模型失败时的规则降级同样只读取候选自身文本，不复制来源场景标签。
+
+历史防重的唯一事实来源是有效 `state.json` 和历史 digest 中真正发布过的 item ID。仅因某条内容已有 canonical item 或曾进入 Top 20 而未被推荐，不得把它记为已推荐；这类条目仍可在后续时间窗口中参与竞争。
 
 元数据初排分数示意：
 
@@ -414,11 +450,11 @@ final_score = 0.55 * metadata_score
             + 0.10 * technical_depth
 ```
 
-权重由 `config/settings.yaml` 调整。Top 16 相同相关性分数使用发布日期、source ID 和 stable ID 做上述确定性 tie-break，保证运行时生成的测试场景与重复运行结果稳定。
+权重由 `config/settings.yaml` 调整。Top 20 相同相关性分数使用发布日期、source ID 和 stable ID 做上述确定性 tie-break，保证运行时生成的测试场景与重复运行结果稳定。
 
 ### 7.3 论文与博客全文深度解读
 
-全文处理发生在元数据初排之后、最终推荐之前。每次最多处理 Top 16 论文和 Top 16 博客，深读结果参与最终重排，而不是只给已入选内容补充详情。该阶段是统一管道的固定部分，不因是否存在有效 state 而改变。
+全文处理发生在元数据初排之后、最终推荐之前。每次最多处理 Top 20 论文和 Top 20 博客，深读结果参与最终重排，而不是只给已入选内容补充详情。该阶段是统一管道的固定部分，不因是否存在有效 state 而改变。
 
 论文处理规则：
 
@@ -451,7 +487,7 @@ runner，blog deep-read runner 可以按 `source_id` 再次抓取已启用 Feed�
 
 - 单次 LLM 输入使用 token-aware budgeting：1M context 中预留 output 与 prompt/schema 空间，其余预算用于全文；超长内容优先保留摘要、架构、方法、实验/结果、限制和结论等高价值段落
 - 无论成功、降级或异常中断，都在 `finally` 阶段删除临时 PDF、MinerU ZIP、MinerU Markdown、原始 HTML 和提取文本；它们不得进入 cache、日志、artifact 或 Git
-- 成功产生的 Top 16 结构化深度解读写入 canonical item；首版不实现全文指纹、解读缓存或自动复用协议
+- 成功产生的 Top 20 结构化深度解读写入 canonical item；首版不实现全文指纹、解读缓存或自动复用协议
 - 只保存转述后的结构化分析和短证据定位，不保存长段原文
 
 `deep-read --kind paper|blog` 对每个 shortlist 条目独立处理。深读 artifact 固定包含成功的 `items` 和失败的 `failures: [{"id": "...", "code": "..."}]`；每个输入 ID 必须恰好出现一次。`code` 只能是管道定义的简短错误码，不记录异常链、URL、请求头或源内容。`rank-integrate` 分别按 `len(items) / (len(items) + len(failures))` 校验论文和博客深读成功率；无候选时记为成功，否则必须达到 `structured_analysis_min_success_rate: 0.80` 才能整合。低于门槛时不生成 publish bundle，也不推进正式 state。首版不设持久化重试队列；失败条目只可依靠既有重叠时间窗口再次出现。
@@ -467,7 +503,7 @@ runner，blog deep-read runner 可以按 `source_id` 再次抓取已启用 Feed�
 
 论文正文依据只允许 `analysis_basis: mineru_full_text` 或 `abstract_fallback`，不包含视觉分析字段。博客使用 Feed 全文时写入 `rss_full_content`，成功提取公开网页正文时写入 `article_html`，失败时使用 excerpt 生成较短解读并写入 `excerpt_fallback`。详情页必须明确显示正文分析依据，不能把降级结果冒充全文深读。
 
-所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此论文 runner 内只串行处理初排 Top 16 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；每个页面始终链接到原站。
+所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此论文 runner 内只串行处理初排 Top 20 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；每个页面始终链接到原站。
 
 ## 8. LLM 与 API 限制
 
@@ -537,7 +573,7 @@ limits:
   retry_max_delay_seconds: 30
   max_papers_per_run: 100
   max_blogs_per_run: 50
-  deep_reading_candidates_per_type: 16
+  deep_reading_candidates_per_type: 20
   pdf_download_concurrency: 1
   blog_download_concurrency_per_domain: 1
   blog_min_interval_seconds_per_domain: 2
@@ -549,7 +585,7 @@ Feed、HTML 和 PDF 响应都使用流式 N+1 上限读取：先拒绝明确超�
 
 文本 endpoint 不配置 NIM 遗留的客户端 RPM 上限或固定请求间隔。每个 runner 使用同步客户端，进程内始终只有 1 个在途模型请求；论文和博客 runner 可以由工作流并行。`429/5xx`、连接异常和无效结构化输出使用同一有限重试路径，`429` 尊重 `Retry-After`，不建设跨 job 限流协调服务。
 
-每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用文本 LLM；Top 16 论文在 MinerU 解析或摘要降级后各使用 1 次文本深读，Top 16 博客各使用 1 次文本深读。日更因候选较少，通常调用更少。系统不设置模型或内容抓取的每次运行调用次数上限；候选数量、同步单请求、有限重试、MinerU deadline 和各 job timeout 是实际边界。首版不实现指纹缓存或跨运行深读复用。
+每次运行最多处理 150 条候选，摘要阶段按每批 8 条调用文本 LLM；Top 20 论文在 MinerU 解析或摘要降级后各使用 1 次文本深读，Top 20 博客各使用 1 次文本深读。日更因候选较少，通常调用更少。系统不设置模型或内容抓取的每次运行调用次数上限；候选数量、同步单请求、有限重试、MinerU deadline 和各 job timeout 是实际边界。首版不实现指纹缓存或跨运行深读复用。
 
 文本模型按 `models.text` 中的 1M context 配置。发送请求前必须读取配置并用 tokenizer 或保守估算计算预算：`可用正文 tokens = context window - prompt/schema - reserved output`。`reserved_output_tokens` 同时作为 Responses API 的 `max_output_tokens`，避免结构化 JSON 被服务端默认输出上限截断。首版不从 endpoint 自动发现 context；配置维护者必须使用服务端真实值，服务端拒绝超限请求时必须显式失败或降级，不能静默截断。MinerU 输入限制只从 `models.mineru` 读取，超过 PDF byte/page 上限时显式进入摘要降级。
 
@@ -589,7 +625,7 @@ Feed、HTML 和 PDF 响应都使用流式 N+1 上限读取：先拒绝明确超�
 └── compose.yaml
 ```
 
-`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 16 论文和 Top 16 博客保存或更新结构化深读记录，单月通常不超过约 1,000 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 8 篇推荐的成功深读候选也可保留结构化结果，但不因此记为已推荐。首版不根据这些 canonical item 建立指纹缓存协议。
+`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 20 论文和 Top 20 博客保存或更新结构化深读记录，单月通常不超过约 1,200 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 10 篇推荐的成功深读候选也可保留结构化结果，但不因此记为已推荐。首版不根据这些 canonical item 建立指纹缓存协议。
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
@@ -607,7 +643,7 @@ storage:
   fail_pages_artifact_mb: 900
 ```
 
-结构化深读以约 16 KB/条为目标；32 条/日的理论新增量约 187 MB/年，实际日更通常不足 32 条。`max_blog_excerpt_chars` 只限制短期 Stage 1 artifact 中的博客 excerpt；canonical item 和 Pages artifact 不保存该字段。单条超过 32 KB 时先压缩冗余解释，但不截断标题、作者、标识符、链接、结论和结构化标签。仓库数据达到 500 MB 时在运行报告中告警，提示用户降低深读候选数或迁移历史归档；Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
+结构化深读以约 16 KB/条为目标；40 条/日的理论新增量约 234 MB/年，实际日更通常不足 40 条。`max_blog_excerpt_chars` 只限制短期 Stage 1 artifact 中的博客 excerpt；canonical item 和 Pages artifact 不保存该字段。单条超过 32 KB 时先压缩冗余解释，但不截断标题、作者、标识符、链接、结论和结构化标签。仓库数据达到 500 MB 时在运行报告中告警，提示用户降低深读候选数或迁移历史归档；Pages artifact 达到 500 MB 时告警、达到 900 MB 时构建失败，为 GitHub Pages 的 1 GB 上限和 10 分钟部署超时保留余量。
 
 [GitHub Repository limits](https://docs.github.com/en/repositories/creating-and-managing-repositories/repository-limits) 当前建议单个目录不超过 3,000 个条目；[GitHub large-file guidance](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github) 建议仓库最好保持在 1 GB 以下。[GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) 要求发布站点不超过 1 GB。该结构以年月分片并排除生成物，目标是让正常运行多年后仍保持在建议范围内。
 
@@ -664,7 +700,7 @@ storage:
 
 站点固定作为 GitHub Project Pages 部署。`SITE_ORIGIN` 只保存 `https://<owner>.github.io` 这样的 origin，Astro 固定使用 `base: "/rec-sys-daily/"` 和 `trailingSlash: "always"`。所有导航、卡片、详情、归档、图谱、`graph.json`、Pagefind runtime 和搜索结果链接都通过同一 base-aware helper 生成，不硬编码根路径。
 
-- `/`：当天简报，论文和博客各目标 8 篇
+- `/`：当天简报，论文和博客各目标 10 篇
 - `/papers/<id>/`：论文详情页
 - `/articles/<id>/`：博客详情页
 - `/archive/`：按日期和标签浏览历史日报
@@ -679,7 +715,7 @@ storage:
 
 详情页采用 68--72ch 单列阅读流，展示顺序统一为标题、taxonomy 胶囊、内容信息和带“中文总结”标题的中文摘要；移动端严格按该顺序堆叠，宽屏则把内容信息放入右侧窄栏，同时保持正文摘要紧接标题区之后。结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客详情页不渲染 Feed excerpt；短 excerpt 仅作为 Stage 1 和 deep-read 之间的临时降级输入。
 
-`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、入选阈值和 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式；页面明确声明精确权重以当次运行配置为准。来源 URL、检索 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
+`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、两阶段入选阈值、筛选漏斗与拒绝统计，以及 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式。页面说明 `collection_terms` 与 taxonomy terms 的职责分离、标签证据要求、`source_scenarios` 的非证据边界，以及质量不足时不以低相关内容补足每日目标；同时明确声明精确权重以当次运行配置为准。来源 URL、两类 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
 
 论文详情页展示：
 
@@ -832,7 +868,7 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 - `timeout-minutes: 120`
 - 只读仓库权限
 - 读取 `state.json`、计算时间窗口、抓取与去重、规则预筛、DeepSeek 文本模型批量分析
-- 选出论文和博客各 Top 16
+- 选出论文和博客各 Top 20
 - 执行 `python -m recsys_daily collect-filter --output /workspace/stage-1`
 - 上传 `stage-1-<run-id>` artifact，`retention-days: 1`
 
@@ -850,7 +886,7 @@ commit、state 或 config hash。首版 `schema_version` 固定为 `"1"`。
 - 只读仓库权限
 - 固定 matrix 为 `kind: [paper, blog]`，`max-parallel: 2`，不再按候选或页数创建其他并行 job
 - 两个 runner 下载同一个 stage-1 artifact，并分别执行 `deep-read --kind paper` 与 `deep-read --kind blog`
-- 论文 runner 完成 Top 16 的 arXiv PDF 下载、MinerU 解析和文本深读，失败时基于摘要降级；博客 runner 完成 Top 16 全文阅读
+- 论文 runner 完成 Top 20 的 arXiv PDF 下载、MinerU 解析和文本深读，失败时基于摘要降级；博客 runner 完成 Top 20 全文阅读
 - 分别上传 `deep-reading-paper-<run-id>` 和 `deep-reading-blog-<run-id>` 结构化 artifact，`retention-days: 1`；每份都包含成功 `items` 与脱敏 `failures`
 
 两个全文 runner 各自使用同步单请求，不配置客户端 RPM 或最短请求间隔。论文和博客固定并行可以为两类内容分别获得最多 5 小时执行时间，同时不引入候选分片、动态 matrix 或其他复杂调度。
@@ -862,7 +898,7 @@ commit、state 或 config hash。首版 `schema_version` 固定为 `"1"`。
 - 使用 `pipeline/Dockerfile`，保持仓库只读权限
 - 下载三个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致
 - 宿主创建并挂载父目录 `/workspace/publish-work`，不预创建最终子目录；执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-work/publish-bundle`
-- 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 8 篇
+- 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 10 篇
 - 生成待提交的 canonical items、日报、运行报告、图谱关系、pending `state.json` 和本次配置的 `taxonomy.json` 快照
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
 - 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 3`，为手动 site-only 重建提供有限复用窗口
@@ -922,8 +958,8 @@ Python 单元与集成测试覆盖：
 - 文本 OpenAI-compatible Responses API wrapper 的 `input`、`text.format`、`output_text` 与 JSON 解析；MinerU 请求 payload、upload URL、polling、ZIP、终态失败、deadline 和临时目录清理
 - `429/5xx`、`Retry-After`、最多 3 次重试，以及同步客户端单请求边界
 - `arXiv PDF → MinerU full.md → Abstract fallback` 与博客 `Feed full content → article HTML → excerpt` 降级链，并验证论文路径不调用 arXiv HTML、PyMuPDF 或 VLM
-- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；空 excerpt 博客仍生成摘要，纯英文 `summary_zh` 不得通过模型响应或降级 artifact 进入发布；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 16
-- Top 16 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 8 篇、深读 Schema、正文依据和图谱节点裁剪
+- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；空 excerpt 博客仍生成摘要，纯英文 `summary_zh` 不得通过模型响应或降级 artifact 进入发布；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 20
+- Top 20 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 10 篇、深读 Schema、正文依据和图谱节点裁剪
 - 完整 pending data tree、博客 canonical item 不含 excerpt、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
 - PDF、MinerU ZIP/Markdown、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
 - manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
@@ -942,7 +978,7 @@ Python 单元与集成测试覆盖：
 ## 15. 安全、合规和可观测性
 
 - canonical data 只保存公开元数据、摘要和 LLM 结构化深度解读，不保存博客 excerpt，也不镜像或嵌入受版权保护的全文；有界短 excerpt 只存在于保留 1 天的 Stage 1 artifact
-- 只对初排 Top 16 论文临时访问公开 arXiv PDF 并调用 MinerU；博客优先使用 Feed 全文，必要时访问公开文章 HTML
+- 只对初排 Top 20 论文临时访问公开 arXiv PDF 并调用 MinerU；博客优先使用 Feed 全文，必要时访问公开文章 HTML
 - 论文和博客只访问配置中已批准的公开来源，不绕过登录、付费墙或反自动化限制；首版不实现 robots 抓取与解析子系统，来源条款变化时由维护者停用对应来源
 - RSS、PDF 和 HTML 一律视为不可信输入；只允许公开 `https`/`http` URL，每次重定向后重新解析并拒绝 loopback、私网和 link-local 地址
 - HTML 不执行脚本；LLM prompt 明确把正文包裹为只读资料并忽略其中指令，输出仍须通过严格 JSON Schema 校验
@@ -962,7 +998,7 @@ Python 单元与集成测试覆盖：
 2. 首次运行论文限制为近 5 年最多 100 篇，博客限制为近 3 年最多 50 篇
 3. 无有效 state 的首次运行关键失败时，远端仓库不存在完成状态
 4. 后续每日运行自动使用增量时间范围；两个时间窗口分支共用同一套处理逻辑和安全上限
-5. 每日论文和博客各目标 8 篇；候选不足时允许少于 8 篇，但不使用低相关或重复内容填充
+5. 每日论文和博客各目标 10 篇；候选不足时允许少于 10 篇，但不使用低相关或重复内容填充
 6. 每条推荐拥有中文一句话摘要并保留关键英文术语
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
 8. 站点包含日报、详情、归档、按需加载的站内内容搜索和可交互轻量图谱；搜索筛选项由 `topics.yaml` 自动生成
@@ -972,8 +1008,8 @@ Python 单元与集成测试覆盖：
 12. GitHub Pages 部署不依赖任何常驻服务器
 13. canonical item 按类型和年月分文件保存，博客 item 不含 excerpt，日报只引用 item ID，构建产物和原始响应不进入 Git
 14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、rank-integrate 和 build-deploy 四个逻辑阶段，共五个物理 job；job timeout 分别为 120、300、120 和 60 分钟，单 job 不超过 5 小时，理论墙钟上限约 10 小时
-15. 每次运行从论文和博客元数据初排结果中各取最多 16 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 16 篇时处理全部候选
-16. Top 16 论文在全文 runner 中按 `arXiv PDF → MinerU full.md` 完成正文读取；PDF/MinerU 任一步失败时使用 excerpt 或 title 并标记 `abstract_fallback`，paper runner 不调用 arXiv HTML、PyMuPDF、关键页检测或 VLM
+15. 每次运行从论文和博客元数据初排结果中各取最多 20 篇临时全文深读，再依据深读结果各选目标 10 篇；不足 20 篇时处理全部候选
+16. Top 20 论文在全文 runner 中按 `arXiv PDF → MinerU full.md` 完成正文读取；PDF/MinerU 任一步失败时使用 excerpt 或 title 并标记 `abstract_fallback`，paper runner 不调用 arXiv HTML、PyMuPDF、关键页检测或 VLM
 17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、MinerU ZIP/Markdown、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
 18. 文本配置只声明一个 DeepSeek 模型，默认模型 ID 为 `deepseek-v4-flash`；更换模型修改 YAML，更换 endpoint 或 key 修改环境变量，不实现多 profile、自动 failover 或协议回退
 19. 模型不设置每次运行调用次数或客户端 RPM 上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行、各自同步单请求并使用有限重试
@@ -993,10 +1029,10 @@ Python 单元与集成测试覆盖：
 
 1. `collect-filter` 必须使用唯一 text model 按 `models.text.batch_size` 批量生成
    `summary_zh`、四类 taxonomy 标签、`relevance_score`、`graph_relations` 和分析
-   结果。模型 JSON Schema 的标签枚举从 `topics.yaml` 动态生成，并要求中文摘要和四类
-   标签均非空；`degraded` 状态由管道根据批次成功或 fallback 决定，不接受模型自报；不得在整合阶段
+   结果。模型 JSON Schema 的标签枚举从 `topics.yaml` 动态生成；单个标签分组允许为空，
+   但进入深读的候选必须至少保留一个有源文本 term 证据的 taxonomy 标签。`degraded` 状态由管道根据批次成功或 fallback 决定，不接受模型自报；不得在整合阶段
    使用 `content`、`text_feed`、`ranking` 或 `two_tower` 等固定默认值。模型批次
-   失败时只能使用当前词表生成规则标签并标记 degraded；没有可展示摘要或完整标签
+   失败时只能使用当前词表和候选自身文本生成规则标签并标记 degraded；没有可展示摘要或任何有证据标签
    的条目不得进入最终日报。
 2. `deep-read --kind blog` 在独立 runner 中按来源缓存成功的 Feed 抓取；失败不作为
    永久耗尽条件，后续候选仍可重新抓取。Feed 全文只在进程内使用；Stage 1 artifact

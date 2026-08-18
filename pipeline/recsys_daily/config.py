@@ -22,6 +22,7 @@ class TopicEntry(StrictModel):
 
 
 class TopicTaxonomy(StrictModel):
+    collection_terms: list[str] = Field(default_factory=list)
     targets: list[TopicEntry] = Field(min_length=1)
     scenarios: list[TopicEntry] = Field(min_length=1)
     tasks: list[TopicEntry] = Field(min_length=1)
@@ -161,7 +162,7 @@ class Limits(StrictModel):
     retry_max_delay_seconds: PositiveFloat
     max_papers_per_run: Literal[100]
     max_blogs_per_run: Literal[50]
-    deep_reading_candidates_per_type: Literal[16]
+    deep_reading_candidates_per_type: Literal[20]
     pdf_download_concurrency: Literal[1]
     blog_download_concurrency_per_domain: Literal[1]
     blog_min_interval_seconds_per_domain: PositiveInt
@@ -184,8 +185,9 @@ class StorageSettings(StrictModel):
 
 
 class Settings(StrictModel):
-    daily_target: Literal[8]
+    daily_target: Literal[10]
     minimum_final_score: float = Field(ge=0, le=1)
+    minimum_metadata_relevance_score: float = Field(ge=0, le=1)
     request_user_agent: str = Field(min_length=1)
     structured_analysis_min_success_rate: float = Field(ge=0, le=1)
     metadata_weights: ScoreWeights

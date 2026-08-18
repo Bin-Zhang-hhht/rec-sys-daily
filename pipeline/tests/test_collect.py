@@ -3,6 +3,7 @@ from dataclasses import replace
 from pathlib import Path
 import json
 import socket
+from urllib.parse import unquote
 
 import pytest
 import requests
@@ -74,6 +75,16 @@ def test_arxiv_query_encodes_submitted_date_window() -> None:
     url = _arxiv_url(config, query_window(None, now=NOW))
     assert "submittedDate" in url
     assert "from=" not in url
+
+
+def test_arxiv_query_uses_collection_terms_without_generic_method_terms() -> None:
+    config = load_config(ROOT)
+    url = unquote(_arxiv_url(config, query_window(None, now=NOW)))
+    assert 'all:"recommender+system"' in url
+    assert 'all:"content+recommendation"' in url
+    assert 'all:"recommendation"' not in url
+    assert 'all:"reinforcement learning"' not in url
+    assert 'all:"graph learning"' not in url
 
 
 def test_stable_ids_deduplicate_only_identical_normalized_identity_keys() -> None:
@@ -345,11 +356,11 @@ def test_stage_one_shortlist_uses_metadata_relevance_and_caps_each_kind() -> Non
             arxiv_id=f"2608.{index:05d}" if kind == "paper" else None,
         )
         for kind in ("paper", "blog")
-        for index in range(18)
+        for index in range(22)
     ]
     metadata = MetadataResult(
         items=[
-            Stage1Metadata(id=stable_id(candidate), relevance_score=index / 20)
+            Stage1Metadata(id=stable_id(candidate), targets=["content"], relevance_score=index / 21)
             for candidate in candidates
             for index in [int(candidate.title.rsplit(" ", 1)[-1])]
         ],
@@ -358,13 +369,34 @@ def test_stage_one_shortlist_uses_metadata_relevance_and_caps_each_kind() -> Non
         degraded_count=0,
     )
 
-    selected = shortlist_candidates(candidates, metadata, 16)
+    selected = shortlist_candidates(candidates, metadata, 20)
 
     for kind in ("paper", "blog"):
         kind_ids = [stable_id(candidate) for candidate in selected if candidate.kind == kind]
         expected = [stable_id(candidate) for candidate in candidates if candidate.kind == kind and int(candidate.title.rsplit(" ", 1)[-1]) >= 2]
-        assert len(kind_ids) == 16
+        assert len(kind_ids) == 20
         assert kind_ids == list(reversed(expected))
+
+
+def test_stage_one_shortlist_applies_metadata_threshold_and_allows_empty_groups() -> None:
+    candidate = Candidate(
+        kind="paper",
+        source_id="arxiv",
+        title="Content Recommendation Retrieval",
+        url="https://arxiv.org/abs/2608.07777",
+        published_at=NOW,
+        excerpt="Candidate retrieval for recommendation systems.",
+        arxiv_id="2608.07777",
+    )
+    metadata = MetadataResult(
+        items=[Stage1Metadata(id=stable_id(candidate), targets=["content"], relevance_score=0.65)],
+        llm_calls=1,
+        success_rate=1,
+        degraded_count=0,
+    )
+
+    assert shortlist_candidates([candidate], metadata, 20, minimum_relevance_score=0.65) == [candidate]
+    assert shortlist_candidates([candidate], metadata, 20, minimum_relevance_score=0.66) == []
 
 
 def test_collect_passes_configured_excerpt_limit() -> None:

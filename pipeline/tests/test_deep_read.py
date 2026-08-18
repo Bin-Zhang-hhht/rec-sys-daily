@@ -215,7 +215,7 @@ def test_blog_article_fetch_uses_configured_html_limit_without_outer_limiter(tmp
     assert calls == [(_blog(), 123)]
 
 
-def test_deep_read_caps_input_to_top_sixteen(tmp_path: Path) -> None:
+def test_deep_read_caps_input_to_top_twenty(tmp_path: Path) -> None:
     content = FakeContent(tmp_path)
     services = _services(tmp_path, content, text=_blog_analysis)
     input_dir = tmp_path / "input"
@@ -231,14 +231,14 @@ def test_deep_read_caps_input_to_top_sixteen(tmp_path: Path) -> None:
             "authors": ["Example Engineer"],
             "excerpt": "Short excerpt",
         }
-        for index in range(20)
+        for index in range(22)
     ]
     (input_dir / "blog-candidates.json").write_text(json.dumps(candidates), encoding="utf-8")
 
     deep_read("blog", input_dir, output_dir, services=services)
 
     payload = json.loads((output_dir / "blog-deep-readings.json").read_text(encoding="utf-8"))
-    assert len(payload["items"]) == 16
+    assert len(payload["items"]) == 20
 
 
 def test_deep_read_isolates_item_failure_without_persisting_error_text(tmp_path: Path) -> None:

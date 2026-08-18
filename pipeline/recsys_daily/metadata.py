@@ -7,7 +7,7 @@ import re
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
-from .collect import Candidate, stable_id
+from .collect import Candidate, normalize_title, stable_id
 from .config import AppConfig, TopicTaxonomy
 from .prompts import metadata_messages
 from .schemas import Stage1Metadata
@@ -26,6 +26,7 @@ class MetadataResult:
     llm_calls: int
     success_rate: float
     degraded_count: int
+    label_rejections: int = 0
 
 
 def metadata_json_schema(taxonomy: TopicTaxonomy) -> dict[str, Any]:
@@ -47,7 +48,7 @@ def metadata_json_schema(taxonomy: TopicTaxonomy) -> dict[str, Any]:
         return {
             "type": "array",
             "items": {"type": "string", "enum": [entry.id for entry in getattr(taxonomy, category)]},
-            "minItems": 1,
+            "minItems": 0,
             "uniqueItems": True,
         }
 
@@ -75,18 +76,41 @@ def metadata_json_schema(taxonomy: TopicTaxonomy) -> dict[str, Any]:
 
 
 def _matches(text: str, terms: Sequence[str]) -> bool:
-    normalized = text.casefold()
-    return any(term.strip().casefold() in normalized for term in terms if term and term.strip())
+    normalized = normalize_title(text)
+    return any(
+        re.search(r"(?<!\w)" + re.escape(term.strip().casefold()) + r"(?!\w)", normalized)
+        for term in terms
+        if term and term.strip()
+    )
+
+
+def _candidate_text(candidate: Candidate) -> str:
+    return " ".join((candidate.title, candidate.excerpt, *candidate.categories))
+
+
+def _ground_labels(item: Stage1Metadata, candidate: Candidate, taxonomy: TopicTaxonomy) -> tuple[Stage1Metadata, int]:
+    text = _candidate_text(candidate)
+    updates: dict[str, list[str]] = {}
+    rejected = 0
+    for category in ("targets", "scenarios", "tasks", "methods"):
+        supported: list[str] = []
+        entries = {entry.id: entry for entry in getattr(taxonomy, category)}
+        for label_id in getattr(item, category):
+            entry = entries.get(label_id)
+            if entry is not None and _matches(text, entry.terms):
+                supported.append(label_id)
+            else:
+                rejected += 1
+        updates[category] = supported
+    return item.model_copy(update=updates), rejected
 
 
 def _fallback(candidate: Candidate, taxonomy: TopicTaxonomy, excerpt_limit: int) -> Stage1Metadata:
-    text = " ".join((candidate.title, candidate.excerpt, *candidate.categories, *candidate.source_scenarios))
+    # Source-wide scenarios describe the feed, not evidence about this item.
+    text = " ".join((candidate.title, candidate.excerpt, *candidate.categories))
 
     def selected(category: str) -> list[str]:
         values = [entry.id for entry in getattr(taxonomy, category) if _matches(text, entry.terms)]
-        if category == "scenarios":
-            allowed = {entry.id for entry in getattr(taxonomy, category)}
-            values = list(dict.fromkeys([item for item in candidate.source_scenarios if item in allowed] + values))
         return values
 
     excerpt = candidate.excerpt.strip()[:excerpt_limit]
@@ -115,6 +139,7 @@ def analyze_metadata(
     calls = 0
     successes = 0
     degraded = 0
+    label_rejections = 0
     for start in range(0, len(candidates), batch_size):
         batch = list(candidates[start : start + batch_size])
         if not batch:
@@ -122,7 +147,7 @@ def analyze_metadata(
         calls += 1
         expected = {stable_id(candidate) for candidate in batch}
         try:
-            response = complete_json(metadata_messages(batch), schema)
+            response = complete_json(metadata_messages(batch, config.topics), schema)
             raw_items = response.get("items") if isinstance(response, Mapping) else None
             if not isinstance(raw_items, list):
                 raise ValueError("metadata response must contain an items list")
@@ -134,8 +159,11 @@ def analyze_metadata(
                 raise ValueError("metadata response contains an unknown taxonomy id")
             if any(not has_cjk(item.summary_zh) for item in parsed):
                 raise ValueError("metadata response summary_zh must contain CJK text")
+            candidates_by_id = {stable_id(candidate): candidate for candidate in batch}
             for item in parsed:
-                all_items[item.id] = item
+                grounded, rejected = _ground_labels(item, candidates_by_id[item.id], config.topics)
+                all_items[item.id] = grounded
+                label_rejections += rejected
             successes += 1
         except Exception:
             for candidate in batch:
@@ -148,4 +176,5 @@ def analyze_metadata(
         llm_calls=calls,
         success_rate=(successes / calls) if calls else 1.0,
         degraded_count=degraded,
+        label_rejections=label_rejections,
     )

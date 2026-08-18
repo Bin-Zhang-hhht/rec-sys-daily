@@ -170,6 +170,8 @@ def shortlist_candidates(
     candidates: Sequence[Candidate],
     metadata: MetadataResult,
     max_per_kind: int,
+    *,
+    minimum_relevance_score: float = 0.0,
 ) -> list[Candidate]:
     """Select the metadata-ranked deep-reading candidates deterministically."""
     metadata_by_id = {item.id: item for item in metadata.items}
@@ -178,13 +180,28 @@ def shortlist_candidates(
         item = metadata_by_id[stable_id(candidate)]
         return (-item.relevance_score, -candidate.published_at.timestamp(), candidate.source_id, stable_id(candidate))
 
+    def qualified(candidate: Candidate) -> bool:
+        item = metadata_by_id[stable_id(candidate)]
+        return (
+            item.relevance_score >= minimum_relevance_score
+            and any(getattr(item, category) for category in ("targets", "scenarios", "tasks", "methods"))
+        )
+
     selected: list[Candidate] = []
     for kind in ("paper", "blog"):
-        selected.extend(sorted((item for item in candidates if item.kind == kind), key=key)[:max_per_kind])
+        selected.extend(
+            sorted((item for item in candidates if item.kind == kind and qualified(item)), key=key)[:max_per_kind]
+        )
     return selected
 
 
-def collection_stage_report(config: AppConfig, result: CollectionResult, metadata: MetadataResult) -> StageReport:
+def collection_stage_report(
+    config: AppConfig,
+    result: CollectionResult,
+    metadata: MetadataResult,
+    prefiltered: Sequence[Candidate] = (),
+    shortlist: Sequence[Candidate] = (),
+) -> StageReport:
     warnings = list(result.warnings)
     sources: list[SourceRunStatus] = []
     for source in [*config.sources.academic, *config.sources.blogs]:
@@ -192,12 +209,32 @@ def collection_stage_report(config: AppConfig, result: CollectionResult, metadat
             continue
         warning = next((item for item in warnings if item.startswith(f"{source.id}:")), None)
         sources.append(SourceRunStatus(source_id=source.id, success=warning is None, warning=warning))
+    metadata_by_id = {item.id: item for item in metadata.items}
+    metadata_relevance_rejections = sum(
+        1
+        for candidate in prefiltered
+        if (
+            metadata_by_id[stable_id(candidate)].relevance_score < config.settings.minimum_metadata_relevance_score
+            or not any(
+                getattr(metadata_by_id[stable_id(candidate)], category)
+                for category in ("targets", "scenarios", "tasks", "methods")
+            )
+        )
+    )
     return StageReport(
         sources=sources,
         warnings=warnings,
+        collected_paper_candidates=sum(candidate.kind == "paper" for candidate in result.candidates),
+        collected_blog_candidates=sum(candidate.kind == "blog" for candidate in result.candidates),
+        prefilter_paper_candidates=sum(candidate.kind == "paper" for candidate in prefiltered),
+        prefilter_blog_candidates=sum(candidate.kind == "blog" for candidate in prefiltered),
+        shortlist_paper_candidates=sum(candidate.kind == "paper" for candidate in shortlist),
+        shortlist_blog_candidates=sum(candidate.kind == "blog" for candidate in shortlist),
         metadata_llm_calls=metadata.llm_calls,
         metadata_llm_success_rate=metadata.success_rate,
         metadata_degraded_count=metadata.degraded_count,
+        metadata_label_rejections=metadata.label_rejections,
+        metadata_relevance_rejections=metadata_relevance_rejections,
     )
 
 
@@ -218,17 +255,18 @@ def run_collect_filter(
     current = result.window.until
     candidates = prefilter(result.candidates, config, history, now=current)
     metadata = analyze_metadata(candidates, config, complete_json)
-    candidates = shortlist_candidates(
+    shortlisted = shortlist_candidates(
         candidates,
         metadata,
         config.settings.limits.deep_reading_candidates_per_type,
+        minimum_relevance_score=config.settings.minimum_metadata_relevance_score,
     )
     write_stage_one(
         output,
         run_id or current.strftime("%Y%m%dT%H%M%SZ"),
-        candidates,
+        shortlisted,
         result.source_states,
         metadata,
-        collection_stage_report(config, result, metadata),
+        collection_stage_report(config, result, metadata, candidates, shortlisted),
     )
-    return candidates
+    return shortlisted

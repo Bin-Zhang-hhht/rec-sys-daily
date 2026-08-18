@@ -7,6 +7,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from .collect import Candidate, stable_id
+from .config import TopicTaxonomy
 
 
 UNTRUSTED_SOURCE_SYSTEM = (
@@ -31,7 +32,7 @@ def json_messages(instruction: str, sections: Sequence[Mapping[str, Any] | str])
     ]
 
 
-def metadata_messages(candidates: Sequence[Candidate]) -> list[dict[str, str]]:
+def metadata_messages(candidates: Sequence[Candidate], taxonomy: TopicTaxonomy | None = None) -> list[dict[str, str]]:
     documents: list[dict[str, Any]] = []
     for candidate in candidates:
         documents.append(
@@ -40,11 +41,28 @@ def metadata_messages(candidates: Sequence[Candidate]) -> list[dict[str, str]]:
                 "title": candidate.title,
                 "source": candidate.source_id,
                 "excerpt": candidate.excerpt,
-                "source_scenarios": list(candidate.source_scenarios),
             }
         )
+    taxonomy_document = {
+        category: [
+            {
+                "id": entry.id,
+                "name_zh": entry.name_zh,
+                "name_en": entry.name_en,
+                "terms": list(entry.terms),
+            }
+            for entry in getattr(taxonomy, category)
+        ]
+        for category in ("targets", "scenarios", "tasks", "methods")
+    } if taxonomy is not None else {}
     return json_messages(
-        "Classify each candidate using only the configured taxonomy IDs. Provide a non-empty Chinese summary and "
-        "at least one valid target, scenario, task, and method for every item. Return strict JSON with an items array.",
+        "Classify each candidate as recommendation-system research or engineering content using only the configured "
+        "taxonomy. Use the taxonomy names and terms as label definitions. Assign a label only when the title, excerpt, "
+        "or source category provides direct evidence; an inapplicable label group must be an empty array. Generic AI, "
+        "agent, LLM, graph-learning, reinforcement-learning, or infrastructure content is not recommendation content "
+        "unless the source explicitly places it in a recommendation pipeline. Return a Chinese one-sentence summary, "
+        "a 0-1 relevance score, and strict JSON with an items array. The source field is provenance only and source-wide "
+        "scenario configuration must never be used as label evidence. Configured taxonomy definitions: "
+        f"{json.dumps(taxonomy_document, ensure_ascii=False, sort_keys=True)}",
         documents,
     )
