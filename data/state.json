@@ -1,5 +1,5 @@
 {
-  "last_success_at": "2026-08-18T10:56:59.199050Z",
+  "last_success_at": "2026-08-18T19:55:14.097219Z",
   "recommended_item_ids": [
     "arxiv-2608.09440",
     "arxiv-2608.16274",
@@ -18,7 +18,9 @@
     "url-2660fad3381f92db1c6d485c",
     "url-2c56e497bbcde2d1b89e8fa7",
     "url-57deba14677af6256df5f6c1",
-    "url-de494392552bfa7589a583be"
+    "url-de494392552bfa7589a583be",
+    "arxiv-2608.16704",
+    "arxiv-2608.15949"
   ],
   "schema_version": "1",
   "sources": {
@@ -26,62 +28,62 @@
       "cursor": null,
       "etag": "W/\"9b47db1f750515ed93568343594c37d9\"",
       "last_modified": "Wed, 12 Aug 2026 19:03:23 GMT",
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "arxiv": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "discord_engineering": {
       "cursor": null,
       "etag": null,
-      "last_modified": "Mon, 17 Aug 2026 17:05:38 GMT",
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_modified": "Mon, 17 Aug 2026 17:04:59 GMT",
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "etsy_codeascraft": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "google_research": {
       "cursor": null,
       "etag": null,
       "last_modified": "Mon, 17 Aug 2026 10:34:00 GMT",
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "meta_engineering": {
       "cursor": null,
       "etag": "W/\"d6f72ca051e3018b56dbefdc5c7dcabf\"",
       "last_modified": "Wed, 12 Aug 2026 16:03:14 GMT",
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "netflix_techblog": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "nvidia_developer": {
       "cursor": null,
-      "etag": "\"d0ca172e924175f84e28d333e322b786\"",
-      "last_modified": "Mon, 17 Aug 2026 18:13:08 GMT",
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "etag": "\"9936a52d95219a5c80b0b1681b7a74c1\"",
+      "last_modified": "Tue, 18 Aug 2026 18:00:00 GMT",
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "pinterest_engineering": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     },
     "spotify_engineering": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-08-18T10:12:42.110754Z"
+      "last_success_at": "2026-08-18T19:51:39.758167Z"
     }
   },
-  "updated_at": "2026-08-18T10:56:59.199050Z"
+  "updated_at": "2026-08-18T19:55:14.097219Z"
 }

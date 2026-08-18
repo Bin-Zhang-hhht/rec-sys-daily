@@ -1,0 +1,123 @@
+{
+  "abstract": "Recommender systems typically rely on implicit feedback (e.g., clicks) to infer user preferences. However, such data is inherently prone to various biases, including position bias and popularity bias. Position bias occurs when higher-ranked items receive more interactions regardless of true relevance. Popularity bias reinforces frequent exposure of popular items while under-recommending relevant, yet less popular ones. Directly learning from such data fails to capture true user preferences, leading to suboptimal recommendations. This research focuses on mitigating position bias and popularity bias in recommender systems. Specifically, I address position bias in learning-to-rank (LTR) systems and popularity bias in collaborative filtering (CF) models and social recommender systems based on graph neural networks. My work develops methods that overcome the limitations of existing approaches to mitigating position bias and popularity bias, enabling more relevant and personalized recommendations that align with users' preferences. Recommender systems typically rely on implicit feedback (e.g., clicks) to infer user preferences. However, such data is inherently prone to various biases, including position bias and popularity bias. Position bias occurs when higher-ranked items receive more interactions regardless of true relevance. Popularity bias reinforces frequent exposure of popular items while under-recommending relevant, yet less popular ones. Directly learning from such data fails to capture true user preferences, leading to suboptimal recommendations. This research focuses on mitigating position bias and popularity bias in recommender systems. Specifically, I address position bias in learning-to-rank (LTR) systems and popularity bias in collaborative filtering (CF) models and social recommender systems based on graph neural networks. My work develops methods that overcome the limitations of existing approaches to mitigating position bias and popularity bias, enabling more relevant and personalized recommendations that align with users' preferences.",
+  "arxiv_id": "2608.16704",
+  "authors": [
+    "Md Aminul Islam"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "减少位置偏差和流行度偏差有助于在线平台更准确地推断用户真实偏好，提升推荐个性化和用户满意度。",
+      "缓解“富者愈富”反馈循环可以改善长期系统性能，减少热门内容持续霸屏、相关但冷门内容被遮蔽的问题。",
+      "对Facebook、TikTok、YouTube等用户生成内容平台，同时考虑创作者曝光与社会关系有助于改善创作者侧公平和长尾内容发现。",
+      "CFC、PPD等模型无关或事后处理方法不需要修改已部署模型的训练目标，便于集成到现有推荐系统中，降低落地成本。",
+      "在电商、搜索、娱乐和社交平台中，偏差纠正能够减少从有偏日志中学习造成的次优推荐，提高生态健康度和用户留存潜力。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出CFC（Control Function-based Correction），一种模型无关的两阶段控制函数框架，用于纠正LTR系统中的位置偏差；它不需要倾向性估计或随机化，不修改排序目标函数，支持非线性排序模型，并引入基于残差的验证点击去偏方法用于超参数调优。",
+      "提出PPD（Post-hoc Popularity De-biasing），一种针对GNN协同过滤的事后流行度偏差纠正方法，通过向量投影从预训练节点嵌入中移除流行度成分，无需重训练，适用于任意GNN-based CF模型，并能在已部署模型上直接使用。",
+      "提出DPAA（Debiasing Popularity Amplification in Aggregation），一种直接在GNN消息传递过程中缓解流行度放大的去偏框架，结合交互级权重和层权重，并设计了半合成数据生成过程以在受控流行度偏差严重程度下进行系统评估。",
+      "规划了面向用户生成内容平台的GNN社交推荐系统研究方向，拟联合处理物品流行度、创作者流行度和社交邻居流行度，以缓解多来源流行度偏差在图传播中的放大。",
+      "CFC和PPD已分别被RecSys 2026和WWW 2026接收，DPAA处于评审中。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Correcting for position bias in LTR systems using control function approach"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Post-hoc popularity bias correction in GNN-based CF"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Debiasing message passing to mitigate popularity bias in GNN-based CF"
+      },
+      {
+        "page": 1,
+        "section": "3 Future Direction"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "现有位置偏差纠正方法（state-of-the-art position bias correction methods）",
+        "来自不同方法族的流行度偏差纠正基线（state-of-the-art popularity bias correction methods from different methodological families）",
+        "基于交互计数静态权重的GNN邻居聚合去偏方法",
+        "基于动态嵌入权重的自适应聚合去偏方法",
+        "基于节点度的事后流行度估计方法"
+      ],
+      "datasets": [
+        "三个LTR基准数据集（名称未在正文给出）",
+        "一个大规模工业数据集（名称未在正文给出）",
+        "PPD评估使用的三个含无偏测试数据的真实数据集（名称未在正文给出）",
+        "DPAA评估使用的三个含无偏测试数据的真实数据集（名称未在正文给出）",
+        "用于控制流行度偏差严重程度的半合成数据集"
+      ],
+      "findings_zh": [
+        "CFC在三个LTR基准数据集和大型工业数据集上优于现有位置偏差纠正方法，并在多个指标和多种非线性排序器上表现更好。",
+        "CFC对位置偏差严重程度、噪声点击以及确定性和随机性日志策略具有鲁棒性。",
+        "PPD在三个含无偏测试数据的真实数据集上优于现有流行度偏差纠正基线。",
+        "PPD同时改善了流行物品和利基物品的推荐质量，说明降低流行度偏差不必然牺牲真正相关热门物品的性能。",
+        "PPD在不同GNN层深度下保持有效，可迁移到另一个GNN-based CF骨干，且计算开销低。",
+        "DPAA在三个真实数据集和半合成数据集上优于现有流行度偏差纠正方法。",
+        "DPAA同时改善热门物品和利基物品的推荐性能，并在高流行度偏差设置下增益尤为显著。"
+      ],
+      "metrics": [
+        "多个LTR排序指标（具体指标名称未在正文给出）",
+        "多个推荐指标（具体指标名称未在正文给出）",
+        "不同位置偏差严重程度、噪声点击和日志策略下的性能",
+        "不同流行度偏差严重程度下的性能",
+        "流行物品组与利基物品组的推荐性能",
+        "不同GNN层深度下的性能"
+      ]
+    },
+    "limitations_zh": [
+      "论文正文未给出具体数据集名称、基线名称和指标数值，因此难以独立核验效果大小和复现细节。",
+      "PPD是事后去偏方法，只能在训练完成后作用于预训练嵌入，不干预训练过程中的流行度偏差放大。",
+      "DPAA的交互级权重依赖预训练嵌入与当前训练中嵌入的平滑组合，其稳定性仍受预训练模型质量影响。",
+      "面向社交推荐的多来源流行度偏差（物品、创作者、社交邻居）目前仅作为未来工作提出，尚未完成方法设计和实验验证。",
+      "当前已完成的三项工作分别针对LTR和GNN协同过滤，尚未覆盖用户生成内容平台中创作者流行度和社交关系共同作用的情形。"
+    ],
+    "method_zh": "CFC：第一阶段用查询-物品特征拟合历史排序过程，以物品排名为目标输出并估计残差；第二阶段将这些残差及其与特征的交互作为控制函数项加入点击模型，从而控制位置导致的偏差依赖，纠正位置偏差。PPD：在预训练用户和物品嵌入上估计每个交互的交互级流行度得分，用全局偏好减去个性化偏好得到流行度信号；构建流行度方向向量，并将嵌入投影到该方向后减去投影分量，从而保留偏好信息、移除流行度成分。DPAA：在消息传递中为每个用户-物品交互估计流行度感知权重，使用预训练模型嵌入与当前训练中嵌入的平滑组合稳定权重估计，并以相似度互补值降低流行驱动交互的权重；同时采用层权重，给更深层更大权重以增强高阶邻居信号、减少即时流行交互的主导。",
+    "problem_zh": "隐式反馈（如点击）驱动的推荐系统容易受位置偏差和流行度偏差影响：用户更倾向于点击排名靠前的物品，热门物品又因曝光更多而获得更多交互，导致模型把展示位置或物品热度误当作真实偏好。直接基于这类有偏反馈训练会损害推荐准确性和个性化，并形成“富者愈富”的反馈循环。研究要解决的核心问题是：在位置偏差明显的LTR系统、流行度偏差显著的GNN协同过滤以及涉及创作者和社会关系的社交推荐系统中，如何从有偏的隐式反馈中学习可靠的用户偏好。",
+    "technical_depth": 0.8
+  },
+  "doi": "10.1145/3773078.3831945",
+  "final_score": 0.835,
+  "graph_relations": [],
+  "id": "arxiv-2608.16704",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-18T19:55:14.097219Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-08-17T15:23:52Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文研究隐式反馈推荐系统中的位置偏差与流行度偏差缓解问题，覆盖学习排序、协同过滤和基于图神经网络的社交推荐系统。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Unbiased Recommender Systems with Implicit Feedback",
+  "url": "https://arxiv.org/abs/2608.16704v1"
+}
