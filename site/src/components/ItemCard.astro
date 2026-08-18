@@ -56,13 +56,6 @@ const authorLabel = item.authors.join("、") || "未署名";
     <div class:list={["min-w-0", splitOnWide && "lg:border-l lg:border-slate-100 lg:pl-8"]}>
       {splitOnWide && <h4 class="mt-4 text-sm font-semibold text-slate-950 lg:mt-0">中文总结</h4>}
       <p class:list={["text-sm leading-7 text-slate-700", splitOnWide ? "mt-2" : "mt-4"]}>{item.summary_zh}</p>
-      {entry && splitOnWide && (
-        <div class="mt-4">
-          <h4 class="text-sm font-semibold text-slate-950">推荐理由</h4>
-          <p class="mt-2 text-sm leading-7 text-slate-700">{entry.recommendation_reason_zh}</p>
-        </div>
-      )}
-      {entry && !splitOnWide && <p class="mt-4 border-l-2 border-sky-300 pl-3 text-sm leading-6 text-slate-600"><strong class="font-semibold text-slate-800">推荐理由：</strong>{entry.recommendation_reason_zh}</p>}
       <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-sm font-medium">
         <a class="inline-flex items-center gap-1.5" href={href}>查看详情 <ArrowRight size={16} stroke-width={1.8} aria-hidden="true" /></a>
         <a class="inline-flex items-center gap-1.5" href={item.url} target="_blank" rel="noopener noreferrer">阅读原文 <ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a>
