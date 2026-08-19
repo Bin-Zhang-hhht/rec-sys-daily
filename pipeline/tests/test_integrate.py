@@ -6,7 +6,7 @@ import stat
 import pytest
 
 from recsys_daily.config import load_config
-from recsys_daily.integrate import StageInputs, integrate, load_digest
+from recsys_daily.integrate import StageInputs, _business_date, integrate, load_digest
 from recsys_daily.ranking import rank_items
 from recsys_daily.schemas import BuildConfigSnapshot, PaperItem, RunReport, SourceState, StageReport, State
 
@@ -213,6 +213,11 @@ def test_digest_references_ids_and_caps_each_kind(tmp_path: Path) -> None:
     item_paths = list((bundle.path / "pending-data" / "items").rglob("*.json"))
     item_ids = {json.loads(path.read_text(encoding="utf-8"))["id"] for path in item_paths}
     assert {entry.item_id for entry in digest.papers + digest.blogs} <= item_ids
+
+
+def test_digest_business_date_uses_asia_shanghai() -> None:
+    assert _business_date(datetime(2026, 8, 18, 15, 59, tzinfo=UTC)).isoformat() == "2026-08-18"
+    assert _business_date(datetime(2026, 8, 18, 16, 0, tzinfo=UTC)).isoformat() == "2026-08-19"
 
 
 def test_source_states_are_carried_into_pending_state_and_provenance_is_recorded(tmp_path: Path) -> None:

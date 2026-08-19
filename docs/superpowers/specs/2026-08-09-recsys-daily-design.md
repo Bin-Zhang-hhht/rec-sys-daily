@@ -103,6 +103,9 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 - 无新博客时仍正常发布论文日报
 - 未产生任何新内容时只记录成功运行，不生成空日报
 
+日报日期使用 `Asia/Shanghai` 业务时区计算，运行时间、模型生成时间和状态时间戳仍以
+UTC 保存。
+
 ## 5. 来源设计
 
 ### 5.1 学术来源

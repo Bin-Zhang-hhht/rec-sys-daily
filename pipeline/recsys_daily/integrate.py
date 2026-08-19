@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 import json
 import re
 import shutil
 import tempfile
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from .artifacts import read_json, read_jsonl, write_json
 from .config import AppConfig
@@ -43,6 +44,9 @@ class StageInputs:
 class PublishBundle:
     path: Path
     manifest: Manifest
+
+
+BUSINESS_TIMEZONE = ZoneInfo("Asia/Shanghai")
 
 
 def _manifest(path: Path) -> Manifest:
@@ -247,6 +251,10 @@ def _digest_entries(items: list[PaperItem | BlogItem]) -> list[DigestEntry]:
     ]
 
 
+def _business_date(run_at: datetime) -> date:
+    return run_at.astimezone(BUSINESS_TIMEZONE).date()
+
+
 def _attach_provenance(
     items: list[ContentItem],
     config: AppConfig,
@@ -421,7 +429,7 @@ def integrate(
         final_weights=config.settings.final_weights,
         minimum_final_score=config.settings.minimum_final_score,
     )
-    digest = Digest(date=run_at.date(), papers=_digest_entries(papers), blogs=_digest_entries(blogs))
+    digest = Digest(date=_business_date(run_at), papers=_digest_entries(papers), blogs=_digest_entries(blogs))
     previous = _load_previous_state(state)
     recommended_ids = list(dict.fromkeys([
         *((previous.recommended_item_ids if previous else [])),
