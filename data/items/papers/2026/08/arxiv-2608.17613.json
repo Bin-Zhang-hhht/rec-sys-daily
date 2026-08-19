@@ -1,0 +1,139 @@
+{
+  "abstract": "Slate recommendation treats a slate rather than an individual item as the recommendation unit, requiring joint optimization of item interactions and slate utility. Existing approaches typically separate candidate generation from ranking and restrict optimization to retrieved candidates. Generative recommendation with Semantic IDs (SIDs) offers a path to end-to-end recommendation, but existing SID construction often lacks recommendation-aware semantics and effective local collaborative signals, while next-token prediction is misaligned with slate-level objectives. We propose OGR, an end-to-end framework that directly generates ordered slates-\"Once Generated, Ranked.\" OGR first introduces TUSID, which adaptively fuses item-specific semantic and local collaborative information into hierarchical SIDs. It then uses list-wise preference planning and pipelined position-wise SID decoding to model global preferences and inter-item dependencies while generating ordered slates. We further propose SPA, a reward-guided conservative policy optimization method that aligns generated slates with user preferences beyond likelihood imitation. Offline experiments show that OGR outperforms representative baselines, with 48.2% and 27.2% relative NDCG@5 gains on industrial and public datasets, respectively. Online A/B testing on Kuaishou further yields a 1.120% improvement in Effective Views. Slate recommendation treats a slate rather than an individual item as the recommendation unit, requiring joint optimization of item interactions and slate utility. Existing approaches typically separate candidate generation from ranking and restrict optimization to retrieved candidates. Generative recommendation with Semantic IDs (SIDs) offers a path to end-to-end recommendation, but existing SID construction often lacks recommendation-aware semantics and effective local collaborative signals, while next-token prediction is misaligned with slate-level objectives. We propose OGR, an end-to-end framework that directly generates ordered slates-\"Once Generated, Ranked.\" OGR first introduces TUSID, which adaptively fuses item-specific semantic and local collaborative information into hierarchical SIDs. It then uses list-wise preference planning and pipelined position-wise SID decoding to model global preferences and inter-item dependencies while generating ordered slates. We further propose SPA, a reward-guided conservative policy optimization method that aligns generated slates with user preferences beyond likelihood imitation. Offline experiments show that OGR outperforms representative baselines, with 48.2% and 27.2% relative NDCG@5 gains on industrial and public datasets, respectively. Online A/B testing on Kuaishou further yields a 1.120% improvement in Effective Views.",
+  "arxiv_id": "2608.17613",
+  "authors": [
+    "Yang Hu",
+    "Jiayi Guo",
+    "Jingui Ma",
+    "Ning Li",
+    "Jiangling Qin",
+    "Yanming Li",
+    "Yang Deng",
+    "Xiaoshuang Chen",
+    "Kaiqiao Zhan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在快手大规模短视频平台上的线上 A/B 测试中，OGR 带来有效观看 +1.120%、评论 +2.954%、点赞 +0.505%、转发 +1.255% 的提升，表明生成式 slate 推荐可在真实推荐系统中产生可量化的业务价值。",
+      "OGR 的直接生成有序 slate 范式有可能简化传统“候选生成-排序-重排”级联流程，减少各阶段目标不一致带来的系统工程与优化成本。",
+      "TUSID 的置信度加权协同注入使无充分行为证据的稀疏或冷启动物品可主要依靠语义内容，符合工业界用内容信息缓解冷启动的实践需求。",
+      "效率分析显示 OGR 相对串行生成式基线有 2.43–2.49 倍吞吐提升，同时保持更高推荐质量，有利于在在线推理算力约束下部署生成式推荐。",
+      "由于工业奖励 schema 未公开且偏好对齐依赖曝光日志，实际跨业务迁移时需要重新设计可获取的反馈与辅助奖励信号。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出 TUSID，一种推荐感知的层级 SID 构建框架，通过多模态语义与高层属性（Brand/Category/B-tags/C-tags）的自适应融合，以及基于 CountSketch 的局部协同信息注入和置信度加权，构建适合生成式 slate 推荐的层级 SID。",
+      "提出 OGR，一种端到端生成式 slate 推荐框架，采用全局列表级偏好规划（GL2P）与流水线式位置级 SID 解码，直接生成有序 slate，避免 item-by-item 串行 SID 生成并保留跨位置依赖。",
+      "提出 SPA，一种 slate 级偏好对齐方法，利用校准的主/辅助多目标奖励与保守策略优化，使生成的 slate 超越似然模仿、对齐用户偏好。",
+      "在工业数据集与 KuaiRec 上通过离线实验以及快手线上 A/B 测试验证了 OGR 的效果与实用价值。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Experiment"
+      },
+      {
+        "page": 1,
+        "section": "Appendix 5: Details of Reward-Consistent Calibration"
+      },
+      {
+        "page": 1,
+        "section": "Appendix 6: Hyperparameter Configuration"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "SASRec",
+        "BERT4Rec",
+        "PRM",
+        "Seq2Slate",
+        "TIGER",
+        "OneRec",
+        "RQ-VAE",
+        "RQ-KMeans",
+        "R3-VAE",
+        "GNPR-SID",
+        "LC-Rec",
+        "LETTER"
+      ],
+      "datasets": [
+        "KuaiRec",
+        "Kuaishou 工业数据集（proprietary industrial dataset）"
+      ],
+      "findings_zh": [
+        "在离线实验中，OGR 相对代表性基线在工业数据集和 KuaiRec 上分别取得 NDCG@5 相对提升 +48.2% 和 +27.2%，并在报告的全部离线指标上一致优于基线。",
+        "快手线上 A/B 测试（3% 生产流量）显示，OGR 相比现有系统使有效观看提升 1.120%、评论提升 2.954%、点赞提升 0.505%、转发提升 1.255%。",
+        "TUSID 在相同 OGR 骨干和码本配置下优于公开 SID 方法，在 KuaiRec 上取得有效 Recall@5=0.148、NDCG@5=0.130，同时保持无冲突 SID、均衡码本分配和与强基线相当的语义保持。",
+        "消融实验表明，移除列表级 Planner 会显著降低效果；移除 SPA、主奖励、辅助奖励或保守正则化均造成性能下降，说明全局偏好规划、反馈奖励校准和策略漂移约束都重要。",
+        "监督目标消融显示，曝光顺序监督和反馈感知监督两者联合使用才能获得最佳 slate 级序列依赖建模；仅保留其中一种都会降低有效 Recall@5 和 NDCG@5。",
+        "TUSID 消融显示，语义融合采用 Cross-Attention 与门控优于直接相加，协同注入采用 CCE+Concat 优于加性融合或 InfoNCE 对比变体，置信度感知加权（CAW）进一步改善效果。",
+        "效率分析表明 OGR 将串行依赖深度从 O(KD) 降为 O(K+D)，在 K=5、D=4 设置下相对 TIGER-Beam 和 OneRec-Beam 分别取得 2.43 倍和 2.49 倍吞吐提升，同时保持更高 NDCG@5。"
+      ],
+      "metrics": [
+        "Hit Rate@5",
+        "Recall@5",
+        "NDCG@5",
+        "Impression-based Hit Rate@5",
+        "Impression-based Recall@5",
+        "Effective Views",
+        "Comments",
+        "Likes",
+        "Forwards",
+        "ICR",
+        "CUR",
+        "Min. PPL",
+        "Top-1 Load",
+        "V-measure",
+        "SC",
+        "throughput",
+        "sequential dependency depth"
+      ]
+    },
+    "limitations_zh": [
+      "论文未披露完整工业奖励体系，仅报告保留的反馈信号和固定权重，称因保密约束无法公开完整 reward schema，这会影响复现与跨场景直接迁移。",
+      "SPA 的候选动作集实际仅由训练曝光日志中的 slate 构成，新生成或反事实 slate 不会被赋予观测反馈奖励，因此偏好对齐受曝光日志覆盖范围限制。",
+      "方法依赖多模态内容（图像、音频、文本）和 Brand/Category/B-tags/C-tags 等高层属性标注，其他领域缺少类似内容特征或标注时需额外数据与工程。",
+      "线上验证仅在快手 3% 生产流量上进行一周，长期效果和全量部署影响未被报告。"
+    ],
+    "method_zh": "OGR 由三部分组成：1）TUSID：先以 MLLM 表示作为语义骨干，通过 Cross-Attention 聚合高层属性并用门控残差融合得到语义表示，再用 SASRec 的下一项预测目标训练使表示推荐感知；随后从高质量正反馈训练前缀构造距离加权局部共现，用 CountSketch 压缩为稠密协同嵌入，并根据不同用户支持数计算置信度权重，将语义与协同表示按置信度拼接后经 RQ-KMeans 量化为 D 层 SID。2）GL2P：历史编码器编码 SID 交互历史；列表级偏好规划器以因果 Transformer 为每个展示位置生成偏好表示，位置级 SID 解码器在偏好表示可用后独立解码该位置的 SID 链，从而与后续位置规划流水运行；监督训练同时使用曝光顺序序列与按反馈重排序列。3）SPA：在监督模型基础上，对候选 slate 计算参考与当前策略的似然比，使用基于主奖励（有效观看、完播、点赞、分享、跳过、不喜欢等）与辅助奖励（多样性、新颖性）校准的偏好信号，结合 PPO 式裁剪策略优化、KL 约束和监督目标回放进行保守对齐。",
+    "problem_zh": "现有 Slate 推荐通常采用候选生成-排序-重排的级联流程，优化范围受限于候选集，且各阶段目标不一致，无法端到端优化整个 slate 的整体效用；基于语义 ID 的生成式推荐虽然提供了端到端方向，但已有 SID 构建方法缺乏推荐感知的语义与局部协同信号整合，且生成式推荐普遍使用 Next Token Prediction 目标，与 slate 级偏好和列表级效用优化不对齐，难以直接生成有序 slate。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.919,
+  "graph_relations": [],
+  "id": "arxiv-2608.17613",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-19T03:32:42.481246Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-18T10:24:09Z",
+  "relevance_score": 0.98,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出OGR，一种端到端生成式列表推荐框架，通过统一语义-协同ID和奖励引导策略优化直接生成并排序整个推荐列表。",
+  "targets": [],
+  "tasks": [],
+  "title": "Once Generated, Ranked: End-to-End Generative Slate Recommendation with Unified Semantic-Collaborative IDs",
+  "url": "https://arxiv.org/abs/2608.17613v1"
+}

@@ -1,0 +1,117 @@
+{
+  "abstract": "Large language model-based recommender systems (LLM-RSs) have demonstrated remarkable capabilities, but are computationally unsustainable for many real-world applications. Compact LLMs offer a practical alternative, yet their reduced capacity often requires reasoning or knowledge distillation methods that increase latency or depend on larger models. Combined with autoregressive generation, these approaches face severe scalability bottlenecks. In contrast, discriminative LLM-RSs enable efficient full-corpus ranking through embedding similarity, but compact backbones remain limited in expressiveness and structural adaptivity. We propose the Fusion of Layer-wise Exits for Sequential Recommendation (FLEXRec), a discriminative framework that enhances compact LLMs while retaining scalable full-corpus ranking. FLEXRec inserts prediction heads (i.e., exits) at multiple transformer layers and adaptively fuses their score distributions. An adaptive continuous router (AC-Router) dynamically selects both the number and identity of exits for each user sequence, while a novel target-k hinge loss regulates routing sparsity. Experiments on three real-world datasets with Qwen 3 1.7B and Llama 3.2 3B show that FLEXRec achieves state-of-the-art accuracy among compact-backbone methods while remaining highly efficient. Code: https://github.com/xurong-liang/FLEXRec Large language model-based recommender systems (LLM-RSs) have demonstrated remarkable capabilities, but are computationally unsustainable for many real-world applications. Compact LLMs offer a practical alternative, yet their reduced capacity often requires reasoning or knowledge distillation methods that increase latency or depend on larger models. Combined with autoregressive generation, these approaches face severe scalability bottlenecks. In contrast, discriminative LLM-RSs enable efficient full-corpus ranking through embedding similarity, but compact backbones remain limited in expressiveness and structural adaptivity. We propose the Fusion of Layer-wise Exits for Sequential Recommendation (FLEXRec), a discriminative framework that enhances compact LLMs while retaining scalable full-corpus ranking. FLEXRec inserts prediction heads (i.e., exits) at multiple transformer layers and adaptively fuses their score distributions. An adaptive continuous router (AC-Router) dynamically selects both the number and identity of exits for each user sequence, while a novel target-k hinge loss regulates routing sparsity. Experiments on three real-world datasets with Qwen 3 1.7B and Llama 3.2 3B show that FLEXRec achieves state-of-the-art accuracy among compact-backbone methods while remaining highly efficient. Code: https://github.com/xurong-liang/FLEXRec",
+  "arxiv_id": "2608.17316",
+  "authors": [
+    "Xurong Liang",
+    "Tong Chen",
+    "Quoc Viet Hung Nguyen",
+    "Jianxin Li",
+    "Xiangliang Zhang",
+    "Hongzhi Yin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "通过使用≤3B参数的紧凑LLM保持较高推荐精度，FLEXRec可降低真实系统中大规模LLM推荐服务的算力与托管成本，缓解计算不可持续的问题。",
+      "判别式嵌入检索与轻量路由使全物品目录的实时Top-N排序在计算上可行，避免了生成式方法自回归解码带来的吞吐瓶颈，适合互联网推荐系统的在线serving。",
+      "第三阶段仅训练轻量AC-Router，可针对不同设备的计算/性能预算训练多个不同k值的路由器并共享同一冻结骨干，为多端灵活部署提供了低成本方案。",
+      "相比E4SRec仅增加不到1ms推理开销，而准确率显著提升，具备在不明显牺牲延迟的前提下改善线上推荐效果的业务价值。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出从静态单出口LLM推荐器转向动态多层融合范式：通过自适应集成LLM各传播深度产生的预测分数分布，补偿紧凑LLM骨干的语言建模能力不足，实现高精度且可扩展的序列推荐。",
+      "设计FLEXRec框架，包含自适应连续路由器（AC-Router），利用连续ReLU路由按用户序列动态决定激活哪些层出口以及激活数量，并引入含target-k hinge loss的联合优化框架，在不增加额外参数开销的情况下控制路由稀疏性。",
+      "在三个真实数据集上使用紧凑骨干（Qwen 3 1.7B和Llama 3.2 3B）进行实验，结果表明FLEXRec在紧凑骨干方法中达到最高精度，且推理效率较E4SRec仅有不到1ms的额外开销。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "III. Method"
+      },
+      {
+        "page": 1,
+        "section": "IV. Experiment"
+      },
+      {
+        "page": 1,
+        "section": "V. Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "BERT4Rec",
+        "E4SRec",
+        "SPRec",
+        "SETRec",
+        "LLM-SRec",
+        "HUM",
+        "SparseToken",
+        "DynamicMoE",
+        "LD-MoLE",
+        "Skyline（E4SRec使用更大LLM骨干：Qwen 3 4B、Llama 3.1 8B）"
+      ],
+      "datasets": [
+        "Amazon Toys and Games (Toys)",
+        "Amazon Beauty",
+        "Yelp"
+      ],
+      "findings_zh": [
+        "在Qwen和Llama紧凑骨干下，FLEXRec在N=10指标上一致取得可比方法中的最优表现，并在Beauty（两种骨干）和Yelp（Qwen骨干）等多个设置下超过使用更大骨干的Skyline。",
+        "消融实验表明，默认同时使用L_LB、L_Hinge和L_Z三个损失项时，FLEXRec在三个数据集和两种骨干上均取得最高精度；移除任一损失项都会导致性能下降。",
+        "移除target-k hinge loss会造成路由不稳定，例如在Qwen骨干的Beauty数据上最大激活出口数可升至16；默认配置则能控制平均出口使用数接近目标容量。",
+        "超参数研究表明，目标出口数k=3在所有数据集和骨干下均取得最高精度；λ=1、β=1e-3是较稳健的选择；而最优α高度依赖数据集与骨干LLM的组合。",
+        "案例分析显示，AC-Router会按用户序列自适应分配出口：Llama骨干平均约激活3个出口，Qwen骨干平均约2个；同一序列长度组内仍有较大方差，说明路由决策不单纯依赖序列长度。",
+        "FLEXRec较E4SRec仅增加不到1ms推理开销（如Qwen骨干Toys上E4SRec约6.89ms，FLEXRec约7.53ms），显著快于生成式LLM-RS。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "Recall@10",
+        "NDCG@20",
+        "Recall@20",
+        "平均用户推理时间（T, ms）"
+      ]
+    },
+    "limitations_zh": [
+      "FLEXRec并非在所有设置下都超过更大骨干的Skyline：例如Qwen骨干下Toys数据集的NDCG@10仍低于Skyline，Llama骨干下Yelp数据集的指标也低于Skyline，说明紧凑骨干在部分场景中仍存在容量上限。",
+      "方法依赖预训练SASRec嵌入和多阶段训练流程（骨干微调、中间出口训练、路由器训练），部署或迁移到新数据集时需要额外的训练与调参成本。",
+      "最优路由超参数（尤其是负载均衡权重α）随数据集和LLM骨干变化，例如Toys在Qwen骨干下于α=0.05处出现性能下降，而Yelp在Qwen骨干下于该值最优，实际使用需要针对场景调参。"
+    ],
+    "method_zh": "FLEXRec采用判别式、基于嵌入的推荐范式。首先用SASRec预训练得到物品协同嵌入，再经单层MLP投影到LLM语义空间，并与任务指令和响应token的嵌入拼接后输入LLM。与传统E4SRec只使用最后一层响应token表示不同，FLEXRec在每个Transformer层后插入预测头（exit），得到各层的物品概率分布。AC-Router取第一层后的响应token嵌入计算原始路由logits，经条件平移和ReLU得到稀疏路由权重，归一化后形成各出口的融合权重；模型只前向传播到最深激活层，并将激活出口的概率分布加权求和得到最终推荐分布。训练分三阶段：阶段1用交叉熵损失微调LLM的LoRA参数、ID投影层和最终出口；阶段2冻结骨干并训练所有中间层出口，使每个出口独立学会生成有效排序分布；阶段3冻结骨干和所有出口，仅训练AC-Router，使用推荐损失、target-k hinge loss、负载均衡损失和Z-loss联合优化，从而学习按用户序列动态选择出口数量与组合。",
+    "problem_zh": "现有基于大语言模型的推荐系统（LLM-RS）虽然效果强，但通常依赖数十亿参数的大模型，计算成本高且难以扩展；使用紧凑LLM（如3B以下）虽能降低成本，却面临语义建模能力不足的问题。生成式LLM-RS因自回归解码和复杂推理导致推理延迟高，难以支持全物品库排名；判别式LLM-RS虽然可通过嵌入相似度实现高效全库检索，但现有方法只使用最后一个Transformer层的单一输出，无法充分利用紧凑LLM不同深度的层次化语义，且对所有用户序列采用相同的静态结构，缺乏对多样化用户行为模式的适应性。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.9125,
+  "graph_relations": [],
+  "id": "arxiv-2608.17316",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-19T03:32:42.481246Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-18T03:14:28Z",
+  "relevance_score": 0.96,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出FLEXRec，一种将多层出口分数自适应融合的判别式紧凑大语言模型框架，用于高效的序列推荐全库排序。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Empowering Compact LLMs with Fusion of Layer-wise Exits for Recommendation",
+  "url": "https://arxiv.org/abs/2608.17316v1"
+}
