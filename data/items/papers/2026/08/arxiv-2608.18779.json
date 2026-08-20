@@ -1,0 +1,136 @@
+{
+  "abstract": "Semantic-ID mappings are reusable interfaces between item tokenizers and generative recommenders, yet released mappings rarely state whether they are coherent, what structure they expose, how generated paths resolve, or what must be revalidated after a refresh. SIDScope is a source-traced diagnostic resource for these decisions. It normalizes item-to-code artifacts, verifies provenance and joins, profiles mapping structure, compares paired revisions, and accounts for path-to-item outcomes in generated traces. Across nine source-traced tokenizer exports from seven families on Amazon and Yelp data - eight executable routes plus one auditable snapshot - SIDScope reveals that interface health is multi-signal rather than scalar. Its central finding is mechanism-conditional: prefix alignment strongly tracks held-out candidate exposure when retrieval consumes SID prefixes, then weakens as scoring becomes prefix-independent. Trained trace accounting exposes a second hidden gap: a valid target path can survive without uniquely retrieving the target item by 1.2-3.0 percentage points. A refresh case establishes a third: repairing the mapping does not by itself restore an inherited generator; model reuse requires a separate handoff check. The package provides frozen evidence summaries, conformance reports, trace labels, table builders, and CPU-only verifiers. It supports decisions about artifact readiness, interface risks, and revalidation before model reuse. Semantic-ID mappings are reusable interfaces between item tokenizers and generative recommenders, yet released mappings rarely state whether they are coherent, what structure they expose, how generated paths resolve, or what must be revalidated after a refresh. SIDScope is a source-traced diagnostic resource for these decisions. It normalizes item-to-code artifacts, verifies provenance and joins, profiles mapping structure, compares paired revisions, and accounts for path-to-item outcomes in generated traces. Across nine source-traced tokenizer exports from seven families on Amazon and Yelp data - eight executable routes plus one auditable snapshot - SIDScope reveals that interface health is multi-signal rather than scalar. Its central finding is mechanism-conditional: prefix alignment strongly tracks held-out candidate exposure when retrieval consumes SID prefixes, then weakens as scoring becomes prefix-independent. Trained trace accounting exposes a second hidden gap: a valid target path can survive without uniquely retrieving the target item by 1.2-3.0 percentage points. A refresh case establishes a third: repairing the mapping does not by itself restore an inherited generator; model reuse requires a separate handoff check. The package provides frozen evidence summaries, conformance reports, trace labels, table builders, and CPU-only verifiers. It supports decisions about artifact readiness, interface risks, and revalidation before model reuse.",
+  "arxiv_id": "2608.18779",
+  "authors": [
+    "Jiandong Ding",
+    "Huijie Qin",
+    "Tiandeng Wu",
+    "Yi Cao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SID映射刷新后直接复用旧生成器可能带来新物品召回为零等交接失败；SIDScope提供可预注册的交接门，帮助工业团队在部署前判断是否需要模型适配。",
+      "来源、许可和再分发策略被实现为可执行边界，支持企业内部或跨团队SID工件共享时的合规与治理。",
+      "D1–D5和候选暴露检查可在训练生成器之前以CPU-only方式运行，帮助提前识别地址冲突、前缀质量弱和结构压力风险，减少无效下游训练投入。",
+      "D3的机制条件化结论提醒业务方：前缀对齐只在前缀被显式消费时才有预测意义，不能作为通用的接口质量分选用于所有排序或生成场景。",
+      "可复现的工件清单、哈希和冻结证据摘要降低审计成本，对工业推荐系统中长期维护和版本升级有直接价值。"
+    ],
+    "business_transferability": 0.42,
+    "contributions_zh": [
+      "提出源追踪准入机制：定义归一化工件契约、源角色规则和C0–C5可执行一致性检查，使8条可执行路线和1个可审计快照在Amazon/Yelp数据上可比，并用ReSOT外部工件演示完整准入流程。",
+      "建立接口健康多维证据D1–D5：可寻址性、前缀行为对齐、分配和结构压力可独立变化；D3在前缀被检索或打分消费时校准候选暴露，并用非前缀控制界定其机制条件化边界。",
+      "提出D7追踪与生命周期发现：在训练束中，有效目标路径存活率比唯一物品检索率高出1.2–3.0个百分点；DACT刷新案例表明映射修复并不自动恢复既有生成器，模型复用需要单独的交接检查。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Making SID Artifacts Comparable"
+      },
+      {
+        "page": 1,
+        "section": "4 Mapping Profiles Across Admitted Routes"
+      },
+      {
+        "page": 1,
+        "section": "5 Generated-Trace Accounting"
+      },
+      {
+        "page": 1,
+        "section": "6 Using SIDScope: Admission and Model Handoff"
+      },
+      {
+        "page": 1,
+        "section": "7 Implications for SID Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "8 Availability and Reproducibility"
+      },
+      {
+        "page": 1,
+        "section": "9 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Category-prefix deterministic control",
+        "GRID-like Musical stress row",
+        "Local RQ reference",
+        "Fixed co-occurrence ranker",
+        "Popularity ranker",
+        "Metadata-category scorer",
+        "Autoregressive item-ID generator",
+        "Autoregressive SID generators"
+      ],
+      "datasets": [
+        "Amazon / Musical",
+        "Amazon / Video Games",
+        "Amazon / Beauty (P5)",
+        "Amazon / Instruments",
+        "Yelp / Business"
+      ],
+      "findings_zh": [
+        "接口健康是多信号而非单标量：不同映射在可寻址性、前缀组织、尾部分配和trie结构上独立变化，因此跨路线差异不应被解释为tokenizer排名。",
+        "D3前缀对齐在前缀被检索或固定SID亲和打分消费时与候选暴露强相关（8个导出工件的Spearman ρ=0.976，目录折叠后ρ=0.900），但换成非前缀打分后关联减弱，且当前训练生成器上未获得稳定迁移（Block D范围[-0.564, 0.205]）。",
+        "训练束中目标路径存活率比唯一物品检索率高2.0–3.0个百分点（GRID/P5两个fold）和1.2个百分点（DIGER敏感性路线）；歧义行率分别为34.0%、37.1%和10.1%。",
+        "DACT 0.6→0.7刷新修复了目录覆盖缺口，但23.6%共同物品代码发生变更；未适配的发布模型新物品Recall为0且未通过交接门，三个同架构适配模型全部通过。",
+        "ReSOT外部工件通过C0–C5且无全码冲突，但其D3深度1–3（0.0629/0.0108/0.0043）明显低于同数据集的类别前缀确定性控制（0.4056/0.2094/0.0611），说明可寻址性不能推断前缀语义质量。"
+      ],
+      "metrics": [
+        "D1 active code-symbol count",
+        "D2 full-code collision rate",
+        "D3 weighted co-occurrence prefix recall",
+        "D4 tail unique-SID ratio",
+        "D5 unique full-code leaves",
+        "Candidate Recall@20",
+        "NDCG@20",
+        "MRR@20",
+        "D7 path survival rate",
+        "D7 unique-item hit rate",
+        "D6 code churn"
+      ]
+    },
+    "limitations_zh": [
+      "工件清单仅包含8条Amazon衍生商品评论路线和1条Yelp业务评论路线，不是跨生态的均衡基准，不能把跨路线差异视为因果数据集效应。",
+      "D6刷新与生成器交接流程仅在单个DACT生命周期案例上验证，一般性修复有效性和映射到排序质量的因果效应仍需更多案例。",
+      "D3到训练生成器的预测性尚无稳定证据：现有训练生成器未通过物品流行度有效性检查，D3与NDCG关联弱且符号不稳定。",
+      "ReSID/Musical仅为源追踪可审计快照，不是可执行C0–C5路线；跨数据集D3可比性受限，所有比较都依赖各自的目录和训练交互协议。",
+      "动态、时间条件、闭环和用户token等非静态SID生命周期尚未验证，当前发布仍以静态物品映射为主要对象。"
+    ],
+    "method_zh": "SIDScope将SID工件表示为包含物品目录、映射、来源记录以及可选元数据/交互/刷新对/生成轨迹的记录。通过适配器将item-to-code、元数据、交互日志和可选beam归一化；以C0–C5六道门执行准入判定。映射画像计算D1（码空间利用）、D2（共享地址风险）、D3（加权前缀行为对齐）、D4（头尾解析分配）和D5（trie结构压力）；候选暴露协议在训练历史前缀区域中考察目标物品是否可达，并引入不相交用户、固定重排器和非前缀控制；D7对生成路径做约束感知标签，区分无效路径、歧义路径、重复物品、重复路径、过期目录和高不确定性，并比较路径存活与唯一物品命中。不确定性使用用户bootstrap、工件折叠和wild-cluster小簇检验。",
+    "problem_zh": "生成式推荐中，语义ID（Semantic-ID）映射是可复用的接口，但已发布的映射很少说明其是否一致、暴露何种结构、生成路径如何解析、刷新后需要重新验证什么。仅靠下游排序指标无法诊断这类接口健康状态；研究者在接收、诊断、候选可达性评估和模型交接四个环节缺少一个统一的、可溯源、可复现的诊断资源。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.752,
+  "graph_relations": [],
+  "id": "arxiv-2608.18779",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-20T20:08:32.746841Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-19T10:35:12Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出SIDScope诊断工具包，面向生成式推荐中的语义ID接口，检查映射结构一致性、来源可追溯性与生成路径解析，并揭示不同检索与评分机制下候选暴露和路径唯一性的风险。",
+  "targets": [],
+  "tasks": [],
+  "title": "SIDScope: A Diagnostic Resource for Semantic-ID Interfaces in Generative Recommendation",
+  "url": "https://arxiv.org/abs/2608.18779v1"
+}

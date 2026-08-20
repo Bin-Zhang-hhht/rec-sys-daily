@@ -1,0 +1,158 @@
+{
+  "abstract": "Platform-scale recommender systems often span multiple business streams such as organic recommendation, advertising, and merchant services, where user behaviors form a continuous cross-stream trajectory. Maintaining separate ranking systems fragments user representations and increases engineering cost. We propose \\textbf{OneModel}, a unified framework for multi-stream final ranking. OneModel maps heterogeneous behaviors into shared event sequences, learns long-context user representations with an action-oriented backbone, and introduces \\emph{Scenario-aware Information Modulation} to balance cross-stream transfer and stream-specific specialization. For production deployment, OneModel further adopts stratified user representation, multi-objective training, and optimized online serving with feature decomposition, user feature prefetching, shared user-tower computation, and graph-level inference optimization. We deploy OneModel in production at \\emph{Xiaohongshu}, where it delivers consistent offline gains over strong baselines and scales favorably with context length and model capacity. Online A/B tests improve Time Spent by \\textbf{+0.33\\%} and Engagement by \\textbf{+1.25\\%} in Explore Feed, lift advertising value by \\textbf{+3.43\\%} and CTR by \\textbf{+8.18\\%} in Feed Advertising, and raise DGMV by \\textbf{+1.1867\\%} and GPM by \\textbf{+2.1585\\%} in Merchant Recommendation, validating unified multi-stream ranking as an effective production foundation. Platform-scale recommender systems often span multiple business streams such as organic recommendation, advertising, and merchant services, where user behaviors form a continuous cross-stream trajectory. Maintaining separate ranking systems fragments user representations and increases engineering cost. We propose \\textbf{OneModel}, a unified framework for multi-stream final ranking. OneModel maps heterogeneous behaviors into shared event sequences, learns long-context user representations with an action-oriented backbone, and introduces \\emph{Scenario-aware Information Modulation} to balance cross-stream transfer and stream-specific specialization. For production deployment, OneModel further adopts stratified user representation, multi-objective training, and optimized online serving with feature decomposition, user feature prefetching, shared user-tower computation, and graph-level inference optimization. We deploy OneModel in production at \\emph{Xiaohongshu}, where it delivers consistent offline gains over strong baselines and scales favorably with context length and model capacity. Online A/B tests improve Time Spent by \\textbf{+0.33\\%} and Engagement by \\textbf{+1.25\\%} in Explore Feed, lift advertising value by \\textbf{+3.43\\%} and CTR by \\textbf{+8.18\\%} in Feed Advertising, and raise DGMV by \\textbf{+1.1867\\%} and GPM by \\textbf{+2.1585\\%} in Merchant Recommendation, validating unified multi-stream ranking as an effective production foundation.",
+  "arxiv_id": "2608.18606",
+  "authors": [
+    "Yinqi Zhang",
+    "Peiyu Hu",
+    "Yuntian Tang",
+    "Siying Gu",
+    "Jiahao Liang",
+    "Longxin Kou",
+    "Haiqing Hu",
+    "Shuman Zhuang",
+    "Yubin Xu",
+    "Chenggen Sun",
+    "Bin Ye",
+    "Donghui Xu",
+    "Zhaoyu Liu",
+    "Jiang Rong",
+    "Yuting Jia",
+    "Zhaokai Luo",
+    "Leilei Ma",
+    "Yiying Xie",
+    "Yao Hu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "统一多流排序框架可替代多个隔离的长序列模型、embedding 系统和内容理解管线，降低重复建设与工程维护成本。",
+      "低资源业务流（广告、商家）能从主导的推荐流数据中受益，实现跨流信息复用，提升广告价值和商家转化效率。",
+      "在线指标显示 Engagement +1.25%、广告价值 +3.43%、广告 CTR +8.18%、GPM +2.1585%、OPM +2.8118%，对平台变现和用户参与有直接商业价值。",
+      "尽管模型参数量增加 32.9%，延迟反而降低 66.7%，说明统一模型可以在严格在线延迟预算下容纳更大模型，具备规模化部署的经济性。",
+      "对拥有多条业务流的复合型平台，OneModel 提供了一种将多业务排序统一到共享基础模型上的生产级路径，有助于提升业务一致性和基础设施复用率。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出 OneModel，一个统一的平台级多流排序框架，将可复用的用户理解和内容理解能力在自然推荐、广告、商家服务之间共享，提升信息复用与资源利用效率。",
+      "设计了统一跨流表示、面向动作的长上下文序列骨干、场景感知信息调制（SAIM）、分层用户建模、模块化多目标优化与解耦在线服务，在共享、特化和部署成本之间取得平衡。",
+      "在小红书生产系统完成部署，并通过离线实验与在线 A/B 测试验证了其在推荐参与度、广告价值和商家转化效率上的提升。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Main Results (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Ablation Study (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Scaling Analysis (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Training Stability Analysis (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Online Effectiveness Evaluation (RQ5)"
+      },
+      {
+        "page": 1,
+        "section": "5.7 Online Cost-effectiveness Evaluation (RQ6)"
+      },
+      {
+        "page": 1,
+        "section": "A Additional Implementation Details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "HSTU",
+        "GenRank",
+        "当前生产排序系统（在线 A/B 对照组）"
+      ],
+      "datasets": [
+        "小红书生产平台 10% 匿名流量切片，覆盖自然推荐、广告、商家服务三个业务流，相对流量比例约为 recommendation : advertising : merchant = 1 : 0.2 : 0.15"
+      ],
+      "findings_zh": [
+        "在广告单流设置下，OneModel 的 Ads Click AUC 比 GenRank 高 3.4‰；在统一多流训练下，差距扩大到 6.4‰（Ads Click AUC 0.7712 vs GenRank 单流 0.7648）。",
+        "统一训练将 Ads Click AUC 从 0.7682 提升到 0.7712，Merchant 从 0.7789 提升到 0.7819，均提升 3.0‰；Rec 几乎不变（0.7905 vs 孤立训练 0.7906），说明低资源业务流受益、主导流无明显负迁移。",
+        "模块消融显示，去掉统一表示、SAIM 和分层用户表示分别使 Ads Click AUC 下降 1.4‰、1.1‰ 和 0.8‰。",
+        "输入序列消融显示，Ads 预测同时依赖 Ads 自身历史与 Rec 子序列，说明推荐行为为广告排序提供辅助意图信号；Rec 预测受移除 Ads 历史影响很小。",
+        "序列长度消融显示，长度 500 为部署配置；缩短到 100/200 时 AUC 分别下降 2.5% 和 1.5%，从 500 延长到 1000 仅带来 +0.5% 增益；模型深度是最敏感维度，3 层降到 1 层 Click AUC 下降 2.0%，扩到 5 层提升 0.7%。",
+        "梯度隔离将 Ads Click AUC 从 0.7696 提升到 0.7712；SAIM 门控在 Rec、Ads、Merchant 上平均激活分别为 0.61、0.54、0.58，说明其学到流相关调制而非退化为统一变换。",
+        "在线 A/B 中，Explore Feed 的 Time Spent +0.33%、Reads +0.63%、Engagement +1.25%、LT7 +0.15%；Feed Advertising 的 ADVV +3.43%、CTR +8.18%、Impressions -1.07%、CPM +0.90%；Merchant Recommendation 的 PV -0.9513%、DGMV +1.1867%、DAB +1.8009%、GPM +2.1585%、OPM +2.8118%。",
+        "OneModel 将稠密参数量从 173M 增加到 230M（+32.9%），但在线延迟从 270ms 降到 90ms（-66.7%），说明可在提升模型容量的同时保持高效生产服务。"
+      ],
+      "metrics": [
+        "AUC",
+        "LogLoss",
+        "Click/Collect/Comment/PageTime/Follow/Hide/Like 多目标 AUC",
+        "Time Spent",
+        "Engagement",
+        "LT7",
+        "ADVV",
+        "CTR",
+        "Impressions",
+        "CPM",
+        "PV",
+        "DGMV",
+        "DAB",
+        "GPM",
+        "OPM",
+        "延迟",
+        "稠密参数量"
+      ]
+    },
+    "limitations_zh": [
+      "因数据保密，论文仅报告相对流量比例和聚合评估结果，未公开绝对用户数、物品数或交互次数，外部难以精确复现。",
+      "离线评估基于小红书生产系统 10% 流量切片，未使用公开数据集，跨平台泛化性未得到验证。",
+      "在线 A/B 验证是在小红书的真实生产系统上针对 Explore Feed、Feed Advertising 和 Merchant Recommendation 进行的，属于单一平台/业务环境下的证据。",
+      "在线结果中 Merchant Recommendation 的曝光 PV 下降 0.9513%，而转化效率指标提升，说明效率提升伴随曝光量下降，论文未进一步讨论该曝光变化对长期生态的影响。"
+    ],
+    "method_zh": "OneModel 将多流异构行为映射为统一事件序列：通过场景感知特征投影将不同业务流的异构特征变换到共享 item 表示空间，并注入场景、动作、时间间隔、位置等结构化上下文。序列建模采用 GenRank 风格的 action-oriented 组织方式，以 action 为预测目标、item 为上下文信号来缩短有效序列长度；在序列编码前进行显式 item-context 交互，再用共享因果 Transformer decoder 配合因果掩码和候选掩码建模长序列。为缓解跨流干扰，引入场景感知信息调制（SAIM），在 FFN 中插入场景条件门控，保留共享计算图同时支持流相关通道调制。用户表示采用分层策略，融合全局注意力池化和最终局部状态得到多时间尺度用户表征。训练目标为多目标联合损失，包含自监督 next-item 预测、各业务流监督目标与正则化，并使用跨流 batch 采样、早期梯度隔离和选择性反向传播稳定优化。在线服务将长上下文用户编码与请求时候选打分解耦，缓存增量用户状态，并通过特征分解、用户特征预取、共享用户塔计算和图级推理优化降低延迟。",
+    "problem_zh": "平台级推荐系统通常横跨自然推荐、广告和商家服务等多个业务流，用户行为形成连续跨流轨迹。传统做法为各业务流分别维护独立排序系统，导致用户表示碎片化、工程成本高；同时各流特征 schema 和价值信号异质，统一建模面临跨业务负迁移、业务特化与在线延迟约束难以兼顾的问题。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8995,
+  "graph_relations": [],
+  "id": "arxiv-2608.18606",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-20T20:08:32.746841Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-19T06:50:47Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出OneModel统一多场景排序模型，通过共享事件序列、长上下文用户表示与场景感知信息调制，在小红书的探索信息流、广告与商家推荐等多个业务流上取得一致提升。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "OneModel: A Unified Foundation for Platform-Scale Multi-Scenario Ranking",
+  "url": "https://arxiv.org/abs/2608.18606v1"
+}

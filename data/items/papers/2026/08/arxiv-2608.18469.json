@@ -1,0 +1,129 @@
+{
+  "abstract": "Lightweight proxy models enable rapid experimentation without repeatedly training frontier-scale systems, but their small kernels often leave modern accelerators underutilized. Conventional training compounds this inefficiency by scheduling the forward and backward passes as disjoint phases, so spare capacity in one cannot be filled by work from the other. We reinterpret the detachment mechanism of Forward-Forward (FF) as a scheduling primitive: given a local objective, detaching a block's output removes downstream gradient dependencies, making its backward pass ready when its forward pass finishes. ERASE launches each detached subgraph's backward pass early on a separate CUDA stream, overlapping it with subsequent forward work. Execution trace on a lightweight transformer demonstrates this overlap and its limit: a kernel that saturates the device leaves no capacity for concurrency. On a large-scale click-through-rate model, detaching six dense subarchitectures improves training throughput by up to $9.51\\%$ while keeping normalized entropy close to the baseline. Lightweight proxy models enable rapid experimentation without repeatedly training frontier-scale systems, but their small kernels often leave modern accelerators underutilized. Conventional training compounds this inefficiency by scheduling the forward and backward passes as disjoint phases, so spare capacity in one cannot be filled by work from the other. We reinterpret the detachment mechanism of Forward-Forward (FF) as a scheduling primitive: given a local objective, detaching a block's output removes downstream gradient dependencies, making its backward pass ready when its forward pass finishes. ERASE launches each detached subgraph's backward pass early on a separate CUDA stream, overlapping it with subsequent forward work. Execution trace on a lightweight transformer demonstrates this overlap and its limit: a kernel that saturates the device leaves no capacity for concurrency. On a large-scale click-through-rate model, detaching six dense subarchitectures improves training throughput by up to $9.51\\%$ while keeping normalized entropy close to the baseline.",
+  "arxiv_id": "2608.18469",
+  "authors": [
+    "Ergan Shang",
+    "Flavio Sales Truzzi"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对于持续重训练的大规模推荐/排序系统，ERASE 可在不改变模型架构的前提下提升 5–9% 的 p90 QPS，有助于提高模型新鲜度并降低硬件资源负担。",
+      "对于小型代理模型和轻量级快速实验场景，ERASE 能填补小 GEMM 留下的空闲算力，可能加速研究迭代。",
+      "实际落地需要选择确定性实现：FUP=True 或 CUDA Graphs 都可以恢复跨 rank 一致性；否则非阻塞线程调度可能引入训练抖动。",
+      "吞吐收益伴随约 1.38% 的 NE 差距，业务方需要在训练速度与推荐质量之间做权衡，并在上线时监控 NE 等质量指标。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "将 Forward-Forward 的 stop-gradient/detachment 机制重新解释为一种调度原语：在局部目标下，detach 一个 block 的输出会切断下游梯度依赖，使该 block 的反向传播在前向结束后立即就绪，而无需等待整体 loss 或后续 block。",
+      "提出 ERASE：在每个 detached 子图前向返回后，立即在独立 CUDA stream 上启动其反向传播，与后续前向计算重叠，同时保留子图内部的精确梯度，且无需 FF 的 goodness 目标。",
+      "在 NanoChat 上通过执行 trace 验证了 early backward 的重叠行为及其硬件饱和极限；在轻量级大规模 CTR 模型上，通过 detach 六个稠密子架构，p90 QPS 最高提升 9.51%，且 normalized entropy 与基线接近。"
+    ],
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "1.1 Related Work"
+      },
+      {
+        "page": 2,
+        "section": "2.1 The Forward-Forward algorithm"
+      },
+      {
+        "page": 2,
+        "section": "2.2 Early backward in ERASE: scheduling, streams, and determinism"
+      },
+      {
+        "page": 2,
+        "section": "3 Experiments"
+      },
+      {
+        "page": 2,
+        "section": "3.1 NanoChat"
+      },
+      {
+        "page": 2,
+        "section": "3.2 CTR Model"
+      },
+      {
+        "page": 3,
+        "section": "4 Caveats"
+      },
+      {
+        "page": 3,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "baseline（标准端到端反向传播与常规调度）",
+        "blocking early backward, FUP=False",
+        "blocking early backward, FUP=True",
+        "non-blocking early backward + CUDA Graphs, FUP=False",
+        "blocking early backward, FUP=True（dagger 配置）"
+      ],
+      "datasets": [
+        "MNIST",
+        "NanoChat（Karpathy autoresearch 的轻量级 transformer 代理模型）",
+        "轻量级大规模点击率（CTR）推荐模型（文中未给出具体数据集名称）"
+      ],
+      "findings_zh": [
+        "在单张 A100 上、30 层 MLP + MNIST 的 sanity check 中，FF 风格 detachment 将 compute-matched backward time 从 23.5 ms 降至 9.9 ms（减少 58%），total batch time 从 41.2 ms 降至 28.8 ms（减少 30%）。",
+        "在 NanoChat 上，两个 detachment 点生成的三个子图可以在不同 stream 上重叠：一个子图的反向工作与下一个子图的前向工作同时执行；但 fused multi-head attention backward kernel 单独运行，因为它占满所有 streaming multiprocessor，没有留给并发的算力。",
+        "在 CTR 模型上，基线 p90 QPS 为 184,535.51；blocking + FUP=False 提升 0.37%，blocking + FUP=True 提升 5.26%，non-blocking + CUDA Graphs + FUP=False 提升 7.38%，blocking + FUP=True（dagger 配置）最高提升 9.51%。",
+        "non-blocking + CUDA Graphs 配置的 NE gap 约为 1.38%，即模型质量略低于基线但接近基线。",
+        "作者认为实验结果说明确定性的、跨 rank 同步的 collective order 是有用的；FUP 或 CUDA Graphs 都可以提供这种确定性。"
+      ],
+      "metrics": [
+        "compute-matched backward time (ms)",
+        "total batch time (ms)",
+        "p90 QPS（queries per second）",
+        "throughput gain vs baseline (%)",
+        "normalized entropy (NE)",
+        "NE gap (%)",
+        "执行 trace 中的 kernel 重叠/独占行为"
+      ]
+    },
+    "limitations_zh": [
+      "Early backward 的重叠只在硬件未被占满时有收益；饱和设备的 kernel（如 fused multi-head attention backward）不会获得并发加速。",
+      "使用 ThreadPoolExecutor 的非阻塞 early backward 可能引入跨 rank launch-order 不确定性，造成 straggler，作者称之为 staggering。",
+      "阻塞式 dispatch 是确定性的，但会在 autograd enqueue 时阻塞 CPU dispatch，从而降低收益。",
+      "CTR 实验使用的是轻量版大规模推荐模型，且只报告了 p90 QPS 和 NE 差距，缺少完整数据集细节、超参数、重复实验和方差信息。",
+      "NE gap 约 1.38%，说明 ERASE 在提升吞吐的同时会带来一定的质量偏差，部署时需要额外监控。",
+      "source document 未提供完整复现配置或代码级细节，定量结论主要依赖表格和 trace。"
+    ],
+    "method_zh": "将网络按 FF 风格切分为带 stop-gradient 的多个子图，整体目标为 L = L_main + Σ λ_i ℓ_i。ERASE 不等待完整前向完成后才执行聚合反向，而是在每个 detached 子图的前向返回后立即将反向传播发射到独立 CUDA stream 上，累积该子图参数梯度；未 detach 的剩余部分仍在 step 末尾执行反向。通过 streams/events 维护剩余依赖，并使用 ThreadPoolExecutor 避免主线程阻塞；为固定跨 rank 的 launch order 并降低 CPU 调度开销，可将部分受影响子图捕获为 CUDA Graphs。",
+    "problem_zh": "现代推荐系统与轻量级代理模型训练中，小型 GEMM 暴露的并行度有限，难以充分利用现代加速器；传统反向传播将前向和反向阶段作为不相交的先后阶段调度，导致一个阶段无法利用另一个阶段的空闲算力。对于大规模 CTR/排序模型等持续重训练场景，训练吞吐量直接决定模型新鲜度和硬件资源负担。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.6974999999999999,
+  "graph_relations": [],
+  "id": "arxiv-2608.18469",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-20T20:08:32.746841Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-19T02:51:08Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出ERASE训练调度方法，将前向-后向解耦子图的梯度计算提前并重叠到独立CUDA流上，在保持归一化熵接近基线的情况下将大规模点击率推荐模型训练吞吐提升最高9.51%。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "ERASE: EaRly bAckpropagation SchEdule for Faster Training of Modern Recommendation Systems",
+  "url": "https://arxiv.org/abs/2608.18469v1"
+}

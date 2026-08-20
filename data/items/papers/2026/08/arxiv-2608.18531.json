@@ -1,0 +1,150 @@
+{
+  "abstract": "Industrial explainable-recommendation systems built on LLMs incur a substantial serving cost: each request triggers an LLM generation, with latency in the hundreds of milliseconds and cost that scales linearly with traffic. We separate generation from selection: explanations are produced ahead of time as a frozen candidate pool (six prompt styles, two commodity LLMs), and a small CPU-resident selector picks one at request time. The stack needs no GPU and returns in under 100 ms. Our primary benchmark is a 2,958-pair XRec Google Local subset, evaluating six offline-pool selectors (LambdaRank, PPO, GRPO, DPO, teacher-student distillation) and three KG-path selectors (random walks, edge-disjoint enumeration, MMR-reranked paths). A 300-pair MovieLens-1M split with Claude-Sonnet-4.5 references serves as an internal cross-dataset check, since no public benchmark exists for this setting. All variants use the same BERTScore-F1 protocol as XRec and G-Refer, averaged across five seeds. LambdaRank reaches F1 = 0.500 on Google Local, exceeding both G-Refer and XRec, and F1 = 0.329 on the MovieLens-1M check. With seed variance below 0.003 F1, the ordering is reliable: pairwise learning-to-rank outperforms single-action RL (PPO, GRPO, DPO), which use only one labelled candidate per rollout, leaving K-1 labels unused. The KG-path family targets a different objective: all three variants reach USR = 1.000 on Google Local and 0.997-1.000 on MovieLens-1M, since per-request path grounding yields a unique output per query, avoiding template-collapse failures affecting cached-LLM outputs. A generator-pool study comparing Claude 3 Haiku and Claude Haiku 4.5 shows small F1 shifts (0.001-0.006) while preserving selector ranking: selector and generator can be evaluated independently, though absolute F1 depends on the generator. End-to-end build cost is near $15 on commodity hardware. Industrial explainable-recommendation systems built on LLMs incur a substantial serving cost: each request triggers an LLM generation, with latency in the hundreds of milliseconds and cost that scales linearly with traffic. We separate generation from selection: explanations are produced ahead of time as a frozen candidate pool (six prompt styles, two commodity LLMs), and a small CPU-resident selector picks one at request time. The stack needs no GPU and returns in under 100 ms. Our primary benchmark is a 2,958-pair XRec Google Local subset, evaluating six offline-pool selectors (LambdaRank, PPO, GRPO, DPO, teacher-student distillation) and three KG-path selectors (random walks, edge-disjoint enumeration, MMR-reranked paths). A 300-pair MovieLens-1M split with Claude-Sonnet-4.5 references serves as an internal cross-dataset check, since no public benchmark exists for this setting. All variants use the same BERTScore-F1 protocol as XRec and G-Refer, averaged across five seeds. LambdaRank reaches F1 = 0.500 on Google Local, exceeding both G-Refer and XRec, and F1 = 0.329 on the MovieLens-1M check. With seed variance below 0.003 F1, the ordering is reliable: pairwise learning-to-rank outperforms single-action RL (PPO, GRPO, DPO), which use only one labelled candidate per rollout, leaving K-1 labels unused. The KG-path family targets a different objective: all three variants reach USR = 1.000 on Google Local and 0.997-1.000 on MovieLens-1M, since per-request path grounding yields a unique output per query, avoiding template-collapse failures affecting cached-LLM outputs. A generator-pool study comparing Claude 3 Haiku and Claude Haiku 4.5 shows small F1 shifts (0.001-0.006) while preserving selector ranking: selector and generator can be evaluated independently, though absolute F1 depends on the generator. End-to-end build cost is near $15 on commodity hardware.",
+  "arxiv_id": "2608.18531",
+  "authors": [
+    "Tanay Chowdhury",
+    "Saeideh Shahrokh Esfahani"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "服务端可完全无 GPU：请求路径只是预计算 embedding/key-value 缓存查找加一次 LightGBM 前向（<1 ms），p99 延迟低于 100 ms，适合高 QPS 生产流量。",
+      "按公开定价估算，每查询成本约为 10^-6 美元量级，而 8B 级托管 LLM 在线生成为 10^-3 美元量级，成本差距约三个数量级。",
+      "端到端基准重建成本约 15 美元，LambdaRank 选择器约 1.7 MB，可在周/月粒度用新的 F1 标签低成本重训。",
+      "选择器的相对排序对候选池生成器稳健，因此可以选择器与生成器独立评估和升级；但如果只优化 BERTScore-F1，升级到更强但更贵的 Haiku 4.5 并不划算，除非 USR 多样性本身是业务指标。",
+      "冷启动或没有 review 覆盖的商品可回退到不依赖 review 的候选风格（B、E、F）；测试集中 98.6% 的 pair 有 review 覆盖，其余在评估时被剔除。",
+      "候选池是按 (uid, iid) 键控的批量作业，可由 item 元数据更新流驱动或按固定节奏刷新，适合嵌入现有离线流水线。",
+      "若业务更看重输出多样性和对图边的可追溯性，KG-path 家族是更合适的选择；若优化目标是参考解释对齐，则应选择 offline-pool 家族加 LambdaRank。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出两阶段框架：离线候选池生成 + 在线轻量 CPU 选择器，消除请求路径上的 LLM 生成，端到端 p99 延迟低于 100 ms，端到端重建成本约 15 美元。",
+      "系统比较九种选择器，分为 offline-pool 家族（结构启发式、LambdaRank、PPO、GRPO、DPO、两阶段蒸馏）和 KG-path 家族（温度偏置随机游走、边不相交枚举、MMR 重排+双风格生成），并使用相同评估协议在 2,958 对 Google Local 子集和 300 对 MovieLens-1M 一致性检查上比较。",
+      "主要实证发现：非 RL 的 pairwise learning-to-rank（LambdaRank）在 BERTScore-F1 上超过所有 RL 变体，Google Local F1=0.5003，高于 G-Refer 8B（0.4592）和 XRec（0.4311）；五种子标准差不超过 0.003 F1，排序统计可靠。",
+      "给出可解释机制：在 dense-label one-step bandit 场景中，PPO/GRPO/DPO 每次 rollout 只采样一个带标签动作并丢弃其余 K-1 个标签，而 LambdaRank 的 pairwise 目标消费全部 per-candidate 标签。",
+      "KG-path 家族全部变体在 USR 上达到 1.000（Google Local）和 0.997–1.000（MovieLens-1M），避免缓存 LLM 输出的模板坍塌，并可为输出提供图边可追溯性。",
+      "报告多个负结果：蒸馏后接 RL 微调（Stage A+B）相对纯蒸馏回归；生成器从 Claude 3 Haiku 升级为 Claude Haiku 4.5 会带来 0.001–0.006 的 F1 下降；端到端 RL 微调生成器会在数百步内出现 reward hacking。"
+    ],
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Problem"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Two-Stage Framework"
+      },
+      {
+        "page": 1,
+        "section": "3.5 LambdaRank (pairwise learning-to-rank)"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Datasets"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Evaluation Protocol"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Headline Comparison"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Dense supervision beats sparse reward"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Generator-Pool Robustness"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Cost and Latency Profile"
+      },
+      {
+        "page": 1,
+        "section": "6 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "8 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "XRec",
+        "G-Refer 8B",
+        "Pool-only structural heuristic（无学习下限）",
+        "PPO with adaptive entropy",
+        "GRPO",
+        "DPO",
+        "Distillation Stage A",
+        "Distillation Stage A+B",
+        "KG-path：temperature-biased random walks",
+        "KG-path：edge-disjoint enumeration",
+        "KG-path：MMR paths + dual-style generation"
+      ],
+      "datasets": [
+        "Google Local：XRec 官方发布 split，训练 94,663 对，测试 3,000 对；评估时排除 42 对无 review 覆盖的样本，得到 2,958 对主基准",
+        "MovieLens-1M：在标准 ratings 上使用 2,000 条 Claude-Sonnet-4.5 生成的参考解释，seed-42 后位置切分为 600 训练 / 300 测试，作为内部一致性检查而非第二基准"
+      ],
+      "findings_zh": [
+        "Google Local 上 LambdaRank F1=0.5003，超过 G-Refer 8B（0.4592，+0.041）和 XRec（0.4311，+0.069）；MovieLens-1M 上 LambdaRank F1=0.3291，比 pool-only 结构启发式（0.263）高 0.066。",
+        "五种子下 RL 方法标准差均不超过 0.0030 F1，因此排序 PPO < GRPO < DPO < Distillation-A+B < Distillation-A < LambdaRank 在统计上可靠；GRPO 与 DPO 的 0.0046 差距也超过各自标准差的十倍。",
+        "LambdaRank 优于所有 RL 变体的机制是 dense supervision：每组的全部 K 个候选都有 BERTScore-F1 标签并被 pairwise ΔNDCG 目标使用，而 PPO/GRPO/DPO 每次只采样一个动作并仅看到该样本的奖励。",
+        "KG-path 三个变体在 Google Local 的 F1 仅为 0.3252–0.3265，MovieLens 上 0.2621–0.2703，但 USR 达到 1.000/0.997–1.000；F1 上限更多由图拓扑（如 MovieLens 仅 18 个 genre 节点作为中介）决定，而非选择算法。",
+        "蒸馏 Stage A 达到 F1=0.4817，接近 LambdaRank；Stage A+B 增加 GRPO 微调后回归到 0.4767（>10σ 退化），原因是熵奖励把接近最优的蒸馏策略推回探索。",
+        "将候选池生成器从 Claude 3 Haiku 升级到 Claude Haiku 4.5 后，所有方法 F1 下降 0.001–0.006（DPO -0.006 约 6σ，Distillation-A -0.004 约 13σ），BARTScore 几乎不变（±0.007），USR 上升 0.018–0.083；选择器相对排序保持不变。",
+        "跨数据集一致性：Google Local 的主要排序在 MovieLens-1M 上复现，唯一局部变化是 DPO 在 MovieLens 上略超 Distillation-A-only，因为 K=18 时 DPO 的 pairwise 信号相对更有效。"
+      ],
+      "metrics": [
+        "BERTScore-F1（roberta-large encoder，baseline-rescaled，主指标）",
+        "BARTScore（facebook/bart-large-cnn 的 log p(reference | prediction)，越高越好）",
+        "USR（Unique-Sentence Ratio，衡量输出唯一性/模板坍塌）"
+      ]
+    },
+    "limitations_zh": [
+      "MovieLens-1M 没有公开的可解释推荐基准，300 对测试集上的结果只能作为论文内部一致性证据，不应视为第二个独立基准。",
+      "KG-path 家族的 F1 表现受知识图谱拓扑约束：例如 MovieLens 的 genre-hub 结构使路径多样性受限，选择器本身的作用有限。",
+      "每查询成本对比（约三个数量级优势）来自公开 Bedrock/EC2 定价推算，而非生产环境实测；论文明确未进行生产 A/B 或影子流量评估，也未测量模型漂移。",
+      "核心结论限定在 dense-label one-step bandit 设置；对 multi-step 或不可分解奖励的泛化性仍是开放问题。",
+      "蒸馏学生因 softmax 温度压缩丢失 LambdaRank teacher 的 argmax 锐度，存在约 0.019 F1 的残余差距；RL 微调在本设置下不能恢复该差距。",
+      "端到端直接 RL 微调生成器会出现 reward hacking（如重复'user enjoys'短语），因此论文建议将生成与选择解耦，但这本身限制了端到端训练路径。"
+    ],
+    "method_zh": "离线阶段：对每个训练 (u,i) 对，用六种 prompt 风格（retrieve-grounded paraphrase、retrieve-grounded synthesis、2-shot retrieve、review-grounded CoT、adversarial refinement、length-tuned 25–33 词合成）乘以两个商品 LLM（Amazon Nova Lite 和 Claude Haiku）生成 K 个候选解释（Google Local K=40，MovieLens K=18，因为缺少 review 而丢弃 C/D/E 风格）。每个候选被映射为 30 维特征，分为参考侧检索（6 维）、查询-候选相关性（4 维）、语言和来源侧（10 维）、来源 prompt/生成器 one-hot（10 维）。在线阶段：选择器对缓存的 K 个候选打分并取 argmax；LambdaRank 使用 LightGBM lambdarank 目标，MLP 策略用于 PPO/GRPO/DPO/蒸馏。RL 变体的状态为 user/item embedding 与 zero-padded 候选 slot 的拼接；PPO 使用自适应熵调度，GRPO 使用组内 z-score advantage，DPO 使用 F1 gap 加权的 preference pairs，蒸馏将 LambdaRank teacher 的 softmax 分布迁移到 MLP student。KG-path 家族改为从异构知识图谱抽取路径并条件化 LLM 生成，使用相同选择架构。所有方法统一用 BERTScore-F1、BARTScore、USR 评估，并报告五个种子的均值。",
+    "problem_zh": "工业可解释推荐系统如果在每个请求路径内联调用大语言模型生成解释，会产生数百毫秒的延迟，且单查询成本随流量线性增长。本文将生成与选择解耦：离线为每个 (user, item) 预生成一个冻结的候选解释池，在线使用小型 CPU 选择器从中挑选一条解释，从而在无 GPU 的 serving 栈上实现 p99 低于 100 ms 的返回。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.7855000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.18531",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-20T20:08:32.746841Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-19T04:29:04Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文面向基于LLM的可解释推荐系统，将解释生成与选择解耦为离线候选池加轻量CPU选择器，并证明LambdaRank等成对排序方法优于PPO、GRPO、DPO等单动作强化学习方法。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Pairwise Ranking Outperforms Single-Action RL for Offline Explanation Selection: A Practical Lesson",
+  "url": "https://arxiv.org/abs/2608.18531v1"
+}

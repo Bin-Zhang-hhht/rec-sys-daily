@@ -1,0 +1,159 @@
+{
+  "abstract": "Existing agentic approaches for recommendation system optimization remain fundamentally reactive: they adjust parameters in response to observed metric changes but lack the ability to proactively design controlled experiments, personalize strategies at the user-segment level, or accumulate reusable experimental methodology across tasks. We present PILOT (Proactive Insight Learner for Online Tree-Experiments), an LLM-agent framework that organizes three roles within a constrained control loop where deterministic services enforce all safety, statistical, and permission boundaries: (1) an Experiment Manager that drives the full experiment lifecycle -- task intake, observation governance, anomaly recovery, and postmortem -- by selecting only from a rule-generated legal-command envelope; (2) a Search Planner that proposes candidate decision trees for user-segment-level personalization, invoked only when the Manager requests planning; and (3) a Memory Curator that asynchronously distills experiment outcomes into strategy-level domain knowledge and provenance-tracked methodology, failure-isolated from the main loop. The Manager makes the agent proactive, the Planner enables population-level personalization beyond global tuning, and the Curator turns every completed task into a learning opportunity for the next. Deployed on Taobao's platform with 5 experimental buckets, PILOT is compared against ROAM(Reactive Optimization with Agent-driven Moves), a free-exploration agent without lifecycle governance or structured hypothesis testing. PILOT achieves up to +1.40% IPV, +1.60% Core IPV, +0.96% transaction count, and +1.50% transaction amount, improving over ROAM's best results (+1.00% IPV, +0.90% Core IPV, +0.60% transaction count, +1.13% transaction amount) while raising search efficiency from 53.3% to 93.3% (+40 pp), with no human intervention throughout the experimental cycle. Existing agentic approaches for recommendation system optimization remain fundamentally reactive: they adjust parameters in response to observed metric changes but lack the ability to proactively design controlled experiments, personalize strategies at the user-segment level, or accumulate reusable experimental methodology across tasks. We present PILOT (Proactive Insight Learner for Online Tree-Experiments), an LLM-agent framework that organizes three roles within a constrained control loop where deterministic services enforce all safety, statistical, and permission boundaries: (1) an Experiment Manager that drives the full experiment lifecycle -- task intake, observation governance, anomaly recovery, and postmortem -- by selecting only from a rule-generated legal-command envelope; (2) a Search Planner that proposes candidate decision trees for user-segment-level personalization, invoked only when the Manager requests planning; and (3) a Memory Curator that asynchronously distills experiment outcomes into strategy-level domain knowledge and provenance-tracked methodology, failure-isolated from the main loop. The Manager makes the agent proactive, the Planner enables population-level personalization beyond global tuning, and the Curator turns every completed task into a learning opportunity for the next. Deployed on Taobao's platform with 5 experimental buckets, PILOT is compared against ROAM(Reactive Optimization with Agent-driven Moves), a free-exploration agent without lifecycle governance or structured hypothesis testing. PILOT achieves up to +1.40% IPV, +1.60% Core IPV, +0.96% transaction count, and +1.50% transaction amount, improving over ROAM's best results (+1.00% IPV, +0.90% Core IPV, +0.60% transaction count, +1.13% transaction amount) while raising search efficiency from 53.3% to 93.3% (+40 pp), with no human intervention throughout the experimental cycle.",
+  "arxiv_id": "2608.18637",
+  "authors": [
+    "Jiuning Lin",
+    "Ruiquan Lan",
+    "Xiaodong Zhu",
+    "Bin Zhang",
+    "Chengyu Lai",
+    "Chuxin Chen",
+    "Dimin Wang",
+    "Hongtao Cheng",
+    "Jialin Zhu",
+    "Lingqing Zhang",
+    "Shuai Zhong",
+    "Tao Wang",
+    "Weipeng Huang",
+    "Yinjiang Cai",
+    "Yinnan Song",
+    "Yuan Liu",
+    "Zhibo Xiao",
+    "Zhixin Ma",
+    "Zihong Huang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可自动化在线实验的全生命周期，减少人工实验者在并发实验和用户分段增长下的设计与迭代负担；报告称PILOT在已报告实验周期内无需人工干预。",
+      "能够直接改善电商推荐核心商业指标：IPV、Core IPV、成交笔数和成交金额，最佳桶分别达到+1.40%、+1.60%、+0.96%和+1.50%。",
+      "用户分段级策略个性化可捕捉同一桶内不同用户群体的差异，相比全局统一调参可能带来更大增量，并降低将窄群体局部收益误当全局收益的风险。",
+      "实验方法论的可复用记忆可在未来任务中减少重复探索、改进计划与执行可靠性，形成数据飞轮，从而降低长期实验成本并提升搜索效率。",
+      "部署PILOT需要成熟的A/B平台、确定性统计引擎、在线决策树/策略执行运行时、权限与安全治理等基础设施，适用于已有较强实验平台能力的推荐系统团队。",
+      "由于现有对比为非随机观测性证据且缺少已完成的消融，业务上大规模采用前应先用更严格的随机化评估或完成既定2×2消融验证其因果收益。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出PILOT（Proactive Insight Learner for Online Tree-Experiments），一个LLM智能体框架，将推荐实验优化从反应式参数调整转变为主动的、假设驱动的实验管理；三个LLM角色在受约束的控制闭环中协作，由确定性服务强制执行所有安全、统计和权限边界。",
+      "Experiment Manager主动驱动完整实验生命周期：任务摄入、操作剧本组装、观测治理、异常恢复、规模验证和事后复盘；它只能从确定性Manager Guard依据状态机和冻结策略生成的合法命令包中选择动作，高风险决策需用户显式确认，且存在固定权威层级保证安全策略和用户批准规格优先于智能体推理。",
+      "Search Planner提出候选PolicyTree，在用户分段层面绑定不同策略包，实现超出全局调参的人口级个性化；候选来自三条通道——确定性基线、带证据引用的LLM假设、有界探索槽——且每个候选必须通过确定性验证器；Planner仅在Experiment Manager显式请求规划时被调用，不能管理生命周期、调整观测窗口或晋升Champion。",
+      "Memory Curator在证据结算后异步将实验结果提炼为两个存储：策略证据库记录bundle对比效果及其因果/诊断证据角色，方法论经验库记录如何运行实验并带有来源溯源和draft→supported→approved的置信度生命周期；每个任务从共享知识库fork隔离分支，任务结束只合并经过验证的条目，使下一个任务从更丰富的知识基础开始。",
+      "在淘宝首页猜你喜欢平台5个实验桶上部署并与ROAM对比，PILOT最佳桶达到+1.40% IPV、+1.60% Core IPV、+0.96%成交笔数、+1.50%成交金额，高于ROAM的+1.00% IPV、+0.90% Core IPV、+0.60%成交笔数、+1.13%成交金额；搜索效率从53.3%提升至93.3%（+40pp），报告称整个实验周期无需人工干预。",
+      "报告期内4/5个桶独立超过+1.0% IPV完整任务目标，没有任何桶转为净负；案例研究展示一个完整任务在5个桶上的策略演化，并沉淀了策略证据与方法论经验记忆条目。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 4,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 5,
+        "section": "2 The PILOT Framework"
+      },
+      {
+        "page": 7,
+        "section": "3 Experiment Manager"
+      },
+      {
+        "page": 11,
+        "section": "4 Search Planner"
+      },
+      {
+        "page": 19,
+        "section": "4.3 Candidate Verification"
+      },
+      {
+        "page": 20,
+        "section": "5 Memory Curator"
+      },
+      {
+        "page": 21,
+        "section": "5.2 Reconciliation and Confidence Lifecycle"
+      },
+      {
+        "page": 27,
+        "section": "6.1 Experimental Setup"
+      },
+      {
+        "page": 29,
+        "section": "6.2 Search Efficiency and Task Outcome"
+      },
+      {
+        "page": 30,
+        "section": "6.3 Ablation Study"
+      },
+      {
+        "page": 31,
+        "section": "6.4 Case Study: One Complete Task, Five Buckets"
+      },
+      {
+        "page": 32,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "ROAM（Reactive Optimization with Agent-driven Moves）：自由探索的LLM-agent配置，无生命周期治理、无显式配额/检查点、无结构化假设检验",
+        "固定基线B0：平台默认树，跨轮次保持不变，锚定总效应比较"
+      ],
+      "datasets": [
+        "淘宝首页猜你喜欢（Taobao Homepage Guess-You-Like）个性化推荐流",
+        "5个实验桶（编号21-25），对照固定基线桶B0"
+      ],
+      "findings_zh": [
+        "PILOT最佳桶达到+1.40% IPV、+1.60% Core IPV、+0.96%成交笔数、+1.50%成交金额；ROAM最佳桶为+1.00% IPV、+0.90% Core IPV、+0.60%成交笔数、+1.13%成交金额。",
+        "搜索效率从ROAM的53.3%提升至PILOT的93.3%（+40pp）；PILOT中4/5桶超过完整任务目标、5/5桶达到稳定读值（≤1次重配）、5/5桶贡献净搜索进展，ROAM分别为1/5、4/5、3/5。",
+        "在报告的前5天窗口内，PILOT的4个桶在第4天独立超过+1.0% IPV接受目标，没有任何桶净负；桶22、23未改动即稳定正收益，桶21、24各做一次叶策略调整，桶25在第4天做结构性切换（激活paging分支）后为正但低于目标。",
+        "论文规划了2×2消融（Cell A确定性参考、B加Planner候选通道、C加Manager生命周期控制、D部署配置）来分离两个LLM角色的贡献，但该设计尚未运行；现有ROAM vs PILOT对比仅为观测性证据，且checkpoint治理与搜索空间变化同时落地，无法分离两者效果。",
+        "报告称ROAM出现一个桶因无结论结果而不变、另一个桶重配四次但未积累干净证据；PILOT通过显式检查点、最低调整配额和预注册决策准则的假设驱动候选解决了这些问题。",
+        "报告期内任务沉淀了多个记忆条目（如paging分支效率约为page0的4倍、ctr+ipv增益第三次交叉任务确认等），但未对这些记忆条目的下游收益做因果评估。"
+      ],
+      "metrics": [
+        "IPV（Item Page Views）：北星优化目标",
+        "Core IPV：限定核心商品范围的IPV",
+        "Transaction count：归因成交笔数",
+        "Transaction amount：归因成交金额",
+        "PV：有效推荐曝光次数，作为护栏指标",
+        "Ad PVR：广告曝光占比，限定±0.5pt，作为监测指标"
+      ]
+    },
+    "limitations_zh": [
+      "ROAM与PILOT的对比是before/after而非随机化设计；论文明确称该比较是suggestive而非causal。",
+      "规划的2×2消融尚未运行，因此无法分离Experiment Manager生命周期控制与Search Planner假设驱动候选各自的独立贡献。",
+      "结果来自单一平台（淘宝）单一场景（首页猜你喜欢）的5个实验桶，且报告窗口为前5天，跨平台、跨场景、跨更长周期的泛化性未知。",
+      "搜索效率是自定义的三指标复合分数（超出目标、稳定读值、净搜索进展），缺少统计显著性检验和不确定性量化。",
+      "论文中的记忆条目为illustrative示例，未提供跨任务记忆积累带来可度量提升的严格实验证据。",
+      "报告称PILOT实验周期无需人工干预，但同时规定高风险决策需要显式用户输入、未解决异常会升级到人类、不可逆操作需要人类批准，因此“无需人工干预”不应被理解为框架在所有异常和审批场景下完全自主。"
+    ],
+    "method_zh": "PILOT将LLM放在最需要判断的三个位置：生命周期管理、候选生成、证据蒸馏，其余全部为确定性组件。事件（用户请求、平台信号、定时器或执行回调）触发Manager Guard生成当前合法动作集合；Experiment Manager从该集合中选择动作，并可选委托Search Planner；Guard校验选择是否匹配当前状态、参数边界与证书；State Committer是唯一状态写入者，原子地应用通过校验的命令。六个确定性服务包括Manager Guard、State Committer、产生不可变决策证书的Statistics Engine、预注册结果判定规则的Contract Builder、校验Planner候选的Candidate Validator、以及枚举合法原子动作的Action Enumerator。Search Planner将策略形式化为PolicyTree：内部节点按预处理注册特征分流（split、numericSplit、hashSplit），叶子绑定策略包；搜索在SearchUniverse约束（最大深度、最大叶数、最小全局叶占比、最大特征数）下展开。候选生成先经过特征质量诊断、分段边界生成、历史去优先化，再可选执行hashSplit探索流量，最后以三通道方式提出带可证伪假设的候选，每个候选经过整桶A/B验证并冻结预注册决策标准。Memory Curator在任务终端结算后异步运行：Strategy Evidence以(from_bundle_id, to_bundle_id, population_scope)为键记录bundle对比因果关系，Methodology Experience以(operation_type, scenario_predicate)为键记录wait/retry/guarantee volume/observe/scale up/rollback等操作经验；两者均通过fork-merge隔离，经一致性调和按draft→supported→approved推进置信度，且记忆始终为建议性，不能替代实时统计证书。最终Champion需在D_confirm独立留存样本上通过一次预注册检验后才能交付生产。",
+    "problem_zh": "现有智能体化的推荐系统优化方法本质上是反应式的：只能在观测到指标变化后调整参数，无法主动设计受控实验，无法在用户分段层面个性化策略，也无法跨任务积累可复用的实验方法论。工业推荐平台以人工实验者驱动在线实验的控制闭环，随着并发实验和用户分段数量增长，人工设计与迭代不再可扩展。论文明确指出现有协调者式智能体的三个局限：L1 反应式响应、L2 仅全局策略、L3 缺少方法论积累。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.74,
+  "graph_relations": [],
+  "id": "arxiv-2608.18637",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-20T20:08:32.746841Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-19T07:35:10Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出PILOT，一个由实验管理器、搜索规划器和记忆策展器组成的LLM智能体框架，在淘宝推荐系统上通过受控在线树实验与用户分群策略搜索，提升IPV、成交笔数和成交金额等指标。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "PILOT Technical Report",
+  "url": "https://arxiv.org/abs/2608.18637v1"
+}

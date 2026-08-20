@@ -1,0 +1,150 @@
+{
+  "abstract": "Personalized promotional assets, namely artwork images and video preview clips, are critical to content discovery on Netflix. Traditional models for asset selection rely on ID-based interaction history, leaving them blind to asset content and unable to serve newly launched titles and assets. We describe how multimodal embeddings reshaped production systems at Netflix and report transferable lessons for practitioners adopting foundation-model embeddings into recommender systems. First, pretrained image embeddings unlock cross-title, cross-canvas knowledge transfer. Augmenting a two-tower model with CLIP image embeddings lets a single model serve all five Netflix artwork canvas types, replacing five separately trained per-canvas models and substantially improving cold-start performance. A lightweight extension reuses CLIP's joint text-image space to make artwork personalization query-aware in search. Second, multimodality decisively beats any single modality for video preview personalization. We describe MediaFM, our in-house tri-modal foundation model trained on a large-scale corpus of shots from the Netflix show catalog, fusing visual (SeqCLIP), audio (wav2vec 2.0), and timed-text signals; adopted for video preview personalization, it outperforms strong visual-only baselines both offline and in online A/B tests. Third, a simple offline proxy task whose performance correlates with online outcomes can accelerate the experimentation and productization cycle. Predicting the popularity-based winner from embeddings alone ranks embedding models and versions, pruning the choice space before any end-to-end integration or A/B test; it now gates every new MediaFM checkpoint. We also share the production engineering decisions (shared embedding infrastructure, low-latency serving, cheap screening) that made these deployments viable, along with the design tradeoffs and failure modes we encountered. Personalized promotional assets, namely artwork images and video preview clips, are critical to content discovery on Netflix. Traditional models for asset selection rely on ID-based interaction history, leaving them blind to asset content and unable to serve newly launched titles and assets. We describe how multimodal embeddings reshaped production systems at Netflix and report transferable lessons for practitioners adopting foundation-model embeddings into recommender systems. First, pretrained image embeddings unlock cross-title, cross-canvas knowledge transfer. Augmenting a two-tower model with CLIP image embeddings lets a single model serve all five Netflix artwork canvas types, replacing five separately trained per-canvas models and substantially improving cold-start performance. A lightweight extension reuses CLIP's joint text-image space to make artwork personalization query-aware in search. Second, multimodality decisively beats any single modality for video preview personalization. We describe MediaFM, our in-house tri-modal foundation model trained on a large-scale corpus of shots from the Netflix show catalog, fusing visual (SeqCLIP), audio (wav2vec 2.0), and timed-text signals; adopted for video preview personalization, it outperforms strong visual-only baselines both offline and in online A/B tests. Third, a simple offline proxy task whose performance correlates with online outcomes can accelerate the experimentation and productization cycle. Predicting the popularity-based winner from embeddings alone ranks embedding models and versions, pruning the choice space before any end-to-end integration or A/B test; it now gates every new MediaFM checkpoint. We also share the production engineering decisions (shared embedding infrastructure, low-latency serving, cheap screening) that made these deployments viable, along with the design tradeoffs and failure modes we encountered.",
+  "arxiv_id": "2608.18322",
+  "authors": [
+    "Emma Yanyang Kong",
+    "Aditya Deshpande",
+    "Bowei Yan",
+    "Asad Abbasi",
+    "Santiago Castro",
+    "Avneesh Saluja",
+    "David Fagnan",
+    "Ashish Rastogi"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "基于内容的多模态 embedding 可让新上线剧集和新素材在没有任何交互历史时即可被个性化，减少冷启动期对 popularity heuristic 的依赖。",
+      "将五个 per-canvas 模型合并为一个统一模型可减少模型维护和训练开销，并显著提升 UI 大改版（如 Eclipse）时低数据 canvas 的个性化表现。",
+      "在 Netflix 规模下，很小的相对提升可转化为巨大绝对收益：+0.184% streaming hours 按约 191B 小时/年估算约 3.5 亿额外小时/年。",
+      "复用已有 CLIP embedding 的 query-aware 搜索扩展几乎零边际成本即可提升 search 画布的 playthrough rate，适合作为低成本增量优化方向。",
+      "廉价线性 probe 代理任务可在投入数据工程、重训和数周 A/B 前筛除不合适的 embedding 版本，缩短模型迭代周期并节省流量和成本。",
+      "共享 Embedding Store / embedding-as-a-service 的解耦设计使新 foundation model 只需注册配置即可被下游使用，并可快速回滚，降低跨团队协调成本。",
+      "多模态收益集中而非均匀，业务上应在视觉信息模糊、依赖对白/音乐/情绪的内容（如 TV autoplay 场景）优先采用多模态模型。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "将预训练 CLIP 图像 embedding 接入两塔检索模型的 item tower，使 artwork 个性化具备内容感知，并将五个 per-canvas 模型合并为单一统一模型，实现跨 title、跨 canvas 的冷启动知识迁移；V3 在线核心 discovery 指标 +0.127% (p<0.005)，在 Eclipse UI 上线期间 +0.233% discovery、+0.184% 流媒体时长。",
+      "利用 CLIP 共享图文空间，轻量扩展出 query-aware artwork 排序（搜索场景加入 query-image 余弦对齐项），无需新模型、新训练数据或新 embedding，搜索画布 playthrough rate +0.36% (p<0.05)。",
+      "采用自研三模态基础模型 MediaFM（视觉 SeqCLIP + 音频 wav2vec2.0 + timed-text，shot 级融合 + BERT-style Transformer 上下文建模）做视频 preview 个性化，离线 IPS 与在线 A/B 均优于 ID-only 和 SeqCLIP，并产品化为默认 video preview 个性化 embedding。",
+      "提出廉价离线代理任务：用线性 probe 从素材 embedding 预测 unpersonalized popularity-based winner，在端到端训练和 A/B 前排筛 embedding 候选；其排序与离线 IPS、在线指标一致，现已 gate 每个新 MediaFM checkpoint。",
+      "总结了生产工程经验：共享 Embedding Store、precompute-first 低延迟 serving、按长期奖励加权的 canvas 数据混合，以及预计算只覆盖每 profile 约 top 500 titles 的成本控制。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "3 System Overview"
+      },
+      {
+        "page": 1,
+        "section": "4 Offline Evaluation with IPS"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Cold-Start, Knowledge Transfer, and Model Consolidation with CLIP"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Ablation: CLIP Image Embedding and Model Unification"
+      },
+      {
+        "page": 1,
+        "section": "6 Video Preview Personalization"
+      },
+      {
+        "page": 1,
+        "section": "6.1 MediaFM: A Tri-Modal Foundation Model"
+      },
+      {
+        "page": 1,
+        "section": "7 Selecting Embeddings via a Proxy Task"
+      },
+      {
+        "page": 1,
+        "section": "8.1 Lessons Learned"
+      },
+      {
+        "page": 1,
+        "section": "A MediaFM: Architecture, Pretraining, and Intrinsic Evaluation"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "ID-only production baseline（ID-only two-tower / per-canvas 模型）",
+        "V1：仅 CLIP image embedding（保持 per-canvas 模型）",
+        "V2：仅 unified model（纯 ID embedding，无图像特征）",
+        "V3：unified model + CLIP image embedding",
+        "SeqCLIP visual-only 视频 embedding",
+        "MediaFM concat-inputs（三模态拼接但无上下文 Transformer）",
+        "外部多模态 embedding（Google Vertex AI multimodal embedding、TwelveLabs Marengo 2.7）",
+        "pick-at-random（代理任务随机基线）"
+      ],
+      "datasets": [
+        "Netflix 内部 explore data（随机探索策略，精确记录 propensity，用于 artwork 与 video preview 的 IPS 离线评估）",
+        "Netflix 剧集目录的大规模 shot 语料（MediaFM 预训练，tens of millions of shots）",
+        "Netflix 内部人工标注集（clip tone 100 类、clip retrieval 正负样本、clip popularity 标注，用于 MediaFM 内在评估）",
+        "由探索数据构造的 (title, asset) IS-WINNER 标签（代理任务）"
+      ],
+      "findings_zh": [
+        "离线消融显示：仅图像 embedding（V1）在数据稀疏的 short/landscape panel 有效但总体不显著；仅模型统一（V2）跨 canvas 迁移的最大收益也在低数据 canvas；V3 最强，short panel IPS +5.691%，且超过 V1+V2 之和，说明两种机制互补叠加。",
+        "在线 A/B：V1 (-0.0265%, n.s.) 与 V2 (+0.0236%, n.s.) 均不显著，只有 V3 (+0.127%, p<0.005) 显著提升核心 discovery 指标；Eclipse UI 上线期间 V3 相对旧模型 +0.233% discovery、+0.184% streaming hours，按 2025 年约 191B 小时估算约 3.5 亿额外小时/年。",
+        "Search 场景 query-aware 变体在在线 A/B 中 playthrough rate +0.36% (p<0.05)。",
+        "视频 preview：MediaFM > SeqCLIP > ID-only 在离线 IPS（0.380% vs 0.332%）和在线 streaming lift（0.193% vs 0.187%，均 p<0.02）上排序一致；TV 表面收益最明显。",
+        "MediaFM 内在评估中，上下文建模（contextualization）是最大收益来源；concat-inputs 在 clip popularity ranking 上（tau=0.121）低于 visual-only SeqCLIP（0.166），MediaFM 最高（0.207）；clip tone 和 clip retrieval 上 MediaFM 也最好。",
+        "代理任务与端到端信号一致：MediaFM probe top-1 比随机高 25.90 个百分点，SeqCLIP 高 18.75 个百分点；该 gate 已用于每个新 MediaFM checkpoint。",
+        "precompute-first 三层预计算使多模态 item tower 满足原有延迟预算；仅物化每 profile 约 top 500 titles 可最多节省 50% 预计算成本。"
+      ],
+      "metrics": [
+        "Offline IPS lift（相对 production baseline）",
+        "Online 核心 discovery metric lift",
+        "Streaming hours lift",
+        "Playthrough rate lift（search canvas）",
+        "Probe top-1 accuracy vs pick-at-random",
+        "Clip Tone micro-averaged average precision",
+        "Clip Popularity Ranking Kendall's tau",
+        "Clip Retrieval average precision"
+      ]
+    },
+    "limitations_zh": [
+      "MediaFM 在 shot 级融合冻结的 per-modality encoder，跨模态融合不是联合学习的，会继承各冻结 encoder 丢失的信息。",
+      "由于外部多模态 API 有最大输入长度限制，无法对整部剧做 title 级对比，外部 baseline 只能在 clip 级任务上比较。",
+      "多模态相对视觉-only 的在线聚合增益很小（0.193% vs 0.187%），因为许多 preview 仅视觉即可预测；收益集中在更难的音频/对白驱动内容与 TV 表面。",
+      "艺术品在线 A/B 无法按 canvas 分解（成员会同时看到多个 canvas），只能报告总体核心 discovery 指标。",
+      "代理任务预测的是非个性化 popularity winner，不直接度量个性化质量，只能用于排除明显较差的 embedding，不能用于挑选最终 winner。",
+      "预计算只覆盖每 profile 最相关的约 500 个 title，之外的素材回退到非个性化 popularity winner，这是成本-覆盖率的权衡。",
+      "论文明确其贡献不是新学习算法，而是生产集成；复现依赖 Netflix 已有的两塔检索、Embedding Store、探索流量与长期奖励体系等基础设施。"
+    ],
+    "method_zh": "整体采用标准两塔检索：user tower 与 item tower 内积作为相关性；改动只在 item tower，将素材 ID embedding 与预训练 embedding 拼接后经 MLP 投影（h_a=MLP([e_id; e_a])），检索、训练和 serving 栈不变。Artwork 部分使用 CLIP 768 维图像 embedding；五个 canvas 合并训练时按交互类型对应的长期奖励分数加权（w=rho(e)），避免高曝光 canvas 主导训练。搜索场景用 s=alpha*h_x^T h_a + (1-alpha)*cos(e_q^txt, e_a^img) 混合个性化与 query-image 对齐。视频 preview 部分，MediaFM 将视频切成 shot，每个 shot 由 SeqCLIP、wav2vec2.0、text-embedding-3-large 三路 embedding 拼接成 2304 维向量，加入 [CLS]/[GLOBAL] token，经 3 层 8 头 BERT-style Transformer 做 Masked Shot Modeling（20% mask，余弦距离损失）预训练；preview 由其内部 shot 的 contextualized embedding 均值池化得到，再进入 item tower。离线评估使用随机探索策略日志上的 IPS 加权（propensity 精确记录而非估计）；代理任务用 IPS 去偏后的 popularity 分数构造 IS-WINNER 标签，训练线性分类器以 top-1 准确率筛选 embedding。服务侧采用三层预计算：内容 embedding、item-tower 投影、每 profile 约 top 500 title 的 selection 均预先物化，请求路径仅剩 key-value 查询。",
+    "problem_zh": "Netflix 的推广素材（artwork 图片与视频 preview）个性化依赖素材 ID 与成员交互历史，模型对素材内容不透明，导致新上线剧集和新素材存在严重冷启动问题；不同画布单独建模导致低曝光画布缺乏训练数据；视觉-only 视频编码缺失音频、对白和时间顺序信息；此外，逐个 embedding 候选做端到端训练和 A/B 测试成本高昂。论文围绕这些问题提出生产级多模态 embedding 集成方案。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8949999999999999,
+  "graph_relations": [],
+  "id": "arxiv-2608.18322",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-20T20:08:32.746841Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower"
+  ],
+  "published_at": "2026-08-18T21:15:56Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文介绍Netflix如何利用CLIP图像嵌入与MediaFM三模态基础模型生成多模态嵌入，对封面图和视频预览等宣传物料进行个性化推荐，以改善内容发现与冷启动表现。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Multimedia Asset Personalization via Multimodal Embeddings at Netflix",
+  "url": "https://arxiv.org/abs/2608.18322v1"
+}

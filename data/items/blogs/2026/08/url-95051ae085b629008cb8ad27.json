@@ -1,0 +1,60 @@
+{
+  "authors": [
+    "Elizabeth Goodman"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "来源未提供具体架构细节；仅说明目标从嵌入相似度匹配转向生成式预测，即根据用户历史序列预测大型目录中的下一动作/物品。",
+    "business_implications_zh": [
+      "推荐系统是消费互联网行业最常见且普遍的机器学习问题之一，相关方法演进具有广泛业务影响",
+      "面向大型目录的生成式推荐可能影响推荐效果和规模化成本，但具体业务影响在来源中缺乏数据支撑"
+    ],
+    "business_transferability": 0.4,
+    "evidence_quality": 0.2,
+    "evidence_refs": [
+      {
+        "heading": null,
+        "section": "RSS full content"
+      }
+    ],
+    "implementation_zh": null,
+    "lessons_zh": [
+      "LLM的出现正在推动推荐系统从基于相似度的目标转向生成式序列预测目标，可能重新定义大规模推荐的建模方式"
+    ],
+    "limitations_zh": [
+      "来源仅为RSS摘要，缺乏实验数据、模型细节和效果指标",
+      "无法从该来源验证生成式推荐相比传统嵌入相似度方法的具体优势"
+    ],
+    "production_constraints_zh": [
+      "推荐系统在大规模场景下训练和服务的难度很高",
+      "目录规模大，需要在大量候选物品中做生成式预测"
+    ],
+    "results_zh": [],
+    "system_context_zh": "文章背景是消费互联网行业的推荐系统（RecSys）：传统方法基于嵌入相似度优化目标，而LLM的出现推动了向生成式目标的转变，即在大型目录中根据用户历史行为序列预测下一个动作或物品；同时强调此类系统在大规模训练和服务上难度很高。",
+    "technical_depth": 0.1,
+    "tradeoffs_zh": [
+      "来源描述了从传统嵌入相似度目标向生成式目标的范式转变，但未明示具体代价、收益或性能权衡"
+    ]
+  },
+  "final_score": 0.5225,
+  "graph_relations": [],
+  "id": "url-95051ae085b629008cb8ad27",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-20T20:08:32.746841Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-20T16:00:00Z",
+  "relevance_score": 0.75,
+  "scenarios": [],
+  "source": "nvidia_developer",
+  "summary_zh": "本文概述生成式推荐系统如何在大规模互联网推荐场景中重新定义推荐系统的训练与工程范式。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "How Generative Recommenders Are Redefining RecSys at Scale",
+  "url": "https://developer.nvidia.com/blog/how-generative-recommenders-are-redefining-recsys-at-scale"
+}
