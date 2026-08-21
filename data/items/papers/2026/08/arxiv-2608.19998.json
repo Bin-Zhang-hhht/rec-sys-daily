@@ -1,0 +1,156 @@
+{
+  "abstract": "Recommendation systems increasingly adopt a two-stage pipeline, where an ID-based retriever retrieves candidates and an LLM-based reranker refines their rankings. To improve retrieval quality, reranker-to-retriever distillation is commonly used to transfer the reranker's knowledge to the retriever. For practical deployment, however, this pipeline must continually adapt to evolving interests and incoming interactions. A naive solution is to repeatedly update the LLM reranker and distill its latest knowledge, but this incurs prohibitive costs. Updating the retriever alone is cheaper, but its limited capacity makes adaptation from sparse data difficult. We propose SCoRD, a continual knowledge distillation framework for LLM-based reranking pipelines under a non-stationary data stream. SCoRD introduces a semantic reasoning assistant that distills the LLM's ability to infer underlying user intents into reusable intent-level guidance. It selectively distills reranker knowledge to the retriever on low-confidence sequences, guides retriever-only updates without repeated LLM inference, and feeds retriever-derived representations and intent-drift signals back to the reranker. Experiments on real-world datasets show that SCoRD enables effective and efficient retriever-reranker co-adaptation. Recommendation systems increasingly adopt a two-stage pipeline, where an ID-based retriever retrieves candidates and an LLM-based reranker refines their rankings. To improve retrieval quality, reranker-to-retriever distillation is commonly used to transfer the reranker's knowledge to the retriever. For practical deployment, however, this pipeline must continually adapt to evolving interests and incoming interactions. A naive solution is to repeatedly update the LLM reranker and distill its latest knowledge, but this incurs prohibitive costs. Updating the retriever alone is cheaper, but its limited capacity makes adaptation from sparse data difficult. We propose SCoRD, a continual knowledge distillation framework for LLM-based reranking pipelines under a non-stationary data stream. SCoRD introduces a semantic reasoning assistant that distills the LLM's ability to infer underlying user intents into reusable intent-level guidance. It selectively distills reranker knowledge to the retriever on low-confidence sequences, guides retriever-only updates without repeated LLM inference, and feeds retriever-derived representations and intent-drift signals back to the reranker. Experiments on real-world datasets show that SCoRD enables effective and efficient retriever-reranker co-adaptation.",
+  "arxiv_id": "2608.19998",
+  "authors": [
+    "Seunghyun Baek",
+    "Gyuseok Lee",
+    "Seunghan Lee",
+    "Wonbin Kweon",
+    "Dong Wang",
+    "SeongKu Kang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SCoRD使基于LLM重排的推荐管线能够以较低成本持续适应动态数据流，降低频繁更新LLM重排器带来的算力开销，有利于LLM推荐在实际工业系统中的长期部署。",
+      "相比CoT-Rec等语义生成方案，SCoRD将意图生成时间降低约10倍，同时保持较高推荐质量，可显著减少持续训练阶段的数据处理成本。",
+      "高频更新的轻量级检索器在SCoRD语义助手支持下，能更快反映新用户、新物品和兴趣漂移，有助于提升推荐新鲜度和用户满意度。",
+      "SCoRD对新用户和偏好漂移用户的效果更突出，这对电商、内容平台和本地生活等需要应对冷启动与兴趣变化的业务具有直接价值。",
+      "检索器-重排器协同蒸馏框架保持两阶段可扩展架构：检索器先缩小候选集、LLM重排器精细排序，SCoRD在不破坏该架构的前提下提升两端表现，便于工程集成。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "首次明确提出并形式化ID-based检索器与LLM重排器在演化数据流上的持续协同适应问题，并采用异步更新周期（检索器高频、重排器低频）。",
+      "提出SCoRD框架，通过语义推理助手（Semantic Reasoning Assistant）将LLM的用户意图推断能力蒸馏为可复用的意图级语义指导，实现选择性的重排器到检索器蒸馏、无LLM调用的检索器持续更新、以及检索器知识回流重排器更新。",
+      "在三个真实数据集（Amazon Books、Yelp、Amazon Movies & TV）上的实验表明，SCoRD在检索与重排性能上一致优于现有基线，并在意图生成耗时上较CoT-Rec降低约10倍，兼顾效果与效率。"
+    ],
+    "evidence_quality": 0.92,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Problem Formulation"
+      },
+      {
+        "page": 3,
+        "section": "4.1 Semantic Assistant Construction on D0"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Stage 1: Reranker-to-Retriever KD"
+      },
+      {
+        "page": 4,
+        "section": "4.3 Stage 2: Continual Update of Retriever"
+      },
+      {
+        "page": 5,
+        "section": "4.4 Stage 3: Retriever-to-Reranker KD"
+      },
+      {
+        "page": 5,
+        "section": "5.1 Experimental Setup"
+      },
+      {
+        "page": 6,
+        "section": "5.2 Performance Comparison"
+      },
+      {
+        "page": 7,
+        "section": "5.3 Study of SCoRD"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Full-Batch",
+        "Fine-Tune",
+        "PISA",
+        "Reloop2",
+        "CCD",
+        "LLMD4Rec",
+        "CoT-Rec"
+      ],
+      "datasets": [
+        "Amazon Books",
+        "Yelp",
+        "Amazon Movies & TV"
+      ],
+      "findings_zh": [
+        "在三个真实数据集上的D2-D4持续更新评估中，SCoRD在重排器和检索器的几乎所有NDCG/Hit Rate指标上均优于所有基线，且相对最优基线的多数提升在p<0.05水平下显著。",
+        "SCoRD优于CL类方法（PISA、Reloop2），因为它实现了跨时间的检索器-重排器相互知识迁移，而CL方法只是对两个模型独立更新。",
+        "SCoRD优于LLM-based KD方法（LLMD4Rec、CoT-Rec），因为语义助手在检索器单独更新期间持续提供意图级语义指导，而其他方法在两次LLM更新之间缺乏有效指导。",
+        "类别分析显示，SCoRD在新用户和偏好漂移用户上均优于CCD和PISA；意图级语义指导有助于冷启动用户，意图漂移感知学习有助于捕捉演化的用户偏好。",
+        "稳定性-塑性分析显示，SCoRD在RA、LA和H-mean上同时优于CCD和PISA，说明SCoRD不是以牺牲稳定性或塑性中的一方为代价换取另一方。",
+        "效率分析显示，SCoRD将语义意图生成时间较CoT-Rec降低约10倍（Book上1.4h vs 15.4h），训练时间介于LLMD4Rec和CoT-Rec之间，推理时间相当，取得更好的准确率-效率平衡。",
+        "消融实验显示，去掉助手A（移除L_intent和语义引导表示h̃_u）以及将意图漂移负样本替换为随机负样本会造成最大的性能下降，验证了语义助手和漂移感知负采样是SCoRD的核心组件。",
+        "超参数分析显示，硬序列选择比例r只需很小（约5%）即可获得显著收益；λ_intent=1.0时最优；λ_drift在0.1附近最优，增加意图漂移负样本数量可进一步提升重排器性能。"
+      ],
+      "metrics": [
+        "NDCG@5/10/20",
+        "Hit Rate@5/10/20",
+        "Retained Average (RA)",
+        "Learning Average (LA)",
+        "Harmonic mean (H-mean)"
+      ]
+    },
+    "limitations_zh": [
+      "论文指出SCoRD在细粒度指标（N@5、H@5）上的提升强于H@20，作者认为未来可通过自适应控制助手指导强度来进一步改善更广候选覆盖，说明当前方法对候选覆盖的收益有限。",
+      "SCoRD并未完全消除LLM调用：基础块需要LLM意图推断与验证，且每块仍需对约20%困难序列进行LLM蒸馏和意图记忆更新，LLM开销只是被显著降低而非归零。",
+      "意图漂移估计基于稀疏的观察交互，论文虽通过平滑和未观察物品证据降低不稳定性，但数据稀疏性对漂移估计的扰动仍然存在。",
+      "实验仅在三个真实数据集上通过离线时间分块模拟非平稳数据流进行，缺少在线部署或A/B实验验证，实际生产环境中的效果和成本有待进一步检验。"
+    ],
+    "method_zh": "SCoRD由语义推理助手A和动态意图记忆G支撑，包含三个阶段的持续协同适应。首先在基础块D0上构建助手：用LLM对用户序列进行意图推断，并通过留一物品验证和最多三轮修正获得可靠意图，将验证后的意图加入动态意图记忆；随后将意图预测建模为基于记忆的多标签分类，采用query-key-value结构，通过意图蒸馏损失L_intent和语义引导推荐损失L_rec联合训练助手与检索器。Stage 1（重排器到检索器蒸馏）：按检索器对序列内物品的预测置信度选出最低r%的困难序列，只对这些序列调用LLM重排器，更新意图记忆，并用listwise排序蒸馏损失（基于语义引导表示h̃_u）和意图损失联合优化检索器与助手。Stage 2（检索器持续更新）：助手在无需LLM调用的情况下为新序列预测意图；利用行为相似用户序列的意图得分构造协作伪意图标签L_co-intent，并基于相邻块意图直方图差异构造意图漂移先验，再用检索器可信未观察物品的意图相关性做Dirichlet-Multinomial式平滑，得到漂移感知负采样分布，用于L_rec；同时加入表示正则项L_reg防止灾难性遗忘。Stage 3（检索器到重排器蒸馏）：将检索器的物品embedding投影到LLM输入空间构造prompt，用交叉熵进行下一项预测，并引入基于意图漂移负样本的辅助损失L_drift，使重排器对齐检索器捕获的最新协同模式与兴趣漂移。整体上，LLM蒸馏只在每块20%困难序列上进行，重排器每τ_T周期才更新一次，检索器按τ_S高频更新。",
+    "problem_zh": "在基于LLM的两阶段推荐管线（ID检索器 + LLM重排器）中，数据流是非平稳的，用户兴趣、物品流行度和新用户/新物品持续演化，因此检索器与重排器需要持续协同适应。然而，频繁更新LLM重排器并反复蒸馏其知识会带来高昂的计算开销；仅更新轻量级检索器又受限于其模型容量，难以从稀疏的新交互中充分学习；现有持续蒸馏方法（如CCD）主要面向ID-based师生模型，无法有效处理LLM重排器与ID检索器在容量和知识来源上的显著不对称性。SCoRD旨在解决如何在有限LLM监督下、无需反复调用LLM的情况下，实现检索器与重排器在数据流上的高效协同适应。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9245,
+  "graph_relations": [
+    {
+      "confidence": 0.82,
+      "evidence": "Both papers apply large language models inside recommendation pipelines (LLM-based reranker vs pretrained LLM for sequential recommendation).",
+      "generated_by": "method_overlap",
+      "target_id": "arxiv-2608.19529",
+      "type": "similar_method"
+    },
+    {
+      "confidence": 0.72,
+      "evidence": "Both sources concern item/content recommendation systems.",
+      "generated_by": "target_overlap",
+      "target_id": "arxiv-2608.19833",
+      "type": "same_target"
+    }
+  ],
+  "id": "arxiv-2608.19998",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-21T19:59:04.676646Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-20T13:11:28Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出SCoRD，一种面向LLM召回-重排推荐管道的持续知识蒸馏框架，通过语义意图指导实现检索器与重排器在非平稳数据流下的协同适应。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "SCoRD: Semantic-Assisted Continual Retriever-Reranker Distillation for LLM-Based Recommendation",
+  "url": "https://arxiv.org/abs/2608.19998v1"
+}

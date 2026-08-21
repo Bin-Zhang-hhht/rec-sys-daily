@@ -1,0 +1,160 @@
+{
+  "abstract": "We introduce RecPFN, a prior-fitted network that brings in-context learning to sequential recommendation. RecPFN is pretrained entirely on synthetic clickstream environments sampled from a broad structural causal prior, enabling it to amortize Bayesian-style inference from a small support set. At inference, a lightweight decoder-only transformer conditions on a handful of domain sequences and produces next-item predictions for queries in a single forward pass, without any weight updates. Across eight public benchmarks, RecPFN achives state-of-the-art zero-shot performance while remaining strongly competitive with supervised methods in low-compute and low-data regimes. It is deployment-efficient and robust to domain shift, outperforming strong zero-shot baselines that rely on large real-interaction corpora. RecPFN provides a practical path toward generalizable, data-efficient recommenders and opens avenues for richer priors, longer-context ICL, and multimodal extensions. Code for training and evaluation is publicly available at https://github.com/SAP-samples/tabular-ai-recpfn/. We introduce RecPFN, a prior-fitted network that brings in-context learning to sequential recommendation. RecPFN is pretrained entirely on synthetic clickstream environments sampled from a broad structural causal prior, enabling it to amortize Bayesian-style inference from a small support set. At inference, a lightweight decoder-only transformer conditions on a handful of domain sequences and produces next-item predictions for queries in a single forward pass, without any weight updates. Across eight public benchmarks, RecPFN achives state-of-the-art zero-shot performance while remaining strongly competitive with supervised methods in low-compute and low-data regimes. It is deployment-efficient and robust to domain shift, outperforming strong zero-shot baselines that rely on large real-interaction corpora. RecPFN provides a practical path toward generalizable, data-efficient recommenders and opens avenues for richer priors, longer-context ICL, and multimodal extensions. Code for training and evaluation is publicly available at https://github.com/SAP-samples/tabular-ai-recpfn/.",
+  "arxiv_id": "2608.19735",
+  "authors": [
+    "En Zhi Tan",
+    "Jia Xiang Lim",
+    "Bryan Lijie Chew",
+    "Tze Minh Ng",
+    "Benjamin Yan Han Yap"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "部署高效：RecPFN仅需一次性预训练（单张A100约36小时），之后无需per-domain重训练，适合多业务域持续上线与频繁域迁移场景。",
+      "低数据/低算力友好：在目标域数据极少或训练预算受限时仍能与监督方法竞争，有助于冷启动和新业务快速落地。",
+      "推理效率优于LLM提示类零样本基线：在Yelp上每用户推理约6.58ms，远低于RecGPT的40.81ms，适合对延迟敏感的在线推荐。",
+      "不依赖大规模真实交互语料预训练，降低了数据收集、隐私和算力门槛。",
+      "可复用现成的物品文本嵌入（如gte-Qwen2-1.5B-instruct），通过余弦检索输出推荐，便于嵌入已有商品/内容目录。",
+      "随着部署域数量增长，一次性预训练成本被摊薄，经济性更优。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "首次提出面向序列推荐的、基于嵌入的PFN式上下文学习（ICL）方法RecPFN。",
+      "提出一个基于结构因果模型（SCM）的合成点击流序列生成框架，在广泛且富有表达力的先验下采样多样化环境用于预训练。",
+      "设计轻量级decoder-only transformer，通过交替的Type-A/Type-B ICL模块（含hard-alibi掩码）将支持集信息纳入查询序列，实现单次前向的下一项预测。",
+      "提出基于recency-weighted overlap的上下文选择器与倒排索引检索，使模型在推理时无需权重更新即可按目标域行为动态调整。",
+      "在8个公开基准上取得SOTA零样本性能，且在低算力、低数据设定下与监督方法竞争力强。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Bayesian view of prior-fitted networks for sequential recommendation"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Synthetic Sequential Data Generation via a Causal Prior"
+      },
+      {
+        "page": 1,
+        "section": "3.3 RecPFN Architecture and In-Context Learning"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Efficiency Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Prior Hyperparameter Sensitivity"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "RecGPT",
+        "RecFormer",
+        "UniSRec",
+        "VQ-Rec",
+        "EmbKNN",
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "FDSA",
+        "Semantic embedding variants of GRU4Rec/SASRec/BERT4Rec"
+      ],
+      "datasets": [
+        "Appliances",
+        "Arts",
+        "Dianping",
+        "Games",
+        "Movies",
+        "Pantry",
+        "Scientific",
+        "Software",
+        "Yelp",
+        "Ablation pretraining only: Fashion, Grocery, Sports, Movies"
+      ],
+      "findings_zh": [
+        "零样本设定下，RecPFN在8个数据集的7个上超过所有零样本基线，例如Appliances的HR@10相对提升+53.2%、Dianping的HR@10相对提升+160.9%；仅在Yelp上略低于EmbKNN（HR@10 -16.4%，MRR@10 -4.2%）。",
+        "在有监督基线仅训练3个epoch的部署效率对比中，RecPFN在多数数据集上排名第1或第2，在Appliances、Arts、Games、Pantry、Scientific、Dianping的HR@10上显著优于多数基线，但在Yelp上排名第5。",
+        "在仅使用10%训练数据的低数据场景中，即使监督基线训练50个epoch，RecPFN仍保持竞争力，尤其在Dianping上显著优于所有基线。",
+        "训练算力对比显示，RecPFN无需目标域训练即可达到有竞争力的MRR@10；在10-20 epoch的早训阶段常领先，而监督方法通常需要大量per-domain算力才能追平。",
+        "消融实验表明，去掉上下文或使用随机上下文会导致HR/MRR大幅下降（如Yelp MRR@10下降约89.8%-94.5%），验证了上下文学习的核心作用。",
+        "交替Type-A/Type-B注意力优于仅用其中一种；用真实交互数据替代合成SCM先验会降低跨域表现，支持合成先验训练泛化推理而非记忆域内特质的观点。",
+        "推理时增大batch size会稳定降低性能；增大上下文大小至16/32或缩小上下文候选池会带来退化，说明上下文选择器是结构性瓶颈。"
+      ],
+      "metrics": [
+        "HR@10",
+        "MRR@10"
+      ]
+    },
+    "limitations_zh": [
+      "当上下文规模变大或选择质量变差时性能下降，交叉注意力在宽上下文上会稀释注意力预算并引入检索噪声。",
+      "推理时增大batch size会明显降低性能，限制了批量服务的扩展效率。",
+      "嵌入质量直接影响推荐效果：使用更小或多语言编码器时部分数据集出现明显退化。",
+      "仅使用latent-factor先验训练无法可靠收敛，必须采用两阶段课程；先验覆盖范围之外（如较大图出度k_rel）性能下降更明显。",
+      "上下文选择器是结构性瓶颈：候选池受限、随机上下文或未加权相似度都会显著降低性能，尤其在Dianping和Yelp等大规模数据集上。",
+      "在Yelp数据集上，RecPFN的零样本HR@10低于EmbKNN，且3-epoch监督对比中排名第5，说明其在某些高熵/弱序列信号场景下优势有限。"
+    ],
+    "method_zh": "RecPFN采用贝叶斯视角：环境h由结构因果模型及其超参数实例化，先验p(h)覆盖多样序列动态；预训练时从p(h)和p(D|h)蒙特卡洛采样，最小化给定支持集D_c条件下预测下一项嵌入的期望交叉熵。合成数据生成中，每个环境包含N个物品的嵌入、全局流行度P_pop和转移矩阵T；序列初始为随机物品，之后按近期加权转移分数与流行度的混合分布采样下一项。转移矩阵先验包括random-graph prior（稀疏拓扑驱动转换）和latent-factor prior（潜在属性驱动共消费），并在两阶段课程中混合训练。模型为K个ICL block的decoder-only transformer：每块先做序列内因果自注意力，再做上下文到查询的交叉注意力；Type-A采用summed-head、identity初始化V矩阵以支持复制式检索，Type-B为标准多头注意力加FFN，hard-alibi掩码使部分头只关注近期token。训练用sampled softmax损失预测查询序列各项下一项嵌入。推理时用recency-weighted overlap相似度从目标域训练集检索N_c条支持序列，单次前向得到预测嵌入，再通过余弦相似度取Top-K物品。",
+    "problem_zh": "现有最强序列推荐模型通常依赖大规模域内数据、大量训练和在线学习算力，难以实现真正的零样本迁移；基于LLM提示或大规模真实交互预训练的通才推荐器也常因偏好的强情境依赖性而泛化不足。RecPFN提出将prior-fitted networks（PFN）与上下文学习引入序列推荐，使模型在推理时仅依靠少量目标域支持序列即可在单次前向传播中完成下一项预测，无需任何权重更新。",
+    "technical_depth": 0.9
+  },
+  "doi": "10.1145/3805712.3809696",
+  "final_score": 0.8905,
+  "graph_relations": [
+    {
+      "confidence": 0.85,
+      "evidence": "Both papers address sequential recommendation and compare sequence-modeling approaches.",
+      "generated_by": "method_overlap",
+      "target_id": "arxiv-2608.19833",
+      "type": "similar_method"
+    },
+    {
+      "confidence": 0.75,
+      "evidence": "Both papers model item/content recommendation using sequence-aware neural approaches.",
+      "generated_by": "target_overlap",
+      "target_id": "arxiv-2608.19529",
+      "type": "same_target"
+    }
+  ],
+  "id": "arxiv-2608.19735",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-21T19:59:04.676646Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-20T07:35:03Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出RecPFN先验拟合网络，通过纯合成点击流环境预训练将上下文学习引入序列推荐，以单次前向推理实现零样本下个物品预测。",
+  "targets": [],
+  "tasks": [],
+  "title": "RecPFN: Prior-Fitted Networks for In-Context-Based Recommendations",
+  "url": "https://arxiv.org/abs/2608.19735v1"
+}

@@ -1,0 +1,148 @@
+{
+  "abstract": "Many real-world AI systems represent entities, behaviors, and structured information using discrete machine-native symbols rather than natural language. While these representations are compact and preserve task-relevant structure, they lie outside the linguistic token space of pretrained large language models (LLMs), creating a fundamental divide between language modeling and structured prediction. We introduce UniLang, a unified generative framework that bridges this divide by extending pretrained LLMs to treat machine-native symbols as first-class generative units alongside natural-language tokens. UniLang expands the LLM's vocabulary and embedding space with grounded machine-native representations, enabling textual and symbolic tokens to be jointly modeled and generated under a single autoregressive objective. This unified interface allows pretrained LLMs to directly operate on machine-native representations without requiring them to be verbalized as natural language or relying on task-specific architectures. We evaluate UniLang on two structurally distinct tasks, sequential recommendation and legal precedent prediction, spanning different domains and types of structured prediction. Across both tasks, UniLang consistently outperforms strong baselines, demonstrating a path toward extending pretrained LLMs beyond language and using them as a common generative modeling backbone for heterogeneous machine-native representations. Many real-world AI systems represent entities, behaviors, and structured information using discrete machine-native symbols rather than natural language. While these representations are compact and preserve task-relevant structure, they lie outside the linguistic token space of pretrained large language models (LLMs), creating a fundamental divide between language modeling and structured prediction. We introduce UniLang, a unified generative framework that bridges this divide by extending pretrained LLMs to treat machine-native symbols as first-class generative units alongside natural-language tokens. UniLang expands the LLM's vocabulary and embedding space with grounded machine-native representations, enabling textual and symbolic tokens to be jointly modeled and generated under a single autoregressive objective. This unified interface allows pretrained LLMs to directly operate on machine-native representations without requiring them to be verbalized as natural language or relying on task-specific architectures. We evaluate UniLang on two structurally distinct tasks, sequential recommendation and legal precedent prediction, spanning different domains and types of structured prediction. Across both tasks, UniLang consistently outperforms strong baselines, demonstrating a path toward extending pretrained LLMs beyond language and using them as a common generative modeling backbone for heterogeneous machine-native representations.",
+  "arxiv_id": "2608.19529",
+  "authors": [
+    "Su Yan",
+    "Rakesh Iyer"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "为企业推荐系统提供了一种统一的生成式建模路径：可直接用预训练 LLM 生成带自然语言元数据的 Semantic ID，减少为每个数据集/任务手工设计大量提示模板的工作量。",
+      "在法律科技场景中可用于先例检索与引用预测，UniLang 在 LePaRD 上显著提升 Recall@1 和 NDCG@10，具有作为法律研究辅助工具的商业潜力。",
+      "由于不需要专用用户 token 或哈希方案，用户规模扩展时不会像 TIGER 那样出现用户 ID token 占据 66% 扩展词表的问题，更有利于大规模推荐系统落地。",
+      "落地企业应用需考虑多阶段训练成本（RQ-VAE、对比接地、LoRA SFT）、领域数据标注/文本描述构造，以及跨领域复用时任务特定元数据模板的设计。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "提出统一的表示接口：将结构化预测建模为异构 token 类型上的带类型自回归生成，使自然语言 token 与机器原生符号在同一预训练 LLM 中作为一等生成单元共同建模。",
+      "提出机器原生符号的接地集成：通过词表扩展与对比学习对齐过程，将机器原生符号映射进预训练 LLM 的表示空间，使其能与自然语言 token 联合处理和生成，同时保留离散结构。",
+      "验证跨异构结构化预测任务的通用性：同一 UniLang 框架无需任务特定架构修改即可应用于序列推荐与法律先例预测，并在两类任务上稳定超过强基线。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 UniLang framework"
+      },
+      {
+        "page": 1,
+        "section": "4.5 LLM fine-tuning details"
+      },
+      {
+        "page": 1,
+        "section": "4.6 Performance on sequential recommendation"
+      },
+      {
+        "page": 1,
+        "section": "4.7 Performance on legal precedent prediction"
+      },
+      {
+        "page": 1,
+        "section": "4.8 Ablation study"
+      },
+      {
+        "page": 1,
+        "section": "4.9 Qualitative comparison"
+      },
+      {
+        "page": 1,
+        "section": "4.10 Emergent representational capabilities"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion and future work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "BERT4Rec",
+        "S3-Rec",
+        "P5",
+        "TIGER (re-impl.)",
+        "BM25",
+        "fine-tuned SBERT",
+        "LEGAL-BERT",
+        "DistilBERT"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "MovieLens-1M",
+        "MovieLens-20M",
+        "LePaRD 10k",
+        "LePaRD 20k",
+        "LePaRD 50k"
+      ],
+      "findings_zh": [
+        "在序列推荐上，UniLang 在 Beauty、ML-1m、ML-20m 上绝大多数指标优于 SASRec、BERT4Rec、S3-Rec、P5 和 TIGER；在 ML-20m 上 NDCG@5 相对最优基线的提升最高达 151.73%，Recall@5 提升达 114.96%。",
+        "UniLang 并非在所有指标上都最优：在 Beauty 上 Recall@10 为 0.0603，低于 S3-Rec 的 0.0647（相对下降 6.80%）。",
+        "在法律先例预测上，UniLang 在 LePaRD 10k/20k/50k 三个子集上的 Recall@1、Recall@10、NDCG@10 均超过 BM25、微调 SBERT、LEGAL-BERT 与 DistilBERT；在 10k 子集上 Recall@1 相对 DistilBERT 提升 49.36%。",
+        "消融实验表明，移除自然语言字段（NLRemoved）在训练约 40k steps 后出现性能退化，说明自然语言提供正则化上下文；移除类型分隔符（NoTypeDelim）表现稳定但持续低于完整模型；随机初始化符号嵌入（NoWarmup）无法取得非零指标，说明对比预对齐对生成式学习至关重要。",
+        "定性对比显示，UniLang 只需一种统一的结构化提示模板，而 P5 在 Beauty 上需要多种手写提示（论文提到如 13 prompts），因此 UniLang 减少了对大量提示工程的需求。",
+        "UniLang 不需要为每个用户设置专用 token 或哈希方案，用户 ID 可直接以自然语言形式由预训练 tokenizer 处理，从而避免用户 token 占据过多扩展词表。"
+      ],
+      "metrics": [
+        "Recall@1",
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文未评估符号微调对该模型自然语言生成质量的影响，只聚焦于预测任务准确率，语言流畅性与连贯性方面的潜在影响留待未来工作。",
+      "论文的实证验证仅覆盖两个结构化预测任务（序列推荐与法律先例预测），尽管宣称框架通用，但其在更广范围内的泛化性仍需更多任务验证。",
+      "在 Beauty 数据集上 Recall@10 低于 S3-Rec，说明方法并非在所有指标和场景下都一致占优。",
+      "训练与推理依赖 RQ-VAE 离散化、对比接地、LoRA 微调等多阶段流程，并在 H100 GPU 上进行，落地时需要较多的工程与计算资源。"
+    ],
+    "method_zh": "UniLang 首先使用预训练文本编码器（Sentence-T5）把物品/案例的文本描述映射为 768 维稠密向量，再用 RQ-VAE 量化为多级离散码：l=3 层、每层码本大小 256，并额外附加一个消歧层级 q^(l+1)，得到类似 (A11, B43, C204, D0) 的 Semantic ID；加上层级前缀后共扩展 1,024 个机器 token，可表示约 43 亿个不同物品。随后扩展 Llama-3.2-1B-Instruct 的词表，用 InfoNCE 风格双向对比损失训练机器 token embedding，使其与对应文本描述 embedding 对齐（仅更新机器 token 嵌入，冻结 LLM 参数与自然语言 token 嵌入）。完成接地后，所有下游任务被构造成穿插自然语言与机器 token 的混合序列，通过 <year>、<genre>、<sid> 等类型分隔符定义输出字段，并在统一的自回归目标下用 LoRA 进行监督微调；模型架构和训练目标不随任务改变，任务差异只体现在输入-输出序列构造上。",
+    "problem_zh": "预训练大语言模型只能在自然语言 token 空间上建模和生成，而许多真实 AI 系统使用机器原生符号（如向量量化产生的 Semantic ID、离散代码）表示实体与结构化信息。两类表示之间的割裂迫使现有方法要么将结构化信息文本化（verbalization）从而引入表示模糊并损失机器精度，要么使用任务特化模型而无法利用预训练 LLM 的语言与世界知识。本文要解决的问题是：能否将预训练 LLM 扩展为能直接以一等生成单元建模和生成机器原生符号的统一生成框架，而无需把符号强制转写成自然语言或依赖任务特定架构。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.839,
+  "graph_relations": [
+    {
+      "confidence": 0.8,
+      "evidence": "Both papers use large language models within recommendation pipelines (LLM reranker vs pretrained LLM for structured prediction).",
+      "generated_by": "method_overlap",
+      "target_id": "arxiv-2608.19998",
+      "type": "similar_method"
+    },
+    {
+      "confidence": 0.7,
+      "evidence": "Both papers apply sequence-based neural models to sequential recommendation.",
+      "generated_by": "method_overlap",
+      "target_id": "arxiv-2608.19735",
+      "type": "similar_method"
+    }
+  ],
+  "id": "arxiv-2608.19529",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-21T19:59:04.676646Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-20T00:54:36Z",
+  "relevance_score": 0.88,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出UniLang统一生成框架，将机器原生符号扩展为预训练大语言模型的一等生成单元，并验证其在序列推荐与法律先例预测两类结构化预测任务上的有效性。",
+  "targets": [],
+  "tasks": [],
+  "title": "When Machines Speak: A Unified Generative Framework for Integrating Machine-Native Symbols into Pretrained Large Language Models",
+  "url": "https://arxiv.org/abs/2608.19529v1"
+}

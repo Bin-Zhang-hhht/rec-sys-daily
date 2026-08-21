@@ -1,0 +1,129 @@
+{
+  "abstract": "Sequential recommenders increasingly use language-model architectures designed to capture complex, context-dependent interactions. Yet it remains unclear whether widely used benchmarks actually require this modelling capacity. We investigate this question using two simple, recency-weighted pairwise probes that do not learn higher-order sequence representations: Sequential Rules (SeqRules) and our Probabilistic Collaborative Transition Model (PCTM). Using the evaluation protocol of eSASRec, at least one probe exceeds our eSASRec reproduction by 15-38% on three Amazon datasets and by 4.4% on MovieLens-1M, but trails it by 27.3% on MovieLens-20M. On the four remaining datasets, at least one probe also outperforms our sampled-softmax SASRec reproduction by 9-28%, suggesting that these widely used benchmarks are poorly suited to measuring gains from higher-order sequence modelling. More broadly, comparing Transformer-based models against strong recency-weighted pairwise probes provides a concrete test of whether a benchmark can meaningfully measure gains from higher-order sequence modelling. Sequential recommenders increasingly use language-model architectures designed to capture complex, context-dependent interactions. Yet it remains unclear whether widely used benchmarks actually require this modelling capacity. We investigate this question using two simple, recency-weighted pairwise probes that do not learn higher-order sequence representations: Sequential Rules (SeqRules) and our Probabilistic Collaborative Transition Model (PCTM). Using the evaluation protocol of eSASRec, at least one probe exceeds our eSASRec reproduction by 15-38% on three Amazon datasets and by 4.4% on MovieLens-1M, but trails it by 27.3% on MovieLens-20M. On the four remaining datasets, at least one probe also outperforms our sampled-softmax SASRec reproduction by 9-28%, suggesting that these widely used benchmarks are poorly suited to measuring gains from higher-order sequence modelling. More broadly, comparing Transformer-based models against strong recency-weighted pairwise probes provides a concrete test of whether a benchmark can meaningfully measure gains from higher-order sequence modelling.",
+  "arxiv_id": "2608.19833",
+  "authors": [
+    "Aleksandr V. Petrov",
+    "Praveen Chandar",
+    "Paul N. Bennett",
+    "Hugues Bouchard",
+    "Mounia Lalmas"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "采用复杂 Transformer 或生成式推荐系统前，应先在同一评估协议下对比强 pairwise + recency 探针；若模型无法超过 pairwise envelope，小规模基准上的提升不应被归因于高阶序列建模。",
+      "评估设置会显著影响结论；全目录排序、seen-item filtering、不使用 sampled test negatives 的评估更适合筛选真实可部署的模型。",
+      "数据规模是选择建模复杂度的重要因素：仅在 MovieLens-20M 这类大规模数据上观察到高阶模型相对 pairwise 探针的明显优势，小规模/Amazon 类数据可优先考虑低成本成对转移模型。",
+      "公开代码、数据哈希校验和 pinned 环境可降低企业复现和模型选型的成本，减少被 benchmark 表面涨点误导的风险。"
+    ],
+    "business_transferability": 0.3,
+    "contributions_zh": [
+      "提出 Sequential Rules (SeqRules) 与 Probabilistic Collaborative Transition Model (PCTM) 两个容量探针；二者只聚合 pairwise transition 和 recency 信息，不学习高阶序列表示，并以两者中较强者定义 pairwise envelope。",
+      "在 eSASRec 公开的数据划分和评估协议下进行 matched-protocol 比较，并复现 SAS+ 与 eSASRec；eSASRec 复现与报告结果在 10 个 model–dataset 对上 NDCG 差异不超过 0.0033。",
+      "发现 pairwise envelope 在 Beauty、Sports、Toys 上分别超过 eSASRec 复现 21.3%、14.8%、38.4%，在 MovieLens-1M 上超过 4.4%；仅在 MovieLens-20M 上落后 27.3%，说明多数常用基准难以有效度量高阶序列建模的增益。",
+      "公开代码、frozen 配置、数据准备脚本和自动复现核对流程，便于后续研究直接对照。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Do Sequential Recommendation Benchmarks Require Higher-Order Sequence Modelling?"
+      },
+      {
+        "page": 1,
+        "section": "2 Capacity Probes"
+      },
+      {
+        "page": 1,
+        "section": "3 Preliminary Evidence"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusions"
+      },
+      {
+        "page": 1,
+        "section": "Supplementary Materials"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MC",
+        "FMC",
+        "FMC+",
+        "SAS+ (sampled-softmax SASRec)",
+        "eSASRec",
+        "SeqRules",
+        "PCTM"
+      ],
+      "datasets": [
+        "Beauty",
+        "Sports",
+        "Toys",
+        "MovieLens-1M",
+        "MovieLens-20M"
+      ],
+      "findings_zh": [
+        "FMC+ 仅依赖最近一次交互，在 Amazon 基准上已接近 Transformer 基线：在 Beauty 上接近，在 Toys 上超过，在 Sports 上达到 eSASRec 复现的 84%。",
+        "pairwise envelope 比最佳 last-item 模型高 20–46%，说明最近几次历史交互仍携带额外预测信号。",
+        "pairwise envelope 在 Beauty、Sports、Toys 上超过 eSASRec 复现 21.3%、14.8%、38.4%，在 MovieLens-1M 上超过 4.4%；在 MovieLens-20M 上落后 27.3%（0.1431 vs 0.1969）。",
+        "在四个非 MovieLens-20M 数据集上，至少一个探针超过 sampled-softmax SASRec 复现 9–28%。",
+        "PCTM 在五个数据集中的四个上优于 SeqRules，说明 Bayesian smoothing 与加权 log pooling 构成更强的 pairwise 参考。",
+        "eSASRec 复现与已发表结果在全部 10 个 model–dataset 对上的 NDCG 差不超过 0.0033。"
+      ],
+      "metrics": [
+        "full-catalogue NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文是 extended abstract，属于进行中工作；完整研究计划覆盖 temporal/industrial data、learned recency kernels、correlated histories 和 mode changes。",
+      "作者未对 Bayesian smoothing 与 weighted log pooling 的各自贡献做消融。",
+      "结论刻意收窄：仅基于五个公开数据集和 eSASRec 协议，不声称探针本身是 SOTA 推荐模型。",
+      "pairwise envelope 取 SeqRules/PCTM 中较优者，可能高估简单成对模型在该协议下的表现。"
+    ],
+    "method_zh": "作者比较三类模型：(1) last-item controls，包括 MC（经验一阶 Markov 模型）、FMC（SASRec 的约简式方向转移嵌入 + 单负样本目标）和 FMC+（同架构但使用全目录 softmax）；(2) history-aware capacity probes，包括 SeqRules 的稀疏顺序规则实现和新增的 PCTM；(3) Transformer 基线，即 sampled-softmax SASRec (SAS+) 与 eSASRec。PCTM 构造距离加权因果计数 C_ba=sum gamma_d N_ba^(d)，并用 Dirichlet 先验做 Bayesian smoothing 得到条件下一项分布；推荐时把历史中每个条目视为一个专家，在 log 空间加权求和其条件概率，并加入 popularity 修正项；历史权重可选用 exponential 或 head-tail kernel。PCTM 不学习 embedding，也没有序列编码器。所有模型按 eSASRec 协议进行全目录排序、seen-item filtering、不使用 sampled test negatives 的评估。",
+    "problem_zh": "论文质疑广泛使用的顺序推荐基准是否真的需要高阶序列建模：即模型是否必须对历史条目之间联合的、不可分解的高阶相互作用建模，还是仅靠 item popularity、pairwise transitions 和 recency 就足以解释当前 Transformer/生成式推荐模型在这些基准上的表现。作者特别关注 eSASRec 协议下的五个数据集。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.7715000000000001,
+  "graph_relations": [
+    {
+      "confidence": 0.85,
+      "evidence": "Both papers focus on sequential recommendation and sequence modeling.",
+      "generated_by": "method_overlap",
+      "target_id": "arxiv-2608.19735",
+      "type": "similar_method"
+    },
+    {
+      "confidence": 0.72,
+      "evidence": "Both sources study recommendation systems for content/item recommendation.",
+      "generated_by": "target_overlap",
+      "target_id": "arxiv-2608.19998",
+      "type": "same_target"
+    }
+  ],
+  "id": "arxiv-2608.19833",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-21T19:59:04.676646Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-20T09:33:33Z",
+  "relevance_score": 0.93,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "通过两个仅依赖近因加权的成对探针模型检验常用序列推荐基准是否真正需要高阶序列建模，发现多数基准难以体现Transformer模型的高阶建模增益。",
+  "targets": [],
+  "tasks": [],
+  "title": "Do Sequential Recommendation Benchmarks Really Require Higher-Order Sequence Modelling?",
+  "url": "https://arxiv.org/abs/2608.19833v1"
+}
