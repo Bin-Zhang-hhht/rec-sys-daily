@@ -1,0 +1,78 @@
+{
+  "abstract": "Firms perform online experiments with multi-armed bandits to personalize what consumers are shown while balancing exploration and exploitation. However, third-parties can infer consumers' underlying segments from observing which banners, ads, or recommendations consumers receive. To control this inference, we propose a privacy risk budget that firms can set ex ante to bound such third party belief updating using differential privacy. To spend this privacy risk budget, we propose two strategies: a constant privacy risk strategy and a dynamic privacy risk strategy that spend privacy risk differently across visitor. We study how privacy risk budgets affect experimentation performance in two applications--website design and a recommendation system--under these strategies. For both strategies, we analytically find privacy risk budgets that optimally balance exploration and exploitation. We then extend the idea of an experiment-level privacy risk budget to a firm-wide privacy risk budget. We apply this firm-wide privacy risk budget in an empirical setting with 78 experiments. We find that the dynamic strategy is particularly valuable in longer and more complex experiments, and that optimizing the allocation of a firm-wide privacy risk budget across experiments substantially improves learning performance. Firms perform online experiments with multi-armed bandits to personalize what consumers are shown while balancing exploration and exploitation. However, third-parties can infer consumers' underlying segments from observing which banners, ads, or recommendations consumers receive. To control this inference, we propose a privacy risk budget that firms can set ex ante to bound such third party belief updating using differential privacy. To spend this privacy risk budget, we propose two strategies: a constant privacy risk strategy and a dynamic privacy risk strategy that spend privacy risk differently across visitor. We study how privacy risk budgets affect experimentation performance in two applications--website design and a recommendation system--under these strategies. For both strategies, we analytically find privacy risk budgets that optimally balance exploration and exploitation. We then extend the idea of an experiment-level privacy risk budget to a firm-wide privacy risk budget. We apply this firm-wide privacy risk budget in an empirical setting with 78 experiments. We find that the dynamic strategy is particularly valuable in longer and more complex experiments, and that optimizing the allocation of a firm-wide privacy risk budget across experiments substantially improves learning performance.",
+  "arxiv_id": "2608.19944",
+  "authors": [
+    "Gilian R. Ponte",
+    "Alina Ferecatu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "企业可以在个性化实验前设定隐私风险预算，从而在保护消费者隐私与获取实验学习收益之间建立可管理的平衡。",
+      "在推荐系统和网站设计等个性化场景中，动态花费隐私风险预算有助于提升较长、较复杂实验的学习效果。",
+      "企业可将隐私预算管理从单一实验扩展到企业层面，通过优化跨实验预算分配提升整体学习性能。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出一种企业可事先设定的隐私风险预算，利用差分隐私约束第三方从展示内容中对消费者细分群体的信念更新。",
+      "提出两种花费隐私风险预算的策略：恒定隐私风险策略和动态隐私风险策略。",
+      "在网站设计和推荐系统两个应用中，解析地求得能最优平衡探索与利用的隐私风险预算。",
+      "将实验级隐私风险预算扩展为企业级隐私风险预算，并在包含78个实验的实证环境中应用。",
+      "发现动态隐私风险策略在更长和更复杂的实验中尤其有价值，且优化企业级隐私风险预算在实验间的分配能显著提升学习性能。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "恒定隐私风险策略（与动态隐私风险策略对比）"
+      ],
+      "datasets": [
+        "网站设计在线实验",
+        "推荐系统在线实验",
+        "78个企业实验组成的实证设置"
+      ],
+      "findings_zh": [
+        "在网站设计和推荐系统两种应用中，可以解析得到最优平衡探索与利用的隐私风险预算。",
+        "动态隐私风险策略在更长和更复杂的实验中特别有价值。",
+        "在企业层面优化隐私风险预算在78个实验之间的分配，可以显著提升学习性能。"
+      ],
+      "metrics": [
+        "学习性能",
+        "探索与利用的平衡"
+      ]
+    },
+    "limitations_zh": [
+      "来源文本未明确讨论局限性；可确认的分析范围仅限于摘要所述的网站设计、推荐系统两类应用以及78个实验的实证设置。"
+    ],
+    "method_zh": "论文以多臂老虎机在线实验为框架，结合差分隐私思想构造隐私风险预算；企业事先设定预算，并通过恒定或动态两种策略在不同访客间分配隐私风险支出；作者解析优化探索与利用的平衡，并将单实验预算扩展为企业级跨实验预算分配。",
+    "problem_zh": "企业使用多臂老虎机进行在线实验，以个性化展示横幅、广告或推荐内容，但第三方可能通过观察消费者收到的内容推断其潜在细分群体。因此，企业需要在控制第三方信念更新带来的隐私风险的同时，平衡探索与利用。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.5925,
+  "graph_relations": [],
+  "id": "arxiv-2608.19944",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-22T19:52:28.388679Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-20T12:07:53Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出一种基于差分隐私的隐私风险预算框架，用于在多臂老虎机在线实验（含推荐系统应用）中平衡探索与利用并控制第三方对用户分群的推断。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "A Privacy Budgeting Framework for Online Experimentation",
+  "url": "https://arxiv.org/abs/2608.19944v1"
+}
