@@ -1,0 +1,146 @@
+{
+  "abstract": "Discrete Diffusion Models (DDMs) have recently been introduced to recommendation systems, modeling user history as a token generation process via iterative denoising. However, while effective at capturing user-level sequential patterns, these methods often fail to explicitly integrate item-based collaborative filtering information, a critical component for accurate recommendation. This deficiency manifests in two key aspects: (1) the item representation is often semantic-focused, lacking collaborative priors for diffusion training; and (2) the denoising process employs a uniform noise schedule, treating all tokens indiscriminately and ignoring item-level adaptive structural dependencies. To bridge this gap, we propose ANR-DiffRec, a unified framework designed to encode item-based collaborative structures into discrete diffusion for generative recommendation. First, we explicitly incorporate an item co-occurrence matrix to guide semantic ID generation, providing a structured collaborative prior for discrete diffusion training. Second, we introduce an item-based adaptive noise rescheduling mechanism that dynamically adjusts denoising weights according to both local contextual recoverability and behavior-aware item dependencies. Specifically, the proposed strategy jointly models intra-item structural context and inter-item collaborative signals, enabling structure-aware denoising during diffusion training. Extensive experiments on multiple benchmarks demonstrate that our method consistently outperforms state-of-the-art generative recommendation models. Code: https://github.com/CalmaQi/ANR-DiffRec. Discrete Diffusion Models (DDMs) have recently been introduced to recommendation systems, modeling user history as a token generation process via iterative denoising. However, while effective at capturing user-level sequential patterns, these methods often fail to explicitly integrate item-based collaborative filtering information, a critical component for accurate recommendation. This deficiency manifests in two key aspects: (1) the item representation is often semantic-focused, lacking collaborative priors for diffusion training; and (2) the denoising process employs a uniform noise schedule, treating all tokens indiscriminately and ignoring item-level adaptive structural dependencies. To bridge this gap, we propose ANR-DiffRec, a unified framework designed to encode item-based collaborative structures into discrete diffusion for generative recommendation. First, we explicitly incorporate an item co-occurrence matrix to guide semantic ID generation, providing a structured collaborative prior for discrete diffusion training. Second, we introduce an item-based adaptive noise rescheduling mechanism that dynamically adjusts denoising weights according to both local contextual recoverability and behavior-aware item dependencies. Specifically, the proposed strategy jointly models intra-item structural context and inter-item collaborative signals, enabling structure-aware denoising during diffusion training. Extensive experiments on multiple benchmarks demonstrate that our method consistently outperforms state-of-the-art generative recommendation models. Code: https://github.com/CalmaQi/ANR-DiffRec.",
+  "arxiv_id": "2608.23400",
+  "authors": [
+    "Jiaqi Wang",
+    "Tianying Liu",
+    "Heng Chang",
+    "Jihong Guan",
+    "Wengen Li",
+    "Shuigeng Zhou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该方法可应用于电商、游戏、影视等平台的生成式推荐，通过融合物品文本语义与共现结构提升推荐精度。",
+      "SID 生成阶段离线成本低（约为 RQ-VAE tokenization 的 0.059 倍），生成式训练额外开销约 1%，推理时延与强基线接近，具备一定的生产部署可行性。",
+      "通过约束解码保证生成结果必然映射到真实物品，可减少线上推荐中无效物品 ID 的产生，有利于实际系统落地。",
+      "在中频和长尾物品上的增益有助于缓解流行度偏差，提高推荐覆盖和长尾物品曝光机会。",
+      "方法复杂度与标准 Transformer 同阶，可沿用现有 Transformer 训练和推理基础设施，业务接入的技术改造成本相对可控。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 ANR-DiffRec，一个将基于物品的协同结构显式编码进离散扩散生成式推荐的统一框架。",
+      "提出基于物品的自适应噪声重调度机制，通过局部可恢复性估计和行为感知物品依赖动态调整每个被掩码 token 的去噪权重，实现结构感知的扩散训练。",
+      "提出物品共现引导的 Semantic ID 生成机制，将物品共现矩阵的 SVD 协同嵌入与文本语义嵌入融合，并用 RQ-KMeans 生成携带协同先验的离散物品 ID。",
+      "在推理阶段引入 SID 有效性约束解码，通过候选物品集合过滤保证生成的 SID 一定对应真实物品。",
+      "在五个真实数据集上与 16 个基线模型对比，ANR-DiffRec 一致且显著地取得最优性能。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 7,
+        "section": "Methodology"
+      },
+      {
+        "page": 9,
+        "section": "Methodology"
+      },
+      {
+        "page": 10,
+        "section": "Experiments"
+      },
+      {
+        "page": 14,
+        "section": "Ablation Study"
+      },
+      {
+        "page": 19,
+        "section": "Efficiency Analysis"
+      },
+      {
+        "page": 20,
+        "section": "Case Studies"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "FMLP-Rec",
+        "LRURec",
+        "DreamRec",
+        "DiffuRec",
+        "PreferGrow",
+        "VQ-Rec",
+        "TIGER",
+        "TIGER-SAS",
+        "LETTER",
+        "LC-Rec",
+        "RPG",
+        "DiffGRM",
+        "LLaDA-Rec"
+      ],
+      "datasets": [
+        "Scientific",
+        "Instrument",
+        "Game",
+        "Steam",
+        "MovieLens"
+      ],
+      "findings_zh": [
+        "在 Scientific、Instrument、Game、MovieLens、Steam 五个数据集上，ANR-DiffRec 在所有评估指标上一致优于全部基线；相对最强扩散基线 LLaDA-Rec 的提升具有统计显著性（配对 t 检验，p<0.05）。",
+        "SID 类生成式方法整体优于传统 Item ID 类方法；在 SID 构造中引入物品共现协同信号后，进一步提升了物品关系与序列转移模式的建模能力。",
+        "在 SID 类方法中，离散扩散模型（LLaDA-Rec、DiffGRM、ANR-DiffRec）整体优于自回归生成器，说明双向注意力更稳健；ANR-DiffRec 通过自适应噪声重调度进一步提升了物品检索精度。",
+        "按用户交互序列长度分组（<5、5-10、10-20、>20）分析时，ANR-DiffRec 始终优于 RPG 和 LLaDA-Rec；RPG 在极长序列上出现性能下降，而扩散模型表现出更好的韧性。",
+        "按物品流行度分为 Head/Mid/Tail 三组后，ANR-DiffRec 在三组上均优于 LLaDA-Rec，其中中频物品上的增益最明显；长尾物品因行为证据有限，提升相对较小。",
+        "消融实验显示，去掉自适应噪声重调度带来的性能下降最明显（Scientific 上 NDCG@1 下降超过 15%），去掉物品共现信息也会降低性能，同时去掉两个模块时性能最低；RQ-KMeans 分词优于 RQ-VAE。",
+        "对噪声重调度内部组件消融发现，局部可恢复性建模是最主要的去噪指导来源；行为感知依赖建模提供互补增益；跨物品上下文比物品内上下文对可恢复性的贡献更大。",
+        "协同信号构造对比中，SVD 与 LightGCN 效果基本相当，Node2Vec 明显更差，说明一阶共现信号已能提供较强归纳偏置，更高阶传播不一定带来额外收益。",
+        "效率分析表明 ANR-DiffRec 总体复杂度为 O(M^2d)，与标准双向 Transformer 同阶；生成式训练时间约为 LLaDA-Rec 的 1.011 倍；Beam=50 时每用户推理耗时与 LLaDA-Rec 接近（10.18ms vs 10.06ms）。",
+        "案例分析显示，融合共现特征后，物品在连续嵌入空间与 SID 空间中的共现邻居命中数均提升，例如 Item #6278 的 SID 空间共现命中从 4 增至 12。"
+      ],
+      "metrics": [
+        "Recall@1",
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文指出极稀疏的长尾物品仍只提供有限的行为证据，因此长尾组性能提升相对较小。",
+      "在 Instruments 数据集的极端长尾部分，RPG 仍保持微弱优势，说明 ANR-DiffRec 对极端长尾物品的建模仍有改进空间。",
+      "协同信号构造实验显示，更高阶的 LightGCN 传播并未比一阶 SVD 带来额外增益，说明当前协同先验的信息利用方式仍存在进一步优化的空间。",
+      "超参数 λ、几何衰减尖锐度 p 以及协同嵌入维度需要按数据集网格搜索，不同数据集上的最优 λ 不同，迁移到新业务场景需要重新调参。",
+      "论文仅在离线公开数据上评测，未包含线上业务实验，也尚未集成多模态信息；作者将多模态信息集成列为未来工作。"
+    ],
+    "method_zh": "方法包括三部分。第一，物品共现引导的 SID 生成：用预训练 Sentence-T5 提取物品文本语义嵌入，构造物品-物品共现矩阵并做截断 SVD 得到 64 维协同嵌入，将语义与协同嵌入拼接后使用 RQ-KMeans（L=4，每层码本 K=256）量化为 4 层 SID。第二，基于物品的离散扩散训练：采用用户历史级掩码和目标物品级掩码两种学习策略；在用户历史级掩码中，用静态几何衰减结构矩阵刻画 item 内与 item 间上下文可恢复性，并用来自 Transformer 最后一层、经过 detach 的物品级注意力分数建模行为感知依赖，最终以 W_ij = W_struct + αA_ij 组合得到自适应上下文权重，对掩码重建损失进行重加权；总损失为 L = λL_1 + L_2。第三，约束式离散扩散推理：从全 [MASK] 的 SID 出发，用 Transformer encoder 迭代去噪，结合 beam search 维护候选序列，并通过候选物品集合约束每次 unmask 的合法 token 集合，最终返回似然最高的合法物品 SID。",
+    "problem_zh": "现有的基于离散扩散模型（DDM）的生成式推荐方法主要建模用户级序列模式，但未能显式编码基于物品的协同过滤信息。问题体现在两方面：一是物品表示偏重语义而缺乏协作先验；二是扩散训练采用统一噪声调度，对所有被掩码 token 一视同仁，忽略了物品级自适应结构依赖，导致模型难以有效利用物品共现结构和用户行为依赖。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8935,
+  "graph_relations": [],
+  "id": "arxiv-2608.23400",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-25T20:09:07.010654Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering",
+    "large_language_model"
+  ],
+  "published_at": "2026-08-24T15:47:35Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出ANR-DiffRec，将基于物品的协同结构（共现矩阵与自适应噪声重调度）融入离散扩散模型以增强生成式推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Adaptive Item-based Collaborative Structures via Noise Rescheduling in Diffusion for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2608.23400v1"
+}

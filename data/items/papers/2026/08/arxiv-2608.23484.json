@@ -1,0 +1,127 @@
+{
+  "abstract": "We present Team Semiintelligencn's solution for the ACM RecSys 2026 TalkPlayData Challenge, addressing conversational music recommendation through a multi-modal and personalized conversational recommender system. Our submitted system employs a three-stage pipeline: (1) multi-modal retrieval constructing decay-weighted centroids across seven dense embedding spaces - track- and user-level CF-BPR, Qwen3 (metadata, lyrics, attributes), CLAP audio, and SigLIP visual - supplemented by BM25 lexical retrieval and an artist substring-match signal, all fused via weighted Reciprocal Rank Fusion (RRF) with optimized signal weights; (2) lightweight reranking (history filtering, popularity smoothing, and catalog diversity penalization); and (3) persona-diversified response generation using GPT-4o-mini. Beyond this submitted configuration, we report development-time experiments with additional components - constrained LLM-guided artist injection, album continuation signals, XGBoost LambdaMART, and a superior GPT-4.1 response prompt - that were not deployed to Blind B due to cost and complexity constraints. We optimize RRF weights on a 500-session development split via differential evolution, improving MRR by +19.5%. On Blind A, we observe that unconstrained LLM-guided injection across 54 sessions causes catastrophic nDCG regression (-18.9%), while conservative injection on only 9 sessions yields the best observed Blind A nDCG - a finding we present as a Blind A observation warranting further validation. The submitted system achieves a Blind B composite score of 0.3213. We present Team Semiintelligencn's solution for the ACM RecSys 2026 TalkPlayData Challenge, addressing conversational music recommendation through a multi-modal and personalized conversational recommender system. Our submitted system employs a three-stage pipeline: (1) multi-modal retrieval constructing decay-weighted centroids across seven dense embedding spaces - track- and user-level CF-BPR, Qwen3 (metadata, lyrics, attributes), CLAP audio, and SigLIP visual - supplemented by BM25 lexical retrieval and an artist substring-match signal, all fused via weighted Reciprocal Rank Fusion (RRF) with optimized signal weights; (2) lightweight reranking (history filtering, popularity smoothing, and catalog diversity penalization); and (3) persona-diversified response generation using GPT-4o-mini. Beyond this submitted configuration, we report development-time experiments with additional components - constrained LLM-guided artist injection, album continuation signals, XGBoost LambdaMART, and a superior GPT-4.1 response prompt - that were not deployed to Blind B due to cost and complexity constraints. We optimize RRF weights on a 500-session development split via differential evolution, improving MRR by +19.5%. On Blind A, we observe that unconstrained LLM-guided injection across 54 sessions causes catastrophic nDCG regression (-18.9%), while conservative injection on only 9 sessions yields the best observed Blind A nDCG - a finding we present as a Blind A observation warranting further validation. The submitted system achieves a Blind B composite score of 0.3213.",
+  "arxiv_id": "2608.23484",
+  "authors": [
+    "Naman Garg",
+    "Sarika Jain",
+    "George Fazekas"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "音乐推荐产品需在回复生成质量与推理成本间权衡：GPT-4.1 Mirroring的Judge（4.95）显著高于GPT-4o-mini Personas（2.60），但API输入成本约13倍（$2 vs $0.15/1M tokens），对应估计约0.176的复合分损失。",
+      "采用复合运营指标时，单指标优化（如只优化nDCG或让LLM自由重写回复）可能产生净负面结果；应将检索与生成阶段解耦，并对齐多目标评估体系。",
+      "LLM参与推荐重排应设置严格作用范围（如仅在目标艺术家曲目部分出现且排名不足时才介入），无约束注入可能因位置偏差损害用户体验和检索效果。",
+      "目录多样性与流行度平滑可协同使用：弱流行度加成避免冷门项在近似均匀分数下支配结果，跨会话多样性惩罚维护目录覆盖，适合音乐平台场景。",
+      "部署前的端到端配置验证非常重要：仅更换回复模型和省略重排器即可能造成约0.272的复合分损失，成本优化决策需量化对应的效果代价。",
+      "面向大规模生产环境，暴力余弦检索应替换为FAISS等ANN索引，GPT API调用可通过并行化或本地化模型降低延迟。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出三阶段流水线：融合7个稠密嵌入空间、BM25词法检索和艺术家子串匹配信号，通过差分进化优化加权RRF融合权重，MRR较均匀权重提升19.5%（提交至Blind B）。",
+      "在Blind A上观察到受约束LLM引导艺术家注入存在窄安全区间：仅对9个满足≤5艺术家曲目标准的会话做保守注入取得最佳Blind A nDCG（0.4694，+0.8%），而无约束注入54个会话导致nDCG灾难性回退-18.9%，揭示LLM位置偏差是关键失败模式（未部署至Blind B）。",
+      "提出基于10种人格轮换、严格格式约束和RAG锚定的GPT-4o-mini回复生成策略，在80个会话上取得Distinct-2=0.821的词汇多样性（提交至Blind B）。",
+      "透明分析Blind A与Blind B之间的性能差距，将其归因于部署期简化（回复生成配置更换和重排器省略），并明确说明跨划分比较的局限性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Task Formulation"
+      },
+      {
+        "page": 1,
+        "section": "3 Proposed Pipeline"
+      },
+      {
+        "page": 1,
+        "section": "4 Results and Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "均匀RRF权重",
+        "BM25 + CF-BPR（不含多模态质心锚定）",
+        "启发式模板回复",
+        "GPT-4.1 Encyclopedic回复策略",
+        "GPT-4.1 Mirroring回复策略",
+        "排行榜第1名 hallucinated（Comp 0.689）",
+        "排行榜第2名 volart（Comp 0.587）"
+      ],
+      "datasets": [
+        "TalkPlayData官方目录（47,071首曲目、8,975位艺术家）",
+        "训练集（约15,000个会话）",
+        "Devset（500个保留会话）",
+        "Blind A（80个参与者可见会话）",
+        "Blind B（80个组织者保留会话）"
+      ],
+      "findings_zh": [
+        "在500会话Devset上用差分进化优化RRF权重，MRR从0.1806提升至0.2158（+19.5%）；优化权重显示用户级CF（4.845）与艺术家子串匹配（4.861）占主导，歌词信号权重仅0.121。",
+        "Blind A累积消融中，添加多模态质心锚定使nDCG从0.085升至0.120（+41%），再添加艺术家子串匹配使nDCG升至0.277（+131%）。",
+        "开发组件中，专辑延续信号使Blind A nDCG从0.277升至0.388（+40%）；叠加XGBoost LambdaMART后升至0.466（+20%）；当最后3个GT曲目同专辑时下一GT曲目同专辑概率为58.1%，基线约15%。",
+        "保守GPT注入仅作用于9个会话（top-20中≤5首目标艺术家曲目）时，Blind A nDCG从0.4659升至0.4694（+0.8%）；扩展到54个会话的无约束注入使nDCG回退至0.3775（-18.9%），且只注入3个零艺术家曲目会话反而略降0.1%。",
+        "提交的Blind B系统复合分为0.3213（nDCG=0.232、Judge=2.60、LD=0.821、CD=0.031），排行榜第37名；Blind A上观测到的最佳复合分为0.64，来自GPT-4.1 Mirroring配置（nDCG=0.514、Judge=4.95、LD=0.86、CD=0.029）。",
+        "Blind A/B差距估计：部署简化（GPT-4o-mini人格回复替代GPT-4.1 Mirroring、省略专辑延续/LambdaMART/保守GPT注入）约造成0.272复合分损失，观测差距为0.319，提示两个划分存在分布差异。",
+        "回复生成策略对比（非受控消融）：GPT-4.1 Mirroring取得Judge=4.95、LD=0.86、Comp=0.64；GPT-4o-mini Personas取得Judge=2.60、LD=0.82、Comp=0.32；启发式模板仅Judge=1.45、Comp=0.14。"
+      ],
+      "metrics": [
+        "复合评分 = 0.5×nDCG@20 + 0.3×(Judge-1)/4 + 0.1×LD + 0.1×CD",
+        "nDCG@20",
+        "LLM-as-a-Judge评分（Judge）",
+        "Distinct-2词汇多样性（LD）",
+        "目录多样性（CD）",
+        "MRR"
+      ]
+    },
+    "limitations_zh": [
+      "LLM引导艺术家注入的最优性仅在Blind A单一划分上观测，未经独立保留集验证，且位置偏差回归解释仅为未测试假设，可能不具泛化性。",
+      "专辑延续信号可能反映挑战赛数据构造痕迹而非真实用户行为，作者因无法在独立保留集上验证而将其排除在Blind B提交外。",
+      "Blind A与Blind B的对比不是受控消融，不同划分的会话分布可能不同，因此跨划分比较只能提供近似估计而非因果结论。",
+      "Blind B提交受API成本和部署复杂性限制，省略了性能更优的GPT-4.1回复提示、专辑延续信号、XGBoost LambdaMART和保守GPT注入，导致复合分明显低于Blind A最佳观测配置。",
+      "冷启动（超冷/冷）会话无法利用用户级CF信号，LLM API调用是主要延迟瓶颈（约1-2秒/会话），扩展到更大目录需近似最近邻检索。"
+    ],
+    "method_zh": "三阶段流水线。（1）多模态检索：先将会话分为超冷启动、冷启动和热启动；查询构建中去除86个停用词，并对34个流派词和31个情绪词赋予双倍权重；用BM25Okapi（k1=1.5, b=0.75）对艺术家、曲目、专辑、标签的拼接文本检索top-300；同时在7个稠密嵌入空间（track/user级CF-BPR、Qwen3元数据/歌词/属性、CLAP音频、SigLIP视觉）上对按时间排列的收听历史构造指数衰减质心（γ=0.85），冷启动时用BM25 top-5做伪相关反馈；每个信号取top-300候选，按加权RRF（k=60）融合，并对显式提及艺术家按w_art=4.861加rank-1等效奖励；信号权重用500会话Devset上的差分进化优化。（2）多信号重排：提交版本包含历史去重过滤、流行度平滑（0.05×pop/100）和目录多样性惩罚；开发版本额外探索专辑延续信号、XGBoost LambdaMART和保守GPT-4.1艺术家注入，但未部署至Blind B。（3）回复生成：使用GPT-4o-mini，对80个会话轮换10种差异化人格，系统提示强制2-3句、恰好提及2首曲目及艺术家、禁止列表/表情/技术术语；将top-5检索曲目和完整对话序列化到prompt中实现RAG接地；生成参数为temperature=1.0、max_tokens=120、top_p=0.95、presence_penalty=0.6、frequency_penalty=0.4。",
+    "problem_zh": "面向 ACM RecSys 2026 TalkPlayData 挑战赛的对话式音乐推荐：系统需在多轮人机对话中理解动态变化的用户偏好，从约4.7万首曲目、8975位艺术家的目录中输出20个排序曲目UUID，并生成自然语言回复；评估采用检索质量（nDCG@20）、回复质量（LLM-as-a-Judge）、词汇多样性（Distinct-2）与目录多样性构成的复合指标。核心难点包括多模态覆盖不足、LLM幻觉和位置偏差边界、以及复合指标对单目标过度优化的脆弱性。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.8640000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.23484",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-25T20:09:07.010654Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-24T16:48:50Z",
+  "relevance_score": 0.98,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出面向对话式音乐推荐的多模态检索与轻量重排流水线，融合CF-BPR、稠密向量、BM25和LLM生成，在RecSys挑战赛中获得较好效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Multi-Modal Semantic Expansion with Constrained LLM Reranking for Conversational Music Recommendation",
+  "url": "https://arxiv.org/abs/2608.23484v1"
+}

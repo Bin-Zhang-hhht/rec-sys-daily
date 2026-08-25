@@ -1,0 +1,163 @@
+{
+  "abstract": "Cross-Domain Sequential Recommendation (CDSR) predicts the next item a user will interact with based on their historical interaction sequences across multiple domains. Recent approaches leverage Large Language Models (LLMs) finetuned on textual representations of cross-domain user sequences to retrieve the recommended items, referred to as LLMRec. However, LLMRec primarily models the autoregressive patterns of token-level item texts, while overlooking item-level collaborative signals. This semantic misalignment often leads to distorted knowledge transfer across domains-termed negative transfer degrading performance in the CDSR task. To address this issue, we propose a novel LLM-based CDSR model, DuELRec: Domain-Gated Dual Experts with LLMs for Cross-Domain Sequential Recommendation. We propose a domain-gated dual-expert framework, equipped with an item-aware attention transformation module, which aggregates textual subtokens into item-level representations and enforces block-level attention masking. The single-domain expert restricts autoregressive attention to items within the same domain, while the cross-domain expert allows it across all domains. A gating mechanism adaptively fuses their outputs, using single-domain signals to reduce cross-domain noise that causes negative transfer. Second, we introduce a dual-sampling token-to-item contrastive learning objective that allows LLMs to capture the item-level collaborative signals from both single- and cross-domains. This is achieved by transforming token-level item texts into item-level representations and applying stochastic negative sampling from both single- and cross-domain item pools for contrastive learning. Extensive experiments on two real-world datasets across ten domains show that our model outperforms 26 state-of-the-art methods in recommendation performance. Cross-Domain Sequential Recommendation (CDSR) predicts the next item a user will interact with based on their historical interaction sequences across multiple domains. Recent approaches leverage Large Language Models (LLMs) finetuned on textual representations of cross-domain user sequences to retrieve the recommended items, referred to as LLMRec. However, LLMRec primarily models the autoregressive patterns of token-level item texts, while overlooking item-level collaborative signals. This semantic misalignment often leads to distorted knowledge transfer across domains-termed negative transfer degrading performance in the CDSR task. To address this issue, we propose a novel LLM-based CDSR model, DuELRec: Domain-Gated Dual Experts with LLMs for Cross-Domain Sequential Recommendation. We propose a domain-gated dual-expert framework, equipped with an item-aware attention transformation module, which aggregates textual subtokens into item-level representations and enforces block-level attention masking. The single-domain expert restricts autoregressive attention to items within the same domain, while the cross-domain expert allows it across all domains. A gating mechanism adaptively fuses their outputs, using single-domain signals to reduce cross-domain noise that causes negative transfer. Second, we introduce a dual-sampling token-to-item contrastive learning objective that allows LLMs to capture the item-level collaborative signals from both single- and cross-domains. This is achieved by transforming token-level item texts into item-level representations and applying stochastic negative sampling from both single- and cross-domain item pools for contrastive learning. Extensive experiments on two real-world datasets across ten domains show that our model outperforms 26 state-of-the-art methods in recommendation performance.",
+  "arxiv_id": "2608.23131",
+  "authors": [
+    "Hyeongjun Yun",
+    "Kihyuk Song",
+    "Jaegul Choo",
+    "Chung Park"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "已在电信公司个人助理App部署，在线A/B测试显示CTR从0.90%提升至1.33%，相对提升47.6%，且统计显著（p<0.01）。",
+      "ID-free设计使单一模型可直接用于多个新域或新物品，无需为每个域维护独立的ID查表模型，降低跨域推荐系统的运维与扩展成本。",
+      "实际部署中使用了约500万用户、14个域的交互日志训练定制版本，说明该方案可扩展到大型生产环境。",
+      "推理延迟242ms/call，满足论文所述生产环境延迟要求，可用于实时Top-1推荐。",
+      "相比传统ID-based CDSR，训练和推理开销更高，企业需在推荐效果与LLM基础设施成本之间权衡。"
+    ],
+    "business_transferability": 0.88,
+    "contributions_zh": [
+      "提出DuELRec，一个基于LLM的跨域序列推荐模型，通过域门控双专家框架缓解负迁移。",
+      "设计item-aware attention transformation模块，将token级序列重构为item级表示，并分别用单域因果掩码和跨域因果掩码约束两个专家，以捕获单域与跨域的item级协同信号。",
+      "提出dual-sampling token-to-item对比学习目标，从单域和跨域物品池中随机采样负样本，增强模型区分同域与跨域物品表征的能力。",
+      "据论文所述，这是首个不依赖ID、仅凭文本信息即可同时处理三个以上域的LLM-based CDSR模型。",
+      "在两个真实数据集共十个域上对比26个SOTA基线，并在电信个人助理App上线A/B测试，CTR相对提升47.6%。"
+    ],
+    "evidence_quality": 0.92,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Model"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Performance Evaluation (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Discussion of the Negative Transfer (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Cold & Warm Scenario (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "5.7 Discussion of Model Variants (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "5.8 Sensitivity Analysis (RQ5)"
+      },
+      {
+        "page": 1,
+        "section": "5.9 Time Complexity Analysis (RQ6)"
+      },
+      {
+        "page": 1,
+        "section": "5.10 Online A/B Test (RQ7)"
+      },
+      {
+        "page": 1,
+        "section": "H Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "S3Rec",
+        "NextItNet",
+        "SINE",
+        "STAMP",
+        "TransRec",
+        "LightSANs",
+        "BiTGCF",
+        "DTCDR",
+        "CMF",
+        "CLFM",
+        "DeepAPF",
+        "MoSE",
+        "CGRec",
+        "SyNCRec",
+        "UniSRec",
+        "E4SRec",
+        "HLLM",
+        "RecFormer",
+        "SAID",
+        "CALRec",
+        "ReLLa",
+        "Lite-LLMRec",
+        "LLMEmb"
+      ],
+      "datasets": [
+        "Amazon Review Dataset（Books, Games, Jewelry, Outdoors, Toys，5个域）",
+        "Telco Behavior Dataset（Web-View, Call-Log, PoI, Benefits, Shopping，5个域）"
+      ],
+      "findings_zh": [
+        "在两个数据集共十个域上，DuELRec在多数域优于26个ID-based和LLM-based基线；Amazon上HR@5相对最佳基线提升Books +3.81%、Jewelry +20.6%、Outdoors +1.70%、Toys +10.8%。",
+        "在Games域，DuELRec未超过最强基线RecFormer，但在多数其他域表现稳定领先。",
+        "负迁移分析显示，除DuELRec外几乎所有CDSR模型在多数域都低于单域SASRec；DuELRec在全部域缓解了负迁移，Jewelry、Call-Log、Shopping等域改善尤其明显。",
+        "冷/热物品场景中，DuELRec在冷物品和热物品上都优于IDRec模型；冷用户场景下也持续优于IDRec模型。",
+        "消融实验显示，移除Domain-Gated Dual Experts、单域专家、跨域专家、随机单/跨域负采样或用ID embedding替代LLM文本输入，均导致多数域性能显著下降。",
+        "负采样比例p从0增大到0.5时，多数域性能持续提升；p=0（仅同域负样本）时性能最低。",
+        "DuELRec比ID-based模型训练慢1.67倍、推理慢2.29倍，但比LLM-based模型如RecFormer训练快1.16倍、推理快3.19倍。",
+        "在线A/B测试中，DuELRec的CTR为1.33%，显著高于SASRec变体的0.90%和流行度基线的0.63%（p<0.01），推理延迟242ms/call。"
+      ],
+      "metrics": [
+        "HR@5",
+        "HR@10",
+        "NDCG@5",
+        "NDCG@10",
+        "MRR@10",
+        "CTR"
+      ]
+    },
+    "limitations_zh": [
+      "在Amazon的Games域，DuELRec没有超过最强基线RecFormer。",
+      "相比ID-based模型，DuELRec训练慢约1.67倍、推理慢约2.29倍。",
+      "敏感性分析显示Call-Log和Shopping域在增大p时未呈现明确上升趋势。",
+      "论文指出生成式LLMRec存在幻觉风险，且当前DuELRec属于检索式方法，生成式大规模物品池推荐仍是未来工作。",
+      "部分两域CDSR基线仅支持成对域建模，对比时按两两配对平均，可能不完全等价于多域同时训练场景。"
+    ],
+    "method_zh": "DuELRec以TinyLlama-1.1B为LLM骨干，将跨域用户序列转成文本并经过tokenizer和embedding，之后用指令微调（PEFT/LoRA）辅助任务适应推荐场景。在LLM输出之上，构建单域专家与跨域专家两个Transformer，通过item-aware attention transformation将子词聚合成item级表示：单域专家只允许相同域内item按自回归方式互相注意，跨域专家允许跨域item按时间顺序注意。item-wise门控网络按item自适应融合两个专家输出，并通过偏置-方差分解理论说明其可抑制跨域干扰。主任务采用token-to-item对比学习，使用随机单域/跨域负采样和成对排序损失，总损失为指令微调损失与下一项预测损失的加权和。推理时用最后item表示与预计算item embedding做相似度检索。",
+    "problem_zh": "跨域序列推荐（CDSR）中，基于大语言模型的推荐器（LLMRec）主要建模物品文本的token级自回归模式，忽略了item级协同信号，导致跨域知识迁移出现语义错位和干扰，即负迁移问题，从而造成推荐性能下降。",
+    "technical_depth": 0.93
+  },
+  "doi": null,
+  "final_score": 0.9425,
+  "graph_relations": [],
+  "id": "arxiv-2608.23131",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-25T20:09:07.010654Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-24T11:36:41Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出DuELRec，通过域门控双专家框架与token-to-item对比学习，让LLM在跨域序列推荐中同时捕捉单域与跨域的物品级协同信号。",
+  "targets": [],
+  "tasks": [],
+  "title": "A Dual-Expert Strategy Integrating LLMs to Mitigate Negative Transfer in Cross-Domain Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2608.23131v1"
+}

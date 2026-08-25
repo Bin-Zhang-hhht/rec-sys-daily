@@ -1,0 +1,136 @@
+{
+  "abstract": "In generative recommender systems, items are typically tokenized into fixed-length semantic ID sequences for autoregressive next-item prediction. However, for user-context modeling, this fine-grained representation triggers Intra-item Attention Overload: excessive attention is spent on low-level intra-item dependencies rather than high-level inter-item behavioral transitions. To address this, we propose Semantic Subword Tokenization (SST), which represents historical items as variable-length semantic subwords while preserving fixed-length target decoding. SST first applies Item-level Subword Tokenization (IST) to merge stable adjacent atom tokens into compact semantic subword tokens, thereby reducing intra-item reassembly in the encoder. It then introduces Behavior-induced Co-occurrence Augmentation (BCA) to inject coarse-grained semantic prefix transition signals, guiding the freed modeling capacity toward inter-item behavioral regularities. Extensive experiments on three public datasets and three generative recommender backbones show empirical improvements of SST over fixed-length and transferable variable-length SID baselines. Code is available at https://github.com/mxrcandy/Semantic-Subword-Tokenization. In generative recommender systems, items are typically tokenized into fixed-length semantic ID sequences for autoregressive next-item prediction. However, for user-context modeling, this fine-grained representation triggers Intra-item Attention Overload: excessive attention is spent on low-level intra-item dependencies rather than high-level inter-item behavioral transitions. To address this, we propose Semantic Subword Tokenization (SST), which represents historical items as variable-length semantic subwords while preserving fixed-length target decoding. SST first applies Item-level Subword Tokenization (IST) to merge stable adjacent atom tokens into compact semantic subword tokens, thereby reducing intra-item reassembly in the encoder. It then introduces Behavior-induced Co-occurrence Augmentation (BCA) to inject coarse-grained semantic prefix transition signals, guiding the freed modeling capacity toward inter-item behavioral regularities. Extensive experiments on three public datasets and three generative recommender backbones show empirical improvements of SST over fixed-length and transferable variable-length SID baselines. Code is available at https://github.com/mxrcandy/Semantic-Subword-Tokenization.",
+  "arxiv_id": "2608.22734",
+  "authors": [
+    "Xinrui Miao",
+    "Mingjia Yin",
+    "Jiaqing Zhang",
+    "Wei Guo",
+    "Yong Liu",
+    "Yuyang Ye",
+    "Hao Wang",
+    "Enhong Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SST在保持固定目标解码语法的同时压缩历史侧表示，端到端训练时间没有系统性变慢（Beauty从0.718h降至0.659h，Yelp从1.689h略增至1.709h），说明在现有SID生成式推荐pipeline上引入IST/BCA的额外计算成本可控。",
+      "TIGER-KM作为工业对齐的RQ-KMeans backbone，SST在其上取得稳定提升，表明该方法可迁移到以残差量化/聚类构建SID的工业推荐场景。",
+      "BCA在Yelp上降低head曝光、提升tail曝光并改善mid/tail NDCG@10，可能有助于缓解长尾物品推荐不足和流行度偏差问题。",
+      "固定目标侧SID保证了beam search与全trie约束解码的稳定性，适合对生成结果可控性和服务稳定性要求较高的线上推荐系统。",
+      "代码已开源，且SST对具体item tokenizer（RQ-VAE或RQ-KMeans）不敏感，便于在已有生成式推荐系统中低成本复现和适配。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "识别并形式化固定长度SID生成式推荐中的用户上下文tokenization瓶颈：解码导向的原子token被复用于历史表示，造成intra-item attention overload，分散编码器对inter-item行为转移的建模能力。",
+      "提出Semantic Subword Tokenization (SST)：通过Item-level Subword Tokenization (IST) 将历史item重编码为可变长语义子词token，同时保持目标侧固定长度SID解码；Behavior-induced Co-occurrence Augmentation (BCA) 进一步注入粗粒度语义前缀转移信号。",
+      "在3个公开数据集和3个主流生成式推荐backbone上验证SST：相比固定长度与可迁移可变长SID基线取得一致提升，降低intra-item注意力负担，并验证了历史侧非对称tokenization设计的有效性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "2 Methodology"
+      },
+      {
+        "page": 5,
+        "section": "3 Experiments"
+      },
+      {
+        "page": 6,
+        "section": "3.3 Attention Overload Analysis"
+      },
+      {
+        "page": 7,
+        "section": "3.5 Efficiency Analysis"
+      },
+      {
+        "page": 8,
+        "section": "3.7 Asymmetric Tokenization Design"
+      },
+      {
+        "page": 10,
+        "section": "A Tokenization Criterion Comparison"
+      },
+      {
+        "page": 11,
+        "section": "C Popularity Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Fixed (固定长度SID原始backbone)",
+        "SARQ",
+        "VSID",
+        "+BCA",
+        "+IST",
+        "+IST+BCA (SST)",
+        "InputPool (Appendix B)",
+        "Random (Appendix B)"
+      ],
+      "datasets": [
+        "Beauty (Amazon)",
+        "Instruments (Amazon)",
+        "Yelp"
+      ],
+      "findings_zh": [
+        "SST (+IST+BCA) 在3个数据集和3个backbone上一致优于固定长度与可迁移可变长SID基线；例如TIGER-KM在Beauty上HR@5提升+10.4%、NDCG@10提升+10.0%，LETTER在Yelp上HR@5提升+7.9%。",
+        "Token级注意力负担分析显示，SST一致降低Intra-Item Attention Budget和Atom Reassembly Load；atom→subword与subword→atom两个通道仍非零，说明item内部表示由语义子词token作为紧凑载体吸收，而非被直接删除。",
+        "IST子词数量k呈凹形趋势，适度k最优；BCA前缀对数量k增大时性能提升并逐渐饱和。",
+        "效率分析显示IST降低平均历史token长度（如Instruments从27.92降至23.41），训练epoch数减少；端到端时间基本抵消（Beauty从0.718h降至0.659h，Yelp从1.689h略增至1.709h），SST未带来系统性变慢。",
+        "覆盖度桶分析显示，IST相对Fixed的增益随语义子词覆盖率提高而增大；作者明确指出0%覆盖桶在Instruments上接近零，不应将其解读为子词token化的直接证据。",
+        "非对称设计验证：在Yelp上VarLen历史+Fixed目标优于Fixed+Fixed，但VarLen历史+VarLen目标显著下降（HR@10从0.0412降至0.0329）；merged item桶在VarLen目标下几乎崩溃，原因是语义子词token成为位置级长尾解码符号。",
+        "tokenization准则比较显示：Beauty上WordPiece最优，Yelp上CondEntropy占优，Instruments上无单一准则全面胜出；多数设置下各准则均相对Fixed有正收益。",
+        "流行度分析显示，IST在Yelp上保持head曝光同时提升tail曝光与tail NDCG@10；加入BCA进一步降低head曝光、提升mid/tail NDCG@10，部分改善长尾推荐。"
+      ],
+      "metrics": [
+        "HR@5",
+        "HR@10",
+        "NDCG@5",
+        "NDCG@10",
+        "leave-one-out full-ranking evaluation"
+      ]
+    },
+    "limitations_zh": [
+      "论文无单独Limitations章节，但从实验结果可见，SST收益和最优tokenization准则依赖数据集特定的item共现结构；共现结构不明显时，增益和准则间差异都会缩小。",
+      "IST与BCA并非在每个指标上都严格可加，部分backbone-dataset组合下组件增益不完全叠加。",
+      "覆盖度分析中0%覆盖桶在Instruments上接近零增益，作者明确表示不应将其作为子词token化收益的直接证据。",
+      "将目标侧也改为可变长子词表示会导致merged item性能崩溃，原因是语义子词token在位置级目标中占比较小、成为长尾解码符号，因此固定长度目标侧是必要约束。",
+      "BCA注入额外行为回放样本会增加每epoch训练成本，虽然总时间与减少的epoch大致抵消，但样本数量和训练开销之间仍存在权衡。",
+      "实验基于5-core过滤、最大序列长度截断为20的公开数据集，未提供工业级部署或在线A/B测试证据。"
+    ],
+    "method_zh": "SST包含两个组件。(1) IST：在固定长度SID之上做后处理子词化。先在每个item内部收集相邻原子token对（不跨item边界），统计频率与item支持度；再按BPE、WordPiece或CondEntropy评分迭代学习合并规则，满足频率阈值f和支持度阈值s后合并，直到合并预算用完；最后重放合并规则，将item SID重编码为包含语义子词token的可变长序列，使历史上下文更紧凑。(2) BCA：先为每个item取SID前P个token作为语义前缀；在用户前缀序列上用滑动窗口W统计前缀对共现（count/PMI/lift），选top-k前缀对；然后回溯原始用户序列中这些前缀对之间的历史子序列，作为额外训练样本注入（输入为回放的历史子序列，预测目标为右侧item）。SST采用非对称tokenization：IST/BCA只修改encoder历史侧表示，decoder目标侧保留固定长度SID，以保证稳定的L槽自回归解码语法。",
+    "problem_zh": "在基于固定长度语义ID（SID）的生成式推荐中，同一套为解码目标设计的原子token序列也被用来表示用户历史交互项；历史序列展开后，模型需要先在注意力层反复重组同一item内部的原子token，才能建模item之间的行为转移。论文将这种用户上下文tokenization瓶颈称为Intra-item Attention Overload：大量注意力花在低层intra-item依赖上，而非高层inter-item行为规律，限制了用户偏好建模。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.8700000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.22734",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-25T20:09:07.010654Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-24T02:42:51Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出语义子词分词方法SST来改进生成式推荐系统中的物品Token化，缓解注意力过载并增强行为序列建模，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Rethinking Item Tokenization in Generative Recommenders: From Fixed Atoms to Semantic Subwords",
+  "url": "https://arxiv.org/abs/2608.22734v1"
+}
