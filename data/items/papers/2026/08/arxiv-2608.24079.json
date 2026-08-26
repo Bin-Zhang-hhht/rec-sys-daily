@@ -1,0 +1,158 @@
+{
+  "abstract": "A shared search-and-recommendation index must score new items from features alone because search has no exploration slot. In a public log covering both surfaces over one catalog, $38.6\\%$ of held-out query-search impressions show an item never previously shown or visited. For user-cold engagements, the feature-based tower serves this demand without measurable loss against $99$ sampled negatives ($0.9595$ Recall@20 versus $0.9510$ warm). A lexical baseline reaches similar parity, while a full-catalog check remains statistically undecided. Dual-encoder retrieval therefore keeps the index \\emph{open} to new items, unlike an ID-softmax recommender that requires retraining. We price this openness on recommendation against six sequential baselines, each retrained and tuned through five rounds on corrected targets. A float32 timestamp bug had reordered leave-one-out targets for $19.7\\%$ of users. On MovieLens-1M, warm accuracy trails the strongest retrained baseline by $5.2\\%$ Recall@20 and $11.4\\%$ NDCG@20. On MIND, the gap narrows to $0.8$--$3.6\\%$ relative to the five strongest baselines, though the model ranks sixth of seven. Under strict zero-leakage cold-start evaluation, the content tower achieves $0.172 \\pm 0.006$ Recall@20, $1.4\\times$ the strongest retrained dedicated method ($0.124 \\pm 0.007$) and $3\\times$ a training-free floor, without cold-specific training. Exact full-softmax training raises Recall@20 by $54\\%$ on MIND-small and $6.9\\%$ on MovieLens-1M over sampled InfoNCE, but recomputes the full catalog each step and exhausts accelerator memory at $240$K items. Approximate nearest-neighbor search explains none of the remaining gap, serving cost does not regress against ID-softmax retrieval, and a history-window sweep explains half the post-recipe remainder. Exact-quality training at catalog scale remains the open problem. A shared search-and-recommendation index must score new items from features alone because search has no exploration slot. In a public log covering both surfaces over one catalog, $38.6\\%$ of held-out query-search impressions show an item never previously shown or visited. For user-cold engagements, the feature-based tower serves this demand without measurable loss against $99$ sampled negatives ($0.9595$ Recall@20 versus $0.9510$ warm). A lexical baseline reaches similar parity, while a full-catalog check remains statistically undecided. Dual-encoder retrieval therefore keeps the index \\emph{open} to new items, unlike an ID-softmax recommender that requires retraining. We price this openness on recommendation against six sequential baselines, each retrained and tuned through five rounds on corrected targets. A float32 timestamp bug had reordered leave-one-out targets for $19.7\\%$ of users. On MovieLens-1M, warm accuracy trails the strongest retrained baseline by $5.2\\%$ Recall@20 and $11.4\\%$ NDCG@20. On MIND, the gap narrows to $0.8$--$3.6\\%$ relative to the five strongest baselines, though the model ranks sixth of seven. Under strict zero-leakage cold-start evaluation, the content tower achieves $0.172 \\pm 0.006$ Recall@20, $1.4\\times$ the strongest retrained dedicated method ($0.124 \\pm 0.007$) and $3\\times$ a training-free floor, without cold-specific training. Exact full-softmax training raises Recall@20 by $54\\%$ on MIND-small and $6.9\\%$ on MovieLens-1M over sampled InfoNCE, but recomputes the full catalog each step and exhausts accelerator memory at $240$K items. Approximate nearest-neighbor search explains none of the remaining gap, serving cost does not regress against ID-softmax retrieval, and a history-window sweep explains half the post-recipe remainder. Exact-quality training at catalog scale remains the open problem.",
+  "arxiv_id": "2608.24079",
+  "authors": [
+    "Theodore Rogers",
+    "Joe Standerfer",
+    "Dmitrii Timoshenko",
+    "Haoxue Li",
+    "Zuhaib Akhtar",
+    "Soyoung Yang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "共享搜索/推荐索引可以获得真正的冷启动能力：新物品无需重训练即可进入推荐与搜索检索，降低新品上架到可被发现的延迟，对电商与广告等快速上新场景有直接价值。",
+      "内容塔在严格冷启动协议下超过专用冷启动方法 1.4 倍且无需专门的冷启动训练阶段，说明双塔检索架构本身即可作为生产冷启动通道，并可冻结融合 MF 等记忆型通道同时保住温准确率。",
+      "精确全 softmax 训练在 10^5 以上目录不可行，实际生产必须依赖采样目标并接受精度损失；在精确目标与可扩展采样目标之间缩小差距是该架构落地的主要开放问题。",
+      "服务端成本大致对称：检索阶段双塔并不比 ID-softmax 类更贵，ANN 只在 10^6 以上规模才成为必需，这降低了从 ID-softmax 迁移到开放索引的工程风险。",
+      "评估协议会实质改变结论：float32 时间戳 bug 会重排 19.7% 用户的测试目标并使基线排名失真；在线下基准对比中必须统一目标定义、报告 seen-item echo 等协议诊断，否则业务决策可能建立在伪差距上。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "量化了双塔检索相对重训练 ID-softmax 顺序推荐器的温准确率代价及其扩展瓶颈：采样 InfoNCE 换成全 softmax 交叉熵是最大单一精度杠杆（MIND-small +54%、MovieLens-1M +6.9%），但在 240K 物品目录上该精确目标在实现中超出加速器显存。",
+      "提出了严格的零泄漏物品冷启动压力测试：内容塔在无专用冷启动训练阶段的情况下冷 Recall@20 达 0.172±0.006，是最强专用冷启动方法 ALDI（0.124±0.007）的 1.4 倍，是训练无关相似度基线（0.058）的 3 倍。",
+      "给出服务成本与评估协议诊断：精确扫描与 IVF-PQ 的延迟/保真度对比、seen-item echo 率，以及 float32 时间戳 bug 导致 19.7% MovieLens-1M 用户的 leave-one-out 目标被静默重排的目标审计。",
+      "提供了测量工具 RetrievalFormer：带 AttentionFusion 异构特征编码器、跨塔共享嵌入表、支持新物品零样本打分的双编码器顺序推荐器，用于消融与对比而非宣称新颖性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 4,
+        "section": "4.1 Setup and Protocol Diagnostics"
+      },
+      {
+        "page": 5,
+        "section": "4.2 RQ1: Warm Accuracy Against Retrained Baselines"
+      },
+      {
+        "page": 6,
+        "section": "4.3 RQ2: Where the Gap Comes From"
+      },
+      {
+        "page": 8,
+        "section": "4.4 RQ3: Strict Item Cold-Start"
+      },
+      {
+        "page": 9,
+        "section": "4.5 RQ4: Serving as a Cost Ledger"
+      },
+      {
+        "page": 10,
+        "section": "5 Limitations"
+      },
+      {
+        "page": 11,
+        "section": "A Cold-Start Protocol Details"
+      },
+      {
+        "page": 12,
+        "section": "B Evaluation-Protocol Sensitivity"
+      },
+      {
+        "page": 12,
+        "section": "C Extended Analyses"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "SASRecF（特征融合 SASRec）",
+        "FDSA",
+        "DIF-SR",
+        "DropoutNet",
+        "Heater",
+        "ALDI",
+        "MF（矩阵分解）",
+        "BM25（untuned，搜索侧）",
+        "Last-item text cosine（无训练冷启动地板）"
+      ],
+      "datasets": [
+        "MovieLens-1M（5-core 过滤，3,416 items；冷启动基准保留全部 3,706 items）",
+        "MIND-small / MIND-large（新闻推荐，9.4K items）",
+        "AliEC（30,461 users，16,475 items）",
+        "Avito context-ad log（搜索侧：36.9M ads，112.2M searches / 286.8M organic events）"
+      ],
+      "findings_zh": [
+        "温准确率：MovieLens-1M 上 RetrievalFormer Recall@20=0.3739±0.0013，为最强基线 DIF-SR（0.3944±0.0019）的 94.8%；NDCG@20 0.1693 对 SASRecF 0.1911，低 11.4%。",
+        "MIND-large 上 Recall@20=0.3368±0.0017，处于最强五个基线的 0.8–3.6% 区间内，但七行中排第六；短历史使该差距收窄。",
+        "目标函数配对实验：采样 InfoNCE 换全 softmax CE 使 MIND-small Recall@20 从 0.1830 升至 0.2822（+54%），MovieLens-1M 从 0.3132 升至 0.3349（+6.9%）。",
+        "显存墙：全 softmax 目标在 44GB GPU 上可训练 3.4K/9.4K 物品目录，但在 240K 物品目录（batch 512 与 256）均 OOM；精确目标按目录规模逐 step 重算整个物品塔是结构性开销。",
+        "冷启动：严格零泄漏协议下内容塔冷 Recall@20=0.172±0.006，为 ALDI（0.124±0.007）的 1.4 倍、Heater（0.106）的 1.6 倍、训练无关文本余弦地板（0.058）的 3 倍；与调优 MF 冻结分数融合后冷 0.172/温 0.276，使用 instruction encoder 变体可达冷 0.195±0.008。",
+        "搜索侧证据：Avito 日志中 held-out 周 38.6% 的 query-search impressions 展示此前从未展示/访问过的广告；在用户无先前接触的切片上，内容塔 Recall@20=0.9595±0.0008 对温 0.9510±0.0008，无可测量的冷惩罚（全目录检查统计上不显著）。",
+        "评估协议审计：RecBole 1.2.1 的 float32 时间戳量化导致 19.7% MovieLens-1M 用户的 LOO 目标被重排；在修正基准上重训使每个基线分数下降 0.016–0.039，并改变模型排名。",
+        "ANN 不贡献精度差距：所有准确率数字均为精确全目录打分；在 MIND-large 检查点上 HNSW 保持 99.98% 的 Recall@20（0.33878 vs 0.33884）。",
+        "服务成本：9.4K 物品时精确 CPU 扫描 p90 仅 0.28 ms/query，用户塔前向约 5 ms 主导；10M 物品时精确扫描 292 ms vs IVF-PQ 约 1 ms（但仅召回精确 top-K 的 2.8%）；双塔与 ID-softmax 类的检索阶段成本对称。",
+        "历史窗口：cap 100→300 使 Recall@20 从 0.3371 升至 0.3668±0.004（5 seeds），解释了配方剩余差距约一半；推理期把历史截断到基线 50 项使 0.3739→0.3671±0.0023。"
+      ],
+      "metrics": [
+        "Recall@20",
+        "NDCG@20",
+        "Echo@20（已见物品回显数）",
+        "Recall@5 / Recall@10 / Recall@1000",
+        "精确扫描与 ANN 的 p90 延迟",
+        "ANN 对精确 top-K 的召回率",
+        "HNSW/IVF-PQ 端到端指标保持率"
+      ]
+    },
+    "limitations_zh": [
+      "温准确率与冷启动主网格仅在 MovieLens-1M 上；MIND 与 AliEC 作为配对目标函数与跨基准检查，部分行是单次运行。",
+      "未强制参数对齐：本文模型的配置搜索比每个基线仅五轮调参更广，存在偏向本文模型的预算不对称；基线使用框架默认 50 项历史窗口且历史长度不在其调参杠杆内。",
+      "冷启动专用基线只重训了三种（DropoutNet、Heater、ALDI），CLCRec 因实现未通过许可审查只能作为 prior art 引用。",
+      "RQ2(b) 的残余差距主要通过排除法界定并由历史窗口轴大部分归因，未完全隔离；监督密度与损失变体等消融尚未运行。",
+      "超过 10^4 物品的扫描计时使用合成嵌入、单机、约 15% 运行间波动；ANN 扫描只覆盖一个索引族、两个 probe 设置，10^6 以上规模的端到端 ANN 影响未测。",
+      "目标函数效果是配方束（loss、scoring、sampling、schedule 共同移动），且没有在同一个基准上跨目录规模同时测量质量与可训练性；在动机所在的 10^5+ 规模没有 head-to-head 准确率对比。",
+      "基于特征的物品塔继承元数据质量偏差：描述稀疏或畸形的新物品会得到较低质量嵌入，对长尾段不友好。",
+      "搜索侧结果依赖延迟跨流 engagement 作为相关性信号，词法对比器是未调优 BM25；全目录腿是单 seed，样本量有限（Recall@20 区间约 2pp），只能说明在该检验功效下测不到冷惩罚，而非证明不存在。"
+    ],
+    "method_zh": "RetrievalFormer 是双塔（dual-encoder）架构：物品塔用 AttentionFusion（Set-Transformer 风格的多头自注意力 + 残差 + 层归一化 + 均值池化）对异构特征（类别、标签、文本 token 等）编码，得到的物品嵌入可离线预计算并建索引，新物品直接从特征得到嵌入；用户塔是 transformer，将交互历史编码为 enriched tokens（物品融合特征 + 交互上下文如评分/时间），序列为 [history, [SEP], user profile, readout token]，采用 prefix-LM 注意力（历史段因果、profile 段双向），最后 readout 表示投影为用户嵌入；相关性为点积。各塔共享嵌入表，同一类目值在物品属性、历史事件、用户属性中使用同一向量。训练目标有两种：采样 InfoNCE（混合负采样，含批内、均匀、流行、长尾负样本）与全目录全 softmax 交叉熵（带每物品偏置，逐 item 更新全部目录）。最佳配置还加入了物品 ID 输入与 tied output head 以提升温准确率，冷物品天然无 ID 路径。在冷/温联合运行点中，将冻结的内容塔分数与冻结的调优矩阵分解（MF）分数做标量融合（冷行置零），可在不额外训练的情况下同时保持冷覆盖与 MF 的温上限。",
+    "problem_zh": "共享搜索与推荐的统一索引要求新物品在第一次请求时就能被内容特征打分，但 ID-softmax 类顺序推荐器只能通过重训练把新物品纳入词表，存在封闭索引问题。双塔（dual-encoder）检索架构虽然能保持索引对新品开放，但在推荐侧需要付出可量化的温准确率代价；同时精确的全 softmax 训练目标在统一目录规模（10^5 以上物品）下会碰到显存墙，形成质量-规模权衡。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.872,
+  "graph_relations": [],
+  "id": "arxiv-2608.24079",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-26T22:34:54.976393Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-25T05:22:09Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "RetrievalFormer 提出双编码器 Transformer 模型用于近似最近邻检索和冷启动物品推荐，通过特征塔对未出现在历史交互中的新物品进行开放索引召回，并与 ID-softmax 等推荐基线对比。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "RetrievalFormer: A Dual-Encoder Transformer for Efficient Approximate Nearest Neighbor Retrieval and Cold-Item Recommendation",
+  "url": "https://arxiv.org/abs/2608.24079v1"
+}

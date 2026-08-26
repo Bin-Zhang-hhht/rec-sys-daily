@@ -1,0 +1,171 @@
+{
+  "abstract": "Product catalogs in fast-moving service businesses are shifting from static, independently priced SKUs toward dynamically bundled, discount-coupled offerings--a shift that strains the tree-based classifiers traditionally preferred for sparse and highly imbalanced data. These classifiers assume a fixed, slowly changing label space and struggle to incorporate multimodal signals such as tabular data and transcripts. We present the migration of a live, production conversational recommendation system from a gradient-boosted multiclass model to a pairwise-binary deep recommender. Because this system is critical to ecosystem growth initiatives and downstream features like dynamic pitching--surfacing the most relevant pitch text to a support agent in real time during a live customer conversation--maintaining live recommendation quality was a non-negotiable constraint. We detail the techniques that made this migration successful--reformulating recommendation as pairwise binary prediction to learn jointly from user and item features, and enhancing learned representations via negative sampling and noise injection. To efficiently incorporate long, live conversation context, we apply attention pooling over transcript chunks and benchmark it against TF-IDF and sentence-embedding baselines. Finally, we explore multiple architectures (including two-tower models, DeepFM, and their variants) and loss functions such as contrastive loss. Evaluating against a CatBoost baseline across all conversational stages, we demonstrate that our approach achieves parity at conversation beginning and outperforms at later conversational stages. Product catalogs in fast-moving service businesses are shifting from static, independently priced SKUs toward dynamically bundled, discount-coupled offerings--a shift that strains the tree-based classifiers traditionally preferred for sparse and highly imbalanced data. These classifiers assume a fixed, slowly changing label space and struggle to incorporate multimodal signals such as tabular data and transcripts. We present the migration of a live, production conversational recommendation system from a gradient-boosted multiclass model to a pairwise-binary deep recommender. Because this system is critical to ecosystem growth initiatives and downstream features like dynamic pitching--surfacing the most relevant pitch text to a support agent in real time during a live customer conversation--maintaining live recommendation quality was a non-negotiable constraint. We detail the techniques that made this migration successful--reformulating recommendation as pairwise binary prediction to learn jointly from user and item features, and enhancing learned representations via negative sampling and noise injection. To efficiently incorporate long, live conversation context, we apply attention pooling over transcript chunks and benchmark it against TF-IDF and sentence-embedding baselines. Finally, we explore multiple architectures (including two-tower models, DeepFM, and their variants) and loss functions such as contrastive loss. Evaluating against a CatBoost baseline across all conversational stages, we demonstrate that our approach achieves parity at conversation beginning and outperforms at later conversational stages.",
+  "arxiv_id": "2608.24132",
+  "authors": [
+    "Sonia Sharma",
+    "Jeyendran Balakrishnan",
+    "Shreya Rajpal",
+    "Swapnil Parekh",
+    "Nagaraj Janardhana",
+    "Andrew Mattarella-Micke"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该推荐系统是多个生态增长与留存项目的骨干，下游接入DynaPitch实时话术增强系统，支持约3.6亿美元收入组合；因此质量不回归是业务的硬约束，而非单纯追求指标提升。",
+      "成对二分类+任意item侧特征的结构能够在不重训标签空间的情况下加入新SKU和动态捆绑，是快增长产品目录下比多分类更可扩展的推荐范式，相关能力虽未直接验证但被论文视为关键解锁点。",
+      "仅有少量会话文本时（CL阶段）深度模型仍难超过CatBoost，但一旦存在实时文本信号（ER/GZ），注意力池化DeepFM和双塔都能显著超过CatBoost，说明对服务型业务而言，真正带来业务价值的是对会话文本的条件化利用。",
+      "推理侧结论直接面向生产：DeepFM只有配上批处理才能在真实负载下可用；文本嵌入占CPU成本近一半，因此更小或蒸馏的文本编码器是降低在线成本的高优先级方向，GPU主要解决吞吐而非模型可容纳性。",
+      "系统设计为人机协同：模型推荐、人工客服决定是否如何提出，DynaPitch把推荐约束为基于真实产品特性的实时话术；未来计划将训练目标从短期转化改为长期客户终身价值，以对齐客户长期利益。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出成对二分类（pairwise-binary）问题重构：将(contact, product)映射为match/no-match，使新SKU或捆绑商品只需作为新的item侧特征向量，而无需像多分类那样重训标签空间。",
+      "系统化定义显式/隐式、困难/软负样本分类法，并比较随机与结构化负采样、每次contact采样与每个chunk独立采样，以及K=0..7的隐式负样本数量；确定每阳性contact-chunk采样K=2-4个随机隐式负样本的实用区间。",
+      "提出在共享用户/商品嵌入空间上联合使用BCE与InfoNCE风格对比损失，并引入50:50分组平衡批构造；证明批量组成本身是一个独立可加杠杆，对比损失在其之上仍能继续提升所有contact级指标。",
+      "在DeepFM上实现基于learned-query的注意力池化层，按utterance级nomic-embed向量对会话分块加权，与TF-IDF/SVD和稠密句子嵌入基线对比；该配置成为文中首个在ER和GZ上同时超过CatBoost的模型。",
+      "对DeepFM进行双重下降（double descent）容量/正则化刻画：36个网格配置中几乎所有更小、更好正则化的模型都超过147.8M参数基线；噪声注入在17.2M参数下使CL达到0.5003，是唯一超过CatBoost CL的网格配置；200轮长训练未出现epoch-wise恢复，报告为真阴性结果。",
+      "比较DeepFM与双塔架构，验证双塔的冷启动安全残差基路径+零初始化目标注意力修正路径；目标注意力是最大单杠杆提升（Top-1 +3.3pp），冷启动损失杠杆可恢复CL到接近基路径。",
+      "给出推理时优化：说明批处理（batching）是将DeepFM从不可用变为生产可用的关键杠杆，吞吐从batch=1的17 req/s提升到CPU 323、GPU 575 req/s（batch=64）；INT8量化收益有限且有指标代价，默认不采用。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1.1"
+      },
+      {
+        "page": 1,
+        "section": "1.4"
+      },
+      {
+        "page": 1,
+        "section": "2.2"
+      },
+      {
+        "page": 1,
+        "section": "3.3"
+      },
+      {
+        "page": 1,
+        "section": "4"
+      },
+      {
+        "page": 1,
+        "section": "5"
+      },
+      {
+        "page": 1,
+        "section": "6.1"
+      },
+      {
+        "page": 1,
+        "section": "7.3"
+      },
+      {
+        "page": 1,
+        "section": "7.4"
+      },
+      {
+        "page": 1,
+        "section": "8.3.1"
+      },
+      {
+        "page": 1,
+        "section": "8.4"
+      },
+      {
+        "page": 1,
+        "section": "9"
+      },
+      {
+        "page": 1,
+        "section": "10"
+      },
+      {
+        "page": 1,
+        "section": "Ethical Considerations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Legacy CatBoost（pairwise-binary，带TF-IDF文本特征；depth 10，1000次迭代，LR 0.0406，ℓ2叶正则8.51）",
+        "DeepFM without text",
+        "DeepFM with TF-IDF/SVD text",
+        "TT-base：残差双塔（无目标注意力）",
+        "TT-attn：TT-base + 目标注意力 + 冷启动杠杆",
+        "TT-full：TT-attn + 58% chunk-stride子采样训练",
+        "随机负采样 vs 结构化规则负采样（K=2, K=4）",
+        "BCE-only vs BCE+对比损失；随机批 vs 50:50分组平衡批",
+        "服务端对比：CatBoost fp32、DeepFM fp32 CPU/GPU、DeepFM INT8"
+      ],
+      "datasets": [
+        "私有Intuit客户支持会话（contact-chunk粒度）数据",
+        "训练/验证集：2025-01至2026-03，按contact_id 75/25随机划分（seed 42），chunk化并负采样后为903,829/302,122行",
+        "测试集：2026-04至2026-06时间外holdout，360,022行",
+        "固定阳性contact评估人群：16,709个contact，与CatBoost基线共用同一人群",
+        "特征规模：154个类别字段、约2000个稠密特征；chunk级正样本率约4.1%（contact级约4.5%）"
+      ],
+      "findings_zh": [
+        "CatBoost基线在固定阳性人群上的CL/ER/GZ为0.4985/0.5310/0.5676；DeepFM无文本仅0.3426/0.4362/0.4293，加入TF-IDF/SVD文本后上升到0.4678/0.5283/0.5158。",
+        "DeepFM+注意力池化达到CL 0.4867、ER 0.5630、GZ 0.5943，是文中第一个在ER和GZ上同时超过CatBoost的配置：ER +3.2pp、GZ +2.7pp，CL仅差1.2pp。",
+        "双塔线：TT-base为0.4575/0.5537/0.6152，TT-attn为0.4472/0.5537/0.6113，TT-full为0.4546/0.5585/0.6195；目标注意力给Top-1带来+3.3pp（0.5822→0.6152），冷启动损失杠杆将CL从0.4472恢复到0.4546。",
+        "负采样：每个chunk独立采样优于每contact一次采样（CL 0.437 vs 0.407，ER 0.530 vs 0.525）；结构化负采样虽可大幅提升test PR-AUC（K=4时0.5244→0.6293），但CL反而下降（0.4857→0.4495），收益不传递到contact级指标。",
+        "K sweep（K=0..7）显示validation-test PR-AUC差距随K增大单调缩小，但CL/ER/GZ随K非单调变化；K=2-4是后续使用的折中区间。",
+        "仅将批量组成改为50:50分组平衡批（K=3，无对比项）就使ER从0.5021升至0.5441、GZ从0.4906升至0.5286；在50:50 batching + K=4上叠加对比损失后达到CL 0.4981、ER 0.5510、GZ 0.5354，全面超过仅batching。",
+        "双重下降扫描：36个网格配置中几乎所有配置在test PR-AUC和CL F1上超过147.8M参数的DeepFM基线；固定17.2M参数下从lowreg切换到noisy（15%标签噪声）使CL从0.4772升至0.5003，ER 0.5528，是唯一CL超过CatBoost的配置，但GZ仍低于CatBoost（0.5368 vs 0.5676）。",
+        "200轮noisy长训练（37.07M参数）为真阴性结果：validation PR-AUC在第16轮达0.7428后单调衰减至第199轮0.2902，无dip-rise-dip恢复；test PR-AUC 0.6504、CL 0.4800、ER 0.5544、GZ 0.5222。",
+        "推理开销：DeepFM单请求CPU 124.5ms/GPU 113.3ms，其中文本嵌入占CPU约48%；CatBoost端到端641ms但模型调用仅2.4ms，主要成本是TF-IDF向量化。",
+        "批处理使DeepFM吞吐从batch=1的17 req/s提升到CPU 323、GPU 575 req/s（batch=64），增长19×/34×；CatBoost batch=64为9954 req/s。请求合并服务在150 req/s到达率下CPU P50为288-377ms，反而差于不批处理单请求124ms，说明批处理只在足够高到达率下才划算。",
+        "INT8动态量化将模型文件缩小75%、batch-64吞吐提升11%，但ER F1和test PR-AUC各下降约2个点；CL和GZ基本不变或略好，因此默认不采用。"
+      ],
+      "metrics": [
+        "CL（Case-Load，chunk_num=0）micro-F1",
+        "ER（Early-Reco，chunk_num=1）micro-F1",
+        "GZ（Ground-Zero，per-contact最大权重chunk）micro-F1",
+        "Top-1 argmax推荐准确率",
+        "Validation/test PR-AUC、ROC-AUC、log-loss",
+        "P50/P95延迟（ms）与吞吐（req/s）"
+      ]
+    },
+    "limitations_zh": [
+      "未进行跨客户分段的公平性审计，也未应用显式偏差纠正；基于历史agent/contact结果训练的推荐器可能编码并放大历史推销偏差，重训于更新数据只能部分缓解。",
+      "没有任何单一配置能在CL、ER、GZ三个contact级指标上同时超过CatBoost：CL（无会话文本阶段）仍低于CatBoost；noisy网格配置的GZ仍落后CatBoost约3.1pp。",
+      "对训练中未见过的全新SKU/捆绑商品的泛化能力未直接测量，论文仅将其作为结构上的前提和后续工作。",
+      "200轮epoch-wise双重下降恢复实验是阴性结果：在该容量点，单纯延长训练不能恢复插值-onset阶段的质量损失。",
+      "结构化负采样的收益不能稳定传递到contact级业务指标，K=2-4只是经验性的折中，而非理论最优。",
+      "批处理只有在到达率高到能快速填满batch时才有收益；最大等待时长需要在最坏延迟和批大小之间权衡，论文没有给出无需生产流量数据即可套用的默认值。",
+      "INT8量化虽然缩小模型并提高吞吐，但会带来ER和test PR-AUC约2个点的下降，属于指标依赖的有限杠杆而非免费收益。",
+      "这是单一生产迁移案例研究而非benchmark结果，作者明确表示“不存在普适赢家”，迁移经验可能无法直接推广到其他业务规模和数据分布。"
+    ],
+    "method_zh": "该方法将推荐建模为(contact-chunk, candidate product)的成对二分类：每个训练行由会话分块特征、候选商品特征和二进制匹配标签构成。负样本按显式/隐式和hard/soft分类法构造，包括overall_negative、product_random_negative、product_explicit_negative、implicit_negative，并采用按负样本类型和按商品类型的两张权重表相乘的行加权方案。文本处理方面，CatBoost使用TF-IDF（最多3500特征，1-3 gram）；DeepFM基线用TF-IDF+截断SVD降至约40维后拼入表格特征；更强的文本方案是预先为每个utterance计算nomic-embed-text-v1.5的768维嵌入并缓存，在给定chunk上用一个共享两层的learned-query注意力打分器（768→128, tanh, 128→1）做掩码softmax池化，chunk_num=0时使用显式零向量。训练目标为BCE损失与InfoNCE风格对比损失的加权和（权重1.0，温度τ=1.0），正样本chunk构成对比组{u, p, n1..nK}，纯阴性contact只参与BCE；批量构造中可控制阳性对比组占比r（1/3或1/2）。模型架构以DeepFM为主干（共享DNN塔2048/1024/512/256，FM层，稠密投影和分箱嵌入稀疏路径），另探索双塔残差架构：冷安全基路径+零初始化文本修正路径，并使用DIN风格目标注意力以候选商品embedding和target-encoding为query。容量/正则化研究采用4条件×9容量点网格（clean_prod/nostop/lowreg/noisy）。推理侧通过请求合并批处理、量化等方式降低服务成本。",
+    "problem_zh": "服务型业务的产品目录正从静态SKU转向服务时动态组装、带折扣的捆绑式商品，导致传统梯度提升树多分类推荐器面临三个结构性问题：固定标签空间难以容纳新增商品/捆绑；无法原生利用实时会话文本等多模态信号；稀疏且高度不平衡的监督信号下架构与目标函数灵活性不足。本文在‘上线推荐质量不得回退’的硬约束下，将一个生产环境中的客户支持会话推荐系统从CatBoost梯度提升多分类模型迁移为成对二分类深度推荐器，并以固定阳性contact人群上的CL/ER/GZ三个业务指标作为非回归验收标准。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.8465,
+  "graph_relations": [],
+  "id": "arxiv-2608.24132",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-26T22:34:54.976393Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-25T06:50:39Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "文章介绍生产环境客服对话推荐系统从梯度提升树迁移到成对二分类深度推荐模型的经验，使用双塔/DeepFM 等架构并通过注意力池化建模长对话上下文。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "From Gradient-Boosted Trees to Deep Recommenders: Practical Lessons from Migrating a Production Customer Support Recommender",
+  "url": "https://arxiv.org/abs/2608.24132v1"
+}

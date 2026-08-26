@@ -1,0 +1,146 @@
+{
+  "abstract": "Multimodal representations have been widely adopted in industrial e-commerce recommendation systems. Due to their strong semantic understanding and generalization capabilities, they enhance the performance of traditional sparse ID-based Click-Through Rate (CTR) prediction models. Current multimodal application frameworks in the CTR prediction task typically follow a two-stage paradigm: first, pre-training a multimodal encoder on data from specific recommendation scenarios; second, extracting items' multimodal representations using this pre-trained multimodal encoder and integrating them into the CTR prediction model. However, the training objectives and data distribution of multimodal pre-training tasks often differ from those of the CTR prediction task, which limits the effectiveness of multimodal representation on downstream tasks. In this paper, we focus on how to learn Native Multimodal Representation for the CTR prediction task. One intuitive solution is to jointly train the multimodal encoder and CTR model end-to-end on the CTR task, with the expectation that the encoder can automatically learn downstream-relevant knowledge. However, we find that the end-to-end training does not bring performance improvements to existing multimodal application paradigms. Our analysis reveals that user behaviors in raw CTR data are driven by both multimodal semantics and non-multimodal factors, leading to ambiguous supervision and inconsistent encoder updates. To address this, we propose a Mine-Then-Train method that mines high-quality, multimodally interpretable training samples from CTR data and uses them to fine-tune the multimodal encoder for better alignment with user click preferences. Offline and online experiments demonstrate the effectiveness of our approach. Multimodal representations have been widely adopted in industrial e-commerce recommendation systems. Due to their strong semantic understanding and generalization capabilities, they enhance the performance of traditional sparse ID-based Click-Through Rate (CTR) prediction models. Current multimodal application frameworks in the CTR prediction task typically follow a two-stage paradigm: first, pre-training a multimodal encoder on data from specific recommendation scenarios; second, extracting items' multimodal representations using this pre-trained multimodal encoder and integrating them into the CTR prediction model. However, the training objectives and data distribution of multimodal pre-training tasks often differ from those of the CTR prediction task, which limits the effectiveness of multimodal representation on downstream tasks. In this paper, we focus on how to learn Native Multimodal Representation for the CTR prediction task. One intuitive solution is to jointly train the multimodal encoder and CTR model end-to-end on the CTR task, with the expectation that the encoder can automatically learn downstream-relevant knowledge. However, we find that the end-to-end training does not bring performance improvements to existing multimodal application paradigms. Our analysis reveals that user behaviors in raw CTR data are driven by both multimodal semantics and non-multimodal factors, leading to ambiguous supervision and inconsistent encoder updates. To address this, we propose a Mine-Then-Train method that mines high-quality, multimodally interpretable training samples from CTR data and uses them to fine-tune the multimodal encoder for better alignment with user click preferences. Offline and online experiments demonstrate the effectiveness of our approach.",
+  "arxiv_id": "2608.24091",
+  "authors": [
+    "Chao Yi",
+    "Feifan Yang",
+    "Jiawei Feng",
+    "Sishuo Chen",
+    "Zhangming Chan",
+    "Xiang-Rong Sheng",
+    "Han Zhu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在线A/B测试显示NMR带来CTR +1.5%、RPM +0.5%，在淘宝展示广告这种规模下可直接转化为点击量和广告收入提升。",
+      "在淘宝大规模广告系统中GAUC提升0.1%已被视为显著业务结果；SCL本身曾带来百分比级GAUC提升，NMRL在SCL之上再获得GAUC +0.22%、AUC +0.11%，具有明确增量价值。",
+      "该方法只优化多模态编码器、不改动其他模块，可直接复用SCL编码器的在线部署管线，降低工程上线成本。",
+      "E2EM在目标+序列侧训练时峰值显存和单步耗时分别放大25倍和7倍，工业落地需谨慎权衡训练成本；而Mine-Then-Train通过数据挖掘隔离监督，计算更可控。",
+      "多模态语义表示可缓解ID模型在数据稀疏/冷启动场景的泛化问题，对电商新商品冷启有潜在业务价值。"
+    ],
+    "business_transferability": 0.9,
+    "contributions_zh": [
+      "在淘宝展示广告这一大规模工业场景中，基于已证明有效的SCL预训练编码器系统验证了端到端多模态训练（E2EM）：E2EM在强两阶段基线上没有带来GAUC提升，反而导致性能下降。",
+      "揭示CTR数据中的用户行为仅部分可归因于多模态语义，原始CTR标签混合多模态与非多模态因素；ID-based CTR协同训练无法自动解耦这些异质信号，导致多模态编码器更新方向不一致（梯度对齐显著低于SCL预训练）。",
+      "提出Mine-Then-Train方法：训练多模态标注模型从CTR数据中挖掘满足点击偏好对齐、多模态语义可解释且有信息增益的高质量三元组，再以三元组边际损失加SCL损失微调编码器，获得面向CTR的原生多模态表示（NMRL）；离线GAUC +0.22%、AUC +0.11%，在线CTR +1.5%、RPM +0.5%。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Results"
+      },
+      {
+        "page": 3,
+        "section": "3.3 More Ablation Study"
+      },
+      {
+        "page": 4,
+        "section": "4.1 E-Commerce CTR Data Are Only Partially Attributable to Multimodal Semantics"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Co-Training Does Not Automatically Decouple CTR Signals"
+      },
+      {
+        "page": 5,
+        "section": "4.3 Substantial Training Cost"
+      },
+      {
+        "page": 5,
+        "section": "5.2 Automatically Mining Training Samples from CTR Data via Annotation Model"
+      },
+      {
+        "page": 6,
+        "section": "5.3 Training Native Multimodal Encoder for CTR Prediction Based on Mined Data"
+      },
+      {
+        "page": 6,
+        "section": "6.2 Results & Analysis"
+      },
+      {
+        "page": 6,
+        "section": "6.3 Online A/B Testing"
+      },
+      {
+        "page": 7,
+        "section": "8 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MUSE（使用SCL冻结表示的CTR模型基线）",
+        "SCL编码器（淘宝展示广告已部署的两阶段多模态表示基线）",
+        "Tar E2EM、Tar E2EM + Memory Bank (LEMUR)、Tar & Seq E2EM",
+        "SGD/Adam/AdamW优化器及2e-3/2e-4/2e-5学习率设置"
+      ],
+      "datasets": [
+        "Taobao展示广告CTR数据集（84M用户、88M商品、1.9B样本，一周行为数据，用于E2EM实验）",
+        "Taobao展示广告CTR数据集（一个月，用于主实验）",
+        "Taobao-MM benchmark（轻量、含长用户行为序列和多模态表示，用于E2EM消融）",
+        "从CTR数据挖掘的3000万高质量三元组"
+      ],
+      "findings_zh": [
+        "在淘宝真实环境，E2EM相比SCL编码器无GAUC增益且导致下降；在Taobao-MM上，所有E2EM变体（Tar E2EM、Tar E2EM+Memory Bank、Tar&Seq E2EM）均低于冻结编码器MUSE基线，且E2EM应用范围越大性能越低。",
+        "在SGD/Adam/AdamW与2e-3/2e-4/2e-5学习率的所有组合下，E2EM的GAUC均低于MUSE基线0.6154，说明结论不受训练超参数影响。",
+        "仅用多模态相似度预测点击的MultiModal-Mean GAUC=0.541、MultiModal-Max GAUC=0.536，仅略高于随机0.5，说明原始CTR标签混合了多模态与非多模态因素，不是纯净的多模态监督。",
+        "E2EM的梯度一致性远低于SCL（Avg Sim 1: 0.016 vs 0.144；Avg Sim 2: 0.006 vs 0.849）；加入SCL Loss后CTR GAUC下降0.17个百分点、SCL Top-1 Accuracy下降5个百分点，说明ID分支和额外正则都不能自动滤除非多模态监督。",
+        "多模态标注模型得分接入CTR模型带来GAUC +0.13%、AUC +0.08%；在挖掘出的3000万高质量三元组上微调得到的NMRL带来GAUC +0.22%、AUC +0.11%，优于直接使用标注分数。",
+        "人类评估显示，高置信度三元组（标注分数差>0.15）中Item1胜率85%，低置信度三元组（<0.05）胜率42%，验证了标注分数差作为伪标签质量指标的有效性。",
+        "在线A/B测试中，原生多模态表示NMR使CTR提升1.5%、RPM提升0.5%。",
+        "E2EM计算开销巨大：仅目标侧训练时峰值显存5.71GB（1.69×）、单步1.94s（1.90×）；目标+序列侧训练时峰值显存84.56GB（25.09×）、单步7.32s（7.18×）。"
+      ],
+      "metrics": [
+        "GAUC",
+        "AUC",
+        "CTR（在线）",
+        "RPM（在线）",
+        "MultiModal-Mean GAUC / MultiModal-Max GAUC",
+        "梯度一致性 Avg Sim 1 / Avg Sim 2",
+        "SCL Top-1 Accuracy",
+        "Peak GPU memory / average step time",
+        "人类评估win rate"
+      ]
+    },
+    "limitations_zh": [
+      "标注模型直接训练于CTR数据，非多模态因素（比价、误点、位置偏差等）可能使部分商品对的点击相关分数不准确，因此需要额外阈值过滤。",
+      "标注模型中的用户偏好仅通过SID embeddings学习，其机制类似ID embeddings的记忆化，且没有直接访问原始多模态内容，限制所学知识的泛化能力。",
+      "E2EM在真实工业设置下训练成本过高，论文难以开展大量探索性实验，部分消融只能在轻量级Taobao-MM benchmark上进行。",
+      "实验和验证集中在淘宝展示广告场景，且以已部署的强SCL两阶段基线为前提，结论向其他平台/场景的推广需谨慎。"
+    ],
+    "method_zh": "Mine-Then-Train分两阶段。Mining阶段：先用CTR数据训练多模态标注模型，输入目标商品和历史行为商品的原始多模态内容（主图/标题），输出点击相关分数；该分数作为特征接入下游CTR模型端到端训练，获得超出现有表示的增量信息。标注模型采用TaskRes式残差调优：冻结SCL编码器提取表示，经RK-Means聚类得到商品SID，从可学习的3×8192 SID Decode Codebook读取CTR-specific残差加到SCL表示上，再用MLP或归一化内积计算点击相关分数；Codebook零初始化，训练不破坏原SCL语义。随后用SCL表示从用户历史点击中检索与目标商品Top-K相似项，构造目标-两个候选的三元组，并按三个条件筛选：pair多模态相似度≥τ_m、SCL相似度差<τ_s、标注分数差>τ_a，最终得到3000万高质量三元组（包括排序反转三元组和差距扩大三元组）。Training阶段：用三元组边际损失L_margin=max(0, m-(Sim_tar1-Sim_tar2))微调SCL编码器，m=0.1，并加入SCL Loss作为正则项防止遗忘预训练细粒度电商语义，总损失L_total=L_margin+L_SCL。训练后的编码器可直接复用SCL的在线部署管线。",
+    "problem_zh": "工业电商推荐系统中，多模态表示通常采用两阶段范式：先在业务场景数据上预训练多模态编码器，再抽取商品多模态表示接入CTR预测模型。但预训练任务和训练数据与CTR任务存在目标和分布差异，限制下游效果。一个自然方案是将多模态编码器与CTR模型端到端联合训练（E2EM），但在已具备强预训练编码器（SCL）的淘宝展示广告场景中，E2EM不能带来增益甚至导致GAUC下降。原因是原始CTR点击行为只有部分可归因于多模态语义，还受比价、误点、位置偏差、兴趣疲劳等非语义因素影响，且与ID-based CTR模型协同训练不能自动将信号解耦到对应分支，使编码器接收到模糊、不一致的监督。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8200000000000001,
+  "graph_relations": [],
+  "id": "arxiv-2608.24091",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-26T22:34:54.976393Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-25T05:36:17Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文面向电商推荐场景中的 CTR 预测提出原生多模态表示学习方法，通过挖掘多模态可解释训练样本微调编码器以对齐用户点击偏好，从而提升 CTR 预测效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Native Multimodal Representation Learning for Click-Through Rate Prediction in E-Commerce Scenarios",
+  "url": "https://arxiv.org/abs/2608.24091v1"
+}
