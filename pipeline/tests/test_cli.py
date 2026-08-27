@@ -19,16 +19,56 @@ runner = CliRunner()
 def test_cli_exposes_stage_commands() -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    for command in ("run", "collect-filter", "deep-read", "rank-integrate", "test-fixtures"):
+    for command in ("run", "collect-filter", "deep-read", "similarity", "rank-integrate", "test-fixtures"):
         assert command in result.stdout
 
 
 def test_fixture_success_writes_publish_bundle_without_network(tmp_path: Path) -> None:
-    result = runner.invoke(app, ["test-fixtures", "--case", "cold-start", "--work", str(tmp_path)])
+    similarity = tmp_path.parent / f"{tmp_path.name}-similarity"
+    result = runner.invoke(app, [
+        "test-fixtures", "--case", "cold-start", "--work", str(tmp_path),
+        "--similarity-output", str(similarity),
+    ])
     assert result.exit_code == 0, result.stdout
     assert {path.name for path in tmp_path.iterdir()} == {"manifest.json", "taxonomy.json", "pending-data"}
     assert (tmp_path / "manifest.json").exists()
     assert (tmp_path / "pending-data" / "state.json").exists()
+    assert {path.name for path in similarity.iterdir()} >= {"manifest.json", "similarity.json"}
+    assert json.loads((similarity / "manifest.json").read_text(encoding="utf-8"))["run_id"] == "fixture-cold-start"
+
+
+def test_fixture_refuses_to_replace_non_fixture_similarity_output(tmp_path: Path) -> None:
+    similarity = tmp_path.parent / f"{tmp_path.name}-similarity"
+    similarity.mkdir()
+    (similarity / "manifest.json").write_text(
+        json.dumps({"run_id": "production-run", "schema_version": "1"}),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, [
+        "test-fixtures", "--case", "cold-start", "--work", str(tmp_path),
+        "--similarity-output", str(similarity),
+    ])
+
+    assert result.exit_code != 0
+    assert "non-fixture similarity output" in result.output
+    assert json.loads((similarity / "manifest.json").read_text(encoding="utf-8"))["run_id"] == "production-run"
+
+
+def test_fixture_refuses_similarity_output_that_contains_publish_bundle(tmp_path: Path) -> None:
+    work = tmp_path / "bundle"
+    sentinel = tmp_path / "keep.txt"
+    sentinel.write_text("keep", encoding="utf-8")
+
+    result = runner.invoke(app, [
+        "test-fixtures", "--case", "cold-start", "--work", str(work),
+        "--similarity-output", str(tmp_path),
+    ])
+
+    assert result.exit_code != 0
+    assert "must not overlap" in result.output
+    assert sentinel.read_text(encoding="utf-8") == "keep"
+    assert not work.exists()
 
 
 def test_fixture_failure_does_not_write_canonical_state(tmp_path: Path) -> None:

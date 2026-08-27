@@ -22,6 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest"]
+similarity = ["fastembed==0.8.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

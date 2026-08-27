@@ -26,7 +26,7 @@ export type EChartsGraphNode = GraphNode["data"] & {
 
 export type EChartsGraphLink = GraphEdge["data"] & {
   value: number;
-  edgeKind: "taxonomy" | "model";
+  edgeKind: "taxonomy" | "similarity";
   lineStyle: {
     type: "solid" | "dashed";
     opacity: number;
@@ -41,10 +41,10 @@ export type EChartsGraphData = {
   categories: Array<{ name: GraphNode["data"]["type"] }>;
 };
 
-const CONTENT_TYPES = new Set<GraphNode["data"]["type"]>(["paper", "article"]);
+const CONTENT_TYPES = new Set<GraphNode["data"]["type"]>(["paper", "blog"]);
 export const GRAPH_NODE_TYPES = [
   "paper",
-  "article",
+  "blog",
   "target",
   "scenario",
   "task",
@@ -61,7 +61,7 @@ export const GRAPH_NODE_STYLES: Readonly<
   Record<GraphNode["data"]["type"], Readonly<{ fill: string; border: string }>>
 > = {
   paper: { fill: "#4f6bd8", border: "#3349a3" },
-  article: { fill: "#2fa37b", border: "#1f7a5a" },
+  blog: { fill: "#2fa37b", border: "#1f7a5a" },
   target: { fill: "#0ea5e9", border: "#0369a1" },
   scenario: { fill: "#10b981", border: "#047857" },
   task: { fill: "#f59e0b", border: "#b45309" },
@@ -182,11 +182,17 @@ export function graphNodeNeighborhood(graph: GraphDocument, nodeId: string): Gra
   };
 }
 
-/** Return null for an absent or taxonomy-only URL center, matching the graph route contract. */
+/** Center on similarity distance only, then attach taxonomy navigation for the loaded content. */
 export function centerGraphDocument(graph: GraphDocument, centerId: string): GraphDocument | null {
   const center = graph.nodes.find(node => node.data.id === centerId);
   if (!center || !isContentGraphNode(center)) return null;
-  return graphNodeNeighborhood(graph, centerId);
+  const contentIds = new Set([centerId]);
+  for (const edge of graph.edges) {
+    if (edge.data.type !== "similarity") continue;
+    if (edge.data.source === centerId) contentIds.add(edge.data.target);
+    if (edge.data.target === centerId) contentIds.add(edge.data.source);
+  }
+  return graphForContentIds(graph, contentIds);
 }
 
 export function normalizeGraphSearchText(value: string): string {
@@ -242,14 +248,12 @@ export function escapeEChartsRichText(value: string): string {
     .replace(/\}/g, `${joiner}}`);
 }
 
-export function graphEdgeKind(edge: GraphEdge): "taxonomy" | "model" {
-  return edge.data.id.startsWith("taxonomy:") || edge.data.generated_by === "topics.yaml"
-    ? "taxonomy"
-    : "model";
+export function graphEdgeKind(edge: GraphEdge): "taxonomy" | "similarity" {
+  return edge.data.type;
 }
 
-export function graphEdgeColor(edgeKind: EChartsGraphLink["edgeKind"]): "source" | "target" {
-  return edgeKind === "taxonomy" ? "target" : "source";
+export function graphEdgeColor(edgeKind: EChartsGraphLink["edgeKind"]): "target" | "#94a3b8" {
+  return edgeKind === "taxonomy" ? "target" : "#94a3b8";
 }
 
 export function adaptGraphDocumentToECharts(
@@ -272,11 +276,11 @@ export function adaptGraphDocumentToECharts(
         value: data.confidence,
         edgeKind,
         lineStyle: {
-          type: edgeKind === "taxonomy" ? "solid" : "dashed",
+          type: "solid",
           opacity: edgeKind === "taxonomy" ? 0.28 : 0.34,
         },
-        symbol: ["none", edgeKind === "taxonomy" ? "none" : "arrow"],
-        symbolSize: [0, edgeKind === "taxonomy" ? 0 : 5],
+        symbol: ["none", "none"],
+        symbolSize: [0, 0],
       };
     }),
   };

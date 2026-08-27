@@ -40,8 +40,16 @@ def _write_config(root: Path) -> None:
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
         "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 20, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
-        "graph_max_content_nodes": 80,
-        "graph_recent_days": 90,
+        "graph_initial_content_nodes": 48,
+        "graph_shard_target_bytes": 98_304,
+        "similarity": {
+            "library": "fastembed", "version": "0.8.0",
+            "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+            "dimension": 384, "max_input_tokens": 128, "title_tokens": 32,
+            "abstract_tokens": 64, "summary_tokens": 24, "separator_tokens": 8,
+            "batch_size": 32, "threads": 2, "block_size": 64, "top_k": 5,
+            "min_cosine": .72, "mutual_top_k": True, "score_decimals": 6,
+        },
         "storage": {"target_item_bytes": 16_384, "max_item_bytes": 32_768, "max_blog_excerpt_chars": 4_000, "warn_repository_data_mb": 500, "warn_pages_artifact_mb": 500, "fail_pages_artifact_mb": 900},
     })
 
@@ -61,9 +69,44 @@ def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> Non
     assert config.models.mineru.model_version == "vlm"
 
 
+@pytest.mark.parametrize("invalid_size", [65_535, 131_073])
+def test_graph_shard_target_must_stay_between_64_and_128_kib(tmp_path: Path, invalid_size: int) -> None:
+    _write_config(tmp_path)
+    settings_path = tmp_path / "config/settings.yaml"
+    settings = yaml.safe_load(settings_path.read_text(encoding="utf-8"))
+    settings["graph_shard_target_bytes"] = invalid_size
+    _write_yaml(settings_path, settings)
+
+    with pytest.raises(ValueError, match="graph_shard_target_bytes"):
+        load_config(tmp_path)
+
+
+@pytest.mark.parametrize(("field", "invalid_value"), [
+    ("batch_size", 16),
+    ("threads", 1),
+    ("block_size", 32),
+    ("top_k", 4),
+    ("min_cosine", 0.7),
+])
+def test_first_release_similarity_runtime_parameters_are_fixed(
+    tmp_path: Path,
+    field: str,
+    invalid_value: int | float,
+) -> None:
+    _write_config(tmp_path)
+    settings_path = tmp_path / "config/settings.yaml"
+    settings = yaml.safe_load(settings_path.read_text(encoding="utf-8"))
+    settings["similarity"][field] = invalid_value
+    _write_yaml(settings_path, settings)
+
+    with pytest.raises(ValueError, match=field):
+        load_config(tmp_path)
+
+
 def test_config_uses_mineru_and_has_no_fetch_attempt_caps() -> None:
     config = load_config(Path(__file__).parents[2])
     limits = config.settings.limits
+    assert config.settings.daily_target == 10
     assert not hasattr(limits, "rss_requests_per_run_per_source")
     assert not hasattr(limits, "max_pdf_downloads_per_run")
     assert not hasattr(limits, "max_blog_fulltext_fetches_per_run")

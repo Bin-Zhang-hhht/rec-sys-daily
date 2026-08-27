@@ -98,22 +98,6 @@
     ]
   },
   "final_score": 0.8949999999999999,
-  "graph_relations": [
-    {
-      "confidence": 0.7,
-      "evidence": "两者均为生成式推荐方法并以强化学习优化生成结果。",
-      "generated_by": "llm_taxonomy_classifier",
-      "target_id": "arxiv-2608.11980",
-      "type": "related_by_method"
-    },
-    {
-      "confidence": 0.6,
-      "evidence": "两者均使用生成式/大语言模型策略与强化学习进行推荐系统训练。",
-      "generated_by": "llm_taxonomy_classifier",
-      "target_id": "arxiv-2608.10187",
-      "type": "related_by_method"
-    }
-  ],
   "id": "url-f7ea41897b8edc1d893d7d6c",
   "kind": "blog",
   "llm": {

@@ -30,8 +30,8 @@ jobs:
         run: |
           echo "::error::Site-only deployment must run from main."
           exit 1
-      - name: Find the latest reusable publish bundle
-        id: bundle
+      - name: Find the latest reusable artifact pair
+        id: artifacts
         uses: actions/github-script@v7
         with:
           script: |
@@ -50,20 +50,25 @@ jobs:
                 github.rest.actions.listWorkflowRunArtifacts,
                 { owner, repo, run_id: run.id, per_page: 100 },
               );
-              const expectedName = `publish-bundle-${run.id}`;
-              const artifact = artifacts.find(
-                candidate => candidate.name === expectedName && !candidate.expired,
+              const bundleName = `publish-bundle-${run.id}`;
+              const similarityName = `similarity-${run.id}`;
+              const bundle = artifacts.find(
+                candidate => candidate.name === bundleName && !candidate.expired,
               );
-              if (artifact) {
-                core.info(`Using ${artifact.name} from daily run ${run.id}.`);
-                core.setOutput("artifact_name", artifact.name);
+              const similarity = artifacts.find(
+                candidate => candidate.name === similarityName && !candidate.expired,
+              );
+              if (bundle && similarity) {
+                core.info(`Using ${bundle.name} and ${similarity.name} from daily run ${run.id}.`);
+                core.setOutput("bundle_artifact_name", bundle.name);
+                core.setOutput("similarity_artifact_name", similarity.name);
                 core.setOutput("run_id", String(run.id));
                 return;
               }
             }
 
             core.setFailed(
-              "No unexpired publish bundle was found in the latest successful daily runs. Run RecSys Daily first.",
+              "No same-run unexpired publish bundle and similarity artifact pair was found in the latest successful daily runs. Run RecSys Daily first.",
             );
       - uses: actions/checkout@v4
         with:
@@ -71,11 +76,19 @@ jobs:
       - name: Download the publish bundle
         uses: actions/download-artifact@v4
         with:
-          name: ${{ steps.bundle.outputs.artifact_name }}
+          name: ${{ steps.artifacts.outputs.bundle_artifact_name }}
           path: publish-bundle
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
-          run-id: ${{ steps.bundle.outputs.run_id }}
+          run-id: ${{ steps.artifacts.outputs.run_id }}
+      - name: Download the similarity artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.artifacts.outputs.similarity_artifact_name }}
+          path: similarity
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.artifacts.outputs.run_id }}
       - uses: docker/setup-buildx-action@v3
       - name: Build site image
         uses: docker/build-push-action@v6
@@ -86,19 +99,22 @@ jobs:
           load: true
           cache-from: type=gha,scope=site
           cache-to: type=gha,mode=max,scope=site
-      - name: Validate downloaded publish bundle
+      - name: Validate downloaded artifact pair
         run: |
           test "$(find publish-bundle -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tr '\n' ' ')" = "manifest.json pending-data taxonomy.json "
-          python -c 'import json; m=json.load(open("publish-bundle/manifest.json")); assert m["run_id"] and m["schema_version"] == "1", m'
+          python -c 'import json; b=json.load(open("publish-bundle/manifest.json")); sm=json.load(open("similarity/manifest.json")); s=json.load(open("similarity/similarity.json")); assert b["run_id"] and b["schema_version"] == "1" and sm == b and s["run_id"] == b["run_id"] and s["schema_version"] == b["schema_version"], (b, sm)'
       - name: Build Astro and Pagefind output
         env:
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+          SIMILARITY_ARTIFACT_PATH: /workspace/similarity/similarity.json
         run: |
           test -n "$SITE_ORIGIN"
           mkdir -p pages-dist
           docker run --rm \
             -e SITE_ORIGIN \
+            -e SIMILARITY_ARTIFACT_PATH \
             -v "$PWD/publish-bundle:/workspace/publish-bundle:ro" \
+            -v "$PWD/similarity:/workspace/similarity:ro" \
             -v "$PWD/pages-dist:/workspace/site/dist" \
             "${IMAGE_TAG}"
       - uses: actions/configure-pages@v5

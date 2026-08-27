@@ -180,7 +180,7 @@ def _candidate_from_dict(value: Mapping[str, Any]) -> Candidate:
     # The stable ID is an artifact identity field, not a Candidate dataclass
     # constructor argument; it is recomputed from the normalized identity.
     data.pop("id", None)
-    for key in ("summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "graph_relations", "degraded"):
+    for key in ("summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "degraded"):
         data.pop(key, None)
     published = data.get("published_at")
     if isinstance(published, str):

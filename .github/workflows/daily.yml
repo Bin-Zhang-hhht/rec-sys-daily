@@ -32,6 +32,7 @@ jobs:
         with:
           context: .
           file: pipeline/Dockerfile
+          target: pipeline
           tags: ${{ env.IMAGE_TAG }}-pipeline
           load: true
           cache-from: type=gha,scope=pipeline
@@ -77,6 +78,7 @@ jobs:
         with:
           context: .
           file: pipeline/Dockerfile
+          target: pipeline
           tags: ${{ env.IMAGE_TAG }}-pipeline
           load: true
           cache-from: type=gha,scope=pipeline
@@ -101,9 +103,70 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+  similarity:
+    name: Compute semantic similarity
+    needs: [collect_filter, deep_read]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: stage-1-${{ github.run_id }}
+          path: stages/stage-1
+      - uses: actions/download-artifact@v4
+        with:
+          name: deep-reading-paper-${{ github.run_id }}
+          path: stages/deep-reading-paper
+      - uses: actions/download-artifact@v4
+        with:
+          name: deep-reading-blog-${{ github.run_id }}
+          path: stages/deep-reading-blog
+      - uses: docker/setup-buildx-action@v3
+      - name: Build similarity image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: pipeline/Dockerfile
+          target: similarity
+          tags: ${{ env.IMAGE_TAG }}-similarity
+          load: true
+          cache-from: type=gha,scope=pipeline-similarity
+          cache-to: type=gha,mode=max,scope=pipeline-similarity
+      - name: Restore FastEmbed model cache
+        id: fastembed-cache
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: fastembed-cache
+          key: "fastembed|0.8.0|sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2|384"
+      - name: Compute semantic similarity
+        env:
+          FASTEMBED_CACHE_PATH: /workspace/cache/fastembed
+        run: |
+          mkdir -p similarity-work fastembed-cache
+          echo "FastEmbed cache hit: ${{ steps.fastembed-cache.outputs.cache-hit }}"
+          docker run --rm \
+            -e FASTEMBED_CACHE_PATH \
+            -v "$PWD/stages:/workspace/stages:ro" \
+            -v "$PWD/data:/workspace/data:ro" \
+            -v "$PWD/similarity-work:/workspace/similarity-work" \
+            -v "$PWD/fastembed-cache:/workspace/cache/fastembed" \
+            "${IMAGE_TAG}-similarity" similarity --input /workspace/stages --output /workspace/similarity-work/similarity --root /workspace
+          test -f similarity-work/similarity/manifest.json
+          test -f similarity-work/similarity/similarity.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: similarity-${{ github.run_id }}
+          path: similarity-work/similarity
+          if-no-files-found: error
+          retention-days: 3
+
   rank_integrate:
     name: Rank and integrate publish bundle
-    needs: [collect_filter, deep_read]
+    needs: [collect_filter, deep_read, similarity]
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
@@ -122,12 +185,17 @@ jobs:
         with:
           name: deep-reading-blog-${{ github.run_id }}
           path: stages/deep-reading-blog
+      - uses: actions/download-artifact@v4
+        with:
+          name: similarity-${{ github.run_id }}
+          path: stages/similarity
       - uses: docker/setup-buildx-action@v3
       - name: Build pipeline image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: pipeline/Dockerfile
+          target: pipeline
           tags: ${{ env.IMAGE_TAG }}-pipeline
           load: true
           cache-from: type=gha,scope=pipeline
@@ -153,7 +221,7 @@ jobs:
 
   build_deploy:
     name: Build, deploy Pages, and promote data
-    needs: rank_integrate
+    needs: [rank_integrate, similarity]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -169,6 +237,10 @@ jobs:
         with:
           name: publish-bundle-${{ github.run_id }}
           path: publish-bundle
+      - uses: actions/download-artifact@v4
+        with:
+          name: similarity-${{ github.run_id }}
+          path: similarity
       - uses: docker/setup-buildx-action@v3
       - name: Build site image
         uses: docker/build-push-action@v6
@@ -179,17 +251,20 @@ jobs:
           load: true
           cache-from: type=gha,scope=site
           cache-to: type=gha,mode=max,scope=site
-      - name: Validate downloaded manifest
-        run: python -c 'import json; m=json.load(open("publish-bundle/manifest.json")); assert m["run_id"] and m["schema_version"] == "1", m'
+      - name: Validate paired manifests
+        run: python -c 'import json; b=json.load(open("publish-bundle/manifest.json")); sm=json.load(open("similarity/manifest.json")); s=json.load(open("similarity/similarity.json")); assert b["run_id"] and b["schema_version"] == "1" and sm == b and s["run_id"] == b["run_id"] and s["schema_version"] == b["schema_version"], (b, sm)'
       - name: Build Astro and Pagefind output
         env:
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+          SIMILARITY_ARTIFACT_PATH: /workspace/similarity/similarity.json
         run: |
           test -n "$SITE_ORIGIN"
           mkdir -p pages-dist
           docker run --rm \
             -e SITE_ORIGIN \
+            -e SIMILARITY_ARTIFACT_PATH \
             -v "$PWD/publish-bundle:/workspace/publish-bundle:ro" \
+            -v "$PWD/similarity:/workspace/similarity:ro" \
             -v "$PWD/pages-dist:/workspace/site/dist" \
             "${IMAGE_TAG}-site"
       - uses: actions/configure-pages@v5

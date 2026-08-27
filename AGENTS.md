@@ -13,7 +13,7 @@
 - The product is a Chinese daily recommendation-systems research site deployed as static GitHub Pages.
 - Preserve original English titles, algorithm names, datasets, metrics, and important technical terms.
 - Academic input is arXiv only. Blog input is the configured RSS/Atom set.
-- The daily target is 8 papers and 8 blog posts. Fewer results are valid when quality is insufficient.
+- The daily target is 10 papers and 10 blog posts. Fewer results are valid when quality is insufficient.
 - Cold start and daily updates use the same pipeline. Only the query time window changes: papers use 5 years for cold start, blogs use 3 years; later runs use the state-derived incremental windows.
 - Do not implement OpenReview, TeX source reading, a PDF viewer, raw full-text storage, a database, a vector store, a graph database, user accounts, chat, or RAG.
 - Never commit or publish source PDFs, extracted PDF text, critical-page images, source article HTML, model reasoning traces, complete prompts/responses, or source full text.

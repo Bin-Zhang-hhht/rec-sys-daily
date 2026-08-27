@@ -3,19 +3,20 @@ import { ExternalLink, Network } from "@lucide/astro";
 import PagefindMeta from "../../components/PagefindMeta.astro";
 import TaxonomyChips from "../../components/TaxonomyChips.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { loadBundle, relatedItems } from "../../lib/data";
+import { loadBundle, loadSimilarityArtifact, relatedItems } from "../../lib/data";
 import { itemPath, sitePath } from "../../lib/paths";
 export function getStaticPaths() {
   const data = loadBundle();
-  return data.items.filter(item => item.kind === "blog").map(item => ({ params: { id: item.id }, props: { item, data } }));
+  const similarity = loadSimilarityArtifact(data.items, data.runReport.run_id);
+  return data.items.filter(item => item.kind === "blog").map(item => ({ params: { id: item.id }, props: { item, data, similarity } }));
 }
-const { item, data } = Astro.props;
+const { item, data, similarity } = Astro.props;
 const reading = item.deep_reading;
 function ageBucket(value: string) {
   const days = Math.max(0, (Date.now() - Date.parse(value)) / 86400000);
   return [days <= 7 && "7d", days <= 30 && "30d", days <= 365 && "365d"].filter(Boolean) as string[];
 }
-const related = relatedItems(item, data.items);
+const related = relatedItems(item, data.items, similarity);
 const sectionClass = "border-t border-slate-200 pt-7";
 ---
 <BaseLayout title={`${item.title} · RecSys Daily`}>
@@ -44,7 +45,7 @@ const sectionClass = "border-t border-slate-200 pt-7";
           <section class={sectionClass}><h2 class="text-xl font-semibold text-slate-950">局限性</h2>{reading.limitations_zh.length ? <ul>{reading.limitations_zh.map(value => <li>{value}</li>)}</ul> : <p class="mt-3 text-slate-500">未提供</p>}</section>
           <section class={sectionClass}><h2 class="text-xl font-semibold text-slate-950">业务启示</h2>{reading.business_implications_zh.length ? <ul>{reading.business_implications_zh.map(value => <li>{value}</li>)}</ul> : <p class="mt-3 text-slate-500">未提供</p>}</section>
           <section class={sectionClass}><h2 class="text-xl font-semibold text-slate-950">证据定位</h2>{reading.evidence_refs.length ? <ul>{reading.evidence_refs.map(ref => <li>{ref.heading ?? ref.section}</li>)}</ul> : <p class="mt-3 text-slate-500">未提供</p>}</section>
-          {related.length > 0 && <section data-pagefind-ignore class={sectionClass}><h2 class="text-xl font-semibold text-slate-950">相关内容</h2><ul>{related.map(value => <li><a href={itemPath(value)}>{value.title}</a></li>)}</ul></section>}
+          <section data-pagefind-ignore class={sectionClass}><h2 class="text-xl font-semibold text-slate-950">相关内容</h2>{related.length > 0 ? <ul>{related.map(value => <li><a href={itemPath(value)}>{value.title}</a></li>)}</ul> : <p class="mt-3 text-slate-500">暂未找到达到语义相似度门槛的相关内容。</p>}</section>
           <div data-pagefind-ignore class="flex flex-wrap gap-3 border-t border-slate-200 pt-7 text-sm font-medium"><a class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2" href={sitePath(`graph/?center=${encodeURIComponent(item.id)}`)}><Network size={16} stroke-width={1.8} aria-hidden="true" />在图谱中查看</a><a class="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-2 text-white! hover:bg-slate-700 hover:text-white! hover:no-underline" href={item.url} target="_blank" rel="noopener noreferrer">阅读原文<ExternalLink size={15} stroke-width={1.8} aria-hidden="true" /></a></div>
           <p data-pagefind-ignore class="border-l-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">内容由 LLM 生成，可能存在错误，请以原文为准。</p>
         </main>

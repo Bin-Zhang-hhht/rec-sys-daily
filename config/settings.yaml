@@ -29,8 +29,25 @@ limits:
   blog_download_concurrency_per_domain: 1
   blog_min_interval_seconds_per_domain: 2
   max_blog_html_bytes: 5242880
-graph_max_content_nodes: 80
-graph_recent_days: 90
+graph_initial_content_nodes: 48
+graph_shard_target_bytes: 98304
+similarity:
+  library: fastembed
+  version: 0.8.0
+  model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+  dimension: 384
+  max_input_tokens: 128
+  title_tokens: 32
+  abstract_tokens: 64
+  summary_tokens: 24
+  separator_tokens: 8
+  batch_size: 32
+  threads: 2
+  block_size: 64
+  top_k: 5
+  min_cosine: 0.72
+  mutual_top_k: true
+  score_decimals: 6
 storage:
   target_item_bytes: 16384
   max_item_bytes: 32768

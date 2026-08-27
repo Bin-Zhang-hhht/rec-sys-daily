@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 import json
+import os
 from pathlib import Path
 import stat
 
@@ -72,6 +73,77 @@ def _write_stage(path: Path, run_id: str, kind: str, items: list[dict[str, objec
     return path
 
 
+def _write_similarity(path: Path, run_id: str, item_ids: set[str]) -> Path:
+    settings = CONFIG.settings.similarity
+    path.mkdir(parents=True, exist_ok=True)
+    (path / "manifest.json").write_text(
+        json.dumps({"run_id": run_id, "schema_version": "1"}), encoding="utf-8"
+    )
+    document = {
+        "run_id": run_id,
+        "schema_version": "1",
+        "model": {
+            "library": settings.library,
+            "version": settings.version,
+            "name": settings.model,
+            "dimension": settings.dimension,
+            "normalized": True,
+        },
+        "parameters": {
+            "max_input_tokens": settings.max_input_tokens,
+            "title_tokens": settings.title_tokens,
+            "abstract_tokens": settings.abstract_tokens,
+            "summary_tokens": settings.summary_tokens,
+            "separator_tokens": settings.separator_tokens,
+            "top_k": settings.top_k,
+            "min_cosine": settings.min_cosine,
+            "mutual_top_k": settings.mutual_top_k,
+        },
+        "items_considered": len(item_ids),
+        "encoded_items": len(item_ids),
+        "token_counts": [
+            {"id": item_id, "title": 1, "abstract": 1, "summary_zh": 1, "total": 4}
+            for item_id in sorted(item_ids)
+        ],
+        "edges": [],
+    }
+    (path / "similarity.json").write_text(json.dumps(document), encoding="utf-8")
+    (path / "similarity-report.json").write_text(json.dumps({
+        "run_id": run_id,
+        "schema_version": "1",
+        "model": document["model"],
+        "items_considered": len(item_ids),
+        "encoded_items": len(item_ids),
+        "truncated_items": 0,
+        "edge_count": 0,
+        "top_k": settings.top_k,
+        "min_cosine": settings.min_cosine,
+        "elapsed_seconds": 0.0,
+        "cache_status": "not_observed",
+    }), encoding="utf-8")
+    return path
+
+
+def _refresh_similarity_for_current_results(stages: StageInputs, *, paper_count: int) -> None:
+    paper_document = json.loads((stages.paper / "paper-deep-readings.json").read_text(encoding="utf-8"))
+    blog_document = json.loads((stages.blog / "blog-deep-readings.json").read_text(encoding="utf-8"))
+    stage_one = {
+        value["id"]: value
+        for value in (
+            json.loads(line)
+            for line in (stages.stage1 / "papers.jsonl").read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+    }
+    paper_ids = {
+        value["id"]
+        for value in paper_document["items"][:paper_count]
+        if not (stage_one[value["id"]].get("degraded") and not any("\u4e00" <= char <= "\u9fff" for char in stage_one[value["id"]].get("summary_zh", "")))
+    }
+    blog_ids = {value["id"] for value in blog_document["items"]}
+    _write_similarity(stages.similarity, "run-1", paper_ids | blog_ids)
+
+
 def fixture_stages(tmp_path: Path, *, paper_run_id: str = "run-1", blog_run_id: str | None = None) -> StageInputs:
     blog_run_id = blog_run_id or paper_run_id
     stage1 = tmp_path / "stage-1"
@@ -82,7 +154,6 @@ def fixture_stages(tmp_path: Path, *, paper_run_id: str = "run-1", blog_run_id: 
     def stage1_record(item: dict[str, object]) -> dict[str, object]:
         record = {
             **{key: value for key, value in item.items() if key not in {"deep_reading"}},
-            "graph_relations": [],
             "degraded": False,
         }
         if record["kind"] == "paper":
@@ -104,7 +175,8 @@ def fixture_stages(tmp_path: Path, *, paper_run_id: str = "run-1", blog_run_id: 
     (stage1 / "stage-report.json").write_text(json.dumps(StageReport().model_dump(mode="json")), encoding="utf-8")
     _write_stage(tmp_path / "paper", paper_run_id, "paper", [_paper(f"paper-{i}", 1 - i / 20) for i in range(10)])
     _write_stage(tmp_path / "blog", blog_run_id, "blog", [_blog(f"blog-{i}", 1 - i / 20) for i in range(10)])
-    return StageInputs(stage1=stage1, paper=tmp_path / "paper", blog=tmp_path / "blog")
+    similarity = _write_similarity(tmp_path / "similarity", paper_run_id, {str(item["id"]) for item in candidates})
+    return StageInputs(stage1=stage1, paper=tmp_path / "paper", blog=tmp_path / "blog", similarity=similarity)
 
 
 def test_publish_bundle_allowlist(tmp_path: Path) -> None:
@@ -120,7 +192,7 @@ def test_integrate_rejects_stage_one_candidate_overflow(tmp_path: Path) -> None:
         for item in extra_papers:
             record = {key: value for key, value in item.items() if key != "deep_reading"}
             record["excerpt"] = record.pop("abstract")
-            record.update({"graph_relations": [], "degraded": False})
+            record.update({"degraded": False})
             stream.write(json.dumps(record) + "\n")
     paper_deep_read_path = stages.paper / "paper-deep-readings.json"
     paper_deep_read = json.loads(paper_deep_read_path.read_text(encoding="utf-8"))
@@ -131,7 +203,7 @@ def test_integrate_rejects_stage_one_candidate_overflow(tmp_path: Path) -> None:
         integrate(stages, tmp_path / "bundle", CONFIG)
 
 
-def test_unknown_graph_relation_target_is_pruned_with_warning(tmp_path: Path) -> None:
+def test_removed_graph_relations_field_is_rejected(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
     papers = stages.stage1 / "papers.jsonl"
     lines = papers.read_text(encoding="utf-8").splitlines()
@@ -155,13 +227,8 @@ def test_unknown_graph_relation_target_is_pruned_with_warning(tmp_path: Path) ->
     lines[0] = json.dumps(first)
     papers.write_text("".join(line + "\n" for line in lines), encoding="utf-8")
 
-    bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
-    item = json.loads((bundle.path / "pending-data" / "items" / "papers" / "2026" / "08" / "paper-0.json").read_text(encoding="utf-8"))
-    assert [relation["target_id"] for relation in item["graph_relations"]] == ["two_tower"]
-    report = RunReport.model_validate(
-        json.loads(next((bundle.path / "pending-data" / "runs").rglob("*.json")).read_text(encoding="utf-8"))
-    )
-    assert any("unknown target" in warning for warning in report.warnings)
+    with pytest.raises(ValueError, match="graph_relations"):
+        integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
 
 def test_integrate_requires_output_to_not_exist(tmp_path: Path) -> None:
@@ -183,7 +250,9 @@ def test_integrate_requires_output_to_not_exist(tmp_path: Path) -> None:
 def test_integrate_publishes_a_traversable_bundle_root(tmp_path: Path) -> None:
     bundle = integrate(fixture_stages(tmp_path), tmp_path / "bundle", CONFIG, state=None)
 
-    assert stat.S_IMODE(bundle.path.stat().st_mode) == 0o755
+    assert bundle.path.is_dir()
+    if os.name != "nt":
+        assert stat.S_IMODE(bundle.path.stat().st_mode) == 0o755
 
 
 def test_integration_does_not_write_empty_digest_but_keeps_report_and_state(tmp_path: Path) -> None:
@@ -204,11 +273,44 @@ def test_mismatched_manifest_is_rejected_without_state(tmp_path: Path) -> None:
     assert not (tmp_path / "bundle" / "pending-data" / "state.json").exists()
 
 
+def test_invalid_similarity_artifact_blocks_publish_bundle(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    similarity_path = stages.similarity / "similarity.json"
+    document = json.loads(similarity_path.read_text(encoding="utf-8"))
+    document["encoded_items"] -= 1
+    similarity_path.write_text(json.dumps(document), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="full canonical input"):
+        integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+    assert not (tmp_path / "bundle").exists()
+
+
+def test_similarity_rank_score_inversion_blocks_publish_bundle(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    similarity_path = stages.similarity / "similarity.json"
+    document = json.loads(similarity_path.read_text(encoding="utf-8"))
+    document["edges"] = [
+        {"source_id": "paper-0", "target_id": "paper-1", "score": 0.9, "source_rank": 2, "target_rank": 1},
+        {"source_id": "paper-0", "target_id": "paper-2", "score": 0.8, "source_rank": 1, "target_rank": 1},
+    ]
+    similarity_path.write_text(json.dumps(document), encoding="utf-8")
+    report_path = stages.similarity / "similarity-report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["edge_count"] = 2
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="rank/score order"):
+        integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+    assert not (tmp_path / "bundle").exists()
+
+
 def test_digest_references_ids_and_caps_each_kind(tmp_path: Path) -> None:
     bundle = integrate(fixture_stages(tmp_path), tmp_path / "bundle", CONFIG, state=None)
     digest = load_digest(bundle)
-    assert len(digest.papers) <= 8
-    assert len(digest.blogs) <= 8
+    assert len(digest.papers) <= 10
+    assert len(digest.blogs) <= 10
     assert all(isinstance(entry.item_id, str) for entry in digest.papers + digest.blogs)
     item_paths = list((bundle.path / "pending-data" / "items").rglob("*.json"))
     item_ids = {json.loads(path.read_text(encoding="utf-8"))["id"] for path in item_paths}
@@ -271,6 +373,7 @@ def test_integration_rejects_low_structured_analysis_rate(tmp_path: Path) -> Non
     paper_document["items"] = paper_document["items"][:1]
     paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
     paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
+    _refresh_similarity_for_current_results(stages, paper_count=1)
     with pytest.raises(ValueError, match="structured analysis success rate"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
@@ -313,6 +416,7 @@ def test_structured_analysis_success_rate_is_enforced(tmp_path: Path) -> None:
     paper_document["items"] = paper_document["items"][:7]
     paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
     paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
+    _refresh_similarity_for_current_results(stages, paper_count=7)
 
     with pytest.raises(ValueError, match="structured analysis success rate"):
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
@@ -326,6 +430,7 @@ def test_structured_analysis_accepts_exact_eighty_percent(tmp_path: Path) -> Non
     paper_document["items"] = paper_document["items"][:8]
     paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
     paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
+    _refresh_similarity_for_current_results(stages, paper_count=8)
 
     bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
@@ -370,11 +475,29 @@ def test_integrate_skips_degraded_non_chinese_summary(tmp_path: Path) -> None:
     value["degraded"] = True
     lines[0] = json.dumps(value)
     papers_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    _refresh_similarity_for_current_results(stages, paper_count=10)
 
     bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
     assert not (bundle.path / "pending-data/items/papers/2026/08/paper-0.json").exists()
     assert all(entry.item_id != "paper-0" for entry in load_digest(bundle).papers)
+
+
+def test_integrate_accepts_degraded_item_with_one_grounded_label(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    papers_path = stages.stage1 / "papers.jsonl"
+    lines = papers_path.read_text(encoding="utf-8").splitlines()
+    value = json.loads(lines[0])
+    value["degraded"] = True
+    value["scenarios"] = []
+    value["tasks"] = []
+    value["methods"] = []
+    lines[0] = json.dumps(value)
+    papers_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+    assert (bundle.path / "pending-data/items/papers/2026/08/paper-0.json").is_file()
 
 
 def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_path: Path) -> None:
@@ -388,8 +511,8 @@ def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_pa
     historical_item_value = _paper("historical-paper", 0.5)
     historical_item_value["published_at"] = "2025-01-02T00:00:00Z"
     snapshot = BuildConfigSnapshot(
-        graph_max_content_nodes=CONFIG.settings.graph_max_content_nodes,
-        graph_recent_days=CONFIG.settings.graph_recent_days,
+        graph_initial_content_nodes=CONFIG.settings.graph_initial_content_nodes,
+        graph_shard_target_bytes=CONFIG.settings.graph_shard_target_bytes,
         minimum_final_score=CONFIG.settings.minimum_final_score,
         minimum_metadata_relevance_score=CONFIG.settings.minimum_metadata_relevance_score,
         target_item_bytes=CONFIG.settings.storage.target_item_bytes,
@@ -399,14 +522,35 @@ def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_pa
         warn_pages_artifact_mb=CONFIG.settings.storage.warn_pages_artifact_mb,
         fail_pages_artifact_mb=CONFIG.settings.storage.fail_pages_artifact_mb,
     )
+    historical_run_value = RunReport(
+        run_id="historical-run",
+        started_at=datetime(2025, 1, 2, tzinfo=UTC),
+        config_snapshot=snapshot,
+        stage_report=StageReport(),
+    ).model_dump(mode="json")
+    historical_run_value["config_snapshot"] = {
+        "graph_max_content_nodes": 80,
+        "graph_recent_days": 90,
+        "minimum_final_score": CONFIG.settings.minimum_final_score,
+        "minimum_metadata_relevance_score": CONFIG.settings.minimum_metadata_relevance_score,
+        "target_item_bytes": CONFIG.settings.storage.target_item_bytes,
+        "max_item_bytes": CONFIG.settings.storage.max_item_bytes,
+        "max_blog_excerpt_chars": CONFIG.settings.storage.max_blog_excerpt_chars,
+        "warn_repository_data_mb": CONFIG.settings.storage.warn_repository_data_mb,
+        "warn_pages_artifact_mb": CONFIG.settings.storage.warn_pages_artifact_mb,
+        "fail_pages_artifact_mb": CONFIG.settings.storage.fail_pages_artifact_mb,
+    }
     for path, value in (
         (historical_item, historical_item_value),
         (historical_digest, {"date": "2025-01-02", "papers": [{"item_id": "historical-paper", "recommendation_reason_zh": "历史推荐", "rank": 1}], "blogs": []}),
-        (historical_run, RunReport(run_id="historical-run", started_at=datetime(2025, 1, 2, tzinfo=UTC), config_snapshot=snapshot, stage_report=StageReport()).model_dump(mode="json")),
+        (historical_run, historical_run_value),
         (data / "state.json", State(recommended_item_ids=["historical-paper"]).model_dump(mode="json")),
     ):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(value), encoding="utf-8")
+
+    current_ids = {f"paper-{index}" for index in range(10)} | {f"blog-{index}" for index in range(10)}
+    _write_similarity(stages.similarity, "run-1", current_ids | {"historical-paper"})
 
     bundle = integrate(
         stages,
@@ -419,11 +563,14 @@ def test_integrate_copies_historical_json_tree_and_merges_recommended_ids(tmp_pa
     assert (pending / "items/papers/2025/01/historical-paper.json").exists()
     assert (pending / "digests/2025/01/2025-01-02.json").exists()
     assert (pending / "runs/2025/01/historical-run.json").exists()
+    copied_historical_report = json.loads((pending / "runs/2025/01/historical-run.json").read_text(encoding="utf-8"))
+    assert copied_historical_report["config_snapshot"]["graph_max_content_nodes"] == 80
+    assert "graph_initial_content_nodes" not in copied_historical_report["config_snapshot"]
     state = json.loads((pending / "state.json").read_text(encoding="utf-8"))
     assert state["recommended_item_ids"][:2] == ["historical-paper", "paper-0"]
     report_path = next((pending / "runs").rglob("run-1.json"))
     report = json.loads(report_path.read_text(encoding="utf-8"))
-    assert report["config_snapshot"]["graph_recent_days"] == CONFIG.settings.graph_recent_days
+    assert report["config_snapshot"]["graph_initial_content_nodes"] == CONFIG.settings.graph_initial_content_nodes
     assert report["stage_report"]["metadata_llm_success_rate"] == 1.0
 
 

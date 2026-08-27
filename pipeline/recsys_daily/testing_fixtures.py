@@ -20,11 +20,26 @@ from .content import BlogFeedCache, ContentServices
 from .deep_read import DeepReadServices, deep_read
 from .integrate import StageInputs, integrate
 from .schemas import BuildConfigSnapshot, RunReport, StageReport, State
+from .similarity import run_similarity
 from .stage_one import load_history_ids, run_collect_filter
 
 
 PAPER_HTML = """<!doctype html><html><body><article><h1>Two-Tower Retrieval for Content Recommendation</h1><h2>Method</h2><p>The model uses two towers.</p></article></body></html>"""
 ARTICLE_HTML = """<!doctype html><html><body><article><h1>How We Improved Feed Ranking</h1><h2>Architecture</h2><p>A bounded article about ranking.</p></article></body></html>"""
+
+
+class _FixtureTokenizer:
+    def encode(self, value: str) -> list[int]:
+        return [ord(character) for character in value]
+
+    def decode(self, value: Sequence[int]) -> str:
+        return "".join(chr(token) for token in value)
+
+
+class _FixtureEmbedder:
+    def embed(self, values: Sequence[str], *, batch_size: int) -> Sequence[Sequence[float]]:
+        del batch_size
+        return [[1.0] + [0.0] * 383 for _ in values]
 
 
 @dataclass(frozen=True)
@@ -80,7 +95,6 @@ def _metadata(candidate: Candidate, config: AppConfig, *, degraded: bool = False
         "tasks": [config.topics.tasks[0].id],
         "methods": [config.topics.methods[1].id],
         "relevance_score": candidate.metadata_score,
-        "graph_relations": [],
         "degraded": degraded,
     }
 
@@ -349,7 +363,18 @@ def _run_pipeline(
         run_id,
         exercise_blog_fallbacks=exercise_blog_fallbacks,
     )
-    bundle = integrate(StageInputs(stage, deep_dirs["paper"], deep_dirs["blog"]), root / "publish-bundle", config, state=state, repository_data=repository_data)
+    similarity = root / "similarity"
+    run_similarity(
+        stage,
+        deep_dirs["paper"],
+        deep_dirs["blog"],
+        repository_data,
+        similarity,
+        config,
+        embedder=_FixtureEmbedder(),
+        tokenizer=_FixtureTokenizer(),
+    )
+    bundle = integrate(StageInputs(stage, deep_dirs["paper"], deep_dirs["blog"], similarity), root / "publish-bundle", config, state=state, repository_data=repository_data)
     pending_state = json.loads((bundle.path / "pending-data/state.json").read_text(encoding="utf-8"))
     stage_candidate_count = sum(
         len([line for line in (stage / f"{kind}s.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()])
@@ -402,9 +427,22 @@ def _run_failure_injection(
         deep_dirs = _write_deep_stages(root, stage, f"fixture-failure-{failure_point}")
         completed.append("deep-read")
 
+        _inject_failure(failure_point, "similarity")
+        similarity = root / "similarity"
+        run_similarity(
+            stage,
+            deep_dirs["paper"],
+            deep_dirs["blog"],
+            None,
+            similarity,
+            config,
+            embedder=_FixtureEmbedder(),
+            tokenizer=_FixtureTokenizer(),
+        )
+
         _inject_failure(failure_point, "rank")
         bundle = integrate(
-            StageInputs(stage, deep_dirs["paper"], deep_dirs["blog"]),
+            StageInputs(stage, deep_dirs["paper"], deep_dirs["blog"], similarity),
             root / "publish-bundle",
             config,
             state=seed,
@@ -453,7 +491,6 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
         "methods": [config.topics.methods[0].id],
         "relevance_score": 0.8,
         "final_score": 0.8,
-        "graph_relations": [],
         "llm": {
             "model": config.models.text.model,
             "generated_at": published_at.isoformat().replace("+00:00", "Z"),
@@ -471,8 +508,8 @@ def _seed_historical_repository(data: Path, config: AppConfig) -> State:
     })
     storage = config.settings.storage
     snapshot = BuildConfigSnapshot(
-        graph_max_content_nodes=config.settings.graph_max_content_nodes,
-        graph_recent_days=config.settings.graph_recent_days,
+        graph_initial_content_nodes=config.settings.graph_initial_content_nodes,
+        graph_shard_target_bytes=config.settings.graph_shard_target_bytes,
         minimum_final_score=config.settings.minimum_final_score,
         minimum_metadata_relevance_score=config.settings.minimum_metadata_relevance_score,
         target_item_bytes=storage.target_item_bytes,
@@ -510,7 +547,7 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
         candidates = [_candidate("paper", 0, now), _candidate("blog", 0, now)]
         failures = {
             failure_point: _run_failure_injection(root / failure_point, config, candidates, failure_point)
-            for failure_point in ("collect", "deep-read", "rank", "site", "deploy")
+            for failure_point in ("collect", "deep-read", "similarity", "rank", "site", "deploy")
         }
         return FixtureScenarioResult(name, root, None, seed, 0, {}, None, failures)
     if name == "daily":

@@ -20,7 +20,7 @@ import {
 const now = Date.parse("2026-08-15T00:00:00Z");
 const nodes = [
   { data: { id: "paper-a", label: "Ｇｒａｐｈ Ranking", type: "paper", published_at: "2026-08-14T00:00:00Z", tags: ["user", "ranking"], search_terms: ["图排序", "Graph Ranking"], weight: 4 } },
-  { data: { id: "article-b", label: "Ranking in Production", type: "article", published_at: "2026-07-20T00:00:00Z", tags: ["room", "ranking"], search_terms: ["线上排序"], weight: 2 } },
+  { data: { id: "blog-b", label: "Ranking in Production", type: "blog", published_at: "2026-07-20T00:00:00Z", tags: ["room", "ranking"], search_terms: ["线上排序"], weight: 2 } },
   { data: { id: "paper-c", label: "Graph Retrieval", type: "paper", published_at: "2025-02-01T00:00:00Z", tags: ["user", "retrieval"], search_terms: ["图召回"], weight: 1 } },
   { data: { id: "target:user", label: "用户推荐 / User Recommendation", type: "target", search_terms: ["user", "用户推荐", "User Recommendation"], weight: 2 } },
   { data: { id: "target:room", label: "房间推荐 / Room Recommendation", type: "target", search_terms: ["room", "房间推荐", "Room Recommendation"], weight: 1 } },
@@ -33,29 +33,29 @@ const edge = (id, source, target, overrides = {}) => ({ data: {
   id,
   source,
   target,
-  type: "related",
+    type: "similarity",
   confidence: 0.9,
   evidence: "fixture",
-  generated_by: "deepseek",
+    generated_by: "fastembed",
   ...overrides,
 } });
 
 const graph = {
   nodes,
   edges: [
-    edge("taxonomy:paper-a|target:user", "paper-a", "target:user", { type: "target", confidence: 1, generated_by: "topics.yaml" }),
-    edge("taxonomy:paper-a|task:ranking", "paper-a", "task:ranking", { type: "task", confidence: 1, generated_by: "topics.yaml" }),
-    edge("taxonomy:article-b|target:room", "article-b", "target:room", { type: "target", confidence: 1, generated_by: "topics.yaml" }),
-    edge("taxonomy:article-b|task:ranking", "article-b", "task:ranking", { type: "task", confidence: 1, generated_by: "topics.yaml" }),
-    edge("taxonomy:paper-c|target:user", "paper-c", "target:user", { type: "target", confidence: 1, generated_by: "topics.yaml" }),
-    edge("taxonomy:paper-c|task:retrieval", "paper-c", "task:retrieval", { type: "task", confidence: 1, generated_by: "topics.yaml" }),
-    edge("relation:paper-a|article-b|supports", "paper-a", "article-b", { type: "supports" }),
+    edge("taxonomy:paper-a|target:user", "paper-a", "target:user", { type: "taxonomy", confidence: 1, generated_by: "topics.yaml" }),
+    edge("taxonomy:paper-a|task:ranking", "paper-a", "task:ranking", { type: "taxonomy", confidence: 1, generated_by: "topics.yaml" }),
+    edge("taxonomy:blog-b|target:room", "blog-b", "target:room", { type: "taxonomy", confidence: 1, generated_by: "topics.yaml" }),
+    edge("taxonomy:blog-b|task:ranking", "blog-b", "task:ranking", { type: "taxonomy", confidence: 1, generated_by: "topics.yaml" }),
+    edge("taxonomy:paper-c|target:user", "paper-c", "target:user", { type: "taxonomy", confidence: 1, generated_by: "topics.yaml" }),
+    edge("taxonomy:paper-c|task:retrieval", "paper-c", "task:retrieval", { type: "taxonomy", confidence: 1, generated_by: "topics.yaml" }),
+    edge("similarity:blog-b|paper-a", "paper-a", "blog-b", { type: "similarity", score: 0.9, source_rank: 1, target_rank: 1 }),
   ],
 };
 
 test("adjacency is undirected and includes isolated nodes", () => {
   const adjacency = buildGraphAdjacency(graph);
-  assert.deepEqual([...adjacency.get("paper-a")], ["target:user", "task:ranking", "article-b"]);
+  assert.deepEqual([...adjacency.get("paper-a")], ["target:user", "task:ranking", "blog-b"]);
   assert.equal(adjacency.get("target:user").has("paper-a"), true);
   assert.deepEqual([...adjacency.get("method:isolated")], []);
 });
@@ -69,13 +69,13 @@ test("filters use OR within a group, AND between groups, and prune unrelated tax
   });
   assert.deepEqual(filtered.nodes.map(node => node.data.id), [
     "paper-a",
-    "article-b",
+    "blog-b",
     "target:user",
     "target:room",
     "task:ranking",
   ]);
   assert.equal(filtered.edges.some(value => value.data.target === "task:retrieval"), false);
-  assert.equal(filtered.edges.some(value => value.data.id.startsWith("relation:")), true);
+  assert.equal(filtered.edges.some(value => value.data.id.startsWith("similarity:")), true);
 });
 
 test("year and cumulative age filters use the supplied clock", () => {
@@ -85,14 +85,14 @@ test("year and cumulative age filters use the supplied clock", () => {
   );
   assert.deepEqual(
     filterGraphDocument(graph, { age: "30d", now }).nodes.map(node => node.data.id),
-    ["paper-a", "article-b", "target:user", "target:room", "task:ranking"],
+    ["paper-a", "blog-b", "target:user", "target:room", "task:ranking"],
   );
 });
 
 test("node type toggles hide disabled types, remove their edges, and prune isolated taxonomy", () => {
-  const articleAndTask = filterGraphNodeTypes(graph, new Set(["article", "task"]));
-  assert.deepEqual(articleAndTask.nodes.map(node => node.data.id), ["article-b", "task:ranking"]);
-  assert.deepEqual(articleAndTask.edges.map(value => value.data.id), ["taxonomy:article-b|task:ranking"]);
+  const blogAndTask = filterGraphNodeTypes(graph, new Set(["blog", "task"]));
+  assert.deepEqual(blogAndTask.nodes.map(node => node.data.id), ["blog-b", "task:ranking"]);
+  assert.deepEqual(blogAndTask.edges.map(value => value.data.id), ["taxonomy:blog-b|task:ranking"]);
 
   const contentWithoutRelationships = filterGraphNodeTypes(graph, new Set(["paper", "method"]));
   assert.deepEqual(contentWithoutRelationships.nodes.map(node => node.data.id), ["paper-a", "paper-c"]);
@@ -101,15 +101,15 @@ test("node type toggles hide disabled types, remove their edges, and prune isola
 
 test("center returns the content node and its induced one-hop neighborhood", () => {
   const centered = centerGraphDocument(graph, "paper-a");
-  assert.deepEqual(centered.nodes.map(node => node.data.id), ["paper-a", "article-b", "target:user", "task:ranking"]);
-  assert.equal(centered.edges.length, 4);
+  assert.deepEqual(centered.nodes.map(node => node.data.id), ["paper-a", "blog-b", "target:user", "target:room", "task:ranking"]);
+  assert.equal(centered.edges.length, 5);
   assert.equal(centerGraphDocument(graph, "target:user"), null);
   assert.equal(centerGraphDocument(graph, "missing"), null);
 });
 
 test("generic neighborhood supports taxonomy search results", () => {
   const centered = graphNodeNeighborhood(graph, "task:ranking");
-  assert.deepEqual(centered.nodes.map(node => node.data.id), ["paper-a", "article-b", "task:ranking"]);
+  assert.deepEqual(centered.nodes.map(node => node.data.id), ["paper-a", "blog-b", "task:ranking"]);
   assert.equal(centered.edges.length, 3);
   assert.equal(graphNodeNeighborhood(graph, "missing"), null);
 });
@@ -117,7 +117,7 @@ test("generic neighborhood supports taxonomy search results", () => {
 test("search applies NFKC lowercase normalization and stable relevance ordering", () => {
   assert.deepEqual(searchGraphNodes(graph, "  GRAPH   ").map(node => node.data.id), ["paper-a", "paper-c"]);
   assert.deepEqual(searchGraphNodes(graph, "ｕｓｅｒ recommendation").map(node => node.data.id), ["target:user"]);
-  assert.deepEqual(searchGraphNodes(graph, "ranking").map(node => node.data.id), ["task:ranking", "article-b", "paper-a"]);
+  assert.deepEqual(searchGraphNodes(graph, "ranking").map(node => node.data.id), ["task:ranking", "blog-b", "paper-a"]);
   assert.deepEqual(searchGraphNodes(graph, "  "), []);
 });
 
@@ -141,7 +141,7 @@ test("nodes use 50% opacity while selection mutes unrelated nodes", () => {
 
 test("content titles stay hidden while taxonomy labels respond to zoom and emphasis", () => {
   assert.equal(graphNodeLabelVisible("paper", 1), false);
-  assert.equal(graphNodeLabelVisible("article", 1, true), false);
+  assert.equal(graphNodeLabelVisible("blog", 1, true), false);
   assert.equal(graphNodeLabelVisible("target", 1), true);
   assert.equal(graphNodeLabelVisible("task", 0.5), false);
   assert.equal(graphNodeLabelVisible("method", 0.5, true), true);
@@ -160,23 +160,23 @@ test("rich-text escaping prevents user text from becoming an ECharts style token
   assert.doesNotMatch(escaped, /\{[a-zA-Z0-9_]+\|[^}]*\}/);
 });
 
-test("ECharts adapter preserves article and differentiates taxonomy and model edges", () => {
+test("ECharts adapter preserves blog and renders similarity as an undirected neutral edge", () => {
   const adapted = adaptGraphDocumentToECharts(graph);
-  const article = adapted.nodes.find(node => node.id === "article-b");
-  assert.equal(article.type, "article");
-  assert.equal(article.category, "article");
-  assert.equal(article.symbol, "circle");
+  const blog = adapted.nodes.find(node => node.id === "blog-b");
+  assert.equal(blog.type, "blog");
+  assert.equal(blog.category, "blog");
+  assert.equal(blog.symbol, "circle");
   assert.equal(adapted.nodes.find(node => node.id === "target:user").symbol, "circle");
 
   const taxonomy = adapted.links.find(link => link.id.startsWith("taxonomy:"));
-  const model = adapted.links.find(link => link.id.startsWith("relation:"));
+  const similarity = adapted.links.find(link => link.id.startsWith("similarity:"));
   assert.equal(taxonomy.edgeKind, "taxonomy");
   assert.equal(taxonomy.lineStyle.type, "solid");
   assert.deepEqual(taxonomy.symbol, ["none", "none"]);
-  assert.equal(model.edgeKind, "model");
-  assert.equal(model.lineStyle.type, "dashed");
-  assert.deepEqual(model.symbol, ["none", "arrow"]);
-  assert.deepEqual(model.symbolSize, [0, 5]);
+  assert.equal(similarity.edgeKind, "similarity");
+  assert.equal(similarity.lineStyle.type, "solid");
+  assert.deepEqual(similarity.symbol, ["none", "none"]);
+  assert.deepEqual(similarity.symbolSize, [0, 0]);
 });
 
 test("taxonomy palette matches site chips and edges inherit the intended endpoint", () => {
@@ -190,5 +190,5 @@ test("taxonomy palette matches site chips and edges inherit the intended endpoin
     },
   );
   assert.equal(graphEdgeColor("taxonomy"), "target");
-  assert.equal(graphEdgeColor("model"), "source");
+  assert.equal(graphEdgeColor("similarity"), "#94a3b8");
 });

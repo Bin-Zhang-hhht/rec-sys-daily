@@ -49,12 +49,12 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 | 内容类型 | 每日数量 | 规则 |
 | --- | ---: | --- |
-| 学术论文 | 目标 8 篇 | 优先新论文；不足时允许少于 8 篇，不填充低相关或重复论文 |
-| 技术博客 | 目标 8 篇 | 优先未推荐的近期文章；不足时允许少于 8 篇，不为凑数降低阈值 |
+| 学术论文 | 目标 10 篇 | 优先新论文；不足时允许少于 10 篇，不填充低相关或重复论文 |
+| 技术博客 | 目标 10 篇 | 优先未推荐的近期文章；不足时允许少于 10 篇，不为凑数降低阈值 |
 
-因此每日页面最多展示 16 条新推荐。
+因此每日页面最多展示 20 条新推荐。
 
-系统按日运行。存在成功状态时，论文从 `last_success_at - 48 小时` 开始查询，博客从 `last_success_at - 7 天` 开始查询；重叠窗口用于容忍来源延迟和偶发漏跑，历史日报去重保证内容不会被重复推荐。任一类型不足 8 篇时允许少于 8 篇，并在运行报告中记录原因。
+系统按日运行。存在成功状态时，论文从 `last_success_at - 48 小时` 开始查询，博客从 `last_success_at - 7 天` 开始查询；重叠窗口用于容忍来源延迟和偶发漏跑，历史日报去重保证内容不会被重复推荐。任一类型不足 10 篇时允许少于 10 篇，并在运行报告中记录原因。
 
 每条推荐至少包含：
 
@@ -79,7 +79,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 | `state.json` 不存在 | 当前时间减 5 年 | 当前时间减 3 年 |
 | 存在有效状态 | `last_success_at - 48 小时` | `last_success_at - 7 天` |
 
-每次运行统一使用论文最多 100 篇、博客最多 50 篇，完成元数据分析后各取最多 20 篇进行临时全文解读，再分别重排出目标 8 篇。无有效状态与有效状态分支使用完全相同的候选数、深读数和筛选代码，唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
+每次运行统一使用论文最多 100 篇、博客最多 50 篇，完成元数据分析后各取最多 20 篇进行临时全文解读，再分别重排出目标 10 篇。无有效状态与有效状态分支使用完全相同的候选数、深读数和筛选代码，唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
 
 ### 4.2 成功条件
 
@@ -103,7 +103,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 - 根据来源游标、发布日期和内容 ID 拉取新增候选
 - 使用 arXiv ID、Canonical URL、DOI 和标准化标题去重
-- 从候选中分别生成论文目标 8 篇、博客目标 8 篇
+- 从候选中分别生成论文目标 10 篇、博客目标 10 篇
 - 无新博客时仍正常发布论文日报
 - 未产生任何新内容时只记录成功运行，不生成空日报
 
@@ -438,7 +438,7 @@ flowchart LR
 - 发布时间和新颖度
 - 与历史已推荐内容的重复判定
 
-每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签和证据，避免为同一条内容重复执行元数据分析；博客即使没有 feed excerpt，也必须根据标题和已有元数据生成中文摘要。`summary_zh` 必须包含 CJK 字符，纯英文模型结果视为批次失败；降级时仅可复用本身含 CJK 的 excerpt，纯英文或空 excerpt 不得作为中文摘要发布。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 20 进入全文深读；若不足 20 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 20 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
+每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签和证据，避免为同一条内容重复执行元数据分析；博客即使没有 feed excerpt，也必须根据标题和已有元数据生成中文摘要。`summary_zh` 必须包含 CJK 字符，纯英文模型结果视为批次失败；降级时仅可复用本身含 CJK 的 excerpt，纯英文或空 excerpt 不得作为中文摘要发布。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 20 进入全文深读；若不足 20 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 20 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 10 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
 
 确定性推荐系统相关性门禁在 metadata 分析前执行：候选标题、摘要/短 excerpt 或来源条目分类中必须出现 `collection_terms` 证据；来源配置中的 `source_scenarios` 只能描述来源覆盖范围，不能作为内容相关性或标签证据。LLM metadata 的 `relevance_score` 低于 `config/settings.yaml` 的 `minimum_metadata_relevance_score`（当前为 `0.65`）的候选不会进入深读；每个 taxonomy 分组允许为空，且模型生成但无法在候选源文本中找到对应 term 证据的标签会被移除。这样宁可少于每日目标数量，也不使用泛 AI、Agent、LLM 或基础设施内容凑数。模型失败时的规则降级同样只读取候选自身文本，不复制来源场景标签。
 
@@ -565,6 +565,10 @@ similarity:
   mutual_top_k: true
   score_decimals: 6
 ```
+
+首版配置 Schema 对 `batch_size=32`、`threads=2`、`block_size=64`、`top_k=5` 和
+`min_cosine=0.72` 做精确校验，不能只修改 YAML 让 pipeline 与站点契约分叉；后续调整这些
+参数时必须同步修订 artifact 校验、站点校验和本设计。
 
 选择该模型是因为 FastEmbed 提供 ONNX Runtime 的轻量 CPU 推理，模型覆盖约 50 种语言，
 输出 384 维向量，适合 GitHub-hosted runner 的一次性离线计算；模型约 0.22 GB，不需要
@@ -779,7 +783,7 @@ Feed、HTML 和 PDF 响应都使用流式 N+1 上限读取：先拒绝明确超�
 └── compose.yaml
 ```
 
-`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 20 论文和 Top 20 博客保存或更新结构化深读记录，单月通常不超过约 1,200 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 8 篇推荐的成功深读候选也可保留结构化结果，但不因此记为已推荐。首版不根据这些 canonical item 建立指纹缓存协议。
+`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 20 论文和 Top 20 博客保存或更新结构化深读记录，单月通常不超过约 1,200 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 10 篇推荐的成功深读候选也可保留结构化结果，但不因此记为已推荐。首版不根据这些 canonical item 建立指纹缓存协议。
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
@@ -859,7 +863,7 @@ storage:
 
 站点固定作为 GitHub Project Pages 部署。`SITE_ORIGIN` 只保存 `https://<owner>.github.io` 这样的 origin，Astro 固定使用 `base: "/rec-sys-daily/"` 和 `trailingSlash: "always"`。所有导航、卡片、详情、归档、图谱 manifest/shards、Pagefind runtime 和搜索结果链接都通过同一 base-aware helper 生成，不硬编码根路径。
 
-- `/`：当天简报，论文和博客各目标 8 篇
+- `/`：当天简报，论文和博客各目标 10 篇
 - `/papers/<id>/`：论文详情页
 - `/articles/<id>/`：博客详情页
 - `/archive/`：按日期和标签浏览历史日报
@@ -1129,7 +1133,7 @@ size 32、CPU threads 2、块大小 64、每条最多 5 条边。单 job 的 180
 - 下载四个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致；相似度 artifact
   缺失或验证失败时直接失败
 - 宿主创建并挂载父目录 `/workspace/publish-work`，不预创建最终子目录；执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-work/publish-bundle`
-- 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 8 篇
+- 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 10 篇
 - 校验相似度 artifact 的端点、输入覆盖、阈值、Top-K、mutual check 和稳定排序；生成待提交的
   canonical items、日报、运行报告、pending `state.json` 和本次配置的 `taxonomy.json` 快照
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
@@ -1201,7 +1205,7 @@ Python 单元与集成测试覆盖：
 - `429/5xx`、`Retry-After`、最多 3 次重试，以及同步客户端单请求边界
 - `arXiv PDF → MinerU full.md → Abstract fallback` 与博客 `Feed full content → article HTML → excerpt` 降级链，并验证论文路径不调用 arXiv HTML、PyMuPDF 或 VLM
 - Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性和降级状态；空 excerpt 博客仍生成摘要，纯英文 `summary_zh` 不得通过模型响应或降级 artifact 进入发布；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 20
-- Top 20 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 8 篇、深读 Schema、正文依据和图谱分片输入
+- Top 20 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 10 篇、深读 Schema、正文依据和图谱分片输入
 - 相似度文本序列化的三个字段、实际 tokenizer 计数、128-token 预算（title 32、abstract 64、summary 24、separator 8）、batch embedding、L2 normalization、分块 exact cosine、阈值、Top-K、mutual Top-K、跨 paper/blog 边和稳定六位小数输出
 - 相似度全量 canonical 输入、历史/当前 ID 去重、输入覆盖、未知端点、自环、重复边、错误维度、非法分数和 artifact 中不得出现 embedding 或原始文本
 - 相似度 artifact 的 manifest/run/schema 校验、模型参数一致性、空边集合、相似度失败阻断 `rank-integrate` 和失败时不写正式 `state.json`
@@ -1251,7 +1255,7 @@ Python 单元与集成测试覆盖：
 2. 首次运行论文限制为近 5 年最多 100 篇，博客限制为近 3 年最多 50 篇
 3. 无有效 state 的首次运行关键失败时，远端仓库不存在完成状态
 4. 后续每日运行自动使用增量时间范围；两个时间窗口分支共用同一套处理逻辑和安全上限
-5. 每日论文和博客各目标 8 篇；候选不足时允许少于 8 篇，但不使用低相关或重复内容填充
+5. 每日论文和博客各目标 10 篇；候选不足时允许少于 10 篇，但不使用低相关或重复内容填充
 6. 每条推荐拥有中文一句话摘要并保留关键英文术语
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
 8. 站点包含日报、详情、归档、按需加载的站内内容搜索和可交互轻量图谱；搜索筛选项由 `topics.yaml` 自动生成
@@ -1261,7 +1265,7 @@ Python 单元与集成测试覆盖：
 12. GitHub Pages 部署不依赖任何常驻服务器
 13. canonical item 按类型和年月分文件保存，博客 item 不含 excerpt，日报只引用 item ID，构建产物和原始响应不进入 Git
 14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、独立 similarity、rank-integrate 和 build-deploy 四个逻辑阶段，共六个物理 job；job timeout 分别为 120、300、180、120 和 60 分钟，单 job 不超过 GitHub-hosted 的 6 小时上限，理论墙钟上限约 13 小时
-15. 每次运行从论文和博客元数据初排结果中各取最多 20 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 20 篇时处理全部候选
+15. 每次运行从论文和博客元数据初排结果中各取最多 20 篇临时全文深读，再依据深读结果各选目标 10 篇；不足 20 篇时处理全部候选
 16. Top 20 论文在全文 runner 中按 `arXiv PDF → MinerU full.md` 完成正文读取；PDF/MinerU 任一步失败时使用 excerpt 或 title 并标记 `abstract_fallback`，paper runner 不调用 arXiv HTML、PyMuPDF、关键页检测或 VLM
 17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、MinerU ZIP/Markdown、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
 18. 文本配置只声明一个 DeepSeek 模型，默认模型 ID 为 `deepseek-v4-flash`；更换模型修改 YAML，更换 endpoint 或 key 修改环境变量，不实现多 profile、自动 failover 或协议回退
@@ -1336,8 +1340,9 @@ runner 只输出短期 similarity artifact。它不保存 embedding、向量索�
 LLM 显式 `graph_relations` 功能已删除，不再出现在 metadata prompt/schema、Stage 1 artifact、
 canonical schema、TypeScript item parser、图谱构建或测试 fixture 中。迁移脚本只对现有
 `data/items/**/*.json` 做结构化 JSON 字段删除：保留 item ID、canonical 内容、digest ID、
-`data/state.json` 和运行报告；旧字段中的 9 组关系全部丢弃，不重新解释为 similarity 边。
+`data/state.json` 和运行报告；9 个 item 的非空旧字段中共 15 条关系全部丢弃，不重新解释为 similarity 边。
 
-迁移必须是确定性、可审计的一次性操作：当前 43 个 canonical item 都经过扫描，迁移前记录
-非空旧字段数量，迁移后验证所有 item 都不存在该字段，且 digest、state、item ID 集合完全不变。
+迁移必须是确定性、可审计的一次性操作：合并最新 `main` 数据后当前 54 个 canonical item 都经过
+扫描；迁移前有 9 个 item 包含非空旧字段，共 15 条旧关系。迁移后验证所有 item 都不存在该字段，
+且 digest、state、item ID 集合完全不变。
 迁移报告只进入开发验证输出，不进入 canonical data、publish bundle 或 Pages artifact。

@@ -108,22 +108,6 @@
   },
   "doi": "10.1145/3799682.3840842",
   "final_score": 0.8885,
-  "graph_relations": [
-    {
-      "confidence": 0.7,
-      "evidence": "两者均为生成式推荐方法并使用强化学习优化推荐输出。",
-      "generated_by": "llm_taxonomy_classifier",
-      "target_id": "url-f7ea41897b8edc1d893d7d6c",
-      "type": "related_by_method"
-    },
-    {
-      "confidence": 0.6,
-      "evidence": "两者均在大规模推荐模型中结合生成式/大语言模型建模与强化学习训练。",
-      "generated_by": "llm_taxonomy_classifier",
-      "target_id": "arxiv-2608.10187",
-      "type": "related_by_method"
-    }
-  ],
   "id": "arxiv-2608.11980",
   "kind": "paper",
   "llm": {

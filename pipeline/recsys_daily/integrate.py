@@ -12,16 +12,20 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from pydantic import ValidationError
+
 from .artifacts import read_json, read_jsonl, write_json
 from .config import AppConfig
 from .metadata import has_cjk
 from .ranking import rank_items
+from .similarity import validate_similarity_artifact
 from .schemas import (
     BlogItem,
     BuildConfigSnapshot,
     ContentItem,
     Digest,
     DigestEntry,
+    LegacyBuildConfigSnapshot,
     Manifest,
     LLMMetadata,
     PaperItem,
@@ -38,6 +42,7 @@ class StageInputs:
     stage1: Path
     paper: Path
     blog: Path
+    similarity: Path
 
 
 @dataclass(frozen=True)
@@ -113,9 +118,11 @@ def _stage_report(stage1: Path) -> StageReport:
 
 
 def _metadata_record(value: dict[str, Any], taxonomy: Any) -> Stage1Metadata:
+    if "graph_relations" in value:
+        raise ValueError(f"removed stage-1 field graph_relations is not allowed for {value.get('id', '<unknown>')}")
     fields = (
         "id", "summary_zh", "targets", "scenarios", "tasks", "methods",
-        "relevance_score", "graph_relations", "degraded",
+        "relevance_score", "degraded",
     )
     missing = [field for field in fields if field not in value]
     if missing:
@@ -137,7 +144,7 @@ def _is_publishable_degraded_metadata(value: dict[str, Any]) -> bool:
     if value.get("degraded") is not True:
         return True
     summary = value.get("summary_zh")
-    return bool(isinstance(summary, str) and has_cjk(summary)) and all(
+    return bool(isinstance(summary, str) and has_cjk(summary)) and any(
         isinstance(value.get(field), list) and bool(value[field])
         for field in ("targets", "scenarios", "tasks", "methods")
     )
@@ -176,7 +183,7 @@ def _items(
         metadata_item = _metadata_record(metadata[item_id], taxonomy)
         base = dict(metadata[item_id])
         base.update(value)
-        for field in ("summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "graph_relations", "degraded"):
+        for field in ("summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "degraded"):
             base[field] = getattr(metadata_item, field)
         value = base
         if "source" not in value and value.get("source_id"):
@@ -275,8 +282,8 @@ def _build_snapshot(config: AppConfig) -> BuildConfigSnapshot:
     settings = config.settings
     storage = settings.storage
     return BuildConfigSnapshot(
-        graph_max_content_nodes=settings.graph_max_content_nodes,
-        graph_recent_days=settings.graph_recent_days,
+        graph_initial_content_nodes=settings.graph_initial_content_nodes,
+        graph_shard_target_bytes=settings.graph_shard_target_bytes,
         minimum_final_score=settings.minimum_final_score,
         minimum_metadata_relevance_score=settings.minimum_metadata_relevance_score,
         target_item_bytes=storage.target_item_bytes,
@@ -305,7 +312,12 @@ def _validate_historical_json(source: Path, relative: Path, config: AppConfig) -
             if (f"{digest.date.year:04d}", f"{digest.date.month:02d}", f"{digest.date.isoformat()}.json") != parts[1:4]:
                 raise ValueError("digest date does not match its canonical path")
         else:
-            report = RunReport.model_validate(value)
+            snapshot = value.get("config_snapshot") if isinstance(value, dict) else None
+            try:
+                BuildConfigSnapshot.model_validate(snapshot)
+            except ValidationError:
+                LegacyBuildConfigSnapshot.model_validate(snapshot)
+            report = RunReport.model_validate({**value, "config_snapshot": _build_snapshot(config).model_dump(mode="json")})
             if (f"{report.started_at.year:04d}", f"{report.started_at.month:02d}") != parts[1:3]:
                 raise ValueError("run start date does not match its canonical path")
             if report.run_id != source.stem:
@@ -337,6 +349,17 @@ def _copy_repository_data(repository_data: Path | None, pending: Path, config: A
         shutil.copy2(source, destination)
 
 
+def _historical_item_ids(repository_data: Path | None, config: AppConfig) -> set[str]:
+    if repository_data is None or not repository_data.exists():
+        return set()
+    item_ids: set[str] = set()
+    for source in sorted((repository_data / "items").rglob("*.json")):
+        relative = source.relative_to(repository_data)
+        _validate_historical_json(source, relative, config)
+        item_ids.add(source.stem)
+    return item_ids
+
+
 def _validate_pending_digest_references(pending: Path) -> None:
     item_ids = {
         "papers": {path.stem for path in (pending / "items" / "papers").rglob("*.json")},
@@ -360,7 +383,7 @@ def integrate(
     state: State | dict[str, Any] | None = None,
     repository_data: Path | None = None,
 ) -> PublishBundle:
-    """Create exactly one atomic publish bundle from three matching stages."""
+    """Create exactly one atomic publish bundle from matching stage artifacts."""
     stage_manifests = [_manifest(stages.stage1), _manifest(stages.paper), _manifest(stages.blog)]
     run_id = stage_manifests[0].run_id
     schema_version = stage_manifests[0].schema_version
@@ -393,21 +416,17 @@ def integrate(
     item_ids = [item.id for item in all_items]
     if len(item_ids) != len(set(item_ids)):
         raise ValueError("duplicate canonical item id")
-    allowed_relation_targets = set(item_ids) | {
-        entry.id
-        for category in (config.topics.targets, config.topics.scenarios, config.topics.tasks, config.topics.methods)
-        for entry in category
-    }
-    relation_warnings: list[str] = []
-    for item in all_items:
-        pruned = [relation for relation in item.graph_relations if relation.target_id not in allowed_relation_targets]
-        if not pruned:
-            continue
-        item.graph_relations = [relation for relation in item.graph_relations if relation.target_id in allowed_relation_targets]
-        relation_warnings.append(
-            f"pruned {len(pruned)} graph relation(s) with unknown target id(s) from {item.id} "
-            f"(first: {pruned[0].target_id})"
-        )
+    similarity_manifest = _manifest(stages.similarity)
+    if similarity_manifest.run_id != run_id or similarity_manifest.schema_version != schema_version:
+        raise ValueError("similarity artifact manifest must use the same run_id and schema_version")
+    historical_ids = _historical_item_ids(repository_data, config)
+    similarity = validate_similarity_artifact(
+        stages.similarity / "similarity.json",
+        expected_item_ids=set(item_ids) | historical_ids,
+        config=config.settings.similarity,
+        run_id=run_id,
+        schema_version=schema_version,
+    )
 
     paper_success_rate = _structured_success_rate(stages.paper, "paper", expected_papers)
     blog_success_rate = _structured_success_rate(stages.blog, "blog", expected_blogs)
@@ -455,7 +474,7 @@ def integrate(
         blog_recommendations=len(blogs),
         llm_calls=stage_report.metadata_llm_calls,
         structured_analysis_success_rate=min(paper_success_rate, blog_success_rate, stage_report.metadata_llm_success_rate),
-        warnings=list(stage_report.warnings) + relation_warnings,
+        warnings=list(stage_report.warnings),
     )
     manifest = Manifest(run_id=run_id, schema_version=schema_version)
 

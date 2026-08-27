@@ -27,14 +27,6 @@ class ArtifactModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-class GraphRelation(ArtifactModel):
-    type: str = Field(min_length=1)
-    target_id: str = Field(min_length=1)
-    confidence: float = Field(ge=0, le=1)
-    evidence: str = Field(min_length=1)
-    generated_by: str = Field(min_length=1)
-
-
 class LLMMetadata(ArtifactModel):
     model: str = Field(min_length=1)
     generated_at: UtcDatetime = Field(default_factory=utc_now)
@@ -210,7 +202,6 @@ class Stage1Metadata(ArtifactModel):
     tasks: list[str] = Field(default_factory=list)
     methods: list[str] = Field(default_factory=list)
     relevance_score: float = Field(default=0, ge=0, le=1)
-    graph_relations: list[GraphRelation] = Field(default_factory=list)
     degraded: bool = False
 
 
@@ -228,7 +219,6 @@ class ItemBase(ArtifactModel):
     methods: list[str]
     relevance_score: float = Field(default=0, ge=0, le=1)
     final_score: float = Field(default=0, ge=0, le=1)
-    graph_relations: list[GraphRelation] = Field(default_factory=list)
     llm: LLMMetadata | None = None
 
     @model_validator(mode="wrap")
@@ -281,7 +271,22 @@ class SourceRunStatus(ArtifactModel):
 
 
 class BuildConfigSnapshot(ArtifactModel):
-    graph_max_content_nodes: int = Field(ge=1)
+    graph_initial_content_nodes: PositiveInt
+    graph_shard_target_bytes: int = Field(ge=65_536, le=131_072)
+    minimum_final_score: float = Field(ge=0, le=1)
+    minimum_metadata_relevance_score: float = Field(ge=0, le=1)
+    target_item_bytes: PositiveInt
+    max_item_bytes: PositiveInt
+    max_blog_excerpt_chars: PositiveInt
+    warn_repository_data_mb: PositiveInt
+    warn_pages_artifact_mb: PositiveInt
+    fail_pages_artifact_mb: PositiveInt
+
+
+class LegacyBuildConfigSnapshot(ArtifactModel):
+    """Read-only compatibility shape for committed reports created before graph sharding."""
+
+    graph_max_content_nodes: PositiveInt
     graph_recent_days: PositiveInt
     minimum_final_score: float = Field(ge=0, le=1)
     minimum_metadata_relevance_score: float = Field(ge=0, le=1)
@@ -338,6 +343,66 @@ class State(ArtifactModel):
     sources: dict[str, SourceState] = Field(default_factory=dict)
     recommended_item_ids: list[str] = Field(default_factory=list)
     updated_at: UtcDatetime = Field(default_factory=utc_now)
+
+
+class SimilarityModel(ArtifactModel):
+    library: Literal["fastembed"]
+    version: Literal["0.8.0"]
+    name: Literal["sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"]
+    dimension: Literal[384]
+    normalized: Literal[True]
+
+
+class SimilarityParameters(ArtifactModel):
+    max_input_tokens: Literal[128]
+    title_tokens: Literal[32]
+    abstract_tokens: Literal[64]
+    summary_tokens: Literal[24]
+    separator_tokens: Literal[8]
+    top_k: int = Field(strict=True, gt=0)
+    min_cosine: float = Field(strict=True, ge=-1, le=1, allow_inf_nan=False)
+    mutual_top_k: Literal[True]
+
+
+class SimilarityTokenCounts(ArtifactModel):
+    id: str = Field(min_length=1)
+    title: int = Field(strict=True, ge=0, le=32)
+    abstract: int = Field(strict=True, ge=0, le=64)
+    summary_zh: int = Field(strict=True, ge=0, le=24)
+    total: int = Field(strict=True, ge=0, le=128)
+
+
+class SimilarityEdge(ArtifactModel):
+    source_id: str = Field(min_length=1)
+    target_id: str = Field(min_length=1)
+    score: float = Field(strict=True, ge=-1, le=1, allow_inf_nan=False)
+    source_rank: int = Field(strict=True, gt=0)
+    target_rank: int = Field(strict=True, gt=0)
+
+
+class SimilarityArtifact(ArtifactModel):
+    run_id: str = Field(min_length=1)
+    schema_version: Literal["1"]
+    model: SimilarityModel
+    parameters: SimilarityParameters
+    items_considered: int = Field(strict=True, ge=0)
+    encoded_items: int = Field(strict=True, ge=0)
+    token_counts: list[SimilarityTokenCounts] = Field(default_factory=list)
+    edges: list[SimilarityEdge] = Field(default_factory=list)
+
+
+class SimilarityReport(ArtifactModel):
+    run_id: str = Field(min_length=1)
+    schema_version: Literal["1"]
+    model: SimilarityModel
+    items_considered: int = Field(strict=True, ge=0)
+    encoded_items: int = Field(strict=True, ge=0)
+    truncated_items: int = Field(strict=True, ge=0)
+    edge_count: int = Field(strict=True, ge=0)
+    top_k: int = Field(strict=True, gt=0)
+    min_cosine: float = Field(strict=True, ge=-1, le=1, allow_inf_nan=False)
+    elapsed_seconds: float = Field(strict=True, ge=0, allow_inf_nan=False)
+    cache_status: Literal["hit", "miss", "not_used", "not_observed"]
 
 
 class Manifest(ArtifactModel):

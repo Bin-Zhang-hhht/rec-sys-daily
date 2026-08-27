@@ -125,6 +125,25 @@ class ModelConfig(StrictModel):
     common: ModelCommon
 
 
+class SimilarityConfig(StrictModel):
+    library: Literal["fastembed"]
+    version: Literal["0.8.0"]
+    model: Literal["sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"]
+    dimension: Literal[384]
+    max_input_tokens: Literal[128]
+    title_tokens: Literal[32]
+    abstract_tokens: Literal[64]
+    summary_tokens: Literal[24]
+    separator_tokens: Literal[8]
+    batch_size: Literal[32]
+    threads: Literal[2]
+    block_size: Literal[64]
+    top_k: Literal[5]
+    min_cosine: Literal[0.72]
+    mutual_top_k: Literal[True]
+    score_decimals: Literal[6]
+
+
 class ScoreWeights(StrictModel):
     topic_relevance: float = Field(ge=0)
     scenario_relevance: float = Field(ge=0)
@@ -193,8 +212,9 @@ class Settings(StrictModel):
     metadata_weights: ScoreWeights
     final_weights: FinalScoreWeights
     limits: Limits
-    graph_max_content_nodes: PositiveInt
-    graph_recent_days: PositiveInt
+    graph_initial_content_nodes: PositiveInt
+    graph_shard_target_bytes: int = Field(ge=65_536, le=131_072)
+    similarity: SimilarityConfig
     storage: StorageSettings
 
 

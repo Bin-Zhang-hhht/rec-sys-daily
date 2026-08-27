@@ -24,6 +24,7 @@ from .prompts import json_messages
 from .rate_limit import DomainRateLimiter
 from .security import fetch_public_url
 from .schemas import State, blog_reading_json_schema, paper_reading_json_schema
+from .similarity import run_similarity
 from .stage_one import load_history_ids, run_collect_filter
 from .testing_fixtures import run_fixture_scenarios
 
@@ -218,13 +219,27 @@ def deep_read_command(kind: str = typer.Option(...), input: Path = typer.Option(
     )
 
 
+@app.command("similarity")
+def similarity_command(input: Path = typer.Option(...), output: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
+    repository = _root(root)
+    config = load_config(repository)
+    run_similarity(
+        input / "stage-1",
+        input / "deep-reading-paper",
+        input / "deep-reading-blog",
+        repository / "data",
+        output,
+        config,
+    )
+
+
 @app.command("rank-integrate")
 def rank_integrate(input: Path = typer.Option(...), output: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
     repository = _root(root)
     config = load_config(repository)
     state = _load_repository_state(repository)
     integrate(
-        StageInputs(input / "stage-1", input / "deep-reading-paper", input / "deep-reading-blog"),
+        StageInputs(input / "stage-1", input / "deep-reading-paper", input / "deep-reading-blog", input / "similarity"),
         output,
         config,
         state,
@@ -236,6 +251,7 @@ def rank_integrate(input: Path = typer.Option(...), output: Path = typer.Option(
 def run_pipeline(output: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
     repository = _root(root)
     work = output.parent / "stages"
+    similarity_output = output.parent / "similarity"
     collect_filter(work / "stage-1", repository)
     manifest = json.loads((work / "stage-1" / "manifest.json").read_text(encoding="utf-8"))
     config = load_config(repository)
@@ -250,12 +266,54 @@ def run_pipeline(output: Path = typer.Option(...), root: Path = typer.Option(Pat
         _real_services(config, repository, work, kind="blog"), manifest["run_id"],
         max_candidates=max_candidates,
     )
-    rank_integrate(work, output, repository)
+    run_similarity(
+        work / "stage-1",
+        work / "deep-reading-paper",
+        work / "deep-reading-blog",
+        repository / "data",
+        similarity_output,
+        config,
+    )
+    integrate(
+        StageInputs(
+            work / "stage-1",
+            work / "deep-reading-paper",
+            work / "deep-reading-blog",
+            similarity_output,
+        ),
+        output,
+        config,
+        _load_repository_state(repository),
+        repository_data=repository / "data",
+    )
 
 
 @app.command("test-fixtures")
-def test_fixtures(case: str = typer.Option("all"), work: Path = typer.Option(...), root: Path = typer.Option(Path("."))) -> None:
+def test_fixtures(
+    case: str = typer.Option("all"),
+    work: Path = typer.Option(...),
+    root: Path = typer.Option(Path(".")),
+    similarity_output: Path | None = typer.Option(None),
+) -> None:
     work = work.resolve()
+    similarity_output = (similarity_output or work.parent / "similarity").resolve()
+    if (
+        similarity_output == work
+        or similarity_output.is_relative_to(work)
+        or work.is_relative_to(similarity_output)
+    ):
+        _cli_error("fixture similarity output must not overlap the publish bundle")
+    if similarity_output.is_symlink():
+        _cli_error(f"refusing to replace symlinked similarity output: {similarity_output}")
+    replace_existing_similarity = similarity_output.exists()
+    if replace_existing_similarity:
+        existing_manifest = similarity_output / "manifest.json"
+        try:
+            existing_run_id = json.loads(existing_manifest.read_text(encoding="utf-8"))["run_id"]
+        except (OSError, KeyError, TypeError, json.JSONDecodeError):
+            _cli_error(f"refusing to replace unknown similarity output: {similarity_output}")
+        if not isinstance(existing_run_id, str) or not existing_run_id.startswith("fixture-"):
+            _cli_error(f"refusing to replace non-fixture similarity output: {similarity_output}")
     work.mkdir(parents=True, exist_ok=True)
     known_entries = {"generated", "publish-bundle", "manifest.json", "taxonomy.json", "pending-data"}
     unknown_entries = {path.name for path in work.iterdir()} - known_entries
@@ -289,3 +347,11 @@ def test_fixtures(case: str = typer.Option("all"), work: Path = typer.Option(...
                 shutil.copytree(source_path, destination)
             else:
                 shutil.copy2(source_path, destination)
+
+        similarity_source = result.generated_root / "similarity"
+        similarity_manifest = similarity_source / "manifest.json"
+        if not similarity_manifest.is_file() or not (similarity_source / "similarity.json").is_file():
+            _cli_error("fixture scenario did not produce a similarity artifact")
+        if replace_existing_similarity:
+            shutil.rmtree(similarity_output)
+        shutil.copytree(similarity_source, similarity_output)

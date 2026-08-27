@@ -14,7 +14,7 @@ const groupStyles = {
 } as const;
 const graphLegend = [
   { type: "paper", label: "论文", swatch: "border-indigo-800 bg-indigo-500" },
-  { type: "article", label: "技术博客", swatch: "border-2 border-dashed border-emerald-800 bg-emerald-500" },
+  { type: "blog", label: "技术博客", swatch: "border-2 border-dashed border-emerald-800 bg-emerald-500" },
   { type: "target", label: "目标", swatch: "border-sky-800 bg-sky-500" },
   { type: "scenario", label: "场景", swatch: "border-emerald-800 bg-emerald-500" },
   { type: "task", label: "任务", swatch: "border-amber-800 bg-amber-500" },
@@ -110,7 +110,7 @@ const graphLegend = [
         <div
           id="graph-canvas"
           class="h-[clamp(28rem,68vh,48rem)] w-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-600"
-          data-graph-url={sitePath("graph.json")}
+          data-graph-manifest-url={sitePath("graph-manifest.json")}
           tabindex="0"
           role="region"
           aria-label="推荐系统知识图谱画布"

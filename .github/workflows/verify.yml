@@ -32,10 +32,25 @@ jobs:
         with:
           context: .
           file: pipeline/Dockerfile
+          target: pipeline
           tags: recsys-pipeline:${{ github.sha }}
           load: true
           cache-from: type=gha,scope=pipeline
           cache-to: type=gha,mode=max,scope=pipeline
+      - name: Build similarity image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: pipeline/Dockerfile
+          target: similarity
+          tags: recsys-similarity:${{ github.sha }}
+          load: true
+          cache-from: type=gha,scope=pipeline-similarity
+          cache-to: type=gha,mode=max,scope=pipeline-similarity
+      - name: Verify pipeline image dependency boundaries
+        run: |
+          docker run --rm --entrypoint python recsys-pipeline:${{ github.sha }} -c 'import importlib.util; assert importlib.util.find_spec("fastembed") is None'
+          docker run --rm --entrypoint python recsys-similarity:${{ github.sha }} -c 'import fastembed, importlib.metadata; assert importlib.metadata.version("fastembed") == "0.8.0"'
       - name: Run Python tests
         run: docker run --rm -v "$PWD/.github:/workspace/.github:ro" --entrypoint pytest recsys-pipeline:${{ github.sha }} tests -q
       - name: Verify bundle creation below a mounted parent
@@ -56,11 +71,20 @@ jobs:
       - name: Check fixture bundle boundaries
         run: |
           test "$(find work/verify/publish-bundle -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | tr '\n' ' ')" = "manifest.json pending-data taxonomy.json "
+          test -f work/verify/similarity/manifest.json
+          test -f work/verify/similarity/similarity.json
+          python -c 'import json; b=json.load(open("work/verify/publish-bundle/manifest.json")); sm=json.load(open("work/verify/similarity/manifest.json")); s=json.load(open("work/verify/similarity/similarity.json")); assert b["run_id"] and b["schema_version"] == "1" and sm == b and s["run_id"] == b["run_id"] and s["schema_version"] == b["schema_version"], (b, sm)'
           ! find work/verify/publish-bundle -type f \( -name '*.pdf' -o -name '*.html' -o -name '*.htm' -o -name '*.txt' -o -name '*.md' -o -name '*.zip' \) | grep .
       - uses: actions/upload-artifact@v4
         with:
           name: fixture-publish-bundle-${{ github.run_id }}
           path: work/verify/publish-bundle
+          if-no-files-found: error
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fixture-similarity-${{ github.run_id }}
+          path: work/verify/similarity
           if-no-files-found: error
           retention-days: 1
 
@@ -77,6 +101,10 @@ jobs:
         with:
           name: fixture-publish-bundle-${{ github.run_id }}
           path: work/verify/publish-bundle
+      - uses: actions/download-artifact@v4
+        with:
+          name: fixture-similarity-${{ github.run_id }}
+          path: work/verify/similarity
       - uses: docker/setup-buildx-action@v3
       - name: Build site image
         uses: docker/build-push-action@v6
@@ -87,23 +115,34 @@ jobs:
           load: true
           cache-from: type=gha,scope=site
           cache-to: type=gha,mode=max,scope=site
-      - name: Create fixture publish bundle
+      - name: Validate paired fixture artifacts
         run: |
           test -f work/verify/publish-bundle/manifest.json
           test -f work/verify/publish-bundle/taxonomy.json
+          test -f work/verify/similarity/manifest.json
+          test -f work/verify/similarity/similarity.json
+          python -c 'import json; b=json.load(open("work/verify/publish-bundle/manifest.json")); sm=json.load(open("work/verify/similarity/manifest.json")); s=json.load(open("work/verify/similarity/similarity.json")); assert sm == b and s["run_id"] == b["run_id"] and s["schema_version"] == b["schema_version"], (b, sm)'
       - name: Run site build-contract tests
         run: docker run --rm --entrypoint pnpm recsys-site:${{ github.sha }} test:build-contract
       - name: Build static site in site image
         env:
           SITE_ORIGIN: https://example.invalid
+          SIMILARITY_ARTIFACT_PATH: /workspace/similarity/similarity.json
         run: |
           mkdir -p work/verify/pages-dist
           docker run --rm \
             -e SITE_ORIGIN \
+            -e SIMILARITY_ARTIFACT_PATH \
             -v "$PWD/work/verify/publish-bundle:/workspace/publish-bundle:ro" \
+            -v "$PWD/work/verify/similarity:/workspace/similarity:ro" \
             -v "$PWD/work/verify/pages-dist:/workspace/site/dist" \
             recsys-site:${{ github.sha }}
           test -f work/verify/pages-dist/index.html
           test -f work/verify/pages-dist/search/index.html
-          test -f work/verify/pages-dist/graph.json
+          test -f work/verify/pages-dist/graph-manifest.json
+          test -f work/verify/pages-dist/graph-index.json
+          test -n "$(find work/verify/pages-dist/graph-shards/d0 -type f -name '*.json' -print -quit)"
+          test -n "$(find work/verify/pages-dist/graph-shards/nodes -type f -name '*.json' -print -quit)"
+          test -n "$(find work/verify/pages-dist/graph-shards/adjacency -type f -name '*.json' -print -quit)"
+          python -c 'import json; m=json.load(open("work/verify/pages-dist/graph-manifest.json")); assert m["schema_version"] == "1" and m["initial"]["d0_urls"] and "d1_urls" in m["initial"] and m["node_shards"] and m["adjacency_shards"], m'
           test -f work/verify/pages-dist/pagefind/pagefind.js

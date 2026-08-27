@@ -317,7 +317,6 @@ def test_run_collect_filter_uses_injected_transport_and_metadata_on_nonhistorica
             "tasks": ["retrieval"],
             "methods": ["two_tower"],
             "relevance_score": 0.9,
-            "graph_relations": [],
             "degraded": False,
         } for item_id in ids]}
 

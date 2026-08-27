@@ -80,7 +80,7 @@ def test_degraded_fixture_exercises_source_and_content_fallbacks(tmp_path: Path)
 
 def test_failure_fixture_does_not_promote_seed_state(tmp_path: Path) -> None:
     result = run_fixture_scenarios(tmp_path, case="failures", repository_root=Path(__file__).parents[2])["failures"]
-    assert set(result.failure_injections) == {"collect", "deep-read", "rank", "site", "deploy"}
+    assert set(result.failure_injections) == {"collect", "deep-read", "similarity", "rank", "site", "deploy"}
     for failure_point, evidence in result.failure_injections.items():
         assert evidence.failure_point == failure_point
         assert evidence.state_before == evidence.state_after

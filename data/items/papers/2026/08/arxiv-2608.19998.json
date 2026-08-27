@@ -116,22 +116,6 @@
   },
   "doi": null,
   "final_score": 0.9245,
-  "graph_relations": [
-    {
-      "confidence": 0.82,
-      "evidence": "Both papers apply large language models inside recommendation pipelines (LLM-based reranker vs pretrained LLM for sequential recommendation).",
-      "generated_by": "method_overlap",
-      "target_id": "arxiv-2608.19529",
-      "type": "similar_method"
-    },
-    {
-      "confidence": 0.72,
-      "evidence": "Both sources concern item/content recommendation systems.",
-      "generated_by": "target_overlap",
-      "target_id": "arxiv-2608.19833",
-      "type": "same_target"
-    }
-  ],
   "id": "arxiv-2608.19998",
   "kind": "paper",
   "llm": {

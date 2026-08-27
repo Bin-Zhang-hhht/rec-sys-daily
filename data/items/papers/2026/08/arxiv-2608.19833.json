@@ -91,22 +91,6 @@
   },
   "doi": null,
   "final_score": 0.7715000000000001,
-  "graph_relations": [
-    {
-      "confidence": 0.85,
-      "evidence": "Both papers focus on sequential recommendation and sequence modeling.",
-      "generated_by": "method_overlap",
-      "target_id": "arxiv-2608.19735",
-      "type": "similar_method"
-    },
-    {
-      "confidence": 0.72,
-      "evidence": "Both sources study recommendation systems for content/item recommendation.",
-      "generated_by": "target_overlap",
-      "target_id": "arxiv-2608.19998",
-      "type": "same_target"
-    }
-  ],
   "id": "arxiv-2608.19833",
   "kind": "paper",
   "llm": {

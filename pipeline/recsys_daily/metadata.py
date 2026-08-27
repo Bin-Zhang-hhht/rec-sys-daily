@@ -31,19 +31,6 @@ class MetadataResult:
 
 def metadata_json_schema(taxonomy: TopicTaxonomy) -> dict[str, Any]:
     """Return a strict response schema whose label enums come from topics.yaml."""
-    relation_schema = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "type": {"type": "string", "minLength": 1},
-            "target_id": {"type": "string", "minLength": 1},
-            "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-            "evidence": {"type": "string", "minLength": 1},
-            "generated_by": {"type": "string", "minLength": 1},
-        },
-        "required": ["type", "target_id", "confidence", "evidence", "generated_by"],
-    }
-
     def labels(category: str) -> dict[str, Any]:
         return {
             "type": "array",
@@ -63,9 +50,8 @@ def metadata_json_schema(taxonomy: TopicTaxonomy) -> dict[str, Any]:
             "tasks": labels("tasks"),
             "methods": labels("methods"),
             "relevance_score": {"type": "number", "minimum": 0, "maximum": 1},
-            "graph_relations": {"type": "array", "items": relation_schema},
         },
-        "required": ["id", "summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score", "graph_relations"],
+        "required": ["id", "summary_zh", "targets", "scenarios", "tasks", "methods", "relevance_score"],
     }
     return {
         "type": "object",
@@ -122,7 +108,6 @@ def _fallback(candidate: Candidate, taxonomy: TopicTaxonomy, excerpt_limit: int)
         tasks=selected("tasks"),
         methods=selected("methods"),
         relevance_score=max(0.0, min(1.0, candidate.metadata_score)),
-        graph_relations=[],
         degraded=True,
     )
 

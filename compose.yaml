@@ -3,10 +3,12 @@ services:
     build:
       context: .
       dockerfile: pipeline/Dockerfile
+      target: similarity
     env_file:
       - path: .env
         required: false
     volumes:
+      - ./data:/workspace/data:ro
       - ./work:/workspace/work
     entrypoint: ["python", "-m", "recsys_daily"]
 
@@ -15,6 +17,7 @@ services:
       context: ./site
     environment:
       PUBLISH_BUNDLE_DIR: /workspace/work/publish-bundle
+      SIMILARITY_ARTIFACT_PATH: ${SIMILARITY_ARTIFACT_PATH:-/workspace/work/similarity/similarity.json}
       SITE_ORIGIN: ${SITE_ORIGIN:-https://example.invalid}
     volumes:
       - ./work:/workspace/work:ro

@@ -100,15 +100,6 @@
     ]
   },
   "final_score": 0.785,
-  "graph_relations": [
-    {
-      "confidence": 0.6,
-      "evidence": "两者均为推荐/广告系统提供用户序列与候选生成的工程和建模实践。",
-      "generated_by": "llm_taxonomy_classifier",
-      "target_id": "url-efe96dcd75f9bde404ee3c9a",
-      "type": "related_by_topic"
-    }
-  ],
   "id": "url-2660fad3381f92db1c6d485c",
   "kind": "blog",
   "llm": {

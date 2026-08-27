@@ -120,15 +120,6 @@
   },
   "doi": null,
   "final_score": 0.8624999999999999,
-  "graph_relations": [
-    {
-      "confidence": 0.6,
-      "evidence": "两者均将大语言模型/生成式策略与强化学习引入推荐系统训练。",
-      "generated_by": "llm_taxonomy_classifier",
-      "target_id": "arxiv-2608.11980",
-      "type": "related_by_method"
-    }
-  ],
   "id": "arxiv-2608.10187",
   "kind": "paper",
   "llm": {

@@ -9,7 +9,7 @@
 ## 目标与边界
 
 本计划实现设计文档中的首版：静态 GitHub Pages、单个 Python 包和 CLI、两个 Docker 镜像、
-四个逻辑阶段，以及独立的相似度物理 runner。每日目标为 8 篇论文和 8 篇博客，质量不足时
+四个逻辑阶段，以及独立的相似度物理 runner。每日目标为 10 篇论文和 10 篇博客，质量不足时
 允许少于目标。
 
 相似度 runner 不引入数据库、Vector DB、Graph DB 或常驻服务。它使用
@@ -55,7 +55,7 @@ Task 7 与 Task 8 可以在 Task 6 的 publish bundle 和 similarity artifact �
 - [ ] 增加一次性结构化迁移命令或等价受控迁移程序，只删除
       `data/items/**/*.json` 中的 `graph_relations` 字段，不修改 item ID、digest ID、state 或
       其他 canonical 内容。
-- [ ] 迁移前记录非空旧字段数量，迁移后验证当前 43 个 item 均无该字段；当前 9 组旧关系全部
+- [ ] 迁移前记录非空旧字段数量，迁移后验证当前 54 个 item 均无该字段；9 个非空旧字段中的 15 条旧关系全部
       丢弃，不转换为 similarity 边。迁移报告只在临时验证目录保存。
 
 **验证：** 迁移前后比较 item/digest/state ID 集合；`rg` 确认活动实现没有旧字段生产路径。
@@ -101,7 +101,7 @@ artifact 中出现文本时必须失败。
 - [ ] 按 stable ID 去重，并只用有效 state 和历史 digest 中真正发布的 item ID 做防重；未进入
       digest 的 canonical item 不标记为已推荐。
 - [ ] 确定性预筛后最多处理论文 100、博客 50 个候选；元数据完成后各取最多 20 个 deep-read
-      条目，最终各选 8 个。
+      条目，最终各选 10 个。
 - [ ] 使用唯一同步 DeepSeek Responses API wrapper 批量生成摘要、taxonomy 标签、相关性和
       证据；模型失败使用候选自身文本的规则降级，不生成显式内容关系。
 - [ ] 保持 `summary_zh` 的 CJK 检查、标签 term evidence 检查和不足时少于目标的行为。
@@ -109,7 +109,7 @@ artifact 中出现文本时必须失败。
       HTML、PDF 或模型完整请求响应。
 
 **验证：** 无 state、有效 state、非法 state、历史去重、可选 Feed 失败、metadata 部分失败和
-每日 8+8 目标的 runtime fixture。
+每日 10+10 目标的 runtime fixture。
 
 ## Task 4：DeepSeek deep-read 与 MinerU 论文路径
 
@@ -166,7 +166,7 @@ deterministic ordering、exact cosine、threshold/Top-K/mutual、cross-kind edge
 **输出：** 只包含 `manifest.json`、`taxonomy.json`、`pending-data/` 的 publish bundle。
 
 - [ ] 校验所有 artifact 的 `run_id` 与 `schema_version`，similarity artifact 缺失或过期直接失败。
-- [ ] 校验论文/blog deep-read 覆盖和各自 80% 成功率，按最终质量分数各选最多 8 个。
+- [ ] 校验论文/blog deep-read 覆盖和各自 80% 成功率，按最终质量分数各选最多 10 个。
 - [ ] 生成完整 pending data tree，稳定合并历史推荐 ID，仅从真实 digest 读取推荐历史。
 - [ ] 写入 canonical items、digests、runs、pending state 和 taxonomy snapshot；canonical item 不含
       excerpt、embedding、similarity relation 或 `graph_relations`。
@@ -271,7 +271,7 @@ docker compose run --rm -e PUBLISH_BUNDLE_DIR=/workspace/work/fixture-bundle sit
 - [ ] 检查 publish bundle 只含 `manifest.json`、`taxonomy.json`、`pending-data/`，similarity
       artifact 不含文本/embedding/index，Pages artifact 才含 graph manifest/shards 和 Pagefind。
 - [ ] 检查初始图谱请求只包含 d0/d1，聚焦节点可以逐步加载更远 shard，且 ECharts 输出非空。
-- [ ] 检查历史迁移后 43 个 item 无 `graph_relations`，9 组旧关系没有出现在 similarity edges。
+- [ ] 检查历史迁移后 54 个 item 无 `graph_relations`，15 条旧关系没有出现在 similarity edges。
 - [ ] 报告每个实际运行的检查、未运行的 Docker/真实 API 检查及其原因；未完成的真实 cold start
       不得标记为成功。
 

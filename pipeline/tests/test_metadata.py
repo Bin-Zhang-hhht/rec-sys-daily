@@ -88,7 +88,6 @@ def test_metadata_removes_labels_without_source_evidence() -> None:
                 "tasks": [],
                 "methods": [],
                 "relevance_score": 0.8,
-                "graph_relations": [],
             }]
         }
 
@@ -123,7 +122,6 @@ def test_metadata_generates_chinese_summary_for_blog_without_excerpt() -> None:
                 "tasks": [CONFIG.topics.tasks[0].id],
                 "methods": [CONFIG.topics.methods[0].id],
                 "relevance_score": 0.8,
-                "graph_relations": [],
             }]
         }
 
@@ -151,7 +149,6 @@ def test_metadata_analysis_batches_and_validates_ids() -> None:
                     "tasks": [CONFIG.topics.tasks[0].id],
                     "methods": [CONFIG.topics.methods[0].id],
                     "relevance_score": 0.91,
-                    "graph_relations": [],
                     "degraded": False,
                 }
                 for item_id in batch_ids
@@ -177,7 +174,6 @@ def test_metadata_success_state_is_owned_by_pipeline() -> None:
                 "tasks": [CONFIG.topics.tasks[0].id],
                 "methods": [CONFIG.topics.methods[0].id],
                 "relevance_score": 0.8,
-                "graph_relations": [],
                 "degraded": True,
             }]
         }
@@ -251,7 +247,6 @@ def test_metadata_rejects_non_chinese_model_summary() -> None:
                 "tasks": [CONFIG.topics.tasks[0].id],
                 "methods": [CONFIG.topics.methods[0].id],
                 "relevance_score": 0.8,
-                "graph_relations": [],
             }]
         }
 

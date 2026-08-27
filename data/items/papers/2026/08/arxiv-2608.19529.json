@@ -110,22 +110,6 @@
   },
   "doi": null,
   "final_score": 0.839,
-  "graph_relations": [
-    {
-      "confidence": 0.8,
-      "evidence": "Both papers use large language models within recommendation pipelines (LLM reranker vs pretrained LLM for structured prediction).",
-      "generated_by": "method_overlap",
-      "target_id": "arxiv-2608.19998",
-      "type": "similar_method"
-    },
-    {
-      "confidence": 0.7,
-      "evidence": "Both papers apply sequence-based neural models to sequential recommendation.",
-      "generated_by": "method_overlap",
-      "target_id": "arxiv-2608.19735",
-      "type": "similar_method"
-    }
-  ],
   "id": "arxiv-2608.19529",
   "kind": "paper",
   "llm": {
