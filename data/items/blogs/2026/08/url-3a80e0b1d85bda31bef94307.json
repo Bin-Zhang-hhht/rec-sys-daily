@@ -1,0 +1,127 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "CLR 的用户塔会把原始条件特征转换为 condition token，拼接到用户序列后一起用 Transformer 编码；Transformer 输出编码后的条件 token、编码后的近期用户序列 token，并通过残差路径保留原始条件特征，最终送入 User Tower 的 DHEN 层。Pin 塔使用 image signature embedding 和 semantic id embedding，并送入 feature cross 层。后来集成了 PinFM foundation model：用户塔使用大规模 ID embedding table 和 OmniSage embeddings，这个 ID embedding table 在 Pin 塔编码候选 Pin 时也会复用，以利于双塔对齐；微调时使用 next token loss，并对用户序列 Transformer 输出做 attention pooling。另引入 condition token 与候选 Pin 表示之间的对比对齐损失。条件表示侧从按条件类型定制路由改为条件无关的 Slot Architecture，包括 condition_os slot（Omnisage 兼容 embedding，如 Pin OS、Board OS、兴趣文本 embedding）、condition_id slot（如 Interest ID 或 Semantic ID）、condition_type_id slot（32 维 learned embedding 保留 candidate generator 身份）。服务端将 CLR 定位为条件的 ranker，条件作为 items、用户级特征广播，对应“1 query-N doc”范式。",
+    "business_implications_zh": [
+      "检索候选多样性是提升 engagement 的可靠来源，CLR 通过多条件扩展为 ranking/blending 提供更广的候选集合",
+      "用 CLR 替代 legacy 启发式候选生成器能在获得指标提升的同时简化 serving stack，减少技术债",
+      "Unified CLR 和 Slot Architecture 降低了新增条件类型的工程成本，使产品可以更快上线新的检索场景",
+      "训练和服务优化带来 7 位数成本节省和 85% p90 延迟下降，为更大规模使用预留了算力空间",
+      "自动化实验调参（Claude Code 调节条件预算）可以在低成本增加下优化核心 engagement 指标",
+      "CLR 作为更通用的检索模型，未来可跨多个 Pinterest 产品 surface 复用以获得更广泛训练数据和覆盖"
+    ],
+    "business_transferability": 0.65,
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "heading": "Expanding CLR Across Use Cases",
+        "section": "Expanding CLR Across Use Cases"
+      },
+      {
+        "heading": "Pin tower improvement: large id embedding table and semantic ids",
+        "section": "Expanding CLR Across Use Cases"
+      },
+      {
+        "heading": "Scaling User Understanding: From User Sequences to Foundation Models",
+        "section": "Scaling CLR Model Foundations"
+      },
+      {
+        "heading": "Scaling Condition Representation: Unified CLR and Router Simplification",
+        "section": "Scaling CLR Model Foundations"
+      },
+      {
+        "heading": "Scaling CLR Training Efficiency",
+        "section": "Scaling CLR Training Efficiency"
+      },
+      {
+        "heading": "Scaling CLR Serving Infrastructure",
+        "section": "Scaling CLR Serving Infrastructure"
+      },
+      {
+        "heading": "Key Wins & Impact",
+        "section": "Scaling CLR Serving Infrastructure"
+      },
+      {
+        "heading": "Future work",
+        "section": "Future work"
+      }
+    ],
+    "implementation_zh": "训练数据使用 (user, condition, engaged Pin) 三元组，早期靠已有的基于启发式的候选生成器来 bootstrap。条件来源包括：预定义兴趣 taxonomy 中采样兴趣、LLM 生成的新用户兴趣信号、对用户近期互动的 Pin 聚类并取 medoid 构造 Pin 条件、利用 Pin-Board 二部图随机游走构造 Board 条件，且用与 Pin 同空间的预训练 embedding 表示这些条件。Pin id 先使用图像签名（类似随机哈希）表示，billion 规模下预训练了 20GB 的 id embedding table，并用 TorchRec 在多 GPU 上分片；之后引入 residual-quantized VAE 量化静态内容 embedding 得到 semantic ids，共五层、每层 2048 个 code，用五个小 embedding table 查表后再用五层 MLP 逐层融合，最后把 image signature embedding 和 semantic id embedding 送入 Pin 塔的 feature cross。训练效率方面：request-level training 对相同 (user, condition) 特征去重，前向后再复制回原 batch 大小计算对比损失；M-Falcon 利用因果注意力特性，把同一用户的所有条件 token 展平到同一行用户序列中，用自定义 block attention mask 让条件 token 不能互相 attend、但都能 attend 用户序列，从而降低 Transformer 层和 embedding/activation 的 GPU 内存。服务方面：先把每 backend request 的多个 CLR 模型请求合并为单个请求，去重请求级特征，模型内 TorchScript batch 化并用 Torch Jit 并行化 forward；之后迁移到 GPU serving，导出 CUDA 兼容模型并部署在 g6e.4xlarge，简化模型逻辑并复用 L2 ranker 的“1 query-N doc”结构，同时采用 NVEmbed 把多个大 ID embedding table 和 dense 模型统一到单一可 serving 的 TorchScript artifact。团队还使用 Claude Code 自动读取实验反馈来调节每请求 CLR 在 Interest、Pin、Board 条件上的条件预算。",
+    "lessons_zh": [
+      "要扩展条件检索，关键是让条件类型可插拔：把条件表示成 token、拼到用户序列后面，再用 Transformer 编码，形成后续 scale-up 的核心抽象",
+      "用预训练 embedding 表示不同条件（Pin、Board、兴趣文本）可以让异构条件在共享空间中参与训练，降低新增条件成本",
+      "semantic ids 通过分层码让相似内容共享 embedding space，是缓解长尾冷启动的一种有效方式",
+      "统一模型架构比维护多个条件专属模型更能支撑多条件扩展；条件路由应做成条件无关的共享 slot，而不是为每个条件定制 pipeline",
+      "训练时去重重复用户特征、利用因果注意力展平多条件，可以在不损失效果的前提下大幅提升吞吐",
+      "服务端把多请求合并成单请求，并进一步把 CLR 变成“1 query-N doc”的条件排序，能同时降低延迟、成本和工程复杂度",
+      "在算力允许时，把大规模预训练序列模型融入检索塔可增强用户理解，但需要配套的 serving 基础设施（如 NVEmbed）来处理大 embedding table"
+    ],
+    "limitations_zh": [
+      "原文未给出各次 launch 的具体在线 engagement 提升百分比和实验对照细节，只有“明显指标提升”“关键指标改进”等定性描述",
+      "延迟和成本数据（p90 从 80ms 到 12ms、7 位数成本节省）是 Pinterest 内部环境结果，未必可迁移到其他系统",
+      "训练吞吐 2x 的提升来自特定模型和 batch 结构，依赖因果注意力和条件 token 不互相 attend 的设计",
+      "Foundation Model 和 Unified CLR 的效果描述缺少与旧模型的严格消融数值",
+      "Agentic 条件预算调节使用了 Claude Code，但博客没有说明策略细节、约束和安全机制",
+      "未来扩展到更多 surface 和条件类型仍是计划，尚未有生产结果验证"
+    ],
+    "production_constraints_zh": [
+      "亿级 Pin id 空间需要大规模 embedding table，需预训练 20GB id embedding table 并借助 TorchRec 多 GPU 分片",
+      "长尾 Pin 存在冷启动和训练数据不足的问题",
+      "集成大规模 foundation model 显著增加用户塔计算复杂度，影响训练吞吐和 GPU 内存",
+      "多条件、多模型版本导致训练 pipeline、feature、实验、serving config、索引重复维护",
+      "条件类型增多导致路由逻辑条件特异化、feature explosion、零填充、学习隔离和高维护成本",
+      "每个条件一个模型请求导致 compute cluster 成本快速增长",
+      "多请求合并后存在网络到 CPU 的瓶颈，需要并行化和 GPU serving 才能保持延迟",
+      "Foundation Model 后多个大 ID embedding table 的 serving 和实验需要 NVEmbed 统一管理"
+    ],
+    "results_zh": [
+      "CLR 扩展到 Interest、Pin、Board 三种条件类型，并利用 LLM 用户兴趣信号作为新条件来源",
+      "用 CLR Pin 条件和 Board 条件分别替代了部分 legacy 启发式候选生成器，获得明显指标提升并简化 serving stack",
+      "引入 Foundation Model 后，CLR 用户塔获得更强的用户序列理解，并通过复用 Pin ID embedding table 改善双塔对齐",
+      "Unified CLR 将兴趣和 Board 条件合并为单一模型，减少跨 training、feature、实验、serving 的重复工作",
+      "request-level training 和 M-Falcon 两个 lossless 基础设施优化使训练吞吐提升 2 倍",
+      "GPU serving 和 NVEmbed 带来 7 位数成本节省，p90 模型延迟从 80ms 降到 12ms，降低 85%",
+      "新的 serving 架构解除了主要项目阻塞，包括 CLR FM 和 Search CLR，并支持每用户更多条件",
+      "利用 Claude Code 自动化调节条件预算后，在低成本增加下改善了关键 engagement 指标"
+    ],
+    "system_context_zh": "Pinterest 首页信息流的候选生成是一个大规模 User-to-Pin 检索问题，常见方案是双塔模型：用户塔编码用户、Pin 塔编码候选 Pin，再用近似最近邻检索。由于用户往往同时有多重意图（装修、收藏食谱、探索时尚、组织旅行等），单一检索 embedding 难以覆盖这种多样性。CLR（Conditional Learned Retrieval）通过在用户塔上加入显式检索条件，生成条件感知的 user embedding，将检索条件化。本文是 Pinterest 工程博客，介绍 CLR 如何从早期的兴趣条件检索演进为首页信息流更通用的多条件检索框架，覆盖用例扩展、模型底座扩展和服务基础设施重构。文中提到前作 RecSys'24 论文和 KDD'25 论文，前者描述用已有 user-item 和 condition 信号构建 (user, condition)->item 训练数据来 bootstrap 条件检索，后者将 Conditional Retrieval 放入首页信息流的多 embedding 检索框架中。",
+    "technical_depth": 0.85,
+    "tradeoffs_zh": [
+      "单一用户 embedding 难以表达用户多重意图，CLR 用显式条件生成多个条件感知 embedding，带来多样性但同时增加条件和计算开销",
+      "Image signature 作为随机哈希需要巨大 embedding table 才能保证记忆和可接受碰撞；semantic ids 通过层级量化共享 embedding 空间，帮助长尾 Pin 借用热门 Pin 的协同信号，代价是额外设计五层码表和 MLP 融合",
+      "为每个条件类型维护独立模型有效但重复工作多；Unified CLR 合并多条件到单模型，减少重复但需要处理缺失条件特征和条件过滤",
+      "条件专属路由逻辑灵活但不可扩展；Slot Architecture 用三个预定义共享 slot 归一化条件特征，牺牲部分定制性换维护效率",
+      "早期每个条件一个模型请求简单但成本高；单模型请求去重和内部 batch 化降低了网络/CPU 成本但增加了模型侧逻辑复杂度",
+      "GPU serving 将 CLR 从纯检索变成条件排序，简化 serving 逻辑并大幅降低延迟，但需要新的 CUDA 兼容模型和 NVEmbed 基础设施",
+      "Foundation model 带来更强的序列理解，但计算量更大；通过 request-level training 和 M-Falcon 做 lossless 优化，以 2x 训练吞吐换取可负担的训练成本",
+      "增加检索候选多样性通常能提升 engagement，但需要平衡每请求条件预算和成本，因此引入自动化预算调节"
+    ]
+  },
+  "final_score": 0.8615,
+  "graph_relations": [],
+  "id": "url-3a80e0b1d85bda31bef94307",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-26T22:34:54.976393Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-26T14:01:05Z",
+  "relevance_score": 0.98,
+  "scenarios": [],
+  "source": "pinterest_engineering",
+  "summary_zh": "Pinterest 工程博客介绍条件学习召回（CLR）在首页信息流中的规模化落地，通过双塔模型并结合兴趣、Pin、Board 等条件以及序列建模和 LLM 生成的兴趣信号来提升候选召回多样性与效率。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Scaling Conditional Learned Retrieval for Pinterest Home Feed",
+  "url": "https://medium.com/pinterest-engineering/scaling-conditional-learned-retrieval-for-pinterest-home-feed-ecfba7e5a426?source=rss----4c5a5f6279b6---4"
+}

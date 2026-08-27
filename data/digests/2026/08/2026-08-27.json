@@ -1,0 +1,32 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-3a80e0b1d85bda31bef94307",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Pinterest 工程博客介绍条件学习召回（CLR）在首页信息流中的规模化落地，通过双塔模型并结合兴趣、Pin、Board 等条件以及序列建模和 LLM 生成的兴趣信号来提升候选召回多样性与效率。"
+    }
+  ],
+  "date": "2026-08-27",
+  "papers": [
+    {
+      "item_id": "arxiv-2608.24034",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：TAGR 提出面向工业直播电商广告的时域自适应生成式推荐框架，通过直播语义协同 ID、多粒度意图序列建模和在策略偏好优化提升直播进房与购物车点击率。"
+    },
+    {
+      "item_id": "arxiv-2608.24079",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：RetrievalFormer 提出双编码器 Transformer 模型用于近似最近邻检索和冷启动物品推荐，通过特征塔对未出现在历史交互中的新物品进行开放索引召回，并与 ID-softmax 等推荐基线对比。"
+    },
+    {
+      "item_id": "arxiv-2608.24132",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：文章介绍生产环境客服对话推荐系统从梯度提升树迁移到成对二分类深度推荐模型的经验，使用双塔/DeepFM 等架构并通过注意力池化建模长对话上下文。"
+    },
+    {
+      "item_id": "arxiv-2608.24091",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文面向电商推荐场景中的 CTR 预测提出原生多模态表示学习方法，通过挖掘多模态可解释训练样本微调编码器以对齐用户点击偏好，从而提升 CTR 预测效果。"
+    }
+  ]
+}

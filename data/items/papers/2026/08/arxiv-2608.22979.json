@@ -1,0 +1,139 @@
+{
+  "abstract": "Deploying high-dimensional multimodal features in industrial recommender systems incurs substantial storage and latency overhead. Hard quantization is compact but introduces boundary distortion, whereas dense soft quantization couples representation quality to the limited storage budget. We propose Sparse Activation-based Residual Soft Quantization (SA-RSQ), which uses Top-K sparse routing and softmax weights to store compact (Index, Probability) tuples. The stored tuples decouple per-item storage from codebook dimensionality; for a fixed selected support, gradients propagate through the routing weights and weighted reconstruction without relying on a straight-through estimator. Experiments on a proprietary food-delivery advertising dataset show favorable reconstruction-performance and CTR trade-offs across storage budgets of 8-48 bytes per item. A preliminary Next-Distribution Prediction study and a one-week online A/B test further demonstrate the practical potential of SA-RSQ, with relative lifts of +2.51% in CTR and +3.66% in CPM. Deploying high-dimensional multimodal features in industrial recommender systems incurs substantial storage and latency overhead. Hard quantization is compact but introduces boundary distortion, whereas dense soft quantization couples representation quality to the limited storage budget. We propose Sparse Activation-based Residual Soft Quantization (SA-RSQ), which uses Top-K sparse routing and softmax weights to store compact (Index, Probability) tuples. The stored tuples decouple per-item storage from codebook dimensionality; for a fixed selected support, gradients propagate through the routing weights and weighted reconstruction without relying on a straight-through estimator. Experiments on a proprietary food-delivery advertising dataset show favorable reconstruction-performance and CTR trade-offs across storage budgets of 8-48 bytes per item. A preliminary Next-Distribution Prediction study and a one-week online A/B test further demonstrate the practical potential of SA-RSQ, with relative lifts of +2.51% in CTR and +3.66% in CPM.",
+  "arxiv_id": "2608.22979",
+  "authors": [
+    "Xiang Wang",
+    "Shigang Quan",
+    "Tingzhen Chang",
+    "Kang Yang",
+    "Sitong Chen",
+    "Yabo Fan",
+    "Xingxing Wang",
+    "Zhaodian He"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SA-RSQ可将2048维多模态语义特征压缩为8-48字节/物品的稀疏元组，相比4096字节稠密嵌入大幅降低海量物品场景的存储开销。",
+      "两阶段部署范式允许在线CTR模型通过查表和概率加权求和使用高保真2048D语义，同时保持极低的内存占用，适配工业推荐的延迟与内存约束。",
+      "在食品配送广告平台的一周在线A/B测试中，SA-RSQ相对生产基线取得CTR +2.51%和CPM +3.66%的相对提升，展示出商业收益潜力。",
+      "稀疏概率表示支持可微的端到端对齐，可通过代理协同训练把下游协同信号注入压缩阶段，改善表示与推荐目标的一致性。",
+      "概率化表示初步支持Next-Distribution Prediction生成式推荐，为未来生成式推荐业务提供了新的技术方向，但该结论仍属初步探索。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出SA-RSQ（Sparse Activation-based Residual Soft Quantization），用Top-K稀疏路由和masked softmax生成紧凑的(Index, Prob)元组，在固定支撑集下加权重建可微，无需STE。",
+      "将单物品存储开销与码本维度解耦，支持8至48字节/物品的可调存储-性能权衡，离线CTR实验在评估的预算下优于RQ-VAE、R-Kmeans、R3-VAE、VQ-VAE、SoftVQ-VAE等基线。",
+      "概率化表示支持初步的Next-Distribution Prediction（NDP）生成式推荐范式，在百万级工业数据上的初步实验显示相比Next Token Prediction（NTP）有进一步提升。",
+      "在食品配送广告平台完成工业部署，一周在线A/B测试相对无多模态特征的生产基线获得CTR +2.51%、CPM +3.66%的相对提升。",
+      "开源核心实现：https://github.com/WishArdently/SA-RSQ"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Experiment Setup"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Main Results in Discriminative Task"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Exploratory Study: Generative Recommendation"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Online A/B Tests"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "RQ-VAE",
+        "R-Kmeans",
+        "R3-VAE",
+        "VQ-VAE",
+        "SoftVQ-VAE",
+        "Qwen3-VL原始2048D稠密特征（因OOM未跑通）"
+      ],
+      "datasets": [
+        "食品配送广告平台的大规模工业数据集，物品语义为预训练MLLM提取的2048维向量，含数亿物品（具体统计未公开）",
+        "从上述平台采样的百万级工业用户交互数据集（用于生成式推荐的初步探索实验）"
+      ],
+      "findings_zh": [
+        "在8字节预算下，SA-RSQ仅索引格式（L=4, K=1）达到AUC 64.616、gAUC 62.650、RL 0.2394，为8字节配置中最高AUC。",
+        "在32字节预算下，SA-RSQ（L=2, K=4, Index+Prob）达到AUC 64.836、gAUC 62.793、RL 0.1660，高于16D稠密嵌入基线（约64.6）。",
+        "在48字节预算下，SA-RSQ（L=4, K=3, Index+Prob）达到最高的AUC 64.913和gAUC 63.013，RL降至0.1553。",
+        "消融实验中，去除互信息正则化导致码本利用率骤降至24.5%、SC降至0.2446；去除Proxy Co-training使SC从0.9179降至0.1014；去除课程学习得到最差RL 0.4942和15.9%利用率；完整模型利用率100%、SC 0.9179。",
+        "生成式推荐初步实验中，NTP范式下SA-RSQ的R@10为0.0088，优于RQ-VAE 0.0068、R-Kmeans 0.0057、R3-VAE 0.0075；切换为NDP范式后R@10提升至0.0096，N@10为0.0059，R@20为0.0131，N@20为0.0072。",
+        "在线A/B测试中，SA-RSQ峰值配置（L=4, K=3）相对无多模态特征的生产基线取得CTR +2.51%、CPM +3.66%，高于RQ-VAE（+0.96%/+1.27%）、R3-VAE（+0.85%/+0.97%）、VQ-VAE（+1.26%/+1.68%）和R-Kmeans（+0.91%/+1.21%）。"
+      ],
+      "metrics": [
+        "AUC",
+        "gAUC",
+        "Reconstruction Loss (RL)",
+        "Semantic Cohesion (SC)",
+        "PosSC",
+        "NegSC",
+        "Recall@K",
+        "NDCG@K",
+        "CTR提升",
+        "CPM提升",
+        "码本利用率Usage"
+      ]
+    },
+    "limitations_zh": [
+      "实验基于专有食品配送广告数据集，无法公开精确的物品数、交互数、密度、划分基数等统计，也未在公开基准上验证。",
+      "表格报告为点估计，论文明确说明缺少重复种子的标准差和置信区间。",
+      "在线A/B测试未提供流量计数、置信区间、p值、护栏指标和在线试验次数，报告的是峰值配置而非显著性分析。",
+      "未提供p99延迟或吞吐量测量，这对工业部署是关键限制。",
+      "论文明确表示图/表描述的是评估配置下的前沿，不建立对所有可能方法或超参数的全局Pareto最优性。",
+      "生成式推荐中的NDP只是初步探索性结果，不能视为完整或普遍更优的生成式推荐范式。"
+    ],
+    "method_zh": "SA-RSQ采用编码器-解码器与L级残差量化结构。输入物品嵌入x经Encoder映射为低维潜在向量h，并初始化残差r0=h。每一层l用可学习码本C^(l)计算残差与码字的缩放点积logits，取Top-K个最大logits并将其余置为-inf，再经softmax得到稀疏概率分布p^(l)，最终用被选中码字的概率加权和重建残差。推理时只需存储K个激活索引和对应Float16概率，索引为16位无符号整数，因此每物品存储约为2LK字节（仅索引）或4LK字节（Index+Prob）。训练采用余弦稀疏退火：从稠密激活k(0)=V逐步衰减到目标稀疏度ktgt。优化目标包含全局重建MSE、逐层残差重建损失、码本正交正则化、以及互信息正则化（最小化样本熵、最大化批熵）四部分。部署上提出两阶段范式：离线冻结稀疏路由元组，在线仅对可训练码本做查表和加权求和；同时提出端到端对齐范式，通过代理协同训练（Proxy Co-training）对比损失微调稀疏概率，使下游梯度可在固定Top-K支撑下反向传播，无需直通估计器。",
+    "problem_zh": "工业推荐系统直接部署高维多模态特征（如MLLM生成的2048维向量）会带来巨大的存储开销和推理延迟。现有硬量化（如RQ-VAE类Semantic ID）虽能将单物品压缩至8字节，但存在边界失真、语义碰撞、依赖Straight-Through Estimator导致训练不稳定、量化模型与下游CTR目标不一致、离散ID之间无法度量语义相似度等问题；而稠密软量化在严格存储预算下被迫使用极低维瓶颈，容易造成语义坍缩。论文目标是寻找介于极端压缩与高维稠密嵌入之间的可平滑调节的表示压缩方案。",
+    "technical_depth": 0.8
+  },
+  "doi": "10.1145/3799682.3840131",
+  "final_score": 0.8074999999999999,
+  "graph_relations": [],
+  "id": "arxiv-2608.22979",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-25T20:09:07.010654Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-24T08:39:36Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出一种基于稀疏激活与残差软量化的多模态推荐特征压缩框架SA-RSQ，以降低工业推荐系统的存储和延迟开销，并在广告推荐场景中带来CTR和CPM提升，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SA-RSQ: A Versatile Sparse Representation Framework for Multi-modal Recommender Systems",
+  "url": "https://arxiv.org/abs/2608.22979v1"
+}

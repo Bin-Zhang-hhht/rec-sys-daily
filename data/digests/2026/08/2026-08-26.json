@@ -1,0 +1,36 @@
+{
+  "blogs": [],
+  "date": "2026-08-26",
+  "papers": [
+    {
+      "item_id": "arxiv-2608.23131",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出DuELRec，通过域门控双专家框架与token-to-item对比学习，让LLM在跨域序列推荐中同时捕捉单域与跨域的物品级协同信号。"
+    },
+    {
+      "item_id": "arxiv-2608.23400",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出ANR-DiffRec，将基于物品的协同结构（共现矩阵与自适应噪声重调度）融入离散扩散模型以增强生成式推荐。"
+    },
+    {
+      "item_id": "arxiv-2608.23154",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：通过2x2受控实验比较语义ID与自然语言标题下的描述性推理轨迹，发现提升推理轨迹质量并不一定能提升传统离线推荐效果。"
+    },
+    {
+      "item_id": "arxiv-2608.22734",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出语义子词分词方法SST来改进生成式推荐系统中的物品Token化，缓解注意力过载并增强行为序列建模，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2608.23484",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出面向对话式音乐推荐的多模态检索与轻量重排流水线，融合CF-BPR、稠密向量、BM25和LLM生成，在RecSys挑战赛中获得较好效果。"
+    },
+    {
+      "item_id": "arxiv-2608.22979",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出一种基于稀疏激活与残差软量化的多模态推荐特征压缩框架SA-RSQ，以降低工业推荐系统的存储和延迟开销，并在广告推荐场景中带来CTR和CPM提升，属于推荐系统研究。"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "abstract": "Live-streaming advertising is an important monetization channel on short-video and e-commerce platforms, where rapidly changing live content, promoted products, and user feedback impose strong freshness requirements on recommendation models. Existing generative recommenders designed for static domains fail at three levels: static semantic IDs (SID) cannot track evolving live ads; single-scale behavior modeling misses shifting intent; preference optimization conflicts between fresh on-policy feedback and training stability. We propose TAGR, a generative recommendation framework with temporal adaptation at three levels: live-ad tokenization, user intent modeling, and preference alignment. At the token level, Live Semantic-Collaborative ID (LSID) periodically refreshes each active ad's SID based on its current live scene and promoted products, while retaining a stable hierarchical token vocabulary for autoregressive generation. At the intent level, Intent-Aware Generation (IAG) models live-room entry histories at multiple temporal granularities as the primary intent sequence, keeps auxiliary behaviors as separate inputs, and weights next-token prediction (NTP) using post-request intent evidence and business value. At the alignment level, Intermittent On-Policy Preference Optimization (IOPO) periodically samples fresh candidate groups from the current policy and performs behavior- and value-aligned preference updates interleaved with supervised NTP maintenance to preserve learned behavior distribution. Deployed on a large-scale e-commerce live-stream advertising platform, TAGR improves live-room entry and shopping-cart click rates by 8.5% and 7.4%, respectively, and achieves a 16.1% revenue lift over the production baseline. These results demonstrate the effectiveness and industrial viability of temporally adaptive generative recommendation for live-stream advertising. Live-streaming advertising is an important monetization channel on short-video and e-commerce platforms, where rapidly changing live content, promoted products, and user feedback impose strong freshness requirements on recommendation models. Existing generative recommenders designed for static domains fail at three levels: static semantic IDs (SID) cannot track evolving live ads; single-scale behavior modeling misses shifting intent; preference optimization conflicts between fresh on-policy feedback and training stability. We propose TAGR, a generative recommendation framework with temporal adaptation at three levels: live-ad tokenization, user intent modeling, and preference alignment. At the token level, Live Semantic-Collaborative ID (LSID) periodically refreshes each active ad's SID based on its current live scene and promoted products, while retaining a stable hierarchical token vocabulary for autoregressive generation. At the intent level, Intent-Aware Generation (IAG) models live-room entry histories at multiple temporal granularities as the primary intent sequence, keeps auxiliary behaviors as separate inputs, and weights next-token prediction (NTP) using post-request intent evidence and business value. At the alignment level, Intermittent On-Policy Preference Optimization (IOPO) periodically samples fresh candidate groups from the current policy and performs behavior- and value-aligned preference updates interleaved with supervised NTP maintenance to preserve learned behavior distribution. Deployed on a large-scale e-commerce live-stream advertising platform, TAGR improves live-room entry and shopping-cart click rates by 8.5% and 7.4%, respectively, and achieves a 16.1% revenue lift over the production baseline. These results demonstrate the effectiveness and industrial viability of temporally adaptive generative recommendation for live-stream advertising.",
+  "arxiv_id": "2608.24034",
+  "authors": [
+    "Wencai Ye",
+    "Guangyi Liu",
+    "Chaoyi Wang",
+    "Wenbin Luo",
+    "Shengyu Wang",
+    "Mingjie Sun",
+    "Peng Wang",
+    "Quanming Yao",
+    "Wenjin Wu",
+    "Peng Jiang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在快手电商直播广告系统部署，服务超过4亿日活用户，生产A/B测试中实现收入提升16.1%，且收入提升明显大于行为率提升（LRE+8.5%、SCC+7.4%），说明生成式检索不仅有助提升engagement，还能优先召回更高商业价值的直播广告。",
+      "分段收益对广告平台尤其重要：低价值用户收入提升28.8%、冷启动直播流收入提升18.4%，说明TAGR能改善长尾变现和冷启动库存利用，减少对头部高消耗主播的依赖。",
+      "召回分布从头部向腰尾部迁移，意味着广告主在腰尾部预算的曝光机会增加，可能带来更均衡的广告生态和增量商业化空间。",
+      "工程上已具备工业可行性：LSID每1-5分钟刷新且无需全局重建索引，Top-256 beam search在L20 GPU上支持超过2500 QPS、端到端检索延迟低于100ms，适合直播广告这类高时效、大并发场景。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "将直播广告推荐形式化为需要在token、意图、对齐三个层面进行时间自适应的生成式推荐问题。",
+      "提出TAGR，包含Live Semantic-Collaborative ID（LSID）用于动态直播广告token构建，Intent-Aware Generation（IAG）用于多尺度、多行为意图表示，以及Intermittent On-Policy Preference Optimization（IOPO）用于新鲜且稳定的偏好对齐。",
+      "在电商直播广告的大规模离线和生产环境实验中验证TAGR：相比生产判别式基线DLRM，获得16.1%的收入提升，并改善曝光后互动率、冷启动表现和腰尾部覆盖。",
+      "实现并部署了工业级生成式检索系统，服务超过4亿日活用户，实时检索延迟低于100ms，验证了系统级时间自适应的工业可行性。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Live Semantic-Collaborative ID"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Intent-Aware Generation"
+      },
+      {
+        "page": 1,
+        "section": "2.3.2 Multi-Factor Weighted Next-Token Prediction"
+      },
+      {
+        "page": 1,
+        "section": "2.4 Intermittent On-Policy Preference Optimization"
+      },
+      {
+        "page": 1,
+        "section": "3 System Deployment"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Online A/B Test"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "B.1 Preference Optimization Backbone"
+      },
+      {
+        "page": 1,
+        "section": "B.2 Retrieval Recall Distribution"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DLRM (base)：生产双塔多通道判别式检索基线",
+        "OneRec v2 (GR base)：工业级生成式检索基线",
+        "消融变体：Static SID、Dynamic SID(+H)、TAGR with LSID、+IAG(MSI-Encoding)、+IAG(MF-NTP)、+IOPO(BA-GRPO)、+IOPO(VA-GRPO)等"
+      ],
+      "datasets": [
+        "快手电商直播广告平台十亿级数据集：5天训练、2天验证、2天测试的时间切分，覆盖超过4亿用户和数十万个直播广告（直播广告粒度），行为序列取最近30天，覆盖曝光到进入、加购、购买完整转化漏斗",
+        "在线A/B实验：生产流量10%分流、覆盖超过4000万用户的多周随机实验，以广告收入为主指标"
+      ],
+      "findings_zh": [
+        "完整TAGR相对DLRM基线使直播房间进入率提升8.5%、加购点击率提升7.4%、收入提升16.1%；相对OneRec v2，TAGR的HR@64/HR@128和线上指标均进一步提升。",
+        "三层次时间自适应带来渐进式收益：仅LSID实现9.9%收入提升；加入MSI-Encoding到11.2%；加入MF-NTP到13.5%；再加入BA-GRPO到14.7%；完整IOPO(VA-GRPO)到16.1%，说明token、意图、对齐三层贡献叠加。",
+        "LSID在目标构建上优于静态SID：静态SID的Cpr=1.42、Col=0.42，完整LSID(+H)达到Cpr=1.01、Col=0.02、level-1稳定性90%，相对静态SID收入提升3.8%；默认码本[256,256,256]比过压缩的[128,128,128]和过大码本[512,512,512]在收入/成本权衡上更好。",
+        "MSI-Encoding将进入序列stride从{1}扩展到{1,2,10}，LRE HR@128从0.7024提升到0.7276、SCC HR@128从0.6551提升到0.6709；MF-NTP逐步加入w_feedback、w_user、w_eCPM后，LRE HR@128进一步从0.7276提升到0.7468。",
+        "在策略更新策略对比中，off-policy GRPO的reward=0.675、稳定性低；continuous on-policy GRPO的NTP loss=1.68、reward=0.864、稳定性中等；IOPO间歇式GRPO达到NTP loss=1.53、reward=0.913、高稳定性、LRE HR@128=0.7723，且训练成本仅为连续的1/3。",
+        "在线分段分析显示低价值用户收入提升28.8%，冷启动直播流收入提升18.4%；召回分布对比表明TAGR比传统判别式检索通道在中腰部和尾部成本层级分配更多召回，而头部集中偏差更小。",
+        "偏好优化骨干对比中，GRPO（Reward=0.913, LRE HR@128=0.7723）优于Softmax-DPO（0.871, 0.7594）和DPO（0.834, 0.7486），因此IOPO选用GRPO作为BA/VA-GRPO的优化骨干。"
+      ],
+      "metrics": [
+        "Offline: LRE HR@64/HR@128, SCC HR@64/HR@128",
+        "Online A/B: LRE-Rate Lift, SCC-Rate Lift, Revenue Lift",
+        "LSID: compression ratio (Cpr), collision rate (Col), level-1 stability",
+        "IOPO: NTP loss, Reward, training stability, LRE HR@128",
+        "Preference backbone: Reward, LRE HR@128"
+      ]
+    },
+    "limitations_zh": [
+      "离线HR@K是检索代理指标，论文仅说明与线上行为率和收入提升方向一致，不能完全替代在线因果评估；DLRM的离线HR@K与生成式Top-K解码不直接可比，故未报告。",
+      "MF-NTP中的意图证据、用户分层和eCPM权重并非校准的结果概率估计，而是训练优先级权重，不能直接解读为预测概率。",
+      "系统是在快手电商直播广告这一特定场景和自有流式训练/服务基础设施上验证的，迁移到其他平台或非直播广告场景需要重建LSID、行为序列和奖励模型，通用性未在论文中独立验证。",
+      "LSID的码本大小和刷新频率存在权衡：码本过小会过压缩并导致收益下降1.4%，码本过大会增加解码成本仅带来0.12%边际收益；token刷新需保持90%左右的一级稳定性，参数选择依赖验证集调优。",
+      "IOPO的间歇更新间隔T、GRPO剪枝范围、lambda权重等超参数需要按平台数据调优，论文报告了默认值和搜索范围，但未给出跨环境敏感性分析。"
+    ],
+    "method_zh": "TAGR是一个三层次时间自适应的生成式推荐框架。在token层，LSID通过场景/商品/用户三个编码器与U2S、U2P、S2P对比对齐学习稳定的层次化码本，并周期性（约1-5分钟）根据当前直播场景与推广商品重新量化分配每个活跃直播广告的LSID，最后一级使用主播ID哈希桶降低碰撞，生成请求无关但随时间更新的离散目标。在意图层，IAG使用Lazy Decoder，MSI-Encoding将最近300条直播房间进入行为按stride {1,2,10}构成多尺度主意图序列，并将点赞、加购、下单等辅助行为流和长期画像作为独立输入通道拼接成请求时表示；MF-NTP按行为深度意图证据w_feedback、用户价值层w_user和归一化eCPM商业价值w_eCPM对每个日志样本加权，并用层级衰减因子gamma做下一token预测。在对齐层，IOPO先联合训练NTP与奖励模型（RM），之后每隔T步用当前策略做短时GRPO更新，并在期间穿插在线NTP维护以保留行为分布；BA-GRPO用生成序列与真实下一LSID的token嵌入余弦相似度作为行为对齐奖励，VA-GRPO用RM预测的曝光后进入概率和归一化eCPM作为价值对齐奖励，二者按lambda组合。serving时通过beam search生成Top-256个LSID，经LSID-LiveID索引解析为活跃直播广告后交给下游过滤排序。",
+    "problem_zh": "直播广告由不断变化的直播场景和推广商品集合共同定义，用户意图也会随实时内容与反馈快速演化，因此对推荐模型的时效性要求很高。现有生成式推荐主要面向相对静态的商品域，存在三个层面的不适应：静态语义ID（SID）无法表示演化的直播广告目标；单尺度用户行为建模难以可靠捕捉快速变化的意图；偏好优化难以在新鲜的在策略反馈与训练稳定性之间取得平衡。这导致直播广告检索难以根据当前场景、推广商品和跨时间尺度的用户意图进行时效性匹配。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8885000000000002,
+  "graph_relations": [],
+  "id": "arxiv-2608.24034",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-26T22:34:54.976393Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-08-25T03:47:52Z",
+  "relevance_score": 0.92,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "TAGR 提出面向工业直播电商广告的时域自适应生成式推荐框架，通过直播语义协同 ID、多粒度意图序列建模和在策略偏好优化提升直播进房与购物车点击率。",
+  "targets": [],
+  "tasks": [],
+  "title": "TAGR: Temporally Adaptive Generative Recommendation for Industrial Live-Streaming Advertising",
+  "url": "https://arxiv.org/abs/2608.24034v1"
+}
