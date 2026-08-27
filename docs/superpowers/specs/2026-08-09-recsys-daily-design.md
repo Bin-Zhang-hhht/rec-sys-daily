@@ -4,6 +4,10 @@
 
 状态：已批准，首发实施中
 
+本文件是唯一活动架构设计。`2026-08-11-contract-graph-cold-start-design.md` 和
+`2026-08-12-mineru-pdf-retry-design.md` 的有效约束已合并到本文；两份文件不再作为独立
+设计来源维护。
+
 部署目标：GitHub Project Pages（`/rec-sys-daily/`）
 
 运行环境：GitHub Actions + Docker
@@ -45,12 +49,12 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 | 内容类型 | 每日数量 | 规则 |
 | --- | ---: | --- |
-| 学术论文 | 目标 10 篇 | 优先新论文；不足时允许少于 10 篇，不填充低相关或重复论文 |
-| 技术博客 | 目标 10 篇 | 优先未推荐的近期文章；不足时允许少于 10 篇，不为凑数降低阈值 |
+| 学术论文 | 目标 8 篇 | 优先新论文；不足时允许少于 8 篇，不填充低相关或重复论文 |
+| 技术博客 | 目标 8 篇 | 优先未推荐的近期文章；不足时允许少于 8 篇，不为凑数降低阈值 |
 
-因此每日页面最多展示 20 条新推荐。
+因此每日页面最多展示 16 条新推荐。
 
-系统按日运行。存在成功状态时，论文从 `last_success_at - 48 小时` 开始查询，博客从 `last_success_at - 7 天` 开始查询；重叠窗口用于容忍来源延迟和偶发漏跑，历史日报去重保证内容不会被重复推荐。任一类型不足 10 篇时允许少于 10 篇，并在运行报告中记录原因。
+系统按日运行。存在成功状态时，论文从 `last_success_at - 48 小时` 开始查询，博客从 `last_success_at - 7 天` 开始查询；重叠窗口用于容忍来源延迟和偶发漏跑，历史日报去重保证内容不会被重复推荐。任一类型不足 8 篇时允许少于 8 篇，并在运行报告中记录原因。
 
 每条推荐至少包含：
 
@@ -66,7 +70,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 ### 4.1 单工作流与时间窗口分支
 
-首次运行不是独立的“冷启动模式”，只是同一管道在不存在有效 `data/state.json` 时选用较长查询窗口的一个分支。`daily.yml`、Python CLI、四阶段处理逻辑和候选上限均不变，不提供独立模式参数、专用 workflow 或额外数据模型。前三个数据阶段由 Python 完成，网站构建与部署由 Node/Astro 完成。
+首次运行不是独立的“冷启动模式”，只是同一管道在不存在有效 `data/state.json` 时选用较长查询窗口的一个分支。`daily.yml`、Python CLI、三个逻辑数据阶段和候选上限均不变，不提供独立模式或专用 workflow。相似度计算属于 `rank-integrate` 阶段的独立物理 runner，但不改变阶段之间的最终数据契约；前三个逻辑数据阶段由 Python 完成，网站构建与部署由 Node/Astro 完成。
 
 `query_window()` 严格读取状态并按下表选择时间窗口；状态文件不存在时走首次运行分支，状态文件存在但无法通过 Schema 或时间字段校验时必须明确失败，不得静默当作首次运行：
 
@@ -75,7 +79,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 | `state.json` 不存在 | 当前时间减 5 年 | 当前时间减 3 年 |
 | 存在有效状态 | `last_success_at - 48 小时` | `last_success_at - 7 天` |
 
-每次运行统一使用论文最多 100 篇、博客最多 50 篇，完成元数据分析后各取最多 20 篇进行临时全文解读，再分别重排出目标 10 篇。无有效状态与有效状态分支使用完全相同的候选数、深读数和筛选代码，唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
+每次运行统一使用论文最多 100 篇、博客最多 50 篇，完成元数据分析后各取最多 20 篇进行临时全文解读，再分别重排出目标 8 篇。无有效状态与有效状态分支使用完全相同的候选数、深读数和筛选代码，唯一业务差异是时间范围。模型不设置每次运行调用次数或客户端 RPM 上限；安全边界由候选数量、同步单请求、单请求 context、有限重试和各 job 超时共同提供。服务端返回 `429/5xx` 时按 `Retry-After` 或有限退避恢复。
 
 ### 4.2 成功条件
 
@@ -99,7 +103,7 @@ LLM：单一 DeepSeek 模型，OpenAI-compatible Responses API
 
 - 根据来源游标、发布日期和内容 ID 拉取新增候选
 - 使用 arXiv ID、Canonical URL、DOI 和标准化标题去重
-- 从候选中分别生成论文目标 10 篇、博客目标 10 篇
+- 从候选中分别生成论文目标 8 篇、博客目标 8 篇
 - 无新博客时仍正常发布论文日报
 - 未产生任何新内容时只记录成功运行，不生成空日报
 
@@ -381,6 +385,7 @@ python -m recsys_daily run
 python -m recsys_daily collect-filter --output <dir>
 python -m recsys_daily deep-read --kind paper --input <dir> --output <dir>
 python -m recsys_daily deep-read --kind blog --input <dir> --output <dir>
+python -m recsys_daily similarity --input <dir> --output <dir>
 python -m recsys_daily rank-integrate --input <dir> --output <dir>
 python -m recsys_daily test-fixtures
 ```
@@ -391,9 +396,10 @@ python -m recsys_daily test-fixtures
 flowchart LR
     A["Job 1：收集、过滤与初排"] --> B1["Job 2A：论文 MinerU 全文阅读"]
     A --> B2["Job 2B：博客全文阅读"]
-    B1 --> C["Job 3：精排与数据整合"]
-    B2 --> C
-    C --> D["Job 4：Astro 构建与 Pages 部署"]
+    B1 --> C1["Job 3A：语义相似度 runner"]
+    B2 --> C1
+    C1 --> C["Job 3B：精排与数据整合"]
+    C --> D["Job 5：Astro 构建与 Pages 部署"]
 
     subgraph S1["Stage 1"]
       A
@@ -402,7 +408,8 @@ flowchart LR
       B1
       B2
     end
-    subgraph S3["Stage 3"]
+    subgraph S3["Stage 3：rank-integrate 物理拆分"]
+      C1
       C
     end
     subgraph S4["Stage 4"]
@@ -431,7 +438,7 @@ flowchart LR
 - 发布时间和新颖度
 - 与历史已推荐内容的重复判定
 
-每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签、图谱关系和证据，避免为同一条内容重复执行元数据分析；博客即使没有 feed excerpt，也必须根据标题和已有元数据生成中文摘要。`summary_zh` 必须包含 CJK 字符，纯英文模型结果视为批次失败；降级时仅可复用本身含 CJK 的 excerpt，纯英文或空 excerpt 不得作为中文摘要发布。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 20 进入全文深读；若不足 20 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 20 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 10 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
+每次运行都先用确定性规则把抓取结果限制在论文最多 100 篇、博客最多 50 篇，再将所有通过预筛的候选按批次交给 LLM。LLM 在一次结构化输出中同时给出相关性、中文一句话摘要、标签和证据，避免为同一条内容重复执行元数据分析；博客即使没有 feed excerpt，也必须根据标题和已有元数据生成中文摘要。`summary_zh` 必须包含 CJK 字符，纯英文模型结果视为批次失败；降级时仅可复用本身含 CJK 的 excerpt，纯英文或空 excerpt 不得作为中文摘要发布。完成所有 metadata 分析后，论文和博客分别按 `relevance_score` 降序、`published_at` 降序、`source_id` 升序、`stable_id` 升序取 Top 20 进入全文深读；若不足 20 篇则全部进入。Stage 1 artifact 只传递这一 shortlist，不让 deep-read runner 自行截取预筛列表的前 20 条。系统最后用深读质量、证据强度、业务价值和初排分数组合重排，各选目标 8 篇。日更因为时间窗口较短，实际候选量通常远低于首次运行，但不使用另一套 shortlist 逻辑。
 
 确定性推荐系统相关性门禁在 metadata 分析前执行：候选标题、摘要/短 excerpt 或来源条目分类中必须出现 `collection_terms` 证据；来源配置中的 `source_scenarios` 只能描述来源覆盖范围，不能作为内容相关性或标签证据。LLM metadata 的 `relevance_score` 低于 `config/settings.yaml` 的 `minimum_metadata_relevance_score`（当前为 `0.65`）的候选不会进入深读；每个 taxonomy 分组允许为空，且模型生成但无法在候选源文本中找到对应 term 证据的标签会被移除。这样宁可少于每日目标数量，也不使用泛 AI、Agent、LLM 或基础设施内容凑数。模型失败时的规则降级同样只读取候选自身文本，不复制来源场景标签。
 
@@ -500,7 +507,7 @@ runner，blog deep-read runner 可以按 `source_id` 再次抓取已启用 Feed�
 - 问题背景、核心贡献与主要方法
 - 证据强度、关键结果、局限性与适用边界
 - 对文字流、语聊、直播间、好友推荐的业务启示
-- 相关工作和知识图谱关系
+- 相关工作和上下文
 
 论文额外包括 Datasets、Baselines、Metrics、实验设计和关键 findings；博客额外包括 System Context、Architecture / Implementation、Production Constraints、Engineering Trade-offs、线上结果与可复用经验。论文证据只保存 MinerU Markdown 中可验证的 section 名和 PDF page number；博客证据只保存 heading 或 section 名，不复制长段原文。
 
@@ -508,9 +515,153 @@ runner，blog deep-read runner 可以按 `source_id` 再次抓取已启用 Feed�
 
 所有下载都必须遵循来源访问规则。[arXiv automated-access guidance](https://info.arxiv.org/help/robots.html) 不允许无差别自动下载，因此论文 runner 内只串行处理初排 Top 20 论文，而不抓取候选全集。论文和博客正文都不在本站再发布；每个页面始终链接到原站。
 
+### 7.4 语义相似度 runner
+
+搜索、分类图谱和内容关联拆成三个职责：Pagefind 负责用户输入的词法检索，taxonomy
+边负责受控分类和筛选，语义相似度边负责回答“这篇内容还可以看什么”。共享标签数量不再
+作为详情页“相关内容”的主排序，也不把每一次搜索命中转换成图谱边。这样可以减少搜索结果
+和图谱内容的重复，同时允许论文和博客跨类型建立关联。
+
+相似度 runner 是 `rank-integrate` 逻辑阶段中的独立物理 job。它合并本次运行的成功
+canonical items 与历史 `data/items/` 中的全部 canonical items，按 stable ID 去重后尽可能
+全量计算；不设置 `max_items`。它只读取允许发布的结构化字段，不读取 PDF、MinerU Markdown、
+RSS 全文、文章 HTML 或其他原始正文。相似度不是内容事实来源，不改变 `final_score`，只为
+详情页相关内容和图谱内容边提供构建期关系。
+
+每个 item 的输入只包含三个角色，字段顺序固定为 `title`、`abstract`、`summary_zh`，并以
+不可混淆的字段边界拼接。论文的 `abstract` 角色来自 `PaperItem.abstract`；博客的 `abstract`
+角色来自 `BlogReading.system_context_zh`，缺失时不填充 RSS 全文、HTML 或 excerpt，只使用
+title 和 summary。每个角色按实际 tokenizer 计数，不使用字符数估算。128-token 预算分配为：
+
+| 输入角色 | 预算 |
+| --- | ---: |
+| `title` | 32 |
+| `abstract` | 64 |
+| `summary_zh` | 24 |
+| 字段分隔符和特殊 token | 8 |
+
+序列化器必须在 128 tokens 内完成输入；超出分配时按角色自身预算截取，保持字段顺序和边界，
+并在 report 中记录实际 tokenizer 计数。不得静默依赖 embedding 库截断，不得将深读的其他字段、
+taxonomy 名称或原始正文混入输入。
+
+首版模型和参数固定如下：
+
+```yaml
+similarity:
+  library: fastembed
+  version: 0.8.0
+  model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+  dimension: 384
+  max_input_tokens: 128
+  title_tokens: 32
+  abstract_tokens: 64
+  summary_tokens: 24
+  separator_tokens: 8
+  batch_size: 32
+  threads: 2
+  block_size: 64
+  top_k: 5
+  min_cosine: 0.72
+  mutual_top_k: true
+  score_decimals: 6
+```
+
+选择该模型是因为 FastEmbed 提供 ONNX Runtime 的轻量 CPU 推理，模型覆盖约 50 种语言，
+输出 384 维向量，适合 GitHub-hosted runner 的一次性离线计算；模型约 0.22 GB，不需要
+GPU 或常驻服务。`fastembed==0.8.0` 已支持上述模型名，避免为 `multilingual-e5-small`
+注册 custom model。模型文件只进入 runner 的 Actions cache 或临时目录，不进入 Docker
+源码层、Git、canonical data、similarity artifact 或 Pages artifact。
+
+计算过程为：
+
+1. 按 stable ID 排序后 batch embedding；对每个向量再次做 L2 normalization，避免依赖模型
+   是否已经归一化；
+2. 以 `block_size` 个 item 为块计算 cosine 分数
+   `cos(e_i, e_j) = dot(normalized(e_i), normalized(e_j))`，只保留上三角结果，不生成或写出
+   完整 N×N 矩阵；
+3. 对每个 item 过滤自身、低于 `min_cosine` 的候选，按分数降序和 target ID 升序取 Top-K；
+4. 仅保留互为 Top-K 的 pair，按无向边的两个 ID 字典序去重；
+5. 以 6 位小数写出稳定分数。论文与博客可以互相连接，同 kind 也可以连接；相似度不改变
+   canonical item 的内容字段，也不替代 Stage 1 的相关性门禁或最终日报排序。
+
+该方法没有标签训练集时属于可解释的无监督基线：模型负责跨语言语义表征，cosine 负责
+可复现的相似度，Top-K、阈值和 mutual check 负责控制图谱边数。`0.72` 是首发默认值，
+不是跨模型通用的自然常数；后续只能依据运行报告中的边数、人工抽样和误连率调整配置，不能
+在运行中自动漂移阈值。没有足够相似 item 时合法输出空边集合。
+
+相似度 artifact 只保存模型元数据、参数、输入计数和有界边列表，不保存 embedding、
+candidate text、向量索引或 pairwise 全量矩阵。它是同一 workflow 内供 `rank-integrate` 和
+`site` 使用的短期产物，不进入 `publish-bundle`、canonical `data/` 或 Git。schema v1 的
+核心形状为：
+
+```json
+{
+  "run_id": "2026-08-25T...",
+  "schema_version": "1",
+  "model": {
+    "library": "fastembed",
+    "version": "0.8.0",
+    "name": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "dimension": 384,
+    "normalized": true
+  },
+  "parameters": {
+    "max_input_tokens": 128,
+    "title_tokens": 32,
+    "abstract_tokens": 64,
+    "summary_tokens": 24,
+    "separator_tokens": 8,
+    "top_k": 5,
+    "min_cosine": 0.72,
+    "mutual_top_k": true
+  },
+  "items_considered": 42,
+  "encoded_items": 42,
+  "edges": [
+    {
+      "source_id": "paper-a",
+      "target_id": "blog-b",
+      "score": 0.814237,
+      "source_rank": 1,
+      "target_rank": 2
+    }
+  ]
+}
+```
+
+`rank-integrate` 和 site build 必须验证 `run_id`、schema、模型参数、边端点存在于本次
+全量 canonical 输入、`source_id < target_id`、无自环、无重复边、分数范围和 Top-K/mutual
+规则。验证通过后，site build 在本次构建目录中生成图谱和详情页相关内容；失败则阻断
+`rank-integrate` 或网站构建，不生成可发布 bundle，也不推进正式 `state.json`。每次重新构建
+都重新生成相似网络图，不持久化关系文件。
+
+### 7.5 GitHub 与开源项目调研结论
+
+本次方案参考了以下公开项目和官方限制文档，最终只借鉴必要的离线计算模式：
+
+| 项目 | 借鉴点 | 本项目的取舍 |
+| --- | --- | --- |
+| [qdrant/fastembed](https://github.com/qdrant/fastembed) | 轻量 Python API、ONNX Runtime、CPU 推理、batch embedding、模型缓存 | 只使用 embedding library，不部署 Qdrant、不使用 Vector DB、不持久化向量 |
+| [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) | semantic textual similarity、cosine similarity、paraphrase mining 的成熟概念和评估方式 | 不把 PyTorch 运行时放进 pipeline；首版使用 FastEmbed 的 ONNX 实现以控制镜像和启动成本 |
+| [facebookresearch/faiss](https://github.com/facebookresearch/faiss) | ANN 检索适合大规模向量集合 | 首版对全量 canonical items 做分块 exact cosine；数据量尚未需要 FAISS，避免引入 index 的二进制和可复现性负担 |
+| [networkx/networkx](https://github.com/networkx/networkx) | 离线图结构和 degree/connected-component 思路 | pipeline 不引入图数据库；图谱在构建阶段输出给 ECharts，节点裁剪保持确定性 |
+
+官方 GitHub Actions 文档显示，GitHub-hosted job 的单 job 上限为 6 小时，workflow 上限为
+35 天；artifact 和 cache 都属于可过期的传输/加速设施，不能成为业务事实来源。因此相似度
+计算采用单独的 Docker job，并设置低于平台上限的 180 分钟 timeout；cache 未命中或被回收
+时只重新下载模型，不影响正确性。输入、输出和 artifact 都有明确大小上限，避免把本地
+embedding 过程变成 GitHub Actions 的长期存储问题。全量计算的超时是失败条件，不得偷偷降级
+为部分输入；需要更长时间时只调整 runner 资源或 job timeout，不改变 artifact 契约。参考：[Actions limits](https://docs.github.com/en/actions/reference/limits)、
+[workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts)
+和 [dependency caching](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows)。
+
+不采用 LLM 两两比较，因为它的请求数、费用和重试时间随 N² 增长；不采用 TF-IDF/BM25
+作为内容关系主算法，因为它会把词面重合误认为语义相近，且不能稳定处理中文摘要与英文标题
+混合内容。TF-IDF/BM25 仍可作为未来人工评估的 lexical baseline，但不进入首版生产路径。
+
 ## 8. LLM 与 API 限制
 
-### 8.1 文本 OpenAI-compatible 接口与独立视觉接口
+### 8.1 文本 OpenAI-compatible 接口与独立 MinerU REST 接口
 
 ```yaml
 models:
@@ -552,7 +703,7 @@ MinerU 申请上传地址的响应必须恰好包含一个 upload URL，且响�
 
 ### 8.2 限流和恢复
 
-文本 wrapper 和视觉 requests 调用共用同一组请求策略：
+文本 wrapper 和 MinerU/source HTTP 调用共用同一组请求策略：
 
 - 固定超时
 - 最多 3 次有限重试
@@ -628,11 +779,17 @@ Feed、HTML 和 PDF 响应都使用流式 N+1 上限读取：先拒绝明确超�
 └── compose.yaml
 ```
 
-`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 20 论文和 Top 20 博客保存或更新结构化深读记录，单月通常不超过约 1,200 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 10 篇推荐的成功深读候选也可保留结构化结果，但不因此记为已推荐。首版不根据这些 canonical item 建立指纹缓存协议。
+`data/items` 是唯一的内容事实来源，每篇论文或博客使用一个稳定 JSON 文件，并按首次发布日期的年/月分片。每天最多为 Top 20 论文和 Top 20 博客保存或更新结构化深读记录，单月通常不超过约 1,200 个新文件，仍低于 GitHub 建议的单目录 3,000 个条目上限。内容更新时覆盖同一个 stable ID 文件，由 Git 历史保留版本差异；未进入最终各 8 篇推荐的成功深读候选也可保留结构化结果，但不因此记为已推荐。首版不根据这些 canonical item 建立指纹缓存协议。
 
 日报文件只保存日期、排序、推荐理由和 item ID，不复制标题、摘要等完整内容。运行报告按年月和 run ID 分片；`state.json` 保持为单个小文件，用于保存最后成功时间、来源游标、ETag 和 `Last-Modified`。
 
-以下内容不提交 Git：RSS/API 原始响应、PDF、MinerU ZIP/Markdown、PDF 提取全文、全文 HTML、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、`graph.json` 和 Pagefind 索引。图谱、详情页、归档页和搜索索引都在构建时从 canonical item 文件派生，只进入 GitHub Pages artifact。搜索只索引站内详情页已经公开的元数据、摘要和结构化深度解读，不索引、复制或保存论文 PDF/MinerU 文本与博客原始全文。Git 只保存模型生成的结构化深度解读及其分析依据。
+相似度关系是每次构建的短期派生 artifact，不是内容事实来源、向量存储或图数据库。它只在
+当前 workflow 中从全量 canonical items 计算一次，供 `rank-integrate` 校验和 site build
+生成详情页相关内容、图谱 manifest 与分片；不写入 `pending-data/`、canonical `data/` 或 Git。
+下一次构建重新计算，旧关系不参与数据事实合并。taxonomy 关系仍从 canonical item 的受控
+标签派生。
+
+以下内容不提交 Git：RSS/API 原始响应、PDF、MinerU ZIP/Markdown、PDF 提取全文、全文 HTML、其他图片副本、完整 LLM/VLM prompt/response、HTTP cache、Node/Python cache、Astro `dist`、`graph-manifest.json`、图谱 shards 和 Pagefind 索引。图谱、详情页、归档页和搜索索引都在构建时从 canonical item 文件及短期 similarity artifact 派生，只进入 GitHub Pages artifact。搜索只索引站内详情页已经公开的元数据、摘要和结构化深度解读，不索引、复制或保存论文 PDF/MinerU 文本与博客原始全文。Git 只保存模型生成的结构化深度解读及其分析依据。
 
 存储保护规则：
 
@@ -669,7 +826,6 @@ storage:
   "tasks": ["link_prediction", "ranking"],
   "methods": ["graph_neural_network"],
   "relevance_score": 0.92,
-  "graph_relations": [],
   "deep_reading": {
     "analysis_basis": "mineru_full_text",
     "problem_zh": "研究问题与背景。",
@@ -701,9 +857,9 @@ storage:
 
 前端使用 Astro + TypeScript + Tailwind CSS 4，输出纯静态文件。Tailwind 通过官方推荐的 Vite plugin 接入，不使用已废弃的 `@astrojs/tailwind`；首版不安装 React，搜索和图谱交互分别使用原生 TypeScript 驱动 Pagefind 与按需加载的 ECharts Graph。Astro 只为明确包含客户端脚本的页面输出 JavaScript，详情、归档和关于页面保持静态 HTML。
 
-站点固定作为 GitHub Project Pages 部署。`SITE_ORIGIN` 只保存 `https://<owner>.github.io` 这样的 origin，Astro 固定使用 `base: "/rec-sys-daily/"` 和 `trailingSlash: "always"`。所有导航、卡片、详情、归档、图谱、`graph.json`、Pagefind runtime 和搜索结果链接都通过同一 base-aware helper 生成，不硬编码根路径。
+站点固定作为 GitHub Project Pages 部署。`SITE_ORIGIN` 只保存 `https://<owner>.github.io` 这样的 origin，Astro 固定使用 `base: "/rec-sys-daily/"` 和 `trailingSlash: "always"`。所有导航、卡片、详情、归档、图谱 manifest/shards、Pagefind runtime 和搜索结果链接都通过同一 base-aware helper 生成，不硬编码根路径。
 
-- `/`：当天简报，论文和博客各目标 10 篇
+- `/`：当天简报，论文和博客各目标 8 篇
 - `/papers/<id>/`：论文详情页
 - `/articles/<id>/`：博客详情页
 - `/archive/`：按日期和标签浏览历史日报
@@ -747,7 +903,11 @@ storage:
 
 详情页只展示结构化转述，不复制、镜像或缓存博客全文。
 
-每个详情页最多展示 4 条相关论文/博客：先按共享 taxonomy ID 数量降序，再按 `final_score` 降序、`published_at` 降序和 item ID 升序；排除自身并去重。详情页同时提供指向 `graph/?center=<id>` 的 base-aware 链接。
+每个详情页最多展示 4 条相关论文/博客：优先读取本次构建保留的 similarity artifact 中以该
+item 为端点的边，按 `score` 降序、`published_at` 降序和 item ID 升序；排除自身并去重。没有
+相似度边时显示明确的空状态，不用共享 taxonomy 数量伪造语义关联。site-only 必须按同一个
+`source-run-id` 下载完全相同的 similarity artifact；artifact 过期时明确失败，不从 canonical
+data 猜测关系。详情页同时提供指向 `graph/?center=<id>` 的 base-aware 链接。
 
 ### 10.1 搜索页
 
@@ -769,12 +929,12 @@ storage:
 
 ## 11. 轻量交互知识图谱
 
-图谱使用 ECharts Graph 的 Canvas renderer，仅在 `/graph/` 且画布接近视口、获得焦点或存在 `?center=` 时加载 ECharts 与构建时生成的静态 JSON。客户端保留原生 DOM 筛选、搜索结果、状态和详情区域；ECharts 只负责图形绘制，不改变 `graph.json` 契约。
+图谱使用 ECharts Graph 的 Canvas renderer，仅在 `/graph/` 且画布接近视口、获得焦点或存在 `?center=` 时加载 ECharts 与 `graph-manifest.json`。客户端保留原生 DOM 筛选、搜索结果、状态和详情区域；ECharts 只负责绘制当前已加载子图，manifest、节点索引和远近 shards 由原生 TypeScript 控制器按需读取。
 
 节点类型：
 
 - `paper`
-- `article`
+- `blog`
 - `scenario`
 - `target`
 - `task`
@@ -787,6 +947,33 @@ storage:
 - `evidence`
 - `generated_by`
 
+首版边类型分为：
+
+- `taxonomy`：内容节点到 `target`、`scenario`、`task` 或 `method` 节点，由 `topics.yaml`
+  的受控标签和证据校验产生；
+- `similarity`：论文/博客内容节点之间的无向语义相似边，由 7.4 的 FastEmbed + cosine
+  runner 产生，可跨 `paper` 和 `blog`。
+
+`similarity` 边额外包含 `score`、`source_rank` 和 `target_rank`，其中 `score` 与 similarity artifact
+完全一致。关系只存在于本次构建的临时输入和 Pages `dist`，不写入 publish bundle 或 Git。
+同一 pair 不重复绘制，也不把 Pagefind 搜索命中写回图谱。
+
+图谱采用静态分片，而不是把全历史图一次性发给浏览器：
+
+- 构建输出包含轻量 `graph-manifest.json`、节点索引、按稳定 hash 划分的节点/边 shard 和按
+  邻接关系划分的 adjacency shard；raw shard 目标大小为 64--128 KB
+- `d0` 是最新成功 digest 的论文和博客内容节点；`d1` 是它们通过 `similarity` 边相邻的内容
+  节点。距离只依据 similarity 边计算，taxonomy 边不改变 d0/d1 距离
+- 初始请求只加载 manifest/index、d0 和 d1 分片；默认渲染最多
+  `graph_initial_content_nodes` 个内容节点，超出时按 similarity score、发布日期和 ID 稳定
+  截取，完整索引仍保留
+- 用户聚焦边缘节点时，客户端加载该节点的节点 shard 和 adjacency shard，按需扩展到下一跳；
+  用户可以重复聚焦并遍历全部历史内容。历史节点即使没有 similarity 边，也保留在索引中，可
+  从图谱搜索、归档或详情页到达
+- taxonomy 节点只为当前已加载内容提供分类和导航边；它们不参与相似度距离，也不替代内容边
+- shard 边界由 stable ID/hash 确定，重建时同一输入得到稳定分片；manifest、分片和 ECharts
+  资源只进入 Pages build output，不进入 Git、canonical data 或 publish bundle
+
 交互功能：
 
 - 平移、缩放和拖动
@@ -797,8 +984,8 @@ storage:
 - 从日报或详情页以 `?center=<item-id>` 打开中心节点与一跳邻域；无效 ID 回退到全图并显示状态提示，用户首次手动筛选后退出 center 模式
 - 搜索、时间和 taxonomy 控件位于画布上方；画布约占 `70vh`，桌面右栏只保留节点详情，移动端详情位于画布下方；提供适应画布和重置视图按钮
 - 六类节点图例以可键盘操作的 DOM 按钮叠放在画布内；按钮可切换对应节点类型，隐藏相关边，并裁掉因此孤立的 taxonomy 节点，重置图谱时恢复全部类型
-- 使用 ECharts `layout: "force"`，初始布局为 `circular`，固定起始参数为 `repulsion=520`、`gravity=0.04`、`edgeLength=[120,190]`、`friction=0.6`；筛选或中心定位后替换可见 `data/links` 并重新布局。ECharts 参数不与 Cytoscape COSE 做一一等价承诺
-- `graph.json` 节点增加有限正数 `data.weight`，按保留图中不同相邻节点的 degree 计算；客户端使用固定对数刻度 `min(56, 16 + 8 * log2(max(1, degree)))` 映射尺寸，每次 degree 翻倍增加 8px，degree 32 起封顶 56px。同一 degree 不因图谱增长、筛选或当前最大 degree 改变尺寸；论文与博客节点始终不在画布中绘制标题，标题通过搜索结果、tooltip 和详情栏提供；taxonomy 只显示中文短标签并使用 `labelLayout.hideOverlap` 隐藏重叠项，远缩放时只突出选中节点、一跳邻居和搜索命中
+- 使用 ECharts `layout: "force"`，初始布局为 `circular`，固定起始参数为 `repulsion=520`、`gravity=0.04`、`edgeLength=[120,190]`、`friction=0.6`；分片加载、筛选或中心定位后替换可见 `data/links` 并重新布局
+- 图谱节点增加有限正数 `data.weight`，按当前已加载子图中不同相邻节点的 degree 计算；客户端使用固定对数刻度 `min(56, 16 + 8 * log2(max(1, degree)))` 映射尺寸，每次 degree 翻倍增加 8px，degree 32 起封顶 56px。同一 degree 不因全历史图增长、分片加载、筛选或当前最大 degree 改变尺寸；论文与博客节点始终不在画布中绘制标题，标题通过搜索结果、tooltip 和详情栏提供；taxonomy 只显示中文短标签并使用 `labelLayout.hideOverlap` 隐藏重叠项，远缩放时只突出选中节点、一跳邻居和搜索命中
 - 画布启用 `roam`、桌面节点拖拽和 `scaleLimit`；移动端关闭节点拖拽以避免与页面滚动冲突。使用 `labelLayout.hideOverlap`、`emphasis.focus: "adjacency"` 和 `prefers-reduced-motion` 适配
 - ECharts `aria.enabled` 只作为补充；原生搜索结果列表、可聚焦控件、`aria-live` 状态和详情链接承担键盘与屏幕阅读器路径。动态标题、摘要和关系证据不通过未经转义的 HTML tooltip 插入
 
@@ -806,26 +993,39 @@ storage:
 
 实现参考 ECharts 官方的 [Force-directed Graph](https://echarts.apache.org/examples/en/editor.html?c=graph-force)、[Circular Layout](https://echarts.apache.org/examples/en/editor.html?c=graph-circular-layout)、[WebKit Dependency](https://echarts.apache.org/examples/en/editor.html?c=graph-webkit-dep) 和 [Label Overlap](https://echarts.apache.org/examples/en/editor.html?c=graph-label-overlap) 案例。Force-directed Graph 提供 `force`、拖拽和 `roam` 的基础，本站独立使用 `force.initLayout: "circular"` 获得稳定起始分布；Circular Layout 仅作为非 force 的备用布局参考；WebKit Dependency 只提供分类图的表现参考；Label Overlap 提供 `labelLayout.hideOverlap`、源节点色曲线和度大小层级。站点不照搬案例的预计算坐标和全量标题，因为它们不适合本站动态筛选后的子图和较长的中英文学术标题；图内 legend 使用原生 DOM 按钮覆盖层而非 ECharts Canvas legend，以便与筛选状态同步并保留键盘和屏幕阅读器语义。
 
-视觉编码参考 Label Overlap 案例的实色圆点、度大小层级、分类色曲线和中性短标签，但保留本站的 force 布局：六类节点都使用圆形并默认设置为 50% opacity，论文为实线环、技术博客为虚线环，四类 taxonomy 与站内主题胶囊统一使用目标 sky、场景 emerald、任务 amber、方法 violet；taxonomy 边使用低透明度实线曲线并继承目标 taxonomy 节点颜色，模型生成关系使用继承源内容节点颜色的虚线小箭头；选中节点、一跳邻居和搜索命中分别使用深色、青色和红色描边，存在选中节点时非邻域节点继续降低 opacity。论文与博客不显示画布标题，taxonomy 标签保持不透明、只显示中文名并由 `labelLayout.hideOverlap` 隐藏碰撞项，完整中英文名称仍保留在 tooltip、搜索和详情区域。根据 ECharts 的 [Canvas vs. SVG](https://echarts.apache.org/handbook/en/best-practices/canvas-vs-svg/) 建议，本图谱使用 Canvas，以适配 force 动画、平移缩放和最多约 80 个内容节点；无障碍路径仍由 DOM 控件和详情区承担。
+视觉编码参考 Label Overlap 案例的实色圆点、度大小层级、分类色曲线和中性短标签，但保留本站的 force 布局：六类节点都使用圆形并默认设置为 50% opacity，论文为实线环、技术博客为虚线环，四类 taxonomy 与站内主题胶囊统一使用目标 sky、场景 emerald、任务 amber、方法 violet；taxonomy 边使用低透明度实线曲线并继承目标 taxonomy 节点颜色，similarity 边使用中性低透明度曲线；选中节点、一跳邻居和搜索命中分别使用深色、青色和红色描边，存在选中节点时非邻域节点继续降低 opacity。论文与博客不显示画布标题，taxonomy 标签保持不透明、只显示中文名并由 `labelLayout.hideOverlap` 隐藏碰撞项，完整中英文名称仍保留在 tooltip、搜索和详情区域。根据 ECharts 的 [Canvas vs. SVG](https://echarts.apache.org/handbook/en/best-practices/canvas-vs-svg/) 建议，本图谱使用 Canvas；无障碍路径仍由 DOM 控件和详情区承担。
 
 交互采用“概览 → 定位 → 邻域 → 详情”的渐进路径：默认显示裁剪后的全图；搜索结果、taxonomy/time 筛选和 `?center=` 缩小范围；节点单击只选择并高亮邻域，避免拖动画布时误跳转；站内详情跳转只由侧栏中的明确链接触发。移动端保留缩放和平移、关闭节点拖拽，并折叠 taxonomy 筛选，优先保证页面滚动和详情阅读。
 
 ### 11.2 防止图谱臃肿
 
-图谱不是无限追加的全历史图，而是每次构建从 `data/items` 派生：
+图谱每次构建从全量 `data/items` 和短期 similarity artifact 派生。它不删除历史节点，也不
+设置全局 80 节点上限；展示控制只作用于当前浏览器已加载的子图：
 
-- 默认可见论文/博客节点总数最多 80
-- 优先最近 90 天、高相关和高连接内容
-- 旧内容按主题聚合，不默认展开
-- 主题、场景、目标、任务和方法节点来自受控 YAML，数量稳定
-- 图谱边只保留可见内容节点相关的高置信关系
-- 用户筛选后再加载/显示局部子图
+- 默认只请求最新 digest 的 d0 和一跳 d1，按 `graph_initial_content_nodes` 控制初始绘制规模
+- 聚焦节点后按分片加载更远邻域，保持单次网络响应小且不重复传输已经加载的分片
+- 主题、场景、目标、任务和方法节点来自受控 YAML，随当前内容子图动态加入和移除
+- 节点筛选、详情页和归档页仍能访问没有相似度边的历史内容
 
-历史内容仍可从归档和详情页访问，不需要全部同时出现在图谱中。
+历史增长影响的是分片数量和索引大小，不影响首屏 d0/d1 的请求规模。
 
 ## 12. Docker 与本地开发
 
 项目不启动数据库或常驻 Compose 服务，但按技术栈使用两个独立镜像：`pipeline/Dockerfile` 只包含 Python、正文获取、MinerU 和模型客户端；`site/Dockerfile` 只包含 Node、pnpm、Astro、Tailwind、Pagefind 和前端依赖。两个镜像通过结构化 publish bundle 交接，不共享 Python 或 Node 运行时。
+
+`pipeline/Dockerfile` 增加一个专用的 `similarity` build target，基于相同的 pipeline
+基础层安装固定版本的 `fastembed==0.8.0`、ONNX Runtime 和必要的数值依赖；它是同一个
+Dockerfile 的构建 target，不增加第三个生产镜像。模型文件在 Actions job 中挂载到独立的
+cache/tmp 目录，cache miss 时由 runner 下载，不能把模型下载结果写进仓库或 Pages artifact。
+相似度命令仍由统一 CLI 暴露：
+
+```powershell
+docker compose run --rm pipeline similarity --input /workspace/stages --output /workspace/work/similarity
+```
+
+本地和 CI 都只挂载工作目录的父目录，输出子目录必须事先不存在；runner 完成后只交出
+结构化 `similarity.json` 和脱敏 report。这样可以单独构建、单独设 timeout、单独复用模型
+cache，同时保持生产上只有 pipeline/site 两个镜像的架构约束。
 
 PowerShell 本地命令：
 
@@ -854,7 +1054,7 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 1. 构建 `pipeline/Dockerfile`
 2. 运行 Python 单元测试、运行时生成的端到端场景和 JSON Schema 校验
 3. 构建 `site/Dockerfile`
-4. 使用 pipeline 动态生成的测试 publish bundle 执行一次 Astro + Pagefind production build，检查图谱、搜索索引和 Pages artifact 大小
+4. 使用 pipeline 动态生成的测试 publish bundle 和同 run similarity artifact 执行一次 Astro + Pagefind production build，检查图谱 manifest/shards、搜索索引和 Pages artifact 大小
 
 ### 13.2 daily.yml
 
@@ -863,7 +1063,15 @@ Astro Docs MCP 只作为可选的本地文档查询工具，不写入项目依�
 - 每日定时运行，默认北京时间 03:33（UTC 19:33），避开整点高峰
 - `workflow_dispatch` 手动运行；生产运行只接受 `main`，其他 ref 在首个 job 明确失败
 
-生产 workflow 分为四个逻辑阶段和五个物理 job。前三个数据阶段的业务命令在 `pipeline/Dockerfile` 镜像内运行；最后的网站构建命令在 `site/Dockerfile` 镜像内运行。checkout、artifact 上传下载、Pages 部署和 Git 提交由 GitHub runner 上的官方 action 或宿主步骤负责，不要求业务镜像安装另一套技术栈。两个镜像分别使用 GitHub Actions layer cache，不把 Python/PDF 依赖带入前端镜像，也不把 Node/Astro 依赖带入数据镜像。
+生产 workflow 分为四个逻辑阶段和六个物理 job：`collect-filter`、两个并行 deep-read
+matrix job、独立 similarity job、`rank-integrate` 和 `build-deploy`。前三个数据逻辑阶段
+的业务命令在 `pipeline/Dockerfile` 镜像内运行；最后的网站构建命令在 `site/Dockerfile`
+镜像内运行。checkout、artifact 上传下载、Pages 部署和 Git 提交由 GitHub runner 上的
+官方 action 或宿主步骤负责，不要求业务镜像安装另一套技术栈。两个镜像分别使用 GitHub
+Actions layer cache，不把 Python/PDF 依赖带入前端镜像，也不把 Node/Astro 依赖带入数据镜像。
+相似度是独立的 CPU job，不创建常驻 self-hosted runner；首版使用 GitHub-hosted runner
+并设置 180 分钟 timeout。它读取全量 canonical items，超时或模型计算失败即阻断发布，不能
+静默改用部分输入；未来切换 runner 类型也不改变 artifact 契约。
 
 #### Job 1：collect-filter
 
@@ -894,19 +1102,40 @@ commit、state 或 config hash。首版 `schema_version` 固定为 `"1"`。
 
 两个全文 runner 各自使用同步单请求，不配置客户端 RPM 或最短请求间隔。论文和博客固定并行可以为两类内容分别获得最多 5 小时执行时间，同时不引入候选分片、动态 matrix 或其他复杂调度。
 
-#### Job 3：rank-integrate
+#### Job 3：similarity
 
-- job ID 为 `rank_integrate`，依赖 `needs: [collect_filter, deep_read]`
+- job ID 为 `similarity`
+- 依赖 `needs: [collect_filter, deep_read]`，只读仓库权限
+- `timeout-minutes: 180`，使用 `pipeline/Dockerfile` 的 `similarity` target
+- 下载当前 Stage 1、论文/博客 deep-read artifact 和只读历史 `data/`；不下载原始正文
+- 使用固定 cache key `fastembed|0.8.0|sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2|384`
+  缓存模型文件。cache 未命中、过期或写入失败时在线下载并继续，cache 不是成功条件
+- 执行 `python -m recsys_daily similarity --input /workspace/stages --output /workspace/similarity`
+  并将输出写入父目录下尚不存在的子目录
+- 上传 `similarity-<run-id>` artifact，`retention-days: 3`；artifact 只含相似度 Schema
+  结果和脱敏 report，不含文本、embedding、index 或原始响应
+
+该 job 的约束是计算时间而不是 API RPM：对全量 canonical items 执行 128-token 序列化、batch
+size 32、CPU threads 2、块大小 64、每条最多 5 条边。单 job 的 180 分钟低于 GitHub-hosted
+的 6 小时限制；模型首次下载和冷启动也不会占用前面两个 deep-read job 的 timeout。计算超时
+直接失败，不裁剪输入池。
+`actions/cache` 只加速模型准备，`actions/upload-artifact` 只传递本次 run 的短期结构化结果。
+
+#### Job 4：rank-integrate
+
+- job ID 为 `rank_integrate`，依赖 `needs: [collect_filter, deep_read, similarity]`
 - `timeout-minutes: 120`
 - 使用 `pipeline/Dockerfile`，保持仓库只读权限
-- 下载三个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致
+- 下载四个结构化 artifact，并验证 `run_id` 和 `schema_version` 一致；相似度 artifact
+  缺失或验证失败时直接失败
 - 宿主创建并挂载父目录 `/workspace/publish-work`，不预创建最终子目录；执行 `python -m recsys_daily rank-integrate --input /workspace/stages --output /workspace/publish-work/publish-bundle`
-- 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 10 篇
-- 生成待提交的 canonical items、日报、运行报告、图谱关系、pending `state.json` 和本次配置的 `taxonomy.json` 快照
+- 分别校验论文和博客 artifact 覆盖全部 Stage 1 ID 且深读成功率不低于 80%，再基于成功 items 各精排目标 8 篇
+- 校验相似度 artifact 的端点、输入覆盖、阈值、Top-K、mutual check 和稳定排序；生成待提交的
+  canonical items、日报、运行报告、pending `state.json` 和本次配置的 `taxonomy.json` 快照
 - 对完整待发布数据执行 JSON Schema、引用完整性和存储大小校验
 - 上传 `publish-bundle-<run-id>` 结构化 artifact，`retention-days: 3`，为手动 site-only 重建提供有限复用窗口
 
-Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。`taxonomy.json` 是本次运行使用的 `topics.yaml` 标准化只读快照，只服务于网站构建，不提交到 `data/`。Publish bundle 不包含 HTML 页面、`graph.json`、Pagefind 索引或 Astro `dist`，这些均由下一阶段从 canonical JSON 派生。
+Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`；后者与最终 `data/` 目录同构，但在部署成功前只存在于 artifact 中。`taxonomy.json` 是本次运行使用的 `topics.yaml` 标准化只读快照，只服务于网站构建，不提交到 `data/`。Publish bundle 不包含 HTML 页面、`graph-manifest.json`、图谱 shards、Pagefind 索引或 Astro `dist`，这些均由下一阶段从 canonical JSON 和同 run similarity artifact 派生。
 
 `pending-data/` 是完整的待发布 `data/` 树，而不是只有本次新增内容的 overlay：
 `rank-integrate` 从只读仓库 `data/` 复制并校验既有 `items/`、`digests/` 和 `runs/`，
@@ -914,41 +1143,51 @@ Publish bundle 只包含 `manifest.json`、`taxonomy.json` 和 `pending-data/`�
 提升为仓库 `data/`。复制过程只允许文档化的 JSON 路径，拒绝 PDF、HTML、TXT、未知
 扩展名和未声明目录，防止历史工作目录污染 Pages artifact。
 
-每次 `RunReport` 还保存本次构建需要的配置快照，例如 `graph_max_content_nodes`、
-`graph_recent_days`、`warn_pages_artifact_mb`、`fail_pages_artifact_mb`、
+每次 `RunReport` 还保存本次构建需要的配置快照，例如 `graph_initial_content_nodes`、
+`graph_shard_target_bytes`、`warn_pages_artifact_mb`、`fail_pages_artifact_mb`、
 `warn_repository_data_mb` 和存储大小阈值。Astro 和 Pages artifact 校验只读取该
 快照，不重新解析 `settings.yaml`，保证重跑 `build_deploy` 使用与数据阶段一致的
 配置。
 
-#### Job 4：build-deploy
+#### Job 5：build-deploy
 
-- job ID 为 `build_deploy`，依赖 `needs: rank_integrate`
+- job ID 为 `build_deploy`，依赖 `needs: [rank_integrate, similarity]`
 - `timeout-minutes: 60`
-- 使用 `site/Dockerfile`，下载 `publish-bundle-<run-id>` 并再次验证 manifest
+- 使用 `site/Dockerfile`，下载 `publish-bundle-<run-id>` 和同一 `run_id` 的
+  `similarity-<run-id>` artifact，并再次验证两份 manifest
 - `site/Dockerfile` 使用 `pnpm install --frozen-lockfile` 构建依赖层；Pagefind 固定在 `pnpm-lock.yaml`，运行时不下载 `latest`
-- job 在该镜像内执行 `pnpm build`：先运行 Astro production build，从 `pending-data/` 和 `taxonomy.json` 派生详情页、搜索页、归档页、交互图谱和 `graph.json`，再对 `dist` 运行 Pagefind Extended
+- job 在该镜像内执行 `pnpm build`：先运行 Astro production build，从 `pending-data/`、
+  `taxonomy.json` 和 similarity artifact 派生详情页、搜索页、归档页、交互图谱 manifest 与
+  分片，再对 `dist` 运行 Pagefind Extended
 - Pagefind 只索引详情页主内容，并输出按需加载的 runtime、支持中英文术语的索引、filters 和 metadata 到 `dist/pagefind/`
 - 验证 Pages artifact 不超过配置的大小边界，然后上传并部署
 - 使用 origin-only `SITE_ORIGIN`、固定 `/rec-sys-daily/` base 和尾斜杠规则构建并校验 Project Pages 链接
 - Pages 部署成功后，只将 `rank-integrate` 已验证的 `pending-data/` 对仓库 `data/` 执行 `rsync --archive --delete pending-data/ data/`，并在同一个 Git commit 中提交 canonical 数据和最终 `state.json`
 
-只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他四个物理 job 都保持只读。原始 PDF、MinerU ZIP/Markdown、HTML 或提取全文不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
+只有 `build_deploy` 授予 `contents: write`、`pages: write` 和 `id-token: write`；其他五个物理 job 都保持只读。原始 PDF、MinerU ZIP/Markdown、HTML 或提取全文不能出现在任何跨 job artifact；GitHub artifact 只用于传递结构化候选、分析结果、短期 similarity 结果和 pending canonical 数据。[GitHub workflow artifacts](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts) 支持同一 workflow 内跨 job 传递文件，依赖关系使用 `needs`。
 
 ### 13.3 site-only.yml
 
-`site-only.yml` 仅通过 `workflow_dispatch` 手动触发，并且只接受 `main`。它使用只读 `actions`/`contents` 权限查询最近成功的 `daily.yml` 运行，按精确的 `publish-bundle-<source-run-id>` 名称选择尚未过期的 artifact；找不到可复用 bundle 时明确失败，不回退到采集、深读或精排。
+`site-only.yml` 仅通过 `workflow_dispatch` 手动触发，并且只接受 `main`。它使用只读 `actions`/`contents` 权限查询最近成功的 `daily.yml` 运行，按精确的 `source-run-id` 同时选择尚未过期的
+`publish-bundle-<source-run-id>` 和 `similarity-<source-run-id>` artifact；任一缺失或过期都明确失败，
+不回退到采集、深读或精排。
 
-该 workflow checkout 当前 `main` 上的网站代码，使用 `site/Dockerfile` 消费下载的 bundle，执行与日常发布相同的 Astro、Pagefind、图谱和 Pages artifact 校验，然后部署 GitHub Pages。它不授予 `contents: write`，不执行 `rsync`、Git commit 或 push，且不得修改 `pending-data/` 或仓库 `data/`。因此 site-only 构建失败或部署失败都不会影响 canonical 数据与 `state.json`；成功也只更新 Pages 内容。最终 publish bundle 保留 3 天，Stage 1 和 deep-read 中间 artifact 仍只保留 1 天。
+该 workflow checkout 当前 `main` 上的网站代码，使用 `site/Dockerfile` 同时消费下载的 publish
+bundle 和 similarity artifact，执行与日常发布相同的 Astro、Pagefind、图谱分片和 Pages
+artifact 校验，然后部署 GitHub Pages。它不授予 `contents: write`，不执行 `rsync`、Git commit
+或 push，且不得修改 `pending-data/` 或仓库 `data/`。因此 site-only 构建失败或部署失败都不会
+影响 canonical 数据与 `state.json`；成功也只更新 Pages 内容。publish bundle 与 similarity
+artifact 均保留 3 天，Stage 1 和 deep-read 中间 artifact 仍只保留 1 天。
 
 工作流公共设置：
 
 - `daily.yml` 与 `site-only.yml` 共用 `concurrency.group: recsys-daily`
 - `cancel-in-progress: false`
-- 各 job 的 timeout 均低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限；官方还规定单次 workflow 最长 35 天，而本系统的理论墙钟上限约为 `2 + max(5, 5) + 2 + 1 = 10` 小时，也低于每日调度间隔
-- Job 1 失败时不启动全文 job；全文 job 的系统性失败时不启动精排，单条失败则写入 artifact 由 `rank-integrate` 执行 80% 门槛；精排失败时不启动网站构建；网站构建或部署失败时不提交 pending 数据；任一失败都不写正式 `state.json`
-- GitHub UI 重新运行失败 job 时可复用同一 workflow 中仍有效的成功 artifact；精确 artifact 名称、当前 workflow run 和 manifest `run_id` 共同防止跨批次混用
+- 各 job 的 timeout 均低于 [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits) 规定的 GitHub-hosted job 6 小时上限；官方还规定单次 workflow 最长 35 天，而本系统的理论墙钟上限约为 `2 + max(5, 5) + 3 + 2 + 1 = 13` 小时，也低于每日调度间隔
+- Job 1 失败时不启动全文 job；全文 job 的系统性失败时不启动 similarity 和精排，单条失败则写入 artifact 由 `rank-integrate` 执行 80% 门槛；相似度失败或精排失败时不启动网站构建；网站构建或部署失败时不提交 pending 数据；任一失败都不写正式 `state.json`
+- GitHub UI 重新运行失败 job 时可复用同一 workflow 中仍有效的成功 artifact；精确 artifact 名称、当前 workflow run 和 manifest `run_id` 共同防止跨批次混用。相似度模型 cache 失效只增加下载时间，不改变输入、参数和结果契约
 
-前端检查、构建或部署失败时可以重新运行原 `build_deploy` job，或在 3 天保留期内从 `main` 手动触发 `site-only.yml`，直接复用最近一次成功日报的 publish bundle，不重新抓取内容或调用 LLM。Pages 部署成功后的数据 push 如遇 non-fast-forward 冲突则直接失败，不 force push、不自动 rebase；site-only 不承担补写或修复 canonical 数据。artifact 过期且没有其他未过期的成功日报 bundle 时必须重跑完整 workflow。下一次定时运行不被设计成自动重试上一批。
+前端检查、构建或部署失败时可以重新运行原 `build_deploy` job，或在 3 天保留期内从 `main` 手动触发 `site-only.yml`，直接复用最近一次成功日报的 publish bundle 和同 run similarity artifact，不重新抓取内容或调用 LLM。Pages 部署成功后的数据 push 如遇 non-fast-forward 冲突则直接失败，不 force push、不自动 rebase；site-only 不承担补写或修复 canonical 数据。artifact 过期且没有其他未过期的成功日报 bundle 与 similarity artifact 时必须重跑完整 workflow。下一次定时运行不被设计成自动重试上一批。
 
 ## 14. 测试策略
 
@@ -961,8 +1200,13 @@ Python 单元与集成测试覆盖：
 - 文本 OpenAI-compatible Responses API wrapper 的 `input`、`text.format`、`output_text` 与 JSON 解析；MinerU 请求 payload、upload URL、polling、ZIP、终态失败、deadline 和临时目录清理
 - `429/5xx`、`Retry-After`、最多 3 次重试，以及同步客户端单请求边界
 - `arXiv PDF → MinerU full.md → Abstract fallback` 与博客 `Feed full content → article HTML → excerpt` 降级链，并验证论文路径不调用 arXiv HTML、PyMuPDF 或 VLM
-- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性、图谱关系和降级状态；空 excerpt 博客仍生成摘要，纯英文 `summary_zh` 不得通过模型响应或降级 artifact 进入发布；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 20
-- Top 20 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 10 篇、深读 Schema、正文依据和图谱节点裁剪
+- Stage 1 metadata 批量 LLM 输出的中文摘要、taxonomy 标签、相关性和降级状态；空 excerpt 博客仍生成摘要，纯英文 `summary_zh` 不得通过模型响应或降级 artifact 进入发布；模型失败时规则标签不得依赖固定 topic ID；metadata 完成后按确定性顺序输出 Top 20
+- Top 20 深读、单条失败的脱敏 artifact、80% 通过/阻断边界、最终各 8 篇、深读 Schema、正文依据和图谱分片输入
+- 相似度文本序列化的三个字段、实际 tokenizer 计数、128-token 预算（title 32、abstract 64、summary 24、separator 8）、batch embedding、L2 normalization、分块 exact cosine、阈值、Top-K、mutual Top-K、跨 paper/blog 边和稳定六位小数输出
+- 相似度全量 canonical 输入、历史/当前 ID 去重、输入覆盖、未知端点、自环、重复边、错误维度、非法分数和 artifact 中不得出现 embedding 或原始文本
+- 相似度 artifact 的 manifest/run/schema 校验、模型参数一致性、空边集合、相似度失败阻断 `rank-integrate` 和失败时不写正式 `state.json`
+- `graph-manifest.json`、d0/d1 初始分片、按焦点加载 adjacency shard、64--128 KB 分片目标、稳定 shard 边界和无 80 节点全局裁剪
+- 一次性移除历史 canonical item 中的 `graph_relations`，保留 item ID、digest ID 和 state 不变，并验证迁移审计结果
 - 完整 pending data tree、博客 canonical item 不含 excerpt、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
 - PDF、MinerU ZIP/Markdown、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
 - manifest 只校验 `run_id` 和 `schema_version`，不匹配时拒绝进入下一阶段
@@ -973,8 +1217,8 @@ Python 单元与集成测试覆盖：
 1. 无有效 state 的首次运行成功并生成完整 publish bundle
 2. 后续 daily 增量保留历史 canonical data，合并历史推荐 ID 并推进状态
 3. 可选 RSS 失败、第二次 Feed 抓取失败、正文抓取失败和 LLM 部分失败时按既有规则降级
-4. 参数化注入 collect/deep-read/rank/site/deploy 失败，验证都不写正式 `state.json`
-5. pipeline 动态生成的测试 bundle 能以 `/rec-sys-daily/` 非根 base 完成 Astro + Pagefind production build、静态归档路由、图谱生成、中文搜索索引与 filter metadata 生成，以及按 RunReport 快照执行 Pages artifact 大小检查
+4. 参数化注入 collect/deep-read/similarity/rank/site/deploy 失败，验证都不写正式 `state.json`；相似度失败不得产生可消费的 publish bundle
+5. pipeline 动态生成的测试 bundle 与同 run similarity artifact 能以 `/rec-sys-daily/` 非根 base 完成 Astro + Pagefind production build、静态归档路由、ECharts 图谱 manifest/分片、中文搜索索引与 filter metadata 生成，以及按 RunReport 快照执行 Pages artifact 大小检查
 
 前端不做页面快照、独立链接爬虫或浏览器自动化；Astro production build、Pagefind build 和动态测试产物存在性检查是首版前端验收门槛，不额外建设搜索浏览器测试。前端失败后仍可只重跑 `build_deploy` 并复用 publish bundle，不再次调用 LLM。
 
@@ -986,6 +1230,12 @@ Python 单元与集成测试覆盖：
 - RSS、PDF 和 HTML 一律视为不可信输入；只允许公开 `https`/`http` URL，每次重定向后重新解析并拒绝 loopback、私网和 link-local 地址
 - HTML 不执行脚本；LLM prompt 明确把正文包裹为只读资料并忽略其中指令，输出仍须通过严格 JSON Schema 校验
 - 临时 PDF、MinerU ZIP/Markdown、原始 HTML 和提取文本只存在于进程临时目录，不进入 Git、cache、日志、跨 job artifact 或 Pages artifact
+- 相似度 runner 的模型 cache 只保存固定版本的模型二进制；similarity artifact 只保存模型元数据、
+  计数、参数和有界关系边，禁止 embedding、向量 index、候选文本、原始正文和完整输入序列
+- `similarity` job 记录输入数量、编码数量、截断数量、边数量、阈值、Top-K、模型版本、耗时和
+  cache hit/miss；不记录任何候选文本、API Secret 或模型请求内容
+- GitHub-hosted runner 的 job timeout、artifact retention 和 cache 回收都不是数据事实来源；
+  cache 失败走重新下载，artifact 缺失或过期则明确失败，不从其他 run 猜测或拼接关系
 - 深度解读使用转述和 section/page 或 heading/section 引用，不发布长段原文
 - 每个页面保留原始来源链接和发布时间
 - 遵循各 API 的使用政策、分页规则和请求间隔
@@ -1001,22 +1251,22 @@ Python 单元与集成测试覆盖：
 2. 首次运行论文限制为近 5 年最多 100 篇，博客限制为近 3 年最多 50 篇
 3. 无有效 state 的首次运行关键失败时，远端仓库不存在完成状态
 4. 后续每日运行自动使用增量时间范围；两个时间窗口分支共用同一套处理逻辑和安全上限
-5. 每日论文和博客各目标 10 篇；候选不足时允许少于 10 篇，但不使用低相关或重复内容填充
+5. 每日论文和博客各目标 8 篇；候选不足时允许少于 8 篇，但不使用低相关或重复内容填充
 6. 每条推荐拥有中文一句话摘要并保留关键英文术语
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
 8. 站点包含日报、详情、归档、按需加载的站内内容搜索和可交互轻量图谱；搜索筛选项由 `topics.yaml` 自动生成
-9. 图谱默认内容节点不超过 80，历史增长不会导致页面无限臃肿
+9. 图谱默认加载当日内容及 similarity 一跳邻居；初始渲染受配置控制，完整历史通过 manifest 和分片按焦点遍历，历史增长不会导致首屏流量失控
 10. 本地测试和构建完全通过 Docker 完成，pipeline 与 site 使用两个独立镜像并通过 publish bundle 交接
 11. GitHub Actions 的数据 job 使用 `pipeline/Dockerfile`、网站 job 使用 `site/Dockerfile`，并对 API 限流、429 和失败重试有测试覆盖
 12. GitHub Pages 部署不依赖任何常驻服务器
 13. canonical item 按类型和年月分文件保存，博客 item 不含 excerpt，日报只引用 item ID，构建产物和原始响应不进入 Git
-14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、rank-integrate 和 build-deploy 四个逻辑阶段，共五个物理 job；job timeout 分别为 120、300、120 和 60 分钟，单 job 不超过 5 小时，理论墙钟上限约 10 小时
-15. 每次运行从论文和博客元数据初排结果中各取最多 20 篇临时全文深读，再依据深读结果各选目标 10 篇；不足 20 篇时处理全部候选
+14. `daily.yml` 使用 collect-filter、并行的 paper/blog deep-read、独立 similarity、rank-integrate 和 build-deploy 四个逻辑阶段，共六个物理 job；job timeout 分别为 120、300、180、120 和 60 分钟，单 job 不超过 GitHub-hosted 的 6 小时上限，理论墙钟上限约 13 小时
+15. 每次运行从论文和博客元数据初排结果中各取最多 20 篇临时全文深读，再依据深读结果各选目标 8 篇；不足 20 篇时处理全部候选
 16. Top 20 论文在全文 runner 中按 `arXiv PDF → MinerU full.md` 完成正文读取；PDF/MinerU 任一步失败时使用 excerpt 或 title 并标记 `abstract_fallback`，paper runner 不调用 arXiv HTML、PyMuPDF、关键页检测或 VLM
 17. 每日入选论文和博客均拥有结构化深度解读并明确标记分析依据；PDF、MinerU ZIP/Markdown、原始 HTML 和提取全文只存在于对应 runner 临时目录，站点不保存、不镜像且不嵌入原始全文
 18. 文本配置只声明一个 DeepSeek 模型，默认模型 ID 为 `deepseek-v4-flash`；更换模型修改 YAML，更换 endpoint 或 key 修改环境变量，不实现多 profile、自动 failover 或协议回退
-19. 模型不设置每次运行调用次数或客户端 RPM 上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行、各自同步单请求并使用有限重试
-20. 任一 stage/job 失败都不写正式 `state.json`；Stage 1 与 deep-read artifact 保留 1 天，最终 publish bundle 保留 3 天，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，或通过只读数据的 `site-only.yml` 重建部署，不重新调用 LLM
+19. 模型不设置每次运行调用次数或客户端 RPM 上限；文本单请求按 1M context 做 token-aware budgeting，两个全文 runner 固定并行、各自同步单请求并使用有限重试；similarity runner 对全量 canonical items 使用 128-token 输入、32 batch、2 CPU threads、64 block 和 180 分钟 job timeout
+20. 任一 stage/job 失败都不写正式 `state.json`；Stage 1、deep-read artifact 保留 1 天，similarity artifact 和最终 publish bundle 保留 3 天，manifest 只校验 `run_id` 与 `schema_version`；前端失败可只重跑 `build_deploy`，或通过只读数据的 `site-only.yml` 按相同 run_id 重建部署，不重新调用 LLM
 21. 首版学术来源只有 arXiv，论文正文降级链只有 `arXiv PDF → MinerU full.md → Abstract fallback`，不实现 arXiv HTML、OpenReview、TeX source、本地 PDF 正文提取或视觉阅读
 22. 文本模型使用一个同步 OpenAI-compatible Responses API wrapper；MinerU 使用独立 REST 客户端和 `MINERU_API_KEY`，校验 PDF 上限、公网 URL、batch/data ID、polling deadline 与 ZIP `full.md`，并在所有终态清理临时文件
 23. 前端使用 Astro + TypeScript + Tailwind CSS 4，不安装 React；Pagefind Extended 只索引论文和博客详情页公开的元数据、摘要与结构化深度解读，搜索 runtime、索引、filters 和结果详情均按需加载且只进入 Pages artifact；知识图谱使用按需加载的 ECharts Graph Canvas，关系生成、筛选、center 邻域和交互能力保持不变，图内搜索仅匹配已加载节点标题与标签
@@ -1024,14 +1274,17 @@ Python 单元与集成测试覆盖：
 25. `rank-integrate` 从挂载父目录中生成尚不存在的 publish bundle 子目录，真实 Docker 挂载场景不出现 mount-root `EBUSY`，任一失败不留下可被下游当作完整 bundle 的部分目录
 26. 深读 artifact 完整区分成功 `items` 和脱敏 `failures`，论文与博客分别达到 80% 才能整合；失败不写持久化重试队列
 27. Paper canonical item 在 schema v1 中必须包含 `abstract`、`arxiv_id` 和可空 `doi`，且历史防重只使用真正进入 digest 的推荐 ID
-28. GitHub Project Pages 从 `/rec-sys-daily/` 正常加载页面、资源、Pagefind 和 `graph.json`；每日只在 Pages 部署成功后以受限 exact-tree `rsync --delete` 提升 `pending-data/`，push 冲突不 force push
+28. GitHub Project Pages 从 `/rec-sys-daily/` 正常加载页面、资源、Pagefind 和图谱 manifest/分片；每日只在 Pages 部署成功后以受限 exact-tree `rsync --delete` 提升 `pending-data/`，push 冲突不 force push
+29. 相似度使用固定版本 `fastembed==0.8.0` 和 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`，对全量 canonical items 执行 128-token 输入（title 32、abstract 64、summary 24、separator 8）、384 维 L2-normalized embedding、分块 exact cosine、`min_cosine=0.72`、`top_k=5` 和 mutual Top-K；不保存 embedding 或完整 N×N 矩阵
+30. similarity artifact 只在构建期间保存经过 Schema、端点、自环、重复边、分数、阈值和稳定排序校验的关系；详情页按 similarity score 提供最多 4 条相关内容，图谱默认显示当日及一跳节点，Pagefind 不索引关系字段，构建结束后不持久化关系
+31. 相似度作为独立 GitHub Actions job 运行在 `pipeline/Dockerfile` 的 `similarity` target 中，timeout 为 180 分钟，artifact 保留 3 天供同 run 的站点重建使用；模型 cache 可失效但不得影响正确性；相似度 job、artifact 或 rank 校验失败时不生成 publish bundle，不推进正式 `state.json`
 
 ## 17. 已批准修复设计（2026-08-10）
 
 本节记录对当前实现的批准修复，作为本设计其余章节的具体执行补充：
 
 1. `collect-filter` 必须使用唯一 text model 按 `models.text.batch_size` 批量生成
-   `summary_zh`、四类 taxonomy 标签、`relevance_score`、`graph_relations` 和分析
+   `summary_zh`、四类 taxonomy 标签、`relevance_score` 和分析
    结果。模型 JSON Schema 的标签枚举从 `topics.yaml` 动态生成；单个标签分组允许为空，
    但进入深读的候选必须至少保留一个有源文本 term 证据的 taxonomy 标签。`degraded` 状态由管道根据批次成功或 fallback 决定，不接受模型自报；不得在整合阶段
    使用 `content`、`text_feed`、`ranking` 或 `two_tower` 等固定默认值。模型批次
@@ -1056,11 +1309,35 @@ Python 单元与集成测试覆盖：
    五组端到端场景由测试辅助模块在临时目录中确定性生成；`test-fixtures` 命令保留
    现有名称但只读取这些运行时生成的数据。Dockerfile 不复制 fixture 资产，CI 不从
    外部下载测试数据，也不需要真实 API Key。
-8. `rank-integrate` 对 `graph_relations` 的 target 做白名单校验时，只保留指向
-   本运行 canonical item 或 `topics.yaml` 声明 ID 的关系，其余关系按 §11.1 剪枝并
-   在运行报告 warnings 中记录，而不是让单个模型生成错误关系导致整次运行失败；
-   标签、ID 和 schema 层面的严格校验保持不变。
+8. `rank-integrate` 不再读取或校验 LLM 生成的内容关系；内容关联只来自独立 similarity
+   runner 的可验证 artifact，taxonomy 关系只来自 `topics.yaml` 的受控标签。未知标签、ID
+   和 schema 仍按严格规则失败，不使用模型关系做降级补边。
 9. `rank-integrate --output` 必须指向已挂载父目录下尚不存在的子目录。Docker Compose 和 CI
    只创建并挂载父目录，不将最终 bundle 目录本身作为 mount root。输出子目录只要已存在，
    无论是否为空都必须拒绝覆盖；临时目录与最终目录位于同一父目录，避免 mount-root
    替换失败和部分 publish bundle。
+
+### 17.1 语义相似度物理 runner（2026-08-25）
+
+相似度是 `rank-integrate` 逻辑阶段中的独立 GitHub Actions job，使用
+`pipeline/Dockerfile` 的 `similarity` target。它合并本次成功 canonical items 和历史
+`data/items/`，以实际 tokenizer 按 title 32、abstract 64、summary 24、separator 8 组成
+128-token 输入，使用固定的 `paraphrase-multilingual-MiniLM-L12-v2`、384 维 L2 normalization、
+blockwise exact cosine、`min_cosine=0.72`、`top_k=5` 和 mutual Top-K。没有 `max_items`；超时
+和模型失败直接阻断发布。
+
+runner 只输出短期 similarity artifact。它不保存 embedding、向量索引、完整矩阵、输入文本
+或 canonical 关系文件。`rank-integrate` 负责校验 artifact，site build 使用同一 `run_id`
+的 artifact 生成详情页相关内容、ECharts graph manifest 和远近分片；site-only 只能下载并复用
+这两份同 run artifact，过期即失败。每次构建重新计算相似网络图。
+
+### 17.2 `graph_relations` 一次性历史迁移（2026-08-25）
+
+LLM 显式 `graph_relations` 功能已删除，不再出现在 metadata prompt/schema、Stage 1 artifact、
+canonical schema、TypeScript item parser、图谱构建或测试 fixture 中。迁移脚本只对现有
+`data/items/**/*.json` 做结构化 JSON 字段删除：保留 item ID、canonical 内容、digest ID、
+`data/state.json` 和运行报告；旧字段中的 9 组关系全部丢弃，不重新解释为 similarity 边。
+
+迁移必须是确定性、可审计的一次性操作：当前 43 个 canonical item 都经过扫描，迁移前记录
+非空旧字段数量，迁移后验证所有 item 都不存在该字段，且 digest、state、item ID 集合完全不变。
+迁移报告只进入开发验证输出，不进入 canonical data、publish bundle 或 Pages artifact。

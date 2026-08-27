@@ -27,7 +27,7 @@
 - Keep the website build and deployment as the fourth stage in the Node/Astro image.
 - Use two Docker images: `pipeline/Dockerfile` for Python/content/model work and `site/Dockerfile` for Node/Astro/Tailwind/Pagefind work.
 - Exchange data between stages only through the documented short-lived structured artifacts.
-- The publish bundle contains only `manifest.json`, `taxonomy.json`, and `pending-data/`. Do not place generated HTML, `dist`, `graph.json`, Pagefind indexes, raw responses, or source full text in it.
+- The publish bundle contains only `manifest.json`, `taxonomy.json`, and `pending-data/`. Do not place generated HTML, `dist`, `graph-manifest.json`, graph shards, Pagefind indexes, raw responses, or source full text in it.
 - `pending-data/` mirrors the final `data/` tree. Promote it only after the static site build and GitHub Pages deployment succeed.
 - Never advance or write the canonical `data/state.json` after a failed collect, deep-read, rank, build, or deploy stage. A failed cold start must be retried as cold start.
 - Keep canonical items split by kind and publication year/month. Digests reference item IDs instead of copying item content.
@@ -48,7 +48,7 @@
 
 - Use Astro + TypeScript + Tailwind CSS 4. Do not add React unless the user explicitly approves a revised design.
 - Use the Tailwind 4 Vite plugin, not the deprecated `@astrojs/tailwind` integration.
-- Use Cytoscape.js only on `/graph/` and load both the library and graph data on demand.
+- Use ECharts only on `/graph/` and load both the library and graph shards on demand.
 - Use Pagefind Extended for `/search/`. Run it after `astro build`, and keep its generated files only in the Pages artifact.
 - Index only paper and blog detail-page main content: public metadata, summaries, and structured deep readings. Do not index navigation, archives, graph pages, raw PDF text, or raw blog full text.
 - Generate target, scenario, task, and method filters from `taxonomy.json`. Keep content kind and publication time as system filters.
@@ -82,7 +82,7 @@ docker compose run --rm site build
 - Add or update focused tests for changed behavior. Tests must use fixtures and fake model responses by default; they must not require real API keys.
 - Run the narrowest relevant test first, then the appropriate Docker fixture/build check.
 - For pipeline changes, verify schema validation, cleanup, artifact contents, and state non-advancement on failure.
-- For site changes, verify the Astro production build. For search changes, also verify Pagefind output and filter metadata. For graph changes, verify node pruning and generated `graph.json`.
+- For site changes, verify the Astro production build. For search changes, also verify Pagefind output and filter metadata. For graph changes, verify the d0/d1 manifest, shard loading, and generated graph output.
 - Before reporting completion, inspect `git diff`, run `git diff --check`, and report exactly which checks ran and any checks that could not run.
 
 ## Development-agent model routing
