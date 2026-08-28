@@ -3,8 +3,8 @@
 ## Scope and source of truth
 
 - These instructions apply to the entire repository.
-- Before planning or changing behavior, read `docs/superpowers/specs/2026-08-09-recsys-daily-design.md` completely. It is the current architecture and product source of truth.
-- Keep the design document and implementation consistent. If an approved change alters behavior, update the design document in the same change.
+- Before planning or changing behavior, read `docs/product.md` and `docs/architecture.md` completely. They are the current product and architecture sources of truth.
+- Keep both documents and the implementation consistent. If an approved change alters behavior, update the affected document in the same change.
 - Implement the confirmed first release only. Do not add speculative extension points, services, providers, databases, or edge-case frameworks.
 - Preserve unrelated user changes in a dirty worktree. Do not revert, overwrite, commit, or reformat unrelated files.
 
@@ -26,7 +26,7 @@
   3. `rank-integrate`
 - Keep the website build and deployment as the fourth stage in the Node/Astro image.
 - Use two Docker images: `pipeline/Dockerfile` for Python/content/model work and `site/Dockerfile` for Node/Astro/Tailwind/Pagefind work.
-- Exchange data between stages only through the documented short-lived structured artifacts.
+- Exchange data between stages only through the short-lived structured artifacts documented in `docs/architecture.md`.
 - The publish bundle contains only `manifest.json`, `taxonomy.json`, and `pending-data/`. Do not place generated HTML, `dist`, `graph-manifest.json`, graph shards, Pagefind indexes, raw responses, or source full text in it.
 - `pending-data/` mirrors the final `data/` tree. Promote it only after the static site build and GitHub Pages deployment succeed.
 - Never advance or write the canonical `data/state.json` after a failed collect, deep-read, rank, build, or deploy stage. A failed cold start must be retried as cold start.
@@ -34,7 +34,7 @@
 
 ## Configuration and model contracts
 
-- Treat `config/topics.yaml` as the single source for collection terms, allowed labels, search filters, and graph taxonomy.
+- Treat `config/topics.yaml` as the single source for collection terms, allowed labels, search filters, and graph taxonomy; see `docs/architecture.md` for the configuration contract.
 - Keep every target, scenario, task, and method entry in the normalized `id`, `name_zh`, `name_en`, and `terms` shape.
 - Reject duplicate IDs, missing fields, and canonical item labels that are not declared in `topics.yaml`.
 - `rank-integrate` emits the normalized, ordered `taxonomy.json` snapshot used by the site build. The site must not maintain a second hard-coded label map.
@@ -80,7 +80,7 @@ docker compose run --rm site build
 - Use stable IDs and deterministic ordering wherever output is committed to Git.
 - Treat RSS, Atom, HTML, PDFs, model output, and redirected URLs as untrusted input. Preserve the documented SSRF, size, redirect, schema, and cleanup protections.
 - Add or update focused tests for changed behavior. Tests must use fixtures and fake model responses by default; they must not require real API keys.
-- Run the narrowest relevant test first, then the appropriate Docker fixture/build check.
+- Run the narrowest relevant test first, then the appropriate Docker fixture/build check; use `docs/architecture.md` for the supported commands.
 - For pipeline changes, verify schema validation, cleanup, artifact contents, and state non-advancement on failure.
 - For site changes, verify the Astro production build. For search changes, also verify Pagefind output and filter metadata. For graph changes, verify the d0/d1 manifest, shard loading, and generated graph output.
 - Before reporting completion, inspect `git diff`, run `git diff --check`, and report exactly which checks ran and any checks that could not run.
