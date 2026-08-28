@@ -32,7 +32,8 @@ RecSys Daily 面向推荐系统研究者、算法工程师和技术负责人，�
 ├── data/                   # canonical items、日报与运行状态
 ├── pipeline/               # Python：采集、深读、相似度、排序与测试
 ├── site/                   # Astro、Tailwind、Pagefind、ECharts
-├── .github/workflows/      # daily、site-only、verify
+├── .github/workflows/      # daily、feishu-notify、site-only、verify
+├── docs/feishu/            # 飞书 CardKit 设计稿备份
 ├── docs/product.md         # 产品边界与用户体验
 └── docs/architecture.md    # 架构、契约、发布与验证
 ```
@@ -42,6 +43,7 @@ RecSys Daily 面向推荐系统研究者、算法工程师和技术负责人，�
 `RecSys Daily` GitHub Actions 每天在 **03:33（Asia/Shanghai）** 运行，也支持从 Actions 页面手动触发。
 
 - 采用事务式更新：只有 Pages 部署成功后才提升正式 data/；任何阶段失败都不会推进状态。
+- 独立飞书工作流每天 **09:09（Asia/Shanghai）** 检查已提升的数据；Secret 缺失或当天发布未完成时跳过，通知失败不回滚网站。
 
 ```mermaid
 flowchart LR
@@ -50,6 +52,8 @@ flowchart LR
     read --> integrate["similarity + rank-integrate"]
     integrate --> site["Astro + Pagefind"]
     site --> pages["GitHub Pages"]
+    pages --> promote["promote canonical data"]
+    promote --> notify["09:09 飞书 CardKit"]
 ```
 
 
@@ -57,7 +61,8 @@ flowchart LR
 
 1. 在仓库 Secrets 中设置 `DEEPSEEK_BASE_URL`、`DEEPSEEK_API_KEY` 与 `MINERU_API_KEY`。
 2. 在仓库 Variables 中设置不带路径的 `SITE_ORIGIN`，例如 `https://your-account.github.io`。
-3. 在 GitHub Pages 中启用 GitHub Actions 作为发布源，然后手动触发 `RecSys Daily` 首次运行。
+3. 如需飞书推送，在仓库 Secrets 中设置 `FEISHU_WEBHOOK_URL` 与 `FEISHU_WEBHOOK_SECRET`。
+4. 在 GitHub Pages 中启用 GitHub Actions 作为发布源，然后手动触发 `RecSys Daily` 首次运行。
 
 不要把密钥提交到仓库。`.env.example` 仅提供本地变量名模板；`config/` 是可审查的行为配置入口：
 
@@ -67,6 +72,7 @@ flowchart LR
 | [`config/topics.yaml`](config/topics.yaml) | 检索词与 taxonomy，是标签、筛选和图谱分类的唯一来源。 |
 | [`config/models.yaml`](config/models.yaml) | DeepSeek、MinerU、超时、重试与批次设置。 |
 | [`config/settings.yaml`](config/settings.yaml) | 评分、门槛、来源 pacing、相似度与存储策略。 |
+| [`config/feishu.json`](config/feishu.json) | 飞书模板 ID、版本和论文/博客展示上限。 |
 
 ## 快速验证
 
@@ -84,11 +90,11 @@ docker compose run --rm -e PUBLISH_BUNDLE_DIR=/workspace/work/fixture-bundle sit
 docker compose run --rm site build
 ```
 
-完整命令、各阶段 artifact 契约和失败语义请见[架构文档](docs/architecture.md#8-本地-docker-验证)。
+完整命令、各阶段 artifact 契约和失败语义请见[架构文档](docs/architecture.md#9-本地-docker-验证)。
 
 ## 技术栈
 
-Python 3.12 · Docker · DeepSeek OpenAI-compatible Responses API · MinerU · FastEmbed · Astro · TypeScript · Tailwind CSS 4 · Pagefind Extended · ECharts · GitHub Actions · GitHub Pages
+Python 3.12 · Docker · DeepSeek OpenAI-compatible Responses API · MinerU · FastEmbed · Astro · TypeScript · Tailwind CSS 4 · Pagefind Extended · ECharts · GitHub Actions · GitHub Pages · Feishu CardKit
 
 ## 数据与版权边界
 

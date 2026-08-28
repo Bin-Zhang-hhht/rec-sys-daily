@@ -93,6 +93,27 @@ def test_site_only_requires_a_same_run_artifact_pair_and_never_promotes_data() -
     assert "git push" not in text
 
 
+def test_feishu_notify_workflow_is_independent_read_only_and_scheduled_for_0909_bjt() -> None:
+    workflow = _load_workflow("feishu-notify.yml")
+    assert workflow["on"] == {"schedule": [{"cron": "9 1 * * *"}]}
+    assert workflow["permissions"] == {"contents": "read"}
+    assert workflow["concurrency"] == {"group": "feishu-daily-notify", "cancel-in-progress": False}
+    assert set(workflow["jobs"]) == {"notify"}
+    job = workflow["jobs"]["notify"]
+    assert job["runs-on"] == "ubuntu-latest"
+    assert job["timeout-minutes"] == 10
+    assert job["permissions"] == {"contents": "read"}
+    assert job["steps"][0]["run"] == 'test "$GITHUB_REF" = "refs/heads/main"'
+    text = (ROOT / ".github" / "workflows" / "feishu-notify.yml").read_text(encoding="utf-8")
+    assert "FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}" in text
+    assert "FEISHU_WEBHOOK_SECRET: ${{ secrets.FEISHU_WEBHOOK_SECRET }}" in text
+    assert "SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}" in text
+    assert "PYTHONPATH=pipeline python -m recsys_daily.feishu_notify --root ." in text
+    assert "contents: write" not in text
+    assert "git push" not in text
+    assert "deploy-pages" not in text
+
+
 def test_verify_workflow_is_fixture_only_and_builds_both_images() -> None:
     workflow = _load_workflow("verify.yml")
     assert set(workflow["jobs"]) == {"pipeline", "site"}

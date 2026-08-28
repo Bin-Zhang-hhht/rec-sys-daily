@@ -150,7 +150,7 @@ DeepSeek Responses API；不得增加 provider failover、协议回退或客户�
 }
 ```
 
-`template_id` 和 `template_version` 必须是非空字符串，两个展示上限必须是 `0..3` 的整数。
+`template_id` 和 `template_version` 必须是非空字符串，两个展示上限必须是 `1..3` 的整数。
 卡片模板变量名是固定契约：`date` 为北京时间业务日期的 `YYYY-MM-DD` 字符串，`content` 为
 飞书 Markdown 字符串。模板导出的 `docs/feishu/RecSys Daily Card.card` 用于设计和备份，不是
 运行时输入，也不从其中读取变量的 `apiName`。Webhook 地址和签名密钥不得进入配置文件，分别

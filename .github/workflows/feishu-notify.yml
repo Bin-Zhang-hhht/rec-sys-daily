@@ -1,0 +1,33 @@
+name: Feishu Daily Notification
+
+"on":
+  schedule:
+    - cron: "9 1 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: feishu-daily-notify
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    name: Send promoted daily digest to Feishu
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Require the default branch
+        run: test "$GITHUB_REF" = "refs/heads/main"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Send Feishu card
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_WEBHOOK_SECRET: ${{ secrets.FEISHU_WEBHOOK_SECRET }}
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+        run: PYTHONPATH=pipeline python -m recsys_daily.feishu_notify --root .
