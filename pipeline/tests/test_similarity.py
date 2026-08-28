@@ -448,7 +448,7 @@ def test_validate_similarity_artifact_accepts_stable_mutual_edges(tmp_path: Path
             "duplicate similarity edge",
         ),
         ([{"source_id": "a", "target_id": "b", "score": 0.8, "source_rank": 6, "target_rank": 1}], "Top-K"),
-        ([{"source_id": "a", "target_id": "b", "score": 0.7, "source_rank": 1, "target_rank": 1}], "threshold"),
+        ([{"source_id": "a", "target_id": "b", "score": 0.59, "source_rank": 1, "target_rank": 1}], "threshold"),
         ([{"source_id": "a", "target_id": "b", "score": 0.8000001, "source_rank": 1, "target_rank": 1}], "stably rounded"),
     ],
 )

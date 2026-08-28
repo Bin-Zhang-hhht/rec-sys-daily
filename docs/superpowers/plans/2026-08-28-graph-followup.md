@@ -2,7 +2,7 @@
 
 日期：2026-08-28
 分支：`codex/graph-interaction`
-状态：标题与相关内容分数已完成，阈值待确认
+状态：已完成
 
 ## 1. 现状核对
 
@@ -13,12 +13,12 @@
 
 ### 1.2 similarity 数量
 
-当前 similarity 配置使用 `min_cosine=0.72`、`top_k=5` 和 `mutual_top_k=true`。最近可用的 57 条 canonical
+当前 similarity 配置使用 `min_cosine=0.60`、`top_k=5` 和 `mutual_top_k=true`。最近可用的 57 条 canonical
 内容只保留了 12 条关系，已保留分数范围为 `0.721663` 到 `0.783324`。artifact 不保存阈值以下的候选分数，
 因此无法仅凭历史 artifact 预测新阈值的确切边数。
 
-降低阈值会增加候选边，但最终仍受 mutual Top-K 约束。建议首轮将阈值调整为 `0.68`，以扩大召回并保留较高
-语义相似度；不建议直接降到 `0.60`，否则需要额外人工抽样确认误连率。阈值变更必须同步更新配置、Python
+降低阈值会增加候选边，但最终仍受 mutual Top-K 约束。本次确认将阈值调整为 `0.60`，以扩大召回；由于更低
+阈值可能增加误连，应结合重新生成的边数和人工抽样检查。阈值变更必须同步更新配置、Python
 和 TypeScript artifact 校验、测试、设计文档，并重新生成 similarity artifact；旧 artifact 不能与新阈值混用。
 
 ### 1.3 详情页相关内容排序
@@ -39,7 +39,7 @@
    小数）；文案明确这是相似度分数，不是概率或人工相关性结论。
 4. 增加排序与分数展示测试，确保 score 不会因模板改造丢失。
 
-## 3. 待用户确认
+## 3. 实施结果
 
-请确认是否将 `similarity.min_cosine` 从 `0.72` 调整为 `0.68`。确认后再同步修改所有阈值契约并重新运行
-similarity、site build 和相关测试。
+已确认将 `similarity.min_cosine` 调整为 `0.60`，已同步修改所有阈值契约并重新生成 similarity artifact；
+后续需要在详情页预览中抽样检查新增相关内容的误连率。

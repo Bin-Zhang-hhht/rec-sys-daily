@@ -48,7 +48,7 @@ def _write_config(root: Path) -> None:
             "dimension": 384, "max_input_tokens": 128, "title_tokens": 32,
             "abstract_tokens": 64, "summary_tokens": 24, "separator_tokens": 8,
             "batch_size": 32, "threads": 2, "block_size": 64, "top_k": 5,
-            "min_cosine": .72, "mutual_top_k": True, "score_decimals": 6,
+            "min_cosine": .6, "mutual_top_k": True, "score_decimals": 6,
         },
         "storage": {"target_item_bytes": 16_384, "max_item_bytes": 32_768, "max_blog_excerpt_chars": 4_000, "warn_repository_data_mb": 500, "warn_pages_artifact_mb": 500, "fail_pages_artifact_mb": 900},
     })

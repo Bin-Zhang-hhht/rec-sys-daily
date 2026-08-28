@@ -414,7 +414,7 @@ export function loadSimilarityArtifact(items: Item[], runId: string, pathOverrid
     || parameters.summary_tokens !== 24
     || parameters.separator_tokens !== 8
     || parameters.top_k !== 5
-    || parameters.min_cosine !== 0.72
+    || parameters.min_cosine !== 0.6
     || parameters.mutual_top_k !== true
   ) fail("similarity artifact.parameters", "unsupported similarity contract");
   const expectedIds = new Set(items.map(item => item.id));
@@ -447,7 +447,7 @@ export function loadSimilarityArtifact(items: Item[], runId: string, pathOverrid
     if (
       typeof data.score !== "number"
       || !Number.isFinite(data.score)
-      || data.score < 0.72
+      || data.score < 0.6
       || data.score > 1
       || Number(data.score.toFixed(6)) !== data.score
       || !Number.isInteger(data.source_rank)
@@ -492,7 +492,7 @@ export function loadSimilarityArtifact(items: Item[], runId: string, pathOverrid
     parameters: {
       max_input_tokens: 128, title_tokens: 32, abstract_tokens: 64, summary_tokens: 24, separator_tokens: 8,
       top_k: 5,
-      min_cosine: 0.72,
+      min_cosine: 0.6,
       mutual_top_k: true,
     },
     items_considered: value.items_considered as number,

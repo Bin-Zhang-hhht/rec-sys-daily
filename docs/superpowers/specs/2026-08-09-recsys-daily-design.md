@@ -565,13 +565,13 @@ similarity:
   threads: 2
   block_size: 64
   top_k: 5
-  min_cosine: 0.72
+  min_cosine: 0.60
   mutual_top_k: true
   score_decimals: 6
 ```
 
 首版配置 Schema 对 `batch_size=32`、`threads=2`、`block_size=64`、`top_k=5` 和
-`min_cosine=0.72` 做精确校验，不能只修改 YAML 让 pipeline 与站点契约分叉；后续调整这些
+`min_cosine=0.60` 做精确校验，不能只修改 YAML 让 pipeline 与站点契约分叉；后续调整这些
 参数时必须同步修订 artifact 校验、站点校验和本设计。
 
 选择该模型是因为 FastEmbed 提供 ONNX Runtime 的轻量 CPU 推理，模型覆盖约 50 种语言，
@@ -593,7 +593,7 @@ GPU 或常驻服务。`fastembed==0.8.0` 已支持上述模型名，避免为 `m
    canonical item 的内容字段，也不替代 Stage 1 的相关性门禁或最终日报排序。
 
 该方法没有标签训练集时属于可解释的无监督基线：模型负责跨语言语义表征，cosine 负责
-可复现的相似度，Top-K、阈值和 mutual check 负责控制图谱边数。`0.72` 是首发默认值，
+可复现的相似度，Top-K、阈值和 mutual check 负责控制图谱边数。`0.60` 是当前首发默认值，
 不是跨模型通用的自然常数；后续只能依据运行报告中的边数、人工抽样和误连率调整配置，不能
 在运行中自动漂移阈值。没有足够相似 item 时合法输出空边集合。
 
@@ -620,7 +620,7 @@ candidate text、向量索引或 pairwise 全量矩阵。它是同一 workflow �
     "summary_tokens": 24,
     "separator_tokens": 8,
     "top_k": 5,
-    "min_cosine": 0.72,
+    "min_cosine": 0.60,
     "mutual_top_k": true
   },
   "items_considered": 42,
@@ -1289,7 +1289,7 @@ Python 单元与集成测试覆盖：
 26. 深读 artifact 完整区分成功 `items` 和脱敏 `failures`，论文与博客分别达到 80% 才能整合；失败不写持久化重试队列
 27. Paper canonical item 在 schema v1 中必须包含 `abstract`、`arxiv_id` 和可空 `doi`，且历史防重只使用真正进入 digest 的推荐 ID
 28. GitHub Project Pages 从 `/rec-sys-daily/` 正常加载页面、资源、Pagefind 和图谱 manifest/分片；每日只在 Pages 部署成功后以受限 exact-tree `rsync --delete` 提升 `pending-data/`，push 冲突不 force push
-29. 相似度使用固定版本 `fastembed==0.8.0` 和 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`，对全量 canonical items 执行 128-token 输入（title 32、abstract 64、summary 24、separator 8）、384 维 L2-normalized embedding、分块 exact cosine、`min_cosine=0.72`、`top_k=5` 和 mutual Top-K；不保存 embedding 或完整 N×N 矩阵
+29. 相似度使用固定版本 `fastembed==0.8.0` 和 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`，对全量 canonical items 执行 128-token 输入（title 32、abstract 64、summary 24、separator 8）、384 维 L2-normalized embedding、分块 exact cosine、`min_cosine=0.60`、`top_k=5` 和 mutual Top-K；不保存 embedding 或完整 N×N 矩阵
 30. similarity artifact 只在构建期间保存经过 Schema、端点、自环、重复边、分数、阈值和稳定排序校验的关系；详情页按 similarity score 提供最多 4 条相关内容，图谱首屏从当日及一跳节点沿 similarity 边扩展到最多 180 个内容节点，Pagefind 不索引关系字段，构建结束后不持久化关系
 31. 相似度作为独立 GitHub Actions job 运行在 `pipeline/Dockerfile` 的 `similarity` target 中，timeout 为 180 分钟，artifact 保留 3 天供同 run 的站点重建使用；模型 cache 可失效但不得影响正确性；相似度 job、artifact 或 rank 校验失败时不生成 publish bundle，不推进正式 `state.json`
 
@@ -1337,7 +1337,7 @@ Python 单元与集成测试覆盖：
 `pipeline/Dockerfile` 的 `similarity` target。它合并本次成功 canonical items 和历史
 `data/items/`，以实际 tokenizer 按 title 32、abstract 64、summary 24、separator 8 组成
 128-token 输入，使用固定的 `paraphrase-multilingual-MiniLM-L12-v2`、384 维 L2 normalization、
-blockwise exact cosine、`min_cosine=0.72`、`top_k=5` 和 mutual Top-K。没有 `max_items`；超时
+blockwise exact cosine、`min_cosine=0.60`、`top_k=5` 和 mutual Top-K。没有 `max_items`；超时
 和模型失败直接阻断发布。
 
 runner 只输出短期 similarity artifact。它不保存 embedding、向量索引、完整矩阵、输入文本

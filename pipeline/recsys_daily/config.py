@@ -139,7 +139,7 @@ class SimilarityConfig(StrictModel):
     threads: Literal[2]
     block_size: Literal[64]
     top_k: Literal[5]
-    min_cosine: Literal[0.72]
+    min_cosine: Literal[0.6]
     mutual_top_k: Literal[True]
     score_decimals: Literal[6]
 

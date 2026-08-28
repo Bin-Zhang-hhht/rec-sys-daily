@@ -45,7 +45,7 @@ similarity:
   threads: 2
   block_size: 64
   top_k: 5
-  min_cosine: 0.72
+  min_cosine: 0.60
   mutual_top_k: true
   score_decimals: 6
 storage:
