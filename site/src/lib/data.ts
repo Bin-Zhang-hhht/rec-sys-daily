@@ -69,6 +69,7 @@ export type SimilarityArtifact = {
   run_id: string; schema_version: "1"; model: SimilarityModel; parameters: SimilarityParameters;
   items_considered: number; encoded_items: number; token_counts: SimilarityTokenCounts[]; edges: SimilarityEdge[];
 };
+export type RelatedItem = { item: Item; score: number };
 
 const defaultRoot = "/workspace/publish-bundle";
 const routeIdPattern = /^[A-Za-z0-9._~-]+$/;
@@ -515,7 +516,7 @@ export function resolveDigestEntries(entries: DigestEntry[], byId: Map<string, I
   });
 }
 
-export function relatedItems(item: Item, items: Item[], artifact: SimilarityArtifact, limit = 4): Item[] {
+export function relatedItems(item: Item, items: Item[], artifact: SimilarityArtifact, limit = 4): RelatedItem[] {
   const byId = new Map(items.map(value => [value.id, value]));
   return artifact.edges
     .filter(edge => edge.source_id === item.id || edge.target_id === item.id)
@@ -523,5 +524,5 @@ export function relatedItems(item: Item, items: Item[], artifact: SimilarityArti
     .filter((value): value is { edge: SimilarityEdge; candidate: Item } => Boolean(value.candidate))
     .sort((a, b) => b.edge.score - a.edge.score || Date.parse(b.candidate.published_at) - Date.parse(a.candidate.published_at) || a.candidate.id.localeCompare(b.candidate.id))
     .slice(0, limit)
-    .map(value => value.candidate);
+    .map(value => ({ item: value.candidate, score: value.edge.score }));
 }

@@ -21,7 +21,7 @@ const graphLegend = [
   { type: "method", label: "方法", swatch: "bg-violet-500" },
 ] as const;
 ---
-<BaseLayout title="知识图谱 / RecSys Daily">
+<BaseLayout title="推荐系统研究图谱 / RecSys Daily">
   <section class="border-b border-slate-200 pb-5">
     <p class="text-sm font-medium text-sky-700">Knowledge Graph</p>
     <h1 class="mt-2 text-3xl font-bold">推荐系统研究图谱</h1>
@@ -105,7 +105,7 @@ const graphLegend = [
   </section>
 
   <div class="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-    <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" aria-label="知识图谱">
+    <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" aria-label="推荐系统研究图谱">
       <div class="relative">
         <div
           id="graph-canvas"
@@ -113,7 +113,7 @@ const graphLegend = [
           data-graph-manifest-url={sitePath("graph-manifest.json")}
           tabindex="0"
           role="region"
-          aria-label="推荐系统知识图谱画布"
+          aria-label="推荐系统研究图谱画布"
           aria-describedby="graph-status graph-accessible-summary"
           aria-busy="true"
         ></div>

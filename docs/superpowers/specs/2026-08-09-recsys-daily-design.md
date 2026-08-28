@@ -528,6 +528,10 @@ canonical items 与历史 `data/items/` 中的全部 canonical items，按 stabl
 RSS 全文、文章 HTML 或其他原始正文。相似度不是内容事实来源，不改变 `final_score`，只为
 详情页相关内容和图谱内容边提供构建期关系。
 
+详情页“相关内容”只使用与当前条目相连的 similarity 边，按 cosine `score` 降序、候选内容
+`published_at` 降序、候选稳定 `id` 升序排序，最多展示 4 条。页面同时以百分比显示该 cosine
+score，并在 tooltip 中保留 6 位小数；该数值表示语义相似度，不是概率或人工相关性结论。
+
 每个 item 的输入只包含三个角色，字段顺序固定为 `title`、`abstract`、`summary_zh`，并以
 不可混淆的字段边界拼接。论文的 `abstract` 角色来自 `PaperItem.abstract`；博客的 `abstract`
 角色来自 `BlogReading.system_context_zh`，缺失时不填充 RSS 全文、HTML 或 excerpt，只使用
@@ -1352,3 +1356,11 @@ canonical schema、TypeScript item parser、图谱构建或测试 fixture 中。
 扫描；迁移前有 9 个 item 包含非空旧字段，共 15 条旧关系。迁移后验证所有 item 都不存在该字段，
 且 digest、state、item ID 集合完全不变。
 迁移报告只进入开发验证输出，不进入 canonical data、publish bundle 或 Pages artifact。
+
+### 17.3 图谱标题与相关内容分数（2026-08-28）
+
+图谱页面的浏览器标题和页面主标题统一为“推荐系统研究图谱”，避免标题栏继续显示旧的
+“知识图谱”名称。详情页相关内容继续由 similarity artifact 提供，站点保留 score 并按
+score、发布日期和稳定 ID 的确定性顺序最多展示 4 条，同时以一位小数的百分比显示语义
+相似度，并通过 tooltip 提供六位小数的 cosine 原值。该分数仅用于可解释的排序和导航，
+不表示概率或人工标注的相关性结论。
