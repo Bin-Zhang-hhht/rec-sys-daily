@@ -882,7 +882,7 @@ storage:
 
 详情页采用 68--72ch 单列阅读流，展示顺序统一为标题、taxonomy 胶囊、内容信息和带“中文总结”标题的中文摘要；移动端严格按该顺序堆叠，宽屏则把内容信息放入右侧窄栏，同时保持正文摘要紧接标题区之后。结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客详情页不渲染 Feed excerpt；短 excerpt 仅作为 Stage 1 和 deep-read 之间的临时降级输入。
 
-`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、两阶段入选阈值、筛选漏斗与拒绝统计，以及 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式。页面说明 `collection_terms` 与 taxonomy terms 的职责分离、标签证据要求、`source_scenarios` 的非证据边界，以及质量不足时不以低相关内容补足每日目标；同时明确声明精确权重以当次运行配置为准。来源 URL、两类 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
+`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、两阶段入选阈值、筛选漏斗与拒绝统计，以及 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式。页面同时读取同一 run 的 similarity artifact，展示文章相似度使用的 FastEmbed 模型、三类输入字段和 token 预算、cosine 阈值、Top-K/mutual 规则，以及本次构建覆盖的内容数和关系数；这些关系只用于详情页相关内容和图谱导航，不改变日报评分，也不被描述为概率或人工相关性结论。页面说明 `collection_terms` 与 taxonomy terms 的职责分离、标签证据要求、`source_scenarios` 的非证据边界，以及质量不足时不以低相关内容补足每日目标；同时明确声明精确权重以当次运行配置为准。来源 URL、两类 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
 
 论文详情页展示：
 
