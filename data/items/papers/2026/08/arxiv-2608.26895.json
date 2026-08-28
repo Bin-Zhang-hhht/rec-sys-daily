@@ -1,0 +1,123 @@
+{
+  "abstract": "Agentic recommender systems ground each decision of a large language model (LLM) in a persistent memory of the user, and in existing agents that memory is text: a narrative written and maintained by further LLM calls. Text limits this memory in two ways. It is updated one rewrite at a time, so exploiting the full interaction history is prohibitively expensive; and collaborative evidence, graded similarity over an entire catalog, does not survive translation into sentences. We propose CoVeMem (Collaborative Vector Memory), which vectorizes the collaborative core of the agent's memory. Frozen LightGCN user and item states form the memory bank; at each decision, the candidate set itself retrieves the most relevant historical states, which enter the LLM's context as soft tokens alongside a light textual profile. Contrastive alignment to item-semantic anchors, followed by listwise co-training with masked candidates, teaches the model to read these states and to rank through them; a pointwise yes/no readout scores each candidate. Across four instruction-grounded recommendation benchmarks, CoVeMem matches or exceeds the strongest collaborative text-memory agent on 19 of 20 metric cells while requiring zero additional LLM calls for memory maintenance beyond the shared static profile, against per-interaction calls for text memory. The memory now takes gradients: the full interaction history, out of reach for text, becomes available as training data for what the agent remembers and for how it reads what it remembers. Agentic recommender systems ground each decision of a large language model (LLM) in a persistent memory of the user, and in existing agents that memory is text: a narrative written and maintained by further LLM calls. Text limits this memory in two ways. It is updated one rewrite at a time, so exploiting the full interaction history is prohibitively expensive; and collaborative evidence, graded similarity over an entire catalog, does not survive translation into sentences. We propose CoVeMem (Collaborative Vector Memory), which vectorizes the collaborative core of the agent's memory. Frozen LightGCN user and item states form the memory bank; at each decision, the candidate set itself retrieves the most relevant historical states, which enter the LLM's context as soft tokens alongside a light textual profile. Contrastive alignment to item-semantic anchors, followed by listwise co-training with masked candidates, teaches the model to read these states and to rank through them; a pointwise yes/no readout scores each candidate. Across four instruction-grounded recommendation benchmarks, CoVeMem matches or exceeds the strongest collaborative text-memory agent on 19 of 20 metric cells while requiring zero additional LLM calls for memory maintenance beyond the shared static profile, against per-interaction calls for text memory. The memory now takes gradients: the full interaction history, out of reach for text, becomes available as training data for what the agent remembers and for how it reads what it remembers.",
+  "arxiv_id": "2608.26895",
+  "authors": [
+    "Hanchong Chen",
+    "Xing Tang",
+    "Lingjie Li",
+    "Xiongfeng Shan",
+    "Xiuqiang He"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "CoVeMem 在共享静态 profile 之外无需任何额外 LLM 调用维护记忆，避免了文本记忆 agent 的串行重写 token 成本和延迟，适合对在线推荐时延和调用成本敏感的场景。",
+      "其每用户决策 token 成本在四个数据集上均低于对比的文本记忆 agent，同时精度接近或超过最强 baseline，因此在精度-成本权衡上有明确工程价值。",
+      "记忆库可由任意常规推荐模型（矩阵分解、图传播、序列模型）提供，使企业可以复用已有协同过滤/序列推荐资产作为 LLM agent 的记忆来源。",
+      "在 Goodreads、MovieTV 等交互密集、流行度集中或协作信号强的领域增益最大，说明该方案对高交互用户群和头部内容平台尤其有价值。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "指出文本记忆在 agentic 推荐中的根本局限：串行 LLM 重写导致维护成本高，排序梯度无法直接更新存储文本，文本序列化会丢失目录级协作结构。",
+      "提出 CoVeMem：用 LightGCN 在交互图上训练的 user/item 向量状态构成协作向量记忆，并通过候选集驱动的目标感知 top-K 检索把相关历史状态注入 LLM 上下文。",
+      "提出 parametric memory reader（门控投影器 + LoRA adapter），用语义锚对比对齐和掩码 listwise 联合训练教会 LLM 读取向量状态，并用 pointwise yes/no logit 打分。",
+      "在 InstructRec 的四个基准上，CoVeMem 在 20 个指标单元中的 19 个达到或超过最强文本记忆 baseline MemRec，且共享静态 profile 之外无需额外 LLM 调用维护记忆。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Memory Ablation Study (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Collaborative Backbone Study (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Memory Maintenance Efficiency (RQ4)"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "LightGCN",
+        "SASRec",
+        "P5",
+        "Vanilla LLM",
+        "iAgent",
+        "i²Agent",
+        "AgentCF",
+        "MemRec",
+        "BPR-MF (backbone study)",
+        "SVD++ (backbone study)",
+        "GRU4Rec (backbone study)"
+      ],
+      "datasets": [
+        "Books (Amazon Book)",
+        "Goodreads",
+        "MovieTV (Amazon MovieTV)",
+        "Yelp"
+      ],
+      "findings_zh": [
+        "在 Books、Goodreads、MovieTV、Yelp 四个 InstructRec 基准上，CoVeMem 在 20 个指标单元中的 19 个达到或超过最强文本记忆 agent MemRec，论文报告所有改进均统计显著（p<0.05）。",
+        "Goodreads 上增益最大：CoVeMem 的 Hit@1 为 0.7730，而 MemRec 为 0.3087；MovieTV 上五个指标全面领先（Hit@1 0.5799 vs 0.5371）；Yelp 上 Hit@1 领先、Hit@3 打平；Books 上 Hit@3/Hit@5/NDCG 领先，但 Hit@1 为 0.4732，略低于 MemRec 的 0.4837。",
+        "记忆消融显示，去掉向量记忆的 TEXT-RECENT/TEXT-TA 会回落到文本记忆 agent 水平；去掉 LoRA 后 Goodreads 接近随机水平、Yelp 降到 Vanilla LLM 水平，说明 LoRA adapter 对 LLM 读取协作向量记忆必不可少。",
+        "协作 backbone 可替换：BPR-MF、SVD++、LightGCN、GRU4Rec、SASRec 都能与同一 pipeline 端到端训练；最强 backbone（SVD++）在每个指标上超过默认 LightGCN，而最弱 backbone 相对 text-only 记忆没有明显优势，说明记忆质量取决于协作 backbone。",
+        "CoVeMem 在共享静态 profile 之外产生 0 个记忆维护 LLM token，每用户决策 token 总成本在四个数据集上均低于所比较的文本记忆 agent，并处于精度-成本 Pareto 前沿的高精度端。"
+      ],
+      "metrics": [
+        "Hit@1",
+        "Hit@3",
+        "Hit@5",
+        "NDCG@3",
+        "NDCG@5"
+      ]
+    },
+    "limitations_zh": [
+      "在 Books 和 Yelp 这类每个 item 平均交互较少的领域，item 状态能利用的直接协作证据较少，文本语义仍起较大作用；CoVeMem 在 Books 的 Hit@1 略低于 MemRec，即 20 个指标单元中有 1 个未超过。",
+      "向量记忆的效果受协作 backbone 质量限制：较弱的 backbone（如 SASRec）相对 text-only 记忆没有明显优势，说明记忆库不是越换越好。",
+      "当前记忆只使用单一协作 backbone，论文将组合多个 backbone 以构造更高质量记忆留作未来方向。",
+      "InstructRec 的 instruction 从用户 held-out 目标项派生，属于目标条件信息，因此训练阶段不使用 instruction，只在推理时加入；部分数据集每个 epoch 的训练事件被上限 25,000 并重采样。"
+    ],
+    "method_zh": "CoVeMem 将 agent 的持久记忆拆成协作向量记忆和轻量文本 profile 两部分。先用训练交互图上的 LightGCN（3 层传播，BPR 训练，状态维度 d=64）学习 user/item 状态并冻结作为记忆库；用户文本 profile 由同一 LLM 离线从训练 reviews 一次性蒸馏生成，之后不再更新。决策时，用候选集状态质心对用户可用历史做目标感知 top-K（K=5）检索，确保检索不到当前打分目标；门控投影器把检索到的历史状态、用户状态和候选状态映射为单个软 token，与标题行、文本 profile 一起构成固定 prompt schema。训练分两阶段：阶段一用 item 标题/类别 embedding 均值为语义锚，做对称 in-batch 对比对齐；阶段二构造 listwise 排序事件，用 margin ranking loss 联合训练投影器和 LoRA adapter（共约 6.8M 参数），并以 p=0.5 概率掩码候选标题、在掩码候选子集上计算 loss，从而防止仅靠标题排序、迫使模型学会比较协作 token。推理时对每个候选构造独立 prompt，取模型输出中 'Yes' token 的 logit 作为候选分数；instruction 的位置由仅基于训练集统计的零样本规则卡选择，不使用测试反馈。",
+    "problem_zh": "现有 agentic recommender systems 主要用文本作为持久记忆，但文本记忆存在两个根本限制：其一是记忆只能通过串行 LLM 重写逐次更新，利用完整交互历史的成本过高；其二是跨整个商品目录的协作证据（graded collaborative structure）在序列化为句子时会丢失。文本记忆还无法被排序梯度直接更新，且记忆库太大无法整体放入 prompt，向量状态也不是 LLM 原生 token，需要先检索再映射为 LLM 可读形式。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8525,
+  "id": "arxiv-2608.26895",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-28T03:47:48.213935Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-27T09:51:18Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出CoVeMem协作向量记忆，将冻结的LightGCN用户与物品状态作为记忆库并以软令牌形式接入LLM上下文，使智能体推荐系统在不额外增加记忆维护LLM调用的情况下提升排序质量。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "When Memory Takes Gradients: Collaborative Vector Memory for Agentic Recommender Systems",
+  "url": "https://arxiv.org/abs/2608.26895v1"
+}

@@ -13,15 +13,15 @@ const groupStyles = {
   methods: "border-violet-200 bg-violet-50 text-violet-800 has-[:checked]:border-violet-500 has-[:checked]:bg-violet-100",
 } as const;
 const graphLegend = [
-  { type: "paper", label: "论文", swatch: "border-indigo-800 bg-indigo-500" },
-  { type: "blog", label: "技术博客", swatch: "border-2 border-dashed border-emerald-800 bg-emerald-500" },
-  { type: "target", label: "目标", swatch: "border-sky-800 bg-sky-500" },
-  { type: "scenario", label: "场景", swatch: "border-emerald-800 bg-emerald-500" },
-  { type: "task", label: "任务", swatch: "border-amber-800 bg-amber-500" },
-  { type: "method", label: "方法", swatch: "border-violet-800 bg-violet-500" },
+  { type: "paper", label: "论文", swatch: "bg-slate-300", icon: "icons/graph/paper.svg" },
+  { type: "blog", label: "技术博客", swatch: "bg-slate-400", icon: "icons/graph/blog.svg" },
+  { type: "target", label: "目标", swatch: "bg-sky-500" },
+  { type: "scenario", label: "场景", swatch: "bg-emerald-500" },
+  { type: "task", label: "任务", swatch: "bg-amber-500" },
+  { type: "method", label: "方法", swatch: "bg-violet-500" },
 ] as const;
 ---
-<BaseLayout title="知识图谱 / RecSys Daily">
+<BaseLayout title="推荐系统研究图谱 / RecSys Daily">
   <section class="border-b border-slate-200 pb-5">
     <p class="text-sm font-medium text-sky-700">Knowledge Graph</p>
     <h1 class="mt-2 text-3xl font-bold">推荐系统研究图谱</h1>
@@ -105,7 +105,7 @@ const graphLegend = [
   </section>
 
   <div class="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-    <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" aria-label="知识图谱">
+    <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm" aria-label="推荐系统研究图谱">
       <div class="relative">
         <div
           id="graph-canvas"
@@ -113,7 +113,7 @@ const graphLegend = [
           data-graph-manifest-url={sitePath("graph-manifest.json")}
           tabindex="0"
           role="region"
-          aria-label="推荐系统知识图谱画布"
+          aria-label="推荐系统研究图谱画布"
           aria-describedby="graph-status graph-accessible-summary"
           aria-busy="true"
         ></div>
@@ -131,7 +131,7 @@ const graphLegend = [
               class="inline-flex h-8 items-center gap-1.5 rounded-md border border-transparent px-2 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 aria-[pressed=false]:bg-slate-100 aria-[pressed=false]:text-slate-400 aria-[pressed=false]:opacity-60"
               title={`${entry.label}节点：点击隐藏`}
             >
-              <span class={`size-3 rounded-full border opacity-50 ${entry.swatch}`} aria-hidden="true"></span>
+              {entry.icon ? <img src={sitePath(entry.icon)} alt="" class="size-4 shrink-0" aria-hidden="true" /> : <span class={`size-3 rounded-full opacity-70 ${entry.swatch}`} aria-hidden="true"></span>}
               <span>{entry.label}</span>
             </button>
           ))}

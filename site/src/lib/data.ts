@@ -69,6 +69,7 @@ export type SimilarityArtifact = {
   run_id: string; schema_version: "1"; model: SimilarityModel; parameters: SimilarityParameters;
   items_considered: number; encoded_items: number; token_counts: SimilarityTokenCounts[]; edges: SimilarityEdge[];
 };
+export type RelatedItem = { item: Item; score: number };
 
 const defaultRoot = "/workspace/publish-bundle";
 const routeIdPattern = /^[A-Za-z0-9._~-]+$/;
@@ -297,8 +298,8 @@ function validateSnapshot(value: unknown): BuildConfigSnapshot {
       throw new Error(`run report config_snapshot.${field} is invalid`);
     }
   }
-  if (!Number.isInteger(snapshot.graph_initial_content_nodes)) {
-    throw new Error("run report config_snapshot.graph_initial_content_nodes is invalid");
+  if (!Number.isInteger(snapshot.graph_initial_content_nodes) || snapshot.graph_initial_content_nodes > 180) {
+    throw new Error("run report config_snapshot.graph_initial_content_nodes must be between 1 and 180");
   }
   const graphShardTargetBytes = snapshot.graph_shard_target_bytes as number;
   if (!Number.isInteger(graphShardTargetBytes) || graphShardTargetBytes < 65_536 || graphShardTargetBytes > 131_072) {
@@ -413,7 +414,7 @@ export function loadSimilarityArtifact(items: Item[], runId: string, pathOverrid
     || parameters.summary_tokens !== 24
     || parameters.separator_tokens !== 8
     || parameters.top_k !== 5
-    || parameters.min_cosine !== 0.72
+    || parameters.min_cosine !== 0.6
     || parameters.mutual_top_k !== true
   ) fail("similarity artifact.parameters", "unsupported similarity contract");
   const expectedIds = new Set(items.map(item => item.id));
@@ -446,7 +447,7 @@ export function loadSimilarityArtifact(items: Item[], runId: string, pathOverrid
     if (
       typeof data.score !== "number"
       || !Number.isFinite(data.score)
-      || data.score < 0.72
+      || data.score < 0.6
       || data.score > 1
       || Number(data.score.toFixed(6)) !== data.score
       || !Number.isInteger(data.source_rank)
@@ -491,7 +492,7 @@ export function loadSimilarityArtifact(items: Item[], runId: string, pathOverrid
     parameters: {
       max_input_tokens: 128, title_tokens: 32, abstract_tokens: 64, summary_tokens: 24, separator_tokens: 8,
       top_k: 5,
-      min_cosine: 0.72,
+      min_cosine: 0.6,
       mutual_top_k: true,
     },
     items_considered: value.items_considered as number,
@@ -515,7 +516,7 @@ export function resolveDigestEntries(entries: DigestEntry[], byId: Map<string, I
   });
 }
 
-export function relatedItems(item: Item, items: Item[], artifact: SimilarityArtifact, limit = 4): Item[] {
+export function relatedItems(item: Item, items: Item[], artifact: SimilarityArtifact, limit = 4): RelatedItem[] {
   const byId = new Map(items.map(value => [value.id, value]));
   return artifact.edges
     .filter(edge => edge.source_id === item.id || edge.target_id === item.id)
@@ -523,5 +524,5 @@ export function relatedItems(item: Item, items: Item[], artifact: SimilarityArti
     .filter((value): value is { edge: SimilarityEdge; candidate: Item } => Boolean(value.candidate))
     .sort((a, b) => b.edge.score - a.edge.score || Date.parse(b.candidate.published_at) - Date.parse(a.candidate.published_at) || a.candidate.id.localeCompare(b.candidate.id))
     .slice(0, limit)
-    .map(value => value.candidate);
+    .map(value => ({ item: value.candidate, score: value.edge.score }));
 }

@@ -139,7 +139,7 @@ class SimilarityConfig(StrictModel):
     threads: Literal[2]
     block_size: Literal[64]
     top_k: Literal[5]
-    min_cosine: Literal[0.72]
+    min_cosine: Literal[0.6]
     mutual_top_k: Literal[True]
     score_decimals: Literal[6]
 
@@ -212,7 +212,7 @@ class Settings(StrictModel):
     metadata_weights: ScoreWeights
     final_weights: FinalScoreWeights
     limits: Limits
-    graph_initial_content_nodes: PositiveInt
+    graph_initial_content_nodes: Literal[180]
     graph_shard_target_bytes: int = Field(ge=65_536, le=131_072)
     similarity: SimilarityConfig
     storage: StorageSettings

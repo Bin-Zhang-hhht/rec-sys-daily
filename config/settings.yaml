@@ -29,7 +29,7 @@ limits:
   blog_download_concurrency_per_domain: 1
   blog_min_interval_seconds_per_domain: 2
   max_blog_html_bytes: 5242880
-graph_initial_content_nodes: 48
+graph_initial_content_nodes: 180
 graph_shard_target_bytes: 98304
 similarity:
   library: fastembed
@@ -45,7 +45,7 @@ similarity:
   threads: 2
   block_size: 64
   top_k: 5
-  min_cosine: 0.72
+  min_cosine: 0.60
   mutual_top_k: true
   score_decimals: 6
 storage:

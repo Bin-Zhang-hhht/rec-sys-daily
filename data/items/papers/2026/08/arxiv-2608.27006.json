@@ -1,0 +1,113 @@
+{
+  "abstract": "Conversational recommender systems based on large language models (LLMs) are usually evaluated on static, pre-indexed item collections, yet e-commerce catalogues change continuously as products are added or removed, repriced, and restocked. We present a merchant-agnostic, multi-turn conversational shopping assistant that operates over such live catalogues. Its central component is a self-refreshing retriever that ingests a merchant product feed, enriches the records, and synchronizes them into a vector index. On each run, per-item hashes identify which products are new, changed, deleted, or unchanged, so only the delta is processed rather than rebuilding the whole catalogue. A controller-based dialogue layer consumes this index, using an LLM only for intent classification and preference elicitation while retrieval, reranking, and diversity selection run as dedicated functions. Our demonstration is a WhatsApp shopping assistant in which catalogue changes reach the recommendations after the next successful sync. A live chatbot, documentation, and a recorded walkthrough are available at https://github.com/infobip/infobip-agentic-crs. Conversational recommender systems based on large language models (LLMs) are usually evaluated on static, pre-indexed item collections, yet e-commerce catalogues change continuously as products are added or removed, repriced, and restocked. We present a merchant-agnostic, multi-turn conversational shopping assistant that operates over such live catalogues. Its central component is a self-refreshing retriever that ingests a merchant product feed, enriches the records, and synchronizes them into a vector index. On each run, per-item hashes identify which products are new, changed, deleted, or unchanged, so only the delta is processed rather than rebuilding the whole catalogue. A controller-based dialogue layer consumes this index, using an LLM only for intent classification and preference elicitation while retrieval, reranking, and diversity selection run as dedicated functions. Our demonstration is a WhatsApp shopping assistant in which catalogue changes reach the recommendations after the next successful sync. A live chatbot, documentation, and a recorded walkthrough are available at https://github.com/infobip/infobip-agentic-crs.",
+  "arxiv_id": "2608.27006",
+  "authors": [
+    "Ante Kapetanovic",
+    "Tomislav Duricic",
+    "Dionizije Fa",
+    "Andro Mercep",
+    "Emanuel Lacic"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "商家无关且复用已有商品 feed，降低了接入不同电商目录的集成成本。",
+      "增量同步使索引更新成本与变化子集成正比，适合目录频繁变化的实时电商，减少全量重建的资源消耗。",
+      "保持索引与在线目录一致，可减少推荐缺货或已下架商品，提升购物体验和用户信任。",
+      "通过 WhatsApp 提供免安装的购物入口，降低用户使用门槛，并可与现有消息平台/联络中心集成。",
+      "推荐路径避免逐次调用生成模型，成本更可预测，适合对单位对话成本敏感的生产部署。",
+      "生产采用前需要补齐事务性写入、回滚和异常增量监控等运维能力。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出一个商家无关的自我刷新检索器：每次同步通过稳定商品 ID、全文哈希和语义哈希，将商品分为新增、语义变化、仅元数据变化、删除和未变化五类，只处理增量而不是重建整个目录。",
+      "采用控制器式对话层：生成模型只用于意图分类和偏好 elicitation，检索、重排和多样性选择由专用函数完成，使得推荐路径不依赖逐次生成，成本可预测。",
+      "在 WhatsApp 上部署了实时购物助手演示，并公开了仓库、文档和录屏；目录变更在下一次成功同步后反映到推荐结果中。",
+      "用匿名化 500 条商品目录的测量案例验证了增量同步的变更分类和操作计数符合设计意图。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Self-Refreshing Retriever"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Conversational Pipeline"
+      },
+      {
+        "page": 1,
+        "section": "3 Demonstration"
+      },
+      {
+        "page": 1,
+        "section": "4 Concluding Remarks"
+      },
+      {
+        "page": 1,
+        "section": "A Engine Architecture"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "全量重建（full rebuild，中位数 2.914 秒）"
+      ],
+      "datasets": [
+        "匿名化 500 条商品目录（Google Merchant Center Atom feed 原型）"
+      ],
+      "findings_zh": [
+        "无变化时增量同步中位耗时 0.053 秒，约为全量重建 2.914 秒的 1.8%。",
+        "新增商品耗时 0.321 秒（11.0%），价格/库存变化耗时 0.072 秒（2.5%），描述/类别变化耗时 0.357 秒（12.3%），删除商品耗时 0.062 秒（2.1%）。",
+        "价格或库存变化只更新元数据并保留向量；描述或类别变化会触发重新补全和重新嵌入。",
+        "所有 ID、哈希、feed 字段和 embedding 调用检查均通过，确认了变更分类和操作计数符合设计意图。",
+        "评估只覆盖同步行为，未评估排序质量或推荐质量。"
+      ],
+      "metrics": [
+        "同步耗时（秒）",
+        "相对全量重建耗时百分比",
+        "操作类型计数（补全 E、嵌入 Emb、元数据更新 M、删除 D）及 ID/哈希/embedding 调用检查"
+      ]
+    },
+    "limitations_zh": [
+      "评估只覆盖同步性能与操作计数，没有做离线相关性研究或在线用户研究，未评估推荐质量和成本。",
+      "写入操作不是事务性的；生产环境还需要截断 feed 检测、暂存或回滚机制，以及异常增量监控。",
+      "作者未声称支持数千万量级目录；当前概念验证使用 ChromaDB 作为向量存储。",
+      "原型直接接受 Google Merchant Center Atom feed；其他目录来源或消息渠道需要开发适配器。",
+      "完整引擎、目录数据和 Infobip 集成未公开；检索器是每次运行的批处理同步，不是持续监控 feed，目录变更要到下一次成功同步后才到达推荐。"
+    ],
+    "method_zh": "系统由三个子系统组成：目录管线（摄取商品 feed、补全记录并写入向量索引）、对话管线（处理多轮对话）、共享存储层（向量库、用户画像、会话状态；由检索器写入、对话管线读取）。自我刷新检索器在每次手动或定时运行时获取并解析 feed，用稳定商品 ID 关联快照，用全文哈希检测任意 feed 字段变化，用基于名称、描述、品牌和类别的语义哈希判断是否需要重新嵌入；新增和语义变化的商品经补全（规则为主、生成式回退）后嵌入并 upsert，仅价格/库存等元数据变化保留向量并更新记录与过滤条件，删除记录被移除，未变化记录跳过。对话管线采用 orchestrator-as-controller 模式：LLM 将消息分类为八种意图并生成回复，对模糊偏好调用 elicitor 子代理提出 1-3 个澄清问题；推荐路径为基于内容的语义检索（查询与商品文本共享嵌入空间），元数据过滤后用可选的非生成式模型重排，再用贪婪选择器增加品牌与类别多样性；系统检测用户语言、用英文检索、用用户语言回复，并通过 Infobip Answers 接入 WhatsApp。",
+    "problem_zh": "基于大语言模型的对话式推荐系统通常只在静态、预索引的商品集合上评估，但实际电商目录是持续变化的：商品会新增、下架、改价和补货。每次变化都全量重建索引开销很大，而让索引漂移则会导致推荐过时，并把缺货或已下架商品展示给用户。",
+    "technical_depth": 0.58
+  },
+  "doi": "10.1145/3773078.3841297",
+  "final_score": 0.6685000000000001,
+  "id": "arxiv-2608.27006",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-28T03:47:48.213935Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-27T11:50:15Z",
+  "relevance_score": 0.75,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出一个面向实时电商目录的多轮对话购物助手，其自刷新检索器通过哈希增量同步商品变更，并仅用LLM做意图识别和偏好询问，检索与重排由专用模块完成。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Conversational Recommendation over Live E-Commerce Catalogues with Self-Refreshing Retrieval",
+  "url": "https://arxiv.org/abs/2608.27006v1"
+}

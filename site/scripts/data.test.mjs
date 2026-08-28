@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadBundle } from "../src/lib/data.ts";
+import { loadBundle, relatedItems } from "../src/lib/data.ts";
 
 const snapshot = {
-  graph_initial_content_nodes: 48,
+  graph_initial_content_nodes: 180,
   graph_shard_target_bytes: 98_304,
   minimum_final_score: 0.5,
   minimum_metadata_relevance_score: 0.65,
@@ -48,4 +48,30 @@ test("loadBundle selects the RunReport named by the bundle manifest", t => {
   writeJson(join(reports, "zzz-historical.json"), { run_id: "zzz-historical", config_snapshot: snapshot, stage_report: stageReport });
 
   assert.equal(loadBundle(root).runReport.run_id, "run-a");
+});
+
+test("relatedItems preserves score and sorts by score, date, then stable id", () => {
+  const item = (id, published_at) => ({ id, kind: "blog", published_at });
+  const current = item("current", "2026-08-28T00:00:00Z");
+  const newer = item("newer", "2026-08-27T00:00:00Z");
+  const older = item("older", "2026-08-26T00:00:00Z");
+  const sameDateA = item("same-a", "2026-08-25T00:00:00Z");
+  const sameDateB = item("same-b", "2026-08-25T00:00:00Z");
+  const artifact = {
+    edges: [
+      { source_id: "current", target_id: "older", score: 0.8 },
+      { source_id: "newer", target_id: "current", score: 0.9 },
+      { source_id: "same-b", target_id: "current", score: 0.7 },
+      { source_id: "current", target_id: "same-a", score: 0.7 },
+    ],
+  };
+  assert.deepEqual(
+    relatedItems(current, [current, newer, older, sameDateA, sameDateB], artifact).map(value => ({ id: value.item.id, score: value.score })),
+    [
+      { id: "newer", score: 0.9 },
+      { id: "older", score: 0.8 },
+      { id: "same-a", score: 0.7 },
+      { id: "same-b", score: 0.7 },
+    ],
+  );
 });

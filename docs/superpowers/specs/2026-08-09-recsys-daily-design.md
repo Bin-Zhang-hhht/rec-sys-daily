@@ -528,6 +528,10 @@ canonical items 与历史 `data/items/` 中的全部 canonical items，按 stabl
 RSS 全文、文章 HTML 或其他原始正文。相似度不是内容事实来源，不改变 `final_score`，只为
 详情页相关内容和图谱内容边提供构建期关系。
 
+详情页“相关内容”只使用与当前条目相连的 similarity 边，按 cosine `score` 降序、候选内容
+`published_at` 降序、候选稳定 `id` 升序排序，最多展示 4 条。页面同时以百分比显示该 cosine
+score，并在 tooltip 中保留 6 位小数；该数值表示语义相似度，不是概率或人工相关性结论。
+
 每个 item 的输入只包含三个角色，字段顺序固定为 `title`、`abstract`、`summary_zh`，并以
 不可混淆的字段边界拼接。论文的 `abstract` 角色来自 `PaperItem.abstract`；博客的 `abstract`
 角色来自 `BlogReading.system_context_zh`，缺失时不填充 RSS 全文、HTML 或 excerpt，只使用
@@ -561,13 +565,13 @@ similarity:
   threads: 2
   block_size: 64
   top_k: 5
-  min_cosine: 0.72
+  min_cosine: 0.60
   mutual_top_k: true
   score_decimals: 6
 ```
 
 首版配置 Schema 对 `batch_size=32`、`threads=2`、`block_size=64`、`top_k=5` 和
-`min_cosine=0.72` 做精确校验，不能只修改 YAML 让 pipeline 与站点契约分叉；后续调整这些
+`min_cosine=0.60` 做精确校验，不能只修改 YAML 让 pipeline 与站点契约分叉；后续调整这些
 参数时必须同步修订 artifact 校验、站点校验和本设计。
 
 选择该模型是因为 FastEmbed 提供 ONNX Runtime 的轻量 CPU 推理，模型覆盖约 50 种语言，
@@ -589,7 +593,7 @@ GPU 或常驻服务。`fastembed==0.8.0` 已支持上述模型名，避免为 `m
    canonical item 的内容字段，也不替代 Stage 1 的相关性门禁或最终日报排序。
 
 该方法没有标签训练集时属于可解释的无监督基线：模型负责跨语言语义表征，cosine 负责
-可复现的相似度，Top-K、阈值和 mutual check 负责控制图谱边数。`0.72` 是首发默认值，
+可复现的相似度，Top-K、阈值和 mutual check 负责控制图谱边数。`0.60` 是当前首发默认值，
 不是跨模型通用的自然常数；后续只能依据运行报告中的边数、人工抽样和误连率调整配置，不能
 在运行中自动漂移阈值。没有足够相似 item 时合法输出空边集合。
 
@@ -616,7 +620,7 @@ candidate text、向量索引或 pairwise 全量矩阵。它是同一 workflow �
     "summary_tokens": 24,
     "separator_tokens": 8,
     "top_k": 5,
-    "min_cosine": 0.72,
+    "min_cosine": 0.60,
     "mutual_top_k": true
   },
   "items_considered": 42,
@@ -878,7 +882,7 @@ storage:
 
 详情页采用 68--72ch 单列阅读流，展示顺序统一为标题、taxonomy 胶囊、内容信息和带“中文总结”标题的中文摘要；移动端严格按该顺序堆叠，宽屏则把内容信息放入右侧窄栏，同时保持正文摘要紧接标题区之后。结构化贡献、结果、局限性和业务启示始终渲染为带 marker 和条目间距的单列列表。摘要展示只做白名单 LaTeX 转义归一化和严格的完整重复后半段去重，仍使用 Astro 纯文本插值。博客详情页不渲染 Feed excerpt；短 excerpt 仅作为 Stage 1 和 deep-read 之间的临时降级输入。
 
-`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、两阶段入选阈值、筛选漏斗与拒绝统计，以及 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式。页面说明 `collection_terms` 与 taxonomy terms 的职责分离、标签证据要求、`source_scenarios` 的非证据边界，以及质量不足时不以低相关内容补足每日目标；同时明确声明精确权重以当次运行配置为准。来源 URL、两类 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
+`/about/` 从 publish bundle 动态展示最新运行的来源 ID/状态、日报实际模型、分析依据、两阶段入选阈值、筛选漏斗与拒绝统计，以及 `taxonomy.json` 的 ID、中英文名称，并解释相关性与综合得分的用途和仓库默认计算公式。页面同时读取同一 run 的 similarity artifact，展示文章相似度使用的 FastEmbed 模型、三类输入字段和 token 预算、cosine 阈值、Top-K/mutual 规则，以及本次构建覆盖的内容数和关系数；这些关系只用于详情页相关内容和图谱导航，不改变日报评分，也不被描述为概率或人工相关性结论。页面说明 `collection_terms` 与 taxonomy terms 的职责分离、标签证据要求、`source_scenarios` 的非证据边界，以及质量不足时不以低相关内容补足每日目标；同时明确声明精确权重以当次运行配置为准。来源 URL、两类 terms、评分权重和完整模型配置只通过仓库中的 `config/sources.yaml`、`config/topics.yaml`、`config/settings.yaml` 和 `config/models.yaml` 链接提供，不扩展 publish bundle 契约。
 
 论文详情页展示：
 
@@ -968,9 +972,13 @@ data 猜测关系。详情页同时提供指向 `graph/?center=<id>` 的 base-aw
   邻接关系划分的 adjacency shard；raw shard 目标大小为 64--128 KB
 - `d0` 是最新成功 digest 的论文和博客内容节点；`d1` 是它们通过 `similarity` 边相邻的内容
   节点。距离只依据 similarity 边计算，taxonomy 边不改变 d0/d1 距离
-- 初始请求只加载 manifest/index、d0 和 d1 分片；默认渲染最多
-  `graph_initial_content_nodes` 个内容节点，超出时按 similarity score、发布日期和 ID 稳定
-  截取，完整索引仍保留
+- 首屏先加载 manifest/index、d0 和 d1 分片；若内容节点少于 `graph_initial_content_nodes`，
+  客户端从 d1 frontier 开始复用 adjacency/node shard，沿 similarity 边做确定性 BFS，逐层向外
+  扩展到上限或没有新的可达内容。frontier 按 ID 稳定排序，每个节点的邻居按 similarity score
+  降序、邻居 ID 升序选择；taxonomy 边不参与扩展
+- `graph_initial_content_nodes` 当前固定配置为 180，是首屏内容节点硬上限；d0/d1 或扩展结果超出
+  上限时使用相同的 similarity score、发布日期和 ID 稳定裁剪，完整索引仍保留。扩展请求失败时
+  保留已经成功加载的 d0/d1，并通过状态栏明确提示，不把首屏失败升级为全图不可用
 - 用户聚焦边缘节点时，客户端加载该节点的节点 shard 和 adjacency shard，按需扩展到下一跳；
   用户可以重复聚焦并遍历全部历史内容。历史节点即使没有 similarity 边，也保留在索引中，可
   从图谱搜索、归档或详情页到达
@@ -989,7 +997,7 @@ data 猜测关系。详情页同时提供指向 `graph/?center=<id>` 的 base-aw
 - 搜索、时间和 taxonomy 控件位于画布上方；画布约占 `70vh`，桌面右栏只保留节点详情，移动端详情位于画布下方；提供适应画布和重置视图按钮
 - 六类节点图例以可键盘操作的 DOM 按钮叠放在画布内；按钮可切换对应节点类型，隐藏相关边，并裁掉因此孤立的 taxonomy 节点，重置图谱时恢复全部类型
 - 使用 ECharts `layout: "force"`，初始布局为 `circular`，固定起始参数为 `repulsion=520`、`gravity=0.04`、`edgeLength=[120,190]`、`friction=0.6`；分片加载、筛选或中心定位后替换可见 `data/links` 并重新布局
-- 图谱节点增加有限正数 `data.weight`，按当前已加载子图中不同相邻节点的 degree 计算；客户端使用固定对数刻度 `min(56, 16 + 8 * log2(max(1, degree)))` 映射尺寸，每次 degree 翻倍增加 8px，degree 32 起封顶 56px。同一 degree 不因全历史图增长、分片加载、筛选或当前最大 degree 改变尺寸；论文与博客节点始终不在画布中绘制标题，标题通过搜索结果、tooltip 和详情栏提供；taxonomy 只显示中文短标签并使用 `labelLayout.hideOverlap` 隐藏重叠项，远缩放时只突出选中节点、一跳邻居和搜索命中
+- 图谱节点增加有限正数 `data.weight`，按当前已加载子图中不同相邻节点的 degree 计算；客户端使用固定对数刻度 `min(56, 16 + 8 * log2(max(1, degree)))` 映射尺寸，每次 degree 翻倍增加 8px，degree 32 起封顶 56px。同一 degree 不因全历史图增长、分片加载、筛选或当前最大 degree 改变尺寸；论文与博客使用不同的本地灰色圆形图标节点且始终不在画布中绘制标题，标题通过搜索结果、tooltip 和详情栏提供；taxonomy 只显示中文短标签并使用 `labelLayout.hideOverlap` 隐藏重叠项，远缩放时只突出选中节点、一跳邻居和搜索命中
 - 画布启用 `roam`、桌面节点拖拽和 `scaleLimit`；移动端关闭节点拖拽以避免与页面滚动冲突。使用 `labelLayout.hideOverlap`、`emphasis.focus: "adjacency"` 和 `prefers-reduced-motion` 适配
 - ECharts `aria.enabled` 只作为补充；原生搜索结果列表、可聚焦控件、`aria-live` 状态和详情链接承担键盘与屏幕阅读器路径。动态标题、摘要和关系证据不通过未经转义的 HTML tooltip 插入
 
@@ -997,7 +1005,7 @@ data 猜测关系。详情页同时提供指向 `graph/?center=<id>` 的 base-aw
 
 实现参考 ECharts 官方的 [Force-directed Graph](https://echarts.apache.org/examples/en/editor.html?c=graph-force)、[Circular Layout](https://echarts.apache.org/examples/en/editor.html?c=graph-circular-layout)、[WebKit Dependency](https://echarts.apache.org/examples/en/editor.html?c=graph-webkit-dep) 和 [Label Overlap](https://echarts.apache.org/examples/en/editor.html?c=graph-label-overlap) 案例。Force-directed Graph 提供 `force`、拖拽和 `roam` 的基础，本站独立使用 `force.initLayout: "circular"` 获得稳定起始分布；Circular Layout 仅作为非 force 的备用布局参考；WebKit Dependency 只提供分类图的表现参考；Label Overlap 提供 `labelLayout.hideOverlap`、源节点色曲线和度大小层级。站点不照搬案例的预计算坐标和全量标题，因为它们不适合本站动态筛选后的子图和较长的中英文学术标题；图内 legend 使用原生 DOM 按钮覆盖层而非 ECharts Canvas legend，以便与筛选状态同步并保留键盘和屏幕阅读器语义。
 
-视觉编码参考 Label Overlap 案例的实色圆点、度大小层级、分类色曲线和中性短标签，但保留本站的 force 布局：六类节点都使用圆形并默认设置为 50% opacity，论文为实线环、技术博客为虚线环，四类 taxonomy 与站内主题胶囊统一使用目标 sky、场景 emerald、任务 amber、方法 violet；taxonomy 边使用低透明度实线曲线并继承目标 taxonomy 节点颜色，similarity 边使用中性低透明度曲线；选中节点、一跳邻居和搜索命中分别使用深色、青色和红色描边，存在选中节点时非邻域节点继续降低 opacity。论文与博客不显示画布标题，taxonomy 标签保持不透明、只显示中文名并由 `labelLayout.hideOverlap` 隐藏碰撞项，完整中英文名称仍保留在 tooltip、搜索和详情区域。根据 ECharts 的 [Canvas vs. SVG](https://echarts.apache.org/handbook/en/best-practices/canvas-vs-svg/) 建议，本图谱使用 Canvas；无障碍路径仍由 DOM 控件和详情区承担。
+视觉编码保留 force 布局、度大小层级和中性短标签，但强化内容与 taxonomy 的层级差异：论文使用灰色圆形文档图标，技术博客使用另一档灰色的圆形报纸图标，图标内部使用黑灰色线条；两枚 SVG 作为站点本地静态资源发布，不从 CDN 加载。四类 taxonomy 节点继续使用实色圆点，并与站内主题胶囊统一使用目标 sky、场景 emerald、任务 amber、方法 violet。六类节点都不绘制描边；选中、搜索命中和一跳邻居只通过同色系透明度与强调程度区分，存在选中节点时非邻域节点继续降低 opacity。taxonomy 边统一使用中性灰色低透明度实线，similarity 边使用同一灰色的低透明度虚线，所有边均无箭头且不继承端点颜色。论文与博客不显示画布标题，taxonomy 标签只显示中文名并由 `labelLayout.hideOverlap` 隐藏碰撞项，完整中英文名称仍保留在 tooltip、搜索和详情区域。根据 ECharts 的 [Canvas vs. SVG](https://echarts.apache.org/handbook/en/best-practices/canvas-vs-svg/) 建议，本图谱使用 Canvas；无障碍路径仍由 DOM 控件和详情区承担。
 
 交互采用“概览 → 定位 → 邻域 → 详情”的渐进路径：默认显示裁剪后的全图；搜索结果、taxonomy/time 筛选和 `?center=` 缩小范围；节点单击只选择并高亮邻域，避免拖动画布时误跳转；站内详情跳转只由侧栏中的明确链接触发。移动端保留缩放和平移、关闭节点拖拽，并折叠 taxonomy 筛选，优先保证页面滚动和详情阅读。
 
@@ -1006,12 +1014,14 @@ data 猜测关系。详情页同时提供指向 `graph/?center=<id>` 的 base-aw
 图谱每次构建从全量 `data/items` 和短期 similarity artifact 派生。它不删除历史节点，也不
 设置全局 80 节点上限；展示控制只作用于当前浏览器已加载的子图：
 
-- 默认只请求最新 digest 的 d0 和一跳 d1，按 `graph_initial_content_nodes` 控制初始绘制规模
+- 首屏先请求最新 digest 的 d0 和一跳 d1；不足 180 个内容节点时沿 similarity 边按 BFS 继续请求
+  adjacency/node shard，直到达到 `graph_initial_content_nodes=180` 或没有新的可达内容
 - 聚焦节点后按分片加载更远邻域，保持单次网络响应小且不重复传输已经加载的分片
 - 主题、场景、目标、任务和方法节点来自受控 YAML，随当前内容子图动态加入和移除
 - 节点筛选、详情页和归档页仍能访问没有相似度边的历史内容
 
-历史增长影响的是分片数量和索引大小，不影响首屏 d0/d1 的请求规模。
+历史增长影响的是分片数量和索引大小；首屏请求量由 180 个内容节点硬上限、64--128 KB shard
+目标和已加载 shard 去重共同约束，不会退化为全历史图下载。
 
 ## 12. Docker 与本地开发
 
@@ -1209,7 +1219,7 @@ Python 单元与集成测试覆盖：
 - 相似度文本序列化的三个字段、实际 tokenizer 计数、128-token 预算（title 32、abstract 64、summary 24、separator 8）、batch embedding、L2 normalization、分块 exact cosine、阈值、Top-K、mutual Top-K、跨 paper/blog 边和稳定六位小数输出
 - 相似度全量 canonical 输入、历史/当前 ID 去重、输入覆盖、未知端点、自环、重复边、错误维度、非法分数和 artifact 中不得出现 embedding 或原始文本
 - 相似度 artifact 的 manifest/run/schema 校验、模型参数一致性、空边集合、相似度失败阻断 `rank-integrate` 和失败时不写正式 `state.json`
-- `graph-manifest.json`、d0/d1 初始分片、按焦点加载 adjacency shard、64--128 KB 分片目标、稳定 shard 边界和无 80 节点全局裁剪
+- `graph-manifest.json`、d0/d1 初始分片、首屏 similarity BFS 扩展到最多 180 个内容节点、按焦点加载 adjacency shard、64--128 KB 分片目标、稳定 shard 边界和无 80 节点全局裁剪
 - 一次性移除历史 canonical item 中的 `graph_relations`，保留 item ID、digest ID 和 state 不变，并验证迁移审计结果
 - 完整 pending data tree、博客 canonical item 不含 excerpt、历史推荐 ID 合并、RunReport 构建配置快照和配置大小阈值消费
 - PDF、MinerU ZIP/Markdown、HTML 与提取全文在成功或失败后的清理，以及结构化 artifact 不包含原始全文
@@ -1259,7 +1269,7 @@ Python 单元与集成测试覆盖：
 6. 每条推荐拥有中文一句话摘要并保留关键英文术语
 7. 用户可通过 YAML 修改主题、场景、好友推荐范围和 RSS 来源
 8. 站点包含日报、详情、归档、按需加载的站内内容搜索和可交互轻量图谱；搜索筛选项由 `topics.yaml` 自动生成
-9. 图谱默认加载当日内容及 similarity 一跳邻居；初始渲染受配置控制，完整历史通过 manifest 和分片按焦点遍历，历史增长不会导致首屏流量失控
+9. 图谱首屏先加载当日内容及 similarity 一跳邻居，不足时沿 similarity 边确定性扩展到最多 180 个内容节点；完整历史通过 manifest 和分片按焦点遍历，历史增长不会导致首屏流量失控
 10. 本地测试和构建完全通过 Docker 完成，pipeline 与 site 使用两个独立镜像并通过 publish bundle 交接
 11. GitHub Actions 的数据 job 使用 `pipeline/Dockerfile`、网站 job 使用 `site/Dockerfile`，并对 API 限流、429 和失败重试有测试覆盖
 12. GitHub Pages 部署不依赖任何常驻服务器
@@ -1279,8 +1289,8 @@ Python 单元与集成测试覆盖：
 26. 深读 artifact 完整区分成功 `items` 和脱敏 `failures`，论文与博客分别达到 80% 才能整合；失败不写持久化重试队列
 27. Paper canonical item 在 schema v1 中必须包含 `abstract`、`arxiv_id` 和可空 `doi`，且历史防重只使用真正进入 digest 的推荐 ID
 28. GitHub Project Pages 从 `/rec-sys-daily/` 正常加载页面、资源、Pagefind 和图谱 manifest/分片；每日只在 Pages 部署成功后以受限 exact-tree `rsync --delete` 提升 `pending-data/`，push 冲突不 force push
-29. 相似度使用固定版本 `fastembed==0.8.0` 和 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`，对全量 canonical items 执行 128-token 输入（title 32、abstract 64、summary 24、separator 8）、384 维 L2-normalized embedding、分块 exact cosine、`min_cosine=0.72`、`top_k=5` 和 mutual Top-K；不保存 embedding 或完整 N×N 矩阵
-30. similarity artifact 只在构建期间保存经过 Schema、端点、自环、重复边、分数、阈值和稳定排序校验的关系；详情页按 similarity score 提供最多 4 条相关内容，图谱默认显示当日及一跳节点，Pagefind 不索引关系字段，构建结束后不持久化关系
+29. 相似度使用固定版本 `fastembed==0.8.0` 和 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`，对全量 canonical items 执行 128-token 输入（title 32、abstract 64、summary 24、separator 8）、384 维 L2-normalized embedding、分块 exact cosine、`min_cosine=0.60`、`top_k=5` 和 mutual Top-K；不保存 embedding 或完整 N×N 矩阵
+30. similarity artifact 只在构建期间保存经过 Schema、端点、自环、重复边、分数、阈值和稳定排序校验的关系；详情页按 similarity score 提供最多 4 条相关内容，图谱首屏从当日及一跳节点沿 similarity 边扩展到最多 180 个内容节点，Pagefind 不索引关系字段，构建结束后不持久化关系
 31. 相似度作为独立 GitHub Actions job 运行在 `pipeline/Dockerfile` 的 `similarity` target 中，timeout 为 180 分钟，artifact 保留 3 天供同 run 的站点重建使用；模型 cache 可失效但不得影响正确性；相似度 job、artifact 或 rank 校验失败时不生成 publish bundle，不推进正式 `state.json`
 
 ## 17. 已批准修复设计（2026-08-10）
@@ -1327,7 +1337,7 @@ Python 单元与集成测试覆盖：
 `pipeline/Dockerfile` 的 `similarity` target。它合并本次成功 canonical items 和历史
 `data/items/`，以实际 tokenizer 按 title 32、abstract 64、summary 24、separator 8 组成
 128-token 输入，使用固定的 `paraphrase-multilingual-MiniLM-L12-v2`、384 维 L2 normalization、
-blockwise exact cosine、`min_cosine=0.72`、`top_k=5` 和 mutual Top-K。没有 `max_items`；超时
+blockwise exact cosine、`min_cosine=0.60`、`top_k=5` 和 mutual Top-K。没有 `max_items`；超时
 和模型失败直接阻断发布。
 
 runner 只输出短期 similarity artifact。它不保存 embedding、向量索引、完整矩阵、输入文本
@@ -1346,3 +1356,11 @@ canonical schema、TypeScript item parser、图谱构建或测试 fixture 中。
 扫描；迁移前有 9 个 item 包含非空旧字段，共 15 条旧关系。迁移后验证所有 item 都不存在该字段，
 且 digest、state、item ID 集合完全不变。
 迁移报告只进入开发验证输出，不进入 canonical data、publish bundle 或 Pages artifact。
+
+### 17.3 图谱标题与相关内容分数（2026-08-28）
+
+图谱页面的浏览器标题和页面主标题统一为“推荐系统研究图谱”，避免标题栏继续显示旧的
+“知识图谱”名称。详情页相关内容继续由 similarity artifact 提供，站点保留 score 并按
+score、发布日期和稳定 ID 的确定性顺序最多展示 4 条，同时以一位小数的百分比显示语义
+相似度，并通过 tooltip 提供六位小数的 cosine 原值。该分数仅用于可解释的排序和导航，
+不表示概率或人工标注的相关性结论。

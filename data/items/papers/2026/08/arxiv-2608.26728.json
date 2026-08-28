@@ -1,0 +1,123 @@
+{
+  "abstract": "Data sparsity remains a long-standing challenge in recommender systems, and it becomes more severe for methods relying on user-generated content (UGC) such as textual reviews, which capture fine-grained preferences but require more user efforts to produce. As a result, UGC exhibits (1) missing reviews, where interactions lack any review, and (2) incomplete reviews, where available reviews cover only a subset of relevant attributes. Existing approaches often overlook these UGC-specific issues, leading to degraded accuracy. Motivated by meta-review in academic peer review, we propose MOSAIC (Meta-review On Sparse And Incomplete user-generated Content), which constructs a meta-review for each target user by aggregating attribute-sentiment evidence from neighbor users' reviews. A multi-gate mixture-of-experts (MMoE) architecture jointly optimizes rating prediction and meta-review attribute-sentiment prediction, while an attention module personalizes the aggregated meta-review signals to each target user, yielding both refined rating predictions and attribute-level explanations. Experiments on four real-world datasets demonstrate that MOSAIC consistently outperforms state-of-the-art baselines in both recommendation accuracy and explanation quality, mitigating UGC sparsity and incompleteness while delivering consistent gains for users with limited interaction history. Data sparsity remains a long-standing challenge in recommender systems, and it becomes more severe for methods relying on user-generated content (UGC) such as textual reviews, which capture fine-grained preferences but require more user efforts to produce. As a result, UGC exhibits (1) missing reviews, where interactions lack any review, and (2) incomplete reviews, where available reviews cover only a subset of relevant attributes. Existing approaches often overlook these UGC-specific issues, leading to degraded accuracy. Motivated by meta-review in academic peer review, we propose MOSAIC (Meta-review On Sparse And Incomplete user-generated Content), which constructs a meta-review for each target user by aggregating attribute-sentiment evidence from neighbor users' reviews. A multi-gate mixture-of-experts (MMoE) architecture jointly optimizes rating prediction and meta-review attribute-sentiment prediction, while an attention module personalizes the aggregated meta-review signals to each target user, yielding both refined rating predictions and attribute-level explanations. Experiments on four real-world datasets demonstrate that MOSAIC consistently outperforms state-of-the-art baselines in both recommendation accuracy and explanation quality, mitigating UGC sparsity and incompleteness while delivering consistent gains for users with limited interaction history.",
+  "arxiv_id": "2608.26728",
+  "authors": [
+    "Hongren Wang",
+    "Tianjun Wei",
+    "Yingpeng Du",
+    "Jie Zhang",
+    "Yin-Leng Theng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在评论稀疏的电商、酒店与旅游等平台，可显著改善评分预测和属性级解释质量，尤其对交互历史有限的用户，有助于提升冷启动推荐表现。",
+      "属性级情感解释可向用户和平台提供可理解的推荐理由，增强信任与可解释性，且比生成式解释更易追溯。",
+      "LLM仅用于离线抽取，训练与推理不引入额外LLM成本；在Sports数据集上GPU内存1.57GB、每epoch 8.1s、总训练1.3min，低于多个生成式或复杂基线，具备实际部署可行性。",
+      "落地时需要为各领域维护属性词典并监控LLM抽取误差，同时针对孤立用户改进邻居发现机制。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "受学术同行评审中meta-review的启发，提出从邻居用户评论中聚合属性-情感证据生成属性级meta-review的新视角，用于缓解UGC稀疏与不完整问题。",
+      "提出MOSAIC框架，采用MMoE多任务学习联合优化评分预测和属性-情感标签预测，并通过个性化注意力模块按目标用户突出相关属性，同时改进评分预测与属性级解释。",
+      "在Yelp、TripAdvisor、Amazon Beauty和Amazon Sports四个公开数据集上的实验表明MOSAIC在多项指标上优于SOTA基线；消融与分析验证各组件有效性，且对历史交互少的稀疏用户有稳定增益。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract / Introduction"
+      },
+      {
+        "page": 3,
+        "section": "Motivation: Incompleteness of User Review (Section 3.2)"
+      },
+      {
+        "page": 4,
+        "section": "Methodology (Section 4)"
+      },
+      {
+        "page": 6,
+        "section": "Experiments: Overall Performance (Section 5.2, Tables 2-3)"
+      },
+      {
+        "page": 7,
+        "section": "Experiments: Ablation and Sparse Users (Sections 5.3-5.4, Tables 4-5)"
+      },
+      {
+        "page": 8,
+        "section": "Experiments: Experts and Gating Behavior (Section 5.5)"
+      },
+      {
+        "page": 9,
+        "section": "Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "PMF",
+        "SVD++",
+        "RGCL",
+        "NETE",
+        "PETER",
+        "PEPLER",
+        "CER",
+        "SERMON",
+        "APH",
+        "LLMRec"
+      ],
+      "datasets": [
+        "Yelp",
+        "TripAdvisor",
+        "Amazon Beauty",
+        "Amazon Sports"
+      ],
+      "findings_zh": [
+        "MOSAIC在四个数据集上的RMSE和MAE均优于所有基线；例如TripAdvisor上RMSE 0.6759、MAE 0.5303，优于最佳基线（RMSE 0.7798、MAE 0.5919），且在p<0.01下显著。",
+        "在meta-review属性情感预测上，MOSAIC的Accuracy/F1在四个数据集上大多为最优，例如Yelp Accuracy 0.7064/F1 0.3488，Amazon Sports Accuracy 0.7720/F1 0.5160；部分基线Precision略高但F1和Recall较低。",
+        "按训练交互数划分用户组时，MOSAIC在Sparse（≤1）组相对最强基线的MAE提升在Yelp达30.38%、Amazon Sports达26.90%，在Moderate和Active组仍有持续增益。",
+        "消融显示去掉邻居用户导致最大下降（TripAdvisor RMSE从0.6759升至0.7974）；去掉注意力模块使Beauty RMSE从0.7840恶化至0.9252；同时去掉或只保留部分meta-review监督（eta_cls/eta_sim）会使情感准确率明显下降。",
+        "TripAdvisor上单条评论对一半属性的覆盖率低于50%，聚合10-15个邻居可将属性覆盖率提升至80%以上；增加邻居数总体改善RMSE/MAE与标签准确率。",
+        "MMoE专家数K=3最优；门控分析显示各属性门会集中到主导专家而评分门分布更均匀，K增大不会形成新专家而是碎片化已有专家，导致性能略降。"
+      ],
+      "metrics": [
+        "RMSE",
+        "MAE",
+        "Accuracy",
+        "F1 Score",
+        "Precision",
+        "Recall"
+      ]
+    },
+    "limitations_zh": [
+      "依赖预定义的领域属性集合，跨领域迁移需要重新构建属性列表，预先集合之外的新兴或小众属性无法被捕获。",
+      "邻居选择依赖共同物品交互和可选社交关系，对高度孤立的用户可能仍然稀疏。",
+      "只利用用户侧聚合证据，未结合物品侧推理或丰富物品元数据。",
+      "LLM抽取虽被限定属性与情感词表、经BERT校验及多数投票抑制，但残余抽取/幻觉错误仍可能进入meta-review，实际部署需监控。"
+    ],
+    "method_zh": "MOSAIC首先用gpt-4.1-nano按预定义属性集合从每条评论抽取属性-情感对（情感短语限3词），再用微调BERT将“属性+情感”句分类为4类情感，形成A×C情感标签。对目标用户-物品对，从评论过同一物品的用户中随机采样N=15个邻居（可加入社交好友），对邻居情感标签做均值池化得到meta-review情感向量，并按属性多数投票得到组级监督标签。模型采用MMoE：评分任务输入用户/物品嵌入，情感任务输入邻居聚合嵌入与物品嵌入；共享Transformer专家由任务特定门控加权，分别输出初始评分和属性情感分布。随后用自注意力模块以评分特征为query、属性情感嵌入为keys/values进行个性化加权，再通过融合门控将情感表示与评分特征结合得到精炼评分。总损失为评分回归损失加meta-review情感损失，后者含用户级与组级标签的交叉熵及与软情感分布的余弦相似度，由eta_cls和eta_sim控制。",
+    "problem_zh": "评论驱动的推荐系统中，用户生成内容（UGC）存在两类稀疏问题：交互完全没有评论（缺失），以及已有评论只覆盖部分属性（不完整）。现有基于NLP/LLM的评论抽取与推荐方法只能从单个用户已写出的文本中提取信息，无法补偿缺失或未提及的属性，导致用户偏好建模不完整、评分预测和解释质量下降。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.817,
+  "id": "arxiv-2608.26728",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-28T03:47:48.213935Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-27T07:21:35Z",
+  "relevance_score": 0.82,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出MOSAIC方法，通过聚合邻居用户评论构建元评论并采用MMoE多任务学习联合优化评分预测和属性情感预测，缓解用户生成内容稀疏与不完整带来的推荐精度下降。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Beyond a Single Story: Meta-Reviewing Sparse and Incomplete User-generated Contents for Recommendation",
+  "url": "https://arxiv.org/abs/2608.26728v1"
+}

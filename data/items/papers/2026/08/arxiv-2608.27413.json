@@ -1,0 +1,114 @@
+{
+  "abstract": "Friend recommendation is inherently graph-structured: the relevance of a potential connection depends on multi-hop social context rather than user attributes alone. However, deploying message-passing GNNs on a production-scale social graph with hundreds of millions of users and tens of billions of edges requires addressing numerous modeling and systems challenges. We present a scalable end-to-end GNN ranking system for production social graphs, focusing on two design choices that are critical in this setting: multi-hash ID embeddings and temporal neighbor sampling. Multi-hash embeddings are common for high-cardinality features, but industrial GNN systems typically either ignore trainable IDs or accept full embedding tables, exceeding 200 GB for our graph. We integrate multi-hash as the primary node representation, reducing the ID-embedding table size by more than 98 percent while preserving ranking quality. Temporal neighbor sampling is well understood in principle, but existing implementations scan full adjacency lists, which is a non-starter for users with tens of thousands of friends. We implement timestamp-sorted CSR storage with binary search, reducing the per-node temporal sampling cost from $O(deg(v) + k)$ to $O(\\log(deg(v)) + k)$. Beyond these components, we show that this combination scales and yields measurable production impact. On a graph with 194M users and 28B edges, offline ablations isolate each design choice's contribution. In an online A/B test, our system increases friend additions from recommendations by 16 percent and unique friend adders by 11.5 percent over a strong production baseline. We release our framework for distributed training and inference on large temporal graphs. Friend recommendation is inherently graph-structured: the relevance of a potential connection depends on multi-hop social context rather than user attributes alone. However, deploying message-passing GNNs on a production-scale social graph with hundreds of millions of users and tens of billions of edges requires addressing numerous modeling and systems challenges. We present a scalable end-to-end GNN ranking system for production social graphs, focusing on two design choices that are critical in this setting: multi-hash ID embeddings and temporal neighbor sampling. Multi-hash embeddings are common for high-cardinality features, but industrial GNN systems typically either ignore trainable IDs or accept full embedding tables, exceeding 200 GB for our graph. We integrate multi-hash as the primary node representation, reducing the ID-embedding table size by more than 98 percent while preserving ranking quality. Temporal neighbor sampling is well understood in principle, but existing implementations scan full adjacency lists, which is a non-starter for users with tens of thousands of friends. We implement timestamp-sorted CSR storage with binary search, reducing the per-node temporal sampling cost from $O(deg(v) + k)$ to $O(\\log(deg(v)) + k)$. Beyond these components, we show that this combination scales and yields measurable production impact. On a graph with 194M users and 28B edges, offline ablations isolate each design choice's contribution. In an online A/B test, our system increases friend additions from recommendations by 16 percent and unique friend adders by 11.5 percent over a strong production baseline. We release our framework for distributed training and inference on large temporal graphs.",
+  "arxiv_id": "2608.27413",
+  "authors": [
+    "Maksim Utushkin",
+    "Andrei Ovsiannikov",
+    "Alexander D'yakonov"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该方案在真实生产社交网络上将推荐好友添加数提升16%、独立添加用户数提升11.5%，并带来内容feed时长+0.28%的下游收益，同时不增加线上排序延迟。",
+      "ID嵌入从超过200GB压缩到2GB，使训练和推理可运行在单台8×A100/512GB内存主机上，大幅降低基础设施成本和工程复杂度。",
+      "预计算嵌入+点积打分的服务路径比逐pair构造ego-subgraph更便宜，可支撑高吞吐线上排序。",
+      "时序采样和multi-hash可迁移到异构/用户-物品二部图等推荐场景，例如对弱特征用户用multi-hash、对强内容特征物品用内容特征。",
+      "开源框架可供其他团队复用于大规模GNN排名系统。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "将multi-hash ID嵌入作为工业级GNN排序器的一等输入层，把ID嵌入表从超过200GB压缩到约2GB（<1%），同时排名质量与全量|V|×d嵌入表相当。",
+      "基于按时间戳排序的CSR和二分查找实现时序邻居采样，单次采样复杂度从O(d_u+K)降至O(log d_u+K)，消除了训练时约2.5倍的采样开销。",
+      "构建端到端训练/推理管线：CSR存储、CPU采样与GPU训练解耦、离线嵌入刷新，使225GB图与280亿条边可在单台8×A100主机上运行。",
+      "在1.94亿节点/280亿边的生产图上进行消融实验，并在线上A/B测试中相对强生产基线提升好友添加数16%、独立添加用户数11.5%。",
+      "开源该训练与推理框架。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Method"
+      },
+      {
+        "page": 1,
+        "section": "5 Training and Inference System"
+      },
+      {
+        "page": 1,
+        "section": "6 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "7 Discussion and Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Top-pop（按入度排序，无学习参数）",
+        "MF（矩阵分解）",
+        "WalkGNN（前代生产方案）"
+      ],
+      "datasets": [
+        "生产社交网络好友关系图快照：194M节点、28B条边",
+        "训练交互1.4B条，测试交互25M条（按印象时间划分）"
+      ],
+      "findings_zh": [
+        "离线ROC-AUC：Ours 0.6278，高于WalkGNN 0.5572、MF 0.5316、Top-pop 0.5050。",
+        "multi-hash+特征（0.6278）达到甚至略超全量嵌入表+特征（0.6246），而表大小从202.88GB降至2GB；仅结构信号（0.5997）远强于仅特征（0.5244）。",
+        "共享表B从2^17到2^22单调提升（0.5952→0.6310），作者选择B=2^21（0.6278）作为生产配置。",
+        "关闭时序采样造成0.0371 ROC-AUC的信息泄漏；二分查找时序采样与朴素扫描质量相同（0.6278），但每batch采样595ms vs 1473ms，与非时序的581ms接近。",
+        "系统指标：训练至收敛63h，全量1.94亿用户嵌入计算6.57h；CSR图225GB、multi-hash表2GB、参数+Adam状态6.03GB。",
+        "两周线上A/B：推荐好友添加数+16.0%、独立添加用户数+11.5%、内容feed总时长+0.28%，排序延迟无回归。"
+      ],
+      "metrics": [
+        "per-user ROC-AUC",
+        "好友添加数相对变化",
+        "独立添加用户数相对变化",
+        "内容feed总时长相对变化",
+        "排序p50/p90/p99延迟",
+        "每batch采样耗时",
+        "嵌入表/系统内存"
+      ]
+    },
+    "limitations_zh": [
+      "冷启动/新用户：快照之后加入或不活跃的用户没有图边和训练信号，只能依赖哈希碰撞带来的偶然ID信号或上游候选生成；冷窗口大小由重训练节奏决定。",
+      "非实时服务：GNN嵌入依赖L跳采样邻域，无法在rank线上延迟预算内现算，只能离线周期刷新，刷新间隔内存在嵌入陈旧性。",
+      "multi-hash嵌入与训练时用户群绑定，且实验显示质量随B继续增长未完全饱和，2^22以上可能存在进一步质量-内存权衡。",
+      "全量|V|×d嵌入表需要跨GPU/TorchRec分片且不可用于线上服务，因此论文没有在真实serving条件下与全量表对比。"
+    ],
+    "method_zh": "方法以GATv2堆叠编码器（L=2层、8头、H=512）对用户节点编码，输出经query/candidate两个角色头投影后以点积打分，用印象日志上的二分类交叉熵训练。节点输入=表格特征（性别、年龄、图度数经分箱后one-hot+线性层+LayerNorm求和）与multi-hash ID嵌入（k=3个哈希函数索引B=2^21×d=256共享表，拼接后投影+LayerNorm）相加。时序邻居采样将每个节点的邻接表和边时间戳按时间升序存入CSR，用lower_bound找到τ−Δ之前的有效前缀，再均匀采样K=30个邻居；训练采用CPU端原生采样器构建minibatch、GPU端DDP训练的解耦两阶段管线，推理时离线周期刷新嵌入。",
+    "problem_zh": "论文研究生产级社交网络（1.94亿用户、280亿条边）中好友推荐排序阶段的大规模GNN部署问题。核心难点包括：可训练的全量用户ID嵌入表过大（超过200GB）不可行；时间敏感邻居采样若扫描完整邻接表，对度达到数万的枢纽用户开销过高；动态图上训练与消息传递需要避免未来边泄漏，同时保证CPU采样与GPU训练可扩展。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9035,
+  "id": "arxiv-2608.27413",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-28T03:47:48.213935Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-08-27T17:41:33Z",
+  "relevance_score": 0.97,
+  "scenarios": [
+    "friend_recommendation"
+  ],
+  "source": "arxiv",
+  "summary_zh": "提出一种面向生产环境社交好友推荐的端到端图神经网络排序系统，通过多哈希ID嵌入与时间邻域采样将嵌入表减少98%以上，并在线上A/B测试中显著提升好友添加量。",
+  "targets": [],
+  "tasks": [],
+  "title": "Scaling Graph Neural Networks for Friend Recommendation: Multi-Hash User Embeddings and Temporal Neighbor Sampling",
+  "url": "https://arxiv.org/abs/2608.27413v1"
+}

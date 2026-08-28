@@ -7,12 +7,16 @@ import {
   escapeEChartsRichText,
   filterGraphDocument,
   filterGraphNodeTypes,
+  graphExpansionCandidates,
+  graphInducedSimilarityEdges,
   GRAPH_NODE_STYLES,
   graphEdgeColor,
+  graphEdgeLineType,
   graphNodeCanvasLabel,
   graphNodeLabelVisible,
   graphNodeNeighborhood,
   graphNodeOpacity,
+  graphNodeSymbol,
   graphNodeSymbolSize,
   searchGraphNodes,
 } from "../src/lib/graph-view.ts";
@@ -58,6 +62,38 @@ test("adjacency is undirected and includes isolated nodes", () => {
   assert.deepEqual([...adjacency.get("paper-a")], ["target:user", "task:ranking", "blog-b"]);
   assert.equal(adjacency.get("target:user").has("paper-a"), true);
   assert.deepEqual([...adjacency.get("method:isolated")], []);
+});
+
+test("initial expansion is deterministic, breadth-first, and bounded", () => {
+  const neighbors = new Map([
+    ["paper-a", [
+      { source_id: "paper-a", target_id: "paper-d", score: 0.82 },
+      { source_id: "paper-a", target_id: "paper-c", score: 0.91 },
+    ]],
+    ["blog-b", [
+      { source_id: "blog-b", target_id: "paper-e", score: 0.95 },
+      { source_id: "blog-b", target_id: "paper-c", score: 0.93 },
+    ]],
+  ]);
+  assert.deepEqual(
+    graphExpansionCandidates(["paper-a", "blog-b"], neighbors, new Set(["paper-a", "blog-b"]), 3),
+    ["paper-e", "paper-c", "paper-d"],
+  );
+  assert.deepEqual(graphExpansionCandidates(["paper-a"], neighbors, new Set(["paper-a"]), 1), ["paper-c"]);
+  assert.deepEqual(graphExpansionCandidates(["paper-a"], neighbors, new Set(["paper-a"]), 0), []);
+});
+
+test("initial expansion retains the final layer induced similarity edges", () => {
+  const edges = [
+    edge("similarity:paper-a|paper-c", "paper-a", "paper-c"),
+    edge("similarity:paper-c|paper-d", "paper-c", "paper-d"),
+    edge("similarity:paper-d|paper-e", "paper-d", "paper-e"),
+    edge("taxonomy:paper-c|target:user", "paper-c", "target:user", { type: "taxonomy" }),
+  ];
+  assert.deepEqual(
+    graphInducedSimilarityEdges(edges, new Set(["paper-a", "paper-c", "paper-d"])).map(value => value.data.id),
+    ["similarity:paper-a|paper-c", "similarity:paper-c|paper-d"],
+  );
 });
 
 test("filters use OR within a group, AND between groups, and prune unrelated taxonomy", () => {
@@ -154,6 +190,12 @@ test("canvas labels hide content titles and prefer the taxonomy Chinese short na
   assert.equal(graphNodeCanvasLabel(nodes[7].data), "孤立方法 / Isolated");
 });
 
+test("content nodes use distinct local icons while taxonomy remains circular", () => {
+  assert.equal(graphNodeSymbol("paper", "/rec-sys-daily/icons/graph/"), "image:///rec-sys-daily/icons/graph/paper.svg");
+  assert.equal(graphNodeSymbol("blog", "/rec-sys-daily/icons/graph/"), "image:///rec-sys-daily/icons/graph/blog.svg");
+  assert.equal(graphNodeSymbol("target", "/rec-sys-daily/icons/graph/"), "circle");
+});
+
 test("rich-text escaping prevents user text from becoming an ECharts style token", () => {
   const escaped = escapeEChartsRichText("{danger|title}\\path");
   assert.equal(escaped.replaceAll("\u2060", ""), "{danger|title}\\path");
@@ -171,15 +213,17 @@ test("ECharts adapter preserves blog and renders similarity as an undirected neu
   const taxonomy = adapted.links.find(link => link.id.startsWith("taxonomy:"));
   const similarity = adapted.links.find(link => link.id.startsWith("similarity:"));
   assert.equal(taxonomy.edgeKind, "taxonomy");
+  assert.equal(taxonomy.lineStyle.color, "#94a3b8");
   assert.equal(taxonomy.lineStyle.type, "solid");
   assert.deepEqual(taxonomy.symbol, ["none", "none"]);
   assert.equal(similarity.edgeKind, "similarity");
-  assert.equal(similarity.lineStyle.type, "solid");
+  assert.equal(similarity.lineStyle.color, "#94a3b8");
+  assert.equal(similarity.lineStyle.type, "dashed");
   assert.deepEqual(similarity.symbol, ["none", "none"]);
   assert.deepEqual(similarity.symbolSize, [0, 0]);
 });
 
-test("taxonomy palette matches site chips and edges inherit the intended endpoint", () => {
+test("content nodes are gray, taxonomy matches chips, and every edge is neutral gray", () => {
   assert.deepEqual(
     Object.fromEntries(["target", "scenario", "task", "method"].map(type => [type, GRAPH_NODE_STYLES[type].fill])),
     {
@@ -189,6 +233,12 @@ test("taxonomy palette matches site chips and edges inherit the intended endpoin
       method: "#8b5cf6",
     },
   );
-  assert.equal(graphEdgeColor("taxonomy"), "target");
+  assert.deepEqual(
+    Object.fromEntries(["paper", "blog"].map(type => [type, GRAPH_NODE_STYLES[type].fill])),
+    { paper: "#d1d5db", blog: "#9ca3af" },
+  );
+  assert.equal(graphEdgeColor("taxonomy"), "#94a3b8");
   assert.equal(graphEdgeColor("similarity"), "#94a3b8");
+  assert.equal(graphEdgeLineType("taxonomy"), "solid");
+  assert.equal(graphEdgeLineType("similarity"), "dashed");
 });

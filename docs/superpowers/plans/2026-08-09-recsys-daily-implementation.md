@@ -209,8 +209,11 @@ controller。
 - [ ] d0/d1 距离只依据 similarity edges；taxonomy edges 仅用于分类和导航，不改变距离。
 - [ ] 使用 stable ID/hash 划分节点、边和 adjacency shard，raw shard 目标 64--128 KB；分片边界
       可复现，已加载分片不重复下载。
-- [ ] 使用 `graph_initial_content_nodes` 控制初始渲染，不设置全历史 80 节点数据上限；完整索引
-      保留，聚焦边缘节点时按邻接 shard 继续扩展，允许用户遍历全部历史内容。
+- [ ] 使用 `graph_initial_content_nodes=180` 控制首屏内容节点硬上限；先加载 d0/d1，不足时沿 similarity
+      边按确定性 BFS 扩展并补齐最终 frontier 的诱导边，不设置全历史 80 节点数据上限；完整索引保留，
+      聚焦边缘节点时按邻接 shard 继续扩展，允许用户遍历全部历史内容。
+- [ ] 论文与博客使用不同的本地灰色圆形图标，taxonomy 节点保持与胶囊一致的彩色圆形；所有节点无描边，
+      taxonomy 边为灰色实线，similarity 边为灰色虚线且不带箭头。
 - [ ] 历史无 similarity edge 的节点保留在 index，可由图内搜索、归档和详情页到达。
 - [ ] taxonomy 只由 topics snapshot 生成；图谱不读取模型显式关系，不把 Pagefind 命中写回图谱。
 - [ ] 保持键盘搜索结果、Enter/Space 聚焦、侧栏详情链接、roam、移动端滚动、reduced motion 和
