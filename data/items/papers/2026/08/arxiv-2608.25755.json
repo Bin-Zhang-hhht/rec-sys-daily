@@ -1,0 +1,132 @@
+{
+  "abstract": "Sequential recommendation requires understanding how user preferences evolve over time, yet most existing models treat such evolution as a first order process where the next state depends solely on the current latent representation. Nevertheless, real user behavior often exhibits richer dynamics, including inertia, periodicity, and sudden shifts that cannot be fully captured by these first order assumptions. Motivated by these behavioral characteristics, we reconceptualize sequential recommendation through the lens of second order dynamical systems and introduce the Hamiltonian Spectral Recommender (HSR), which recasts preference evolution as a dissipative Hamiltonian system in a latent phase space of position (stable preference) and momentum (short-term tendency). The linear time-invariant structure of the governing equation admits a closed-form solution in the frequency domain. A learnable dissipation mechanism further captures natural interest decay, while a short local impulse refinement module models abrupt behavioral fluctuations commonly observed in sparse interaction logs. This design jointly accounts for global periodic patterns, inertial evolution, and localized shocks, where three phenomena that are underrepresented in existing sequential models. Extensive experiments on three benchmark datasets demonstrate that HSR consistently outperforms state-of-the-art Transformer-based and state space model (SSM)-based recommenders. Sequential recommendation requires understanding how user preferences evolve over time, yet most existing models treat such evolution as a first order process where the next state depends solely on the current latent representation. Nevertheless, real user behavior often exhibits richer dynamics, including inertia, periodicity, and sudden shifts that cannot be fully captured by these first order assumptions. Motivated by these behavioral characteristics, we reconceptualize sequential recommendation through the lens of second order dynamical systems and introduce the Hamiltonian Spectral Recommender (HSR), which recasts preference evolution as a dissipative Hamiltonian system in a latent phase space of position (stable preference) and momentum (short-term tendency). The linear time-invariant structure of the governing equation admits a closed-form solution in the frequency domain. A learnable dissipation mechanism further captures natural interest decay, while a short local impulse refinement module models abrupt behavioral fluctuations commonly observed in sparse interaction logs. This design jointly accounts for global periodic patterns, inertial evolution, and localized shocks, where three phenomena that are underrepresented in existing sequential models. Extensive experiments on three benchmark datasets demonstrate that HSR consistently outperforms state-of-the-art Transformer-based and state space model (SSM)-based recommenders.",
+  "arxiv_id": "2608.25755",
+  "authors": [
+    "Shuiying Liao",
+    "P. Y. Mok"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "序列推荐是电商、短视频、音乐流媒体和在线广告等场景的核心；HSR在稀疏、嘈杂交互数据上的准确率提升可直接服务于这些场景的下一项推荐。",
+      "HSR参数更少、训练和推理更快、吞吐更高，有利于降低算力成本并支持实时、大规模部署。",
+      "HSR对交互噪声和冷启动更鲁棒，可减少误点击干扰并改善新用户推荐质量。",
+      "学习到的阻尼和质量参数会随数据集特性变化（如稀疏数据阻尼更大、稠密数据质量更大），可帮助业务理解用户兴趣衰减与惯性。",
+      "论文报告HSR在在线对比中平均奖励高于BMAB，表明其能够根据用户个体偏好动态做出更准确的在线推荐决策。"
+    ],
+    "business_transferability": 0.76,
+    "contributions_zh": [
+      "提出将用户偏好演化建模为耗散二阶动力系统的新视角，用位置（稳定偏好）与动量（短期倾向）的相空间表示取代传统一阶状态转移。",
+      "设计了首个哈密顿频谱传播子：利用线性时不变系统的频域闭式解，以 O(T log T) 的 FFT 实现长程惯性建模，并加入局部脉冲分支刻画突发行为波动。",
+      "提出一步相空间外推：从最终融合轨迹恢复动量，并用欧拉步将动量转化为对用户下一时刻偏好位置的预测，而非仅使用终端位置。",
+      "在三个基准数据集上通过实验表明，该方法在多数指标上超越基于Transformer和状态空间模型（SSM）的现有方法，且参数更少、推理更高效。"
+    ],
+    "evidence_quality": 0.91,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Method"
+      },
+      {
+        "page": 5,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Component-wise Ablation Analysis"
+      },
+      {
+        "page": 7,
+        "section": "5.1 Qualitative Evaluation"
+      },
+      {
+        "page": 8,
+        "section": "5.2 Interpretability of Learned Dynamical Parameters"
+      },
+      {
+        "page": 8,
+        "section": "5.3 Comprehensive Efficiency Analysis"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "NARM",
+        "SASRec",
+        "BERT4Rec",
+        "SG-MST",
+        "HSTU",
+        "DIFF",
+        "Mamba4Rec",
+        "SIGMA",
+        "SSD4Rec",
+        "BMAB（在线对比）"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "Amazon-Beauty",
+        "Amazon-Video-Games"
+      ],
+      "findings_zh": [
+        "在Amazon-Beauty和Amazon-Video-Games上，HSR在所有指标上均超过所有基线；在MovieLens-1M上，NDCG@10和MRR@10最优，但Hit@10（0.3255）略低于HSTU（0.3268）。",
+        "在稀疏数据集上提升最大：Amazon-Beauty的NDCG@10提升7.40%、MRR@10提升10.34%；Amazon-Video-Games的NDCG@10提升10.57%、MRR@10提升17.42%。",
+        "消融实验显示，移除哈密顿结构或局部脉冲模块造成的性能下降最大；移除频谱演化、相空间外推或可学习频谱分子也会带来一致但较小的性能下降。",
+        "超参数实验显示，Beauty最优层数为L=3，Video-Games最优层数为L=4；隐藏维从64增至256带来11.5%和13.0%的Hit@10提升，增至512后收益递减。",
+        "按序列长度分桶、噪声鲁棒性（0-30%合成噪声）和冷启动截断实验中，HSR均优于对比模型，尤其在长序列和短历史场景下优势明显。",
+        "效率分析显示HSR参数为4.74M（比Mamba4Rec少21.91%），训练每轮6.8秒（比Mamba4Rec少48.87%），吞吐60,113 QPS；但峰值GPU内存3.71GB高于DIFF的1.74GB，CPU利用率33.0%高于Mamba4Rec的23.5%。",
+        "与BMAB的在线对比中，HSR在K=5、20、100上的平均奖励均更高。"
+      ],
+      "metrics": [
+        "Hit@10",
+        "NDCG@10",
+        "MRR@10",
+        "平均在线奖励",
+        "参数/训练时间/吞吐/延迟等效率指标"
+      ]
+    },
+    "limitations_zh": [
+      "论文未设专门局限性章节，但数据显示HSR在部分效率指标上存在代价：峰值GPU内存（3.71GB）高于DIFF（1.74GB），CPU利用率（33.0%）高于Mamba4Rec（23.5%）。",
+      "在MovieLens-1M上HSR的Hit@10略低于HSTU（增益为-0.39%），说明并非在所有数据集和所有指标上全面最优。",
+      "层数超过约4层或隐藏维增至512后性能改善递减甚至下降，存在过平滑或过拟合风险。",
+      "实验仅在三个离线基准数据集和下一项预测任务上验证，未在真实在线系统、多模态或上下文感知场景中验证。",
+      "论文指出的未来工作包括更丰富的哈密顿参数化、非线性势能、自适应耗散以及多模态和上下文感知推荐，说明当前模型尚未覆盖这些方向。"
+    ],
+    "method_zh": "HSR由嵌入层、L个哈密顿频谱块、最终相空间恢复、一步相空间外推和预测层组成。每个哈密顿频谱块包含三个阶段：第一阶段将输入序列投影为驱动力分支、局部脉冲分支和门控分支；第二阶段对驱动力序列沿时间维做实FFT，用物理参数化的频域传播子 G(ω)=Ψ/(κ−mω²+icω+ε) 对频谱进行滤波得到演化位置谱，并通过 P̂=m(iω)Q̂ 恢复动量谱，再逆FFT回时域；第三阶段用深度可分离时间卷积对局部脉冲建模，与全局位置轨迹做门控融合，再经残差连接和LayerNorm输出。堆叠L个块后，从最终融合位置轨迹重新恢复终端动量以保证相空间一致性，最后用一步欧拉外推 q̂_u = q_L + Δt M^{-1} p_L 得到下一时刻偏好表示，与物品嵌入做点积，并以softmax交叉熵损失端到端训练。",
+    "problem_zh": "现有序列推荐模型大多将用户偏好演化建模为一阶过程，即下一状态只取决于当前隐状态，难以刻画真实行为中的惯性、周期性、兴趣衰减和突发转移等现象。论文提出将偏好演化重新概念化为耗散哈密顿二阶动力学系统，在位置（稳定偏好）与动量（短期倾向）的相空间中建模，以同时捕捉全局周期模式、惯性演化与局部冲击，从而提升下一项推荐预测的准确性。",
+    "technical_depth": 0.94
+  },
+  "doi": "10.1145/3773078.3831793",
+  "final_score": 0.9125,
+  "id": "arxiv-2608.25755",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-28T01:05:05.526016Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-26T13:04:04Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出哈密顿谱时域耗散动态推荐模型HSR，将序贯推荐中的用户偏好演化建模为二阶动力系统，以捕捉惯性、周期性与突变行为。",
+  "targets": [],
+  "tasks": [],
+  "title": "Hamiltonian Spectral-Temporal Dissipative Dynamics for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2608.25755v1"
+}

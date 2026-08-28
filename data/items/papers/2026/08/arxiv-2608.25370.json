@@ -1,0 +1,146 @@
+{
+  "abstract": "Sequential recommendation models, while powerful, have limited flexibility in responding to immediate user requests, making it difficult to adapt their recommendations to the user's timely interests. Unfortunately, existing user request adaptation methods often incur high computational overhead due to either 1) retraining the entire backbone network or 2) leveraging the inference ability of large language models (a.k.a. prompt engineering), limiting their applicability in large-scale recommendation services. This paper presents Control via Request-Aware Masking for Editing Recommenders (CRAMER), a framework that takes users' natural-language requests to immediately change sequential recommendation models' behavior. Specifically, inspired by the model control theory, CRAMER treats user requests as control signals to modulate frozen backbone parameters through masking, achieving instant adaptation to diverse requests while avoiding costly retraining. Experiments on multiple large-scale benchmark datasets show that CRAMER outperforms four state-of-the-art request-aware baselines across multiple recommendation metrics while achieving minimal overhead. Moreover, the proposed framework exhibits enhanced controllability and cross-domain adaptability, establishing a new paradigm for request-aware sequential recommendation. Sequential recommendation models, while powerful, have limited flexibility in responding to immediate user requests, making it difficult to adapt their recommendations to the user's timely interests. Unfortunately, existing user request adaptation methods often incur high computational overhead due to either 1) retraining the entire backbone network or 2) leveraging the inference ability of large language models (a.k.a. prompt engineering), limiting their applicability in large-scale recommendation services. This paper presents Control via Request-Aware Masking for Editing Recommenders (CRAMER), a framework that takes users' natural-language requests to immediately change sequential recommendation models' behavior. Specifically, inspired by the model control theory, CRAMER treats user requests as control signals to modulate frozen backbone parameters through masking, achieving instant adaptation to diverse requests while avoiding costly retraining. Experiments on multiple large-scale benchmark datasets show that CRAMER outperforms four state-of-the-art request-aware baselines across multiple recommendation metrics while achieving minimal overhead. Moreover, the proposed framework exhibits enhanced controllability and cross-domain adaptability, establishing a new paradigm for request-aware sequential recommendation.",
+  "arxiv_id": "2608.25370",
+  "authors": [
+    "Zhiyuan Julian Su",
+    "Naihe Feng",
+    "Zhen Luther Qin",
+    "Ga Wu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "CRAMER 每请求仅增加约 0.018 秒推理开销，且无需重训练骨干网络，适合部署于大规模实时推荐服务，提升响应速度与服务效率。",
+      "通过避免全量微调和大语言模型推理，可降低生产环境的计算成本与能耗，为推荐系统提供更经济的请求自适应方案。",
+      "能够即时响应用户的自然语言反馈（如“更多刺激的游戏”），在不牺牲长期偏好的前提下改善用户体验和交互质量。",
+      "框架在多个领域数据集（对话推荐、短视频、电商商品）上表现稳定，具备跨领域适配潜力，可推广到不同业务场景。",
+      "实际部署时需要注意短期请求与长期兴趣的冲突，需要通过系统级安全措施和以人为中心的设计来避免不当推荐引导。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出 CRAMER 框架，将用户自然语言请求视为控制信号，通过对冻结的序列推荐骨干参数施加请求感知掩码，实现无需重训练的即时行为调整。",
+      "提出受变分推断启发的训练目标，结合预测损失与 KL 稀疏正则项，并采用 Gumbel–Top-k 与直通估计器（STE）进行离散门控优化，兼顾精度与稀疏性。",
+      "设计结构化行-列门控掩码机制，可作用于 Transformer 的 FFN、注意力输出矩阵 W_O 或二者联合，在保持低开销的同时实现细粒度控制。",
+      "在四个大规模基准数据集和两种骨干模型（SASRec、BERT4Rec）上，一致优于四种最先进的请求感知基线，并展现出更强的可控性与跨领域适应性。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Experiments and Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "Efficiency and Overhead"
+      },
+      {
+        "page": 1,
+        "section": "Mask Interpretability"
+      },
+      {
+        "page": 1,
+        "section": "Impact Statement"
+      },
+      {
+        "page": 1,
+        "section": "Appendix B.1 Data Preprocessing"
+      },
+      {
+        "page": 1,
+        "section": "Appendix B.4 Detailed Experiments"
+      },
+      {
+        "page": 1,
+        "section": "Appendix B.5 Efficiency and Overhead (BERT4Rec)"
+      },
+      {
+        "page": 1,
+        "section": "Appendix B.6 Controlled Scaling Study within BERT4Rec"
+      },
+      {
+        "page": 1,
+        "section": "Appendix B.7 Further Discussion on PLM"
+      },
+      {
+        "page": 1,
+        "section": "Appendix C.2 Non-Destructive and Reversible Masking"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Query-SeqRec",
+        "BLaIR",
+        "LLM-ESR",
+        "REARANK"
+      ],
+      "datasets": [
+        "ReDial",
+        "KuaiSAR",
+        "Beauty",
+        "CDs&Vinyl"
+      ],
+      "findings_zh": [
+        "在 SASRec 和 BERT4Rec 两种骨干下，CRAMER 在 ReDial、KuaiSAR、Beauty、CDs&Vinyl 四个数据集上的所有指标均优于四种请求感知基线；经 Benjamini–Hochberg 校正后，在 48 次配对 t 检验中有 41 次（85.42%）显著优于最强基线。",
+        "效率实验显示，相对原始 SASRec，CRAMER 每次请求仅增加约 0.018 秒运行时间和 1355.6 MiB GPU 内存，属于开销最低的方法之一；相比之下 REARANK 每次请求增加约 9.256 秒。",
+        "超参数敏感性实验表明，drop ratio ρ 在中等范围（约 0.10）效果最好；小数据集偏好更大 ρ 以利用稀疏性防止过拟合，大规模信息密集数据集偏好更小 ρ。",
+        "请求编码器 PLM 选择实验中，RoBERTa 和 ModernBERT 总体最优；在低容量 PLM（如 MiniLM）下性能下降，且 BERT 系列容量从 Tiny 到 Base 与 NDCG@10 呈严格单调正相关。",
+        "掩码作用范围实验中，FFN+W_O 联合掩码在大规模数据集上通常最优，而小数据集上单独使用 FFN 或 W_O 更有利于防止过拟合。",
+        "训练时按实例独立采样掩码（非批内共享）显著优于共享掩码；温度退火调度中余弦退火在多数设置下最优。",
+        "BERT4Rec 家族受控扩展实验显示，CRAMER 在不同骨干深度下均提升 NDCG@10，且随骨干规模增大，相对运行时间和内存开销比例下降。",
+        "可解释性实验表明，在 ReDial 上针对“romance”概念的正向请求提高浪漫类电影占比，反向请求降低占比，说明掩码能产生语义对齐且稳定的推荐偏移。"
+      ],
+      "metrics": [
+        "HR@10",
+        "HR@20",
+        "NDCG@10",
+        "NDCG@20",
+        "MRR@10",
+        "MRR@20"
+      ]
+    },
+    "limitations_zh": [
+      "请求编码器端到端全量微调在低数据条件下可能导致优化不稳定或过拟合，仅在数据量大、请求文本信息丰富的场景更有利。",
+      "请求编码器容量直接影响性能：使用低容量 PLM（如 MiniLM）时语义编码能力不足，性能受限。",
+      "drop ratio 设置存在权衡：掩码过少会削弱请求条件影响，掩码过多会损害骨干模型容量。",
+      "训练目标是受变分推断启发的代理目标而非严格 ELBO，因为前向使用硬 k-hot Gumbel–Top-k 掩码，而 KL 项假设独立 Bernoulli 门控。",
+      "更强的可控性可能带来意外或不恰当推荐引导的风险，例如短期请求与用户长期利益发生冲突，需要系统级防护措施。",
+      "受计算预算限制，KuaiSAR、Beauty、CDs&Vinyl 采用了随机下采样，可能影响对完整数据规模下的结论外推。"
+    ],
+    "method_zh": "CRAMER 将请求文本送入基于预训练语言模型的轻量请求编码器，对 token 嵌入做均值池化得到语义嵌入 e_q；随后通过线性投影将 e_q 映射为行-列门控 logits，并利用 Gumbel–Top-k 采样得到精确 k-hot 稀疏二值门控向量 m。该门控向量按矩阵分解为行门控与列门控，再转换为逐元素掩码，作用于冻结 Transformer 骨干中选定的可控制参数子集（仅 FFN、仅 W_O、或 FFN+W_O），得到编辑后的参数 θ'。训练时仅更新请求到掩码模块（投影层和部分请求编码器参数），目标函数为预测损失加上归一化 KL 稀疏正则项，并通过直通估计器（STE）和温度控制的 softmax 松弛来传递离散门控的梯度；推理时用确定性 Top-k 生成掩码。",
+    "problem_zh": "现有序列推荐模型在用户发出即时自然语言请求（如“我想要更多刺激的游戏”）时缺乏灵活性，难以动态平衡即时意图与长期偏好。已有请求自适应方法要么需要重训或全量微调整个骨干网络，要么依赖大语言模型推理（如提示工程或重排），计算开销高，难以用于大规模实时推荐服务；同时它们将推荐骨干视为静态黑盒，缺少对已部署模型内部机制进行后验控制的能力。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9125,
+  "id": "arxiv-2608.25370",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-28T01:05:05.526016Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-26T04:43:23Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出CRAMER框架，将用户自然语言请求作为控制信号，通过对冻结的序贯推荐模型参数进行请求感知掩码调制，实现低开销的即时推荐行为调整。",
+  "targets": [],
+  "tasks": [],
+  "title": "CRAMER: Control via Request-Aware Masking for Editing Recommenders",
+  "url": "https://arxiv.org/abs/2608.25370v1"
+}

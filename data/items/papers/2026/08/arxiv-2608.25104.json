@@ -1,0 +1,129 @@
+{
+  "abstract": "Modern industrial recommender systems have increasingly adopted the Generator-Evaluator (G-E) framework for the re-ranking stage. Within this paradigm, the generator produces candidate item lists from a pool filtered by upstream retrieval and ranking modules, while the evaluator scores these lists and selects the highest-scoring one for final exposure per request. However, on sequential platforms (e.g., short-video apps), users consume items continuously, ignoring artificial list boundaries. Conventional evaluators score lists by aggregating point-wise values, implicitly assuming exposure independence. This fails to capture critical session-level dynamics, such as contextual dependencies, user continuation, and diminishing marginal utility from repetitive content. To bridge this gap, we propose SWIM (Step-Wise Integrated Measure), a list-level evaluator that models user behaviors as a finite-horizon prefix session-level survival process. SWIM estimates the prefix-conditioned contribution of the current list to the session-level objective by factorizing it into a recursive survival distribution and reached-position conditional rewards. Leveraging a causally-masked Transformer, SWIM efficiently estimates continuation probabilities and utilities in parallel, satisfying strict industrial latency constraints. Extensive experiments demonstrate that SWIM significantly outperforms baselines in listwise reranking tasks, yielding substantial improvements in overall recommendation engagement. Modern industrial recommender systems have increasingly adopted the Generator-Evaluator (G-E) framework for the re-ranking stage. Within this paradigm, the generator produces candidate item lists from a pool filtered by upstream retrieval and ranking modules, while the evaluator scores these lists and selects the highest-scoring one for final exposure per request. However, on sequential platforms (e.g., short-video apps), users consume items continuously, ignoring artificial list boundaries. Conventional evaluators score lists by aggregating point-wise values, implicitly assuming exposure independence. This fails to capture critical session-level dynamics, such as contextual dependencies, user continuation, and diminishing marginal utility from repetitive content. To bridge this gap, we propose SWIM (Step-Wise Integrated Measure), a list-level evaluator that models user behaviors as a finite-horizon prefix session-level survival process. SWIM estimates the prefix-conditioned contribution of the current list to the session-level objective by factorizing it into a recursive survival distribution and reached-position conditional rewards. Leveraging a causally-masked Transformer, SWIM efficiently estimates continuation probabilities and utilities in parallel, satisfying strict industrial latency constraints. Extensive experiments demonstrate that SWIM significantly outperforms baselines in listwise reranking tasks, yielding substantial improvements in overall recommendation engagement.",
+  "arxiv_id": "2608.25104",
+  "authors": [
+    "Yuanhao Pu",
+    "Chenghao Zhang",
+    "Chao Feng",
+    "Xunyong Yang",
+    "Xiang Li",
+    "Yongqi Liu",
+    "Defu Lian",
+    "Kaiqiao Zhan",
+    "Kun Gai"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对短视频、信息流、新闻和电商等连续消费平台，将会话级续看概率和位置上条件奖励引入重排评估，可直接改善总停留时长、7日留存等长期业务指标。",
+      "SWIM以非自回归因果Transformer实现并行估计，适合部署在生成-评估重排管线中，且与上游检索、排序和生成模块解耦，可用作对现有评估器的替换。",
+      "通过显式建模跨请求依赖和重复内容导致的边际效用递减，有助于减少只优化单次请求短期指标带来的次优曝光，提升整个会话内的用户消费体验。",
+      "线上A/B结果说明，即使离线排序指标提升有限，替换评估器后仍可在长期留存和总停留时长上获得统计显著的业务提升。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "形式化了会话级列表价值：从前缀会话视角定义当前列表对会话目标的贡献，并指出离线会话级监督与在线请求级推理之间的不一致问题。",
+      "提出基于有限时域生存过程的分解：把前缀会话价值分解为递归生存分布（用户继续浏览概率）与到达位置条件下的奖励函数，从而显式建模用户续看行为和长期效用累积。",
+      "设计了可部署的非自回归实现：使用因果掩码Transformer并行估计逐位置继续概率和奖励，避免自回归解码的高延迟，满足工业实时重排的延迟要求。",
+      "给出理论分析：证明仅依赖请求级信息的评估器在会话级目标上存在不可约误差，并证明相比Weibull受限的生存建模，SWIM能表示任意有效有限时域离散生存曲线。",
+      "在RecFlow、KuaiRand和快手大规模线上A/B测试中验证了方法有效性，相比强基线取得显著离线指标提升和线上互动时长、留存提升。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3 Preliminaries"
+      },
+      {
+        "page": 3,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 4,
+        "section": "5 Theoretical Results"
+      },
+      {
+        "page": 5,
+        "section": "6 Experiments"
+      },
+      {
+        "page": 6,
+        "section": "6.7 Online A/B Test"
+      },
+      {
+        "page": 6,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DNN",
+        "Seq2Slate",
+        "DLCM",
+        "SetRank",
+        "PRM",
+        "SORT-Gen",
+        "NAR4Rec",
+        "PIER",
+        "MultiG",
+        "CAVE"
+      ],
+      "datasets": [
+        "RecFlow",
+        "KuaiRand",
+        "Kuaishou线上A/B测试"
+      ],
+      "findings_zh": [
+        "在RecFlow上，SWIM的NDCG为0.2031、AUC为0.7185，超过最强基线CAVE（NDCG 0.1957、AUC 0.7083）；在KuaiRand上SWIM的NDCG为0.7375、AUC为0.7804，同样优于所有基线。",
+        "消融实验显示，去掉前缀特征、去掉边界q_{k,0}或去掉生存链均会造成性能下降，说明会话前缀建模、边界转换和递归生存加权各自都有贡献。",
+        "在快手7天线上A/B测试中，用SWIM替换CAVE作为评估器后，App停留时长相对提升+0.351%（95%置信区间[0.27%, 0.42%]），7日留存LT7相对提升+0.048%（95%置信区间[0.01%, 0.09%]）。",
+        "SWIM在RecFlow上的提升大于KuaiRand，作者将其归因于RecFlow的请求级和候选集信息更完整，更接近生成-评估重排的真实场景。"
+      ],
+      "metrics": [
+        "NDCG@6",
+        "AUC",
+        "App停留时长",
+        "7日留存（LT7）"
+      ]
+    },
+    "limitations_zh": [
+      "公共数据集RecFlow和KuaiRand缺少SWIM所需的完整会话前缀、请求级分组、候选集等信号，部分信号需要重构，可能与真实工业环境存在差异。",
+      "KuaiRand上无法获得上游候选集，只能构造6-to-6的重排序任务，而不是完整候选集上的重排，评估强度弱于RecFlow和工业场景。",
+      "作者指出未来需要发展生成式列表空间的鲁棒反事实和离线策略评估协议，并将会话前缀建模扩展到更长、更多样的浏览轨迹。"
+    ],
+    "method_zh": "SWIM将用户浏览建模为有限时域的会话生存过程。给定请求k的候选列表L_k，它估计边界到达概率q_{k,0}，即从会话前缀进入当前请求的概率，以及列表内逐位置继续概率q_{k,t}，即在看到前缀L_{k,1:t}后继续浏览到位置t+1的概率；同时估计每个到达位置的条件奖励r_{k,t}。会话级列表贡献定义为V_sess = Σ_t (∏_{i=0}^{t-1} q_i) r_t。实现上，SWIM使用带前缀token的因果掩码Transformer编码会话前缀和候选列表，在单次前向传播中并行输出所有位置的生存概率和奖励；训练目标包括生存概率的BCE损失和条件奖励损失（点击等二分类目标以及播放时长分桶分类目标）；在线推理时请求已被触发，固定q_{k,0}=1，按条件列表价值V_k(L_k)选择最终曝光列表。",
+    "problem_zh": "在短视频等连续消费平台上，用户的浏览行为跨越多次推荐请求，且感知不到系统划分的列表边界。现有生成-评估（G-E）重排框架中的评估器通常以单个请求为单位，通过累加逐点效用给候选列表打分，隐式假设请求之间彼此独立，因而无法刻画会话语境依赖、用户是否继续浏览、重复内容带来的边际效用递减等关键会话级动态，导致对候选列表长期价值的估计不准确，影响重排效果。",
+    "technical_depth": 0.95
+  },
+  "doi": "10.1145/3799682.3840732",
+  "final_score": 0.925,
+  "id": "arxiv-2608.25104",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-08-28T01:05:05.526016Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-25T19:57:48Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出SWIM列表级评估器，将推荐重排阶段中的会话级用户行为建模为有限时域生存过程，以提升序列化平台的整体推荐互动效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "SWIM: Step-Wise Integrated Measure for Session-supervised List Evaluation in Generative Re-ranking",
+  "url": "https://arxiv.org/abs/2608.25104v1"
+}
