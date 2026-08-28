@@ -1,6 +1,6 @@
 # 架构文档
 
-状态：当前有效 · 最后核验：2026-08-28
+状态：当前有效 · 最后核验：2026-08-29
 
 本文是系统组件、数据契约、发布事务和本地验证的唯一技术说明。产品范围见
 [`docs/product.md`](product.md)。
@@ -8,7 +8,8 @@
 ## 1. 总体架构
 
 系统由 GitHub Actions 定时驱动，使用两个 Docker 镜像完成一次性数据处理和静态站点构建。
-没有常驻 API、数据库或运行时内容服务。
+独立通知工作流在标准 GitHub-hosted runner 上读取已发布数据并调用飞书 Webhook；系统没有常驻
+API、数据库或运行时内容服务。
 
 ```mermaid
 flowchart TB
@@ -27,10 +28,15 @@ flowchart TB
     bundle --> site["Astro + Tailwind + Pagefind + ECharts"]
     site --> pages["GitHub Project Pages"]
     pages --> promote["部署成功后 promotion<br/>pending-data -> data"]
+    promote --> canonical["默认分支 canonical data"]
+    canonical --> notify["feishu-notify<br/>北京时间 09:09"]
+    feishu_config["config/feishu.json<br/>+ Actions Secrets"] --> notify
+    notify --> feishu["飞书自定义机器人<br/>CardKit 模板卡片"]
 ```
 
 数据逻辑只有一个 Python 包和三个阶段：`collect-filter`、`deep-read`、`rank-integrate`。
-`similarity` 是第三阶段的独立物理 runner；网站构建是第四阶段。
+`similarity` 是第三阶段的独立物理 runner；网站构建是第四阶段。飞书通知只消费已经晋升的
+canonical data，不属于数据阶段，也不参与发布事务。
 
 ## 2. 阶段与发布时序
 
@@ -41,6 +47,7 @@ flowchart TB
 | `similarity` | 当前成功项 + 历史 canonical items | 短期有界边列表 | 缺失或校验失败阻断整合 |
 | `rank-integrate` | 三类 artifact、只读历史 `data/` | 完整 `pending-data/` | 不生成可消费 bundle |
 | `build-deploy` | bundle + 同 run similarity | Astro/Pagefind/图谱 Pages artifact | 不提升 `state.json` |
+| `feishu-notify` | 已晋升的 `data/`、飞书配置和 Secret | 一张模板卡片 | 只影响通知工作流，不回滚发布 |
 
 ```mermaid
 sequenceDiagram
@@ -53,6 +60,8 @@ sequenceDiagram
     participant W as site build
     participant P as Pages
     participant G as Git data
+    participant N as feishu-notify
+    participant F as 飞书 Webhook
 
     A->>C: 读取配置、state、公开来源
     C-->>A: stage-1 artifact
@@ -71,10 +80,18 @@ sequenceDiagram
     W->>P: 上传并部署 Pages artifact
     P-->>A: 部署成功
     A->>G: pending-data -> data，提交 state
+    Note over N,G: 独立工作流于北京时间 09:09 检查默认分支
+    N->>G: 只读 state、run report、digest 和 items
+    alt 当天正式数据有效且两个 Secret 已配置
+        N->>F: 签名并发送 CardKit 模板卡片
+    else 数据未完成或 Secret 缺失
+        N-->>N: 记录跳过原因，不发送
+    end
 ```
 
 部署成功之前，任何阶段都只能写临时目录或短期 artifact；只有 `build-deploy` 能写 Pages 和
-canonical data。Git push 冲突直接失败，不 force push。
+canonical data。Git push 冲突直接失败，不 force push。通知工作流只有 `contents: read` 权限，
+不会写 Git、Pages 或 artifact，也不触发 promotion。
 
 ## 3. 数据契约
 
@@ -94,6 +111,15 @@ test-fixtures --case all|cold-start|daily|degraded|failures|site --work <dir>
 命令失败返回非零并清理临时源文件。`rank-integrate --output` 必须是已挂载父目录下不存在的
 子目录，空目录也拒绝覆盖。
 
+飞书通知是同一 Python 包中的独立模块，不增加数据阶段或常驻进程：
+
+```text
+PYTHONPATH=pipeline python -m recsys_daily.feishu_notify --root <repository>
+```
+
+模块只读取仓库数据和环境变量；除向已配置 Webhook 发出单次通知外，不写入仓库。正常运行使用
+GitHub-hosted runner 自带的 Python 标准库，不需要第三个 Docker 镜像或 self-hosted runner。
+
 ### 3.2 配置
 
 | 文件 | 责任 |
@@ -102,6 +128,7 @@ test-fixtures --case all|cold-start|daily|degraded|failures|site --work <dir>
 | `config/topics.yaml` | `collection_terms` 与 `targets/scenarios/tasks/methods` taxonomy |
 | `config/models.yaml` | DeepSeek、MinerU、超时、重试和批量大小 |
 | `config/settings.yaml` | 评分、门槛、HTTP pacing、图谱、similarity、存储阈值 |
+| `config/feishu.json` | 飞书 CardKit 模板 ID、版本和卡片展示上限 |
 
 四类 taxonomy 条目都必须是唯一的 `id`、`name_zh`、`name_en`、`terms`。`topics.yaml` 是
 标签、检索筛选和图谱分类的唯一来源；`rank-integrate` 输出按配置顺序标准化的 `taxonomy.json`，
@@ -110,6 +137,25 @@ test-fixtures --case all|cold-start|daily|degraded|failures|site --work <dir>
 关键默认值：论文/博客每日目标各 10，预筛上限 100/50，深读 shortlist 上限各 20；不存在有效
 state 时查询窗口为论文 5 年、博客 3 年，后续使用 `last_success_at - 48h/7d`。模型为单一
 DeepSeek Responses API；不得增加 provider failover、协议回退或客户端 RPM 限制。
+
+飞书配置独立于 `settings.yaml`，避免通知模块依赖数据流水线的 Pydantic/YAML 配置和运行时依赖。
+首版配置固定为：
+
+```json
+{
+  "template_id": "AAqP2jToTOo2R",
+  "template_version": "1.0.0",
+  "max_papers": 3,
+  "max_blogs": 3
+}
+```
+
+`template_id` 和 `template_version` 必须是非空字符串，两个展示上限必须是 `0..3` 的整数。
+卡片模板变量名是固定契约：`date` 为北京时间业务日期的 `YYYY-MM-DD` 字符串，`content` 为
+飞书 Markdown 字符串。模板导出的 `docs/feishu/RecSys Daily Card.card` 用于设计和备份，不是
+运行时输入，也不从其中读取变量的 `apiName`。Webhook 地址和签名密钥不得进入配置文件，分别
+只从 Actions Secrets 映射为 `FEISHU_WEBHOOK_URL` 和 `FEISHU_WEBHOOK_SECRET`。站内详情链接继续
+使用已有的 Actions Variable `SITE_ORIGIN`，不在飞书配置中复制站点地址。
 
 ### 3.3 跨阶段 artifact
 
@@ -167,6 +213,11 @@ Canonical item 保存公开元数据、中文 summary、四类 taxonomy ID、评
 Paper 额外包含 `abstract`、`arxiv_id` 和可空 `doi`；Blog 不含 excerpt。Digest 只保存日期、
 rank、推荐理由和 `item_id`，不复制内容。State 只保存上次成功时间、来源游标/validators、实际
 进入 digest 的 `recommended_item_ids` 和更新时间，不记录未发布候选。
+
+成功完成整合时，无论推荐数是否为零，都生成当前 run report 并更新 pending `state.json`。
+只有论文或博客至少一类存在推荐时才写当天 digest；`paper_recommendations=0` 且
+`blog_recommendations=0` 的 run report 是成功的空日报，不是失败标记。正式 state 和 run report
+仍须等待 Pages 部署成功后一起晋升。
 
 ```mermaid
 classDiagram
@@ -273,7 +324,90 @@ stateDiagram-v2
 失败时不生成可消费的 publish bundle，不推进正式 `data/state.json`；冷启动失败仍按冷启动窗口
 重试。只有 Pages 部署成功后，才用受限 exact-tree 同步提升 `pending-data/`。
 
-## 7. 安全与合规
+## 7. 飞书每日通知
+
+### 7.1 组件与调度
+
+首版通知由三个文件边界组成：
+
+| 文件 | 责任 |
+| --- | --- |
+| `.github/workflows/feishu-notify.yml` | 定时、最小权限、Secret 映射和进程退出状态 |
+| `pipeline/recsys_daily/feishu_notify.py` | 成功门禁、内容组装、签名、HTTP 请求和响应校验 |
+| `config/feishu.json` | 非敏感 CardKit 模板配置 |
+| `docs/feishu/RecSys Daily Card.card` | 飞书卡片搭建工具的设计稿备份，不参与运行 |
+
+workflow 使用 `cron: "9 1 * * *"`，对应无夏令时的北京时间 09:09。GitHub Actions 调度允许排队
+延迟；模块在实际启动时重新计算 `Asia/Shanghai` 的当天业务日期。workflow 运行在默认分支、
+使用 `ubuntu-latest`、授予 `contents: read`，且与 `.github/workflows/daily.yml` 解耦；无需独立
+部署 runner，也不修改 daily workflow 的成功、失败或回滚行为。
+
+### 7.2 推送成功门禁
+
+通知模块 checkout 当时默认分支的最新提交，并按以下顺序判断：
+
+1. `FEISHU_WEBHOOK_URL` 或 `FEISHU_WEBHOOK_SECRET` 任一为空时，记录 `skipped` 原因并以 0
+   退出，不进行网络请求；日志只写缺失的变量名，不写变量值。
+2. 读取 `data/state.json`，将 `last_success_at` 转为 `Asia/Shanghai` 日期；日期不是当天时跳过。
+3. 在 `data/runs/` 中找到与 `state.last_success_at` 完全对应的唯一 run report，并要求
+   `completed_at` 存在、转换后的业务日期为当天。缺失、重复或不一致均视为当天正式数据尚未
+   完成，跳过推送。
+4. 以该 run report 的 `paper_recommendations` 和 `blog_recommendations` 为本次权威计数。
+   任一计数大于零时，当天 digest 必须存在、分区数量与 report 一致，且引用的 canonical item
+   都可解析；校验失败时跳过。
+5. 两个计数均为零时是有效成功状态；不要求当天 digest 存在，也不读取可能残留的同日 digest，
+   直接构造空日报卡片。
+
+该门禁只接受已经通过 Pages 部署并晋升到 `data/` 的结果。Actions artifact、工作目录中的
+`pending-data/` 或仅有 digest 文件都不能作为“当天完成”的依据。
+
+### 7.3 卡片内容与请求契约
+
+非空日报按 digest 的 `rank` 确定性排序，论文和博客各截取 `config/feishu.json` 规定的数量，
+当前上限为 3+3。每条内容只使用 canonical item 中允许公开的原始标题、中文 summary 和站内
+详情链接；不读取或发送 PDF、原始 HTML、source full text、模型请求响应或推理痕迹。某一分区
+为空时写明“今日暂无符合要求的论文”或“今日暂无符合要求的技术博客”。
+
+自定义机器人请求使用 `msg_type: "interactive"` 和模板卡片，不把 `.card` DSL 内联到代码：
+
+```json
+{
+  "timestamp": "<Unix seconds>",
+  "sign": "<Base64 HMAC-SHA256>",
+  "msg_type": "interactive",
+  "card": {
+    "type": "template",
+    "data": {
+      "template_id": "AAqP2jToTOo2R",
+      "template_version_name": "1.0.0",
+      "template_variable": {
+        "date": "2026-08-26",
+        "content": "<Feishu Markdown>"
+      }
+    }
+  }
+}
+```
+
+`date` 和 `content` 使用模板变量的 `name`，不是 `.card` 导出文件中的 `apiName`。签名使用请求
+发出时的 Unix 秒级时间戳；令 `string_to_sign = timestamp + "\n" + secret`，按飞书规则计算
+`Base64(HMAC-SHA256(key=string_to_sign, message=empty))`。请求格式和签名算法以
+[飞书自定义机器人使用指南](https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot)为准。
+`FEISHU_WEBHOOK_URL` 只接受飞书官方 HTTPS 自定义机器人地址，请求不跟随重定向。HTTP 非成功
+状态、无效 JSON、飞书业务返回非成功码或超时都使通知 workflow 失败，但绝不修改或回滚已发布
+网站与 canonical data。日志不得输出 Webhook URL、Secret、签名或完整请求体。
+
+### 7.4 成功与空日报语义
+
+| 当天状态 | State | Run report | Digest | 通知行为 |
+| --- | --- | --- | --- | --- |
+| 发布成功且有推荐 | 已晋升 | 有且与 State 对应 | 有且计数一致 | 发送最多 3+3 |
+| 发布成功且 0+0 | 已晋升 | 两类计数均为 0 | 可以不存在 | 发送空日报 |
+| 生产、构建、部署或晋升未完成 | 未推进到当天 | 不作为成功依据 | 不作为成功依据 | 跳过 |
+| Secret 缺失 | 不受影响 | 不受影响 | 不受影响 | 跳过 |
+| 飞书发送失败 | 不受影响 | 不受影响 | 不受影响 | 通知 workflow 失败 |
+
+## 8. 安全与合规
 
 - URL 仅允许 `http/https`；每次重定向重新检查 loopback、私网和 link-local，拒绝 SSRF。
 - 响应使用流式大小上限；对 `429/5xx` 尊重 `Retry-After`，最多有限重试，`401/403` 不盲重试。
@@ -282,7 +416,7 @@ stateDiagram-v2
   embedding、Pagefind index、graph shards 或 Astro `dist`。
 - 运行报告只记录来源状态、计数、模型调用量、耗时和告警，不记录正文或密钥。
 
-## 8. 本地 Docker 验证
+## 9. 本地 Docker 验证
 
 宿主默认使用 PowerShell，Docker 是正常开发环境；两个镜像分别承担 Python pipeline 和
 Node/Astro site：
@@ -297,8 +431,11 @@ docker compose run --rm site build
 
 测试使用运行时生成的 fixture 和 fake model response，不需要真实 API key。验证重点是 Schema、
 清理、artifact 内容、失败时 state 不推进、Astro production build、Pagefind 输出和图谱分片。
+飞书通知测试使用 fixture canonical data、固定时钟、固定签名输入和 fake HTTP transport，覆盖
+Secret 缺失、State 过期、run report 不匹配、成功 0+0、digest/item 校验、3+3 截断、请求体及
+飞书错误响应；测试不得访问真实 Webhook。
 
-## 9. 关键决策
+## 10. 关键决策
 
 | 决策 | 原因 |
 | --- | --- |
@@ -308,3 +445,5 @@ docker compose run --rm site build
 | FastEmbed + exact cosine | 在当前规模下可复现、无需 Vector DB，关系可解释 |
 | taxonomy 与 similarity 分责 | 标签用于筛选，语义边用于发现，避免把搜索命中伪装成事实关系 |
 | 单一 DeepSeek wrapper | 保持协议和故障行为可测试、可审计 |
+| 飞书通知独立 workflow | 通知故障不阻断、不回滚网站发布，且不需要常驻服务或专用 runner |
+| 独立 `config/feishu.json` | 模板配置可审计，同时避免通知模块耦合主流水线 YAML/Pydantic 配置 |
