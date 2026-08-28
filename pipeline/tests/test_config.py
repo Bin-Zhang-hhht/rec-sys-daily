@@ -40,7 +40,7 @@ def _write_config(root: Path) -> None:
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
         "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 20, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
-        "graph_initial_content_nodes": 48,
+        "graph_initial_content_nodes": 180,
         "graph_shard_target_bytes": 98_304,
         "similarity": {
             "library": "fastembed", "version": "0.8.0",
@@ -65,6 +65,7 @@ def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> Non
     config = load_config(tmp_path)
     assert config.models.text.model == "deepseek-v4-flash"
     assert config.settings.minimum_metadata_relevance_score == 0.65
+    assert config.settings.graph_initial_content_nodes == 180
     assert not hasattr(config.settings.limits, "llm_target_rpm")
     assert config.models.mineru.model_version == "vlm"
 
@@ -78,6 +79,17 @@ def test_graph_shard_target_must_stay_between_64_and_128_kib(tmp_path: Path, inv
     _write_yaml(settings_path, settings)
 
     with pytest.raises(ValueError, match="graph_shard_target_bytes"):
+        load_config(tmp_path)
+
+
+def test_first_release_graph_initial_limit_is_fixed_at_180(tmp_path: Path) -> None:
+    _write_config(tmp_path)
+    settings_path = tmp_path / "config/settings.yaml"
+    settings = yaml.safe_load(settings_path.read_text(encoding="utf-8"))
+    settings["graph_initial_content_nodes"] = 181
+    _write_yaml(settings_path, settings)
+
+    with pytest.raises(ValueError, match="graph_initial_content_nodes"):
         load_config(tmp_path)
 
 

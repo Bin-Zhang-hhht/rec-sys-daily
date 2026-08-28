@@ -203,7 +203,7 @@ def test_generated_timestamps_are_utc() -> None:
 
 def test_run_report_carries_config_and_stage_snapshots() -> None:
     snapshot = BuildConfigSnapshot(
-        graph_initial_content_nodes=48,
+        graph_initial_content_nodes=180,
         graph_shard_target_bytes=98_304,
         minimum_final_score=0.5,
         minimum_metadata_relevance_score=0.65,
@@ -220,7 +220,7 @@ def test_run_report_carries_config_and_stage_snapshots() -> None:
         config_snapshot=snapshot,
         stage_report=StageReport(),
     )
-    assert report.config_snapshot.graph_initial_content_nodes == 48
+    assert report.config_snapshot.graph_initial_content_nodes == 180
     assert report.stage_report.metadata_llm_calls == 0
 
 
@@ -228,8 +228,24 @@ def test_run_report_carries_config_and_stage_snapshots() -> None:
 def test_run_report_rejects_out_of_range_graph_shard_target(invalid_size: int) -> None:
     with pytest.raises(ValidationError, match="graph_shard_target_bytes"):
         BuildConfigSnapshot(
-            graph_initial_content_nodes=48,
+            graph_initial_content_nodes=180,
             graph_shard_target_bytes=invalid_size,
+            minimum_final_score=0.5,
+            minimum_metadata_relevance_score=0.65,
+            target_item_bytes=16_384,
+            max_item_bytes=32_768,
+            max_blog_excerpt_chars=4_000,
+            warn_repository_data_mb=500,
+            warn_pages_artifact_mb=500,
+            fail_pages_artifact_mb=900,
+        )
+
+
+def test_run_report_rejects_graph_initial_limit_above_180() -> None:
+    with pytest.raises(ValidationError, match="graph_initial_content_nodes"):
+        BuildConfigSnapshot(
+            graph_initial_content_nodes=181,
+            graph_shard_target_bytes=98_304,
             minimum_final_score=0.5,
             minimum_metadata_relevance_score=0.65,
             target_item_bytes=16_384,
@@ -245,7 +261,7 @@ def test_run_report_rejects_out_of_range_graph_shard_target(invalid_size: int) -
 def test_artifact_timestamps_require_utc(timestamp: datetime) -> None:
     taxonomy = {"taxonomy": _taxonomy()}
     snapshot = BuildConfigSnapshot(
-        graph_initial_content_nodes=48,
+        graph_initial_content_nodes=180,
         graph_shard_target_bytes=98_304,
         minimum_final_score=0.5,
         minimum_metadata_relevance_score=0.65,

@@ -212,7 +212,7 @@ class Settings(StrictModel):
     metadata_weights: ScoreWeights
     final_weights: FinalScoreWeights
     limits: Limits
-    graph_initial_content_nodes: PositiveInt
+    graph_initial_content_nodes: Literal[180]
     graph_shard_target_bytes: int = Field(ge=65_536, le=131_072)
     similarity: SimilarityConfig
     storage: StorageSettings

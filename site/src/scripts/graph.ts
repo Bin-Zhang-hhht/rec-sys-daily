@@ -1,6 +1,7 @@
 import type { EChartsType } from "echarts/core";
-import type { GraphDocument, GraphEdge, GraphIndexDocument, GraphIndexRecord, GraphManifest, GraphNode, GraphShard } from "../lib/graph";
+import type { GraphDocument, GraphEdge, GraphIndexDocument, GraphManifest, GraphNode, GraphShard } from "../lib/graph";
 import { graphNodeFromIndex, limitGraphContent } from "../lib/graph";
+import { sitePath } from "../lib/paths";
 import type { EChartsGraphLink, EChartsGraphNode } from "../lib/graph-view";
 import {
   adaptGraphDocumentToECharts,
@@ -9,12 +10,17 @@ import {
   escapeEChartsRichText,
   filterGraphDocument,
   filterGraphNodeTypes,
+  graphExpansionCandidates,
+  graphForContentIds,
+  graphInducedSimilarityEdges,
   GRAPH_NODE_STYLES,
   graphEdgeColor,
+  graphEdgeLineType,
   graphNodeCanvasLabel,
   graphNodeLabelVisible,
   graphNodeNeighborhood,
   graphNodeOpacity,
+  graphNodeSymbol,
   isContentGraphNode,
   normalizeGraphSearchText,
   searchGraphNodes,
@@ -166,12 +172,15 @@ if (canvas && status && summary && query && searchResults && details && filters 
       const neighbor = selectedId !== null && selectedId !== data.id && focused.has(data.id);
       const selected = selectedId === data.id;
       const searchHit = searchIds.has(data.id);
-      return { ...data, symbolSize: Math.round(data.symbolSize), draggable: !window.matchMedia("(max-width: 767px)").matches, itemStyle: { color: style.fill, borderColor: selected ? "#0f172a" : searchHit ? "#dc2626" : neighbor ? "#38bdf8" : style.border, borderType: data.type === "blog" ? "dashed" : "solid", borderWidth: selected || searchHit ? 3 : neighbor ? 2.5 : contentTypes.has(data.type) ? 2 : 1.5, opacity: graphNodeOpacity(selectedId !== null, focused.has(data.id)) }, label: { show: graphNodeLabelVisible(data.type, zoomLevel, selected || neighbor || searchHit), formatter: graphNodeCanvasLabel(data), color: "#475569", fontSize: 10, fontWeight: 500, distance: 5, width: 112, overflow: "truncate", position: "right" } };
+      const symbol = graphNodeSymbol(data.type, sitePath("icons/graph/"));
+      const baseOpacity = graphNodeOpacity(selectedId !== null, focused.has(data.id));
+      const opacity = selected ? 1 : searchHit ? Math.max(baseOpacity, 0.86) : neighbor ? Math.max(baseOpacity, 0.72) : baseOpacity;
+      return { ...data, symbol, symbolSize: Math.round(data.symbolSize), draggable: !window.matchMedia("(max-width: 767px)").matches, itemStyle: { color: style.fill, opacity }, label: { show: graphNodeLabelVisible(data.type, zoomLevel, selected || neighbor || searchHit), formatter: graphNodeCanvasLabel(data), color: "#475569", fontSize: 10, fontWeight: 500, distance: 5, width: 112, overflow: "truncate", position: "right" } };
     };
-    const linkOption = (edge: EChartsGraphLink) => { const selected = selectedId !== null && (edge.source === selectedId || edge.target === selectedId); const similarity = edge.edgeKind === "similarity"; return { ...edge, lineStyle: { ...edge.lineStyle, color: graphEdgeColor(edge.edgeKind), width: similarity ? 1.15 : 0.9, opacity: selectedId !== null && !selected ? 0.035 : selected ? 0.74 : edge.lineStyle.opacity, curveness: similarity ? 0.28 : 0.22 } }; };
+    const linkOption = (edge: EChartsGraphLink) => { const selected = selectedId !== null && (edge.source === selectedId || edge.target === selectedId); const similarity = edge.edgeKind === "similarity"; return { ...edge, lineStyle: { ...edge.lineStyle, color: graphEdgeColor(edge.edgeKind), type: graphEdgeLineType(edge.edgeKind), width: similarity ? 1.15 : 0.9, opacity: selectedId !== null && !selected ? 0.035 : selected ? 0.74 : edge.lineStyle.opacity, curveness: similarity ? 0.28 : 0.22 } }; };
     const tooltip = (params: GraphEventParams): string => { const id = params.data?.id; if (!id) return ""; if (params.dataType === "edge") { const edge = graph.edges.find(value => value.data.id === id)?.data; return edge ? `${richText(edge.type, 80)}\nscore ${(edge.confidence * 100).toFixed(1)}%` : ""; } const node = graph.nodes.find(value => value.data.id === id)?.data; return node ? `${richText(node.label)}\n${typeLabels[node.type]} · degree ${node.weight}` : ""; };
     const updateAccessibleState = (): void => { const view = displayedView(); const count = view.nodes.filter(node => contentTypes.has(node.data.type)).length; const selected = selectedId ? graph.nodes.find(node => node.data.id === selectedId)?.data.label : undefined; status.textContent = `${centerMode ? `已定位 ${count} 个内容节点及邻域` : `${count} 个内容节点，${view.edges.length} 条关系`}${selected ? `；已选择 ${selected}` : ""}${statusNotice ? `；${statusNotice}` : ""}`; summary.textContent = `${count} 个内容节点已加载。使用搜索、筛选或键盘结果列表定位节点。`; };
-    const renderChart = (fit = true): void => { if (!chart) return; const view = displayedView(); const adapted = adaptGraphDocumentToECharts(view); chart.setOption({ animation: !reducedMotion.matches, animationDurationUpdate: reducedMotion.matches ? 0 : 260, aria: { enabled: true, description: `推荐系统研究图谱，${view.nodes.length} 个节点，${view.edges.length} 条关系` }, tooltip: { trigger: "item", renderMode: "richText", confine: true, formatter: tooltip }, series: [{ id: "recsys-graph", type: "graph", layout: "force", data: adapted.nodes.map(nodeOption), links: adapted.links.map(linkOption), categories: adapted.categories, roam: true, draggable: !window.matchMedia("(max-width: 767px)").matches, scaleLimit: { min: 0.4, max: 3 }, edgeSymbol: ["none", "none"], force: { initLayout: "circular", repulsion: 520, gravity: 0.04, edgeLength: [120, 190], friction: 0.6, layoutAnimation: !reducedMotion.matches }, label: { position: "right", fontSize: 10 }, labelLayout: { hideOverlap: true }, emphasis: { focus: "adjacency", blurScope: "coordinateSystem", scale: 1.12 }, blur: { itemStyle: { opacity: 0.12 }, lineStyle: { opacity: 0.05 } }, lineStyle: { color: "source", opacity: 0.28, width: 0.9, curveness: 0.22 }, center: ["50%", "50%"], zoom: fit ? 1 : zoomLevel }] }, { notMerge: true, lazyUpdate: false }); if (fit) zoomLevel = 1; updateAccessibleState(); };
+    const renderChart = (fit = true): void => { if (!chart) return; const view = displayedView(); const adapted = adaptGraphDocumentToECharts(view); chart.setOption({ animation: !reducedMotion.matches, animationDurationUpdate: reducedMotion.matches ? 0 : 260, aria: { enabled: true, description: `推荐系统研究图谱，${view.nodes.length} 个节点，${view.edges.length} 条关系` }, tooltip: { trigger: "item", renderMode: "richText", confine: true, formatter: tooltip }, series: [{ id: "recsys-graph", type: "graph", layout: "force", data: adapted.nodes.map(nodeOption), links: adapted.links.map(linkOption), categories: adapted.categories, roam: true, draggable: !window.matchMedia("(max-width: 767px)").matches, scaleLimit: { min: 0.4, max: 3 }, edgeSymbol: ["none", "none"], force: { initLayout: "circular", repulsion: 520, gravity: 0.04, edgeLength: [120, 190], friction: 0.6, layoutAnimation: !reducedMotion.matches }, label: { position: "right", fontSize: 10 }, labelLayout: { hideOverlap: true }, emphasis: { focus: "adjacency", blurScope: "coordinateSystem", scale: 1.12 }, blur: { itemStyle: { opacity: 0.12 }, lineStyle: { opacity: 0.05 } }, lineStyle: { color: "#94a3b8", opacity: 0.28, width: 0.9, curveness: 0.22 }, center: ["50%", "50%"], zoom: fit ? 1 : zoomLevel }] }, { notMerge: true, lazyUpdate: false }); if (fit) zoomLevel = 1; updateAccessibleState(); };
     const refreshVisualState = (): void => { if (!chart) return; const adapted = adaptGraphDocumentToECharts(displayedView()); chart.setOption({ series: [{ id: "recsys-graph", data: adapted.nodes.map(nodeOption), links: adapted.links.map(linkOption) }] }); updateAccessibleState(); };
 
     const loadShard = async (url: string): Promise<ShardPayload> => {
@@ -194,7 +203,67 @@ if (canvas && status && summary && query && searchResults && details && filters 
       if (!manifest) return;
       const urls = [...manifest.initial.d0_urls, ...manifest.initial.d1_urls];
       const shards = await Promise.all(urls.map(url => loadShard(url) as Promise<GraphShard>));
-      graph = mergeDocuments(...shards.map(shard => shard.document));
+      graph = limitGraphContent(mergeDocuments(...shards.map(shard => shard.document)), manifest.initial.max_content_nodes);
+      currentView = graph;
+    };
+    const loadSimilarityEdges = async (id: string): Promise<GraphEdge[]> => {
+      if (!manifest) return [];
+      const record = index.nodes.find(value => value.id === id);
+      if (!record) throw new Error(`unknown graph node: ${id}`);
+      const adjacencyUrl = manifest.adjacency_shards[record.adjacency_shard];
+      if (!adjacencyUrl) throw new Error(`missing adjacency shard mapping for ${id}`);
+      const adjacency = await loadShard(adjacencyUrl) as AdjacencyShard;
+      const entry = adjacency.entries.find(value => value.id === id);
+      if (!entry) throw new Error(`adjacency shard does not contain ${id}`);
+      return entry.neighbors.map(graphEdgeFromSimilarity);
+    };
+    const loadContentNodes = async (ids: readonly string[]): Promise<void> => {
+      if (!manifest || !ids.length) return;
+      const requestedIds = new Set(ids);
+      const records = index.nodes.filter(value => requestedIds.has(value.id));
+      const urls = [...new Set(records.map(value => manifest?.node_shards[value.node_shard]).filter((url): url is string => Boolean(url)))];
+      const shards = await Promise.all(urls.map(url => loadShard(url) as Promise<GraphShard>));
+      graph = mergeDocuments(
+        graph,
+        ...shards.map(shard => graphForContentIds(shard.document, requestedIds)),
+        { nodes: records.map(graphNodeFromIndex), edges: [] },
+      );
+    };
+    const expandInitialGraph = async (): Promise<void> => {
+      if (!manifest) return;
+      const maxContentNodes = manifest.initial.max_content_nodes;
+      const loadedIds = (): Set<string> => new Set(graph.nodes.filter(isContentGraphNode).map(node => node.data.id));
+      const initialIds = loadedIds();
+      if (initialIds.size >= maxContentNodes) return;
+      let frontier = manifest.initial.d1_content_ids.filter(id => initialIds.has(id)).sort();
+      const visited = new Set([...manifest.initial.d0_content_ids, ...frontier]);
+      while (frontier.length && loadedIds().size < maxContentNodes) {
+        const rows = await Promise.all(frontier.map(async id => ({ id, edges: await loadSimilarityEdges(id) })));
+        const neighborsById = new Map(rows.map(row => [row.id, row.edges.map(edge => ({
+          source_id: edge.data.source,
+          target_id: edge.data.target,
+          score: edge.data.score ?? edge.data.confidence,
+        }))] as const));
+        const candidates = graphExpansionCandidates(
+          frontier,
+          neighborsById,
+          visited,
+          maxContentNodes - loadedIds().size,
+        ).filter(id => index.nodes.some(value => value.id === id));
+        if (!candidates.length) break;
+        for (const id of candidates) visited.add(id);
+        await loadContentNodes(candidates);
+        const loaded = loadedIds();
+        const layerEdges = graphInducedSimilarityEdges(rows.flatMap(row => row.edges), loaded);
+        graph = mergeDocuments(graph, { nodes: [], edges: layerEdges });
+        frontier = candidates.filter(id => loaded.has(id));
+      }
+      if (frontier.length) {
+        const loaded = loadedIds();
+        const finalEdges = await Promise.all(frontier.map(id => loadSimilarityEdges(id)));
+        graph = mergeDocuments(graph, { nodes: [], edges: graphInducedSimilarityEdges(finalEdges.flat(), loaded) });
+      }
+      graph = limitGraphContent(graph, maxContentNodes);
       currentView = graph;
     };
     const loadNodeNeighborhood = async (id: string): Promise<void> => {
@@ -205,13 +274,10 @@ if (canvas && status && summary && query && searchResults && details && filters 
       const nodeUrl = activeManifest.node_shards[record.node_shard];
       const adjacencyUrl = activeManifest.adjacency_shards[record.adjacency_shard];
       if (!nodeUrl || !adjacencyUrl) throw new Error(`missing graph shard mapping for ${id}`);
-      const [nodeShard, adjacency] = await Promise.all([
+      const [nodeShard, adjacencyEdges] = await Promise.all([
         loadShard(nodeUrl) as Promise<GraphShard>,
-        loadShard(adjacencyUrl) as Promise<AdjacencyShard>,
+        loadSimilarityEdges(id),
       ]);
-      const targetEntry = adjacency.entries.find(value => value.id === id);
-      if (!targetEntry) throw new Error(`adjacency shard does not contain ${id}`);
-      const adjacencyEdges = targetEntry?.neighbors.map(graphEdgeFromSimilarity) ?? [];
       const neededIds = new Set(adjacencyEdges.flatMap(edge => [edge.data.source, edge.data.target]));
       const neededRecords = index.nodes.filter(value => neededIds.has(value.id));
       const extraUrls = [...new Set(neededRecords.map(value => activeManifest.node_shards[value.node_shard]).filter(Boolean))];
@@ -257,12 +323,21 @@ if (canvas && status && summary && query && searchResults && details && filters 
         manifest = loadedManifest;
         index = await fetchJson<GraphIndexDocument>(loadedManifest.index_url);
         if (index.schema_version !== "1" || !Array.isArray(index.nodes)) throw new Error("invalid graph index");
+        const requestedCenter = new URL(window.location.href).searchParams.get("center");
+        const hasValidCenter = Boolean(requestedCenter && index.nodes.some(value => value.id === requestedCenter));
         await loadInitial();
+        if (!hasValidCenter) {
+          status.textContent = "正在扩展首屏节点...";
+          try {
+            await expandInitialGraph();
+          } catch {
+            statusNotice = "首屏扩展未完成，已保留成功加载的节点";
+          }
+        }
         chart = echarts.init(canvas, undefined, { renderer: "canvas", devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2) });
         chart.on("click", params => { const event = params as unknown as GraphEventParams; if (event.dataType === "node" && event.data?.id) { canvas.focus({ preventScroll: true }); void locate(event.data.id); } });
         chart.on("graphRoam", (...args: unknown[]) => { const event = args[0] as { zoom?: number } | undefined; if (typeof event?.zoom !== "number") return; const wasFar = zoomLevel < 0.72; zoomLevel = Math.max(0.2, Math.min(5, zoomLevel * event.zoom)); if (wasFar !== (zoomLevel < 0.72)) refreshVisualState(); });
         const resizeObserver = new ResizeObserver(() => chart?.resize()); resizeObserver.observe(canvas); window.addEventListener("pagehide", () => { resizeObserver.disconnect(); chart?.dispose(); chart = null; }, { once: true });
-        const requestedCenter = new URL(window.location.href).searchParams.get("center");
         if (requestedCenter && index.nodes.some(value => value.id === requestedCenter)) await locate(requestedCenter); else { currentView = filterGraphDocument(limitGraphContent(graph, loadedManifest.initial.max_content_nodes), { ...graphFilters(), now: Date.now() }); if (requestedCenter) statusNotice = `未找到中心节点 ${requestedCenter.slice(0, 80)}，已显示初始图谱`; renderChart(true); }
         canvas.setAttribute("aria-busy", "false");
       })().catch(error => { status.textContent = `图谱加载失败：${error instanceof Error ? error.message : "未知错误"}`; canvas.setAttribute("aria-busy", "false"); throw error; });

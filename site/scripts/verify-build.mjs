@@ -49,7 +49,7 @@ function readSnapshot(bundle) {
   if (!snapshot || fields.some(field => typeof snapshot[field] !== "number" || !Number.isFinite(snapshot[field]) || snapshot[field] <= 0)) {
     throw new Error("invalid RunReport config_snapshot");
   }
-  if (!Number.isInteger(snapshot.graph_initial_content_nodes)) throw new Error("invalid RunReport graph_initial_content_nodes");
+  if (!Number.isInteger(snapshot.graph_initial_content_nodes) || snapshot.graph_initial_content_nodes < 1 || snapshot.graph_initial_content_nodes > 180) throw new Error("invalid RunReport graph_initial_content_nodes");
   if (!Number.isInteger(snapshot.graph_shard_target_bytes) || snapshot.graph_shard_target_bytes < 65_536 || snapshot.graph_shard_target_bytes > 131_072) {
     throw new Error("invalid RunReport graph_shard_target_bytes");
   }

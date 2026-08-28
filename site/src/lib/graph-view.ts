@@ -24,6 +24,12 @@ export type EChartsGraphNode = GraphNode["data"] & {
   symbolSize: number;
 };
 
+export type GraphSimilarityNeighbor = {
+  source_id: string;
+  target_id: string;
+  score: number;
+};
+
 export type EChartsGraphLink = GraphEdge["data"] & {
   value: number;
   edgeKind: "taxonomy" | "similarity";
@@ -58,14 +64,14 @@ export const GRAPH_NODE_OPACITY = 0.5;
 const MUTED_GRAPH_NODE_OPACITY = 0.14;
 
 export const GRAPH_NODE_STYLES: Readonly<
-  Record<GraphNode["data"]["type"], Readonly<{ fill: string; border: string }>>
+  Record<GraphNode["data"]["type"], Readonly<{ fill: string }>>
 > = {
-  paper: { fill: "#4f6bd8", border: "#3349a3" },
-  blog: { fill: "#2fa37b", border: "#1f7a5a" },
-  target: { fill: "#0ea5e9", border: "#0369a1" },
-  scenario: { fill: "#10b981", border: "#047857" },
-  task: { fill: "#f59e0b", border: "#b45309" },
-  method: { fill: "#8b5cf6", border: "#6d28d9" },
+  paper: { fill: "#d1d5db" },
+  blog: { fill: "#9ca3af" },
+  target: { fill: "#0ea5e9" },
+  scenario: { fill: "#10b981" },
+  task: { fill: "#f59e0b" },
+  method: { fill: "#8b5cf6" },
 };
 
 export function isContentGraphNode(node: GraphNode): boolean {
@@ -239,6 +245,12 @@ export function graphNodeOpacity(selectionActive: boolean, focused: boolean): nu
   return selectionActive && !focused ? MUTED_GRAPH_NODE_OPACITY : GRAPH_NODE_OPACITY;
 }
 
+export function graphNodeSymbol(type: GraphNode["data"]["type"], iconBase: string): string {
+  if (type === "paper") return `image://${iconBase}paper.svg`;
+  if (type === "blog") return `image://${iconBase}blog.svg`;
+  return "circle";
+}
+
 /** Break ECharts rich-text delimiters with invisible word joiners without changing their appearance. */
 export function escapeEChartsRichText(value: string): string {
   const joiner = "\u2060";
@@ -252,8 +264,50 @@ export function graphEdgeKind(edge: GraphEdge): "taxonomy" | "similarity" {
   return edge.data.type;
 }
 
-export function graphEdgeColor(edgeKind: EChartsGraphLink["edgeKind"]): "target" | "#94a3b8" {
-  return edgeKind === "taxonomy" ? "target" : "#94a3b8";
+export function graphEdgeColor(edgeKind: EChartsGraphLink["edgeKind"]): "#94a3b8" {
+  void edgeKind;
+  return "#94a3b8";
+}
+
+/** Select one deterministic breadth-first expansion layer without revisiting content IDs. */
+export function graphExpansionCandidates(
+  frontierIds: readonly string[],
+  neighborsById: ReadonlyMap<string, readonly GraphSimilarityNeighbor[]>,
+  visitedIds: ReadonlySet<string>,
+  limit: number,
+): string[] {
+  if (!Number.isInteger(limit) || limit <= 0) return [];
+  const selected: string[] = [];
+  const seen = new Set(visitedIds);
+  for (const id of [...new Set(frontierIds)].sort()) {
+    const neighbors = [...(neighborsById.get(id) ?? [])].sort((left, right) => {
+      const leftId = left.source_id === id ? left.target_id : left.source_id;
+      const rightId = right.source_id === id ? right.target_id : right.source_id;
+      return right.score - left.score || leftId.localeCompare(rightId);
+    });
+    for (const edge of neighbors) {
+      const neighbor = edge.source_id === id ? edge.target_id : edge.source_id;
+      if (neighbor === id || seen.has(neighbor)) continue;
+      seen.add(neighbor);
+      selected.push(neighbor);
+      if (selected.length >= limit) return selected;
+    }
+  }
+  return selected;
+}
+
+export function graphInducedSimilarityEdges(
+  edges: readonly GraphEdge[],
+  contentIds: ReadonlySet<string>,
+): GraphEdge[] {
+  return edges.filter(edge =>
+    edge.data.type === "similarity"
+    && contentIds.has(edge.data.source)
+    && contentIds.has(edge.data.target));
+}
+
+export function graphEdgeLineType(edgeKind: EChartsGraphLink["edgeKind"]): "solid" | "dashed" {
+  return edgeKind === "taxonomy" ? "solid" : "dashed";
 }
 
 export function adaptGraphDocumentToECharts(
@@ -276,7 +330,8 @@ export function adaptGraphDocumentToECharts(
         value: data.confidence,
         edgeKind,
         lineStyle: {
-          type: "solid",
+          color: graphEdgeColor(edgeKind),
+          type: graphEdgeLineType(edgeKind),
           opacity: edgeKind === "taxonomy" ? 0.28 : 0.34,
         },
         symbol: ["none", "none"],

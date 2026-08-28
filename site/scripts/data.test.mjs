@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { loadBundle } from "../src/lib/data.ts";
 
 const snapshot = {
-  graph_initial_content_nodes: 48,
+  graph_initial_content_nodes: 180,
   graph_shard_target_bytes: 98_304,
   minimum_final_score: 0.5,
   minimum_metadata_relevance_score: 0.65,

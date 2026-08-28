@@ -297,8 +297,8 @@ function validateSnapshot(value: unknown): BuildConfigSnapshot {
       throw new Error(`run report config_snapshot.${field} is invalid`);
     }
   }
-  if (!Number.isInteger(snapshot.graph_initial_content_nodes)) {
-    throw new Error("run report config_snapshot.graph_initial_content_nodes is invalid");
+  if (!Number.isInteger(snapshot.graph_initial_content_nodes) || snapshot.graph_initial_content_nodes > 180) {
+    throw new Error("run report config_snapshot.graph_initial_content_nodes must be between 1 and 180");
   }
   const graphShardTargetBytes = snapshot.graph_shard_target_bytes as number;
   if (!Number.isInteger(graphShardTargetBytes) || graphShardTargetBytes < 65_536 || graphShardTargetBytes > 131_072) {

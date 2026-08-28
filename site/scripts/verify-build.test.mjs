@@ -16,7 +16,7 @@ function makeBundle(snapshot = {}) {
   const bundle = join(root, "bundle");
   const dist = join(root, "dist");
   const fullSnapshot = {
-    graph_initial_content_nodes: 48,
+    graph_initial_content_nodes: 180,
     graph_shard_target_bytes: 98_304,
     minimum_final_score: 0.5,
     minimum_metadata_relevance_score: 0.65,
@@ -85,7 +85,7 @@ function makeBundle(snapshot = {}) {
 
 test("verifyBuild accepts manifest, index, d0/d1, node, and adjacency shards", () => {
   const root = makeBundle();
-  assert.equal(verifyBuild(root).snapshot.graph_initial_content_nodes, 48);
+  assert.equal(verifyBuild(root).snapshot.graph_initial_content_nodes, 180);
 });
 
 test("verifyBuild selects the RunReport named by the bundle manifest", () => {
@@ -96,11 +96,12 @@ test("verifyBuild selects the RunReport named by the bundle manifest", () => {
     config_snapshot: { ...currentReport.config_snapshot, graph_initial_content_nodes: 99 },
     stage_report: {},
   });
-  assert.equal(verifyBuild(root).snapshot.graph_initial_content_nodes, 48);
+  assert.equal(verifyBuild(root).snapshot.graph_initial_content_nodes, 180);
 });
 
 test("verifyBuild rejects old or out-of-range graph snapshot contracts", () => {
   assert.throws(() => verifyBuild(makeBundle({ graph_initial_content_nodes: undefined })), /config_snapshot/);
+  assert.throws(() => verifyBuild(makeBundle({ graph_initial_content_nodes: 181 })), /graph_initial_content_nodes/);
   assert.throws(() => verifyBuild(makeBundle({ graph_shard_target_bytes: 65_535 })), /graph_shard_target_bytes/);
   assert.throws(() => verifyBuild(makeBundle({ graph_shard_target_bytes: 131_073 })), /graph_shard_target_bytes/);
 });

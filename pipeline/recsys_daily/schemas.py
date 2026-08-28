@@ -271,7 +271,7 @@ class SourceRunStatus(ArtifactModel):
 
 
 class BuildConfigSnapshot(ArtifactModel):
-    graph_initial_content_nodes: PositiveInt
+    graph_initial_content_nodes: int = Field(ge=1, le=180)
     graph_shard_target_bytes: int = Field(ge=65_536, le=131_072)
     minimum_final_score: float = Field(ge=0, le=1)
     minimum_metadata_relevance_score: float = Field(ge=0, le=1)
