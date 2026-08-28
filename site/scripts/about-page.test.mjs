@@ -21,7 +21,10 @@ test("about page exposes the evidence-gated quality policy and run metrics", () 
     "精确 cosine",
     "互为 Top-K",
     "详情页按相似度分数、发布日期和稳定 ID 排序",
+    "查看相似度配置",
   ]) {
     assert.match(about, new RegExp(expected));
   }
+  assert.doesNotMatch(about, /查看相似度实现/);
+  assert.match(about, /href=\{`\$\{repository\}\/blob\/main\/config\/settings\.yaml`\}/);
 });
