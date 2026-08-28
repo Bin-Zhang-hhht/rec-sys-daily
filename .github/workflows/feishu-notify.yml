@@ -3,6 +3,7 @@ name: Feishu Daily Notification
 "on":
   schedule:
     - cron: "9 1 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read

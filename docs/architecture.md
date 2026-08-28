@@ -337,10 +337,12 @@ stateDiagram-v2
 | `config/feishu.json` | 非敏感 CardKit 模板配置 |
 | `docs/feishu/RecSys Daily Card.card` | 飞书卡片搭建工具的设计稿备份，不参与运行 |
 
-workflow 使用 `cron: "9 1 * * *"`，对应无夏令时的北京时间 09:09。GitHub Actions 调度允许排队
-延迟；模块在实际启动时重新计算 `Asia/Shanghai` 的当天业务日期。workflow 运行在默认分支、
-使用 `ubuntu-latest`、授予 `contents: read`，且与 `.github/workflows/daily.yml` 解耦；无需独立
-部署 runner，也不修改 daily workflow 的成功、失败或回滚行为。
+workflow 使用 `cron: "9 1 * * *"`，对应无夏令时的北京时间 09:09，并提供 `workflow_dispatch`
+用于从 Actions 页面手动重跑当天通知。定时与手动运行都在实际启动时重新计算 `Asia/Shanghai`
+的当天业务日期，并执行相同的 Secret 和正式数据门禁；手动运行不提供历史日期或跳过门禁的输入。
+GitHub Actions 调度允许排队延迟。workflow 运行在默认分支、使用 `ubuntu-latest`、授予
+`contents: read`，且与 `.github/workflows/daily.yml` 解耦；无需独立部署 runner，也不修改 daily
+workflow 的成功、失败或回滚行为。
 
 ### 7.2 推送成功门禁
 

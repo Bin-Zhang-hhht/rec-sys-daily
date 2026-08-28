@@ -95,7 +95,10 @@ def test_site_only_requires_a_same_run_artifact_pair_and_never_promotes_data() -
 
 def test_feishu_notify_workflow_is_independent_read_only_and_scheduled_for_0909_bjt() -> None:
     workflow = _load_workflow("feishu-notify.yml")
-    assert workflow["on"] == {"schedule": [{"cron": "9 1 * * *"}]}
+    assert workflow["on"] == {
+        "schedule": [{"cron": "9 1 * * *"}],
+        "workflow_dispatch": None,
+    }
     assert workflow["permissions"] == {"contents": "read"}
     assert workflow["concurrency"] == {"group": "feishu-daily-notify", "cancel-in-progress": False}
     assert set(workflow["jobs"]) == {"notify"}
