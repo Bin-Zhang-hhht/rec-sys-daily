@@ -43,7 +43,7 @@ RecSys Daily 面向推荐系统研究者、算法工程师和技术负责人，�
 `RecSys Daily` GitHub Actions 每天在 **03:33（Asia/Shanghai）** 运行，也支持从 Actions 页面手动触发。
 
 - 采用事务式更新：只有 Pages 部署成功后才提升正式 data/；任何阶段失败都不会推进状态。
-- 独立飞书工作流每天 **09:09（Asia/Shanghai）** 检查已提升的数据，也可从 Actions 页面手动重跑当天通知；两种运行方式都会在 Secret 缺失或当天发布未完成时跳过，通知失败不回滚网站。
+- 独立飞书工作流每天 **09:09（Asia/Shanghai）** 检查已提升的数据，也可从 Actions 页面手动重跑当天通知；两种运行方式都会在 Secret 缺失、当天发布未完成或论文与博客均无推荐时跳过，单类为空时隐藏对应栏目，通知失败不回滚网站。
 
 ```mermaid
 flowchart LR
