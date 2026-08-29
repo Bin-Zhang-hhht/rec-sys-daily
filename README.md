@@ -1,6 +1,6 @@
 # RecSys Daily
 
-[![Verify](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/verify.yml/badge.svg)](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/verify.yml) [![Daily](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/daily.yml/badge.svg)](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/daily.yml) [![Updated](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FBin-Zhang-hhht%2Frec-sys-daily%2Frefs%2Fheads%2Fmain%2Fdata%2Fstate.json&query=%24.updated_at&label=Updated)](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/daily.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Verify](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/verify.yml/badge.svg)](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/verify.yml) [![Daily](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/daily.yml/badge.svg)](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/daily.yml) [![Feishu Push](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/feishu-notify.yml/badge.svg)](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/feishu-notify.yml) [![Updated](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FBin-Zhang-hhht%2Frec-sys-daily%2Frefs%2Fheads%2Fmain%2Fdata%2Fstate.json&query=%24.updated_at&label=Updated)](https://github.com/Bin-Zhang-hhht/rec-sys-daily/actions/workflows/daily.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 面向推荐系统研究与工程实践的中文日报。RecSys Daily 每天从 arXiv 和精选工程博客中筛选高相关内容，提供保留原文术语的中文摘要、结构化解读、检索、归档与相似内容导航。
 
@@ -40,31 +40,38 @@ RecSys Daily 面向推荐系统研究者、算法工程师和技术负责人，�
 
 ## 自动更新与配置
 
-`RecSys Daily` GitHub Actions 每天在 **03:33（Asia/Shanghai）** 运行，也支持从 Actions 页面手动触发。
+网页更新与飞书推送由两个独立的 GitHub Actions 工作流负责。两者的执行状态互不回滚；飞书工作流
+只读取网页成功发布后已经晋升的正式数据。
 
-- 采用事务式更新：只有 Pages 部署成功后才提升正式 data/；任何阶段失败都不会推进状态。
-- 独立飞书工作流每天 **09:09（Asia/Shanghai）** 检查已提升的数据，也可从 Actions 页面手动重跑当天通知；两种运行方式都会在 Secret 缺失或当天发布未完成时跳过，通知失败不回滚网站。
+### 自动任务
 
-```mermaid
-flowchart LR
-    source["arXiv + RSS/Atom"] --> collect["collect-filter"]
-    collect --> read["deep-read\n论文 / 博客"]
-    read --> integrate["similarity + rank-integrate"]
-    integrate --> site["Astro + Pagefind"]
-    site --> pages["GitHub Pages"]
-    pages --> promote["promote canonical data"]
-    promote --> notify["09:09 飞书 CardKit"]
-```
+| 项目 | 网页更新 | 飞书推送 |
+| --- | --- | --- |
+| 工作流 | `RecSys Daily` | `Feishu Daily Notification` |
+| 自动时间 | 每天 03:33（Asia/Shanghai） | 每天 09:09（Asia/Shanghai） |
+| 手动运行 | 支持 | 支持 |
+| 输入 | arXiv、RSS/Atom、配置和上次成功状态 | 默认分支已经晋升的 `data/` |
+| 输出 | GitHub Pages 网站与正式 canonical data | 最多 3 篇论文和 3 篇博客的 CardKit 卡片 |
+| 无推荐内容 | 网站仍可正常发布并更新成功状态 | 论文和博客均为空时跳过；单类为空时隐藏对应栏目 |
+| 失败影响 | 不部署半成品、不推进正式 `state.json` | 不回滚网站、canonical data 或 `state.json` |
 
+GitHub Actions 的定时运行可能排队延迟。网页更新和飞书推送都可以从 Actions 页面手动重跑，
+但手动运行不会绕过发布状态、Secret 或内容数量检查。
 
-部署自己的实例时：
+### GitHub 仓库设置
 
 1. 在仓库 Secrets 中设置 `DEEPSEEK_BASE_URL`、`DEEPSEEK_API_KEY` 与 `MINERU_API_KEY`。
 2. 在仓库 Variables 中设置不带路径的 `SITE_ORIGIN`，例如 `https://your-account.github.io`。
 3. 如需飞书推送，在仓库 Secrets 中设置 `FEISHU_WEBHOOK_URL` 与 `FEISHU_WEBHOOK_SECRET`。
-4. 在 GitHub Pages 中启用 GitHub Actions 作为发布源，然后手动触发 `RecSys Daily` 首次运行；当天数据晋升后，可手动运行 `Feishu Daily Notification` 测试推送。
+4. 在 GitHub Pages 中启用 GitHub Actions 作为发布源。
+5. 手动运行 `RecSys Daily` 完成首次发布；数据晋升后，可手动运行
+   `Feishu Daily Notification` 测试推送。
 
-不要把密钥提交到仓库。`.env.example` 仅提供本地变量名模板；`config/` 是可审查的行为配置入口：
+不要把密钥提交到仓库；`.env.example` 只提供本地变量名模板。
+
+### 行为配置
+
+`config/` 是可审查的行为配置入口：
 
 | 配置 | 用途 |
 | --- | --- |
@@ -73,24 +80,6 @@ flowchart LR
 | [`config/models.yaml`](config/models.yaml) | DeepSeek、MinerU、超时、重试与批次设置。 |
 | [`config/settings.yaml`](config/settings.yaml) | 评分、门槛、来源 pacing、相似度与存储策略。 |
 | [`config/feishu.json`](config/feishu.json) | 飞书模板 ID、版本和论文/博客展示上限。 |
-
-## 快速验证
-
-开发与测试以 Docker 为标准环境；宿主 shell 使用 PowerShell。以下命令生成不含真实密钥的 fixture 发布包，并完成 Astro、Pagefind 与图谱构建验证：
-
-```powershell
-docker compose build pipeline site
-docker compose run --rm pipeline test-fixtures --case all --work /workspace/work/fixture-bundle
-docker compose run --rm -e PUBLISH_BUNDLE_DIR=/workspace/work/fixture-bundle site build
-```
-
-若只改动站点，也可以执行：
-
-```powershell
-docker compose run --rm site build
-```
-
-完整命令、各阶段 artifact 契约和失败语义请见[架构文档](docs/architecture.md#9-本地-docker-验证)。
 
 ## 技术栈
 

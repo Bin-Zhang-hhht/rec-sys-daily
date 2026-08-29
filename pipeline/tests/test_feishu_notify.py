@@ -152,21 +152,47 @@ def test_stale_promoted_state_skips_without_sending(tmp_path: Path) -> None:
     assert opener.requests == []
 
 
-def test_successful_zero_digest_sends_empty_card_and_ignores_stale_digest(tmp_path: Path) -> None:
+def test_successful_zero_digest_skips_and_ignores_stale_digest(tmp_path: Path) -> None:
     _write_config(tmp_path)
     _write_promoted_run(tmp_path, papers=0, blogs=0)
     _write_json(tmp_path / "data/digests/2026/08/2026-08-26.json", {"stale": True})
     opener = FakeOpener({"StatusCode": 0, "StatusMessage": "success"})
+    environment = {**ENVIRONMENT, "SITE_ORIGIN": ""}
+
+    result = run_notification(tmp_path, environ=environment, now=NOW, opener=opener)
+
+    assert result.status == "skipped"
+    assert result.reason == "today's promoted digest has no recommendations"
+    assert opener.requests == []
+
+
+@pytest.mark.parametrize(
+    ("papers", "blogs", "visible_heading", "hidden_heading"),
+    [
+        (2, 0, "📘 论文精选 · 2 篇", "📝 技术博客"),
+        (0, 2, "📝 技术博客 · 2 篇", "📘 论文精选"),
+    ],
+)
+def test_single_kind_digest_hides_the_empty_section(
+    tmp_path: Path,
+    papers: int,
+    blogs: int,
+    visible_heading: str,
+    hidden_heading: str,
+) -> None:
+    _write_config(tmp_path)
+    _write_promoted_run(tmp_path, papers=papers, blogs=blogs)
+    _write_digest_and_items(tmp_path, papers=papers, blogs=blogs)
+    opener = FakeOpener()
 
     result = run_notification(tmp_path, environ=ENVIRONMENT, now=NOW, opener=opener)
 
     assert result.status == "sent"
-    assert result.reason == "papers=0, blogs=0"
     payload = json.loads(opener.requests[0].data.decode("utf-8"))
-    variables = payload["card"]["data"]["template_variable"]
-    assert variables["date"] == "2026-08-26"
-    assert "今日暂无符合要求的论文。" in variables["content"]
-    assert "今日暂无符合要求的技术博客。" in variables["content"]
+    content = payload["card"]["data"]["template_variable"]["content"]
+    assert visible_heading in content
+    assert hidden_heading not in content
+    assert "今日暂无符合要求" not in content
 
 
 def test_nonempty_digest_validates_items_and_limits_card_to_three_plus_three(tmp_path: Path) -> None:

@@ -302,14 +302,10 @@ def _item_url(site_origin: str, item: Mapping[str, str]) -> str:
 
 def _format_section(
     title: str,
-    empty_message: str,
     items: Sequence[Mapping[str, str]],
     site_origin: str,
 ) -> str:
     lines = [f"**{title} · {len(items)} 篇**", ""]
-    if not items:
-        lines.append(empty_message)
-        return "\n".join(lines)
     for index, item in enumerate(items, start=1):
         lines.extend(
             [
@@ -327,19 +323,14 @@ def build_markdown_content(
     blogs: Sequence[Mapping[str, str]],
     site_origin: str,
 ) -> str:
-    paper_section = _format_section(
-        "📘 论文精选",
-        "今日暂无符合要求的论文。",
-        papers,
-        site_origin,
-    )
-    blog_section = _format_section(
-        "📝 技术博客",
-        "今日暂无符合要求的技术博客。",
-        blogs,
-        site_origin,
-    )
-    return f"{paper_section}\n\n{blog_section}"
+    sections: list[str] = []
+    if papers:
+        sections.append(_format_section("📘 论文精选", papers, site_origin))
+    if blogs:
+        sections.append(_format_section("📝 技术博客", blogs, site_origin))
+    if not sections:
+        raise FeishuNotificationError("card content requires at least one recommendation")
+    return "\n\n".join(sections)
 
 
 def prepare_notification(
@@ -362,18 +353,18 @@ def prepare_notification(
     blog_count = _nonnegative_count(report.get("blog_recommendations"), label="blog_recommendations")
 
     if paper_count == 0 and blog_count == 0:
-        papers: list[dict[str, str]] = []
-        blogs: list[dict[str, str]] = []
-    else:
-        paper_entries, blog_entries = _load_digest(data_root, business_date, paper_count, blog_count)
-        papers = _load_referenced_items(data_root, paper_entries, kind="paper")[: config.max_papers]
-        blogs = _load_referenced_items(data_root, blog_entries, kind="blog")[: config.max_blogs]
+        raise SkipNotification("today's promoted digest has no recommendations")
+
+    validated_site_origin = validate_site_origin(site_origin)
+    paper_entries, blog_entries = _load_digest(data_root, business_date, paper_count, blog_count)
+    papers = _load_referenced_items(data_root, paper_entries, kind="paper")[: config.max_papers]
+    blogs = _load_referenced_items(data_root, blog_entries, kind="blog")[: config.max_blogs]
 
     return PreparedNotification(
         business_date=business_date,
         paper_recommendations=paper_count,
         blog_recommendations=blog_count,
-        content=build_markdown_content(papers, blogs, site_origin),
+        content=build_markdown_content(papers, blogs, validated_site_origin),
     )
 
 
@@ -489,9 +480,8 @@ def run_notification(
 
     current = now or datetime.now(UTC)
     config = load_feishu_config(root)
-    site_origin = validate_site_origin(values.get("SITE_ORIGIN", ""))
     try:
-        prepared = prepare_notification(root, config, site_origin, now=current)
+        prepared = prepare_notification(root, config, values.get("SITE_ORIGIN", ""), now=current)
     except SkipNotification as exc:
         return NotificationResult(status="skipped", reason=str(exc))
 

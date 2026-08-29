@@ -47,7 +47,7 @@ canonical data，不属于数据阶段，也不参与发布事务。
 | `similarity` | 当前成功项 + 历史 canonical items | 短期有界边列表 | 缺失或校验失败阻断整合 |
 | `rank-integrate` | 三类 artifact、只读历史 `data/` | 完整 `pending-data/` | 不生成可消费 bundle |
 | `build-deploy` | bundle + 同 run similarity | Astro/Pagefind/图谱 Pages artifact | 不提升 `state.json` |
-| `feishu-notify` | 已晋升的 `data/`、飞书配置和 Secret | 一张模板卡片 | 只影响通知工作流，不回滚发布 |
+| `feishu-notify` | 已晋升的 `data/`、飞书配置和 Secret | 有推荐时发送一张模板卡片 | 只影响通知工作流，不回滚发布 |
 
 ```mermaid
 sequenceDiagram
@@ -82,9 +82,9 @@ sequenceDiagram
     A->>G: pending-data -> data，提交 state
     Note over N,G: 独立工作流于北京时间 09:09 检查默认分支
     N->>G: 只读 state、run report、digest 和 items
-    alt 当天正式数据有效且两个 Secret 已配置
+    alt 当天正式数据有效、至少一条推荐且两个 Secret 已配置
         N->>F: 签名并发送 CardKit 模板卡片
-    else 数据未完成或 Secret 缺失
+    else 数据未完成、0+0 或 Secret 缺失
         N-->>N: 记录跳过原因，不发送
     end
 ```
@@ -358,7 +358,7 @@ workflow 的成功、失败或回滚行为。
    任一计数大于零时，当天 digest 必须存在、分区数量与 report 一致，且引用的 canonical item
    都可解析；校验失败时跳过。
 5. 两个计数均为零时是有效成功状态；不要求当天 digest 存在，也不读取可能残留的同日 digest，
-   直接构造空日报卡片。
+   记录 `skipped` 并且不请求飞书 Webhook。
 
 该门禁只接受已经通过 Pages 部署并晋升到 `data/` 的结果。Actions artifact、工作目录中的
 `pending-data/` 或仅有 digest 文件都不能作为“当天完成”的依据。
@@ -367,8 +367,8 @@ workflow 的成功、失败或回滚行为。
 
 非空日报按 digest 的 `rank` 确定性排序，论文和博客各截取 `config/feishu.json` 规定的数量，
 当前上限为 3+3。每条内容只使用 canonical item 中允许公开的原始标题、中文 summary 和站内
-详情链接；不读取或发送 PDF、原始 HTML、source full text、模型请求响应或推理痕迹。某一分区
-为空时写明“今日暂无符合要求的论文”或“今日暂无符合要求的技术博客”。
+详情链接；不读取或发送 PDF、原始 HTML、source full text、模型请求响应或推理痕迹。论文或
+博客任一分区为空时不渲染该分区；两个分区均为空时不构造卡片。
 
 自定义机器人请求使用 `msg_type: "interactive"` 和模板卡片，不把 `.card` DSL 内联到代码：
 
@@ -399,12 +399,13 @@ workflow 的成功、失败或回滚行为。
 状态、无效 JSON、飞书业务返回非成功码或超时都使通知 workflow 失败，但绝不修改或回滚已发布
 网站与 canonical data。日志不得输出 Webhook URL、Secret、签名或完整请求体。
 
-### 7.4 成功与空日报语义
+### 7.4 成功日报与通知语义
 
 | 当天状态 | State | Run report | Digest | 通知行为 |
 | --- | --- | --- | --- | --- |
-| 发布成功且有推荐 | 已晋升 | 有且与 State 对应 | 有且计数一致 | 发送最多 3+3 |
-| 发布成功且 0+0 | 已晋升 | 两类计数均为 0 | 可以不存在 | 发送空日报 |
+| 发布成功且两类都有推荐 | 已晋升 | 有且与 State 对应 | 有且计数一致 | 发送最多 3+3 |
+| 发布成功且仅一类有推荐 | 已晋升 | 有且与 State 对应 | 有且计数一致 | 只发送有内容的栏目 |
+| 发布成功且 0+0 | 已晋升 | 两类计数均为 0 | 可以不存在 | 跳过，不请求 Webhook |
 | 生产、构建、部署或晋升未完成 | 未推进到当天 | 不作为成功依据 | 不作为成功依据 | 跳过 |
 | Secret 缺失 | 不受影响 | 不受影响 | 不受影响 | 跳过 |
 | 飞书发送失败 | 不受影响 | 不受影响 | 不受影响 | 通知 workflow 失败 |
@@ -434,8 +435,8 @@ docker compose run --rm site build
 测试使用运行时生成的 fixture 和 fake model response，不需要真实 API key。验证重点是 Schema、
 清理、artifact 内容、失败时 state 不推进、Astro production build、Pagefind 输出和图谱分片。
 飞书通知测试使用 fixture canonical data、固定时钟、固定签名输入和 fake HTTP transport，覆盖
-Secret 缺失、State 过期、run report 不匹配、成功 0+0、digest/item 校验、3+3 截断、请求体及
-飞书错误响应；测试不得访问真实 Webhook。
+Secret 缺失、State 过期、run report 不匹配、成功 0+0 跳过、单类空栏目隐藏、digest/item 校验、
+3+3 截断、请求体及飞书错误响应；测试不得访问真实 Webhook。
 
 ## 10. 关键决策
 
