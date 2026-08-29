@@ -136,7 +136,7 @@ GitHub-hosted runner 自带的 Python 标准库，不需要第三个 Docker 镜�
 
 关键默认值：论文/博客每日目标各 10，预筛上限 100/50，深读 shortlist 上限各 20；不存在有效
 state 时查询窗口为论文 5 年、博客 3 年，后续使用 `last_success_at - 48h/7d`。模型为单一
-DeepSeek Responses API；不得增加 provider failover、协议回退或客户端 RPM 限制。
+DeepSeek Chat Completions API；不得增加 provider failover、协议回退或客户端 RPM 限制。
 
 飞书配置独立于 `settings.yaml`，避免通知模块依赖数据流水线的 Pydantic/YAML 配置和运行时依赖。
 首版配置固定为：

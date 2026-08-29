@@ -83,7 +83,7 @@ GitHub Actions 的定时运行可能排队延迟。网页更新和飞书推送�
 
 ## 技术栈
 
-Python 3.12 · Docker · DeepSeek OpenAI-compatible Responses API · MinerU · FastEmbed · Astro · TypeScript · Tailwind CSS 4 · Pagefind Extended · ECharts · GitHub Actions · GitHub Pages · Feishu CardKit
+Python 3.12 · Docker · DeepSeek OpenAI-compatible Chat Completions API · MinerU · FastEmbed · Astro · TypeScript · Tailwind CSS 4 · Pagefind Extended · ECharts · GitHub Actions · GitHub Pages · Feishu CardKit
 
 ## 数据与版权边界
 

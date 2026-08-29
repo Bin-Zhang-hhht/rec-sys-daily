@@ -38,7 +38,7 @@
 - Keep every target, scenario, task, and method entry in the normalized `id`, `name_zh`, `name_en`, and `terms` shape.
 - Reject duplicate IDs, missing fields, and canonical item labels that are not declared in `topics.yaml`.
 - `rank-integrate` emits the normalized, ordered `taxonomy.json` snapshot used by the site build. The site must not maintain a second hard-coded label map.
-- Text models use one synchronous DeepSeek OpenAI-compatible Responses API wrapper. Do not add provider failover, profiles, or automatic protocol fallback.
+- Text models use one synchronous DeepSeek OpenAI-compatible Chat Completions API wrapper. Do not add provider failover, profiles, or automatic protocol fallback.
 - MinerU is the independent paper parser and uses its own REST client; do not route it through the text wrapper.
 - Do not impose a client-side model RPM or concurrency limiter. Keep HTTP `429/5xx`, `Retry-After`, bounded retries, and the existing arXiv/RSS/HTML domain pacing protections.
 - Do not silently truncate model input, omit selected visual pages, or ignore schema failures. Fail explicitly or use the documented fallback state.

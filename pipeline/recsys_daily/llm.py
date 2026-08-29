@@ -1,4 +1,4 @@
-"""Synchronous OpenAI-compatible Responses API text client."""
+"""Synchronous OpenAI-compatible Chat Completions API text client."""
 
 from __future__ import annotations
 
@@ -177,21 +177,29 @@ class TextClient:
         validator = Draft202012Validator(schema)
 
         def operation() -> dict[str, Any]:
-            response = self._client.responses.create(
+            response = self._client.chat.completions.create(
                 model=self.model,
-                input=list(messages),
-                text={
-                    "format": {
-                        "type": "json_schema",
+                messages=list(messages),
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
                         "name": "response",
                         "strict": True,
                         "schema": _provider_schema(schema),
-                    }
+                    },
                 },
-                max_output_tokens=self.max_output_tokens,
+                max_tokens=self.max_output_tokens,
                 temperature=0.6,
             )
-            value = _json_content(getattr(response, "output_text", None))
+            choices = getattr(response, "choices", None)
+            if (
+                not isinstance(choices, Sequence)
+                or isinstance(choices, (str, bytes))
+                or not choices
+            ):
+                raise ModelOutputError("model response must contain a completion choice")
+            message = getattr(choices[0], "message", None)
+            value = _json_content(getattr(message, "content", None))
             try:
                 validator.validate(value)
             except JsonSchemaValidationError as exc:
