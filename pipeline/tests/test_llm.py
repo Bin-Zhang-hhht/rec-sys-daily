@@ -16,10 +16,14 @@ SCHEMA = {
 }
 
 
-class FakeResponses:
+def _chat_response(content: object) -> object:
+    return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=content))])
+
+
+class FakeChatCompletions:
     def __init__(self, observed: dict[str, object], outputs: list[object] | None = None) -> None:
         self.observed = observed
-        self.outputs = outputs or [SimpleNamespace(output_text='{"score": 3}')]
+        self.outputs = outputs or [_chat_response('{"score": 3}')]
 
     def create(self, **kwargs: object) -> object:
         self.observed.update(kwargs)
@@ -29,14 +33,14 @@ class FakeResponses:
         return value
 
 
-def test_text_client_uses_single_model_responses_api_and_parses_json(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_text_client_uses_single_model_chat_completions_api_and_parses_json(monkeypatch: pytest.MonkeyPatch) -> None:
     config = load_config(__import__("pathlib").Path(__file__).parents[2])
     observed: dict[str, object] = {}
 
     class FakeOpenAI:
         def __init__(self, **kwargs: object) -> None:
             observed.update(kwargs)
-            self.responses = FakeResponses(observed)
+            self.chat = SimpleNamespace(completions=FakeChatCompletions(observed))
 
     monkeypatch.setattr("recsys_daily.llm.OpenAI", FakeOpenAI)
     client = TextClient.from_config(
@@ -50,12 +54,14 @@ def test_text_client_uses_single_model_responses_api_and_parses_json(monkeypatch
     assert observed["base_url"] == "https://example.test/v1"
     assert observed["api_key"] == "test-key"
     assert observed["model"] == config.models.text.model
-    assert observed["max_output_tokens"] == config.models.text.reserved_output_tokens
-    assert observed["input"] == messages
-    assert observed["text"] == {
-        "format": {"type": "json_schema", "name": "response", "strict": True, "schema": SCHEMA}
+    assert observed["max_tokens"] == config.models.text.reserved_output_tokens
+    assert observed["messages"] == messages
+    assert observed["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {"name": "response", "strict": True, "schema": SCHEMA},
     }
-    assert "response_format" not in observed
+    assert "input" not in observed
+    assert "text" not in observed
     assert not hasattr(client, "_limiter")
 
 
@@ -66,7 +72,9 @@ def test_text_client_strips_unsupported_provider_schema_constraints() -> None:
         api_key="key",
         model="model",
         retries=1,
-        client=SimpleNamespace(responses=FakeResponses(observed, [SimpleNamespace(output_text='{"ok": true}')]))
+        client=SimpleNamespace(
+            chat=SimpleNamespace(completions=FakeChatCompletions(observed, [_chat_response('{"ok": true}')]))
+        ),
     )
     client.complete_json(
         [{"role": "user", "content": "hello"}],
@@ -78,28 +86,48 @@ def test_text_client_strips_unsupported_provider_schema_constraints() -> None:
         },
     )
 
-    schema = observed["text"]["format"]["schema"]  # type: ignore[index]
+    schema = observed["response_format"]["json_schema"]["schema"]  # type: ignore[index]
     assert schema["properties"]["ok"] == {"type": "boolean", "minimum": 0, "maximum": 1}
 
 
 @pytest.mark.parametrize("output", [None, "", "not json", "[]"])
-def test_text_client_rejects_missing_or_invalid_output_text(output: object) -> None:
+def test_text_client_rejects_missing_or_invalid_message_content(output: object) -> None:
     client = TextClient(
         base_url="https://example.test/v1",
         api_key="key",
         model="model",
         retries=1,
-        client=SimpleNamespace(responses=FakeResponses({}, [SimpleNamespace(output_text=output)])),
+        client=SimpleNamespace(
+            chat=SimpleNamespace(completions=FakeChatCompletions({}, [_chat_response(output)]))
+        ),
     )
     with pytest.raises(ModelOutputError, match="JSON text|valid JSON|object"):
         client.complete_json([{"role": "user", "content": "hello"}], SCHEMA)
 
 
+@pytest.mark.parametrize(
+    "response",
+    [SimpleNamespace(), SimpleNamespace(choices=[]), SimpleNamespace(choices=[SimpleNamespace()])],
+)
+def test_text_client_rejects_missing_completion_choice_or_message(response: object) -> None:
+    client = TextClient(
+        base_url="https://example.test/v1",
+        api_key="key",
+        model="model",
+        retries=1,
+        client=SimpleNamespace(
+            chat=SimpleNamespace(completions=FakeChatCompletions({}, [response]))
+        ),
+    )
+    with pytest.raises(ModelOutputError, match="choice|JSON text"):
+        client.complete_json([{"role": "user", "content": "hello"}], SCHEMA)
+
+
 def test_text_client_retries_invalid_json() -> None:
     sleeps: list[float] = []
-    responses = FakeResponses(
+    completions = FakeChatCompletions(
         {},
-        [SimpleNamespace(output_text='{"score":'), SimpleNamespace(output_text='{"score": 0.8}')],
+        [_chat_response('{"score":'), _chat_response('{"score": 0.8}')],
     )
     client = TextClient(
         base_url="https://example.test/v1",
@@ -107,7 +135,7 @@ def test_text_client_retries_invalid_json() -> None:
         model="model",
         retries=2,
         sleeper=sleeps.append,
-        client=SimpleNamespace(responses=responses),
+        client=SimpleNamespace(chat=SimpleNamespace(completions=completions)),
     )
 
     assert client.complete_json([{"role": "user", "content": "hello"}], SCHEMA) == {"score": 0.8}
@@ -116,9 +144,9 @@ def test_text_client_retries_invalid_json() -> None:
 
 def test_text_client_retries_schema_mismatch_and_fails_explicitly() -> None:
     sleeps: list[float] = []
-    responses = FakeResponses(
+    completions = FakeChatCompletions(
         {},
-        [SimpleNamespace(output_text='{"unexpected": true}'), SimpleNamespace(output_text='{"score": 2}')],
+        [_chat_response('{"unexpected": true}'), _chat_response('{"score": 2}')],
     )
     client = TextClient(
         base_url="https://example.test/v1",
@@ -126,7 +154,7 @@ def test_text_client_retries_schema_mismatch_and_fails_explicitly() -> None:
         model="model",
         retries=2,
         sleeper=sleeps.append,
-        client=SimpleNamespace(responses=responses),
+        client=SimpleNamespace(chat=SimpleNamespace(completions=completions)),
     )
 
     bounded_schema = {
@@ -152,14 +180,14 @@ def test_text_client_retries_transient_errors() -> None:
         status_code = 503
 
     sleeps: list[float] = []
-    responses = FakeResponses({}, [TransientError(), SimpleNamespace(output_text='{"score": 3}')])
+    completions = FakeChatCompletions({}, [TransientError(), _chat_response('{"score": 3}')])
     client = TextClient(
         base_url="https://example.test/v1",
         api_key="key",
         model="model",
         retries=2,
         sleeper=sleeps.append,
-        client=SimpleNamespace(responses=responses),
+        client=SimpleNamespace(chat=SimpleNamespace(completions=completions)),
     )
     assert client.complete_json([{"role": "user", "content": "hello"}], SCHEMA) == {"score": 3}
     assert sleeps == [1.0]
