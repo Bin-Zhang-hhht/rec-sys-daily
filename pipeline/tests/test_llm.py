@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -55,17 +56,27 @@ def test_text_client_uses_single_model_chat_completions_api_and_parses_json(monk
     assert observed["api_key"] == "test-key"
     assert observed["model"] == config.models.text.model
     assert observed["max_tokens"] == config.models.text.reserved_output_tokens
-    assert observed["messages"] == messages
-    assert observed["response_format"] == {
-        "type": "json_schema",
-        "json_schema": {"name": "response", "strict": True, "schema": SCHEMA},
-    }
+    assert observed["messages"] == [
+        *messages,
+        {
+            "role": "user",
+            "content": (
+                "Return exactly one JSON object matching this JSON Schema. Do not add, omit, or rename keys.\n"
+                + json.dumps(SCHEMA, ensure_ascii=False, sort_keys=True)
+            ),
+        },
+    ]
+    assert messages == [
+        {"role": "system", "content": "instructions"},
+        {"role": "user", "content": "document"},
+    ]
+    assert observed["response_format"] == {"type": "json_object"}
     assert "input" not in observed
     assert "text" not in observed
     assert not hasattr(client, "_limiter")
 
 
-def test_text_client_strips_unsupported_provider_schema_constraints() -> None:
+def test_text_client_uses_provider_agnostic_json_mode_and_validates_locally() -> None:
     observed: dict[str, object] = {}
     client = TextClient(
         base_url="https://example.test/v1",
@@ -76,18 +87,17 @@ def test_text_client_strips_unsupported_provider_schema_constraints() -> None:
             chat=SimpleNamespace(completions=FakeChatCompletions(observed, [_chat_response('{"ok": true}')]))
         ),
     )
-    client.complete_json(
+    schema = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {"ok": {"type": "boolean", "minLength": 1, "minimum": 0, "maximum": 1}},
+        "required": ["ok"],
+    }
+    assert client.complete_json(
         [{"role": "user", "content": "hello"}],
-        {
-            "type": "object",
-            "additionalProperties": False,
-            "properties": {"ok": {"type": "boolean", "minLength": 1, "minimum": 0, "maximum": 1}},
-            "required": ["ok"],
-        },
-    )
-
-    schema = observed["response_format"]["json_schema"]["schema"]  # type: ignore[index]
-    assert schema["properties"]["ok"] == {"type": "boolean", "minimum": 0, "maximum": 1}
+        schema,
+    ) == {"ok": True}
+    assert observed["response_format"] == {"type": "json_object"}
 
 
 @pytest.mark.parametrize("output", [None, "", "not json", "[]"])
