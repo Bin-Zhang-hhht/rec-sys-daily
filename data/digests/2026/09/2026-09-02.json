@@ -1,0 +1,11 @@
+{
+  "blogs": [],
+  "date": "2026-09-02",
+  "papers": [
+    {
+      "item_id": "arxiv-2608.30251",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出SetMIR，将多兴趣召回视为集合预测问题，使用Transformer编码用户行为历史并利用存在分数与NMS减少ANN查询，部署于Snap商品广告推荐召回链路，显著提升CTR与CVR。"
+    }
+  ]
+}

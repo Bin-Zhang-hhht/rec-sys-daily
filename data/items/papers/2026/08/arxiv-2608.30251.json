@@ -1,0 +1,131 @@
+{
+  "abstract": "Embedding-based retrieval is at the core of industrial recommender systems, but a single user embedding is often too limited to capture a user's diverse interests. Multi-interest retrieval addresses this by using multiple user embeddings, yet existing methods still suffer from two issues: interest collapse, where different embeddings learn the same interest, and static dispatch, where serving uses a fixed retrieval budget even when some embeddings are unnecessary. We propose SetMIR, which treats multi-interest retrieval as a set prediction problem. SetMIR encodes a user's behavior history with a transformer and uses K learnable queries to decode a set of user interests, each producing a retrieval embedding and a presence score. During training, Hungarian matching assigns targets to queries one-to-one, so matched queries learn distinct interests and the presence head learns which queries are active. At serving time, SetMIR uses presence scores and query-level Non-Maximum Suppression (NMS) to issue only active, non-redundant ANN queries. On Snap's Dynamic Product Ads (DPA) data, SetMIR outperforms four learned multi-interest retrievers on every metric while issuing 33% fewer ANN queries per request. Deployed as a new retrieval source in the DPA production stack, SetMIR lifts overall CVR by 3.1%, while lifting CTR by 44% and CVR by 51% over the item-to-item retrieval source with the same item embeddings, ANN index, and retrieval quota. Embedding-based retrieval is at the core of industrial recommender systems, but a single user embedding is often too limited to capture a user's diverse interests. Multi-interest retrieval addresses this by using multiple user embeddings, yet existing methods still suffer from two issues: interest collapse, where different embeddings learn the same interest, and static dispatch, where serving uses a fixed retrieval budget even when some embeddings are unnecessary. We propose SetMIR, which treats multi-interest retrieval as a set prediction problem. SetMIR encodes a user's behavior history with a transformer and uses K learnable queries to decode a set of user interests, each producing a retrieval embedding and a presence score. During training, Hungarian matching assigns targets to queries one-to-one, so matched queries learn distinct interests and the presence head learns which queries are active. At serving time, SetMIR uses presence scores and query-level Non-Maximum Suppression (NMS) to issue only active, non-redundant ANN queries. On Snap's Dynamic Product Ads (DPA) data, SetMIR outperforms four learned multi-interest retrievers on every metric while issuing 33% fewer ANN queries per request. Deployed as a new retrieval source in the DPA production stack, SetMIR lifts overall CVR by 3.1%, while lifting CTR by 44% and CVR by 51% over the item-to-item retrieval source with the same item embeddings, ANN index, and retrieval quota.",
+  "arxiv_id": "2608.30251",
+  "authors": [
+    "Xiaodong Liu",
+    "Congfei Zhang",
+    "Hsiang-wei Chao",
+    "Siman Wang",
+    "Xiao Bai",
+    "Tong Zhao",
+    "Jingxiao Ma",
+    "Wen Zhang",
+    "Zhe Liu",
+    "Shantanu Aggarwal",
+    "Di Huang",
+    "William Leach",
+    "Yunzhi Zhou",
+    "Yajun Wang",
+    "Jinchao Li",
+    "Yu Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SetMIR在生产检索中以更少的ANN查询实现了更高的CTR/CVR，表明动态按需召回可同时节省检索算力并改善用户体验。",
+      "与同检索配额下的I2I召回相比，SetMIR在CTR和CVR上均有显著提升，说明学习式的多兴趣查询构造可作为现有启发式召回的有力补充。",
+      "在广告场景DPA中CVR提升3.11%对广告收入有直接意义，且冻结单向量商品索引的设计使其易于接入已有ANN基础设施。",
+      "减少33%的ANN查询可直接降低在线推理的延迟与算力成本，有利于扩大召回来源而不增加总体检索预算。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "将多兴趣召回建模为集合预测问题：用K个可学习查询解码一组用户兴趣，每个查询输出召回嵌入和存在分数。",
+      "在训练目标层面通过匈牙利匹配实现目标与查询的一对一分配，使匹配查询获得检索梯度、未匹配查询获得显式缺失监督，从而缓解兴趣坍缩。",
+      "用存在分数与查询级NMS把固定查询组转换为请求相关的动态ANN查询集合，用更少的查询数保持检索效果。",
+      "在Snap DPA离线数据上全面超过四种学习式多兴趣召回基线，并在生产环境A/B测试中带来CVR提升。"
+    ],
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Related Work"
+      },
+      {
+        "page": 3,
+        "section": "3 Method"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Offline Experiments"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Online Experiment"
+      },
+      {
+        "page": 7,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MIND",
+        "ComiRec-SA",
+        "DCM",
+        "KuaiFormer",
+        "SetMIR (argmax)"
+      ],
+      "datasets": [
+        "Snap DPA用户-商品互动日志"
+      ],
+      "findings_zh": [
+        "在Snap DPA离线评测池上，SetMIR在所有指标上强于四种学习式多兴趣召回基线，且平均每次请求只发出6.70个ANN查询，较基线的10个减少33%。",
+        "组件消融显示，匈牙利匹配对R@10的影响最大（替换为argmax后R@10降至63.5%），存在损失和多样性损失分别将R@10降至91.4%和93.2%。",
+        "K从1增至10时R@10提升至155%，K=7已接近K=10的效果；有效存在查询数随K亚线性增长（K=10时平均6.70，K=15时7.59）。",
+        "存在门控将ANN调用从10降到7.73且R@1提升1.9%，增加NMS后降至6.70，R@10保留99.2%。",
+        "在线A/B测试中，将SetMIR加入Snap DPA生产召回源后在保持总检索配额不变的情况下使CVR相对提升3.11%；与同配额的item-to-item召回源相比，CTR提升44%、CVR提升51%。"
+      ],
+      "metrics": [
+        "R@1",
+        "R@5",
+        "R@10",
+        "R@100",
+        "HR@100",
+        "NDCG@100",
+        "MRR",
+        "ANN calls per request",
+        "CTR",
+        "CVR"
+      ]
+    },
+    "limitations_zh": [
+      "离线实验仅在Snap DPA数据集上进行，且基线使用冻结商品嵌入的受控比较，并非对各论文系统的端到端复现。",
+      "论文处于审稿状态，按公司政策仅报告相对指标，未给出真实流量比例、样本量与显著性阈值。",
+      "在线A/B仅运行约一周，且将SetMIR叠加在生产检索混合之上，难以把整体增益完全归因于某个机制。",
+      "目标集仅取最近3天高意图事件并截断至15个商品，历史截断为40个事件，可能未覆盖所有用户兴趣。",
+      "DCM和KuaiFormer无公开代码，按论文重实现，可能与原系统存在差异。"
+    ],
+    "method_zh": "SetMIR使用冻结的预训练内容嵌入作为输入，加入可学习位置嵌入和α门控事件类型嵌入；历史序列经J层Transformer编码后，由M层Transformer解码器配合K个可学习兴趣查询输出K个L2归一化检索嵌入和存在分数。训练时先用匈牙利匹配在预测查询与目标商品之间建立一一对应，匹配查询使用InfoNCE损失、未匹配查询由存在损失监督，并加入基于活动掩码的多样性损失；推理时依次进行存在门控（阈值τ）、查询级余弦NMS（阈值δ），再对幸存查询执行ANN检索并按最大分数合并结果。",
+    "problem_zh": "在工业推荐系统的召回阶段，单一用户嵌入难以表达用户的多重兴趣；现有多种多兴趣召回方法仍面临两个问题：一是兴趣坍缩（不同嵌入学到相同兴趣），二是静态调度（即使部分嵌入不必要，服务时仍固定使用全部检索预算）。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.8725,
+  "id": "arxiv-2608.30251",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-01T16:15:46.258149Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-31T05:02:02Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出SetMIR，将多兴趣召回视为集合预测问题，使用Transformer编码用户行为历史并利用存在分数与NMS减少ANN查询，部署于Snap商品广告推荐召回链路，显著提升CTR与CVR。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SetMIR: Multi-Interest Retrieval as Set Prediction",
+  "url": "https://arxiv.org/abs/2608.30251v1"
+}
