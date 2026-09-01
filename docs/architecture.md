@@ -1,6 +1,6 @@
 # 架构文档
 
-状态：当前有效 · 最后核验：2026-08-29
+状态：当前有效 · 最后核验：2026-09-02
 
 本文是系统组件、数据契约、发布事务和本地验证的唯一技术说明。产品范围见
 [`docs/product.md`](product.md)。
@@ -39,6 +39,10 @@ flowchart TB
 canonical data，不属于数据阶段，也不参与发布事务。
 
 ## 2. 阶段与发布时序
+
+主数据与网站工作流 `.github/workflows/daily.yml` 使用 `cron: "12 16 * * *"`，对应无夏令时的
+北京时间每天 00:12，并提供 `workflow_dispatch` 手动运行。该时间是 GitHub Actions 的调度目标，
+实际启动和网站完成更新时间可能因排队及各阶段运行时长而延后。
 
 | 阶段 | 输入 | 输出 | 失败后果 |
 | --- | --- | --- | --- |
@@ -144,7 +148,7 @@ DeepSeek Chat Completions API；不得增加 provider failover、协议回退或
 ```json
 {
   "template_id": "AAqP2jToTOo2R",
-  "template_version": "1.0.0",
+  "template_version": "1.0.1",
   "max_papers": 3,
   "max_blogs": 3
 }
@@ -385,7 +389,7 @@ workflow 的成功、失败或回滚行为。
     "type": "template",
     "data": {
       "template_id": "AAqP2jToTOo2R",
-      "template_version_name": "1.0.0",
+      "template_version_name": "1.0.1",
       "template_variable": {
         "date": "2026-08-26",
         "content": "<Feishu Markdown>"

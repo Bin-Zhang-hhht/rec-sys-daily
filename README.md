@@ -48,7 +48,7 @@ RecSys Daily 面向推荐系统研究者、算法工程师和技术负责人，�
 | 项目 | 网页更新 | 飞书推送 |
 | --- | --- | --- |
 | 工作流 | `RecSys Daily` | `Feishu Daily Notification` |
-| 自动时间 | 每天 03:33（Asia/Shanghai） | 每天 09:09（Asia/Shanghai） |
+| 自动时间 | 每天 00:12（Asia/Shanghai） | 每天 09:09（Asia/Shanghai） |
 | 手动运行 | 支持 | 支持 |
 | 输入 | arXiv、RSS/Atom、配置和上次成功状态 | 默认分支已经晋升的 `data/` |
 | 输出 | GitHub Pages 网站与正式 canonical data | 最多 3 篇论文和 3 篇博客的 CardKit 卡片 |

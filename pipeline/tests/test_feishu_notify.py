@@ -39,7 +39,7 @@ def _write_config(root: Path, *, max_papers: int = 3, max_blogs: int = 3) -> Non
         root / "config/feishu.json",
         {
             "template_id": "AAqP2jToTOo2R",
-            "template_version": "1.0.0",
+            "template_version": "1.0.1",
             "max_papers": max_papers,
             "max_blogs": max_blogs,
         },
@@ -138,7 +138,7 @@ def test_missing_secrets_skip_without_loading_config_or_sending(tmp_path: Path) 
 
 def test_repository_config_matches_the_published_template() -> None:
     config = load_feishu_config(ROOT)
-    assert (config.template_id, config.template_version) == ("AAqP2jToTOo2R", "1.0.0")
+    assert (config.template_id, config.template_version) == ("AAqP2jToTOo2R", "1.0.1")
     assert (config.max_papers, config.max_blogs) == (3, 3)
 
 
@@ -210,7 +210,7 @@ def test_nonempty_digest_validates_items_and_limits_card_to_three_plus_three(tmp
     assert payload["msg_type"] == "interactive"
     assert payload["card"]["type"] == "template"
     assert payload["card"]["data"]["template_id"] == "AAqP2jToTOo2R"
-    assert payload["card"]["data"]["template_version_name"] == "1.0.0"
+    assert payload["card"]["data"]["template_version_name"] == "1.0.1"
     content = payload["card"]["data"]["template_variable"]["content"]
     assert "Paper \\[1\\] \\*Ranking\\*" in content
     assert "paper-3" in content
