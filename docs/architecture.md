@@ -214,6 +214,10 @@ Paper 额外包含 `abstract`、`arxiv_id` 和可空 `doi`；Blog 不含 excerpt
 rank、推荐理由和 `item_id`，不复制内容。State 只保存上次成功时间、来源游标/validators、实际
 进入 digest 的 `recommended_item_ids` 和更新时间，不记录未发布候选。
 
+关于页的筛选漏斗使用 publish bundle manifest 指向的最新 `RunReport`，包括该次运行的候选、
+预筛、深读和入选计数；当该次运行论文与博客入选均为零时，页面另行标注最近一份有内容的
+历史 Digest，不能将历史 Digest 的条目数混入本次运行漏斗。
+
 成功完成整合时，无论推荐数是否为零，都生成当前 run report 并更新 pending `state.json`。
 只有论文或博客至少一类存在推荐时才写当天 digest；`paper_recommendations=0` 且
 `blog_recommendations=0` 的 run report 是成功的空日报，不是失败标记。正式 state 和 run report

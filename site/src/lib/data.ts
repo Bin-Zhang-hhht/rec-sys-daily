@@ -57,7 +57,13 @@ export type RunStageReport = {
   metadata_label_rejections: number;
   metadata_relevance_rejections: number;
 };
-export type RunReport = { run_id: string; config_snapshot: BuildConfigSnapshot; stage_report: RunStageReport };
+export type RunReport = {
+  run_id: string;
+  config_snapshot: BuildConfigSnapshot;
+  stage_report: RunStageReport;
+  paper_recommendations: number;
+  blog_recommendations: number;
+};
 export type SimilarityModel = { library: "fastembed"; version: "0.8.0"; name: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"; dimension: 384; normalized: true };
 export type SimilarityParameters = {
   max_input_tokens: 128; title_tokens: 32; abstract_tokens: 64; summary_tokens: 24; separator_tokens: 8;
@@ -369,6 +375,8 @@ export function loadBundle(root?: string) {
     run_id: text(reportValue.run_id, "RunReport.run_id"),
     config_snapshot: validateSnapshot(reportValue.config_snapshot),
     stage_report: validateStageReport(reportValue.stage_report),
+    paper_recommendations: nonNegativeInteger(reportValue.paper_recommendations, "RunReport.paper_recommendations"),
+    blog_recommendations: nonNegativeInteger(reportValue.blog_recommendations, "RunReport.blog_recommendations"),
   };
   if (runReport.run_id !== manifestRunId) fail("RunReport.run_id", "does not match publish bundle manifest");
   const buildConfig = validateSnapshot(runReport.config_snapshot);
