@@ -10,6 +10,12 @@ const latestItems = [...data.latestDigest.papers, ...data.latestDigest.blogs]
 const models = [...new Set(latestItems.flatMap(item => item.llm?.model ? [item.llm.model] : []))].sort();
 const bases = [...new Set(latestItems.map(item => item.deep_reading.analysis_basis))].sort();
 const stageReport = data.runReport.stage_report;
+const runRecommendations = {
+  papers: data.runReport.paper_recommendations,
+  blogs: data.runReport.blog_recommendations,
+};
+const latestContentDigest = [...data.digests].reverse().find(digest => digest.papers.length || digest.blogs.length) ?? null;
+const runHasNoRecommendations = runRecommendations.papers === 0 && runRecommendations.blogs === 0;
 const similarity = loadSimilarityArtifact(data.items, data.runReport.run_id);
 const basisLabels: Record<string, string> = {
   mineru_full_text: "论文：MinerU 全文",
@@ -76,13 +82,14 @@ const repository = "https://github.com/Bin-Zhang-hhht/rec-sys-daily";
 
       <div>
         <h3 class="text-base font-semibold text-slate-950">本次运行筛选漏斗</h3>
-        <p class="mt-2 text-sm leading-6 text-slate-600">数字按“论文 / 博客”展示，来自最新运行报告与日报。</p>
+        <p class="mt-2 text-sm leading-6 text-slate-600">数字按“论文 / 博客”展示，均来自最新运行报告；无入选内容时另列最近一份有内容的日报。</p>
         <dl class="mt-4 divide-y divide-slate-200 border-y border-slate-200 text-sm">
           <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">采集候选</dt><dd class="font-medium tabular-nums text-slate-900">{stageReport.collected_paper_candidates} / {stageReport.collected_blog_candidates}</dd></div>
           <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">相关性预筛后</dt><dd class="font-medium tabular-nums text-slate-900">{stageReport.prefilter_paper_candidates} / {stageReport.prefilter_blog_candidates}</dd></div>
           <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">进入深读</dt><dd class="font-medium tabular-nums text-slate-900">{stageReport.shortlist_paper_candidates} / {stageReport.shortlist_blog_candidates}</dd></div>
-          <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">日报入选</dt><dd class="font-medium tabular-nums text-slate-900">{data.latestDigest.papers.length} / {data.latestDigest.blogs.length}</dd></div>
+          <div class="flex items-center justify-between gap-4 py-3"><dt class="text-slate-600">日报入选</dt><dd class="font-medium tabular-nums text-slate-900">{runRecommendations.papers} / {runRecommendations.blogs}</dd></div>
         </dl>
+        {runHasNoRecommendations && latestContentDigest && <p class="mt-3 text-xs leading-5 text-slate-500">本次运行无入选内容；最新日报为 {latestContentDigest.date} 的运行结果（论文 {latestContentDigest.papers.length} / 博客 {latestContentDigest.blogs.length}）。</p>}
         <p class="mt-3 text-xs leading-5 text-slate-500">相关性门槛淘汰 {stageReport.metadata_relevance_rejections} 条候选，移除 {stageReport.metadata_label_rejections} 个无证据标签；元数据模型成功率 {(stageReport.metadata_llm_success_rate * 100).toFixed(0)}%，降级 {stageReport.metadata_degraded_count} 条，共调用 {stageReport.metadata_llm_calls} 次。</p>
       </div>
     </div>

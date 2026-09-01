@@ -22,6 +22,8 @@ test("about page exposes the evidence-gated quality policy and run metrics", () 
     "互为 Top-K",
     "详情页按相似度分数、发布日期和稳定 ID 排序",
     "查看相似度配置",
+    "均来自最新运行报告",
+    "本次运行无入选内容",
   ]) {
     assert.match(about, new RegExp(expected));
   }

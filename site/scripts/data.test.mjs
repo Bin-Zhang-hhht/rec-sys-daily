@@ -44,10 +44,15 @@ test("loadBundle selects the RunReport named by the bundle manifest", t => {
   mkdirSync(reports, { recursive: true });
   writeJson(join(root, "manifest.json"), { run_id: "run-a", schema_version: "1" });
   writeJson(join(root, "taxonomy.json"), { targets: [], scenarios: [], tasks: [], methods: [] });
-  writeJson(join(reports, "run-a.json"), { run_id: "run-a", config_snapshot: snapshot, stage_report: stageReport });
-  writeJson(join(reports, "zzz-historical.json"), { run_id: "zzz-historical", config_snapshot: snapshot, stage_report: stageReport });
+  writeJson(join(reports, "run-a.json"), { run_id: "run-a", config_snapshot: snapshot, stage_report: stageReport, paper_recommendations: 0, blog_recommendations: 0 });
+  writeJson(join(reports, "zzz-historical.json"), { run_id: "zzz-historical", config_snapshot: snapshot, stage_report: stageReport, paper_recommendations: 2, blog_recommendations: 1 });
 
-  assert.equal(loadBundle(root).runReport.run_id, "run-a");
+  const bundle = loadBundle(root);
+  assert.equal(bundle.runReport.run_id, "run-a");
+  assert.deepEqual(
+    [bundle.runReport.paper_recommendations, bundle.runReport.blog_recommendations],
+    [0, 0],
+  );
 });
 
 test("relatedItems preserves score and sorts by score, date, then stable id", () => {
