@@ -1,0 +1,41 @@
+{
+  "blogs": [],
+  "date": "2026-09-03",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.00165",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出双端状态空间模型TS-SSM，在序列推荐中同时建模用户和物品状态演化以及非随机多模态评论反馈，在多个数据集上提升Recall@20。"
+    },
+    {
+      "item_id": "arxiv-2609.00986",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出腾讯生成式推荐框架TGR，将生成式排序、端到端生成与推理结合，在多个生产场景中显著提升点击率等指标。"
+    },
+    {
+      "item_id": "arxiv-2609.00618",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出DREAMS，在会话推荐中利用双节点MCTS与LLM细化建模树状用户偏好，以同时改进偏好询问和推荐利用。"
+    },
+    {
+      "item_id": "arxiv-2609.00918",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出RPCBench基准，用于评估大语言模型作为推荐助手时对推荐前提错误的识别与处理能力，是推荐系统与大语言模型结合的研究。"
+    },
+    {
+      "item_id": "arxiv-2609.00913",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出SwapRec，通过在训练时将冷启动物品替换为相似热物品，缓解冷物品交互对序列推荐性能的负面影响。"
+    },
+    {
+      "item_id": "arxiv-2609.00086",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：在ReDial会话电影推荐基准上评估LLM重排器，发现检索候选池、打分协议和解码配置会显著影响其效果与稳定性，需统一报告实验条件。"
+    },
+    {
+      "item_id": "arxiv-2609.01202",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文介绍临床试验推荐系统TrialGPT 2.0及其真实世界多中心评估，属于医疗场景下的推荐系统研究，但与本配置中的方法、场景等类别并不完全对应。"
+    }
+  ]
+}

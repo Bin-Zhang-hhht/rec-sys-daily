@@ -1,0 +1,115 @@
+{
+  "abstract": "Interactions with cold items negatively impact real-time personalization of ID-based recommender systems. This is because the use of such interactions degrades user preference estimates, whereas excluding cold items from the user profile prevents real-time recommendation updates. In industrial scenarios, one heuristic often applied to address this shortcoming at inference time is to replace, i.e., \"swap\", cold-start items by their most similar \"warm\" neighbor, where similarity is inferred from the items' side information. In this paper, we demonstrate that sequential models, most often used for real-time personalization, are not robust to such swaps, and propose SwapRec, an approach to address this issue. SwapRec relies on using the same swap heuristics already at training time. We apply SwapRec to state-of-the-art models for sequential recommendation and analyze its impact by means of quantitative experiments in three recommendation domains (online shopping, movie, music). The experimental results show that, irrespective of the underlying sequential architecture, our easy-to-implement SwapRec approach allows for substantially more accurate recommendations when in presence of interactions with cold items, simultaneously leading to a larger percentage of cold items in the recommendation lists. Interactions with cold items negatively impact real-time personalization of ID-based recommender systems. This is because the use of such interactions degrades user preference estimates, whereas excluding cold items from the user profile prevents real-time recommendation updates. In industrial scenarios, one heuristic often applied to address this shortcoming at inference time is to replace, i.e., \"swap\", cold-start items by their most similar \"warm\" neighbor, where similarity is inferred from the items' side information. In this paper, we demonstrate that sequential models, most often used for real-time personalization, are not robust to such swaps, and propose SwapRec, an approach to address this issue. SwapRec relies on using the same swap heuristics already at training time. We apply SwapRec to state-of-the-art models for sequential recommendation and analyze its impact by means of quantitative experiments in three recommendation domains (online shopping, movie, music). The experimental results show that, irrespective of the underlying sequential architecture, our easy-to-implement SwapRec approach allows for substantially more accurate recommendations when in presence of interactions with cold items, simultaneously leading to a larger percentage of cold items in the recommendation lists.",
+  "arxiv_id": "2609.00913",
+  "authors": [
+    "Marta Moscati",
+    "Jan Malte Lichtenberg",
+    "Davide Abbattista",
+    "Antonio De Candia",
+    "Laura Boggia",
+    "Matteo Ruffini"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SwapRec允许企业继续使用已经部署的ID-based序列推荐模型，只需在训练数据管线中加入与推理一致的swap增广，即可降低冷启动场景下的改造和部署成本。",
+      "通过缓解用户点击冷/新item时的推荐质量滑坡，平台可以维持实时个性化体验，减少冷item交互带来的用户偏好估计失真。",
+      "对内容生产者和平台而言，SwapRec提升了推荐列表中的cold item比例与目录覆盖率，有助于新上架和长尾item获得曝光，而不是长期滞留在冷启动状态。",
+      "该方法避免为了冷启动而全面转向多模态模型、语义ID或额外的内容编码组件，省去相应训练资源和超参数调优负担。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出SwapRec训练策略：在训练阶段使用与推理期相同的最近邻swap启发式增广用户序列，使ID-based推荐模型对冷item被替换为相似warm item的情况更鲁棒。",
+      "SwapRec不需要改变底层序列模型架构，也不需要训练额外外部组件或切换为多模态/语义ID方案，可方便地集成到已部署的ID-based推荐系统中。",
+      "在在线购物、电影、音乐三个推荐域上基于SASRec和BERT4Rec验证了SwapRec，表明它能缓解冷item交互导致的性能下降，并提高推荐列表中冷item出现比例和目录覆盖率。"
+    ],
+    "evidence_quality": 0.66,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusions and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "SASRec w/ SwapRec",
+        "BERT4Rec",
+        "BERT4Rec w/ SwapRec",
+        "MultVAE",
+        "Item-kNN",
+        "ALS"
+      ],
+      "datasets": [
+        "Music4All-Onion",
+        "Amazon All_Beauty",
+        "ML-20M"
+      ],
+      "findings_zh": [
+        "在三个数据集上，序列模型整体HR@10高于MultVAE、Item-kNN和ALS；SASRec w/ SwapRec在Amazon和ML-20M的整体no-swap评测中也达到最佳HR@10，说明SwapRec不仅服务冷启动，也没有牺牲一般场景精度。",
+        "推理期将最后一项输入替换为最相似warm item会损害所有序列模型：例如Onion上SASRec整体HR@10从.3183降至.0422，Amazon从.0517降至.0098，ML-20M从.1185降至.0524；使用SwapRec训练后，同样的swap造成的下降显著缩小。",
+        "在测试序列以冷item结尾（n_train≤10）的子集上，SwapRec通常优于对应的原模型；例如Onion的swap评测中SASRec w/ SwapRec为.1849，而SASRec为.1176；Amazon对应为.0082 vs .0026。",
+        "在严格冷启动n_train=0场景中，SwapRec训练后的模型配合推理期swap往往比未训练SwapRec的模型取得更高HR@10，说明训练期swap使冷item的ID embedding能获得更多更新。",
+        "在Amazon top-10推荐统计中，SwapRec推荐的冷item占比为31.8%，高于SASRec的30.7%；catalog coverage从0.5779提升到0.6322；经验CDF显示SwapRec始终推荐更多低频item。"
+      ],
+      "metrics": [
+        "HR@10",
+        "Catalog coverage",
+        "% cold items in top-k recommendations",
+        "CDF over n_train of top-10 items"
+      ]
+    },
+    "limitations_zh": [
+      "评测中仅对输入序列的最后一项做推理期swap，没有系统研究多项同时swap的影响。",
+      "SwapRec的swap map只使用与每个item最相似的单一warm item，未探索其他swap map形式。",
+      "未研究不同被swap位置、不同数量swap或不同相似度阈值对结果的影响。",
+      "未结合对比学习loss，也未分析SwapRec对ID embedding空间结构的具体影响。"
+    ],
+    "method_zh": "SwapRec基于item side information构造语义最近邻映射φ(i)，训练时对每个序列位置以概率p_swap独立采样，并在每个序列最多交换M_swap项的限制下，用φ(s_k)替换s_k。交换同时作用于输入序列和训练目标。推理时，对于用户序列中的冷item，SwapRec采用同一φ将其替换为最相似warm item后再送入ID-based序列模型；底层可接SASRec、BERT4Rec等transformer序列推荐器，模型结构本身不变。",
+    "problem_zh": "ID-based序列推荐中，冷启动item因训练交互少而缺少可靠的embedding更新；用户点击此类item会损害实时个性化，而忽略该点击又会阻止推荐实时更新。工业界常用推理期启发式将冷item替换为最相似的warm item，但SASRec/BERT4Rec等序列模型对此类swap并不鲁棒，导致存在冷item交互时推荐精度明显下降。",
+    "technical_depth": 0.62
+  },
+  "doi": null,
+  "final_score": 0.861,
+  "id": "arxiv-2609.00913",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-02T19:38:30.228836Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-01T08:41:58Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出SwapRec，通过在训练时将冷启动物品替换为相似热物品，缓解冷物品交互对序列推荐性能的负面影响。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SwapRec: Warming Up Cold Items Through Training-Time Swaps",
+  "url": "https://arxiv.org/abs/2609.00913v1"
+}

@@ -1,0 +1,152 @@
+{
+  "abstract": "Industrial recommender systems typically rely on cascaded retrieval, pre-ranking, ranking, and reranking stages, whose separately optimized models limit scaling, fragment decision making, and lack semantic knowledge and reasoning. We present TGR (Tencent Generative Recommendation), an industrial framework that advances recommendation toward the generative paradigm along three coupled directions. TGR-GenRank upgrades ranking through CCFormer, which combines unified feature tokenization, a scalable Transformer backbone, feature-field separated cross attention, subspace token mixing, and hierarchical sequence compression while retaining per-item multi-task outputs. TGR-GenRec explores end-to-end generation under two paradigms: BARGE bridges item-boundary loss and semantic drift in hierarchical semantic-ID generation through item context-aware attention, hierarchical path reranking, and orthogonal dual-path decoding; HiGR performs whole-slate generation with prefix-structured semantic IDs, coarse-to-fine decoding, and listwise multi-objective alignment. TGR-Reason injects offline-generated semantic-ID reason tokens into online decoding, providing reasoning without request-time rollout. TGR is deployed across Tencent production surfaces serving hundreds of millions of users. CCFormer delivers significant gains in five A/B-tested scenarios and is fully launched in two, including +3.57% CTR and +1.71% advertising revenue. BARGE improves Hit@5 by 10.2-16.9% and yields +0.60% CTR and +1.70% reading time after full rollout. HiGR improves offline slate quality by 15.9-21.3% with a 5x inference speedup and achieves up to +1.22% watch time and +1.73% video views. TGR-Reason raises cold-start new-user Hit@1 by 477.8% and delivers +1.75% effective consumption and +13.09% new-user exposure-to-conversion online. Industrial recommender systems typically rely on cascaded retrieval, pre-ranking, ranking, and reranking stages, whose separately optimized models limit scaling, fragment decision making, and lack semantic knowledge and reasoning. We present TGR (Tencent Generative Recommendation), an industrial framework that advances recommendation toward the generative paradigm along three coupled directions. TGR-GenRank upgrades ranking through CCFormer, which combines unified feature tokenization, a scalable Transformer backbone, feature-field separated cross attention, subspace token mixing, and hierarchical sequence compression while retaining per-item multi-task outputs. TGR-GenRec explores end-to-end generation under two paradigms: BARGE bridges item-boundary loss and semantic drift in hierarchical semantic-ID generation through item context-aware attention, hierarchical path reranking, and orthogonal dual-path decoding; HiGR performs whole-slate generation with prefix-structured semantic IDs, coarse-to-fine decoding, and listwise multi-objective alignment. TGR-Reason injects offline-generated semantic-ID reason tokens into online decoding, providing reasoning without request-time rollout. TGR is deployed across Tencent production surfaces serving hundreds of millions of users. CCFormer delivers significant gains in five A/B-tested scenarios and is fully launched in two, including +3.57% CTR and +1.71% advertising revenue. BARGE improves Hit@5 by 10.2-16.9% and yields +0.60% CTR and +1.70% reading time after full rollout. HiGR improves offline slate quality by 15.9-21.3% with a 5x inference speedup and achieves up to +1.22% watch time and +1.73% video views. TGR-Reason raises cold-start new-user Hit@1 by 477.8% and delivers +1.75% effective consumption and +13.09% new-user exposure-to-conversion online.",
+  "arxiv_id": "2609.00986",
+  "authors": [
+    "TGR Team",
+    "Lei Cheng",
+    "Haonan Hu",
+    "Beibei Kong",
+    "Yudong Li",
+    "Zang Li",
+    "Yunsheng Pang",
+    "Hongyang Su",
+    "Jianchao Tu",
+    "Yunlong Wang",
+    "Bing Wen",
+    "Junzhang Zhu",
+    "Shaojie Zhu",
+    "Chengxiang Zhuo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "论文以多场景生产部署和线上A/B证明，生成式范式可逐步替换级联中的具体模块而不仅是研究原型：CCFormer以drop-in方式替换生产排序器，在相同延迟/GPU预算下在两个场景完成全量上线，这为其他工业推荐团队提供了低风险迁移路径。",
+      "同一技术栈覆盖视频、内容feed和广告排序等异构场景，并在CTR、观看时长、页面浏览、广告收入等不同业务目标上获得一致提升，说明生成式推荐基础设施可在多产品间复用并摊薄tokenizer、用户编码器和训练平台的研发成本。",
+      "BARGE作为“生成式检索通道”可补充现有检索体系，候选先经过下游精排等漏斗后仍取得9.93%的最高CTR和与Graph-based I2I相近的曝光采纳率，提示其可在不推翻原级联的前提下扩大召回质量并提升端到端商业指标。",
+      "HiGR的整页生成在50ms P99以内并降低约60%的GPU占用，同时提升用户engagement与商业化指标，适合对在线时延和推理成本敏感的推荐产品作为整页优化方向的技术参考。",
+      "TGR-Reason将推理改为离线reason tokens而非在线思维链，显著提高冷启动新用户Hit@1并带来新用户曝光到转化率+13.09%等增益，表明在不牺牲服务延迟的前提下，用离线推理增强生成式推荐具有明确的新用户增长和有效消费价值。"
+    ],
+    "business_transferability": 0.88,
+    "contributions_zh": [
+      "提出TGR（Tencent Generative Recommendation）工业生成式推荐栈，包含TGR-GenRank（生成式范式排序）、TGR-GenRec（端到端生成式推荐）和TGR-Reason（推理增强生成式推荐）三个耦合方向，并由语义ID tokenizer、用户/上下文编码和Numerous-Torch训练/服务设施等共享基础支撑；该系统已在腾讯资讯、视频、网文等多个产品服务数亿用户。",
+      "详细描述TGR-GenRank的生产级模型CCFormer，包括特征域分离交叉注意力、长序列子空间token混合、层次序列压缩等机制，以及混合精度训练、INT8+双哈希稀疏参数压缩、单遍并行候选打分等工业训练/服务方案；在5个腾讯线上场景A/B测试中均获显著业务提升，其中两个场景全量上线。",
+      "详细描述TGR-GenRec的两个生产模型：NTP范式下的BARGE通过ICA、HPR、OSQ-VAE双路解码修复层级语义ID生成中的item边界丢失和语义漂移问题；NSP范式下的HiGR将整页slate作为生成对象，通过PCRQ-VAE、HSD层次化解码和ORPO列表级偏好对齐实现高效整页生成。两者均给出离线、效率和线上A/B证据。",
+      "提出并落地TGR-Reason：由LatentRec训练的Think模型在离线周期生成reason tokens，通过Direct Reasoning Injection等接口注入线上生成器，不增加请求路径推理成本；冷启动新用户Hit@1提升477.8%，并带来有效的线上转化增长。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 3,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 12,
+        "section": "3.4 Offline Experiments"
+      },
+      {
+        "page": 14,
+        "section": "3.6 Online Deployment and A/B Results"
+      },
+      {
+        "page": 23,
+        "section": "4.2.5 Deployment and Online A/B"
+      },
+      {
+        "page": 29,
+        "section": "4.3.5 Deployment and Online A/B"
+      },
+      {
+        "page": 42,
+        "section": "5.5 Evaluation Results"
+      },
+      {
+        "page": 43,
+        "section": "6.2 Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DIN",
+        "DeepFM",
+        "SASRec",
+        "MIMN",
+        "HSTU",
+        "OneTrans",
+        "STCA",
+        "GraphSAGE-based retrieval",
+        "NANN",
+        "BERT-based sequential recommender",
+        "OneRec/OneRec-25M",
+        "TIGER",
+        "COBRA",
+        "ActionPiece",
+        "APAO-pointwise",
+        "ListCVAE",
+        "BERT4Rec"
+      ],
+      "datasets": [
+        "Taobao",
+        "KuaiRec",
+        "Tencent 4B+ sample industrial dataset with sequence length 1000",
+        "Amazon Beauty",
+        "Amazon Sports",
+        "Tencent commercial media platform industrial scenarios (hundreds of millions to tens of billions interactions)",
+        "Tencent 1B pre-training sample industrial dataset for HiGR"
+      ],
+      "findings_zh": [
+        "CCFormer在Taobao和KuaiRec上AUC分别达93.67%和83.35%，优于HSTU、OneTrans、STCA；在4B+工业样本上比HSTU相对提升1.01% AUC和2.40% GAUC，并以约HSTU一半的GFLOPs训练快2.21×；随序列长度和模型容量均呈现可预测增益，0.5k行为token即可达到HSTU在2k token下的AUC并超过其GAUC。",
+        "CCFormer在5个腾讯线上A/B场景中带来统计显著提升，视频推荐场景CTR +3.57%，广告排序场景广告收入+1.71%；其中两个场景全量上线且收益稳定。",
+        "BARGE在两个腾讯工业推荐场景中Hit@5比OneRec提高10.2%和16.9%，在Amazon Beauty/Sports上优于TIGER等生成式基线；线上6%流量A/B中CTR +0.60%、唯一点击用户+1.34%、总阅读时长+1.70%，全量上线并长期holdback后收益更稳定；作为独立检索通道在四个代表性检索通道中CTR最高（9.93%）。",
+        "HiGR在工业数据集上相比OneRec-25M将Impressions Hit@5提升15.9%、Effective View Hit@5提升21.3%、NDCG@5提升21.2%；无KV caching时解码比OneRec-style全序列beam search快5×以上，并可把端到端P99延迟压在50ms以下；三个线上场景显著提升平均观看时长、视频观看数、CTR和广告收入。",
+        "TGR-Reason在离线评测中对冷启动新用户Hit@1从0.0451提升至0.2606（相对+477.8%），且对所有用户cohort和各Hit@K候补段均有改善；线上A/B中有效消费率提升1.75%，新用户曝光到转化率提升13.09%，均统计显著。"
+      ],
+      "metrics": [
+        "AUC",
+        "GAUC/aGAUC",
+        "Hit@1/5/10/20/50",
+        "Recall@5",
+        "NDCG@5",
+        "CTR/UCTR",
+        "Watch Time/Video Views/Page Views/Stay Time",
+        "Unique Viewer/3-day Activeness",
+        "Ad revenue",
+        "Effective Consumption Rate",
+        "Exposure-to-Conversion Rate"
+      ]
+    },
+    "limitations_zh": [
+      "TGR目前仍是多个耦合模型的组合而非单一模型：TGR-GenRank仍输出逐item多任务分数由下游级联消费，TGR-GenRec也同时维护BARGE与HiGR两个模型及OSQ-VAE和PCRQ-VAE两套tokenizer。",
+      "层次SID空间继承了VQ tokenizer的冷启动局限：新item只能依赖语义证据进入code空间，尚无法估计用于形成SID前缀的协同关系；论文所展示的冷启动收益主要针对新用户，而非新item。",
+      "HiGR的ORPO列表级对齐对“排序保真、真实兴趣、多样性”三目标使用全局统一权重，尚未按用户或上下文进行个性化加权。",
+      "TGR-Reason是离线摊销式推理而非请求期深思：Think模型周级重训、reason tokens日级重算，线上读取的是K=0的预计算结果；会话内的意图变化只能通过生成器自身输入上下文间接影响，显式文本推理仍太贵，无法放到请求路径。"
+    ],
+    "method_zh": "TGR方法分三层。TGR-GenRank的CCFormer保留级联架构但替换排序模型：将输入特征划分为用户、行为序列、目标物品三个语义字段，每层通过user→sequence、target→sequence、target→user三条有向feature-field separated cross attention完成异构交互；目标token只做query，因此可在单遍内并行打分所有候选。为避免长行为序列上的二次复杂度，CCFormer在局部token子空间加入相对时间位置编码和线性成本的子空间token mixing，并用跨层strided卷积做层次序列压缩，使深层仍保留全长历史视野但计算量随深度几何下降；输出仍为逐item多任务分数。TGR-GenRec面向端到端生成，按两个互补范式建模：BARGE在NTP式语义ID生成中，用ICA学习每个item的query聚合其各层SID token并注入item上下文，用HPR在beam search中对完整层次路径做全局兼容性重排，用OSQ-VAE的两条正交量化通道分别解码并以OR-fusion合并，从而同时修复item边界丢失和前缀错误导致的语义漂移。HiGR以整页为生成单位：PCRQ-VAE通过全局量化项和prefix-contrastive约束让高层SID前缀承载语义/协同类别而保留叶子层区分item；Hierarchical Slate Decoder把解码分解为在紧凑偏好embedding空间上的粗粒度slate规划（M步贪心）和共享的细粒度item生成（短D-token beam search），显著缩小搜索空间；列表级ORPO用排序保真、真实兴趣、多样性三类slate偏好对进行无参考模型对齐。TGR-Reason用LatentRec训练的Think model输出用户Top-Kr个完整L层语义ID（reason tokens）：训练时以K步连续思想模块+Soft Token Selection+逐状态推理损失把推理装进LoRA参数，线上生成用K=0标准SID解码；reason tokens既按codebook层级重组并通过DRI注入GenRec解码器，也作为查询从Group Memory检索后续行为，再经双记忆编码和门控自适应融合与Personal Memory一起参与生成；沿线近线和离线三层架构在Reason Store中物化结果，不增加线上推理rollout。",
+    "problem_zh": "传统工业推荐系统普遍采用“检索→预排序→排序→重排”的级联架构，并由独立优化的DLRM分别驱动各阶段。这一蓝图正面临三类结构性挑战：(1) 碎片化DLRM架构对高基数异构特征分模块处理，缺乏LLM式缩放规律，容量增长难以持续换质量；(2) 分阶段优化与渐进截断割裂决策过程，pointwise独立打分忽略item间依赖和位置效应，与用户实际体验到的整个列表质量不一致；(3) 依赖行为共现和ID表示的模式匹配模型缺少多模态语义、世界知识与刻意推理能力，在冷启动、长尾和意图模糊场景中受限。论文认为工业界正从级联架构转向统一、可扩展、端到端生成且具备推理先验的生成式推荐范式。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.916,
+  "id": "arxiv-2609.00986",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-02T19:38:30.228836Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-01T09:41:26Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出腾讯生成式推荐框架TGR，将生成式排序、端到端生成与推理结合，在多个生产场景中显著提升点击率等指标。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "TGR: Advancing Industrial Recommendation from Generative-Paradigm Ranking toward Unified Generation and Reasoning",
+  "url": "https://arxiv.org/abs/2609.00986v1"
+}

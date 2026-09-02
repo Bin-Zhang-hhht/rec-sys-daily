@@ -1,0 +1,107 @@
+{
+  "abstract": "Clinical trials are essential for advancing cancer care and drug development, but many fail because of insufficient patient enrollment. While there is growing interest in using AI to support patient recruitment, existing systems largely perform eligibility assessment alone and have rarely been evaluated in real-world oncology workflows. Here we present TrialGPT 2.0, an AI-assisted clinical trial recommendation system designed for real-world deployment. Rather than asking only whether a patient may qualify, the system also assesses which trials warrant further consideration given the patient's current clinical needs and local workflow priorities, and provides structured, inspectable explanations for expert review. Importantly, we evaluated TrialGPT 2.0 retrospectively and prospectively across multiple oncology-focused settings, spanning government, academic cancer-center, patient-advocacy, and NIH referral workflows. In retrospective multicenter cohorts comprising 288 cases, TrialGPT 2.0 retrieved at least one clinician-recommended trial in its top 10 recommendations for approximately 91% of cases while reducing clinician screening time by 55.0%. In a six-month prospective evaluation embedded in an active precision oncology tumor board, TrialGPT 2.0 contributed additional trial opportunities missed by the routine workflow, expanding patient access to clinical trial participation by 90.9%. To support scientific reproducibility, we also introduce NIH-TrialBench, a clinician-authored dataset comprising 126 diverse synthetic patient vignettes and matching scenarios from 11 NIH Institutes and Centers. Together, these results support the value of AI to assist clinical trial matching by improving clinician efficiency and identifying frequently overlooked trial opportunities, ultimately helping to expand and accelerate accrual to cancer trials. Clinical trials are essential for advancing cancer care and drug development, but many fail because of insufficient patient enrollment. While there is growing interest in using AI to support patient recruitment, existing systems largely perform eligibility assessment alone and have rarely been evaluated in real-world oncology workflows. Here we present TrialGPT 2.0, an AI-assisted clinical trial recommendation system designed for real-world deployment. Rather than asking only whether a patient may qualify, the system also assesses which trials warrant further consideration given the patient's current clinical needs and local workflow priorities, and provides structured, inspectable explanations for expert review. Importantly, we evaluated TrialGPT 2.0 retrospectively and prospectively across multiple oncology-focused settings, spanning government, academic cancer-center, patient-advocacy, and NIH referral workflows. In retrospective multicenter cohorts comprising 288 cases, TrialGPT 2.0 retrieved at least one clinician-recommended trial in its top 10 recommendations for approximately 91% of cases while reducing clinician screening time by 55.0%. In a six-month prospective evaluation embedded in an active precision oncology tumor board, TrialGPT 2.0 contributed additional trial opportunities missed by the routine workflow, expanding patient access to clinical trial participation by 90.9%. To support scientific reproducibility, we also introduce NIH-TrialBench, a clinician-authored dataset comprising 126 diverse synthetic patient vignettes and matching scenarios from 11 NIH Institutes and Centers. Together, these results support the value of AI to assist clinical trial matching by improving clinician efficiency and identifying frequently overlooked trial opportunities, ultimately helping to expand and accelerate accrual to cancer trials.",
+  "arxiv_id": "2609.01202",
+  "authors": [
+    "Yin Fang",
+    "Qiao Jin",
+    "Shubo Tian",
+    "Lauren He",
+    "Maya Geer",
+    "Noor Naffakh",
+    "Ryan Huu-Tuan Nguyen",
+    "Zifeng Wang",
+    "Jimeng Sun",
+    "Charalampos S. Floudas",
+    "James L. Gulley",
+    "Kamilia Moalem",
+    "Catarina Martins Maia",
+    "Amanda Nottke",
+    "Juan W. Valle",
+    "Melinda Bachini",
+    "Lourdes Rocha-Nussbaum",
+    "Kari Ramage",
+    "Nikita Curry",
+    "Megan Barnes",
+    "Mandy Mansaray",
+    "Darlene Gabeau",
+    "Craig E. Grossman",
+    "Heath Skinner",
+    "Michael Burczynski",
+    "NIH-TrialBench Consortium",
+    "Zhiyong Lu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "AI辅助临床试验匹配可显著减少临床医生筛选试验的时间，有利于提高肿瘤科和研究机构的运营效率。",
+      "通过发现常规流程遗漏的试验机会，系统可能帮助药企和研究中心扩大临床试验入组，加快癌症试验的应计速度。",
+      "该系统在政府、学术癌症中心、患者权益组织和NIH转诊等多种工作流中都展现出部署潜力。",
+      "提供结构化、可检查的解释，有助于AI辅助系统嵌入需要专家审查和合规要求的高风险医疗决策流程。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出TrialGPT 2.0，一个面向真实部署的AI辅助临床试验推荐系统，不仅判断患者是否符合资格，还会结合患者当前临床需求和本地工作流优先级，评估哪些试验值得进一步考虑，并提供结构化、可检查的解释供专家审查。",
+      "在政府、学术癌症中心、患者倡导组织和NIH转诊等多种肿瘤学场景中进行回顾性和前瞻性评估。288例回顾性多中心队列中，约91%的病例前10条推荐至少包含一个临床医生推荐的试验，同时临床医生筛选时间减少55.0%。",
+      "在为期6个月的前瞻性评估中，系统嵌入了活跃的精准肿瘤学肿瘤委员会，发现了常规流程遗漏的额外试验机会，使患者获得临床试验参与的机会扩大90.9%。",
+      "引入NIH-TrialBench，一个由临床医生撰写的数据集，包含来自11个NIH研究所和中心的126个多样化合成患者病例和匹配场景，以支持科学可复现性。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract/Overview"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "来源摘要未明确报告命名的基线模型，仅表明现有系统主要单独进行资格评估"
+      ],
+      "datasets": [
+        "288例回顾性多中心肿瘤队列",
+        "为期6个月的前瞻性精准肿瘤学肿瘤委员会真实工作流",
+        "NIH-TrialBench基准数据集：11个NIH研究所/中心的126个合成患者病例和匹配场景"
+      ],
+      "findings_zh": [
+        "回顾性多中心评估中，该系统在约91%病例的前10条推荐中检索到至少一个临床医生推荐的试验。",
+        "系统使临床医生筛选时间减少55.0%。",
+        "在前瞻性肿瘤委员会场景中，系统在常规工作流外提供了额外的试验机会，使患者参与试验的机会增加90.9%。",
+        "评估覆盖政府、学术癌症中心、患者倡导组织和NIH转诊等多种肿瘤学工作流。",
+        "系统提供结构化、可检查的解释，便于专家审查推荐结果。"
+      ],
+      "metrics": [
+        "前10条推荐中包含至少一个临床医生推荐试验的比例（约91%）",
+        "临床医生筛选时间减少比例（55.0%）",
+        "患者获得试验参与机会的扩展比例（90.9%）"
+      ]
+    },
+    "limitations_zh": [
+      "来源文本为摘要层面信息，未披露系统方法细节、具体基线对比、统计显著性以及不同机构亚组的表现差异。",
+      "摘要未报告明显的负面结果或失败案例，也未说明对常规临床流程可能造成的额外负担或安全风险。",
+      "现有结论主要面向肿瘤学试验匹配，对其他疾病领域和不同电子病历系统的可迁移性尚需进一步证据。"
+    ],
+    "method_zh": "摘要层面显示，TrialGPT 2.0将试验匹配任务从单纯的资格判断扩展为“结合患者当前临床需求与本地工作流优先级，判断哪些试验值得进一步考虑”，并输出结构化、可检查的解释供专家审查；具体模型架构、训练流程和实现细节在来源文本中未披露。",
+    "problem_zh": "临床试验对肿瘤治疗和药物开发很重要，但许多试验因患者入组不足而失败。现有AI系统大多只做单独的资格判断，且很少在真实肿瘤学工作流中得到评估。",
+    "technical_depth": 0.2
+  },
+  "doi": null,
+  "final_score": 0.595,
+  "id": "arxiv-2609.01202",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-02T19:38:30.228836Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-01T13:11:02Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文介绍临床试验推荐系统TrialGPT 2.0及其真实世界多中心评估，属于医疗场景下的推荐系统研究，但与本配置中的方法、场景等类别并不完全对应。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Towards AI-Assisted Clinical Trial Matching: Practical Considerations, Multicenter Evaluation, and Real-World Deployment",
+  "url": "https://arxiv.org/abs/2609.01202v1"
+}

@@ -1,0 +1,129 @@
+{
+  "abstract": "We investigate the role of conversational context modeling in user preference tracking for Conversational Recommendation Systems (CRSs). In this regard, we propose DREAMS, a novel tree-structured context modeling framework that explicitly captures user preference evolution throughout multi-turn interactions. DREAMS introduces two specialized node types to support the two fundamental objectives of CRSs: preference elicitation and preference exploitation. Specifically, elicitation nodes leverage Monte Carlo Tree Search (MCTS) to strategically explore conversational actions and infer latent user preferences, while exploitation nodes employ LLM-based refinement to transform the tracked preference state into structured retrieval queries for recommendation. Extensive experiments on benchmark datasets demonstrate the effectiveness of DREAMS and its design. We investigate the role of conversational context modeling in user preference tracking for Conversational Recommendation Systems (CRSs). In this regard, we propose DREAMS, a novel tree-structured context modeling framework that explicitly captures user preference evolution throughout multi-turn interactions. DREAMS introduces two specialized node types to support the two fundamental objectives of CRSs: preference elicitation and preference exploitation. Specifically, elicitation nodes leverage Monte Carlo Tree Search (MCTS) to strategically explore conversational actions and infer latent user preferences, while exploitation nodes employ LLM-based refinement to transform the tracked preference state into structured retrieval queries for recommendation. Extensive experiments on benchmark datasets demonstrate the effectiveness of DREAMS and its design.",
+  "arxiv_id": "2609.00618",
+  "authors": [
+    "Jincheng Zhang",
+    "Chen Huang",
+    "Wenqiang Lei",
+    "See-Kiong Ng",
+    "Yang Deng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "DREAMS能显著降低冗余提问与过早推荐：在前缀级next-action评测中，将冗余提问率降至0.089、过早推荐率降至0.117，相比RA-CRS的0.242/0.308有明显改善，有助于减少客服/导购型对话中的无效轮次和用户流失。",
+      "在影视和图书等面向消费者的会话推荐场景中，结构化的偏好状态可以避免反复推荐用户已拒绝的导演/类型等内容，从而提升用户体验与推荐接受率。",
+      "EXNode把偏好状态转成结构化检索查询，可与知识图谱、数据库或现有物品索引对接，也给运营和审计提供了更可解释的决策记录。",
+      "DREAMS(EA)在保持较强R@1的同时将平均推断时间降至约9秒，说明该方法有潜力用于对延迟敏感的实际推荐产品。",
+      "论文的人类评测显示DREAMS在真实用户交互中同样领先，提示该方法在需要人工信任和满意度的推荐入口具有落地价值。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "强调并系统分析了结构化上下文建模对CRS偏好跟踪的重要性，指出现有LLM-based CRS在preference elicitation和exploitation上的局限性。",
+      "提出DREAMS，一个通过MCTS在结构化会话状态上统一建模偏好elicitation与exploitation的框架。",
+      "在Redial和OpendialKG等基准及人类交互评测上验证了DREAMS的有效性，并证明结构化的状态表示、结构化的搜索和结构化的检索精炼共同发挥作用。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Experimental Findings"
+      },
+      {
+        "page": 1,
+        "section": "4 DREAMS"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Recommendation Performance Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Efficiency Analysis"
+      },
+      {
+        "page": 1,
+        "section": "Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BARCOR",
+        "UniCRS",
+        "InterCRS",
+        "MACRS",
+        "ChatCRS",
+        "PC-CRS",
+        "RA-CRS",
+        "SAPIENT-LLM",
+        "T-EPL"
+      ],
+      "datasets": [
+        "Redial (Movie)",
+        "OpendialKG (Movie)",
+        "OpendialKG (Book)"
+      ],
+      "findings_zh": [
+        "在Redial及OpendialKG的电影、图书推荐任务上，DREAMS在所有主指标上均超过基线；与最强非MCTS基线ChatCRS相比，平均R@1和SR分别提升约8.6和9.1个百分点。",
+        "DREAMS在CGE2、FGE2和PE2上持续低于强基线，表明其结构化偏好状态和树搜索同时改善了elicitation和exploitation的错误率。",
+        "消融实验显示，去掉ELNode和JSON状态会带来最大性能下降；只保留JSON而不做结构化搜索会降低SR并抬高FGE2；去掉EXNode主要降低Recall@1/SR并抬高PE2，说明结构化状态、状态转移搜索与检索精炼均不可或缺。",
+        "在60名参与者的人类交互评测中，DREAMS在SR、Recall@1、CGE2、FGE2和PE2上均取得最好结果。",
+        "DREAMS在Gemini-2.5-Flash和GPT-4o-mini两个LLM backbone上都优于自由文本和JSON基线，说明优势不依赖单一backbone。",
+        "经验增强变体DREAMS(EA)可将推理延迟降到约9秒，同时保持R@1=0.467，提示结构化树搜索方法可兼顾实际部署效率。"
+      ],
+      "metrics": [
+        "SR",
+        "R@1",
+        "R@5",
+        "R@10",
+        "FGE2",
+        "CGE2",
+        "PE2",
+        "Krippendorff's alpha",
+        "Fleiss' Kappa"
+      ]
+    },
+    "limitations_zh": [
+      "为保证公平对比，实验仅使用GPT-4o-mini和Gemini-2.5-Flash作为LLM backbone，未评估Claude Opus等其他SOTA模型，结论的模型泛化范围有限。",
+      "DREAMS本身继承LLM backbone的潜在局限，包括社会偏见和不完整的领域知识；论文并未声称消除这些内在问题。",
+      "现代CRS评测依赖LLM user simulator或LLM judge，其可控性和可复现性同时会继承评测模型、提示设计和预设偏好本体带来的偏差。",
+      "论文未测试跨到不同物品结构、不同知识需求或不同决策成本领域的泛化性，后续需要更可靠、多样化和人类grounded的评测基准。"
+    ],
+    "method_zh": "DREAMS将用户偏好跟踪建模为对结构化会话状态的树搜索：节点为JSON格式的偏好状态，边为状态转移。节点分为ELNode和EXNode两类。ELNode负责偏好elicitation，将用户话语解析为结构化状态更新，并通过MCTS的选择（UCT）、扩展（LLM先验采样m次并聚合）、模拟和反向传播来决策下一动作；动作包括GenreInquiry、StarInquiry、DirectorInquiry、FailureReflection、ItemRec和ItemExplanation。当选中ItemRec时，EXNode基于整个对话的聚合偏好状态，生成若干refinement actions（如去除冗余上下文、重排偏好属性、将非正式表达转成机器可读约束），对每个精炼查询检索候选物品并按检索结果与偏好态的匹配程度打分，选出最优查询用于推荐。用户拒绝会重新激活ELNode以修正偏好。奖励设计包含exploration/retrieval/attitude/cost四项，形成层次化、可验证的奖励信号。两个节点通过同一演化偏好状态耦合，共同决定何时问、问什么、何时推荐以及如何检索。",
+    "problem_zh": "现有的基于LLM的会话推荐系统主要将多轮对话历史建模为自由文本上下文，用于偏好elicitation时会造成信息过载和提问无针对性，用于偏好exploitation时则会引入检索噪声。即使采用JSON会话状态或MCTS，也存在状态孤立、节点缺少显式偏好语义、不能统一支撑elicitation与exploitation等问题。论文的初步评测显示现有CRS在粗粒度动作选择、细粒度追问以及对已澄清偏好的利用上仍存在较高错误率，说明需要一种能主动驱动偏好elicitation和exploitation的结构化上下文建模方法。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.884,
+  "id": "arxiv-2609.00618",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-02T19:38:30.228836Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-01T03:02:58Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出DREAMS，在会话推荐中利用双节点MCTS与LLM细化建模树状用户偏好，以同时改进偏好询问和推荐利用。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Towards Effective Structured Context Modeling for Conversational Recommender Systems via Dual-node Monte Carlo Tree Search",
+  "url": "https://arxiv.org/abs/2609.00618v1"
+}

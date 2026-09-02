@@ -1,0 +1,115 @@
+{
+  "abstract": "Large language models (LLMs) are increasingly used as rerankers in conversational recommender systems, yet measured gains depend strongly on the retrieval and inference protocol. On the ReDial conversational movie recommendation benchmark, we compare proprietary, open-weight, and fine-tuned LLM rerankers with collaborative-filtering and sequential baselines in a shared retrieve-then-rerank pipeline. We vary candidate-pool size, first-stage retriever, and decoding temperature. With a shared semantic top-250 candidate pool and strict candidate-aware scoring, the best proprietary reranker reaches NDCG@10 of 0.1497, compared with 0.0939 for the strongest non-LLM baseline. The same reranker reaches 0.2925 in zero-shot generation, showing that unconstrained scoring can yield a much larger apparent advantage than matched-pool evaluation. No evaluated open-weight LLM outperforms the tuned shallow autoencoder baseline under this protocol. For the strongest proprietary and open-weight rerankers, switching from semantic to collaborative-filtering candidates raises NDCG@10 by more than 50%, showing that measured reranker performance is highly sensitive to candidate generation. For the best proprietary reranker, raising temperature from 0 to 1.0 increases top-10 Jaccard distance from 0.0900 to 0.1240 while mean NDCG@10 changes negligibly, whereas weaker LLMs show larger degradation. These ReDial results support treating candidate generation, candidate-pool size, scoring policy, and decoding configuration as required reporting fields rather than implementation details. Large language models (LLMs) are increasingly used as rerankers in conversational recommender systems, yet measured gains depend strongly on the retrieval and inference protocol. On the ReDial conversational movie recommendation benchmark, we compare proprietary, open-weight, and fine-tuned LLM rerankers with collaborative-filtering and sequential baselines in a shared retrieve-then-rerank pipeline. We vary candidate-pool size, first-stage retriever, and decoding temperature. With a shared semantic top-250 candidate pool and strict candidate-aware scoring, the best proprietary reranker reaches NDCG@10 of 0.1497, compared with 0.0939 for the strongest non-LLM baseline. The same reranker reaches 0.2925 in zero-shot generation, showing that unconstrained scoring can yield a much larger apparent advantage than matched-pool evaluation. No evaluated open-weight LLM outperforms the tuned shallow autoencoder baseline under this protocol. For the strongest proprietary and open-weight rerankers, switching from semantic to collaborative-filtering candidates raises NDCG@10 by more than 50%, showing that measured reranker performance is highly sensitive to candidate generation. For the best proprietary reranker, raising temperature from 0 to 1.0 increases top-10 Jaccard distance from 0.0900 to 0.1240 while mean NDCG@10 changes negligibly, whereas weaker LLMs show larger degradation. These ReDial results support treating candidate generation, candidate-pool size, scoring policy, and decoding configuration as required reporting fields rather than implementation details.",
+  "arxiv_id": "2609.00086",
+  "authors": [
+    "Ante Kapetanovic",
+    "Tomislav Duricic",
+    "Andro Mercep",
+    "Emanuel Lacic"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "企业在评估LLM推荐模型时，不应只看零样本或未加约束的端到端指标；同样的模型在0.2925与0.1497之间的差异说明评分协议会显著影响业务选型结论。",
+      "首阶段检索器对最终推荐质量的影响可达到甚至超过更换重排序模型，生产系统应把候选生成、候选池大小与模型选择一起纳入优化和验收。",
+      "在严格的top-K候选池下，开放权重LLM未必能超过调优后的浅层自编码器协同过滤基线，企业需要评估是否值得为其投入额外的检索优化或微调。",
+      "解码温度影响列表一致性；即使平均NDCG变化不大，推荐列表中的电影可能明显不同，面向用户的生产系统需要监控列表稳定性而非仅看平均准确率。",
+      "将检索器、候选池大小、计分策略、提示模板及解码配置作为标准报告字段，有助于不同供应商或模型方案之间的可复现比较和商业采购决策。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "在共享的retrieve-then-rerank流程中，系统比较了专有LLM、开放权重LLM、微调LLM与协同过滤、序列模型及流行度基线在ReDial上的表现。",
+      "证明了候选检索器、候选池大小、计分策略和解码温度会以接近甚至超过模型选择的幅度影响评测结果，并提出这些应作为必需报告项。",
+      "揭示了零样本生成计分与严格候选约束计分会导致截然不同的结论：Claude Opus 4.6的NDCG@10分别为0.2925与0.1497。",
+      "发现在严格语义top-250候选池上，没有开放权重LLM超过EASE，只有4个专有LLM显著优于EASE。",
+      "对LLM推荐列表的温度稳定性进行了量化，指出平均准确率稳定不代表生成的列表内容稳定。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "3 Results"
+      },
+      {
+        "page": 1,
+        "section": "4 Discussion and Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Semantic rank",
+        "EASE",
+        "ItemKNN",
+        "LightGCN",
+        "BPR",
+        "SASRec",
+        "GRU4Rec",
+        "NARM",
+        "SRGNN",
+        "Popularity"
+      ],
+      "datasets": [
+        "ReDial（1,025个测试对话，6,924部电影目录）"
+      ],
+      "findings_zh": [
+        "在语义top-250严格候选计分下，Claude Opus 4.6取得最高NDCG@10 0.1497，最强非LLM基线EASE为0.0939；只有4个专有LLM显著优于EASE，所有开放权重LLM均低于EASE。",
+        "零样本生成计分下Claude Opus 4.6达到0.2925，约为其在c250严格计分结果的两倍，显示计分策略会显著放大LLM的表观优势。",
+        "候选池从250扩展到全目录使专有LLM的NDCG@10提升57%-89%，但开放权重LLM没有同等收益，候选池大小本身构成显著的管线效应。",
+        "将首阶段检索器从语义换成EASE后，Claude Opus 4.6的NDCG@10从0.1497升至0.2277，Llama-3.3-70B从0.0770升至0.1223，涨幅分别约52%和59%；检索器选择的影响可与重排序模型选择相当。",
+        "语义检索CandRecall@250为0.2877，EASE为0.4862，SASRec为0.5093；SASRec池的召回与Oracle上限最高，但重排后EASE池上的NDCG@10更好，说明候选可得性、组成和重排器-候选池兼容性共同决定结果。",
+        "温度从0升至1.0时，Claude Opus 4.6的NDCG@10基本保持稳定而Jaccard距离@10从0.0900升至0.1240；Llama-3.3-70B的Jaccard距离@10则从0.0230升至2.0温度下的0.7600，且NDCG@10随温度升高下降。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "Hit@10",
+        "Item coverage@10",
+        "Average training-set popularity@10",
+        "CandRecall@250",
+        "Oracle NDCG@10",
+        "Jaccard distance@10",
+        "Position disagreement@10"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅在单一电影域ReDial基准上进行，目录规模为6,924部，尚不清楚结论能否推广到更大目录、其他领域和其他对话式设定。",
+      "研究未系统测量成本或延迟，尤其在候选池规模较大或全目录重排时，质量与成本、延迟的权衡未被量化。",
+      "匹配候选池控制了候选可得性，但LLM仍依赖原始对话和预训练知识，而CF/序列模型只使用交互历史，因此结论是系统级比较而非同一信息条件下的重排能力比较。",
+      "c0与c250设置同时改变了候选访问和计分策略，无法单独归因于某一个因素；扩大候选池也同时影响目标可得性、候选构成、提示长度和排序难度。",
+      "研究设计不能区分首阶段候选构成与重排器-候选池兼容性的独立影响，Oracle上限高并不保证下游重排结果最好。"
+    ],
+    "method_zh": "在ReDial测试集上采用两阶段检索-重排流程：以movie元数据构建Sentence-BERT(all-mpnet-base-v2)嵌入中心形成语义候选池，同时用EASE和SASRec生成候选池；LLM重排序器在提示中接收对话和候选标题并输出有序电影列表，CF/序列模型则对相同候选池打分。实验覆盖零样本无候选、c250/c500/c1000候选池、全目录重排，并比较语义、EASE、SASRec三种候选来源，以及不同解码温度下的多次采样；主要指标为NDCG@10、Hit@10、覆盖率、流行度、CandRecall@250、Oracle NDCG@10、Jaccard距离@10和位置不一致@10。",
+    "problem_zh": "会话式推荐系统中基于LLM的重排序虽然在基准上表现亮眼，但其效果强烈依赖于检索候选池、计分方式和解码配置等常被低估或未报告的选择；不同评测协议可能带来的差异甚至超过系统之间的真实差距，因此现有对比难以判断LLM重排序的真实优势。",
+    "technical_depth": 0.75
+  },
+  "doi": "10.1145/3799682.3840066",
+  "final_score": 0.855,
+  "id": "arxiv-2609.00086",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-02T19:38:30.228836Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-08-31T10:54:20Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "在ReDial会话电影推荐基准上评估LLM重排器，发现检索候选池、打分协议和解码配置会显著影响其效果与稳定性，需统一报告实验条件。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Retrieval, Scoring, and Decoding Shape Performance and Stability in LLM-based Conversational Recommendation",
+  "url": "https://arxiv.org/abs/2609.00086v1"
+}

@@ -1,0 +1,154 @@
+{
+  "abstract": "Two-sided digital platforms are inherently dynamic: user preferences shift, item popularity evolves, and reviews both reflect and drive these changes. Yet most sequential recommendation systems treat reviews as passive signals for updating user states, leaving two aspects underexplored. First, review generation is nonrandom, depending on evolving latent states of both users and items. Second, reviews can reshape item states, induce spillover across related items, and influence future user decisions. To address these gaps, we propose a two-sided state-space model (TS-SSM) for event-conditioned sequential recommendation. TS-SSM consists of three components: (1) a modality-missing-not-at-random fusion module that encodes review content and informative observation patterns; (2) user-state evolution with temporal variation and local graph message passing that uses related item states to refine user preferences; and (3) item-state evolution with asymmetric carryover of positive and negative review feedback. In experiments across six Amazon categories, TS-SSM increases Recall@20 over BSARec by 14.8%--18.8% and exceeds HM4SR by 11.7% on average. On Goodreads Fantasy, Recall@20 improves HM4SR from .5191 to .5847. Ablations highlight distinct contributions of observation patterns, local propagation, and item dynamics. Two-sided digital platforms are inherently dynamic: user preferences shift, item popularity evolves, and reviews both reflect and drive these changes. Yet most sequential recommendation systems treat reviews as passive signals for updating user states, leaving two aspects underexplored. First, review generation is nonrandom, depending on evolving latent states of both users and items. Second, reviews can reshape item states, induce spillover across related items, and influence future user decisions. To address these gaps, we propose a two-sided state-space model (TS-SSM) for event-conditioned sequential recommendation. TS-SSM consists of three components: (1) a modality-missing-not-at-random fusion module that encodes review content and informative observation patterns; (2) user-state evolution with temporal variation and local graph message passing that uses related item states to refine user preferences; and (3) item-state evolution with asymmetric carryover of positive and negative review feedback. In experiments across six Amazon categories, TS-SSM increases Recall@20 over BSARec by 14.8%--18.8% and exceeds HM4SR by 11.7% on average. On Goodreads Fantasy, Recall@20 improves HM4SR from .5191 to .5847. Ablations highlight distinct contributions of observation patterns, local propagation, and item dynamics.",
+  "arxiv_id": "2609.00165",
+  "authors": [
+    "Ziwen Pan",
+    "Zihan Liang",
+    "Ruoxuan Xiong"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "面向双边电商和评论平台，该方法可在亚马逊等具有评论文本、图片、评分和时间戳的场景中提升下一交互商品的检索命中率，因此对推荐排序相关的点击与转化指标有潜在价值。",
+      "评论观察模式本身（是否传图、长度突变、模态缺失）可作为非随机信号用于调节推荐结果，说明平台无需额外标注即可从用户评论行为的日常波动中提取信息。",
+      "商品侧负反馈衰减更慢、正反馈衰减更快的非对称携带机制提示：差评对商品推荐位置的持久影响大于好评，电商运营在处理差评冲击时应考虑更长时段的排名回落。",
+      "局部物品图消息传递和动态商品态维护为长尾商品带来较大相对提升（R@20 相对 BSARec +10.5%），可能有助于改善长尾和新品的曝光效率。",
+      "部署上仍比轻量序贯模型昂贵，需要通过缓存目录级商品状态、限制局部传播邻居数 K=20、或借助 ANN 召回控制线上成本。"
+    ],
+    "business_transferability": 0.67,
+    "contributions_zh": [
+      "提出双侧重状态空间模型 TS-SSM，联合维护用户与商品的动态潜在状态，以评论事件为条件进行序贯推荐。",
+      "设计模态缺失非随机（MNAR）感知的评论融合模块：除编码评论文本和图像内容外，还将模态是否出现及其相对于用户/商品历史表达模式的偏离作为预测信号，并用于同时更新用户和商品状态。",
+      "提出用户侧状态演化：结合系统性时间变化、历史加权评论消息以及相对用户历史表达模式的偏差，并通过局部商品图消息传递，将相关商品的反馈信息传播回用户状态以细化偏好。",
+      "提出商品侧状态演化：引入带符号的不对称衰减携带记忆，使正负评论反馈以不同持久度影响商品状态，并加入时间趋势和相对商品历史评论模式的偏差更新。",
+      "在六个 Amazon 品类和 Goodreads Fantasy 上展示了一致的 recall 提升，并通过消融验证了观察模式、局部传播、商品动态、携带记忆、偏离特征和辅助损失各自的贡献。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Multimodal Review Encoding"
+      },
+      {
+        "page": 1,
+        "section": "3.2 User-Side Latent-State Evolution"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Item-Side Latent-State Evolution"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "7 Limitations"
+      },
+      {
+        "page": 1,
+        "section": "Appendix E Cross-Platform Evaluation on Goodreads Fantasy"
+      },
+      {
+        "page": 1,
+        "section": "Appendix H Information Boundary Controls"
+      },
+      {
+        "page": 1,
+        "section": "Appendix Q Long-Tail Item Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "FMLPRec",
+        "CL4SRec",
+        "DuoRec",
+        "FEARec",
+        "BSARec",
+        "VBPR",
+        "MMGCN",
+        "LATTICE",
+        "BM3",
+        "LLMRec",
+        "POD",
+        "SAID",
+        "RecGPT",
+        "HORAE",
+        "HM4SR",
+        "MACR",
+        "AutoDebias"
+      ],
+      "datasets": [
+        "Amazon Reviews 2023: Toys & Games",
+        "Amazon Reviews 2023: Pet Supplies",
+        "Amazon Reviews 2023: Sports & Outdoors",
+        "Amazon Reviews 2023: Electronics",
+        "Amazon Reviews 2023: Clothing",
+        "Amazon Reviews 2023: Home & Kitchen",
+        "Goodreads Book Graph Fantasy & Paranormal subset"
+      ],
+      "findings_zh": [
+        "在 Toys & Games、Pet Supplies、Sports & Outdoors 三个主数据集上，TS-SSM 在全部 12 个 Recall/NDCG 指标上最优；R@20 分别为 .1683、.1756、.0962，相对 BSARec 提高 17.9%、17.1%、14.8%，相对 HM4SR 提高 13.0%、12.3%、10.3%。",
+        "在六个 Amazon 品类上，TS-SSM 的 R@20 相对 BSARec 提高 14.8%–18.8%，平均相对 HM4SR 提高 11.7%；Clothing（图像率最高 18.7%）的 BSARec 增益最大为 18.8%。",
+        "Goodreads Fantasy 上 TS-SSM 的 R@20 为 .5847，HM4SR 为 .5191，相对提高 12.6%。",
+        "Toys & Games 消融显示，去掉商品态更新、局部消息传递、用户态更新分别使 R@20 下降 3.50%、2.79%、2.50%；去掉携带记忆、偏离特征和辅助损失分别下降 2.20%、1.90%、1.31%。",
+        "Goodreads 上的组件消融顺序与 Amazon 一致：去掉商品态更新下降最大（6.81%），其次为消息传递（4.70%）与用户态更新（3.20%）。",
+        "BSARec 加入模态可用性、评分和时间桶等当前事件特征后，R@20 只提升约 4.5%–4.7%，仍比 TS-SSM 低 9.0%–11.3%。",
+        "相关分析描述性地显示图像上传率与相对增益相关系数 r=0.67；长尾（少于 10 条训练评论）商品上 TS-SSM 相对 BSARec 的 R@20 提升为 +10.5%。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "Recall@20",
+        "NDCG@10",
+        "NDCG@20",
+        "MRR",
+        "Recall@50",
+        "NDCG@50"
+      ]
+    },
+    "limitations_zh": [
+      "仅在六个 Amazon 品类和一个 Goodreads Fantasy 域上验证，更稀疏或评论行为差异更大的平台上的推广性未经验证。",
+      "论文指出 MNAR 表述是预测性而非因果识别；未观测到的用户时间约束、界面暴露差异等也可能影响评论缺失，因此学习到的观察权重是预测量而非因果倾向分。",
+      "TS-SSM 比 SASRec、BSARec 等轻量用户侧序贯模型计算量更大，维护目录级动态商品状态和携带汇总会增加存储与更新成本。",
+      "商品-商品图使用固定窗口共现；drift、carryover 和 reliability 辅助目标属于预测性代理变量，而非外部验证的潜在变量。"
+    ],
+    "method_zh": "TS-SSM 将系统状态表示为 S_t=(Z_t,V_t)。对评论事件 e_{u,i}=(tau,O)，用编码器构造 Phi_{u,i,t}=LN(f_mod(Enc(M),A)+f_num(r,kappa)+phi_i+phi_t+phi_A)，同时比较当前评论与用户/商品历史，得到偏离向量 delta^U/delta^I、事件消息 m 和可靠度 r。用户侧更新为 z_{u,t}=z_{u,t-}+Delta z^ng_u,t+Delta z^mp_u,t：非图更新包含当前/历史评论加权信息、系统时间背景以及由门限控制的历史偏离创新，并使用 Bound 算子限制状态变化幅度；局部图更新以用户最近评论的商品为锚点，将上下文锚表示与锚点的邻居商品状态聚合后反馈回用户状态。商品侧更新为 v_{i,t}=v_{i,t-}+Bound(Bound(beta2 y_{i,t}+beta3 gamma_{i,t}^I h_{i,t}^I+beta4 m_{i,t}^I))：其中 y 为系统时间变化，h^I 来自当前评论相对商品历史表达模式的偏离，m^I 为对历史评论的携带记忆，携带权重包含观察模式、可靠性、符号和时间衰减因子，且正负反馈各用不同的可学习衰减率。候选商品在查询时间 t 对齐状态后，以 y_{u,j,t}=z_{u,t}^\\top v_{j,t}+mu_{j,t} 排序。训练使用温度缩放的成对 BPR 排序损失，并加入 drift、carryover 和 reliability 三类辅助损失。",
+    "problem_zh": "现有序贯推荐大多把用户评论当作被动信号用于更新用户状态，未充分处理两个问题：第一，评论生成是非随机的，是否评论、是否上传图片以及文本长度等观察模式会随用户和商品的潜在状态而变化；第二，评论也会重塑商品状态、通过相关商品产生溢出效应并影响后续用户决策。为此，论文提出 TS-SSM，对事件条件下的双侧重状态空间进行建模。",
+    "technical_depth": 0.93
+  },
+  "doi": null,
+  "final_score": 0.9235000000000001,
+  "id": "arxiv-2609.00165",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-02T19:38:30.228836Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-08-31T18:00:49Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出双端状态空间模型TS-SSM，在序列推荐中同时建模用户和物品状态演化以及非随机多模态评论反馈，在多个数据集上提升Recall@20。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Two-Sided State-Space Models for Sequential Recommendation with Non-Random Multimodal Review Feedback",
+  "url": "https://arxiv.org/abs/2609.00165v1"
+}

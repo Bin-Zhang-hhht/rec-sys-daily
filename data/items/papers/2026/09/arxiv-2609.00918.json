@@ -1,0 +1,141 @@
+{
+  "abstract": "Large language models are increasingly used as interactive recommender assistants. Their evaluation should therefore go beyond plausible item recommendation and test whether they can recognize flawed recommendation requests. Existing recommender benchmarks mainly assess ranking, generation, or preference satisfaction, while existing error-detection benchmarks are usually not grounded in recommendation-specific user and candidate evidence. To address this gap, we introduce RPCBench, a benchmark for evaluating Recommender-Premise Critique: the ability to detect, diagnose, and properly handle faulty premises in natural-language recommendation requests. RPCBench contains evidence-grounded test instances from five recommendation domains and covers ten types of premise failures. Each instance provides a visible recommendation context and a corrupted user query. We further design a fine-grained evaluation framework that measures proactive detection, error localization, post-detection handling strategy, and evidence faithfulness. Through a systematic evaluation of 11 LLMs, we find that proactive detection is the main bottleneck in Recommender-Premise Critique, and models perform worst on underspecified-premise errors. We also observe that target-critical information density matters more than redundant evidence, and that longer reasoning does not monotonically improve critique quality: performance peaks at intermediate reasoning length, while overly long reasoning is accompanied by an overthinking penalty. The code is available at https://github.com/ZhongruChen/RPCBench. Large language models are increasingly used as interactive recommender assistants. Their evaluation should therefore go beyond plausible item recommendation and test whether they can recognize flawed recommendation requests. Existing recommender benchmarks mainly assess ranking, generation, or preference satisfaction, while existing error-detection benchmarks are usually not grounded in recommendation-specific user and candidate evidence. To address this gap, we introduce RPCBench, a benchmark for evaluating Recommender-Premise Critique: the ability to detect, diagnose, and properly handle faulty premises in natural-language recommendation requests. RPCBench contains evidence-grounded test instances from five recommendation domains and covers ten types of premise failures. Each instance provides a visible recommendation context and a corrupted user query. We further design a fine-grained evaluation framework that measures proactive detection, error localization, post-detection handling strategy, and evidence faithfulness. Through a systematic evaluation of 11 LLMs, we find that proactive detection is the main bottleneck in Recommender-Premise Critique, and models perform worst on underspecified-premise errors. We also observe that target-critical information density matters more than redundant evidence, and that longer reasoning does not monotonically improve critique quality: performance peaks at intermediate reasoning length, while overly long reasoning is accompanied by an overthinking penalty. The code is available at https://github.com/ZhongruChen/RPCBench.",
+  "arxiv_id": "2609.00918",
+  "authors": [
+    "Zhongru Chen",
+    "Yuan Wu",
+    "Yi Chang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "部署对话式/交互式LLM推荐助手时，应加入前提检查与护栏：当请求依赖缺失、矛盾、超schema或越界的前提时，系统应主动澄清、修复或拒绝，而不是直接产出看似流畅但事实不可靠的推荐。",
+      "推荐产品设计应提高可见证据的“目标关键密度”：把用户历史统计、偏好锚点、目录属性和营业/库存等结构化状态组织清楚，并减少无关冗余字段，这比简单增大上下文更能提升批评质量与证据忠实度。",
+      "推理长度并非越长越好；在可信推荐问答中应适度控制推理与回答长度，并监测长推理导致的事实捏造、任务漂移和成本上升，避免“过度思考”对业务质量产生负面影响。",
+      "该评测框架可迁移到LLM应用的QA与安全评估：用四粗类十细类错误前提、PDR/CPCC/EFI指标以及人工验证流程，检验推荐助手能否妥善处理安全/合规边界类请求并忠实使用可见证据。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出RPCBench基准：包含4,623个证据约束的测试实例，覆盖MovieLens-1M、MIND-small、Yelp Local、Amazon Sports和Goodreads五个推荐域，涵盖四类粗粒度错误组和十种前提失败类型。",
+      "提出细粒度评测框架：在可见证据边界下分别衡量主动检测(PDR)、原因定位(CLA)、检测后处理策略质量(CSQ/策略类型)和证据忠实度(EFI/F1R/FFR)，并定义CPCC与实例级iCPCC聚合指标。",
+      "系统评测11个LLM，发现主动检测是端到端前提批评能力的主要瓶颈；模型在未充分指定前提(U)上表现最差，而结构化、目标相关证据密度比原始上下文规模更重要。",
+      "揭示推理长度与批评质量呈非单调关系：较长的推理先提升检测率，但完整批评质量在中段达到峰值，过长推理出现稳健的“过度思考”惩罚；并报告约27%的推理已识别问题但最终回答未呈现的“批评抑制”现象。"
+    ],
+    "evidence_quality": 0.87,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Task Formulation"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Benchmark Construction"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Evaluation Framework and Metrics"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "4.2.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Reasoning Length and Critique Quality"
+      },
+      {
+        "page": 1,
+        "section": "C.7 Clean-Query Negative Control"
+      },
+      {
+        "page": 1,
+        "section": "Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GPT-5.5",
+        "Claude-Sonnet-4-6",
+        "Gemini-3.1-Pro-Preview",
+        "DeepSeek-V4-Pro",
+        "DeepSeek-V4-Flash",
+        "Qwen3.5-Plus",
+        "Qwen3.5-397B-A17B",
+        "Qwen3.5-122B-A10B",
+        "Qwen3.5-35B-A3B",
+        "Llama-3.1-70B-Instruct",
+        "Llama-3.1-8B-Instruct"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "MIND-small",
+        "Yelp Local",
+        "Amazon Sports",
+        "Goodreads Dual-Domain"
+      ],
+      "findings_zh": [
+        "11个模型平均PDR为51.5%，平均CPCC仅0.4376；但检测后的CLA与CSQ平均值分别达到0.8415和0.7926，说明主动检测是端到端前提批评的主要瓶颈，而检测成功后的定位与策略通常较可用。",
+        "U(未充分指定)组最难：平均CPCC仅0.0595、PDR约10.0%；I(不一致)、X(不可支持)、B(边界)组CPCC分别为0.5633、0.6165、0.6033。边界类EFI最高(88.3%)、FFR最低(6.6%)。",
+        "配对的minimal-valid证据消融显示，在保留目标关键证据的同时去除辅助字段，可使CPCC提升0.1384、EFI提升0.0361，并降低FFR和F1R；证据回归也显示结构化状态证据比原始载荷规模更有利。",
+        "推理长度呈非单调效应：检测率先升后趋平，约在Q7达到峰值(内容0.6290、推理0.8408)；内容CPCC在Q3最高(0.5623)，到Q10降至0.2991；最长分位相对最佳中段分位存在显著过度思考惩罚，bootstrap置信区间不含0。",
+        "干净-损坏配对负对照中，干净查询误报率仅0.55%，损坏查询PDR为49.45%，配对前提区分度PPD为49.05%，说明模型并非无差别怀疑请求。",
+        "7个可输出推理的模型上，6,625条响应在推理中检测到缺陷但最终回答未呈现，CSR为0.2691；U组尤为严重，CSR达0.7318。"
+      ],
+      "metrics": [
+        "PDR：主动检测率",
+        "CLA：条件定位准确率",
+        "CSQ：条件策略质量",
+        "CPCC：复合前提批评能力",
+        "iCPCC：实例级复合前提批评能力",
+        "EFI：证据忠实度指数",
+        "FFR：事实捏造率",
+        "F1R：证据扭曲率",
+        "clean FPR/PPD：干净-损坏配对负对照",
+        "CSR：批评抑制率",
+        "Fleiss' kappa与人工-裁判一致性"
+      ]
+    },
+    "limitations_zh": [
+      "基准基于公开推荐数据集，无法完全排除预训练污染：部分条目、元数据、评论或文本可能已出现在被评估LLM的预训练数据中，尽管评测以可见payload为准。",
+      "初始查询对由LLM生成，虽然采用GPT-5.5和Gemini 3.1 Pro Preview并进行跨模型评审，仍不能完全消除生成器特有的风格、偏好或推理偏差；因此不应将RPCBench解释为真实用户流量中前提失败的发生率。",
+      "当前基准仅支持英文，尚未覆盖多语言和跨文化推荐场景。",
+      "基准仅基于五个公开推荐数据集，不同数据集的可见证据结构不同；部分前提失败只能在具备相应证据时构造(如I4依赖快照内部状态证据)，因此数据集层结果混合反映了领域难度与证据可得性。"
+    ],
+    "method_zh": "将实例形式化为 I={H,C,Q}，其中H是可见用户证据，C分为条目/目录证据、候选集证据和状态证据，Q是自然语言推荐请求。前提失败被组织为U(未充分指定)、I(不一致)、X(不可支持)、B(边界)四组，细分为U1/U2/I1/I2/I3/I4/X1/X2/B1/B2十类。构造流程包括：从五个公开推荐数据集采样并聚合紧凑的visible_payload；用生成器/评审双模型管道构造配对的correct_query与corrupted_query，选取GPT-5.5和Gemini 3.1 Pro Preview作为生成器，进行跨模型评审、过滤和人工去重；用三个独立LLM裁判按D/L/S/策略类型/F打分，并用确定性聚合规则和500条人工验证校准评估。另对可输出推理的模型，按各模型自身推理长度分为Q1-Q10相对分位数，分析检测、CPCC、严格批评成功率和证据忠实度随推理长度的变化。",
+    "problem_zh": "现有LLM推荐评估大多假定用户请求在可见上下文下可以回答，主要关注排序、生成或偏好满足；缺少在推荐场景中对不可成立前提进行主动批评的评测。RPCBench针对的问题是：基于LLM的推荐助手能否在给定用户侧/候选侧/状态证据边界(H/C/Q)下，检测、诊断并恰当处理请求中缺失、矛盾、无法验证或越界的前提，同时忠实使用可见证据，而不是直接给出看似流畅但不可靠的推荐。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.864,
+  "id": "arxiv-2609.00918",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-02T19:38:30.228836Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-01T08:44:56Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出RPCBench基准，用于评估大语言模型作为推荐助手时对推荐前提错误的识别与处理能力，是推荐系统与大语言模型结合的研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "RPCBench: A Benchmark for Proactive Premise Critique in LLM-based Recommendation",
+  "url": "https://arxiv.org/abs/2609.00918v1"
+}
