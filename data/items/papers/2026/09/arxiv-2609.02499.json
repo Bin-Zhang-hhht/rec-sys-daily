@@ -1,0 +1,103 @@
+{
+  "abstract": "Recommender-system experiments often rely on a single random training seed, assuming that run-to-run stochasticity has limited impact on evaluation conclusions. This assumption is risky, as a training seed may influence several algorithm-dependent mechanisms, including parameter initialization, mini-batch ordering, dropout, masking, latent sampling, and training-time negative sampling. We examine this assumption by fixing the data partition and varying the training seed across hyperparameter configurations. We analyze seed effects at three levels: user-level metric sensitivity, validation-based model selection and recommendation-list agreement. Results show that seed variation is often detectable. Its impact depends on whether configurations are clearly separated, whether validation results transfer to test, and whether similar scores lead to similar top-$k$ lists. Findings suggest that reporting single-seed results can overstate the stability of recommender system evaluation, and that training seeds should be treated as part of the evaluation protocol rather than as incidental implementation noise. Recommender-system experiments often rely on a single random training seed, assuming that run-to-run stochasticity has limited impact on evaluation conclusions. This assumption is risky, as a training seed may influence several algorithm-dependent mechanisms, including parameter initialization, mini-batch ordering, dropout, masking, latent sampling, and training-time negative sampling. We examine this assumption by fixing the data partition and varying the training seed across hyperparameter configurations. We analyze seed effects at three levels: user-level metric sensitivity, validation-based model selection and recommendation-list agreement. Results show that seed variation is often detectable. Its impact depends on whether configurations are clearly separated, whether validation results transfer to test, and whether similar scores lead to similar top-$k$ lists. Findings suggest that reporting single-seed results can overstate the stability of recommender system evaluation, and that training seeds should be treated as part of the evaluation protocol rather than as incidental implementation noise.",
+  "arxiv_id": "2609.02499",
+  "authors": [
+    "Juan Manuel Rodriguez",
+    "Oleg Lesota",
+    "Antonela Tommasel"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "企业若只用单次种子评测候选模型，可能把随机波动误读为模型优劣；当配置性能接近、验证与测试行为不一致或结论依赖单一聚合指标时，应报告多种子变化。",
+      "相同平均/聚合性能可能对应不同的top-k推荐列表，影响真实用户曝光；商业A/B或在线测试前应使用多种子运行检验推荐列表的稳定性。",
+      "基于验证集选出的配置在不同种子上可能改变，且验证-测试迁移较弱时线上表现可能不达预期，建议在部署流程中纳入多种子验证和稳定性检查。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "在固定数据划分下，将训练种子从1到10系统变化，提出用户级敏感性、验证模型选择、验证-测试一致性和推荐列表一致性四层分析框架。",
+      "在三个数据集和四个模型上证明：即使其他实验条件固定，不同训练种子可导致可检测的用户级差异、不同的验证配置选择以及不同的top-k列表。",
+      "指出统计显著的种子效应未必等于模型选择不稳定；解释结论时需同时看配置间差距和验证结果能否迁移到测试。",
+      "强调训练种子应被视为评估协议的一部分，而不是偶然的实现噪声，尤其是当配置性能接近、验证与测试行为不一致或结论依赖单一聚合指标时。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "3 Experimental results"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BPR",
+        "NeuMF",
+        "BERT4Rec",
+        "SASRec"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "Steam",
+        "Amazon All Beauty 2023"
+      ],
+      "findings_zh": [
+        "ML-1M上，BERT4Rec和SASRec用户级得分对种子敏感性强，NeuMF部分敏感，BPR有限；Steam是所有模型/配置在验证和测试上都显示最强统计信号。",
+        "种子对模型选择的影响形态不同：NeuMF在Steam无大损失、NeuMF和BERT4Rec在Amazon上造成高gap、BPR在Amazon上验证选择稳定但验证-测试gap不为零。",
+        "验证-测试排序稳定性依赖数据集和模型：ML-1M总体有信息量，Amazon较弱且异质，Steam验证比较通常能迁移（尤其NeuMF），但SASRec仍较异质。",
+        "不同种子几乎总会改变推荐列表：Jaccard@k低于AO@k，说明越靠顶部的重合越高，但无模型/数据集达到完全一致；Amazon上BPR近乎无重叠，Steam上多个模型一致性很高。",
+        "相同的聚合性能仍可对应不同的推荐列表，因此仅看单一性能指标可能掩盖用户曝光层面的差异。"
+      ],
+      "metrics": [
+        "nDCG@10",
+        "Jaccard@k",
+        "AO@k",
+        "性能差距(%)",
+        "验证胜出率"
+      ]
+    },
+    "limitations_zh": [
+      "训练种子被视为整个训练过程的种子，不能把观测到的变异性归因到初始化、mini-batch顺序、dropout、masking、潜变量采样或训练负采样等具体随机机制。",
+      "固定数据划分是有意设计，因此没有同时分析数据划分种子或评估采样种子的影响。",
+      "主要使用nDCG@10等准确率类指标，没有扩展到精确率/召回率/多样性/公平性等更广泛结果。"
+    ],
+    "method_zh": "按时间排序做80/10/10用户级数据划分；对BPR、NeuMF、BERT4Rec、SASRec的多个超参数配置，用固定种子集{1,...,10}重复训练并早停（patience=10），取最佳验证checkpoint；以nDCG@10为主要指标，使用Friedman检验比较逐用户分数分布，用验证-验证/验证-测试性能差距、验证配对比较胜出率、Jaccard@k和AO@k分析种子效应。",
+    "problem_zh": "推荐系统评估通常只用单一随机训练种子，隐含假设运行随机性对评估结论影响有限；但种子可能影响初始化、批序、dropout、masking、潜变量采样和训练负采样等机制，导致指标和模型选择结论可能不可靠。",
+    "technical_depth": 0.65
+  },
+  "doi": "10.1145/3773078.3841289",
+  "final_score": 0.8415000000000001,
+  "id": "arxiv-2609.02499",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-03T19:25:48.779556Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-02T12:06:38Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究推荐系统评估中训练随机种子对用户级指标、模型选择和推荐列表一致性的影响，建议将训练种子视为评估协议的一部分。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Training seeds and model-selection stability in recommender-system evaluation",
+  "url": "https://arxiv.org/abs/2609.02499v1"
+}

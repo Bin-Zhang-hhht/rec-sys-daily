@@ -1,0 +1,138 @@
+{
+  "abstract": "Multimodal Recommender Systems (MRSs) typically rely on a flawed \"modality harmony\" assumption, presuming that multimodal features are inherently beneficial and strictly aligned with users' collaborative interaction patterns. However, modality-topology conflicts are ubiquitous in real-world scenarios due to deceptive visual clickbaits and mismatched semantics. Blindly integrating these noisy modalities inevitably pollutes the pristine collaborative space, causing severe representation distortion. To address this, we propose Orthogonal purification and topology-guided MoE for conflict-aware multimodal Recommendation (OrthoRec). At its core, OrthoRec introduces Collaborative-Guided Orthogonal Purification (CGOP), which geometrically decouples multimodal features into directions parallel and orthogonal to a pure collaborative anchor. By adaptively truncating the orthogonal noise with an energy-preserving normalization, CGOP rectifies deceptive semantic directions while preserving the modality's intrinsic representation capacity. Furthermore, we design a Topology-Aware Routing Mixture-of-Experts (TAR-MoE). Guided by the collaborative topology, TAR-MoE employs decoupled sigmoid gating to break the zero-sum bottleneck of traditional softmax attention, autonomously determining the injection scale for each purified modality. Finally, a safe-SSL objective is introduced to dynamically penalize the forced contrastive alignment of contradictory pairs. Experiments on three real-world Amazon datasets show that OrthoRec consistently outperforms competitive recent baselines and exhibits improved robustness under modality noise and item sparsity. Multimodal Recommender Systems (MRSs) typically rely on a flawed \"modality harmony\" assumption, presuming that multimodal features are inherently beneficial and strictly aligned with users' collaborative interaction patterns. However, modality-topology conflicts are ubiquitous in real-world scenarios due to deceptive visual clickbaits and mismatched semantics. Blindly integrating these noisy modalities inevitably pollutes the pristine collaborative space, causing severe representation distortion. To address this, we propose Orthogonal purification and topology-guided MoE for conflict-aware multimodal Recommendation (OrthoRec). At its core, OrthoRec introduces Collaborative-Guided Orthogonal Purification (CGOP), which geometrically decouples multimodal features into directions parallel and orthogonal to a pure collaborative anchor. By adaptively truncating the orthogonal noise with an energy-preserving normalization, CGOP rectifies deceptive semantic directions while preserving the modality's intrinsic representation capacity. Furthermore, we design a Topology-Aware Routing Mixture-of-Experts (TAR-MoE). Guided by the collaborative topology, TAR-MoE employs decoupled sigmoid gating to break the zero-sum bottleneck of traditional softmax attention, autonomously determining the injection scale for each purified modality. Finally, a safe-SSL objective is introduced to dynamically penalize the forced contrastive alignment of contradictory pairs. Experiments on three real-world Amazon datasets show that OrthoRec consistently outperforms competitive recent baselines and exhibits improved robustness under modality noise and item sparsity.",
+  "arxiv_id": "2609.02152",
+  "authors": [
+    "Jialin Liu",
+    "Zhaorui Zhang",
+    "Ray C. C. Cheung"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "实验基于Amazon Baby、Sports、Clothing等电商数据集，显示去噪后的推荐排序指标稳定提升，这意味着商品推荐列表的相关性和排名质量在电商场景中有直接改善潜力。",
+      "模型对交互较少的冷门物品召回提升最大，可能有助于降低新品或长尾商品因缺少协同信号而难以曝光的冷启动问题。",
+      "在视觉特征受污染比例升高时，OrthoRec仍能维持相对更高的Recall@20，说明带有“标题党图片”或低质视觉素材的商品更难误导推荐结果，有利于电商内容治理。",
+      "TAR-MoE的独立门控允许视觉和文本同时获得较大注入权重，适合需要同时依赖图文描述的商品品类，降低因模态竞争而丢失有效信息的风险。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "明确挑战“模态和谐”假设，指出模态-拓扑冲突和欺骗性多模态噪声会造成协同空间的破坏性干扰。",
+      "提出Collaborative-Guided Orthogonal Purification（CGOP），以协同锚点为参考对模态向量进行正交分解，并用能量守恒归一化在纠正噪声方向的同时保留原始表示强度。",
+      "设计Topology-Aware Routing Mixture-of-Experts（TAR-MoE），以协同拓扑为路由条件、采用去耦合sigmoid门控，打破softmax注意力的零和融合瓶颈。",
+      "提出safe-SSL，基于几何冲突分数动态降低矛盾图文对的对比对齐惩罚，避免隐空间失真。",
+      "在Amazon Baby、Sports、Clothing三个数据集上一致优于多个近期基线，并在噪声注入和物品稀疏场景下表现更强。",
+      "代码已公开：https://github.com/Camilla-jl/Orthorec。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Collaborative-Guided Orthogonal Purification"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Topology-Aware Routing MoE (TAR-MoE)"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Conflict-Aware Safe Contrastive Learning"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Robustness against Modality Noise (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Item Popularity and Sparsity Analysis (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MF-BPR",
+        "LightGCN",
+        "SimGCL",
+        "LayerGCN",
+        "VBPR",
+        "MMGCN",
+        "GRCN",
+        "DualGNN",
+        "LATTICE",
+        "LGMRec",
+        "SLMRec",
+        "BM3",
+        "FREEDOM",
+        "MMGCL",
+        "DA-MRS"
+      ],
+      "datasets": [
+        "Baby",
+        "Sports and Outdoors",
+        "Clothing, Shoes and Jewelry"
+      ],
+      "findings_zh": [
+        "OrthoRec在三个Amazon数据集的所有评测指标上均超过最强基线，最高相对提升为11.28%（Baby数据集NDCG@10）；在K=20上NDCG提升普遍高于Recall，说明不仅能多召回，而且排序位置更高。",
+        "部分多模态基线（如MMGCN等）的表现低于最强纯协同过滤模型，说明缺乏防护的盲融合会把多模态信号变成负担，模态和谐假设并不成立。",
+        "最强基线FREEDOM与LGMRec主要通过冻结去噪图或全局超图做结构性对冲，但仍与OrthoRec有差距；仅靠结构对冲不能代替对特征本身的过滤与非零和路由。",
+        "消融显示，将TAR-MoE替换为softmax是破坏性最大的消融；去掉SSL使Recall@20下降14.1%–19.7%；将safe-SSL退化为普通InfoNCE在Baby上无法恢复性能，说明矛盾样本的强制对齐会造成损害。",
+        "在将最多30%视觉特征随机打乱的噪声注入测试中，OrthoRec在干净数据和各噪声比例下均高于LGMRec、FREEDOM与LayerGCN；与LGMRec相比，相对Recall@20下降更低（10.6%对11.6%）。",
+        "在物品冷热分组中，OrthoRec对交互少于等于5次的Cold物品优势最明显，较LGMRec的Recall@20约高41%；在Popular物品上两者差距小于4%，说明净化主要帮助协同证据不足的场景。",
+        "TAR-MoE的可视化显示去耦合门控可以同时压低多个有噪声模态，而softmax门控必须让权重互补，导致模态无法被独立滤除。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "Recall@20",
+        "NDCG@10",
+        "NDCG@20"
+      ]
+    },
+    "limitations_zh": [
+      "论文的噪声鲁棒性实验只通过随机打乱视觉特征来模拟模态噪声，并未覆盖自然发生的语义退化或真实噪声形态；论文也明确将“对自然产生的损坏的鲁棒性”留作未来工作。",
+      "在较干净的基准特征上，“去掉CGOP截断”的消融影响相对有限，说明其方向过滤作用在冲突增强、噪声更强时更关键；这使CGOP在普通基准上的贡献可能被低估。",
+      "实验仅在Amazon电商数据集上进行，结论在视频、社交、新闻等更广泛的多模态推荐场景中的适用性未被本文验证。"
+    ],
+    "method_zh": "先用纯ID向量在用户-物品交互图上执行Light-GCN式消息传播，并叠加一个全局超图增强，得到可靠协作锚点e_CF。随后CGOP将视觉与文本特征分别投影到e_CF方向，拆成平行分量和正交分量；用cosine冲突分数c_m（减去batch均值以反映相对冲突程度）经两层MLP+sigmoid得到截断门控，按门控缩放正交分量，最后根据原始L2范数重归一化，实现“只纠正方向、不缩小能量”的净化。净化后的特征进入TAR-MoE：路由不依赖可能含噪的原始模态，而是以e_CF作为条件，用sigmoid门控独立决定文本和视觉特征的注入权重；最终物品表示为e_CF加上全局注入系数控制的净化多模态加权和。同时safe-SSL复用CGOP的中心化冲突分数，用sigmoid生成0到1的惩罚权重λ_safe，对高冲突图文对弱化InfoNCE损失；整体与BPR推荐损失联合端到端优化。",
+    "problem_zh": "现有多模态推荐系统普遍默认“模态和谐”假设，即多模态特征总是有益且与用户交互模式一致；但真实环境下存在视觉点击诱惑、文本夸大或图文语义错配等“模态-拓扑冲突”。若将这些带噪声模态直接注入用户-物品图，会污染以协同过滤为基础的表示空间；传统softmax融合又迫使模态之间形成零和竞争，强视觉可能过度压制文本；传统跨模态对比学习对本身矛盾的图文对强行对齐，也会造成隐空间扭曲。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8775000000000001,
+  "id": "arxiv-2609.02152",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-03T19:25:48.779556Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-02T06:06:30Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 OrthoRec，通过协同引导的正交净化和拓扑感知的 MoE 路由处理多模态推荐中的模态-拓扑冲突，提升鲁棒性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Beyond Modality Harmony: Orthogonal Purification and Topology-Guided MoE for Conflict-Aware Multimodal Recommendation",
+  "url": "https://arxiv.org/abs/2609.02152v1"
+}

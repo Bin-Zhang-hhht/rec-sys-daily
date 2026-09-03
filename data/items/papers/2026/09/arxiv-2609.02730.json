@@ -1,0 +1,125 @@
+{
+  "abstract": "Production recommender systems shape what billions of people see, and sustaining their performance requires continual optimization: as content, user behavior, and upstream models shift, the choices governing retrieval, ranking, and serving must be revisited. Traditionally, human engineers test such changes through online experiments--a slow, reactive process limited by engineering effort, leaving parts of the system unrevised as conditions change. Although large language models have been applied to ranking, user modeling, and offline model development, few systems place an agent in a continual closed loop that acts on a live recommender and learns from the measured effects of its decisions. We present CORAL (Constraint-Optimized Recommender via an Agentic Loop), an LLM-native harness that closes this loop: each cycle, the agent observes operating signals, reasons over a memory of past decisions and outcomes, and invokes tools--including a numerical optimizer that keeps changes within a fixed operating budget--to reconfigure the recommender, with measured outcomes informing the next cycle. We formulate this as a partially observed, non-stationary, constrained optimization problem in which the policy improves in context, without parameter updates, from its prior actions. Across two large-scale social platforms, evaluated with A/B experiments, the same harness improves engagement at no additional serving cost on one and reduces serving cost without degrading engagement on the other, spanning the engagement-efficiency frontier. Performance improves as the loop iterates, suggesting that a single agentic loop can automate continual optimization work traditionally performed by human algorithm engineers under explicit guardrails. Production recommender systems shape what billions of people see, and sustaining their performance requires continual optimization: as content, user behavior, and upstream models shift, the choices governing retrieval, ranking, and serving must be revisited. Traditionally, human engineers test such changes through online experiments--a slow, reactive process limited by engineering effort, leaving parts of the system unrevised as conditions change. Although large language models have been applied to ranking, user modeling, and offline model development, few systems place an agent in a continual closed loop that acts on a live recommender and learns from the measured effects of its decisions. We present CORAL (Constraint-Optimized Recommender via an Agentic Loop), an LLM-native harness that closes this loop: each cycle, the agent observes operating signals, reasons over a memory of past decisions and outcomes, and invokes tools--including a numerical optimizer that keeps changes within a fixed operating budget--to reconfigure the recommender, with measured outcomes informing the next cycle. We formulate this as a partially observed, non-stationary, constrained optimization problem in which the policy improves in context, without parameter updates, from its prior actions. Across two large-scale social platforms, evaluated with A/B experiments, the same harness improves engagement at no additional serving cost on one and reduces serving cost without degrading engagement on the other, spanning the engagement-efficiency frontier. Performance improves as the loop iterates, suggesting that a single agentic loop can automate continual optimization work traditionally performed by human algorithm engineers under explicit guardrails.",
+  "arxiv_id": "2609.02730",
+  "authors": [
+    "Muhammad Rafay Azhar",
+    "Yuhang Zhou",
+    "Gilbert Jiang",
+    "Yuchen Wang",
+    "Rahul Sharma",
+    "Matthew DeSousa",
+    "Jiayi Liu",
+    "Xin Guo",
+    "Lizhu Zhang",
+    "Xiangjun Fan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可将原先以周计、依赖算法工程师逐杠杆做实验的调优周期压缩为几天内无人参与循环，论文称turnaround快一个数量级，可降低持续调参的人力瓶颈。",
+      "能同时覆盖engagement与efficiency目标：视频服务在不增加服务成本的前提下提升engagement；另一服务在engagement不变的前提下节省数百万美元年化容量支出，释放可再投资的算力。",
+      "能主动照顾低信号和新用户：由于全局聚合指标常由高活用户主导，CORAL可以按用户段生成不同分配，论文给出的低信号/新用户会话提升表明其有潜力缓解这类人群被系统性忽视的问题。",
+      "LLM推理成本按决策周期而非用户/请求计，与流量规模无关；论文估算单次多周期部署约数十美元量级，使大规模甚至十亿级用户平台重复运行该闭环在经济上可行。",
+      "落地前提是生产推荐系统具备可程序化观测、可控配置面以及A/B归因能力；论文展示的工业环境中这些能力足以支撑闭环工具与护栏。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "提出持续、agent驱动的推荐系统优化形式化：将LLM agent置于线上推荐器的连续闭环中，处理部分可观测、非平稳、约束优化问题，并利用自身动作的测量结果进行in-context改进，无需参数更新。",
+      "提出CORAL harness设计：以固定周期闭环整合persistent memory（observation/assessment/decision三存储）、工具集（分析、检索、归因、数值约束优化、应用工具）和护栏，使通用LLM所生成的决策grounded、预算可行且具有累积记忆。",
+      "证明同一harness能泛化到不同服务和决策类型：一个案例是召回来源间的连续预算重分配，另一个是用户分段间的离散服务档位分配，而不仅针对单一杠杆。",
+      "在两个大规模社交平台用线上A/B实验验证，分别改善engagement（包括低信号/新用户）和serving efficiency，合起来覆盖engagement-efficiency前沿。",
+      "报告了低成本、不随流量增长的运行方式，以及从人类监督闭环走向护栏下更自主运行的实际路径。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Problem Formulation"
+      },
+      {
+        "page": 1,
+        "section": "4 The CORAL Harness"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Allocating Retrieval Budget Across Candidate Sources"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Allocating Serving Capacity Across User Segments"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "6 Computational Cost"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "线上现有/手工设定的检索预算分配（A/B对照组）",
+        "线上现有per-segment服务处理档位配置（A/B对照组）",
+        "R1零样本LLM提案（用于观察同一agent后续周期决策的相对变化）"
+      ],
+      "datasets": [
+        "专有视频推荐服务（论文未披露具体名称；线上A/B覆盖数百万用户）",
+        "专有另一个社交平台服务（论文未披露具体名称；线上A/B覆盖数百万用户）",
+        "无公开数据集；全部来自生产环境内部系统和线上受控实验"
+      ],
+      "findings_zh": [
+        "检索预算案例中，三轮循环并不单调：R1观看时长+0.13%；R2因agent过度调整出现静态中性结果；将更早结果纳入上下文后，最终部署配置在百万级用户A/B中使总观看时长+0.15%、所有用户视频观看会话+0.16%、最大市场视频观看会话+0.77%，且总检索预算不变、无额外服务成本。",
+        "同一案例中，harness可由单一全局分配扩展出分用户段分配：对低信号/新用户，将预算从依赖丰富用户历史的来源转至依赖内容与当前上下文信号的来源，使这一人群的视频观看会话提升+0.23%。",
+        "服务容量案例中，第一轮在部分用户分段的A/B中显著降低服务成本，论文估计年化容量支出节省数百万美元；agent读了该结果后判断同一变更可安全扩展，第二轮扩展到更多用户分段，使节省较第一轮再增加44%，且engagement统计上无显著变化。",
+        "两个案例显示同一harness能分别沿engagement与efficiency两个方向改进线上推荐器，并通过把measured outcome写回memory实现跨周期决策改进。"
+      ],
+      "metrics": [
+        "视频观看总时长相对变化",
+        "视频观看会话（sessions，所有用户）相对变化",
+        "最大市场视频观看会话相对变化",
+        "低信号/新用户视频观看会话相对变化",
+        "服务成本/年化容量节省金额",
+        "engagement是否统计显著中性"
+      ]
+    },
+    "limitations_zh": [
+      "作者承认闭环虽能自主运行，但仍处于人类监督之下；需要加强自动护栏，才能进一步减少或替代人工监督。",
+      "两个案例都集中在同一类控制问题——在推荐器各组件间做带约束的资源分配；论文没有测试召回/排序逻辑本身等不同性质的杠杆，因此对更广泛化性的证据仍有限。",
+      "评估方式依赖昂贵且业务特定的线上A/B实验；论文指出缺少一种标准化的、在部署前评估agent驱动的推荐系统优化的方法。",
+      "k=3天和m=3是作者采用的合理默认值而非调参得到；季节性和不同业务节奏可能影响最优cadence与记忆范围，论文将系统化选择k和m列为主动探索方向。"
+    ],
+    "method_zh": "CORAL按固定k=3天周期运行，记忆范围m=3个周期。每周期按固定顺序执行：读取observation store、assessment store和decision store；由analysis tool计算汇总统计和变化；由retrieval tool取回相关历史配置、评估和结果；由attribution tool结合A/B结果估计上一配置的效果；LLM在上下文上分析并提出各控制单位的bound内调整建议；随后由constrained optimizer将提案投影到预算可行集c_t(s)≤B（若已可行则保持不变）；再由apply tool将配置部署至线上推荐器；该配置保持一整周期，用A/B实验测量效果并写回记忆。第一案例中控制单位是候选召回来源，取值为有界连续budget multiplier，业务目标是视频观看会话与观看时长，约束是总召回预算；第二案例中控制单位是用户分段，取值为离散的serving treatment选项，目标也是engagement，约束是总服务算力。论文给出LLM成本公式Cost=(T/k)·C·(τ_in p_in+τ_out p_out)，成本按决策周期而非按用户/请求计，论文估算两次部署各约10^6量级tokens、代表性前沿模型定价下约数十美元。",
+    "problem_zh": "生产推荐系统由多级流水线（召回、排序、服务等）和大量手工设定的参数/策略组成，且内容、用户行为、上游模型不断漂移，持续人工A/B调优周期长、成本高，难以紧跟系统自身的最优运行点。本文将CORAL的任务形式化为部分可观测、非平稳、带约束的循环优化问题：在每个决策周期t，agent观测汇总信号并读取近期记忆后选择配置s_t，使累计相对oracle最优配置的engagement缺口最小，同时每个周期满足成本约束c_t(s_t)≤B；策略由LLM实现，不做参数更新，而是从自身先前配置的实测A/B效果中在上下文内学习并改进后续决策。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.9085000000000001,
+  "id": "arxiv-2609.02730",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-03T19:25:48.779556Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-02T15:40:36Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 CORAL，一个 LLM 原生的生产推荐系统闭环优化框架，通过智能体持续观察决策结果并调整推荐配置。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "CORAL: An LLM-Native Harness for Production Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.02730v1"
+}

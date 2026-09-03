@@ -1,0 +1,133 @@
+{
+  "abstract": "Sequential recommendation models are foundational to modern personalized services, yet their effectiveness varies substantially across heterogeneous user environments. In particular, static one-pass recommenders often perform well on common behavior patterns but degrade on operationally challenging user groups, such as users with longer histories or less mainstream item profiles. To address this limitation, we propose \\textsc{DS-Frame}, an adaptive fast--slow inference framework for sequential recommendation. \\textsc{DS-Frame} combines a Fast System for efficient routine prediction, a Slow System for iterative latent refinement, and a learned selector that routes each sample under a controllable computation budget. Experiments on five real-world datasets show that \\textsc{DS-Frame} consistently improves representative sequential recommendation backbones, with larger gains on challenging groups and effective accuracy--efficiency trade-offs. This highlights the potential of adaptive inference for more efficient and robust recommendation. Code is available at \\href{https://github.com/ZichenYuan233/Recommender-System-as-Slow-and-Fast-Thinkers}{this link}. Sequential recommendation models are foundational to modern personalized services, yet their effectiveness varies substantially across heterogeneous user environments. In particular, static one-pass recommenders often perform well on common behavior patterns but degrade on operationally challenging user groups, such as users with longer histories or less mainstream item profiles. To address this limitation, we propose \\textsc{DS-Frame}, an adaptive fast--slow inference framework for sequential recommendation. \\textsc{DS-Frame} combines a Fast System for efficient routine prediction, a Slow System for iterative latent refinement, and a learned selector that routes each sample under a controllable computation budget. Experiments on five real-world datasets show that \\textsc{DS-Frame} consistently improves representative sequential recommendation backbones, with larger gains on challenging groups and effective accuracy--efficiency trade-offs. This highlights the potential of adaptive inference for more efficient and robust recommendation. Code is available at \\href{https://github.com/ZichenYuan233/Recommender-System-as-Slow-and-Fast-Thinkers}{this link}.",
+  "arxiv_id": "2609.02671",
+  "authors": [
+    "Zichen Yuan",
+    "Xiaoxuan Dong",
+    "Linkun Dai",
+    "Jinwei Yang",
+    "Jining Luan",
+    "Dexu Yu",
+    "Chunxiao Li",
+    "Joemon M. Jose",
+    "Youhua Li",
+    "Hanwen Du",
+    "Junchen Fu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "DS-FRAME是即插即用增强框架，可在不大改SASRec/BERT4Rec等既有序列推荐backbone的情况下提升效果，适合已有推荐系统的增量升级。",
+      "实验显示对历史更长、历史物品更非主流的挑战性用户组相对增益更大，同时不牺牲常规用户表现，因此有助于改善长尾或小众偏好用户的推荐体验。",
+      "系统可按算力或业务目标调节慢速路由预算和阈值；在Beauty+SASRec上，约40%慢速激活即可用约1.80倍归一化成本取得比3.00倍全量慢速推理更好的NDCG@10，为在线场景提供可调精度-成本平衡点。",
+      "需注意，论文证据来自离线数据集和ranking指标，未包含真实在线时延、产值或A/B实验结果，商业决策仍需结合线上验证。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "进行了用户级异质性分析：用交互长度和历史物品流行度刻画用户环境，发现SASRec/BERT4Rec这类单次前向推荐器在历史较长、历史物品较非主流的挑战性用户上性能下降更明显。",
+      "提出了DS-FRAME，将序列推荐推理建模为样本级计算分配问题；框架包含Fast System、Slow System和可学习selector，在目标计算预算下自适应地将样本路由到快或慢路径。",
+      "在SASRec和BERT4Rec上验证了即插即用性和通用性：在五个真实数据集上一致提升原backbone，NDCG@10平均相对提升约7.5%（SASRec）和6.7%（BERT4Rec），挑战性用户组增益更大，且学习式路由优于随机路由。"
+    ],
+    "evidence_quality": 0.76,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3 Preliminary Study"
+      },
+      {
+        "page": 4,
+        "section": "5 Methodology"
+      },
+      {
+        "page": 6,
+        "section": "6.2 Main Performance Comparison"
+      },
+      {
+        "page": 7,
+        "section": "6.4 Group-wise Gains"
+      },
+      {
+        "page": 7,
+        "section": "6.5 Selector Effectiveness and Routing Analysis"
+      },
+      {
+        "page": 9,
+        "section": "7 Limitations and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "BERT4Rec",
+        "REAREC-ERL",
+        "REAREC-PRL",
+        "STREAM-REC",
+        "LARES",
+        "MANCAR",
+        "Fast Only",
+        "Slow Only",
+        "Random Routing"
+      ],
+      "datasets": [
+        "Yelp",
+        "Amazon Video Games",
+        "Amazon Beauty",
+        "Amazon Sports & Outdoors",
+        "Amazon Toys & Games"
+      ],
+      "findings_zh": [
+        "在五个数据集上，DS-FRAME一致提升SASRec和BERT4Rec：SASRec的NDCG@10/NDCG@20/HR@10/HR@20平均相对提升为7.5%、6.6%、6.6%、6.2%；BERT4Rec为6.7%、6.3%、6.0%、5.9%。",
+        "在统一SASRec设置下，DS-FRAME在五个数据集上的NDCG@10/HR@10均超过STREAM-REC和REAREC-ERL/PRL，并与更强的潜在推理方法LARES、MANCAR表现相当。",
+        "按交互长度分组时，DS-FRAME在挑战性用户组的相对增益显著大于常规用户组：SASRec在常规/挑战组相对原backbone分别提升3.3%/8.4%，BERT4Rec为3.2%/8.5%；Slow System在挑战组的激活率也更高。",
+        "在Beauty的SASRec实验上，Learned Selector在约40.2%慢速激活率下取得NDCG@10=0.0453，高于同等慢速预算下Random Routing的0.0438，并接近Oracle Routing的0.0461，说明增益来自把额外计算路由到更合适的样本。",
+        "在Beauty和SASRec上，使用K=2时，Learned Selector在约1.80倍归一化成本下取得NDCG@10=0.0453；始终使用Slow System需要3.00倍成本且NDCG@10仅为0.0431，说明选择性慢速推理的精度-效率权衡优于统一慢速推理。",
+        "Ablation显示，在SASRec（Beauty）上，Base NDCG@10=0.0418，加入Slow System升至0.0431，随机路由升至0.0438，完整Learned Selector达到0.0453，说明Slow System和可学习路由各自都有贡献。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "NDCG@20",
+        "HR@10",
+        "HR@20"
+      ]
+    },
+    "limitations_zh": [
+      "Slow System在路由后使用固定步数K进行精炼，只能让推理成本可预测，但不支持根据样本复杂度自适应提前停止。",
+      "selector只用共享的最终序列表示h_u做路由决策，未引入熵、分数边际等不确定性信号，路由质量可能还有提升空间。",
+      "oracle路由标签依赖训练时样本的真值损失来构造，因此当测试分布发生偏移时，该伪监督规则的鲁棒性仍需进一步研究。"
+    ],
+    "method_zh": "DS-FRAME复用现有backbone作为共享序列编码器。输入物品序列经物品嵌入和位置嵌入得到H0，再由L层Transformer编码出共享用户表示h_u。Fast System直接由该表示预测下一项，适合常规样本。Slow System对共享序列表示做K步迭代潜在精炼：每步将上一步得到的reasoning token拼接到原序列后，送入参数共享的Transformer式reasoning block，并取最后一个reasoning token对应的表示作为当前步精炼表示；训练时加入多步预测损失、相邻步输出分布的KL连续性正则和逐步温度退火。Selector是一个轻量MLP gate，以h_u为输入输出路由到Slow System的概率。训练时，用样本级总代价（预测损失加归一化推理成本）构造oracle路由标签作为伪监督，并用目标慢速路由比例b做预算正则；推理时只由selector决策，若g_theta(x)>tau则调用Slow System，否则走Fast System，从而在受控计算预算下实现自适应的精度-效率权衡。",
+    "problem_zh": "现有序列推荐模型在推理阶段通常对所有用户和序列使用同一种静态单次前向计算。对于历史较短、偏好较主流的常规用户，一次前向往往足够；但对于历史更长、兴趣更混合或历史中物品更非主流的挑战性用户，一次前向可能无法充分建模潜在兴趣或需要进一步精炼的用户表征，导致性能明显下降。论文用交互序列长度和历史物品流行度划分用户环境，观察到SASRec和BERT4Rec在挑战性用户组上的NDCG@10相对常规组下降超过20%（交互长度视角），说明静态推理无法按样本难度分配计算资源。因此需要一种在给定计算预算下，为每条输入序列判断是否值得调用额外慢速精炼的自适应推理机制。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.893,
+  "id": "arxiv-2609.02671",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-03T19:25:48.779556Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-02T14:45:39Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 DS-Frame 自适应快慢推理框架用于序列推荐，通过可学习选择器按计算预算进行路由，提升推荐准确率和效率。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Recommender System as Slow and Fast Thinkers",
+  "url": "https://arxiv.org/abs/2609.02671v1"
+}
