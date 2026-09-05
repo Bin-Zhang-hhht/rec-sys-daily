@@ -1,0 +1,135 @@
+{
+  "abstract": "Large Language Models (LLMs) have recently emerged as powerful backbones for recommendation. To better elicit their capabilities, reasoning has been widely incorporated to help LLMs interpret rich textual signals and improve recommendation accuracy. However, explicitly generating intermediate reasoning traces often incurs substantial computational costs, which limits practical deployment in real-world recommender systems. To address this challenge, we propose SelfDR, a Self-Distillation from Reasoning framework for LLM-based Recommendation. SelfDR distills an LLM's own reasoning-enhanced predictions to produce recommendations directly, improving recommendation effectiveness while maintaining inference efficiency. All components in the framework are built on the same base LLM, without relying on any external models. Specifically, the teacher recommender is constructed by training a reasoner with downstream performance as the reward, enabling it to generate targeted rationales that are later incorporated into the teacher's input. A student recommender for direct recommendation, with the same underlying model, then learns from the teacher through self-distillation with a dynamic weighting strategy. Extensive experiments on three public datasets validate the effectiveness, rationality, and efficiency of SelfDR. Codes are available at https://github.com/JiangDeccc/SelfDistillation. Large Language Models (LLMs) have recently emerged as powerful backbones for recommendation. To better elicit their capabilities, reasoning has been widely incorporated to help LLMs interpret rich textual signals and improve recommendation accuracy. However, explicitly generating intermediate reasoning traces often incurs substantial computational costs, which limits practical deployment in real-world recommender systems. To address this challenge, we propose SelfDR, a Self-Distillation from Reasoning framework for LLM-based Recommendation. SelfDR distills an LLM's own reasoning-enhanced predictions to produce recommendations directly, improving recommendation effectiveness while maintaining inference efficiency. All components in the framework are built on the same base LLM, without relying on any external models. Specifically, the teacher recommender is constructed by training a reasoner with downstream performance as the reward, enabling it to generate targeted rationales that are later incorporated into the teacher's input. A student recommender for direct recommendation, with the same underlying model, then learns from the teacher through self-distillation with a dynamic weighting strategy. Extensive experiments on three public datasets validate the effectiveness, rationality, and efficiency of SelfDR. Codes are available at https://github.com/JiangDeccc/SelfDistillation.",
+  "arxiv_id": "2609.03313",
+  "authors": [
+    "Chumeng Jiang",
+    "Jiayin Wang",
+    "Xinjie Lin",
+    "Zhiqiang Guo",
+    "Hengliang Luo",
+    "Min Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SelfDR在推理阶段仅生成单字符标识，平均约109.46ms/instance的推理时延显著低于多种推理式LLM推荐方法，更符合现实推荐系统对低延迟、高吞吐的部署要求。",
+      "训练和蒸馏不依赖GPT/DeepSeek等外部大LLM，可减少调用外部API带来的金钱成本、数据外发和供应商绑定风险。",
+      "Reasoner、教师和学生共享同一LLM架构，减少了维护多个不同规模或不同来源模型带来的工程和部署复杂度。",
+      "在电商数据集Clothing/Home和电影数据集ML1M上，SelfDR均提升HitRate和NDCG，且在SASRec、LightGCN、ComiRec等不同候选生成器下保持优势，具备在推荐重排业务场景落地的潜力。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出SelfDR，一个不依赖更强外部LLM的自我蒸馏框架，通过自我改进提升LLM推荐质量。",
+      "与以往自蒸馏不同，SelfDR从自身推理过程蒸馏，将推理增强教师模型的输出迁移到直接推荐学生模型，推理阶段无需显式生成中间理由，同时改善效果与效率。",
+      "在三个公开数据集上的实验验证了SelfDR的有效性、合理性和效率，展示了推理引导蒸馏促进LLM自我演化的潜力。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Main Results (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Reasoner Performance Comparison (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Effect of Self-Distillation (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Training Cost & Inference Efficiency (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "5 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "PRM",
+        "SetRank",
+        "MIR",
+        "BGE",
+        "Jina",
+        "ZSRanker",
+        "SOFT",
+        "EXP3RT",
+        "COT4Rec",
+        "RecSAVER",
+        "RecR1"
+      ],
+      "datasets": [
+        "Amazon Clothing Shoes and Jewelry (Clothing)",
+        "Amazon Home and Kitchen (Home)",
+        "MovieLens-1M (ML1M)"
+      ],
+      "findings_zh": [
+        "在三个数据集上，相比传统重排模型和LLM推荐基线，SelfDR在所有列表质量指标上取得最好且显著更优的结果（p<0.05），例如Clothing上H_l@1/H_l@5为0.0132/0.0318，ML1M上为0.0845/0.2025。",
+        "在Top-1生成准确率H_g@1上，SelfDR在Clothing、Home和ML1M分别达到0.0118、0.0136和0.0735，全面优于其他LLM基线。",
+        "消融实验显示，只用交叉熵继续训练会过拟合；只用蒸馏则带来增益；动态加权能在蒸馏信号与真实标签之间取得更好平衡，优于固定α、仅监督和仅蒸馏等设置。",
+        "用GRPO训练的自有Reasoner在下游蒸馏效果上优于GPT-4o-mini、Claude-3-Haiku和DeepSeek-V3等外部大模型Reasoner；论文也观察到更强的通用外部LLM并不必然带来更好的蒸馏后推荐效果。",
+        "SelfDR只输出单个标识token，平均推理时间约109.46ms/instance，与SOFT并列最低，明显低于EXP3RT、RecSAVER和RecR1；训练总时长54.18h与多数推理基线相当，且训练中不需要查询外部LLM生成监督标签。",
+        "当候选生成器换成LightGCN和ComiRec时，SelfDR仍一致超过BGE和COT4Rec；在Clothing与Home之间做跨域迁移测试时，蒸馏后模型也一致优于蒸馏前，说明学习方法具有一定可迁移性。"
+      ],
+      "metrics": [
+        "H_g@1",
+        "H_l@1",
+        "H_l@3",
+        "N_l@3",
+        "H_l@5",
+        "N_l@5",
+        "训练时间(hours)",
+        "推理时间(ms/instance)",
+        "输入/输出Tokens"
+      ]
+    },
+    "limitations_zh": [
+      "论文只在LLaMA-3.1-8B-Instruct这一种backbone上验证，作者在结论部分也指出未来需扩展至不同规模和类型的LLM，以进一步验证范式普适性。",
+      "动态加权策略中的α_base最优值随数据集变化，β、τ、γ等超参数也需要实验选择，说明方法仍依赖一定程度的超参数调节。",
+      "教师并不总是可靠或优于学生，当教师对样本排名低于学生时需要用惩罚项降低学习权重，这说明教师输出质量仍是自蒸馏上界的关键制约因素。",
+      "超参分析表明，α_base过小会使训练偏向监督微调并增加过拟合，α_base过大会接近纯蒸馏区间，两者都需要权衡，不能简单取固定值。"
+    ],
+    "method_zh": "SelfDR基于同一个LLM（LLaMA-3.1-8B-Instruct）构建教师和学生。教师端先训练Reasoner：用GRPO并以推荐任务下游准确率作为奖励，让Reasoner根据用户历史和真实下一物品生成针对性强、不直接复述输入元数据的理由；随后将理由拼入推荐输入得到“推理增强教师”。学生端进行直接推荐，输入不含理由，只在蒸馏阶段学习教师soft logits。蒸馏目标为反向KL散度，并同时保留真实标签交叉熵；动态加权α根据教师排名与阈值k、学生和教师排名差、教师是否劣于学生等情况自动调整，以抑制低质或不宜学习的教师信号。教师和学生共享同一基础模型，整个过程是离线蒸馏。",
+    "problem_zh": "LLM用于推荐时，显式推理能增强对用户历史和物品文本的理解并提升效果，但多步推理或测试时推理会显著增加推理时延和计算成本，难以满足真实推荐系统对响应速度和部署成本的要求。SelfDR的目标是让模型只做直接推荐、不输出中间推理痕迹，同时通过自蒸馏吸收自身推理增强预测带来的收益，从而兼顾推荐质量与推理效率。",
+    "technical_depth": 0.84
+  },
+  "doi": null,
+  "final_score": 0.898,
+  "id": "arxiv-2609.03313",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-05T18:24:00.254935Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-03T03:05:17Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出SelfDR自蒸馏框架，将LLM推荐中的推理能力蒸馏为直接推荐以兼顾效果和效率，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SelfDR: Self-Distillation from Reasoning for LLM-Based Recommendation",
+  "url": "https://arxiv.org/abs/2609.03313v1"
+}

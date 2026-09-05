@@ -1,0 +1,119 @@
+{
+  "abstract": "Sequential recommender systems model user behavior as item ID sequences, while recent generative methods cast recommendation as a language modeling task using large language models (LLMs). While this paradigm incorporates rich textual semantics, it introduces a fundamental mismatch: LLMs operate on text tokens, whereas recommender systems depend on discrete item indices. This misalignment often leads to hallucinations in generative recommendations. Existing methods attempt to bridge this gap by learning item vocabularies in Euclidean space, but they struggle to model the inherent long-tail distribution of real-world catalogs, where a small number of head items dominate, and a vast number of tail items reflect users' niche preferences. To address this issue, we introduce Hyperbolic Residual-Quantized Variational AutoEncoder (HypRQ-VAE), the first framework to learn item indexing in hyperbolic space. HypRQ-VAE leverages the unique properties of hyperbolic geometry, whose exponential volume expansion naturally accommodates the power law structure of user-item interactions. This allows the model to encode rich textual semantics while preserving the representational fidelity of sparse, long-tail items. Experiments on three benchmark datasets show that HypRQ-VAE significantly improves the performance of recommendation, particularly in recommending tail items. Our analysis attributes these gains to the superior capacity of hyperbolic space to model item hierarchies and sparsity in generative recommendation. Our code and data are available at: https://github.com/wulongfeng/HypRQ-VAE. Sequential recommender systems model user behavior as item ID sequences, while recent generative methods cast recommendation as a language modeling task using large language models (LLMs). While this paradigm incorporates rich textual semantics, it introduces a fundamental mismatch: LLMs operate on text tokens, whereas recommender systems depend on discrete item indices. This misalignment often leads to hallucinations in generative recommendations. Existing methods attempt to bridge this gap by learning item vocabularies in Euclidean space, but they struggle to model the inherent long-tail distribution of real-world catalogs, where a small number of head items dominate, and a vast number of tail items reflect users' niche preferences. To address this issue, we introduce Hyperbolic Residual-Quantized Variational AutoEncoder (HypRQ-VAE), the first framework to learn item indexing in hyperbolic space. HypRQ-VAE leverages the unique properties of hyperbolic geometry, whose exponential volume expansion naturally accommodates the power law structure of user-item interactions. This allows the model to encode rich textual semantics while preserving the representational fidelity of sparse, long-tail items. Experiments on three benchmark datasets show that HypRQ-VAE significantly improves the performance of recommendation, particularly in recommending tail items. Our analysis attributes these gains to the superior capacity of hyperbolic space to model item hierarchies and sparsity in generative recommendation. Our code and data are available at: https://github.com/wulongfeng/HypRQ-VAE.",
+  "arxiv_id": "2609.03369",
+  "authors": [
+    "Longfeng Wu",
+    "Tong Zeng",
+    "Giovanni Seni",
+    "Zhimin Peng",
+    "Bhanu Pratap Singh Rawat",
+    "Si Zhang",
+    "Yao Zhou",
+    "Lecheng Zheng",
+    "Bo Ji",
+    "Yujun Yan",
+    "Dawei Zhou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该方法可增加长尾/冷门物品在推荐列表中的占比，有助于电商、视频或内容平台改善长尾商品和内容的曝光与可发现性。",
+      "通过缓解LLM生成式推荐中的物品索引语义鸿沟，该方法可能更适用于品类数量大、长尾效应显著的大规模目录。",
+      "实际商业化部署需将语义ID生成、LLM微调和Trie约束解码接入现有物料与检索链路，并以在线指标验证业务收益。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "首次在双曲空间中研究生成式推荐的物品索引问题，弥补欧氏空间在建模物品层级关系和稀疏长尾结构上的不足。",
+      "提出HypRQ-VAE：把物品文本表示映射到庞加莱球，用Möbius运算扩展残差量化，生成层次化语义ID。",
+      "在MovieLens、Amazon Instruments和Amazon Arts上证明该方法整体超过现有baseline，且对长尾（T80）物品的相对提升最大。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "III. Methodology"
+      },
+      {
+        "page": 1,
+        "section": "IV-B. Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "IV-C. Analysis of Long-Tail Performance"
+      },
+      {
+        "page": 1,
+        "section": "IV-D. Ablation Study"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MF",
+        "Caser",
+        "SASRec",
+        "P5-TID",
+        "P5-CID",
+        "TIGER",
+        "LC-Rec",
+        "LETTER"
+      ],
+      "datasets": [
+        "MovieLens",
+        "Amazon Instruments",
+        "Amazon Arts"
+      ],
+      "findings_zh": [
+        "在MovieLens、Instruments和Arts三个数据集上，HypRQ-VAE在Hit@5、Hit@10、NDCG@5、NDCG@10上均超过所有baseline；例如Instruments上相对最强基线的Hit@5提升约11.3%。",
+        "按H20/T80分组后，HypRQ-VAE相对欧氏对应模型TIGER在长尾物品上的提升尤为明显：MovieLens尾部Hit@10提升52.71%，Instruments提升36.23%，Arts提升17.24%。",
+        "Top-k推荐构成分析显示，HypRQ-VAE无论ground truth是头部还是尾部物品，都会比欧氏RQ-VAE推荐更高比例的尾部物品，有助于推荐多样性。",
+        "平均量化误差（AQE）分析显示，欧氏空间中头部物品的量化误差普遍低于尾部物品；双曲空间中头部与尾部AQE差距更小，且在MovieLens上尾部物品AQE低于头部，说明双曲空间对长尾表示更均衡。",
+        "消融实验显示，语义ID长度从3增至6时性能上升，从6增至8时下降，原文归因于自回归生成的误差累积；码本维度K增大通常改善性能，但过大的码本（如512）会导致过拟合式下降。"
+      ],
+      "metrics": [
+        "Hit@5",
+        "Hit@10",
+        "NDCG@5",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "语义ID长度不能无限增加：从6增至8时性能下降，源文档将其归因于自回归生成中的误差累积。",
+      "码本维度需要谨慎选择，过大码本（如512）可能对语义噪声过拟合并导致性能下降。",
+      "源文档仅报告离线检索指标，未包含在线/商业A/B测试，实际业务部署效果仍待验证。"
+    ],
+    "method_zh": "整体为两阶段方法。阶段1生成语义ID：物品文本embedding经DNN编码为欧氏向量z_e，再经指数映射exp_0^κ送入带负曲率的庞加莱球，作为初始残差r0；在L层码本中逐层执行双曲残差量化，每层选择使||r_i⊖_κ e_k^i||最小的码字作为该层ID，并用Möbius减法更新残差r_{i+1}=r_i⊖_κ e_{c_i}^i；量化表示由码字Möbius加回合并用对数映射送回欧氏空间供解码器重建。训练损失包括重建损失、码本损失和承诺损失。针对碰撞问题，采用基于码本距离的级联token重新分配策略。阶段2生成推荐：把用户历史物品转成L token的语义ID序列（如<a_1><b_3><c_2><d_9>）并放入prompt，用LLaMA2-7B和LoRA做监督微调，优化下一物品ID序列的负对数似然；推理时采用beam search和Trie约束解码。",
+    "problem_zh": "生成式推荐将推荐任务建模为LLM上的语言生成，但LLM处理的是文本token，而推荐系统依赖离散物品索引，二者语义不对齐并容易导致幻觉。现有方法（如RQ-VAE）通常在欧氏空间学习物品词表，难以刻画真实目录中头部物品主导、大量长尾物品稀疏的长尾分布，导致长尾物品的表示质量和推荐效果受限。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.875,
+  "id": "arxiv-2609.03369",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-05T18:24:00.254935Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-03T04:56:22Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出HypRQ-VAE在双曲空间学习物品索引以改进生成式推荐中的长尾物品推荐，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "HypRQ-VAE: Hyperbolic Item Indexing for Long-Tail-Aware Generative Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.03369v1"
+}

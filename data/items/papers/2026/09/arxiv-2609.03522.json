@@ -1,0 +1,147 @@
+{
+  "abstract": "Semantic ID (SID) generative recommendation predicts the next item by generating a short tuple of discrete tokens. Recent masked-diffusion methods improve this process through bidirectional context and flexible decoding, yet recommendation ultimately requires selecting among complete catalog items. At each denoising step, a partial SID can correspond to multiple feasible items, while existing methods primarily reason through position-wise token predictions. We propose Explicit Posterior Item Conditioning (EPIC), which introduces explicit item-level competition into SID denoising. EPIC constructs a personalized posterior over feasible candidate items using the current generation context and the user's recent interactions, then projects this distribution back to unresolved SID positions to guide subsequent token decisions. The pretrained backbone remains frozen and requires no additional decoder forward pass. Experiments on four Amazon benchmarks show consistent improvements over strong baselines, while diagnostic analyses indicate that the gains primarily arise from personalized transition evidence that preserves promising item hypotheses during denoising. Semantic ID (SID) generative recommendation predicts the next item by generating a short tuple of discrete tokens. Recent masked-diffusion methods improve this process through bidirectional context and flexible decoding, yet recommendation ultimately requires selecting among complete catalog items. At each denoising step, a partial SID can correspond to multiple feasible items, while existing methods primarily reason through position-wise token predictions. We propose Explicit Posterior Item Conditioning (EPIC), which introduces explicit item-level competition into SID denoising. EPIC constructs a personalized posterior over feasible candidate items using the current generation context and the user's recent interactions, then projects this distribution back to unresolved SID positions to guide subsequent token decisions. The pretrained backbone remains frozen and requires no additional decoder forward pass. Experiments on four Amazon benchmarks show consistent improvements over strong baselines, while diagnostic analyses indicate that the gains primarily arise from personalized transition evidence that preserves promising item hypotheses during denoising.",
+  "arxiv_id": "2609.03522",
+  "authors": [
+    "Tuan-Binh Tran",
+    "Thanh Tam Nguyen",
+    "Quoc Viet Hung Nguyen",
+    "Dung D. Le",
+    "Tung Kieu",
+    "Thanh Trung Huynh"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商/内容平台的完整目录下一项推荐而言，EPIC在Recall@5/10与NDCG@5/10上一致提升，可直接提高排名靠前的推荐命中质量。",
+      "适配训练只更新约0.391M参数的轻量模块，可训练参数减少94.3%，峰值训练内存降低55.9%，有利于在已有冻结生成模型上以较低资源接入item级推理。",
+      "推理延迟增加约34.2%，但可通过只解析部分SID位置换取质量-延迟的更好折中；对延迟敏感的推荐系统存在实用化的可控选项。",
+      "论文提出的候选竞争与个性化转移证据也可作为对现有SID生成推荐系统的一种插件式增强，无需重新训练完整生成器。",
+      "部署前需关注偏差放大、长尾商品曝光、用户隐私与日志合规问题；论文明确建议在排序准确率之外评估子组表现、目录曝光、多样性和稀疏历史鲁棒性。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "识别出SID扩散推荐中的token-商品推断鸿沟：每个部分解码状态都定义一个可行候选商品集合，但该集合内完整商品的个性化竞争在token级去噪过程中是隐式的。",
+      "提出EPIC，在去噪的每一步基于当前生成上下文与用户近期交互，在保留的可行候选项上构造显式商品后验，并将该后验边际化回未解析的SID位置以指导后续token决策。",
+      "提出frontier-aware learning：仅在可行候选集合大小为2到M的识别边界状态施加直接商品级监督，并用SID结构核在高度掩码状态下平滑训练目标。",
+      "冻结预训练backbone，不增加额外的decoder前向传播；实验在四个Amazon数据集上的全部16个数据集-指标组合取得平均最优结果，并通过消融说明增益主要来自个性化转移证据对去噪轨迹中候选商品的保留。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.3 The Token-Item Inference Gap"
+      },
+      {
+        "page": 1,
+        "section": "4 Explicit Posterior Item Conditioning"
+      },
+      {
+        "page": 1,
+        "section": "5 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "6.1 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "6.2 Does Item Evidence Preserve Hypotheses During Denoising?"
+      },
+      {
+        "page": 1,
+        "section": "6.3 What Drives the Improvement?"
+      },
+      {
+        "page": 1,
+        "section": "6.4 When Is EPIC Effective, and at What Cost?"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Ethical Considerations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "HGN",
+        "BERT4Rec",
+        "SASRec",
+        "HSTU",
+        "FDSA",
+        "S3-Rec",
+        "VQ-Rec",
+        "TIGER",
+        "LETTER",
+        "LC-Rec",
+        "ActionPiece",
+        "RPG",
+        "MaskGR",
+        "LLaDA-Rec",
+        "DiffGRM"
+      ],
+      "datasets": [
+        "Beauty",
+        "Sports and Outdoors",
+        "Toys and Games",
+        "Musical Instruments"
+      ],
+      "findings_zh": [
+        "EPIC在四个Amazon数据集上的16个数据集-指标组合中均取得平均最优结果，相比各列第二好的方法相对提升1.2%到16.8%；与第二名方法进行逐用户配对t检验并经Holm校正后，16项比较均满足p_adj<0.05。",
+        "在线（inline）item证据注入相比等价的post-hoc打分明细提升NDCG@5：Beauty为15.7%，Sports为26.6%，Toys为26.8%；并且在Beauty/Sports/Toys上分别有25/48/49个目标不在控制轨迹最终beam池中却被inline机制恢复，说明增益来自改变去噪轨迹而非单纯最终重排。",
+        "消融显示移除transition memory造成NDCG@5下降15.13%，frontier supervision贡献4.05%；将用户历史替换为另一用户历史使NDCG@5下降12.4%-17.9%，而仅反转正确历史顺序只下降1.5%-4.1%，表明用户特定历史是主要增益来源。",
+        "在训练适配成本方面，EPIC仅训练0.391M可训练参数，比完整LLaDA-Rec微调少94.3%，吞吐提升42.7%，峰值训练内存降低55.9%；推理延迟从93.0 ms/用户增至124.8 ms/用户（+34.2%），峰值推理内存基本不变。",
+        "解析两个SID位置时在Beauty上取得最佳质量-延迟折中（NDCG@5约0.04385），且比解析全部四个位置快1.72倍；在不同最终可行集规模的分层中EPIC均不损害效果。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文实验只在固定的5-core Amazon Review品类子集上进行，并且共享固定的Sentence-T5预训练SID分词器，未验证任意大规模工业目录下的表现。",
+      "EPIC每一步使用精确目录扫描计算可行候选集合，复杂度为O(|I|H)，论文仅提出可用倒排索引或近似候选构造扩展至更大规模，未在当前实验中实现。",
+      "若SID分词器存在碰撞，完整SID tuple仍可能对应多个目录项；EPIC不引入额外item身份特征，共享同一完整SID的候选商品在表示上保持绑定，区分同SID商品被列为未来工作。",
+      "论文的结论依赖于唯一SID、目录有效且singleton preimage的item级评估协议；对非唯一或歧义SID的预测不计分，可能无法反映所有线上生成场景。",
+      "伦理讨论指出历史交互与商品元数据可能编码流行度、曝光、人口统计和表征偏差，部署后可能放大长尾商品或代表性不足用户群体面临的不利影响；该工作未在排序准确率之外测量多样性、子组表现、鲁棒性和冷启动等维度。"
+    ],
+    "method_zh": "EPIC将掩码扩散生成器作为冻结的token级backbone。每一去噪步中，先根据已解析的SID位置精确计算可行候选集C_t，再利用frozen backbone的token对数似然通过TopM构造保留候选支撑集合S_t。候选商品与历史商品共用结构化SID编码器：拼接冻结code embedding与位置编码，并加入SID头间成对交互特征。历史路径通过GRU按时间顺序汇总最近K个交互，得到状态向量q_t；转移场用历史注意力选择相关历史项，并以逐候选的逐元素交互特征计算个性化转移证据T_t(i,H_u)。融合q_t与转移证据得到能量E_t(i)，在S_t上归一化为商品后验π_t。训练目标包含frontier restriction上的精确目标项交叉熵，以及按掩码率缩放的SID核平滑项。推理时，将π_t按商品SID的指示函数边际化到每个未解析位置得到p_{I,t}^h(v)，用截断的对数概率残差Δ_t^h(v)与门控g_t^h将其注入原始token logits，再由原有传递规则选择下一步解码状态。每个去噪步重新计算可行集、候选支撑与后验，item证据因此会改变去噪轨迹本身。",
+    "problem_zh": "在语义ID（SID）掩码扩散推荐中，现有方法仍以逐位置token预测为决策接口；每一步的部分SID状态实际上对应多个可行的完整目录项，但完整商品之间的个性化竞争没有被显式建模，导致token层面的局部决策可能在item-level证据被使用前就过早淘汰目标商品。论文将这一现象称为token-item inference gap。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.915,
+  "id": "arxiv-2609.03522",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-05T18:24:00.254935Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-03T08:21:50Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出显式后验物品条件化（EPIC）方法，在语义ID扩散推荐去噪中引入物品级竞争以提升推荐质量，属于推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "EPIC: Explicit Posterior Item Conditioning for Semantic ID Diffusion Recommendation",
+  "url": "https://arxiv.org/abs/2609.03522v1"
+}

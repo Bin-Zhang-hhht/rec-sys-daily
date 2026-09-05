@@ -1,0 +1,21 @@
+{
+  "blogs": [],
+  "date": "2026-09-06",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.03522",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出显式后验物品条件化（EPIC）方法，在语义ID扩散推荐去噪中引入物品级竞争以提升推荐质量，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2609.03313",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出SelfDR自蒸馏框架，将LLM推荐中的推理能力蒸馏为直接推荐以兼顾效果和效率，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2609.03369",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出HypRQ-VAE在双曲空间学习物品索引以改进生成式推荐中的长尾物品推荐，属于推荐系统研究。"
+    }
+  ]
+}
