@@ -1,0 +1,137 @@
+{
+  "abstract": "Modeling long-term user behavior is central to sequential recommendation and billion-scale industrial recommender systems, yet production ranking models operate under strict latency, memory, communication, and training-throughput constraints. At the 100K scale, the challenge extends beyond attention complexity: raw sequence features must be stored, transferred, and repeatedly processed during training and online serving. Existing approaches based on history truncation, multi-stage behavior retrieval, compressed lifelong histories, or train-short/infer-long extrapolation either weaken end-to-end optimization or retain substantial length-dependent cost. We present SequenceO1, an end-to-end framework for ultra-long user behavior sequence modeling, deployed at full traffic on Douyin with histories of up to 100K interactions. SequenceO1 follows a compress-then-reason design. Its Sketch Attention (SA) uses learnable prototypes and prototype-wise normalization to compress the raw history into a fixed-size, target-agnostic user representation. Target-conditioned Stacked Target-to-History Cross Attention (STCA) then models complementary time scales: a recent 10K suffix for short-term interests and the compact sketch for long-term preferences. To make training and inference practical, SequenceO1 combines low-rank user representation caching, multi-request user-level batching, pipeline lift, and a fused FlashSA kernel to amortize feature storage, communication, and computation across targets, training instances, and consecutive requests. Production experiments show consistent offline and online gains, while the compact cached sketch retains most of the benefit of directly scaling end-to-end sequence ranking to 100K. These results provide a practical model-system approach to efficient attention, sequence compression, and scalable long-sequence and long-context recommendation systems. Modeling long-term user behavior is central to sequential recommendation and billion-scale industrial recommender systems, yet production ranking models operate under strict latency, memory, communication, and training-throughput constraints. At the 100K scale, the challenge extends beyond attention complexity: raw sequence features must be stored, transferred, and repeatedly processed during training and online serving. Existing approaches based on history truncation, multi-stage behavior retrieval, compressed lifelong histories, or train-short/infer-long extrapolation either weaken end-to-end optimization or retain substantial length-dependent cost. We present SequenceO1, an end-to-end framework for ultra-long user behavior sequence modeling, deployed at full traffic on Douyin with histories of up to 100K interactions. SequenceO1 follows a compress-then-reason design. Its Sketch Attention (SA) uses learnable prototypes and prototype-wise normalization to compress the raw history into a fixed-size, target-agnostic user representation. Target-conditioned Stacked Target-to-History Cross Attention (STCA) then models complementary time scales: a recent 10K suffix for short-term interests and the compact sketch for long-term preferences. To make training and inference practical, SequenceO1 combines low-rank user representation caching, multi-request user-level batching, pipeline lift, and a fused FlashSA kernel to amortize feature storage, communication, and computation across targets, training instances, and consecutive requests. Production experiments show consistent offline and online gains, while the compact cached sketch retains most of the benefit of directly scaling end-to-end sequence ranking to 100K. These results provide a practical model-system approach to efficient attention, sequence compression, and scalable long-sequence and long-context recommendation systems.",
+  "arxiv_id": "2609.08443",
+  "authors": [
+    "Lin Guan",
+    "Jia-Qi Yang",
+    "Zhishan Zhao",
+    "Jiaqi Huang",
+    "Hangyu Wang",
+    "Longbin Li",
+    "Beichuan Zhang",
+    "Haonan Jiang",
+    "Jinan Ni",
+    "Xiangyu Fan",
+    "Xiaowen Li",
+    "Ziyao Ren",
+    "Yuhang Qi",
+    "Xiaolong Zhu",
+    "Xuanyuan Luo",
+    "Qiwei Chen",
+    "Yi Cheng",
+    "Lele Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "以可缓存的固定大小用户sketch替代TWIN V2式两阶段终身模块，在消除大量原始100K特征存储、通信和重复计算的同时，还能在离线与在线指标上全面提升，说明端到端超长序列建模可以在生产约束下带来明确业务收益。",
+      "在线A/B显示抖音上Finish +2.33%、Comment +3.59%、Like +2.36%、Dislike -6.98%，抖音极速版Finish +3.49%、Comment +8.61%，并提升30日活跃和时长；低活跃用户活跃/时长改善明显，高活跃用户Finish/Like改善明显，可支持用户留存和消费时长优化。",
+      "训练侧约49.9倍、serving侧约63.9倍的FLOP降低（在论文操作点下）意味着能在有限算力预算内把历史长度从10K扩展到100K，为其他工业推荐系统提供了一条可落地的扩容路径。",
+      "缓存命中路径O(1)且sketch只依赖用户侧信号，可跨目标、跨请求复用，适合大规模短视频/信息流推荐中同一用户多次请求、多候选打分的典型场景。",
+      "落地前提是具备训练侧KV Cache、MRLB、pipeline lift和FlashSA等系统能力，因此对基础设施较弱或非短视频类推荐团队的可迁移性会有所下降。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出端到端100K排序方案SA+STCA：用Sketch Attention压缩超长历史，并在固定大小sketch和最近10K后缀上分别做目标条件STCA推理，再轻量融合。",
+      "设计可缓存的低秩sketch：SA通过可学习原型和prototype-wise归一化生成固定大小、只依赖用户侧信号、可微且长度无关的表示，可跨目标、跨请求复用。",
+      "提出cache-first的训练与serving系统设计：训练侧本地KV Cache与serving侧sketch复用，配合MRLB、pipeline lift和FlashSA，在缓存命中时避免重复的n-dependent特征存储、通信和计算。",
+      "已在抖音全流量部署，并用端到端100K分支替代生产STCA 10K + TWIN V2中的两阶段终身模块。",
+      "论文给出复杂度推导，显示在观察到的操作点下，SequenceO1在100K处训练侧FLOP约为直接STCA的1/49.9，serving侧约为1/63.9。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4 System"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "G Complexity Derivation (FLOPs)"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "STCA(512)",
+        "生产STCA 10K + TWIN V2",
+        "TWIN V2 KMeans聚类",
+        "Chunk均值池化",
+        "Position-bucket queries",
+        "Lightning Attention压缩器",
+        "Recent-behavior query init（LONGER）"
+      ],
+      "datasets": [
+        "Douyin生产离线数据集",
+        "Douyin/Douyin Lite在线A/B流量"
+      ],
+      "findings_zh": [
+        "在轻量级100K消融设置中，最终SA配置（k=1K、N_sa=2、d=128、action-side SwiGLU融合）相比STCA(512)基线提升+1.07% Finish AUC；将k增加到2K或层数增加到3只分别提升+0.03%和+0.02%，因此保留较小生产配置。",
+        "在平均长度约85K的100K截断设置下，SequenceO1保留了直接扩展STCA增益的83%（+1.07% vs +1.29% Finish AUC）。",
+        "SA的prototype-wise归一化相比vanilla attention在like、follow、clicmmt、comment、share、finish任务上分别带来+0.10%、+0.20%、+0.09%、+0.19%、+0.14%、+0.01%的UAUC提升。",
+        "在100K压缩方法对比中，在相同1K×128表示预算下，SA（+1.07%）优于TWIN V2 KMeans（+0.30%）、Chunk均值池化（+0.46%）、Position-bucket（+0.72%）、Lightning Attention（+0.83%）和Recent-behavior query init（+0.78%）。",
+        "生产离线评估中，相对STCA 10K + TWIN V2基线，SequenceO1在Finish、Skip、Head、Like、Follow、Comment、Clicmmt、Share、Favourite、Dislike上分别提升ΔAUC +0.29%、+0.23%、+0.18%、+0.09%、+0.05%、+0.04%、+0.16%、+0.18%、+0.30%、+1.29%；ΔUAUC提升从+0.40%到+3.63%不等。",
+        "在线A/B（一个月，抖音和抖音极速版）显示所有评估指标均显著提升：抖音Overall的30-Day Activeness +0.1968%、Duration +1.4999%、Finish +2.3256%、Comment +3.5910%、Like +2.3617%、Dislike -6.9829%；抖音极速版Overall的Finish +3.4872%、Comment +8.6132%、Like +2.9399%、Dislike -5.9972%。低活跃用户Activeness和Duration提升更明显，高活跃用户Finish和Like提升明显。",
+        "在复杂度分析采用的观察操作点下（训练侧R=40、p_hit=0.5；serving侧R=300、p_hit=0.6），100K处SequenceO1相对直接STCA的FLOP降低在训练侧约49.9倍、serving侧约63.9倍；无MRLB时训练侧命中率假设下约46.8倍。"
+      ],
+      "metrics": [
+        "Finish AUC",
+        "UAUC",
+        "30-Day Activeness",
+        "Duration",
+        "Finish",
+        "Comment",
+        "Like",
+        "Dislike",
+        "FLOPs/FLOP倍率"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确说明SA与Linformer的联系是概念性/结构性的，并不声称SA继承特定的自注意力近似保证。",
+      "论文的误差分解显示压缩-推理误差包含压缩误差与推理误差：固定大小sketch会丢失信息，下游推理容量不足也会限制最终效果。",
+      "sketch-to-behavior检索、局部精炼等潜在扩展未被当前部署评估。",
+      "FLOP倍率（49.9×/63.9×）基于论文给出的训练/serving缓存命中率和复用比操作点，并非无条件下界。",
+      "未来方向包括分层或多分辨率sketch，以及按用户或行为模式自适应容量，说明当前固定大小sketch仍有改进空间。"
+    ],
+    "method_zh": "SequenceO1采用“先压缩、后推理”的端到端框架。Sketch Attention（SA）用k个可学习原型作为固定大小槽位，计算原型-历史token亲和度S，并按prototype维度做softmax（每个token将质量分配到所有原型），得到分配矩阵A后聚合历史嵌入X，生成sketch X̃∈R^{k×d}；该过程只依赖用户侧信号，因此可缓存复用。堆叠SA（论文设置N_sa=2）通过残差、LayerNorm和SwiGLU FFN迭代精炼sketch。推理时对最近10K后缀直接用STCA建模recency，对固定大小sketch经宽度适配器后用STCA建模超长信号，再在下游MixFormer等骨干中融合。系统侧用训练侧本地KV Cache和serving侧cache复用共享sketch；MRLB将同一用户的多次请求分组成批，一次性计算sketch；pipeline lift把用户侧sketch计算提前到请求入口或与召回并行；FlashSA以分块、prototype-wise softmax统计和免物化k×n中间矩阵的方式降低峰值内存和HBM流量。缓存命中路径一旦得到固定大小sketch，其成本与原始100K序列长度无关，即O(1)。",
+    "problem_zh": "短视频推荐需要在严格的延迟和训练吞吐约束下利用可达100K甚至百万级的超长用户历史。在100K规模，瓶颈是系统性的，涵盖特征存储、通信以及训练和serving计算；现有方案如截断、多阶段检索或长度外推要么牺牲端到端建模，要么保留随原始序列长度增长的系统成本。即使STCA将复杂度降到O(L)，直接用于100K仍因target-conditioned交叉注意力与目标相关、跨目标难以复用而代价过高。",
+    "technical_depth": 0.95
+  },
+  "doi": "10.1145/3773078.3831864",
+  "final_score": 0.9450000000000001,
+  "id": "arxiv-2609.08443",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-09T19:29:33.270640Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-08T08:49:44Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出了用于10万级超长用户行为序列建模的端到端推荐框架SequenceO1，采用压缩再推理设计并已在抖音全流量部署。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SequenceO1: End-to-End Ultra-Long (100K) Sequence Modeling in Recommendation with Low-Rank Caching",
+  "url": "https://arxiv.org/abs/2609.08443v1"
+}

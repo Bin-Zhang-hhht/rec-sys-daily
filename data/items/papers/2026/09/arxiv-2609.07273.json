@@ -1,0 +1,131 @@
+{
+  "abstract": "Industrial ranking models for recommendation have scaled feature interaction and sequence modeling separately; recent architectures such as HyFormer and MixFormer unify both in a stackable backbone. Real-world recommender systems, however, nearly always require multi-task learning, yet existing unified architectures confine multi-task modeling to shallow post-backbone towers, leaving the backbone without task-aware information flow. We propose MORE (Multi-task cO-evolving Ranking modEl), which embeds multi-task information flow inside the backbone, enabling task-specific signals to co-evolve with sequence and feature representations at every layer rather than in a post-hoc fusion. It introduces Anchor Tokens that persist across backbone layers: Shared Anchors encode cross-task commonalities, while Private Anchors capture task-specific priors. In each block, Anchor Tokens (1) read task-conditioned signals from behavior sequences, (2) mix with non-sequential features under a task-boundary mask, and (3) refine per-task representations through independent branches; as blocks stack, each task obtains a differentiated representation refined through all backbone layers. Experiments on large-scale industrial datasets show that MORE consistently outperforms baselines across all tasks under comparable parameter and FLOPs budgets, and scales well with model size. Online A/B tests on Momo, a leading Chinese social discovery platform with tens of millions of monthly active users, yield 3% improvement in usage duration, 3.6% in interaction rate, and 2% in deep-chat rate. MORE is deployed in production with request-level shared computation reducing scoring latency by about 30%. Industrial ranking models for recommendation have scaled feature interaction and sequence modeling separately; recent architectures such as HyFormer and MixFormer unify both in a stackable backbone. Real-world recommender systems, however, nearly always require multi-task learning, yet existing unified architectures confine multi-task modeling to shallow post-backbone towers, leaving the backbone without task-aware information flow. We propose MORE (Multi-task cO-evolving Ranking modEl), which embeds multi-task information flow inside the backbone, enabling task-specific signals to co-evolve with sequence and feature representations at every layer rather than in a post-hoc fusion. It introduces Anchor Tokens that persist across backbone layers: Shared Anchors encode cross-task commonalities, while Private Anchors capture task-specific priors. In each block, Anchor Tokens (1) read task-conditioned signals from behavior sequences, (2) mix with non-sequential features under a task-boundary mask, and (3) refine per-task representations through independent branches; as blocks stack, each task obtains a differentiated representation refined through all backbone layers. Experiments on large-scale industrial datasets show that MORE consistently outperforms baselines across all tasks under comparable parameter and FLOPs budgets, and scales well with model size. Online A/B tests on Momo, a leading Chinese social discovery platform with tens of millions of monthly active users, yield 3% improvement in usage duration, 3.6% in interaction rate, and 2% in deep-chat rate. MORE is deployed in production with request-level shared computation reducing scoring latency by about 30%.",
+  "arxiv_id": "2609.07273",
+  "authors": [
+    "Yuchen Wang",
+    "Feng Niu",
+    "Qing Tan",
+    "Junting Lu",
+    "Baoxin Wu",
+    "Jun Gao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "核心业务指标全面提升：在线 A/B 中评论 +3.6%、使用时长 +3.0%、点击 +2.8%、打招呼 +2.5%、点赞 +2.0%、深度聊天 +2.0%，且全部统计显著，说明对内容互动与深层社交匹配均有直接业务价值。",
+      "P99 打分延迟降低约 30%：request-level 共享计算能显著降低在线推荐服务的延迟，有利于高并发场景下的部署与基础设施成本控制。",
+      "扩展效率更高：在 0.1B~0.9B 参数范围内，MORE 比任务无关骨干更高效地将参数/算力增长转化为多任务 GAUC 提升，说明业务模型继续扩容时更有可能获得持续收益。",
+      "方案已在生产环境落地并服务真实流量，证明其满足工业级部署要求，对其他大型推荐系统具有较强可借鉴性和迁移潜力。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "指出统一排序骨干中的结构性缺口：多任务建模被限定在后置预测头，骨干本身任务无关，并从任务信息流、表示容量和扩展效率三方面分析其局限。",
+      "提出 MORE，一个任务感知的统一排序骨干：引入 Shared Anchors 和 Private Anchors 作为跨层 Anchor Tokens，使多任务信号与序列/特征表示在每一层共同演化，并通过任务边界掩码在每块中显式隔离任务语义。",
+      "架构上分离用户级序列状态与逐候选 Anchor 状态，支持 request-level 共享计算，在不修改模型的情况下将在线打分 P99 延迟降低约 30%。",
+      "离线实验在全部七项任务上取得 GAUC 提升，并在参数/FLOPs 扩展上比任务无关统一骨干更高效；在线 A/B 实验在浏览、互动和深度社交指标上均获显著提升，且已在生产环境部署。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Request-Level Training and Inference"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Scaling Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Online A/B Test"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Transformer+RankMixer",
+        "Transformer+Wukong",
+        "HSTU+RankMixer",
+        "Transformer+DCN-v2",
+        "STCA",
+        "MixFormer",
+        "HyFormer",
+        "OneTrans"
+      ],
+      "datasets": [
+        "Momo Nearby Feed 离线数据集：连续 90 天推荐日志训练，随后 1 天评估",
+        "Momo Nearby Feed 在线 A/B 实验：两周、均衡流量拆分"
+      ],
+      "findings_zh": [
+        "主结果：MORE 在 Click、Like、Comment、Greet、Reply、Avatar-click、Deep Chat 七项任务上均优于所有基线；相对 Transformer+RankMixer，Greet +1.58%、Like +1.47%、Comment +1.26%、Deep Chat +0.33%。",
+        "效率：MORE 为 132M 参数、1.85G FLOPs/example，FLOPs 低于参考基线 1.92G，且显著低于 MixFormer 4.65G、STCA 2.36G、HyFormer 2.16G；相比 OneTrans 仅多 0.12G FLOPs，但所有任务均更优。",
+        "消融：移除任务边界掩码造成平均 GAUC 最大下降（Interaction -0.34%，平均 -0.21%）；移除全部组件退化到 BaseArch 后平均 GAUC 下降 0.33%。",
+        "扩展分析：在约 0.1B 到 0.9B 参数范围内，MORE 将参数与计算转换为多任务 GAUC 收益的效率高于任务无关统一骨干，规模越大优势越明显。",
+        "在线 A/B：两周实验所有指标均显著（p<0.05），Usage Duration +3.0%、Click +2.8%、Like +2.0%、Comment +3.6%、Greet +2.5%、Deep Chat +2.0%。",
+        "部署效率：request-level 共享计算使 P99 打分延迟较逐候选部署降低约 30%，满足高并发推荐服务延迟约束，且模型已在生产环境部署。"
+      ],
+      "metrics": [
+        "GAUC",
+        "Params",
+        "FLOPs/example",
+        "Online relative lift (usage duration, click, like, comment, greet, deep chat)",
+        "P99 scoring latency",
+        "Statistical significance p<0.05"
+      ]
+    },
+    "limitations_zh": [
+      "论文的离线与在线验证都集中在 Momo Nearby Feed 单一社交推荐场景，未提供其他推荐场景或公开数据集上的外部验证。",
+      "在线 A/B 以生产 DLRM 风格模型为对照，结果由论文作者报告，且未提供外部可复现的工业级基准。",
+      "论文在结论中明确将泛化到更多推荐设置、更大参数规模和动态任务配置留作未来工作，因此当前结论对更大规模或动态任务集合的适用性未被验证。",
+      "消融和扩展分析均基于厂商内部数据与实现，未提供代码或数据，独立复现受限。"
+    ],
+    "method_zh": "MORE 的输入侧将多行为序列按行为组合进行笛卡尔积编码生成序列 token，将非序列特征嵌入为 F token，并通过序列均值池化与非序列特征拼接、MLP 投影切分得到 K 个 Shared Anchors 与 T 个 Private Anchors。每个 MORE Block 依次包含三个子模块：(1) Task-Aware Sequence Reading：Anchor Tokens 通过 cross-attention 读取共享行为序列，并使用独立 SwiGLU 门控读取跨层序列寄存器，使 Shared/Private Anchors 分别获取共享与任务相关序列信号；(2) Selective Semantic Mixing：将 F、Shared Anchors、Private Anchors 拼接成统一 token 矩阵，用 MLP-Mixer 风格门控做全局语义混合，同时施加任务边界掩码，使 Private Anchors 彼此不可见，仅 F 与 Shared Anchors 对全局可见；(3) Task Enhancing：对每个 Private Anchor 用独立 FiLM 分支从 F 中注入判别性信息。堆叠 L 个 Block 后，每个任务塔接收对应 Private Anchor 以及 F 和 Shared Anchors 的共享语义进行预测。训练和推理采用 request-level 共享计算：同一请求内用户侧序列只编码一次并广播，逐候选的 F 和 Anchor Tokens 沿候选维度组织，从而降低在线打分延迟。",
+    "problem_zh": "现有统一排序骨干（如 HyFormer、MixFormer、OneTrans）虽然将序列建模与特征交互放在同一可堆叠骨干中，但多任务建模仍被限制在骨干之后的预测塔，骨干本身是任务无关的。论文指出这带来三个问题：任务无关的序列读取与特征交互无法按任务区分信号；所有任务共享同一骨干输出，在任务分化之前就形成结构瓶颈；单纯扩大骨干规模主要增加任务无关容量，转化为多任务增益的效率较低。",
+    "technical_depth": 0.9
+  },
+  "doi": "10.1145/3799682.3840113",
+  "final_score": 0.9175000000000001,
+  "id": "arxiv-2609.07273",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-09T19:29:33.270640Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "multi_task_learning"
+  ],
+  "published_at": "2026-09-07T09:36:57Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出MORE多任务排序模型，将多任务信息流嵌入统一排序骨干网络，并在陌陌上线后显著提升多项业务指标。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Task-Blind No MORE: Multi-Task Information Flow in Unified Ranking Backbones",
+  "url": "https://arxiv.org/abs/2609.07273v1"
+}

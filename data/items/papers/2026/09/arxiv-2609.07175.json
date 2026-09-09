@@ -1,0 +1,110 @@
+{
+  "abstract": "Generative recommendation (GR) systems increasingly leverage user-level KV cache reuse to avoid recomputing long user histories. However, the growing KV cache capacity and bandwidth requirements introduce new challenges for memory system. High-Bandwidth Flash (HBF) provides a promising solution by offering substantially higher capacity than HBM while approaching HBM-class read bandwidth, enabling larger scale KV cache retention and improved serving throughput. Yet conventional Least-Recently-Used (LRU) KV cache management tightly couples KV cache writes with cache misses, generating excessive write traffic that rapidly exhausts flash endurance. In this work, we evaluate a write-aware KV cache policy based on admission-controlled LRU-K for HBF-based GR serving. By filtering low-reuse users before cache admission, LRU-K decouples KV cache writes from misses and significantly reduces unnecessary writes. We develop an analytical model to characterize GR serving performance, KV cache write traffic, and HBF lifetime, and evaluate performance across diverse memory systems and GR workloads. Our results show that HBF-based systems achieve 3.8 to 4.7 times higher throughput than HBM-only systems. Moreover, LRU-K extends HBF lifetime from about one year under conventional LRU to over six years with a moderate K=10, while maintaining comparable or even slightly improved throughput. These results highlight the importance of write aware KV cache policy for sustainable HBF-based GR serving. Generative recommendation (GR) systems increasingly leverage user-level KV cache reuse to avoid recomputing long user histories. However, the growing KV cache capacity and bandwidth requirements introduce new challenges for memory system. High-Bandwidth Flash (HBF) provides a promising solution by offering substantially higher capacity than HBM while approaching HBM-class read bandwidth, enabling larger scale KV cache retention and improved serving throughput. Yet conventional Least-Recently-Used (LRU) KV cache management tightly couples KV cache writes with cache misses, generating excessive write traffic that rapidly exhausts flash endurance. In this work, we evaluate a write-aware KV cache policy based on admission-controlled LRU-K for HBF-based GR serving. By filtering low-reuse users before cache admission, LRU-K decouples KV cache writes from misses and significantly reduces unnecessary writes. We develop an analytical model to characterize GR serving performance, KV cache write traffic, and HBF lifetime, and evaluate performance across diverse memory systems and GR workloads. Our results show that HBF-based systems achieve 3.8 to 4.7 times higher throughput than HBM-only systems. Moreover, LRU-K extends HBF lifetime from about one year under conventional LRU to over six years with a moderate K=10, while maintaining comparable or even slightly improved throughput. These results highlight the importance of write aware KV cache policy for sustainable HBF-based GR serving.",
+  "arxiv_id": "2609.07175",
+  "authors": [
+    "Danni Peng",
+    "Kai Wu",
+    "Tianyu Zuo",
+    "Pengfei Xia",
+    "Hui Zang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "HBF 提供远超 HBM 的 KV cache 容量且接近 HBM 的读带宽，使 GR 系统能够在更大用户规模下保留 KV cache，提升吞吐并降低推理成本。",
+      "虽然单个 HBF 栈功耗（<80W）高于 HBM（40W），但更高的单设备吞吐可减少所需设备数量，在系统层面抵消额外功耗开销。",
+      "传统 LRU 会使 HBF 寿命仅约一年，无法满足数据中心硬件折旧和保修要求；采用 LRU-K 后 HBF 寿命可超过六年，使 HBF 在 GR 场景具备可持续运营的经济性。",
+      "KV cache 写入策略直接决定闪存寿命，这提示采购或部署 HBF 时需配套写感知缓存管理，否则高带宽硬件的长期总拥有成本可能不可控。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出了面向 GR 服务的分析模型，刻画 KV cache 访问、服务性能、写流量和 HBF 寿命。",
+      "提出用准入控制的 LRU-K 策略替代传统 LRU，通过 K-th request 过滤低复用用户，将 KV 写入与 cache miss 解耦，并建模写流量降低。",
+      "评估了 HBM-only、HBM+CPU、HBF-based 三种内存配置及 HSTU、OpenOneRec 等多个 GR 模型，显示 HBF-based 相比 HBM-only 吞吐提升 3.8–4.7 倍，LRU-10 可将 HBF 寿命从约一年延长至六年以上，同时保持或略微提升吞吐。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I"
+      },
+      {
+        "page": 1,
+        "section": "II"
+      },
+      {
+        "page": 1,
+        "section": "III"
+      },
+      {
+        "page": 1,
+        "section": "IV"
+      },
+      {
+        "page": 1,
+        "section": "V"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "HBM-only",
+        "HBM+CPU",
+        "LRU-1 / conventional LRU"
+      ],
+      "datasets": [
+        "模拟用户流量，覆盖不同活跃度分布，hot users 请求率高于 100 req/hr",
+        "HSTU 1B、10B、100B MoE 工作负载",
+        "OpenOneRec 1.7B、8B、100B MoE 工作负载",
+        "最大历史序列长度 8K，候选集大小 500"
+      ],
+      "findings_zh": [
+        "HBF-based 配置在所有评估模型上相比 HBM-only 实现 3.8–4.7× 的 QPS 提升，主要来自更大 KV cache 容量带来的更高命中率和更少历史 prefill 重算。",
+        "HBM+CPU 在六种模型中的五种上相比 HBM-only 提升 QPS 1.3–2.0 倍；HSTU-1B 例外，因为从带宽受限的 CPU 内存读取完整 KV cache 可能比重算历史更慢，导致吞吐略降。",
+        "在传统 LRU（LRU-1）下，七栈 HBF 在 10K-user HSTU-10B 工作负载下的寿命约为一年。",
+        "将 K 增加到 10 后，所有工作负载的 HBF 寿命均超过六年，满足典型闪存设备保修期。",
+        "对 HSTU-10B，K 从 1 增加到 10 使完整 KV 写概率从 0.101 降至 0.014，显著降低写流量。",
+        "K 从 1 增至 10 时 QPS 略有提升，因为 LRU-K 过滤低频用户，将缓存资源向更活跃、历史更长的用户倾斜，避免长序列的高成本 prefill。"
+      ],
+      "metrics": [
+        "QPS / serving throughput",
+        "HBF lifetime",
+        "KV cache write probability / write rate",
+        "Cache hit rate"
+      ]
+    },
+    "limitations_zh": [
+      "论文采用 roofline 分析模型和模拟用户流量，而非真实生产请求 trace 或真实 HBF 硬件上的端到端实测。",
+      "HBF 写带宽、SLC 100K P/E 写寿命、每栈容量和读带宽等参数均来自假设/已有工作，实际设备行为可能存在差异。",
+      "LRU-K 需要跟踪访问历史以做出准入决策，但论文未量化该管理开销的具体代价。",
+      "评估聚焦于吞吐和寿命，未深入分析延迟 SLO 尾延迟、多租户隔离、故障恢复等生产部署问题。"
+    ],
+    "method_zh": "基于 roofline 分析模型建立 GR 推理的命中/缺失路径时延公式，并定义平均请求时延和 QPS；进一步构建 KV 写流量与 HBF 寿命模型。在缓存管理上采用 admission-controlled LRU-K：仅当用户第 K 次最近的请求满足准入条件时才写入 KV cache，从而将 miss 路径分为 miss-write 和 miss-no-write。采用 Poisson 请求模型推导 LRU-K 的命中率 p_hit(K) 和准入概率 a_K，并在 HBM-only、HBM+CPU、HBF-based 三种硬件配置下对 HSTU 1B/10B/100B MoE 和 OpenOneRec 1.7B/8B/100B MoE 等模型进行仿真评估。",
+    "problem_zh": "生成式推荐（GR）系统依赖用户级 KV cache 复用来避免重算长用户历史，但 KV cache 容量和带宽需求快速增长：HBM 容量不足，CPU 内存带宽不足；HBF 提供高容量和高读带宽，但 NAND 写寿命有限。传统 LRU 策略将 KV 写入与 cache miss 强耦合，每次 miss 都写入完整 KV，导致大量不必要的写流量，使 HBF 寿命仅约一年，难以可持续承载 GR 服务。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.893,
+  "id": "arxiv-2609.07175",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-09T19:29:33.270640Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-07T08:07:14Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文针对生成式推荐服务中的KV缓存管理，提出基于准入控制LRU-K的写感知缓存策略，以提升高带宽闪存系统的吞吐并延长其寿命，属于推荐系统的系统工程研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Enabling High-Bandwidth Flash for Generative Recommendation Serving with Write-Aware KV Cache Policy",
+  "url": "https://arxiv.org/abs/2609.07175v1"
+}

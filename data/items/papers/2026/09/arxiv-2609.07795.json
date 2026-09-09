@@ -1,0 +1,103 @@
+{
+  "abstract": "Short-form video platforms use recommender systems to maximize engagement through highly efficient personalized recommendations. However, the impact of these recommendations on users with ADHD compared to users without ADHD remains underexplored. Through this study, we introduce and operationalize the Engagement Trap, illustrating how recommender systems, while successfully optimizing for engagement, disproportionately disadvantage users with ADHD. This stratified study of 302 participants, recruited via the online platform Prolific, compares experiences between participants with and without ADHD. Our results show that while recommendations are perceived as relevant across groups, participants with ADHD report significantly higher levels of time blindness, post-usage regret, and emotional distress when consuming recommendations. Moreover, we collect feedback for several proof-of- concept, theoretical design interventions for neuro-inclusive design principles. These findings provide quantitative evidence of systemic differences in engagement-optimized recommender systems and highlight the unbalanced negative effects and interactions these systems create for participants with ADHD. We argue for neurodiversity-aware, human-centered design approaches that mitigate such algorithmic harms and support more equitable experiences. Short-form video platforms use recommender systems to maximize engagement through highly efficient personalized recommendations. However, the impact of these recommendations on users with ADHD compared to users without ADHD remains underexplored. Through this study, we introduce and operationalize the Engagement Trap, illustrating how recommender systems, while successfully optimizing for engagement, disproportionately disadvantage users with ADHD. This stratified study of 302 participants, recruited via the online platform Prolific, compares experiences between participants with and without ADHD. Our results show that while recommendations are perceived as relevant across groups, participants with ADHD report significantly higher levels of time blindness, post-usage regret, and emotional distress when consuming recommendations. Moreover, we collect feedback for several proof-of- concept, theoretical design interventions for neuro-inclusive design principles. These findings provide quantitative evidence of systemic differences in engagement-optimized recommender systems and highlight the unbalanced negative effects and interactions these systems create for participants with ADHD. We argue for neurodiversity-aware, human-centered design approaches that mitigate such algorithmic harms and support more equitable experiences.",
+  "arxiv_id": "2609.07795",
+  "authors": [
+    "Vedad Misirlic",
+    "Gregor Mayr",
+    "Elisabeth Lex"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对短视频平台（如 TikTok、Instagram Reels、YouTube Shorts）而言，仅优化参与度可能对 ADHD 用户造成不成比例的算法伤害，带来用户幸福感下降、声誉风险和潜在监管压力。",
+      "平台可考虑引入外部停止信号和界面级控制机制，如专注模式、使用提醒、强制休息、固定数量模式、手动推进、视觉时间指示器和多样性注入，在不显著降低推荐相关性的前提下支持用户主动脱离。",
+      "研究结果与欧盟《欧洲无障碍法案》（EAA）和美国《美国残疾人法案》（ADA）相关：现有法规尚未充分覆盖算法透明度及参与度驱动设计对神经多样性用户的差异影响，平台可能需要主动将包容性指标纳入产品设计和合规评估。",
+      "将神经多样性纳入推荐系统评估指标有助于改善公平性、用户信任和长期留存，但设计干预需谨慎，避免过度限制造成用户自主感下降。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出\"参与度陷阱\"（Engagement Trap）交互模型：推荐系统提供高度相关且令人沉浸的内容，而脱离主要依赖用户自我调节或外部触发，导致 ADHD 用户更难以主动停止使用。",
+      "开展 N=302 的分层量化研究，区分医学确诊 ADHD、自我报告 ADHD 和无 ADHD 三组，对 Engagement Trap 进行验证和操作化。",
+      "提供系统差异的实证证据：ADHD 用户在时间失明、脱离困难、使用后后悔和负面情绪上显著更高，而推荐相关性感知在各组间无显著差异。",
+      "收集参与者对七类理论性包容设计功能（专注模式、使用提醒、强制休息、固定数量模式、手动推进、视觉时间指示器、多样性注入）的偏好反馈。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Study Design"
+      },
+      {
+        "page": 1,
+        "section": "Results"
+      },
+      {
+        "page": 1,
+        "section": "Discussion"
+      },
+      {
+        "page": 1,
+        "section": "Limitations & Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无 ADHD 组作为对照组",
+        "将自我报告 ADHD 与医学确诊 ADHD 合并为统一 ADHD 组进行稳健性检验"
+      ],
+      "datasets": [
+        "302 名 Prolific 参与者的自我报告问卷数据",
+        "短视频平台使用场景：YouTube Shorts（75.9%）、Instagram Reels（67.9%）、TikTok（59.2%）"
+      ],
+      "findings_zh": [
+        "各组均认为推荐与观看意图匹配，Q6 无组间统计差异（p≈0.999），说明 ADHD 用户的负面体验不是由不相关内容推荐驱动，而是由高相关、高参与度内容的难以脱离性驱动。",
+        "ADHD 用户在时间失明（p<.001）、观看时间超出预期（p<.001）、开始后难以停止（p<.001）和平台连续推荐削弱控制感（p=.001）上显著高于无 ADHD 组；脱离困难中位数 ADHD 组为 5，无 ADHD 组为 3。",
+        "ADHD 用户使用后后悔、时间无价值感、任务被挤占、使用后情绪更低以及内疚/沮丧情绪均显著更高（多数 p<.001）。",
+        "自我报告 ADHD 与医学确诊 ADHD 在大多数题目上无显著差异，表明结果在不同 ADHD 亚组之间具有稳健性。",
+        "所有组对七类理论性包容设计功能持积极态度（中位数=5），其中固定数量模式和强制休息获得最高中位评分。"
+      ],
+      "metrics": [
+        "7 点 Likert 量表得分",
+        "Kruskal-Wallis H 检验 p 值",
+        "Dunn 事后比较（Holm-Bonferroni 校正）p 值",
+        "Mann-Whitney U 检验 p 值",
+        "效应量：epsilon-squared、Cliff's Delta、Rank-Biserial Correlation",
+        "Cronbach's alpha（各主题均 >0.78）"
+      ]
+    },
+    "limitations_zh": [
+      "ADHD 状态依赖参与者自我披露，未收集或验证医疗记录；虽然区分了自我报告和医学确诊，但仍可能存在症状严重度的组内变异。",
+      "数据为回顾性自我报告，时间感知和情绪状态具有主观性；未来可结合行为数据（如感知与实际观看时间差异）进行补充。",
+      "未收集 ADHD 用药信息，无法判断药物是否作为调节因素影响参与者对 Engagement Trap 的易感性。",
+      "包容性设计功能仅以文字描述形式评估，参与者未与真实功能交互；未来需将概念转化为可用的原型或应用后再评估其效果。"
+    ],
+    "method_zh": "通过 Prolific 招募 302 名参与者（150 名 ADHD，其中 65 名医学确诊、85 名自我报告；152 名无 ADHD），使用自编 7 点 Likert 问卷（1=非常低，7=非常高），约需 5 分钟完成。问卷涵盖人口学信息、平台使用情况、时间失明/脱离困难、使用后后悔、内疚/沮丧情绪，以及包容性设计功能偏好。统计分析使用 Kruskal-Wallis H 检验、Dunn 事后配对比较（Holm-Bonferroni 校正）、Mann-Whitney U 检验，并报告 epsilon-squared、Cliff's Delta 和 Rank-Biserial Correlation 效应量。",
+    "problem_zh": "短视频平台推荐系统通常以最大化用户参与度为目标，通过高度个性化、连续播放和无限滚动的内容流使用户难以主动脱离。该论文提出并操作化\"参与度陷阱\"（Engagement Trap）概念，指出这类参与度优化的推荐系统对 ADHD 用户造成不成比例的负面影响，包括时间失明、脱离困难、使用后后悔和情绪困扰；此前缺乏量化证据。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.8400000000000001,
+  "id": "arxiv-2609.07795",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-09T19:29:33.270640Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-07T17:38:48Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文通过302名参与者的分层研究，量化了短视频推荐系统对ADHD用户造成的“参与陷阱”及其负面体验差异。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Quantifying the Engagement Trap: Impact of Short-form Video Recommender Systems on Users with ADHD",
+  "url": "https://arxiv.org/abs/2609.07795v1"
+}

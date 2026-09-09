@@ -1,0 +1,115 @@
+{
+  "abstract": "We study the design of feedback recommendation policies for networked multi-topic opinion dynamics. The design of recommendations is formulated as an infinite-horizon linear-quadratic optimal control problem that favors suggestions aligned with each agent's current opinion, thereby using opinion alignment as a proxy for engagement. At the same time, the performance index penalizes polarization, deviation from the uncontrolled equilibrium of the opinion dynamics, and from the current agents' opinion, recommendation effort, and favors coherence among neighbors' recommendations. An agent-wise representation exposes the interconnection structure of the social network and enables structured controller and certificate synthesis. Under the assumption that the stage cost of the performance index is strictly positive definite, the affine optimal control problem separates into a strictly convex steady-state optimization, which determines the optimal equilibrium and the affine controller offset, and an LQR problem, which yields the static state-feedback gain. The resulting centralized Riccati controller provides a performance benchmark, while structured gains are obtained from dissipativity-based and $\\mathcal H_2$-based LMI surrogate formulations. Possibly overlapping certificate clusters yield scalable local sufficient conditions for the structured gain design, while a separate steady-state cluster decomposition provides an exact consensus reformulation of the steady-state optimization. Numerical results on a social network illustrate the closed-loop behavior and the trade-off between performance and controller locality. We study the design of feedback recommendation policies for networked multi-topic opinion dynamics. The design of recommendations is formulated as an infinite-horizon linear-quadratic optimal control problem that favors suggestions aligned with each agent's current opinion, thereby using opinion alignment as a proxy for engagement. At the same time, the performance index penalizes polarization, deviation from the uncontrolled equilibrium of the opinion dynamics, and from the current agents' opinion, recommendation effort, and favors coherence among neighbors' recommendations. An agent-wise representation exposes the interconnection structure of the social network and enables structured controller and certificate synthesis. Under the assumption that the stage cost of the performance index is strictly positive definite, the affine optimal control problem separates into a strictly convex steady-state optimization, which determines the optimal equilibrium and the affine controller offset, and an LQR problem, which yields the static state-feedback gain. The resulting centralized Riccati controller provides a performance benchmark, while structured gains are obtained from dissipativity-based and $\\mathcal H_2$-based LMI surrogate formulations. Possibly overlapping certificate clusters yield scalable local sufficient conditions for the structured gain design, while a separate steady-state cluster decomposition provides an exact consensus reformulation of the steady-state optimization. Numerical results on a social network illustrate the closed-loop behavior and the trade-off between performance and controller locality.",
+  "arxiv_id": "2609.08567",
+  "authors": [
+    "Mariano Simone",
+    "Frasca Paolo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "将推荐系统视为反馈控制问题而非单纯预测/排序问题，可显式优化参与度与极化等长期闭环指标，而非短期点击/参与度。",
+      "结构化/局部反馈增益设计允许推荐策略在有限信息条件下部署，提升大规模社交网络场景的可扩展性，并展示性能与局部性之间的可调权衡。",
+      "平台需要先估计或在线学习用户动力学和网络参数，且性能权重（如极化权重）会重新分配各目标之间的平衡，实际部署需要针对业务目标做校准。",
+      "该框架为在推荐系统中加入极化抑制、内容多样性等长期目标提供了可量化的最优控制和凸优化工具基础。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "在严格正定性能指标假设下，将仿射无限时域LQ问题分解为严格凸稳态二次优化（确定最优稳态和仿射偏置）和标准LQR问题（确定状态反馈增益）。",
+      "给出集中式Riccati控制器作为性能基准，并指出其增益通常稠密、需要全局状态。",
+      "提出基于耗散性不等式和H2性能准则的两类LMI凸替代公式，用于合成满足指定稀疏模式的结构化静态反馈增益。",
+      "使用可能重叠的证书簇构造局部矩阵不等式，其提升和精确重构集中式LMI；局部负定性为全局负定性的充分条件，支持可扩展的局部充分条件。",
+      "对稳态优化提出独立簇分解，通过共享变量上的共识约束精确重构集中式稳态问题并获得同一最优稳态。",
+      "通过社交网络数值算例展示完整设计流程，比较集中式与两种结构化控制器，阐明性能与控制器局部性之间的权衡。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4. Centralized and structured affine LQ synthesis"
+      },
+      {
+        "page": 1,
+        "section": "5. Structured LMI synthesis and evaluation: a dissipativity approach"
+      },
+      {
+        "page": 1,
+        "section": "6. Structured LMI synthesis and evaluation: an H2-based approach"
+      },
+      {
+        "page": 1,
+        "section": "7. Local-to-global certificates for the two-layer design"
+      },
+      {
+        "page": 1,
+        "section": "8. Numerical illustrations"
+      },
+      {
+        "page": 1,
+        "section": "9. Discussion and conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无控制开放环动力学",
+        "集中式Riccati控制器",
+        "结构化耗散性控制器",
+        "结构化H2控制器"
+      ],
+      "datasets": [
+        "合成社交网络数值算例：20个智能体、4个社区、每个智能体3个话题，状态维度60，非真实数据集"
+      ],
+      "findings_zh": [
+        "数值算例展示两种结构化控制器与集中式Riccati控制器都收敛到同一最优稳态，但瞬态响应因反馈增益不同而不同。",
+        "集中式Riccati增益是稠密的，使用全网络信息；两种结构化控制器使用相同的稀疏掩码，因此稀疏模式相同，但非零增益块数值一般不同。",
+        "结果揭示了性能与控制器局部性之间的权衡：结构化/局部反馈以性能为代价换取更可扩展的信息模式。",
+        "增大极化权重会改变参与度、极化、偏离、推荐错配、推荐努力和图正则等成本分项之间的平衡。"
+      ],
+      "metrics": [
+        "有限时域累计二次能量（按集中式Riccati控制器归一化）",
+        "成本分项累计贡献（参与度奖励、极化、偏离、推荐努力、图正则、推荐错配）",
+        "社区内意见轨迹及终态意见范围",
+        "反馈增益的智能体级稀疏模式"
+      ]
+    },
+    "limitations_zh": [
+      "分析假设全状态信息已知且模型时不变，社会图拉普拉斯、话题耦合矩阵和锚定参数需要从数据推断，未处理部分观测、状态估计、输出反馈、不确定或时变网络以及数据驱动辨识。",
+      "使用连续时间线性动力学、二次性能指标、静态状态反馈和无约束推荐输入，未考虑输入饱和、离散推荐集合、量化、意见支持约束、显式多样性目标以及非线性或随机用户响应。",
+      "精确结构化问题(13)一般非凸且双线性，论文提出的LMI方法是充分条件，可能引入保守性。",
+      "证书簇、基块划分和相关权重会显著影响可行性和保守性，其系统化选择被留作未来工作。",
+      "分布式共识ADMM的实现细节未展开，论文聚焦局部到全局证书构造而非分布式优化算法本身。"
+    ],
+    "method_zh": "将意见动力学改写为智能体式仿射状态方程，并把性能指标化为二次型后，定义s=w+R^{-1}Nz完成约化，得到约化LQ问题。在全状态可控和约化Q严格正定（Assumption 2）下，先解KKT/稳态二次规划获得(z*,s*)，再以(z*,s*)平移后解代数Riccati方程得集中式增益K=R^{-1}P。为满足稀疏模式，用Schur补和变量替换Y=K_s X构造耗散性LMI(18)/(19)与H2型LMI(23)，通过X的块对角结构保持逆矩阵的块稀疏性，Y的稀疏掩码保证K_s=YX^{-1}保持模式。进一步按基块分块和重叠证书簇，用分配权重建中心LMI，形成局部SDP；稳态层按H_ss稀疏图分成重叠稳态簇，精确分解二次目标，用共识恢复z*，最后取k_s*=d_z+(Ã-K_s)z*使闭环收敛到统一最优稳态。",
+    "problem_zh": "研究社交网络上多主题意见动态的闭环推荐策略设计：将推荐输入建模为反馈控制，并在无限时域线性二次最优控制框架中，以推荐与当前意见对齐作为参与度代理进行奖励，同时惩罚极化、偏离无控均衡、推荐努力、邻域推荐不一致和推荐错配；核心问题是在严格正定阶段下构造集中式与给定稀疏/局部信息模式的结构化仿射反馈控制器。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.7849999999999999,
+  "id": "arxiv-2609.08567",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-09T19:29:33.270640Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-08T10:57:40Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究社交网络上闭环推荐系统的结构化正定最优控制综合问题，以意见对齐作为参与度代理并惩罚极化与偏差。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Structured Positive-Definite Optimal Control Synthesis of Closed-Loop Recommendation Systems over Social Networks",
+  "url": "https://arxiv.org/abs/2609.08567v1"
+}

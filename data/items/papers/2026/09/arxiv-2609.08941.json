@@ -1,0 +1,117 @@
+{
+  "abstract": "Dataset selection shapes the empirical conditions under which recommender-system algorithms are evaluated, yet existing tools provide limited support for constructing complete dataset sets that jointly satisfy experimental constraints and set-level selection objectives. To address this problem, I developed FINALLY, a web-based dataset recommender for constructing configurable dataset sets for offline recommender-systems evaluations. FINALLY combines required datasets, candidate-pool restrictions, metadata filters, configurable target-set sizes, Random selection, and diverse and non-diverse strategies based on adapted Effective Covariance and Convex Hull objectives. I evaluated FINALLY through 420 recommendation runs across ten systematically varied configurations. All evaluated dataset sets satisfied the applicable target-size, duplicate-avoidance, snapshot-membership, required-dataset, and metadata-filter requirements. All 40 deterministic strategy--configuration combinations were reproducible. Both the Effective-Covariance-based and Convex-Hull-based strategies produced the expected diverse-versus-non-diverse score ordering in all ten configurations. Under their corresponding objectives, the diverse strategies produced scores above all 30 configuration-specific Random results, whereas the non-diverse strategies produced scores below all 30 Random results. These results establish technical consistency for the evaluated FINALLY workflow and show that the implemented strategies follow their intended optimization directions within the investigated configuration space. They do not establish the scientific suitability, global optimality, or practical superiority of the generated selections. Dataset selection shapes the empirical conditions under which recommender-system algorithms are evaluated, yet existing tools provide limited support for constructing complete dataset sets that jointly satisfy experimental constraints and set-level selection objectives. To address this problem, I developed FINALLY, a web-based dataset recommender for constructing configurable dataset sets for offline recommender-systems evaluations. FINALLY combines required datasets, candidate-pool restrictions, metadata filters, configurable target-set sizes, Random selection, and diverse and non-diverse strategies based on adapted Effective Covariance and Convex Hull objectives. I evaluated FINALLY through 420 recommendation runs across ten systematically varied configurations. All evaluated dataset sets satisfied the applicable target-size, duplicate-avoidance, snapshot-membership, required-dataset, and metadata-filter requirements. All 40 deterministic strategy--configuration combinations were reproducible. Both the Effective-Covariance-based and Convex-Hull-based strategies produced the expected diverse-versus-non-diverse score ordering in all ten configurations. Under their corresponding objectives, the diverse strategies produced scores above all 30 configuration-specific Random results, whereas the non-diverse strategies produced scores below all 30 Random results. These results establish technical consistency for the evaluated FINALLY workflow and show that the implemented strategies follow their intended optimization directions within the investigated configuration space. They do not establish the scientific suitability, global optimality, or practical superiority of the generated selections.",
+  "arxiv_id": "2609.08941",
+  "authors": [
+    "Louis Owie"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "为推荐系统研究者提供可复现、可导出的数据集组合工作流，减少手动拼装数据集集合的负担；但论文未通过用户研究证明其能节省时间或改善决策。",
+      "作为开源、Web 部署的决策支持工具（而非自动化科学适宜性判定），FINALLY 可嵌入研究团队的评测流程或作为数据集推荐平台的功能模块。",
+      "通过 usage logging 和多种导出格式（PNG/Markdown/HTML/LaTeX/BibTeX），有助于评测配置与结果的文档化和溯源，对可复现研究流程具有潜在价值。"
+    ],
+    "business_transferability": 0.35,
+    "contributions_zh": [
+      "开发并开源了 FINALLY——一个基于 Web 的数据集推荐器，基于 APS Explorer 的代码与数据基础设施，将必选数据集、候选集定义、元数据过滤、可配置目标大小、推荐策略、结果检查与导出整合为单一工作流。",
+      "将 Random 选择以及基于 Effective Covariance (EffCov) 和 Convex Hull 的多样/非多样集合选择策略适配并集成到可配置推荐流程中，并支持性能度量与 cutoff 配置。",
+      "对 FINALLY 进行了系统性的技术与算法评估：420 次推荐运行、10 种配置均满足约束；40 个确定性策略-配置组合可复现；EffCov 与 Convex Hull 策略在全部配置中呈现预期方向性，并给出了端到端响应时间特征。"
+    ],
+    "evidence_quality": 0.68,
+    "evidence_refs": [
+      {
+        "page": 2,
+        "section": "1.2 Research Problem"
+      },
+      {
+        "page": 3,
+        "section": "1.4 Contributions"
+      },
+      {
+        "page": 22,
+        "section": "4.4 Dataset-Set Selection"
+      },
+      {
+        "page": 32,
+        "section": "5.2 Experimental Setup"
+      },
+      {
+        "page": 41,
+        "section": "6.1 Evaluation Completeness and Constraint Compliance"
+      },
+      {
+        "page": 42,
+        "section": "6.2 Strategy Alignment"
+      },
+      {
+        "page": 44,
+        "section": "6.3 Deterministic Reproducibility"
+      },
+      {
+        "page": 44,
+        "section": "6.4 End-to-End Response Times"
+      },
+      {
+        "page": 55,
+        "section": "9.1 Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Random selection（每个配置30次重复，作为经验参考分布）"
+      ],
+      "datasets": [
+        "96个数据集快照（evaluation snapshot，含29个算法和2676个有效数据集-算法性能对）",
+        "Amazon2014-Video-Games（required-dataset 配置）",
+        "过滤配置中使用13个候选数据集"
+      ],
+      "findings_zh": [
+        "420/420次运行成功完成；所有生成集合均满足配置的目标大小、无重复、快照成员、必选数据集包含（84/84）与元数据过滤检查（168/168）；840/840个离线重建分数与直接评估分数一致。",
+        "EffCov 和 Convex Hull 的多样/非多样策略在全部10个配置中均呈现预期排序：多样策略分数高于非多样策略；多样策略分数高于对应配置全部30次Random分数，非多样策略分数低于全部30次Random分数，且未出现平局。",
+        "40个确定性策略-配置组合的3次重复在数据集成员、记录输出顺序和两种多样性分数上完全可复现。",
+        "响应时间随目标集合大小增加：size5时Convex Hull约0.28s、EffCov约0.24s、Random约0.15s；size20时Convex Hull约9.4-9.6s、EffCov约8.3-8.5s、Random约0.15s。",
+        "论文明确将这些结果界定为技术一致性和目标方向性证据，而非科学适用性、全局最优性或实践优越性的证据。"
+      ],
+      "metrics": [
+        "NDCG@1/10/20、HR@10、Recall@10（配置中的性能度量）",
+        "Convex Hull 多样性分数",
+        "EffCov 多样性分数",
+        "约束合规率（目标大小、无重复、快照成员、必选数据集包含、元数据过滤）",
+        "端到端响应时间"
+      ]
+    },
+    "limitations_zh": [
+      "评估仅覆盖10种配置、一个不可变快照、一种过滤组合和一个必选数据集，结果不能直接推广到其他性能空间或配置。",
+      "未包含用户研究，无法对可用性、研究者决策质量或科学有效性作出经验声明。",
+      "贪心多起点启发式不保证全局最优；策略对齐只验证优化方向，不度量与全局最优的距离。",
+      "实现采用均值插补且未对特征做标准化或归一化；这些预处理选择可能影响最终选择的数据集集合。",
+      "FINALLY 使用的 EffCov/Convex Hull 目标是改编版本，未使用 Reising 的集合大小归一化且省略加性稳定项；分数不能跨配置直接比较。",
+      "响应时间是端到端系统级测量，包含浏览器、网络、服务器和界面因素，不能视为孤立算法运行时间。",
+      "一般高维凸包路径未被评测充分覆盖，可能存在未暴露的数值条件。"
+    ],
+    "method_zh": "论文采用工件中心的迭代研究设计：从 APS Explorer 仓库的初始需求出发，迭代实现 FINALLY（浏览器前端 + PHP API + MySQL）；过滤、打分和贪心多起点选择在浏览器端执行。Convex Hull 和 EffCov 目标基于 Reising 定义的 APS 多样性指标改编，采用贪心多起点启发式并加入尺度感知的数值比较。评估使用不可变快照（96 个数据集、29 个算法），设计 10 个配置；4 个确定性策略各重复 3 次、Random 重复 30 次，共 420 次运行，并通过离线重建分数验证约束合规、策略方向和可复现性。",
+    "problem_zh": "论文指出，现有工具主要支持数据集发现、检索或人工探索单个数据集，缺少一个集成、以推荐为中心的流程来构建用于离线推荐系统评测的完整数据集集合。研究者需要同时处理必选数据集、候选池限制、元数据过滤、目标集合大小和集合级选择目标，而现有系统无法将这些需求联合整合为可执行的工作流。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8235,
+  "id": "arxiv-2609.08941",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-09T19:29:33.270640Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-08T16:02:41Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文开发了面向离线推荐系统评估的网页数据集推荐工具FINALLY，用于构建满足约束条件的可配置数据集组合。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FINALLY: A Dataset Recommender System for Recommender-Systems Research",
+  "url": "https://arxiv.org/abs/2609.08941v1"
+}

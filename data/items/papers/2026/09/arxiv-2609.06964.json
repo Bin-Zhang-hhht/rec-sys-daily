@@ -1,0 +1,134 @@
+{
+  "abstract": "Multi-route recommender systems combine retrieval, allocation, fusion, and ranking, making individual inclusions and exclusions difficult to audit. Route overlap can hide effects from one-at-a-time ablations, while freezing downstream stages produces counterfactuals inconsistent with serving behavior. We introduce FunnelAudit, an executable framework for incident-level responsibility auditing. An accountability contract specifies the disputed Top-K event, controls and owners, permitted reference actions, and replay semantics. FunnelAudit evaluates every permitted control configuration and applies graded actual responsibility to find the smallest outcome-preserving contingency that makes each control pivotal. Its certificate records the contingency and paired serving executions needed to verify the judgment. We instantiate the framework in two-stage, nine-route funnels using fixed union, weighted quota allocation, or weighted reciprocal-rank fusion, followed by SASRec ranking. Across 258,809 user-target incidents from three real interaction datasets, 4.24-16.24% admit a responsible control. Among responsible incident-control pairs, 92.55-99.64% require a nonempty contingency, so single-control ablation recovers only 0.36-7.45%. Policies differing in factual outcomes on only 0.31-2.39% of incidents yield 21.44-54.05% Jaccard distance between responsible-route sets on matched exclusions. Independent replay reproduces all 9,121,792 checked target-world outcomes; exhaustive search and a generic mixed-integer linear program agree with every sampled judgment. These findings demonstrate the importance of explicit serving semantics and checkable witnesses for recommender accountability. Multi-route recommender systems combine retrieval, allocation, fusion, and ranking, making individual inclusions and exclusions difficult to audit. Route overlap can hide effects from one-at-a-time ablations, while freezing downstream stages produces counterfactuals inconsistent with serving behavior. We introduce FunnelAudit, an executable framework for incident-level responsibility auditing. An accountability contract specifies the disputed Top-K event, controls and owners, permitted reference actions, and replay semantics. FunnelAudit evaluates every permitted control configuration and applies graded actual responsibility to find the smallest outcome-preserving contingency that makes each control pivotal. Its certificate records the contingency and paired serving executions needed to verify the judgment. We instantiate the framework in two-stage, nine-route funnels using fixed union, weighted quota allocation, or weighted reciprocal-rank fusion, followed by SASRec ranking. Across 258,809 user-target incidents from three real interaction datasets, 4.24-16.24% admit a responsible control. Among responsible incident-control pairs, 92.55-99.64% require a nonempty contingency, so single-control ablation recovers only 0.36-7.45%. Policies differing in factual outcomes on only 0.31-2.39% of incidents yield 21.44-54.05% Jaccard distance between responsible-route sets on matched exclusions. Independent replay reproduces all 9,121,792 checked target-world outcomes; exhaustive search and a generic mixed-integer linear program agree with every sampled judgment. These findings demonstrate the importance of explicit serving semantics and checkable witnesses for recommender accountability.",
+  "arxiv_id": "2609.06964",
+  "authors": [
+    "Jie Li",
+    "Dudu Luo",
+    "Jiayang Niu",
+    "Ke Deng",
+    "Yongli Ren"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "推荐系统运营方可以将审计契约作为内部技术问责机制：明确争议事件、控制所有者、允许干预和重放语义，使得‘为什么这个物品出现/未出现’可以得到可复核的证据，而不是依赖聚合重要性分数。",
+      "对包含/排除事件的责任判断需要同时提供服务一致的 counterfactual 和事件级 witness；单路由消融和平均贡献分数（如 Shapley/Banzhaf）不足以支撑问责，避免企业基于不完整归因做出错误的产品或治理决策。",
+      "分配策略（如配额分配）与融合方式（如 RRF）虽然很少改变最终事实结果，但会显著改变哪些路由被认定为负责任；企业在调整候选构建策略时，应评估其对责任归属和审计结果的影响。",
+      "FunnelAudit 的证书设计支持由独立实现复核，可作为跨团队或第三方审计的共同证据基础，但当前只适用于小规模二值控制场景，尚不能直接用于生产级大规模系统。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出推荐系统专用的责任归属建模：定义事件（incident）、受审控制（controls）、控制所有者、允许的参考动作、阶段忠实重放（stage-faithful replay）和责任证书（certificate），将分级实际责任（graded actual responsibility）应用于交互式路由可用性与分配器策略控制。",
+      "实现可执行的审计框架 FunnelAudit：对契约允许的所有控制配置进行重放，构建布尔结果格（outcome lattice），精确提取最小偶然事件（contingency）和责任度，并生成可复核的证据证书。",
+      "在 MovieLens-1M、Amazon Beauty、UCI Online Retail II 三个真实交互数据集上，对三种服务策略和 258,809 个用户-目标事件进行测量：92.55–99.64% 的责任对需要非空 contingency，单控制消融仅能恢复 0.36–7.45% 的责任对；不同服务策略即使事实结果差异很小，责任路由集合也可能显著不同。",
+      "通过独立实现的字面重放、逐对穷举扫描和混合整数线性规划（MILP）分别验证了世界构建与责任提取的正确性，重放复现了 9,121,792 个目标-世界结果。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Serving Model and Audit Scenarios"
+      },
+      {
+        "page": 1,
+        "section": "4 Accountability Contract and Formal Model"
+      },
+      {
+        "page": 1,
+        "section": "5 FunnelAudit: From Contract to Certificates"
+      },
+      {
+        "page": 1,
+        "section": "6 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "7 Results"
+      },
+      {
+        "page": 1,
+        "section": "8 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Leave-one-control-out (LOCO)",
+        "Bounded-k exhaustive search (κ≤1, κ≤2)",
+        "Random Search (RS-8/32/128)",
+        "Shapley-Shubik value",
+        "Banzhaf value",
+        "Independent literal serving replay",
+        "Per-pair exhaustive scan",
+        "Selector MILP"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "Amazon Beauty 5-core",
+        "UCI Online Retail II"
+      ],
+      "findings_zh": [
+        "在事件层面，4.24–16.24% 的 incident 至少有一个负责任的控制；用户宏观比例为 5.10–24.75%，18.61–92.57% 的用户至少有一个 causal incident。",
+        "所有事实包含（factual inclusion）事件都是 causal，因为关闭全部路由最终会移除目标；而事实排除事件中只有 2.44–10.20% 存在责任 witness，其余 89.80–97.56% 在注册干预范围内是契约不变的排除。",
+        "92.55–99.64% 的责任 incident-control 对需要非空 contingency，仅用 LOCO 只能恢复 0.36–7.45% 的责任对；即使扩展到 κ≤2，召回也远未完全（包含 2.20–38.80%，排除 4.20–23.09%），RS-128 可达 70.70–93.69% 但仍不完整。",
+        "分配器控制 A 在包含事件中负责的比例为 18.94–35.00%，在排除事件中仅为 0.92–3.48%；但排除事件中 10.55–14.37% 的责任路由对在其最小 contingency 中需要分配器，说明路由与分配器是共享审计空间。",
+        "事实结果差异仅 0.31–2.39% 的服务策略之间，匹配排除事件的 Jaccard 距离可达 21.44–54.05%，说明分配/融合语义会显著改变责任路由集合。",
+        "Shapley-Shubik 与 Banzhaf 分数与 ρ 的 Spearman 相关较高（0.847–0.965），但在 causal exclusion 上最大分数控制为真的概率最低可至 25.26%，不能用平均贡献分数替代最小 contingency 判断。",
+        "独立字面重放复现了全部 9,121,792 个目标-世界 Top-K 结果；逐对穷举扫描在 4,608 个采样 incident-control 对上与主提取器的 κ 和 canonical witness 一致；MILP 在 1,152 个分层对上与主提取器的因果状态和最小 contingency 大小一致。"
+      ],
+      "metrics": [
+        "Causal incident rate（micro 与 user-macro）",
+        "Causal inclusion/exclusion rate",
+        "Causal-user coverage",
+        "Responsible incident-control pair 数量",
+        "Hidden share（κ≥1 占比）",
+        "Mean responsibility degree ρ",
+        "Responsible-pair recall（LOCO、bounded-k、RS）",
+        "Spearman correlation with ρ",
+        "TopResp.（最大贡献分数控制确实负责的概率）",
+        "Route-responsibility Jaccard distance",
+        "Factual-outcome disagreement rate",
+        "独立重放/穷举扫描/MILP 的一致性检查"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅覆盖确定性二值路由与分配器控制，且是在重建的两阶段漏斗（检索+排序）上；不涵盖多值配额、随机策略、非布尔干预域或更大规模控制注册表。",
+      "RRF 和 SASRec 在审计中被重放但本身不作为被审计控制，因此不能推断融合或排序模型的责任。",
+      "精确世界枚举是 2^m 指数级，论文明确不声称可扩展到生产规模的配置枚举。",
+      "FunnelAudit 只给出技术性责任判断和证据，不推断意图、道德责任、法律责任或补救措施；所有者与论坛均为技术审查协议的实例化，而非真实组织流程。",
+      "每个 registered joint action 必须可执行且重放确定性确定，否则契约需要先修改注册表；该方法未处理受限或非二值干预域。",
+      "结果不建立生产环境中的普遍率，也不代表真实平台风险或法律意义上的问责。"
+    ],
+    "method_zh": "FunnelAudit 将审计问题形式化为问责契约 A_x,t = (F, x, t, K, y0, C, ω, α, σ, Serve, τ)。每个注册控制 c 是二值的：事实动作 a_c^0 与唯一允许的参考动作 a_c^ref；世界 D⊆C 表示将 D 中控制置于参考状态。审计从最早受影响的阶段开始进行阶段忠实重放，重算受影响的候选构建、融合和排序，得到每个 D 下的确定性 Top-K 结果 Y_x,t(D)。随后，对每个控制 c 搜索满足 Y(W)=y0 且 Y(W∪{c})≠y0 的偶然事件 W，最小 |W| 记为 κ，责任度 ρ=1/(1+κ)，存在有效 W 则 J_c=1，否则 J_c=0。实验实例包含三种服务策略：C1 固定并集、C2 加权配额分配（额外注册分配器控制 A）、C3 加权 RRF 融合，三者之后均使用 SASRec 排序；C1/C3 有 9 个路由控制（512 个世界），C2 有 10 个控制（1024 个世界）。FunnelAudit 先编译所有允许配置的结果格，再通过格边扫描提取最小 witness；独立验证包括字面重放、逐对穷举扫描和 MILP。",
+    "problem_zh": "现代推荐系统通过多个检索路由（multi-route retrieval）生成候选，再经过分配、融合和排序形成最终 Top-K 列表。由于路由重叠且后续阶段会响应上游变化，单个路由对某个物品进入或未进入最终列表的影响难以审计；一次性关闭一个路由（leave-one-control-out）可能看不到效果，而不重放下游阶段又会评估系统实际不会执行的假设情境。论文要解决的是：如何为一个具体的 Top-K 包含/排除事件，给出可执行、可核查的责任归属技术判断。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.89,
+  "id": "arxiv-2609.06964",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-09T19:29:33.270640Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-07T03:01:07Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出FunnelAudit框架，对多路由推荐系统中的Top-K责任事件进行可执行审计与回放验证，属于推荐系统的可审计性研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FunnelAudit: Responsibility Auditing in Multi-Route Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.06964v1"
+}
