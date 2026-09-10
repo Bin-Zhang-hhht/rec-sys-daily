@@ -31,10 +31,13 @@ const sectionClass = "border-t border-slate-200 pt-7";
     {item.methods.map(id => <span class="hidden" data-pagefind-filter={`methods:${id}`}></span>)}
     <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,72ch)_15rem] lg:justify-center">
       <div class="contents">
-        <header class="order-1 min-w-0 border-b border-slate-200 pb-7 lg:col-start-1 lg:row-start-1">
+        <header class="order-1 min-w-0 lg:col-start-1 lg:row-start-1">
           <p class="text-sm font-semibold text-sky-700">论文 · {item.published_at.slice(0, 10)}</p>
           <h1 class="mt-3 break-words text-3xl font-bold leading-tight text-slate-950 md:text-4xl">{item.title}</h1>
           <TaxonomyChips item={item} taxonomy={data.taxonomy} class="mt-4" />
+          <div data-pagefind-ignore class="mt-7 border-t border-slate-200 pt-4">
+            <a class="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium" href={item.url} target="_blank" rel="noopener noreferrer">阅读原文<ExternalLink size={16} stroke-width={1.8} aria-hidden="true" /></a>
+          </div>
         </header>
         <main class="prose-lite order-3 mt-8 min-w-0 space-y-8 lg:col-start-1 lg:row-start-2">
           <section><h2 class="text-xl font-semibold text-slate-950">中文总结</h2><p class="mt-3 text-lg leading-8 text-slate-700">{item.summary_zh}</p></section>
