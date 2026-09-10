@@ -25,7 +25,7 @@ def _write_config(root: Path) -> None:
     _write_yaml(root / "config/models.yaml", {"models": {
         "text": {
             "base_url_env": "DEEPSEEK_BASE_URL", "api_key_env": "DEEPSEEK_API_KEY",
-            "model": "deepseek-v4-flash", "context_window_tokens": 1_000_000,
+            "model_env": "DEEPSEEK_MODEL", "context_window_tokens": 1_000_000,
             "reserved_prompt_tokens": 8_000, "reserved_output_tokens": 16_000, "batch_size": 8,
         },
         "mineru": {"api_key_env": "MINERU_API_KEY", "base_url": "https://mineru.net/api/v4", "model_version": "vlm", "upload_timeout_seconds": 120, "poll_timeout_seconds": 900, "poll_interval_seconds": 5, "max_pdf_bytes": 20_971_520, "max_pdf_pages": 200},
@@ -60,10 +60,28 @@ def test_repository_config_snapshot_is_ordered_and_public() -> None:
     assert "terms" not in snapshot["targets"][0]
 
 
+@pytest.mark.parametrize("value", [None, "", "   "])
+def test_text_model_requires_nonempty_environment(value, monkeypatch) -> None:
+    if value is None:
+        monkeypatch.delenv("DEEPSEEK_MODEL", raising=False)
+    else:
+        monkeypatch.setenv("DEEPSEEK_MODEL", value)
+    config = load_config(Path(__file__).parents[2])
+    with pytest.raises(ValueError, match="DEEPSEEK_MODEL"):
+        _ = config.models.text.model
+
+
+def test_text_model_resolves_selected_environment_value(monkeypatch) -> None:
+    monkeypatch.setenv("DEEPSEEK_MODEL", " selected-model ")
+    config = load_config(Path(__file__).parents[2])
+    assert config.models.text.model == "selected-model"
+    assert config.models.text.resolve_model({"DEEPSEEK_MODEL": "explicit-model"}) == "explicit-model"
+
+
 def test_documented_nested_model_and_settings_shapes_load(tmp_path: Path) -> None:
     _write_config(tmp_path)
     config = load_config(tmp_path)
-    assert config.models.text.model == "deepseek-v4-flash"
+    assert config.models.text.model_env == "DEEPSEEK_MODEL"
     assert config.settings.minimum_metadata_relevance_score == 0.65
     assert config.settings.graph_initial_content_nodes == 180
     assert not hasattr(config.settings.limits, "llm_target_rpm")

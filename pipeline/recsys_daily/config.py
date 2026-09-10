@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 import re
+from collections.abc import Mapping
 from typing import Any, Literal
 
 import yaml
@@ -76,11 +78,22 @@ class SourcesConfig(StrictModel):
 class TextModels(StrictModel):
     base_url_env: str = Field(min_length=1)
     api_key_env: str = Field(min_length=1)
-    model: str = Field(min_length=1)
+    model_env: Literal["DEEPSEEK_MODEL"]
     context_window_tokens: PositiveInt
     reserved_prompt_tokens: PositiveInt
     reserved_output_tokens: PositiveInt
     batch_size: PositiveInt
+
+    def resolve_model(self, environ: Mapping[str, str] | None = None) -> str:
+        env = os.environ if environ is None else environ
+        model = env.get(self.model_env, "").strip()
+        if not model:
+            raise ValueError("DEEPSEEK_MODEL must be configured and non-empty")
+        return model
+
+    @property
+    def model(self) -> str:
+        return self.resolve_model()
 
     @field_validator("base_url_env", "api_key_env")
     @classmethod

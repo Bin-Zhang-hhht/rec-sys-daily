@@ -66,6 +66,11 @@ def test_daily_workflow_is_scheduled_for_0012_bjt_and_has_artifact_boundaries() 
     assert "-e MINERU_API_KEY" in text
     assert "DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL }}" in text
     assert "DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}" in text
+    assert workflow["env"]["DEEPSEEK_MODEL"] == "${{ vars.DEEPSEEK_MODEL }}"
+    for job in ("collect_filter", "deep_read", "rank_integrate"):
+        model_steps = [step for step in workflow["jobs"][job]["steps"] if "docker run --rm" in step.get("run", "")]
+        assert len(model_steps) == 1
+        assert "-e DEEPSEEK_MODEL" in model_steps[0]["run"]
     assert "--output /workspace/publish-work/publish-bundle" in text
     assert '-v "$PWD/publish-work:/workspace/publish-work"' in text
     assert '-v "$PWD/publish-work/publish-bundle:/workspace/publish-work/publish-bundle"' not in text

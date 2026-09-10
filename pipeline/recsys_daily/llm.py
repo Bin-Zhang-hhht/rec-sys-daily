@@ -138,7 +138,7 @@ class TextClient:
         return cls(
             base_url=base_url,
             api_key=api_key,
-            model=text.model,
+            model=text.resolve_model(env),
             max_output_tokens=text.reserved_output_tokens,
             timeout_seconds=common.timeout_seconds if timeout_seconds is None else timeout_seconds,
             retries=common.retries if retries is None else retries,

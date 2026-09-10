@@ -142,6 +142,13 @@ GitHub-hosted runner 自带的 Python 标准库，不需要第三个 Docker 镜�
 state 时查询窗口为论文 5 年、博客 3 年，后续使用 `last_success_at - 48h/7d`。模型为单一
 DeepSeek Chat Completions API；不得增加 provider failover、协议回退或客户端 RPM 限制。
 
+`models.text.model_env` 固定为 `DEEPSEEK_MODEL`。Daily workflow 将仓库级 Actions Variable
+`DEEPSEEK_MODEL` 传给采集、深读和整合容器，API 请求与公开生成模型元数据使用该值。
+变量缺失或仅含空白时明确失败，不回退到写死的模型名；正式 state 仍只在部署成功后晋升。
+本地在 `.env` 中设置 `DEEPSEEK_MODEL=deepseek-v4-flash`，Compose 通过现有 env_file 注入。
+离线测试和 `test-fixtures` 使用独立的 `fixture-text-model`，无需真实模型配置或 API key。
+模型的 token 预算仍由 `models.yaml` 配置，切换模型时需匹配其上下文与输出限制。
+
 飞书配置独立于 `settings.yaml`，避免通知模块依赖数据流水线的 Pydantic/YAML 配置和运行时依赖。
 首版配置固定为：
 

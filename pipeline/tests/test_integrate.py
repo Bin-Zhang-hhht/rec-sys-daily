@@ -317,6 +317,17 @@ def test_digest_references_ids_and_caps_each_kind(tmp_path: Path) -> None:
     assert {entry.item_id for entry in digest.papers + digest.blogs} <= item_ids
 
 
+def test_missing_model_does_not_publish_or_advance_state(tmp_path: Path, monkeypatch) -> None:
+    stages = fixture_stages(tmp_path)
+    previous = State(sources={"arxiv": SourceState(etag='"old"')})
+    before = previous.model_dump(mode="json")
+    monkeypatch.delenv("DEEPSEEK_MODEL", raising=False)
+    with pytest.raises(ValueError, match="DEEPSEEK_MODEL"):
+        integrate(stages, tmp_path / "bundle", CONFIG, state=previous)
+    assert not (tmp_path / "bundle").exists()
+    assert previous.model_dump(mode="json") == before
+
+
 def test_digest_business_date_uses_asia_shanghai() -> None:
     assert _business_date(datetime(2026, 8, 18, 15, 59, tzinfo=UTC)).isoformat() == "2026-08-18"
     assert _business_date(datetime(2026, 8, 18, 16, 0, tzinfo=UTC)).isoformat() == "2026-08-19"

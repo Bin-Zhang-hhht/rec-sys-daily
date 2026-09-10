@@ -575,6 +575,13 @@ def _scenario(work: Path, name: str, config: AppConfig, repository_root: Path) -
 
 
 def run_fixture_scenarios(work: Path, case: str = "all", repository_root: Path | None = None) -> dict[str, FixtureScenarioResult]:
+    from unittest.mock import patch
+
+    with patch.dict("os.environ", {"DEEPSEEK_MODEL": "fixture-text-model"}):
+        return _run_fixture_scenarios(work, case, repository_root)
+
+
+def _run_fixture_scenarios(work: Path, case: str, repository_root: Path | None) -> dict[str, FixtureScenarioResult]:
     root = (repository_root or Path.cwd()).resolve()
     while not (root / "config" / "topics.yaml").exists() and root != root.parent:
         root = root.parent

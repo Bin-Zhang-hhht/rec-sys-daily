@@ -46,7 +46,7 @@ def test_text_client_uses_single_model_chat_completions_api_and_parses_json(monk
     monkeypatch.setattr("recsys_daily.llm.OpenAI", FakeOpenAI)
     client = TextClient.from_config(
         config.models,
-        environ={"DEEPSEEK_BASE_URL": "https://example.test/v1", "DEEPSEEK_API_KEY": "test-key"},
+        environ={"DEEPSEEK_BASE_URL": "https://example.test/v1", "DEEPSEEK_API_KEY": "test-key", "DEEPSEEK_MODEL": "selected-text-model"},
     )
     messages = [{"role": "system", "content": "instructions"}, {"role": "user", "content": "document"}]
     result = client.complete_json(messages, SCHEMA)
@@ -54,7 +54,7 @@ def test_text_client_uses_single_model_chat_completions_api_and_parses_json(monk
     assert result == {"score": 3}
     assert observed["base_url"] == "https://example.test/v1"
     assert observed["api_key"] == "test-key"
-    assert observed["model"] == config.models.text.model
+    assert observed["model"] == "selected-text-model"
     assert observed["max_tokens"] == config.models.text.reserved_output_tokens
     assert observed["messages"] == [
         *messages,
@@ -211,7 +211,7 @@ def test_text_client_uses_model_common_timeout_and_retries(monkeypatch: pytest.M
     monkeypatch.setattr("recsys_daily.llm.OpenAI", lambda **_kwargs: SimpleNamespace())
     text = TextClient.from_config(
         models,
-        environ={"DEEPSEEK_BASE_URL": "https://example.test/v1", "DEEPSEEK_API_KEY": "key"},
+        environ={"DEEPSEEK_BASE_URL": "https://example.test/v1", "DEEPSEEK_API_KEY": "key", "DEEPSEEK_MODEL": "selected-text-model"},
     )
     assert (text.timeout_seconds, text.retries, text.max_output_tokens) == (
         17,

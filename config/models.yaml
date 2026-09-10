@@ -2,7 +2,7 @@ models:
   text:
     base_url_env: DEEPSEEK_BASE_URL
     api_key_env: DEEPSEEK_API_KEY
-    model: deepseek-v4-flash
+    model_env: DEEPSEEK_MODEL
     context_window_tokens: 1000000
     reserved_prompt_tokens: 8000
     reserved_output_tokens: 16000
