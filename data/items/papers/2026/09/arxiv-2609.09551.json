@@ -1,0 +1,128 @@
+{
+  "abstract": "Recommender systems have become core infrastructure for modern online platforms, personalizing content at scale and strongly influencing what users see, click on, and purchase. However, this dependence on user interaction also exposes them to shilling attacks, where malicious actors can inject fake profiles to distort item rankings and control visibility. Existing attacks often rely on target-specific fine-tuning or fixed profile templates, making them either difficult to adapt to different victims or easier to detect. To overcome these limitations, we propose the Agentic Group Attack System (AGAS), a coordinated shilling framework where a central Coordinator directs a group of role-switching worker agents to adaptively promote a target item across different victim families. The Coordinator dynamically adjusts the strategy when progress stalls or suppression signals increase, while workers pursue a shared objective and switch between active and inactive roles to avoid repetitive patterns. Under the same attack budgets and evaluation protocols, AGAS consistently surpasses strong baselines in target promotion while better preserving benign recommendation quality, weakening representative detectors, and achieving higher efficiency than prior attacks. These findings also emphasize that defending recommender systems may require mechanisms that can handle adaptive shilling campaigns, not just isolated fake-profile injections. Our code is available at https://github.com/phkhanhtrinh23/AGAS. Recommender systems have become core infrastructure for modern online platforms, personalizing content at scale and strongly influencing what users see, click on, and purchase. However, this dependence on user interaction also exposes them to shilling attacks, where malicious actors can inject fake profiles to distort item rankings and control visibility. Existing attacks often rely on target-specific fine-tuning or fixed profile templates, making them either difficult to adapt to different victims or easier to detect. To overcome these limitations, we propose the Agentic Group Attack System (AGAS), a coordinated shilling framework where a central Coordinator directs a group of role-switching worker agents to adaptively promote a target item across different victim families. The Coordinator dynamically adjusts the strategy when progress stalls or suppression signals increase, while workers pursue a shared objective and switch between active and inactive roles to avoid repetitive patterns. Under the same attack budgets and evaluation protocols, AGAS consistently surpasses strong baselines in target promotion while better preserving benign recommendation quality, weakening representative detectors, and achieving higher efficiency than prior attacks. These findings also emphasize that defending recommender systems may require mechanisms that can handle adaptive shilling campaigns, not just isolated fake-profile injections. Our code is available at https://github.com/phkhanhtrinh23/AGAS.",
+  "arxiv_id": "2609.09551",
+  "authors": [
+    "Quoc Viet Nguyen",
+    "Trinh Pham",
+    "Viet Huynh",
+    "Hongzhi Yin",
+    "Quoc Viet Hung Nguyen",
+    "Bay Vo",
+    "Thanh Tam Nguyen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "Agentic Web 使恶意方可以协调一组 AI agent 批量注册、评分和购买，推荐系统面临从独立假用户注入升级为协调式自适应攻击的威胁。",
+      "AGAS 能使代表性检测器的 Accuracy/F1 降至约 0.3–0.4，表明现有平台常用的 shilling 检测方案可能无法有效抵御自适应群体攻击，安全投入需要转向可处理动态策略的检测机制。",
+      "攻击在保持目标推广的同时较少损害良性用户推荐质量，这会增加平台识别恶意操作的难度，并可能造成商品排名被系统性操纵的商业损失。",
+      "AGAS 可作为低成本鲁棒性压力测试工具，帮助推荐平台在数十分钟内快速评估模型对复杂 shilling 攻击的脆弱性，但攻击代码的公开也带来被滥用的风险。"
+    ],
+    "business_transferability": 0.58,
+    "contributions_zh": [
+      "首次将推荐系统中的协调式群体 shilling 形式化为自适应攻击战役：多个假用户由统一协调器联合管理，以最大化目标物品曝光并保持隐蔽。",
+      "提出 AGAS 框架：Coordinator 管理 Profiler、Sniper、Camouflageur、Inactive 四种角色，依据 worker 信号与环境反馈调整角色分配和攻击策略，无需离线微调。",
+      "在多个数据集和 victim 模型上，AGAS 在相同评估协议下持续优于传统与 agentic 基线，同时更好保持良性推荐质量，并削弱代表性检测器。",
+      "AGAS 无需训练 GAN、求解双层优化或重训代理模型，成本近似随轮次和假用户数线性增长，可作为 RecSys 鲁棒性快速压力测试工具。"
+    ],
+    "evidence_quality": 0.74,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "IV. METHOD"
+      },
+      {
+        "page": 1,
+        "section": "V-B. Performance"
+      },
+      {
+        "page": 1,
+        "section": "V-D. Detector"
+      },
+      {
+        "page": 1,
+        "section": "V-E. Ablation"
+      },
+      {
+        "page": 1,
+        "section": "V-F. Efficiency"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "NoneAttack",
+        "RandomAttack",
+        "BandwagonAttack",
+        "AUSH",
+        "PoisonRec",
+        "GSPAttack",
+        "CLeaR",
+        "PGA",
+        "TargetedAttack",
+        "AgentSA",
+        "AgentAttack"
+      ],
+      "datasets": [
+        "ML-100K",
+        "ML-1M",
+        "MovieLens Tag Genome 2021",
+        "Netflix Prize",
+        "Douban Movie",
+        "Amazon Reviews 2018"
+      ],
+      "findings_zh": [
+        "在全部 Unpopular/Tail 目标设定下，AGAS 在 MF、NeuMF、GMF、NCF、NGCF、LightGCN、SimGCL、XSimGCL、EGCF、LightCCF 等 victim 上均取得最优 HR@10 与 NDCG@10，相对最强基线提升约 155%–198%。",
+        "在 Head/Mid 流行度区间，AGAS 同样在代表性 victim 上占优，说明其效果不只依赖某个目标流行度区间或 victim 家族。",
+        "RS 检测实验中，AGAS 在 BaseDetect、DHAGCN、PCASelectUsers、GAGE、MD-CBA 上的 Accuracy、Recall、Precision、F1 均低于 PoisonRec、AgentSA、AgentAttack，表明更难被这些检测器识别。",
+        "AGAS 的良性推荐质量 Rec@10 最接近 NoneAttack，说明在推广目标物品的同时较少破坏正常用户推荐。",
+        "消融实验显示 Silent Slowdown、Profile Cleanup、Safe Replacement、Main Attack 对性能贡献最大；桥接物品构建主要对 LightGCN、LightCCF 等图模型重要。",
+        "更强 LLM 骨干提升 AGAS 效果，小模型下仍优于基线；小模型对 Coordinator、记忆和反馈信号的依赖更大。",
+        "效率方面，AGAS 约 24 分钟、数万 token 即可将目标推入 Top-10，而 AgentAttack 需要数百万 token，其他方法需要数小时训练；AGAS 在假用户预算从 0.5% 增至 3.0% 时收益持续增加。"
+      ],
+      "metrics": [
+        "HR@10",
+        "NDCG@10",
+        "Rec@10",
+        "Rec@50",
+        "Detection Accuracy",
+        "Detection Recall",
+        "Detection Precision",
+        "Detection F1"
+      ]
+    },
+    "limitations_zh": [
+      "论文未设独立的 Limitations 章节，明确局限性较少；未来工作仅提出向多模态推荐系统和 LLM-empowered 推荐系统扩展，因此这些 victim 类型未被验证。",
+      "攻击依赖通过攻击者可访问的推荐列表获得排名反馈，实际平台若完全隐藏排名或严格限制查询，AGAS 的适应性可能下降。",
+      "检测评估只覆盖五个代表性检测器，未测试在线防御、主动清洗、增强鲁棒训练等更广泛防御机制。",
+      "AGAS 效果受 LLM 骨干能力影响，小模型下绝对性能明显下降，说明其依赖较强 LLM 的推理与规划能力。"
+    ],
+    "method_zh": "AGAS 是分层 LLM agent 系统：中央 Coordinator 每轮读取 worker 信号（信任分、风险分、验证器分数）和环境信号（目标排序反馈、动作接受率、抑制信号、告警标志），选择策略并为每个 worker 分配角色。Profiler 负责探测受害者类型并发现 bridge items；Sniper 在 embedding-based 受害者上直接推广目标物品，在 graph-based 受害者上利用 bridge items 形成两跳路径；Camouflageur 通过普通 filler 物品交互稀释可疑行为；Inactive 用于高风险 worker 暂缓行动。Coordinator 的策略包括 Victim Probe、Bridge Building、Warm-up、First Push、Silent Slowdown、Profile Cleanup、Safe Replacement、Main Attack。算法复杂度为 O(T(c_C + |U_f|(c_W + L) + V))，只有 O(T) 次重型 Coordinator 调用和 O(T|U_f|) 次短 worker 调用。",
+    "problem_zh": "现有推荐系统 shilling 攻击大多依赖目标专用微调或固定用户画像模板，难以跨受害者泛化且容易被检测；学习型方法需要昂贵的训练或代理模型，已有的 LLM agent 攻击仍基本是独立假用户或从预生成模板库中选择，缺少组级协调、角色切换和基于反馈的动态策略，难以应对自适应防御。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.867,
+  "id": "arxiv-2609.09551",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-10T19:11:47.398162Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-09T00:14:03Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出一个面向推荐系统的代理式群体协同伪造攻击框架AGAS，通过协调员和角色切换的工人代理推广目标商品并扭曲物品排名，属于推荐系统对抗攻击研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "An Efficient and Effective Agentic Group Shilling Attack on Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.09551v1"
+}
