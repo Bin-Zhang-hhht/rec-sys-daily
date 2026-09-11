@@ -1,0 +1,143 @@
+{
+  "abstract": "Industrial recommender systems use cascaded stages with different objectives, feature spaces, and latency constraints. Optimizing pre-ranking and ranking separately can create cross-stage inconsistency: upstream models may filter out items preferred by downstream rankers, and independently tuned downstream fusion can offset upstream improvements. Existing multi-task fusion methods focus on multi-objective fusion within the ranking stage, and cross-stage methods typically only add a downstream score factor to upstream ranking. Joint optimization of fusion modules across both stages remains largely unexplored. We propose UniRec, a Unified Cross-stage Recommendation Fusion model. First, the two fusion agents partially share input embeddings and are trained in a single computation graph, so gradients from either stage propagate through the shared representation and influence the other. Second, we introduce a dual-axis preference alignment objective: a vertical cross-stage consistency term transfers downstream pairwise preferences to the upstream fusion score, and a horizontal compact aggregation term reorganizes dozens of pairwise objectives over heterogeneous prior signals into bidirectional preference evidence. Third, we find that unconstrained end-to-end fusion optimization can exploit imbalances in item attribute distributions, over-concentrating on high-reward regions at the cost of other objectives. We therefore add an attribute group-relative regularization that computes advantages within attribute groups and normalizes the policy over the same groups, so uniformly promoting an entire high-reward group yields no optimization gain. Offline, UniRec consistently outperforms single-stage fusion and cross-stage coordination baselines. Online A/B tests show a 0.616\\% gain in app usage duration. UniRec is fully deployed on the Kuaishou platform. Industrial recommender systems use cascaded stages with different objectives, feature spaces, and latency constraints. Optimizing pre-ranking and ranking separately can create cross-stage inconsistency: upstream models may filter out items preferred by downstream rankers, and independently tuned downstream fusion can offset upstream improvements. Existing multi-task fusion methods focus on multi-objective fusion within the ranking stage, and cross-stage methods typically only add a downstream score factor to upstream ranking. Joint optimization of fusion modules across both stages remains largely unexplored. We propose UniRec, a Unified Cross-stage Recommendation Fusion model. First, the two fusion agents partially share input embeddings and are trained in a single computation graph, so gradients from either stage propagate through the shared representation and influence the other. Second, we introduce a dual-axis preference alignment objective: a vertical cross-stage consistency term transfers downstream pairwise preferences to the upstream fusion score, and a horizontal compact aggregation term reorganizes dozens of pairwise objectives over heterogeneous prior signals into bidirectional preference evidence. Third, we find that unconstrained end-to-end fusion optimization can exploit imbalances in item attribute distributions, over-concentrating on high-reward regions at the cost of other objectives. We therefore add an attribute group-relative regularization that computes advantages within attribute groups and normalizes the policy over the same groups, so uniformly promoting an entire high-reward group yields no optimization gain. Offline, UniRec consistently outperforms single-stage fusion and cross-stage coordination baselines. Online A/B tests show a 0.616\\% gain in app usage duration. UniRec is fully deployed on the Kuaishou platform.",
+  "arxiv_id": "2609.11052",
+  "authors": [
+    "Lingyuan Kong",
+    "Jiaqi Cui",
+    "Fanjiao Zeng",
+    "Congqi Wang",
+    "Yu Li",
+    "Yuan Cheng",
+    "Jingxin Liu",
+    "Xiaoshuang Chen",
+    "Kaiqiao Zhan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对于短视频平台等工业级瀑布式推荐系统，UniRec 可在不增加在线服务延迟的前提下同时提升粗排与精排的一致性，并带来总观看时长、视频观看时长、应用使用时长和活跃用户数的可测量增长；该方法已在快手全面部署。",
+      "由于模型只依赖阶段多任务预测模型输出的 pXTR，且与骨干网络解耦，企业可在现有预测模型之上独立接入和优化融合模块，降低集成改造成本。",
+      "CPPA 将大量目标的成对偏好聚合成两个证据，使数十个业务目标下的融合训练在计算上可扩展，对多目标、大候选集场景有直接工程价值。",
+      "AGRR 的思路可迁移到其他存在属性相关奖励偏差的业务（如价格、补贴、物品品类、配送时效等），帮助企业避免为短期指标牺牲属性分布的合理性，进而维护长期用户体验。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "将端到端跨阶段多任务融合形式化为瀑布式推荐系统中的新优化范式：两个阶段的融合代理在同一个计算图中训练，并部分共享输入嵌入，使任一段的梯度都能通过共享表示影响另一阶段，从而形成对称的跨阶段耦合。",
+      "提出双轴偏好对齐目标：纵轴上的跨阶段一致性项将下游成对偏好传递给上游融合分数；横轴上的紧凑聚合项（CPPA）将数十个异构成对目标重组织为两个双向偏好证据，在不改变原始目标的前提下把可微项从 O(MN^2) 降为 O(N^2)。",
+      "提出属性分组相对正则化（AGRR）：在属性分组内部计算优势并进行策略归一化，使得整体抬高某个高奖励属性组的做法不带来优化收益，从而抑制端到端优化对属性分布偏差的利用。",
+      "在 RecFlow 公开基准和快手工业数据集上离线验证了一致性提升，并在线上 A/B 实验中使应用使用时长提升 0.616%、总观看时长提升 0.675%，且无已报告指标下降；系统已在快手平台全面部署。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Related Work"
+      },
+      {
+        "page": 3,
+        "section": "3 Problem Formulation"
+      },
+      {
+        "page": 4,
+        "section": "4 Method"
+      },
+      {
+        "page": 6,
+        "section": "5.3 Offline Evaluation"
+      },
+      {
+        "page": 7,
+        "section": "5.4 Ablation Study"
+      },
+      {
+        "page": 8,
+        "section": "5.5 Parameter Sensitivity"
+      },
+      {
+        "page": 8,
+        "section": "5.6 Online A/B Test Experiment"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Weighted-Sum",
+        "EMER",
+        "UMRE",
+        "COPR",
+        "w/o align",
+        "w/o prior",
+        "w/o CPPA",
+        "w/o reward",
+        "w/o AGRR"
+      ],
+      "datasets": [
+        "RecFlow 公开级联基准",
+        "快手工业线上生产数据集"
+      ],
+      "findings_zh": [
+        "在 RecFlow 上，UniRec 的 NDCG 在全部六个截断值上均优于基线；例如排序 NDCG@50 为 0.2409，优于最强基线 UMRE 的 0.2376；rank_AUC 为 0.5912，低于 UMRE 的 0.6009，但论文指出 NDCG 在请求内候选选择场景中更相关。",
+        "UniRec 在所有跨阶段一致性指标上最优：ASH 达到 0.9978（基线范围为 0.7219-0.9855），Kendall's τ 为 0.6318，Spearman's ρ 为 0.8072。",
+        "消融结果表明：去除后验反馈损失对各指标影响最大；去除先验成对偏好损失对排序质量影响较大但对 ASH 影响较小；去除 AGRR 使 ASH 下降 0.0215，但对排序指标影响很小；去除对齐损失使 ASH 下降 0.0139，而排序指标几乎不变。",
+        "CPPA 与逐目标的原始形式数学等价、性能一致，但训练吞吐提升 30.1%，单样本处理时间降低 23.1%。",
+        "超参敏感性实验表明，在 λ_align=1、λ_fb=1、λ_AGRR=0.3 附近的稳定区间内，排序 AUC 变化小于 UniRec 与最强基线之间的差距。",
+        "线上 A/B 测试中，UniRec 相对生产基线提升 TotalWatchTime +0.675%、VideoWatchTime +0.755%、AppUsageTime +0.616%、ActiveUsers +0.189%，无已报告指标下降。"
+      ],
+      "metrics": [
+        "rank_AUC",
+        "NDCG@10",
+        "NDCG@30",
+        "NDCG@50",
+        "ASH",
+        "Kendall's τ",
+        "Spearman's ρ",
+        "TotalWatchTime",
+        "VideoWatchTime",
+        "AppUsageTime",
+        "ActiveUsers",
+        "training throughput"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确将扩展方向限定为精排（re-ranking）阶段、其他偏差相关属性以及电商、广告等推荐场景，说明当前验证主要针对短视频推荐中的粗排-精排两阶段融合。",
+      "AGRR 在实验中只以视频时长作为分组属性，其他属性偏差（如价格、折扣、展现场景等）未在本文实验中验证。",
+      "RecFlow 未提供原始粗排/精排模型的 pXTR，因此作者自行训练了 DSSM 和 DIN 骨干模型并在评估时冻结；离线评估主要考察融合模块在缓存预测分数之上的效果，而非端到端联合训练全部模型的效果。",
+      "在线 A/B 为一周、20% 流量的实验，且论文未报告统计显著性信息；作为来源材料，上述结果仅在所报告的生产环境中得到支持。"
+    ],
+    "method_zh": "UniRec 采用耦合双代理架构：两个阶段各有一个融合代理，共享嵌入层编码粗排可用的用户、物品、上下文特征与粗排任务预测；精排任务预测仅作为精排私有嵌入。粗排代理使用轻量 MLP-Mixer，精排代理使用 AutoInt-Lite，并通过 adapter 将停止梯度的粗排表示注入精排分数（式5），从而在不破坏粗排自身目标的情况下显式传递上游决策信息。训练目标 L_UniRec = L_pre + L_rank（式15）包含：各阶段基于任务预测的成对偏好损失（用 CPPA 将多目标偏好聚合成正负两个证据后计算）、跨阶段对齐损失（用下游成对偏好监督上游分数，标签被 detach，不反向影响精排参数）、基于曝光反馈的辅助成对损失，以及 AGRR 正则项。AGRR 复用偏好证据构造 item 级奖励，按属性（如视频时长）分桶后计算桶内相对优势，并用桶内 KL 目标让融合分数匹配目标分布，从而消除整体提升某一属性组的无效优化方向。训练完成后两代理作为独立图部署，共享嵌入表复制，不增加在线服务延迟。",
+    "problem_zh": "工业级推荐系统通常由召回、粗排、精排等串联级联阶段组成，各阶段拥有不同目标、特征空间和时延约束。现有系统往往对各阶段进行独立优化，导致跨阶段偏好不一致：粗排固定了候选池，可能不可逆地丢弃精排偏好的物品；精排模型则只能在一个无法修正的分布上进行优化。以往方法要么只优化粗排分数而不优化多任务融合模块，要么只在精排阶段研究多任务融合，两个阶段的融合模块仍是独立优化，跨阶段不一致问题尚未解决。UniRec 旨在联合优化粗排与精排的融合模块，实现跨阶段的多任务融合优化。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.925,
+  "id": "arxiv-2609.11052",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-11T19:14:49.509959Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-10T03:54:17Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "UniRec属于推荐系统研究，提出面向级联推荐系统的跨阶段多任务融合模型，通过共享嵌入、偏好对齐与属性组相对正则化联合优化预排序和排序阶段。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "UniRec: Cross-stage Multi-Task Fusion with Preference Alignment for Cascaded Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.11052v1"
+}

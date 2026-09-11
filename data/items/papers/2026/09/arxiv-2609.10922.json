@@ -1,0 +1,127 @@
+{
+  "abstract": "Auto-research agents have shown the potential to automate hypothesis generation, experiment execution, and iterative refinement. However, scaling this paradigm to industry-scale recommendation models introduces two challenges: (1) long feedback loops, where model training can take days, making serial iteration prohibitively slow and requiring parallel exploration across multiple research directions; and (2) system complexity, where large configurations, fragile infrastructure dependencies, and multi-day GPU jobs require robust and recoverable execution. We present Auto-RecSys, an autonomous research system for long-horizon experimentation on industry-scale recommendation models. Auto-RecSys addresses these challenges through three harness designs: (1) distributed asynchronous execution for running multiple experiments in parallel across servers, (2) centralized cross-server memory for persistent and recoverable execution across sessions and failures, and (3) cognitive-procedural separation, where natural-language skill files guide LLM reasoning while deterministic scripts enforce operational correctness. Auto-RecSys further employs a dual-loop self-evolving architecture: an Execution Evolution Loop in which model-specific playbooks accumulate operational knowledge by recording failed attempts and crystallizing successful pipelines, and an Idea Evolution Loop in which experimental outcomes inform subsequent ideation. Evaluated on recommendation models, Auto-RecSys significantly reduces the human time required per experiment cycle and improves execution reliability as its playbooks mature. Auto-research agents have shown the potential to automate hypothesis generation, experiment execution, and iterative refinement. However, scaling this paradigm to industry-scale recommendation models introduces two challenges: (1) long feedback loops, where model training can take days, making serial iteration prohibitively slow and requiring parallel exploration across multiple research directions; and (2) system complexity, where large configurations, fragile infrastructure dependencies, and multi-day GPU jobs require robust and recoverable execution. We present Auto-RecSys, an autonomous research system for long-horizon experimentation on industry-scale recommendation models. Auto-RecSys addresses these challenges through three harness designs: (1) distributed asynchronous execution for running multiple experiments in parallel across servers, (2) centralized cross-server memory for persistent and recoverable execution across sessions and failures, and (3) cognitive-procedural separation, where natural-language skill files guide LLM reasoning while deterministic scripts enforce operational correctness. Auto-RecSys further employs a dual-loop self-evolving architecture: an Execution Evolution Loop in which model-specific playbooks accumulate operational knowledge by recording failed attempts and crystallizing successful pipelines, and an Idea Evolution Loop in which experimental outcomes inform subsequent ideation. Evaluated on recommendation models, Auto-RecSys significantly reduces the human time required per experiment cycle and improves execution reliability as its playbooks mature.",
+  "arxiv_id": "2609.10922",
+  "authors": [
+    "Ming Li",
+    "Dai Li",
+    "Xuying Ning",
+    "Bo Sun",
+    "Rui Li",
+    "Yi Zhang",
+    "Silvia Gong",
+    "Xuan Cao",
+    "Cornelia Carapcea",
+    "Qunshu Zhang",
+    "Zhigang Wang",
+    "Yinglong Xia",
+    "Andy Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可显著降低推荐模型研究中每个实验所需的人工带宽，使研究人力从逐个执行实验转向管理分布式并行实验组合，提升团队研究吞吐。",
+      "通过模型专属 playbook、dead ends 和 submission config 沉淀机构性操作知识，减少人员流动、会话中断或服务器故障带来的重复劳动和昂贵 GPU 算力浪费。",
+      "对推荐系统团队而言，即使训练 wall-clock 时间不变，也能在同一人工投入下覆盖更多实验想法，并让研究员聚焦于科学决策而非执行管理。",
+      "playbook 结构可跨模型迁移，适合组织内多个推荐模型、新模型或新业务线的快速接入和规模扩展。",
+      "该 harness 方法论可拓展到其他长周期、基础设施密集的机器学习研发场景（如大规模搜索排序、广告系统、生成式推荐），具有较高的业务可迁移性。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出 Auto-RecSys，一个面向工业级推荐模型长周期实验的自主研究 harness，包含分布式异步执行、跨服务器集中式记忆、认知-程序分离三种核心设计。",
+      "提出 Execution Evolution Loop：将实验轨迹蒸馏为模型专属自然语言 playbook，记录关键文件、验证命令、提交配方、dead ends 和成功策略，使执行可靠性随 playbook 成熟而提升。",
+      "提出 Idea Evolution Loop：将实验 verdict 和 lessons 写入追加式 experiment history，用于未来想法去重、组合、修剪和排序，实现研究方向的自演化。",
+      "提出 one-shot transfer playbook creation：首个模型的成熟 playbook 结构可模板化迁移到新模型，只需填充新模型的专属信息，降低新模型冷启动成本。",
+      "在工业级推荐模型上验证：交互模式下单个 idea 的人工投入从小时/天级降至分钟级；31 次迭代中，major operational fixes 从每次 4.0 降至 0.5，post-transition 阶段 6 次迭代有 5 次零运维修复。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction / Table 1"
+      },
+      {
+        "page": 2,
+        "section": "2 Auto-RecSys Overview / 2.2 Harness Design"
+      },
+      {
+        "page": 3,
+        "section": "3 Experiment State Machine"
+      },
+      {
+        "page": 4,
+        "section": "4 Execution Evolution Loop"
+      },
+      {
+        "page": 5,
+        "section": "5 Idea Evolution Loop"
+      },
+      {
+        "page": 6,
+        "section": "6 Persistence and Robustness"
+      },
+      {
+        "page": 7,
+        "section": "7 Evaluation and Observed Effectiveness"
+      },
+      {
+        "page": 9,
+        "section": "9 Discussion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "标准架构基线（baseline shift 之前）",
+        "组合配置基线（graph-mode compilation + 新 embedding module + task adapters，baseline shift 之后）"
+      ],
+      "datasets": [
+        "未公开的工业级推荐模型数据（论文未披露具体数据集名称）"
+      ],
+      "findings_zh": [
+        "在稳定阶段（迭代 5-20），playbook 吸收硬件选择、提交参数、构建约定和输入命名规则后，major fixes 从 4.0 降至 1.3/迭代。",
+        "基线在迭代 21 发生切换后出现明显回退：连续 5 个迭代因新配置的硬件/entitlement 错误、adapter 注入失败、package layer 版本不匹配和 upstream revision 冲突需要运维修复；post-transition 阶段（迭代 26-31）恢复至 0.5/迭代，6 次中有 5 次零运维修复。",
+        "错误类别呈非随机分布：每个类别在一个或两个阶段出现、被记录为 dead end 后从 playbook 已吸收修复的阶段中消失；post-transition 阶段唯一错误是新型代码 bug（graph compilation 中的 type-inference 失败），无法由先前经验预防。",
+        "交互模式下单个 idea 的人工投入从小时/天级降至分钟级；同一份人工注意力从覆盖单个 idea 扩展到覆盖超过十几个 idea。",
+        "最自主的一次 session 连续执行 970 条日志（110 次工具调用）且零人工干预，包括诊断失败训练作业、定位 fused-kernel import 根因、重建 package layers 和重新提交实验。",
+        "从 31 个 session transcripts 中观察到五种自演化机制：dead-end 回避、pipeline config 结晶、validation-skip 模式、自诊断基础设施改进（cron-based monitor）和 emergent meta-pattern 识别。"
+      ],
+      "metrics": [
+        "Per-iteration major fix steps",
+        "Zero-fix rate",
+        "Human bandwidth per idea（hands-on researcher attention）",
+        "Error category distribution",
+        "Session log steps / autonomous execution depth"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确表示端到端 wall-clock cycle time 不是合适的衡量指标；训练时长由 GPU 任务本身决定，Auto-RecSys 不会缩短训练时间。",
+      "playbook 更新缺少类似 SkillOpt 的正式 validation gate，目前基于 agent 判断无条件接受更新；论文承认这可能随 playbook 规模增长带来鲁棒性隐患。",
+      "评估仅基于一个代表性推荐模型的 31 次唯一迭代（期间发生一次 baseline shift），且未披露具体数据集名称，外部可验证性有限。",
+      "全自主模式可能消耗训练资源追求较弱 idea，论文建议仅在 playbook 成熟且候选 idea 低风险时才使用。",
+      "训练耗时仍是根本瓶颈，论文将 proxy models 快速筛选列为未来工作；跨模型知识迁移也尚未实现，目前每个模型维护独立 playbook 和实验历史。"
+    ],
+    "method_zh": "Auto-RecSys 采用分层架构：编排层驱动有限状态机（IDEATING、IMPLEMENTING、VALIDATING、TRAINING、ANALYZING，TRAINING 失败进入 DEBUGGING），专家 agent 层按生命周期阶段分工，持久化层使用集中式内存存储（registry、per-idea state、playbook、experiment_history、session trajectory）。Harness 实现认知-程序分离：自然语言技能文件（orchestrator skill、模型 playbook、per-idea 状态）指导 LLM 推理，确定性脚本执行状态转换、API 调用、校验和文件操作。每个 idea 独立 state 文件以支持并行和故障隔离；会话恢复协议读取 registry 和 trajectory log、轮询训练任务，实现多服务器无缝接力。Execution Evolution Loop 把失败与修复写入 dead ends、把成功流程结晶为 pipeline recipes 和 submission config；Idea Evolution Loop 基于模型架构知识库、外部文献和想法 backlog 生成候选 idea，经历史过滤和排序后并行执行，并把结果写入追加式实验历史。",
+    "problem_zh": "面向工业级推荐模型的自主科研系统面临两大挑战：(1) 长反馈循环，单次模型训练/监控可能耗时数天，串行迭代吞吐过低，需要多方向并行探索；(2) 系统复杂度高，模型依赖大规模配置栈、分布式基础设施和长时 GPU 任务，会话中断、服务器重启、作业失败频发，执行必须可恢复且能跨会话积累经验。现有小规模自动科研系统无法满足这种长周期、高成本、高复杂度的研究范式。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.7775000000000001,
+  "id": "arxiv-2609.10922",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-11T19:14:49.509959Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-10T00:09:18Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文属于推荐系统工程内容，提出面向工业级推荐模型长周期实验的自主研究系统Auto-RecSys，以分布式异步执行、集中式跨服务器记忆和认知-程序分离提升实验效率与可靠性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Auto-RecSys: Harnessing Autonomous Research Agents for Industry-Scale Recommender System",
+  "url": "https://arxiv.org/abs/2609.10922v1"
+}
