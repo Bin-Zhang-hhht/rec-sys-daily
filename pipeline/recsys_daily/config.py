@@ -188,6 +188,9 @@ class FinalScoreWeights(StrictModel):
 class Limits(StrictModel):
     http_concurrency: PositiveInt
     arxiv_min_interval_seconds: PositiveInt
+    arxiv_retry_attempts: PositiveInt
+    arxiv_retry_backoff_seconds: PositiveFloat
+    arxiv_retry_max_delay_seconds: PositiveFloat
     request_timeout_seconds: PositiveInt
     retry_attempts: PositiveInt
     retry_backoff_seconds: PositiveFloat
@@ -202,6 +205,8 @@ class Limits(StrictModel):
 
     @model_validator(mode="after")
     def request_limits_are_valid(self) -> "Limits":
+        if self.arxiv_retry_backoff_seconds > self.arxiv_retry_max_delay_seconds:
+            raise ValueError("arxiv_retry_max_delay_seconds must be at least arxiv_retry_backoff_seconds")
         if self.retry_backoff_seconds > self.retry_max_delay_seconds:
             raise ValueError("retry_max_delay_seconds must be at least retry_backoff_seconds")
         return self

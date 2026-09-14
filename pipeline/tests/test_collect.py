@@ -626,6 +626,34 @@ def test_collect_retries_source_http_503_with_configured_network_options(monkeyp
     assert result.warnings == []
 
 
+def test_collect_uses_arxiv_specific_retry_budget(monkeypatch: pytest.MonkeyPatch) -> None:
+    config = _config()
+    blogs = [source.model_copy(update={"enabled": False}) for source in config.sources.blogs]
+    config = config.model_copy(update={"sources": SourcesConfig(academic=config.sources.academic, blogs=blogs)})
+    calls: list[dict[str, object]] = []
+
+    class Response:
+        status_code = 200
+        content = ARXIV_ATOM.encode()
+        headers: dict[str, str] = {}
+        url = "https://export.arxiv.org/api/query"
+
+    def fetch(url: str, **kwargs: object) -> Response:
+        assert "export.arxiv.org" in url
+        calls.append(kwargs)
+        return Response()
+
+    monkeypatch.setattr(collect, "fetch_public_url", fetch)
+
+    result = collect_candidates(config, now=NOW, resolver=_public_resolver)
+
+    assert len(result.candidates) == 1
+    assert len(calls) == 1
+    assert calls[0]["max_attempts"] == config.settings.limits.arxiv_retry_attempts
+    assert calls[0]["backoff_seconds"] == config.settings.limits.arxiv_retry_backoff_seconds
+    assert calls[0]["max_delay_seconds"] == config.settings.limits.arxiv_retry_max_delay_seconds
+
+
 def test_blog_feed_preserves_content_encoded_for_full_reading() -> None:
     payload = """
     <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">

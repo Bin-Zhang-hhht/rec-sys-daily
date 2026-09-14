@@ -141,6 +141,11 @@ GitHub-hosted runner 自带的 Python 标准库，不需要第三个 Docker 镜�
 关键默认值：论文/博客每日目标各 10，预筛上限 100/50，深读 shortlist 上限各 20；不存在有效
 state 时查询窗口为论文 5 年、博客 3 年，后续使用 `last_success_at - 48h/7d`。模型为单一
 DeepSeek Chat Completions API；不得增加 provider failover、协议回退或客户端 RPM 限制。
+arXiv metadata 采集保持每次请求至少间隔 3 秒，并使用独立的 6 次有界重试；服务端未提供
+`Retry-After` 时从 60 秒开始指数退避、单次最多等待 600 秒，提供该响应头时优先遵循响应值。
+这同时覆盖 arXiv 因总服务容量返回的系统级 `HTTP 429`，不通过增加并发或切换机器规避限流；
+持续失败时采集仍失败且不推进 canonical state。博客、论文 PDF、MinerU 和其他 HTTP 调用继续
+使用通用的 3 次短重试配置。
 
 `models.text.model_env` 固定为 `DEEPSEEK_MODEL`。Daily workflow 将仓库级 Actions Variable
 `DEEPSEEK_MODEL` 传给采集、深读和整合容器，API 请求与公开生成模型元数据使用该值。

@@ -397,16 +397,27 @@ def collect_candidates(
                 response = fetcher(url, headers)
             else:
                 limiter = arxiv_limiter if source.kind == "arxiv" else blog_limiter
+                max_attempts = limits.arxiv_retry_attempts if source.kind == "arxiv" else limits.retry_attempts
+                backoff_seconds = (
+                    limits.arxiv_retry_backoff_seconds
+                    if source.kind == "arxiv"
+                    else limits.retry_backoff_seconds
+                )
+                max_delay_seconds = (
+                    limits.arxiv_retry_max_delay_seconds
+                    if source.kind == "arxiv"
+                    else limits.retry_max_delay_seconds
+                )
                 response = _default_fetcher(
                     url,
                     headers,
                     resolver=resolver,
                     timeout=limits.request_timeout_seconds,
-                    max_attempts=limits.retry_attempts,
+                    max_attempts=max_attempts,
                     user_agent=config.settings.request_user_agent,
                     attempt_limiter=lambda limiter=limiter, url=url: limiter.acquire(url),
-                    backoff_seconds=limits.retry_backoff_seconds,
-                    max_delay_seconds=limits.retry_max_delay_seconds,
+                    backoff_seconds=backoff_seconds,
+                    max_delay_seconds=max_delay_seconds,
                     max_bytes=limits.max_blog_html_bytes,
                 )
             if response.status_code == 304:

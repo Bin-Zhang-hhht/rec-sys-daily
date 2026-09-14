@@ -39,7 +39,7 @@ def _write_config(root: Path) -> None:
         "structured_analysis_min_success_rate": .80,
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
-        "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 20, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
+        "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "arxiv_retry_attempts": 6, "arxiv_retry_backoff_seconds": 60, "arxiv_retry_max_delay_seconds": 600, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 20, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
         "graph_initial_content_nodes": 180,
         "graph_shard_target_bytes": 98_304,
         "similarity": {
@@ -180,6 +180,9 @@ def test_repository_request_user_agent_is_identifiable() -> None:
 
 def test_repository_source_retry_timing_is_typed_and_bounded() -> None:
     limits = load_config(Path(__file__).parents[2]).settings.limits
+    assert limits.arxiv_retry_attempts == 6
+    assert limits.arxiv_retry_backoff_seconds == 60
+    assert limits.arxiv_retry_max_delay_seconds == 600
     assert limits.retry_backoff_seconds == 1
     assert limits.retry_max_delay_seconds == 30
 
@@ -193,6 +196,18 @@ def test_retry_max_delay_must_cover_initial_backoff(tmp_path: Path) -> None:
     _write_yaml(path, data)
 
     with pytest.raises(ValueError, match="retry_max_delay_seconds"):
+        load_config(tmp_path)
+
+
+def test_arxiv_retry_max_delay_must_cover_initial_backoff(tmp_path: Path) -> None:
+    _write_config(tmp_path)
+    path = tmp_path / "config/settings.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["limits"]["arxiv_retry_backoff_seconds"] = 601
+    data["limits"]["arxiv_retry_max_delay_seconds"] = 600
+    _write_yaml(path, data)
+
+    with pytest.raises(ValueError, match="arxiv_retry_max_delay_seconds"):
         load_config(tmp_path)
 
 

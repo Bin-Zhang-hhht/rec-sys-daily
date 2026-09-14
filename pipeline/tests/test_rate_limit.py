@@ -133,3 +133,24 @@ def test_exponential_backoff_is_clamped_to_max_delay() -> None:
         max_delay_seconds=6,
     ) == "ok"
     assert sleeps == [4, 6, 6]
+
+
+def test_rate_limit_without_retry_after_uses_configured_exponential_backoff() -> None:
+    sleeps: list[float] = []
+    calls = 0
+
+    def operation() -> str:
+        nonlocal calls
+        calls += 1
+        if calls < 3:
+            raise RetryableHTTPError(429)
+        return "ok"
+
+    assert request_with_retries(
+        operation,
+        sleeper=sleeps.append,
+        max_attempts=3,
+        backoff_seconds=60,
+        max_delay_seconds=600,
+    ) == "ok"
+    assert sleeps == [60, 120]

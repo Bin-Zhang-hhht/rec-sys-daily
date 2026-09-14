@@ -18,6 +18,9 @@ final_weights:
 limits:
   http_concurrency: 2
   arxiv_min_interval_seconds: 3
+  arxiv_retry_attempts: 6
+  arxiv_retry_backoff_seconds: 60
+  arxiv_retry_max_delay_seconds: 600
   request_timeout_seconds: 45
   retry_attempts: 3
   retry_backoff_seconds: 1
