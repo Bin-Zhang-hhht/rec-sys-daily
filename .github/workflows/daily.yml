@@ -2,7 +2,7 @@ name: RecSys Daily
 
 "on":
   schedule:
-    - cron: "12 16 * * *"
+    - cron: "22 18 * * *"
   workflow_dispatch:
 
 permissions:

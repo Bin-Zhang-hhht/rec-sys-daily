@@ -40,8 +40,8 @@ canonical data，不属于数据阶段，也不参与发布事务。
 
 ## 2. 阶段与发布时序
 
-主数据与网站工作流 `.github/workflows/daily.yml` 使用 `cron: "12 16 * * *"`，对应无夏令时的
-北京时间每天 00:12，并提供 `workflow_dispatch` 手动运行。该时间是 GitHub Actions 的调度目标，
+主数据与网站工作流 `.github/workflows/daily.yml` 使用 `cron: "22 18 * * *"`，对应无夏令时的
+北京时间每天 02:22，并提供 `workflow_dispatch` 手动运行。该时间是 GitHub Actions 的调度目标，
 实际启动和网站完成更新时间可能因排队及各阶段运行时长而延后。
 
 | 阶段 | 输入 | 输出 | 失败后果 |
