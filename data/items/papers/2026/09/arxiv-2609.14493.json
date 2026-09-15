@@ -1,0 +1,130 @@
+{
+  "abstract": "Integrating recall and pre-ranking in e-commerce search requires candidate generation to account for relevance, personalization, and business value before final ranking. To this end, we present VARG, a generative retrieval system for Tmall App search that directly admits generated item candidates to the existing final ranker. VARG-ID constructs semantic prefixes using RQ-VAE, enhances search relevance through bidirectional query-item contrastive learning, and combines these prefixes with a value-ordered third token to provide fine-grained item addresses and a business-value prior. Three-stage supervised fine-tuning progressively learns item-to-identifier mappings, query-semantic retrieval, and personalized retrieval. Personalized model training combines value-aware and hierarchy-aligned supervision with expanded user context, and uses local ordinal supervision (LO-SFT) to learn the local within-cluster ordering encoded by the third token. Prefix-GRPO combines gated rewards based on output legality, user behavior, ranker advantage, and search relevance with prefix-aware token weighting to align candidate generation with business value and ranking objectives. Coordinated daily product and model updates preserve existing item addresses while incorporating new products and behavioral feedback. Offline experiments on tens of millions of products validate identifier stability and demonstrate gains in retrieval quality and head-level value recall from SFT strategies and Prefix-GRPO over their respective baselines. In a 14-day online A/B test covering 20% of search traffic, VARG directly admits generated candidates to the final ranker and improves GMV by 1.45%, per-user IPV by 0.22%, and PCTR by 0.31%. Online shopping-guide query evaluations further show that VARG maintains competitive relevance with a smaller candidate quota. Integrating recall and pre-ranking in e-commerce search requires candidate generation to account for relevance, personalization, and business value before final ranking. To this end, we present VARG, a generative retrieval system for Tmall App search that directly admits generated item candidates to the existing final ranker. VARG-ID constructs semantic prefixes using RQ-VAE, enhances search relevance through bidirectional query-item contrastive learning, and combines these prefixes with a value-ordered third token to provide fine-grained item addresses and a business-value prior. Three-stage supervised fine-tuning progressively learns item-to-identifier mappings, query-semantic retrieval, and personalized retrieval. Personalized model training combines value-aware and hierarchy-aligned supervision with expanded user context, and uses local ordinal supervision (LO-SFT) to learn the local within-cluster ordering encoded by the third token. Prefix-GRPO combines gated rewards based on output legality, user behavior, ranker advantage, and search relevance with prefix-aware token weighting to align candidate generation with business value and ranking objectives. Coordinated daily product and model updates preserve existing item addresses while incorporating new products and behavioral feedback. Offline experiments on tens of millions of products validate identifier stability and demonstrate gains in retrieval quality and head-level value recall from SFT strategies and Prefix-GRPO over their respective baselines. In a 14-day online A/B test covering 20% of search traffic, VARG directly admits generated candidates to the final ranker and improves GMV by 1.45%, per-user IPV by 0.22%, and PCTR by 0.31%. Online shopping-guide query evaluations further show that VARG maintains competitive relevance with a smaller candidate quota.",
+  "arxiv_id": "2609.14493",
+  "authors": [
+    "Xiaopeng Chu",
+    "Jianbo Zhu",
+    "Mingmin Jin",
+    "Jing Wang",
+    "Xing Fang",
+    "Wenyi Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在线 A/B 显示 GMV +1.45%、PCTR +0.31%、IPV/user +0.22%，说明将生成式候选直接送入最终排序器可带来可量化的商业价值提升。",
+      "生成通道可绕过粗排，以预留配额加入现有 multi-channel 召回栈，适合希望在不重建排序级联的情况下改善头部候选价值与相关性的电商系统。",
+      "VARG-ID 的经验贝叶斯 CVR 排序和 Prefix-GRPO 价值奖励使候选生成偏向高转化/高 GMV 商品，有助于在有限候选配额下提升头部价值召回。",
+      "AI shopping-guide 评估中，VARG 在较小候选配额下维持与原 pipeline 最大配额相当的相关性，提示可能以更少候选支撑相关推荐，具有控制下游候选/排序负载的潜力。",
+      "每日商品/模型双循环更新保留了已有商品地址，同时纳入新品与最新行为反馈，能支撑动态商品库的运营需求。",
+      "论文报告曝光 PV/user -0.09%，说明直接准入生成候选未必增加曝光量，商业指标提升主要来自候选价值与相关性的改善。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出 VARG-ID：由两层语义前缀加第三位价值排序 token 构成的分层商品标识，初始构建无碰撞；通过双向 Query-Item 对比学习注入搜索相关性，并用经验贝叶斯 CVR 排序编码商业价值，同时建立每日商品与模型稳定刷新机制。",
+      "构建三阶段 SFT：从 Item→SID 记忆、Query→SID 语义检索到 User+Query+History→SID 个性化检索；结合扩展用户上下文、Q2I 示例加权、SID 层级加权与 LO-SFT 局部序数监督，并探索轻量并行解码。",
+      "提出 Prefix-GRPO：基于合法性、用户行为、排序器优势与相关性多源门控奖励，结合前缀感知 token 加权，使候选生成概率对齐业务价值与下游排序目标。"
+    ],
+    "evidence_quality": 0.86,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "RQ-VAE-3 SFT base",
+        "VARG-ID SFT Base / SFT Base",
+        "Behavior GRPO",
+        "Multi-source GRPO",
+        "Orig. pipeline (largest quota)",
+        "Orig. pipeline (reduced quota)",
+        "Gen. baseline (DA)",
+        "Gen. baseline (DA, larger quota)"
+      ],
+      "datasets": [
+        "Tmall App 真实搜索日志；VARG-ID 覆盖 51.43M 商品",
+        "三阶段 SFT 数据：Item2SID 51.43M、Query2SID 48.00M、个性化 User-Query2SID 105.69M",
+        "Prefix-GRPO 训练池约 1.03M 请求级记录",
+        "个性化评估/SID 重排审计 3.85M 样本；轻量解码评估 180,324 query-only 样本",
+        "6K+ AI shopping-guide 查询相关性评估"
+      ],
+      "findings_zh": [
+        "VARG-ID 初始构建 100% 唯一、无碰撞；对比 RQ-VAE-3 的 91.25% 碰撞率、RQ-VAE-4 的 61.58% 和 RQ+OPQ 的 28.38%，VARG-ID 用 3 token 实现逐个商品寻址。",
+        "VARG-ID SFT Base 相对三 token RQ-VAE SFT Base，Q2I-GMV Recall@1/10/20 分别提升 15.50/13.65/0.93 个百分点，说明价值感知标识在 RL 前已提升头部价值召回。",
+        "EB-CVR 重排比 Click/Volume 更稳定：变化率 69.54% vs 77.61%/76.93%，平均位移 22.00 vs 26.58/26.99，Top20 保留率 93.31% vs 91.29%/91.97%。",
+        "若在固定模型下全量重排 SID，完整 SID HR@100 下降 14.45 个百分点，第三位 teacher-forcing 准确率从 36.75% 降至 21.24%；因此采用 frozen incremental update 保留旧商品地址。Trie 约束解码将合法率从 93.73% 提至 100%，HR@20/100/1000 提升 0.0915/0.2343/0.3857 个百分点，推理时间仅 +3.16%，显存 +0.13 GiB。",
+        "SFT 策略：Q2I 加权+层级损失使 GMV Recall@1 和 Q2I-GMV Recall@1 分别提高 2.18/6.23 个百分点；扩展 recent queries + global summary 使 HR@20/50 提高 0.30/0.31 个百分点；LO-SFT 使 HR@50 从 46.19% 升至 46.33%。",
+        "Prefix-GRPO 相对 SFT Base：GMV Recall@1 提高 5.47 个百分点，Q2I-GMV Recall@1 提高 2.48 个百分点，Buy HR@1 提高 0.36 个百分点；渐进消融显示行为奖励贡献主要头部价值增益，加入 ranker/relevance 奖励进一步提高 Q2I-GMV Recall@1/10 与 NDCG@10，前缀加权带来小幅一致提升。",
+        "14 天、20% 搜索流量在线 A/B：GMV +1.45%，IPV/user +0.22%，PCTR +0.31%，UCTR 与 UCTCVR 各 +0.13%，Exposure PV/user -0.09%。",
+        "AI shopping-guide 查询评估中，VARG 以较小候选配额达到 76.77%/76.58% Good rate，与原 pipeline 最大配额 76.71%/76.81% 相当或略高，并优于直接准入生成基线。",
+        "轻量解码器将平均延迟从 10.41 ms 降至 0.94 ms、QPS 约 11.1×，但 HR@1/20/100 分别下降 1.13/8.38/10.77 个百分点，未上线主 VARG 流程。"
+      ],
+      "metrics": [
+        "HR@K",
+        "NDCG@K",
+        "GMV Recall@K",
+        "Q2I-GMV Recall@K",
+        "Legal rate (%)",
+        "Inference time delta",
+        "GPU memory delta",
+        "Good rate (%)",
+        "GMV",
+        "IPV/user",
+        "Exp. PV/user",
+        "UCTR",
+        "UCTCVR",
+        "PCTR"
+      ]
+    },
+    "limitations_zh": [
+      "轻量解码器检索质量明显下降（HR@20/100 降 8.38/10.77 pp），目前只能作为探索方案，未能用于线上主流程。",
+      "每日增量更新会允许新商品与已有商品共享第三位槽位，slot capacity 受限；共享 SID 的商品在服务时需展开为多个候选，仍可能影响逐商品寻址精度。",
+      "全量重排会改变同一商品的第三 token，导致模型学到的寻址关系出现时间漂移，完整 SID 命中率显著下降；因此线上必须采用冻结地址的增量更新。",
+      "RL 中点击/购买等行为反馈稀疏，无法很好区分未观测候选，需要额外引入相关性/排序器优势奖励来缓解。",
+      "实验均基于 Tmall App 内部真实日志与专有数据规模，论文未报告跨平台或公共数据集上的验证，结论的外部泛化需谨慎。",
+      "作者将更紧候选配额下的质量-效率权衡以及轻量解码的检索质量改进列为未来工作，说明这些方向尚未完全解决。"
+    ],
+    "method_zh": "VARG 使用 Transformer 以扩展上下文 x=(query, user profile, related-category click history, recent queries, global interest summary) 自回归生成三 token 标识 (s1,s2,r)。VARG-ID 先由 RQ-VAE 对商品 embedding 做两层残差量化得到语义前缀，训练时联合重建、承诺与双向 Query-Item InfoNCE 对比损失；第三 token 按经验贝叶斯平滑 CVR 与漏斗行为分数（购买>加购>点击）在 prefix 内排序，初始构造保证唯一地址。每日更新采用双循环：商品循环冻结 RQ-VAE 与词汇表，保留旧商品地址，新商品按价值序复用已有槽位或从零开始；模型循环用最新行为数据继续训练并混合历史 replay。三阶段 SFT 依次学习商品记忆、查询语义与个性化检索，Stage 3 使用 Q2I 加权、层级感知损失与 LO-SFT。Prefix-GRPO 对响应做合法性门控，买/点/曝光、排序器优势、相关性分级构成多源奖励；依据合法子 token 数量对 s2/s3 赋权，并用 GRPO 组内优势、PPO clip、双 clip 与 KL 正则更新策略。推理时用 Trie 约束 beam search 生成 Top-K SID，再经 SID-to-item 映射直接进入最终排序器。另探索了仅计算一次 backbone hidden state、用分层轻量分类头预测 SID 的解码器。",
+    "problem_zh": "电商搜索采用召回-粗排-精排级联，若候选阶段遗漏高质量商品，下游排序无法恢复；VARG 面向召回与粗排融合场景，需要在一个预留的生成式通道内直接向最终排序器提供候选，同时兼顾相关性、个性化与商业价值，并应对每日商品/模型更新带来的标识稳定性、上下文监督学习及业务价值/排序对齐三个挑战。",
+    "technical_depth": 0.93
+  },
+  "doi": null,
+  "final_score": 0.9275,
+  "id": "arxiv-2609.14493",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-13T12:59:04Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文为电商搜索提出生成式召回候选生成系统VARG，直接生成物品候选并接入最终排序器，属于推荐/搜索流水线中的召回工作。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "VARG: Value-Aware and Ranking-Aligned Generative Retrieval for Dynamic E-commerce Search",
+  "url": "https://arxiv.org/abs/2609.14493v1"
+}

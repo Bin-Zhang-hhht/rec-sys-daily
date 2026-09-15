@@ -1,0 +1,153 @@
+{
+  "abstract": "LLM-based sequential recommenders usually cast next-item prediction as text generation, but this interface is poorly matched to full-catalog top-K ranking. We propose TATK, a Triple-Aware framework that couples Top-K Learning (TKL) with Knowledge-Grounded Verification (KGV) for LLM-based sequential recommendation. Top-K Learning combines context-aware metadata-KG prompt grounding with position-aware top-K rewards, aligning training with ranking utility; Knowledge-Grounded Verification then applies structure-aware reranking over the top-M candidates after a single LLM forward pass, using the same metadata-derived item graph. We evaluate TATK on Musical Instruments, CDs and Vinyl, and Video Games from Amazon Reviews 2023 under a matched R2ec-style full-catalog protocol. Experiments use Gemma-2-2B-It and Qwen2.5-3B-Instruct backbones, compare against sequential, generative, KG-augmented, and reasoning-enhanced baselines, and include component, reward-shape, sequence-perturbation, reranking, relation-quality, and candidate-pool diagnostics. TATK improves over the matched R2ec reproduction on all 36 reported metrics. On NDCG@10, it improves Qwen by 8.05%, 4.26%, and 3.78% on the three datasets, and improves Gemma by 27.03%, 10.52%, and 10.23%, while keeping inference within 1.17x of Base RecPO latency. The diagnostics show that structural evidence is most useful for recoverable top-M candidates with reliable KG support, and should be gated when metadata relations are sparse or noisy. LLM-based sequential recommenders usually cast next-item prediction as text generation, but this interface is poorly matched to full-catalog top-K ranking. We propose TATK, a Triple-Aware framework that couples Top-K Learning (TKL) with Knowledge-Grounded Verification (KGV) for LLM-based sequential recommendation. Top-K Learning combines context-aware metadata-KG prompt grounding with position-aware top-K rewards, aligning training with ranking utility; Knowledge-Grounded Verification then applies structure-aware reranking over the top-M candidates after a single LLM forward pass, using the same metadata-derived item graph. We evaluate TATK on Musical Instruments, CDs and Vinyl, and Video Games from Amazon Reviews 2023 under a matched R2ec-style full-catalog protocol. Experiments use Gemma-2-2B-It and Qwen2.5-3B-Instruct backbones, compare against sequential, generative, KG-augmented, and reasoning-enhanced baselines, and include component, reward-shape, sequence-perturbation, reranking, relation-quality, and candidate-pool diagnostics. TATK improves over the matched R2ec reproduction on all 36 reported metrics. On NDCG@10, it improves Qwen by 8.05%, 4.26%, and 3.78% on the three datasets, and improves Gemma by 27.03%, 10.52%, and 10.23%, while keeping inference within 1.17x of Base RecPO latency. The diagnostics show that structural evidence is most useful for recoverable top-M candidates with reliable KG support, and should be gated when metadata relations are sparse or noisy.",
+  "arxiv_id": "2609.14565",
+  "authors": [
+    "Yuchen Guan",
+    "Jiaye Liu",
+    "Yifei Han",
+    "Zhenxi Zhang",
+    "Yixuan Weng",
+    "Bin Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "TATK可在不增加额外LLM前向传播的情况下提高全目录Top-K排序中可见相关商品的概率，对电商平台提升长尾相关商品的曝光有直接价值。",
+      "每用户推理延迟仅从420 ms增至490 ms（约1.17×），GPU内存增幅很小，具备在现有单次生成服务基础上叠加轻量图评分的部署可行性。",
+      "重排决策可追溯到具体店铺/类目/主类目支撑证据，便于运营审核和解释候选商品为何被提升或降权。",
+      "收益高度依赖元数据质量：类目或店铺关系稀疏/噪声大时，无差别注入结构证据反而可能降低排序质量，因此实际业务落地需要门控与关系质量监控。",
+      "方法可能放大流行度或元数据偏差，部署需结合公平性、多样性与平台条款约束评估；对缺少可靠结构化元数据的品类或冷启动商品适用性有限。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "提出TATK（Triple-Aware Top-K Learning with Knowledge-Grounded Verification），将Top-K学习与知识接地验证耦合，用于LLM序列推荐；Top-K学习结合上下文感知的元数据知识图谱提示和位置感知的Top-K奖励，知识接地验证在单次LLM前向传播后仅对Top-M候选做结构感知重排。",
+      "在Amazon Reviews 2023的三个品类和两个LLM骨干上，采用匹配的R²ec式全目录评测协议，TATK在所有36项报告指标上均优于匹配的R²ec复现；NDCG@10上Qwen提升8.05%/4.26%/3.78%，Gemma提升27.03%/10.52%/10.23%。",
+      "通过组件消融、奖励形状、序列扰动、重排机制、关系质量与候选池诊断，说明结构证据主要对长历史用户、知识图谱支撑密集、以及靠近Top-10边界的候选有帮助，稀疏锚点或低精度共现边应被门控或抑制。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Top-K Learning Component Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Sequence Perturbation"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Rerank Mechanism"
+      },
+      {
+        "page": 1,
+        "section": "4.6 Relation Quality and Efficiency"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Limitations"
+      },
+      {
+        "page": 1,
+        "section": "Appendix F Top-K Learning Objective Comparison"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "Caser",
+        "SASRec",
+        "TIGER",
+        "BIGRec",
+        "D3",
+        "LatentR3",
+        "K-RagRec†（协议适配）",
+        "Reason4Rec†（协议适配）",
+        "LangPTune",
+        "S-DPO",
+        "LLaRA",
+        "SPRec",
+        "R²ec",
+        "Base RecPO"
+      ],
+      "datasets": [
+        "Amazon Reviews 2023 Musical Instruments",
+        "Amazon Reviews 2023 CDs and Vinyl",
+        "Amazon Reviews 2023 Video Games",
+        "MovieLens-1M（初步可迁移性检查）"
+      ],
+      "findings_zh": [
+        "TATK在全部36项报告指标上优于匹配的R²ec复现；Gemma在三个数据集上NDCG@10分别提升27.03%、10.52%、10.23%，Qwen分别提升8.05%、4.26%、3.78%，且NDCG@10的6个差异中5个显著（Qwen-VG差异为正但不显著）。",
+        "组件消融显示，上下文接地、位置感知Top-K奖励、结构感知重排单模块均优于Base RecPO；不加门控的C+P弱于单模块，加入动态KG门控后恢复，完整TATK平均NDCG@10达0.0358，其中Top-K Learning贡献+0.0029，知识接地验证再贡献+0.0012。",
+        "序列扰动显示TATK对顺序和近期意图仍然敏感，但在洗牌、反转、移除最新项下的NDCG@10下降小于Base RecPO；移除KG上下文使平均NDCG@10从0.0358降至0.0322，结构证据与序列证据互补而非替代。",
+        "重排机制显示知识接地验证主要提升可恢复的边界候选：46.8%目标上移1-9位，28.5%上移10-49位，16.0%目标在重排后转为Hit@10；KG支撑与排名提升正相关（r=0.25）。",
+        "关系质量分析表明仅扩展关系覆盖会稀释高精度元数据证据：加入原始共现边使覆盖率提高但NDCG@10下降；删除50%/75%元数据关系后N@10降为0.0346/0.0334，仍高于Base RecPO的0.0317，呈渐变退化。",
+        "推理开销受控：Base RecPO为420 ms/用户，完整TATK为490 ms/用户（1.17×），GPU内存从14.8 GB增至15.0 GB；候选池M=100在精度-延迟权衡上最优。",
+        "MovieLens-1M初步检查中，同一时间切分与全目录评测下Gemma的NDCG@10从R²ec的0.0718提升到TATK的0.0750（+0.0032，+4.5%）。"
+      ],
+      "metrics": [
+        "HitRate@5",
+        "HitRate@10",
+        "HitRate@20",
+        "NDCG@5",
+        "NDCG@10",
+        "NDCG@20",
+        "Latency ms/user",
+        "GPU memory"
+      ]
+    },
+    "limitations_zh": [
+      "方法依赖有信息量的元数据关系；在稀疏、嘈杂或通用元数据以及缺失字段的长尾商品上收益可能下降。",
+      "当前关系强度和门控阈值通过开发集诊断选择，未实现自适应学习。",
+      "主要配对分析用5个匹配种子，组件与敏感性研究用3种子诊断运行，小效应需按对应样本量解释。",
+      "协议适配的K-RagRec†与Reason4Rec†仅表征匹配的元数据-only配置，可能低估其原始全资源配置能力。",
+      "评测聚焦离线全目录商品排序，MovieLens-1M只是初步非商品可迁移性检查；未验证高度时间性、多模态或持续变化关系的领域，也未测量用户满意度、多样性或业务结果。",
+      "KGV虽不增加额外LLM前向传播，但仍需维护图缓存并进行Top-M评分，端到端延迟依赖解码器、批大小、缓存刷新策略和服务基础设施。"
+    ],
+    "method_zh": "TATK由一个元数据导出的商品图支撑三个模块：1）上下文感知知识图谱接地：为近期历史锚点检索同店铺/同类目/同主类目邻居并序列化为提示上下文，短历史时跳过知识图谱注入；2）位置感知Top-K学习：将线性位置奖励（r_pos(r)=(K-r+1)/K）纳入S2R训练，使token级学习与item级排序效用对齐；3）知识接地验证：推理时对单次前向生成的Top-M候选，用候选与历史锚点的最强支撑关系和重复匹配次数计算KG得分，归一化后与生成分数加权（s'=s_gen+λ·b_KG）得到最终排序，无需额外LLM前向传播。复杂度约为O(M|H_u|)。",
+    "problem_zh": "LLM-based序列推荐通常将下一项预测建模为文本生成，但这种接口与全目录Top-K排序不匹配：输入缺少显式结构信息（如店铺、类目、主类目），训练目标与HitRate@K/NDCG@K等排序指标弱对齐，生成候选列表在推理时也缺乏基于可用商品结构的验证。本文针对这三个错配提出统一框架。",
+    "technical_depth": 0.78
+  },
+  "doi": null,
+  "final_score": 0.8940000000000001,
+  "id": "arxiv-2609.14565",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-13T14:50:31Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出TATK框架，将Top-K学习与知识图谱验证重排结合，用于基于大语言模型的序列推荐。",
+  "targets": [],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "TATK: Triple-Aware Top-K Learning with Knowledge-Grounded Verification for LLM-based Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2609.14565v1"
+}

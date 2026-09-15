@@ -1,0 +1,124 @@
+{
+  "abstract": "Generative recommendation reformulates sequential recommendation as autoregressive generation by encoding items into semantic tokens, enabling improved scaling capability and cross-domain generalization. However, existing generative recommender systems typically follow a two-stage pipeline, where item tokenization is largely dominated by textual semantics with limited incorporation of collaborative signals and interaction similarity, leading to code assignments that are misaligned with downstream generation. Conversely, the generation stage tends to overlook the original semantic information, as the code sequences are re-embedded based on interaction data. This cross-stage information decoupling limits semantic coherence and recommendation accuracy. To address this issue, we propose SCRec, a general framework that enhances cross-stage coherence through bidirectional information supplementation. Specifically, we introduce (i) collaborative-enhanced tokenization to explicitly inject textualized collaborative signals into semantic tokenization, without introducing additional alignment task, (ii) semantic-guided generation to dynamically recalibrate semantic priors with learnable code embeddings in generation stage, and (iii) manifold alignment to reconcile the geometric mismatch between the embedding space of discrete codebook indices and the dense continuous semantic space. These interrelated components form a general framework that aligns semantic and collaborative signals and enhances cross-stage information coherence, with minimal additional training and inference costs. Extensive experiments demonstrate the effectiveness, robustness, and generalizability of our proposed framework. Generative recommendation reformulates sequential recommendation as autoregressive generation by encoding items into semantic tokens, enabling improved scaling capability and cross-domain generalization. However, existing generative recommender systems typically follow a two-stage pipeline, where item tokenization is largely dominated by textual semantics with limited incorporation of collaborative signals and interaction similarity, leading to code assignments that are misaligned with downstream generation. Conversely, the generation stage tends to overlook the original semantic information, as the code sequences are re-embedded based on interaction data. This cross-stage information decoupling limits semantic coherence and recommendation accuracy. To address this issue, we propose SCRec, a general framework that enhances cross-stage coherence through bidirectional information supplementation. Specifically, we introduce (i) collaborative-enhanced tokenization to explicitly inject textualized collaborative signals into semantic tokenization, without introducing additional alignment task, (ii) semantic-guided generation to dynamically recalibrate semantic priors with learnable code embeddings in generation stage, and (iii) manifold alignment to reconcile the geometric mismatch between the embedding space of discrete codebook indices and the dense continuous semantic space. These interrelated components form a general framework that aligns semantic and collaborative signals and enhances cross-stage information coherence, with minimal additional training and inference costs. Extensive experiments demonstrate the effectiveness, robustness, and generalizability of our proposed framework.",
+  "arxiv_id": "2609.13678",
+  "authors": [
+    "Jiayi Dan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "生成式推荐是电商、内容平台、短视频等场景的核心技术；本文在Recall@10/NDCG@10上相对强基线提升13%~27%，意味着同等候选集下可显著改善命中率与排序质量。",
+      "SCRec以可复用模块形式实现，接入TIGER和LIGER后训练时间仅增加约1.98%~6.70%、推理时间增加约0.54%~6.19%，对追求低部署成本和高吞吐的推荐系统具有实际吸引力。",
+      "协作信号以文本化相似物品标题注入，可离线完成，无需在线额外对齐任务或额外推理开销，适合已有商品文本信息的工业目录。",
+      "语义-协作联合标记化有助于缓解纯文本语义对协作差异的误判（如跑鞋与高跟鞋），对改善长尾、弱交互物品的候选生成有潜在价值。",
+      "双曲空间对齐改善了代码嵌入学习与门控权重分配，说明该方法可减少模型对语言模型先验的过度依赖，有助于在交互数据丰富后持续优化代码嵌入。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "指出了生成式推荐两阶段流程中语义信号与协作信号之间的跨阶段解耦问题，并提出双向信息补充的整体框架SCRec。",
+      "提出协作增强标记化：将CF模型得到的相似物品标题以文本化形式与主语义提示加权融合后再经RQ-VAE量化，在不引入额外对齐任务的前提下显式注入协作信号。",
+      "提出语义引导生成：在生成阶段通过门控机制动态融合可学习代码嵌入与冻结语义表示，并引入InfoNCE对比对齐，恢复原语义先验。",
+      "提出双曲流形对齐：将代码嵌入与语义表示投影到共享Poincaré球并最小化测地距离，缓解离散codebook空间与稠密连续语义空间的几何失配，并给出理论上界分析。",
+      "将SCRec实现为可复用模块，在多个生成式推荐骨干上验证了通用性，且额外训练/推理开销很小。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 2,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Method"
+      },
+      {
+        "page": 6,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 10,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "HGN",
+        "BERT4Rec",
+        "SASRec",
+        "FDSA",
+        "S3-Rec",
+        "RecJPQ",
+        "VQ-Rec",
+        "HSTU",
+        "TIGER",
+        "LIGER",
+        "CoST",
+        "ETEGRec",
+        "LC-Rec",
+        "RPG",
+        "LLaDA",
+        "CoFiRec",
+        "PIT"
+      ],
+      "datasets": [
+        "Beauty",
+        "Sports and Outdoors",
+        "Toys and Games"
+      ],
+      "findings_zh": [
+        "在Beauty、Sports and Outdoors、Toys and Games三个数据集上，SCRec一致优于所有基线，相对第二好方法在四个指标上提升约13%~27%，验证了跨阶段语义-协作融合的有效性。",
+        "消融实验显示，去掉协作标记化（CT）、语义引导生成（SG）、流形对齐（MA）或对比对齐（CA）均带来一致性能下降，说明三个模块各自必要。",
+        "超参数敏感性分析显示α、β和双曲曲率c在较大范围内性能稳定，且始终优于基线。",
+        "将SCRec作为模块接入TIGER和LIGER后，两骨干均获得稳定提升；Beauty上TIGER训练/推理时间仅增加约6.70%/6.19%，LIGER仅增加约1.98%/0.54%。",
+        "与MMGRec式向量拼接、LETTER式对比监督等替代协作标记化策略相比，本文的文本化协作信号融合在NDCG@10上更优；与L2距离、MMD等替代对齐方法相比，双曲流形对齐也带来更高NDCG@10。",
+        "t-SNE可视化显示流形对齐后代码表示与语义表示分布更接近，门控权重g分布更集中于0.5，说明对齐缓解了模型对语义表示的过度依赖。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "Recall@10",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文未设置专门的局限性讨论章节，也未报告失败案例或方法失效场景。",
+      "实验仅在Amazon Reviews的三个品类子集（Beauty、Sports and Outdoors、Toys and Games）上进行离线leave-last-out评估，未验证跨域、超大规模目录或在线部署效果。",
+      "协作增强标记化依赖预训练CF/序列模型生成相似物品，冷启动物品缺乏交互时的有效性未被讨论。",
+      "方法引入α、β、曲率c、温度τ、top-k等多个超参数，虽然敏感性实验显示稳定，但仍需在验证集上调节。",
+      "性能对比表未报告方差/显著性检验，无法判断多个相近基线与本文方法差异的统计显著性。"
+    ],
+    "method_zh": "SCRec由三个相互关联的模块组成：(1) 协作增强标记化：用预训练CF/序列模型计算每个物品的top-k相似物品，将这些相似物品的标题文本与主物品的标题、品牌、品类、描述等语义提示一起编码，按权重a聚合后送入RQ-VAE得到统一语义-协作代码序列，全程可离线完成；(2) 语义引导生成：对每个物品的层级代码嵌入用物品级可学习权重聚合成代码表示，并与语义表示通过sigmoid门控融合，同时用InfoNCE损失做对比对齐，融合和对比过程仅增加少量FLOPs；(3) 流形对齐：将代码表示和语义表示分别经可学习投影映射到d维Poincaré球，最小化二者测地距离，使离散代码嵌入与稠密语言模型表示在共享双曲空间中几何一致。最终生成阶段损失为L_gen + αL_align + βL_geo。",
+    "problem_zh": "现有生成式推荐系统通常采用两阶段流程：先对物品做语义ID/RQ-VAE标记化，再在生成阶段重新嵌入这些代码序列。该流程存在跨阶段信息解耦问题：标记化阶段主要由文本语义主导，难以有效引入协作/交互信号；生成阶段则因基于交互数据重新学习代码嵌入，逐渐丢失原始语义信息。这种解耦导致代码分配与下游生成任务不对齐，降低语义连贯性和推荐准确率。",
+    "technical_depth": 0.88
+  },
+  "doi": "10.1145/3773078.3831736",
+  "final_score": 0.906,
+  "id": "arxiv-2609.13678",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-12T03:10:03Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出SCRec框架，通过双向信息补充增强生成式推荐中语义与协同信号在分阶段流程间的一致性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Addressing Cross-Stage Decoupling of Semantic and Collaborative Signals in Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.13678v1"
+}

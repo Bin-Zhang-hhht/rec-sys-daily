@@ -1,0 +1,122 @@
+{
+  "abstract": "Large language models (LLMs) exhibit strong semantic understanding and preference reasoning capabilities, offering new opportunities for user modeling in recommender systems. Existing LLM-as-Enhancer methods typically distill LLM-derived preference knowledge into lightweight recommenders to avoid costly online LLM inference. However, they often construct distillation knowledge from only one perspective. Prior preference captures users' stable and consistent interests but provides limited guidance for the current decision, whereas posterior preference reveals target-relevant fine-grained interests but may rely excessively on target clues. To address these limitations, we propose P$^3$Rec, a framework that jointly extracts and internalizes complementary prior and posterior preference reasoning knowledge. Specifically, P$^3$Rec first derives target-agnostic prior preferences and target-conditioned posterior preferences from the user side, while further extracting item-centric preference representations from item semantics and predecessor interactions. It then progressively internalizes prior and posterior knowledge into behavioral representations through prior preference absorption and posterior-guided preference distillation. Since the resulting comprehensive preference representation may not always provide an equally decisive retrieval direction, P$^3$Rec further characterizes historical interest dispersion with interest entropy and adaptively calibrates the user representation before contrastive retrieval optimization. In this way, P$^3$Rec achieves more complete preference reasoning while preserving efficient recommendation. Extensive experiments on multiple public datasets demonstrate its effectiveness. Large language models (LLMs) exhibit strong semantic understanding and preference reasoning capabilities, offering new opportunities for user modeling in recommender systems. Existing LLM-as-Enhancer methods typically distill LLM-derived preference knowledge into lightweight recommenders to avoid costly online LLM inference. However, they often construct distillation knowledge from only one perspective. Prior preference captures users' stable and consistent interests but provides limited guidance for the current decision, whereas posterior preference reveals target-relevant fine-grained interests but may rely excessively on target clues. To address these limitations, we propose P$^3$Rec, a framework that jointly extracts and internalizes complementary prior and posterior preference reasoning knowledge. Specifically, P$^3$Rec first derives target-agnostic prior preferences and target-conditioned posterior preferences from the user side, while further extracting item-centric preference representations from item semantics and predecessor interactions. It then progressively internalizes prior and posterior knowledge into behavioral representations through prior preference absorption and posterior-guided preference distillation. Since the resulting comprehensive preference representation may not always provide an equally decisive retrieval direction, P$^3$Rec further characterizes historical interest dispersion with interest entropy and adaptively calibrates the user representation before contrastive retrieval optimization. In this way, P$^3$Rec achieves more complete preference reasoning while preserving efficient recommendation. Extensive experiments on multiple public datasets demonstrate its effectiveness.",
+  "arxiv_id": "2609.13993",
+  "authors": [
+    "Jinfei Chen",
+    "Weihai Lu",
+    "Jiawei Cheng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "采用LLM-as-Enhancer范式，LLM推理离线进行，避免在线LLM调用的高成本，适合对推理延迟和成本敏感的推荐系统。",
+      "在Amazon Sports、Beauty、Toys等电商场景显著提升H@K/NDCG等排序指标，可能带来更好的商品推荐质量和用户转化。",
+      "推理阶段只需要用户行为表示、先验偏好和历史序列，项目表示可离线预计算，便于部署实时检索服务。"
+    ],
+    "business_transferability": 0.64,
+    "contributions_zh": [
+      "指出现有方法只利用先验或后验单一视角偏好推理，导致用户建模不完整。",
+      "提出P³Rec，联合提取并内化LLM的先验和后验偏好知识，并通过兴趣熵自适应校准用户表示以适应检索。",
+      "在多个公开数据集上实验证明P³Rec一致优于SOTA基线。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation study"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Generalization Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.6 Computational Complexity Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.7 Case Study"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "FDSA",
+        "S3-Rec",
+        "AlphaRec",
+        "LLMEmb",
+        "LLM-SRec",
+        "LEARN",
+        "RDRec",
+        "DLLM2Rec",
+        "RLMRec",
+        "SLMRec",
+        "R2END"
+      ],
+      "datasets": [
+        "Sports & Outdoors",
+        "Beauty",
+        "Toys & Games"
+      ],
+      "findings_zh": [
+        "P³Rec在Sports、Beauty、Toys三个数据集上所有指标均取得最好结果；相比最强基线R2END，Sports/Beauty/Toys平均相对提升分别为8.52%、11.81%、7.65%（Table 1）。",
+        "消融实验显示，同时去掉先验和后验偏好会明显下降；去掉先验比去掉后验下降更大，去掉行为表示下降最大；去掉后验引导门控损失和兴趣熵校准也均造成性能下降（Table 2）。",
+        "跨域迁移实验中，P³Rec在全部6个迁移方向上优于R2END；例如Sports→Beauty的H@10提升15.85%，Toys→Beauty的H@10提升15.83%、N@10提升16.93%（Table 3）。",
+        "效率对比显示P³Rec相比R2END只增加少量Stage 1训练开销，推理耗时接近，同时H@10更高（Table 4）。",
+        "案例研究显示：仅先验推理时得分为0.20、排名348；仅后验推理为0.24、排名200；同时内化两者后分数提升至0.32、排名39，说明先验与后验互补（Section 4.7）。"
+      ],
+      "metrics": [
+        "H@5",
+        "N@5",
+        "H@10",
+        "N@10"
+      ]
+    },
+    "limitations_zh": [
+      "P³Rec依赖LLM生成的偏好知识，LLM生成质量可能影响后续知识内化和检索适配。",
+      "论文指出未来需在更广泛的推荐场景中探索更高效、更稳健的偏好推理与内化策略；当前实验主要为Amazon电商类数据集。"
+    ],
+    "method_zh": "P³Rec包含三个模块：(i) 多视角偏好推理：对用户历史进行目标无关先验推理、结合真实下一项目标进行目标条件化后验推理，并基于项目语义和前序交互进行项目中心推理；(ii) 先验-后验偏好内化：以行为表示为基础，通过门控机制吸收先验偏好，利用后验偏好作为教师进行蒸馏，并加入后验引导的门控蒸馏损失；(iii) 偏好检索适配：用兴趣熵刻画历史兴趣分散度，自适应地用可学习残差校准用户表示，再以InfoNCE对比目标优化检索。训练分两阶段：Stage 1优化蒸馏与门控损失，Stage 2优化对比检索损失。推理时只需行为表示、先验偏好和历史序列，后验偏好在推理时不需使用。",
+    "problem_zh": "现有LLM-as-Enhancer方法通常只从单一视角构建蒸馏知识：目标无关的先验偏好虽能刻画用户稳定兴趣，但对当前决策指导有限；目标条件化的后验偏好虽能揭示与目标相关的细粒度兴趣，却又过度依赖目标线索。论文认为二者互补，而已有方法偏好推理不完整。",
+    "technical_depth": 0.93
+  },
+  "doi": null,
+  "final_score": 0.915,
+  "id": "arxiv-2609.13993",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-12T15:10:02Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出P3Rec框架，利用大语言模型蒸馏先验与后验偏好知识用于推荐系统中的用户表示与检索优化。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "P3Rec: Distilling Prior--Posterior Preference Reasoning for LLM-based Recommendation",
+  "url": "https://arxiv.org/abs/2609.13993v1"
+}

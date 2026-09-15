@@ -1,0 +1,103 @@
+{
+  "abstract": "Fairness-aware recommender systems aim to mitigate systematic imbalances in recommendation outcomes, including how visibility, relevance, and opportunities are distributed among users, items, and providers. However, these systems are usually evaluated in terms of accuracy and fairness alone, while their computational and environmental costs remain largely invisible. This omission matters because fairness interventions may affect the cost of recommendation in different ways. Training-time methods modify model optimization, post-processing methods add computation at inference time, and both may depend on the model, dataset, hardware, and deployment setting. We examine whether provider-side fairness in recommendation comes with a measurable green cost. We compare in-processing, graph-level reweighting and post-processing interventions across multiple models, two datasets, and two hardware settings. We measure recommendation quality, provider-side exposure, and energy consumption separately across training and inference stages. Our results show that the green cost of fairness is not uniform, post-processing shifts cost to repeated serving, while in-processing and graph-level methods avoid re-ranking overhead but vary substantially across models, datasets, and hardware. Findings call for evaluating fairness-aware recommendation as a three-way trade-off between accuracy, fairness, and computational cost. Fairness-aware recommender systems aim to mitigate systematic imbalances in recommendation outcomes, including how visibility, relevance, and opportunities are distributed among users, items, and providers. However, these systems are usually evaluated in terms of accuracy and fairness alone, while their computational and environmental costs remain largely invisible. This omission matters because fairness interventions may affect the cost of recommendation in different ways. Training-time methods modify model optimization, post-processing methods add computation at inference time, and both may depend on the model, dataset, hardware, and deployment setting. We examine whether provider-side fairness in recommendation comes with a measurable green cost. We compare in-processing, graph-level reweighting and post-processing interventions across multiple models, two datasets, and two hardware settings. We measure recommendation quality, provider-side exposure, and energy consumption separately across training and inference stages. Our results show that the green cost of fairness is not uniform, post-processing shifts cost to repeated serving, while in-processing and graph-level methods avoid re-ranking overhead but vary substantially across models, datasets, and hardware. Findings call for evaluating fairness-aware recommendation as a three-way trade-off between accuracy, fairness, and computational cost.",
+  "arxiv_id": "2609.05759",
+  "authors": [
+    "Abhirup Mitra",
+    "Oleg Lesota",
+    "Antonela Tommasel"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "后处理公平方法会在每次推理时增加额外成本，在线上高查询量场景下可能显著累积；成本核算应区分一次性训练成本和重复服务成本。",
+      "公平干预的能耗影响因模型、数据集和硬件而异，企业在采用前应在自身部署环境中进行基准测试，而不是假定某类公平方法普遍便宜或昂贵。",
+      "公平性带来的能耗增加不一定自动被公平性收益所证明：有些干预能同时改善曝光与准确率，另一些则主要牺牲准确率；工程决策需要权衡准确率、公平性和能源成本。",
+      "将计算成本纳入公平性评估有助于避免忽视可持续性目标，但也不应以成本为由完全否决公平性目标。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出从准确率、提供方曝光公平性和能耗三个维度联合评估公平感知推荐系统的方法，并分别测量训练与推理阶段的能耗。",
+      "系统比较了训练期正则化、图级逆倾向加权和FA*IR后处理三类公平干预，覆盖多种模型、两个数据集和两套硬件。",
+      "实证表明公平性的绿色成本并不统一：后处理把成本转移到重复推理阶段，训练期和图级方法的成本则高度依赖模型、数据集与硬件。",
+      "呼吁在公平性推荐研究中把计算成本纳入评估，并分别报告一次性全流程成本与部署后的重复服务成本。"
+    ],
+    "evidence_quality": 0.67,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Experimental results"
+      },
+      {
+        "page": 1,
+        "section": "Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "ItemKNN",
+        "BPR",
+        "NCF",
+        "MultiVAE",
+        "RecVAE",
+        "LightGCN"
+      ],
+      "datasets": [
+        "MovieLens-10M (ML-10M)",
+        "Amazon Books (ABs)"
+      ],
+      "findings_zh": [
+        "在ML-10M上，FA*IR使推理能耗在笔记本上增加+6.5%（NCF）到+162.2%（MultiVAE），在服务器上增加+1.1%（LightGCN）到+201.6%（MultiVAE）；在ABs笔记本上为+39.2%（NCF）到+394.9%（LightGCN），说明后处理公平的成本在重复服务阶段累积且高度依赖模型与硬件。",
+        "FA*IR在全流程一次性核算下看起来代价较小（ML-10M服务器上+0.1%到+36.2%），但不能视为成本中性，因为推理阶段成本会在部署后反复发生。",
+        "训练期正则化对部分模型成本温和，但对LightGCN可使全流程能耗在ML-10M笔记本上增加+46.8%、服务器上+72.7%、ABs笔记本上+192.9%；NCF在ABs笔记本上也增加+195.8%。",
+        "图级IPW在ML-10M上几乎没有能耗影响，但在ABs上使笔记本全流程能耗增加+79.4%，服务器仅+0.9%，说明同类干预在不同硬件上的绿色成本差异很大。",
+        "能耗增加必须结合公平性收益解释：在ML-10M上叠加FA*IR可带来较大长尾曝光提升但显著降低nDCG@10；在ABs上结果依模型而定，如LightGCN可在暴露和nDCG上同时改善。"
+      ],
+      "metrics": [
+        "nDCG@10",
+        "long-tail coverage",
+        "catalog coverage",
+        "training energy (kWh)",
+        "inference energy (kWh)",
+        "full-pipeline energy (kWh)"
+      ]
+    },
+    "limitations_zh": [
+      "只使用了固定的公平性超参数（λ=1e-2、τ=0.3）和基于流行度的单一受保护物品代理。",
+      "仅覆盖两个数据集、有限模型集合和两套硬件，结果可能无法推广到其他设置。",
+      "能耗测量是近似值（CodeCarbon，15秒间隔），且只报告能耗，不换算为碳排放强度。",
+      "固定10 epoch预算和RecBole默认配置，未做广泛超参数搜索。"
+    ],
+    "method_zh": "基于RecBole，固定数据划分、随机种子和评估协议；在MovieLens-10M与Amazon Books上训练BPR、NCF、MultiVAE、RecVAE、LightGCN（ML-10M另加ItemKNN），以流行度较低的一半物品作为受保护长尾组。公平干预包括：训练期组分数奇偶正则化 L = L_base + λ(mean_s0 - mean_s1)^2（λ=1e-2）；对LightGCN做图级逆倾向边加权；以及在top-500候选池上施加FA*IR后处理（τ=0.3）。用nDCG@10、目录覆盖率和长尾覆盖率评估质量与公平性，用CodeCarbon以15秒间隔分别记录训练和推理能耗，三次运行取平均，并在服务器与笔记本两套硬件上重复。",
+    "problem_zh": "公平感知推荐系统通常只按准确率和公平性评估，忽略公平干预带来的计算与环境成本；不同阶段（训练期、图级、后处理）的公平方法可能产生不同的能耗代价，但缺乏系统的三方面权衡评估。",
+    "technical_depth": 0.68
+  },
+  "doi": "10.1145/3773078.3841290",
+  "final_score": 0.8345,
+  "id": "arxiv-2609.05759",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-04T22:38:49Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文评估公平感知推荐系统中公平性干预的能耗代价，主张应同时权衡准确率、公平性与计算成本。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "What Price Fairness? Evaluating Energy - Fairness - Accuracy Trade-off in Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.05759v1"
+}

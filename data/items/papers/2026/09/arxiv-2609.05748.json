@@ -1,0 +1,137 @@
+{
+  "abstract": "Alternative property recommendations play a critical role in vacation rental marketplaces, helping users discover relevant options when viewing a specific listing. However, generating high-quality candidate alternatives presents unique challenges: heterogeneous inventory, geographic constraints, rapid availability changes, and long-tail property distributions. We present a comprehensive study of candidate generation (CG) approaches for vacation rental alternatives, comparing collaborative filtering, shallow embeddings, and graph neural network (GNN) methods. Our experiments on a large-scale vacation rental platform (over 2M active properties) show that a hybrid architecture combining item-based collaborative filtering with GNN-based retrieval improves Recall@300 by 14.8% over the strongest baseline, by leveraging the complementary strengths of the two sources: collaborative filtering excels at early recall for properties with rich interaction history, while GNNs discover diverse, non-obvious alternatives and handle cold-start scenarios more effectively. As a component result, GNN-based embeddings alone substantially outperform shallow Hotel2Vec embeddings (48-68% relative recall improvement across K), motivating their inclusion in the ensemble. Crucially, we examine how CG-stage gains carry through to the downstream ranking stage, and find that a stronger candidate pool yields higher downstream ranking quality, though attributing this effect cleanly is complicated by the coupling between candidate generation and ranker training. This recall-conversion gap is an important consideration for practitioners deploying new retrieval methods in two-stage recommendation systems. Alternative property recommendations play a critical role in vacation rental marketplaces, helping users discover relevant options when viewing a specific listing. However, generating high-quality candidate alternatives presents unique challenges: heterogeneous inventory, geographic constraints, rapid availability changes, and long-tail property distributions. We present a comprehensive study of candidate generation (CG) approaches for vacation rental alternatives, comparing collaborative filtering, shallow embeddings, and graph neural network (GNN) methods. Our experiments on a large-scale vacation rental platform (over 2M active properties) show that a hybrid architecture combining item-based collaborative filtering with GNN-based retrieval improves Recall@300 by 14.8% over the strongest baseline, by leveraging the complementary strengths of the two sources: collaborative filtering excels at early recall for properties with rich interaction history, while GNNs discover diverse, non-obvious alternatives and handle cold-start scenarios more effectively. As a component result, GNN-based embeddings alone substantially outperform shallow Hotel2Vec embeddings (48-68% relative recall improvement across K), motivating their inclusion in the ensemble. Crucially, we examine how CG-stage gains carry through to the downstream ranking stage, and find that a stronger candidate pool yields higher downstream ranking quality, though attributing this effect cleanly is complicated by the coupling between candidate generation and ranker training. This recall-conversion gap is an important consideration for practitioners deploying new retrieval methods in two-stage recommendation systems.",
+  "arxiv_id": "2609.05748",
+  "authors": [
+    "Syed Mohammed Arshad Zaidi",
+    "Eric Rincon",
+    "Shayan Hassantabar"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对采用两阶段推荐架构的实践者：更强的候选池可以提升下游排序质量，但候选生成的召回增益不会自动、成比例地转化为端到端收益；引入新的CG源需要协同适配下游排序器。",
+      "混合多源架构（协同过滤+图神经网络）在异构、长尾库存的度假租赁场景中能显著扩大高K召回覆盖，适合作为生产候选生成的设计方向。",
+      "显式房源特征（设施、评论、政策等）与行为信号的结合对冷启动有潜在价值，但论文未直接量化该收益，企业在采用前应进行专门的冷启动分层评估。",
+      "离线召回和排序指标的改善需要在线A/B测试确认，并需权衡GNN更高的图构建与训练成本；同时曝光偏差意味着现有标签可能低估真实改进空间。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出IBKNN与GNN相结合的多源混合架构，利用IBKNN的早期召回优势和GNN发现多样、非显然替代房源的能力，在超过200万房源的平台上相比最强基线将Recall@300提升14.8%。",
+      "系统比较了协同过滤（IBKNN）、浅层嵌入（Hotel2Vec）和图神经网络（GNN）三类候选生成方法，发现GNN嵌入在所有K值上相对Hotel2Vec有48%–68%的召回率提升，从而支持将GNN纳入混合架构。",
+      "考察了候选池质量对下游排序阶段的影响：混合候选池相比基线池带来更高的下游Booking NDCG@5，同时指出候选生成与排序器训练之间的耦合使得该增益难以被干净归因，即所谓的“召回-转化鸿沟”（recall-conversion gap）。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4. Methodology"
+      },
+      {
+        "page": 1,
+        "section": "5. Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "6.1 GNN vs. Embedding Baseline"
+      },
+      {
+        "page": 1,
+        "section": "6.2 GNN Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "6.3 Hybrid Architecture Performance"
+      },
+      {
+        "page": 1,
+        "section": "6.4 Source Complementarity"
+      },
+      {
+        "page": 1,
+        "section": "6.5 Downstream Effect of the Candidate Pool"
+      },
+      {
+        "page": 1,
+        "section": "7. Discussion"
+      },
+      {
+        "page": 1,
+        "section": "8. Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Hotel2Vec：基于用户会话序列的Word2Vec式嵌入基线，64维，FAISS余弦相似度检索",
+        "IBKNN：基于用户受众重叠Jaccard相似度的物品协同过滤",
+        "Hybrid Baseline（最强基线）：现有生产系统，组合IBKNN、Hotel2Vec和距离过滤，并用LightGBM排序器"
+      ],
+      "datasets": [
+        "Expedia集团大型度假租赁平台，超过200万活跃房源，涵盖公寓、房屋、别墅、小木屋等类型，62种设施类型",
+        "用户交互数据：90天内的浏览、点击和预订事件，按设备标识会话化，包含数千万级用户-房源互动事件",
+        "时间划分：2025年3月1日至5月31日训练，2025年6月评估；6月标签对不进入GNN图构建、消息传递和FAISS索引，属性特征使用2025年5月31日快照",
+        "数据为专有数据，不公开模型检查点"
+      ],
+      "findings_zh": [
+        "最佳GNN模型相对Hotel2Vec在所有召回阈值上取得48%–68%的相对提升，中段K值（K=50、100）增益最大。",
+        "混合架构（IBKNN+GNN）相对基线（IBKNN+Hotel2Vec）：R@10 +1.3%，R@100 +5.5%，R@200 +8.4%，R@300 +14.8%；早期召回提升有限，晚期召回提升显著。",
+        "候选生成阶段NDCG@K提升小于召回率提升：K=10为+0.4%，K=100为+0.2%，K=200为+2.1%，K=300为+6.6%，符合GNN主要扩大中后段覆盖而非重排顶部次序的预期。",
+        "单一来源对比（重排前检索阶段）显示IBKNN在早期K领先（K=100: 28.5% vs 25.0%），GNN在高K反超（K=500: 49.2% vs 48.5%）；融合混合池在每个K上匹配或超过任一单一来源，K=300时为44.3%，优于IBKNN的42.4%和GNN的41.4%。",
+        "消融实验：输出维度从32增至64带来R@300 +0.5pp；标签邻居从24增至48带来+0.7pp；在结构特征上增加62个设施特征和评论特征带来+1.6pp。",
+        "下游排序实验中，混合候选池的Test N@5为0.365，高于基线池的0.345；Val N@5为0.369 vs 0.361；但排序器各自在自己的候选池上训练，因此该比较是候选池组成与排序器重训练的联合效应。"
+      ],
+      "metrics": [
+        "Recall@K（K=10, 50, 100, 200, 300, 500），主要指标",
+        "NDCG@K：描述候选中相关替代房源在池内的排序位置",
+        "下游排序质量：Booking NDCG@5（检验集和验证集）"
+      ]
+    },
+    "limitations_zh": [
+      "混合架构的相对增益中融合策略与源替换同时改变：+14.8% R@300应视为GNN源与排序归一化最大融合的共同效应，而非GNN源的孤立效果。",
+      "GNN使用预订派生的替代对和丰富属性特征监督训练，而Hotel2Vec使用共浏览嵌入，两者比较混杂了表示学习与监督信号的差异，不能单独归因于图消息传递。",
+      "未报告源重叠、唯一命中或oracle-union分析，也未按交互程度或房源年龄分层报告召回率；冷启动优势虽有动机但未被专门消融直接量化。",
+      "对GNN候选“多样且非显然”的刻画是定性的，未报告目录覆盖率、新颖性或长尾曝光指标。",
+      "评估指标可能受部署系统曝光偏差影响：从未被展示过的替代房源无法成为正样本，召回率针对的是部分观测的目标。",
+      "仅在单个时间窗口上评估，无置信区间，小差异（如R@10的+1.3%）应谨慎解读。",
+      "下游Booking NDCG@5比较中每个排序器在自己的候选池上重训练，无法将候选池质量与排序器重训练效应分开。",
+      "所有结果均为离线结果，没有A/B在线实验，离线召回与排序增益能否转化为用户可见的转化收益尚待确认。",
+      "GNN相比浅层基线有更高的图构建和训练成本，尽管服务时候选生成仍为亚秒级。"
+    ],
+    "method_zh": "论文将候选生成建模为异构属性-用户图上的链接预测任务。图中包含参考房源（LHS）、候选房源（RHS）、用户、交互和标签五类节点；LHS/RHS分离使模型能学习“A是B的替代品”这一非对称关系。GNN通过消息传递聚合结构、位置、政策、质量和62个设施属性等显式特征，并利用7天前向窗口的预订派生替代对进行监督训练，最终为每个房源产出LHS和RHS两套嵌入，检索时用非对称点积相似度经FAISS取top-K。另一路IBKNN基于用户交集的Jaccard相似度，并加入置信度加权的设施相似度提升。各源候选先经过可用性、地理、质量、容量等业务规则过滤，再经排名归一化的最大融合（rank-normalized max fusion）合并去重，由轻量LightGBM排序器（LambdaRank，多策略负采样）重新排序，最终交给下游多任务神经网络Final Re-Ranker完成最终排序。",
+    "problem_zh": "论文研究度假租赁平台中替代房源推荐（alternative property recommendations）的候选生成（candidate generation）问题。当用户查看某个参考房源时，系统需要从超过200万活跃房源的庞大数据集中检索一组相关替代房源。该场景面临库存高度异构、严格地理约束、可用性快速变化、长尾分布以及新房源持续上线的冷启动问题。单一方法各有局限：基于物品的协同过滤（IBKNN）在交互历史丰富的房源上表现好但冷启动差；Hotel2Vec等浅层嵌入只能捕捉对称的单跳共现关系；基于距离的检索保证地理相关性但缺乏语义理解。因此需要研究能结合互补优势的多源候选生成架构。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.825,
+  "id": "arxiv-2609.05748",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering",
+    "graph_neural_network"
+  ],
+  "published_at": "2026-09-04T21:56:44Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究度假租赁房源替代推荐场景下的候选生成多源集成方法，结合协同过滤与图神经网络提升召回并评估对下游排序的影响。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "A Multi-Source Ensemble Approach to Candidate Generation for Alternative Vacation Rental Property Recommendations",
+  "url": "https://arxiv.org/abs/2609.05748v1"
+}

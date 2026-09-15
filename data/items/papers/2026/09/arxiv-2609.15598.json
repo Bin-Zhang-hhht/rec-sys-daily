@@ -1,0 +1,138 @@
+{
+  "abstract": "Generative recommendation has emerged as a promising end-to-end paradigm for personalized recommendation. However, user preferences continuously evolve over time, making self-evolving an essential capability for generative recommender systems. Existing evolving strategies, such as continual retraining and distillation-based adaptation, directly update the shared model parameters using streaming interactions. Nevertheless, we find that directly applying such strategies to generative recommendation introduces a critical issue, termed evolution conflict. Specifically, heterogeneous preference shifts from different users are optimized within a fully shared autoregressive parameter space, causing dominant behavioral patterns to progressively dominate the model evolution process while underrepresented patterns become increasingly overlooked. To address this issue, we propose a self-evolving memory paradigm for generative recommendation, aiming to enable effective evolution across heterogeneous behavioral patterns. We further identify three key principles for effective self-evolving recommendation systems, including isolated memorization, reinforced evolution, and scalable application. Guided by these principles, we develop LION, a simple yet effective framework centered on a sparse Key-Value memory layer. Specifically, LION introduces sparse memory activation to isolate the evolution of different behavioral patterns, while a consolidation loss is designed to reinforce the learning of underrepresented preference dynamics during continual adaptation. Extensive experiments on diverse real-world datasets demonstrate the effectiveness of LION under various continual evolution settings (e.g., per-period evaluation, user/item group evaluation, and evolution convergence analysis). The codes are released at https://github.com/JazyJiang/Self-Evolving-Memory-for-Generative-Recommendation. Generative recommendation has emerged as a promising end-to-end paradigm for personalized recommendation. However, user preferences continuously evolve over time, making self-evolving an essential capability for generative recommender systems. Existing evolving strategies, such as continual retraining and distillation-based adaptation, directly update the shared model parameters using streaming interactions. Nevertheless, we find that directly applying such strategies to generative recommendation introduces a critical issue, termed evolution conflict. Specifically, heterogeneous preference shifts from different users are optimized within a fully shared autoregressive parameter space, causing dominant behavioral patterns to progressively dominate the model evolution process while underrepresented patterns become increasingly overlooked. To address this issue, we propose a self-evolving memory paradigm for generative recommendation, aiming to enable effective evolution across heterogeneous behavioral patterns. We further identify three key principles for effective self-evolving recommendation systems, including isolated memorization, reinforced evolution, and scalable application. Guided by these principles, we develop LION, a simple yet effective framework centered on a sparse Key-Value memory layer. Specifically, LION introduces sparse memory activation to isolate the evolution of different behavioral patterns, while a consolidation loss is designed to reinforce the learning of underrepresented preference dynamics during continual adaptation. Extensive experiments on diverse real-world datasets demonstrate the effectiveness of LION under various continual evolution settings (e.g., per-period evaluation, user/item group evaluation, and evolution convergence analysis). The codes are released at https://github.com/JazyJiang/Self-Evolving-Memory-for-Generative-Recommendation.",
+  "arxiv_id": "2609.15598",
+  "authors": [
+    "Xinyu Lin",
+    "Zhuosong Jiang",
+    "Zixiao Suo",
+    "Siqin Wang",
+    "Hanqing Zeng",
+    "Hanchao Yu",
+    "Yinglong Xia",
+    "Jiang Zhang",
+    "Aashu Singh",
+    "Fei Liu",
+    "Wenjie Wang",
+    "Fuli Feng",
+    "Yang Song",
+    "Qifan Wang",
+    "Tat-Seng Chua"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "LION 的参数规模不随用户规模增长（约 2Nd），相比逐用户稠密个性化方案更易于扩展到大规模真实推荐系统。",
+      "稀疏记忆机制能显著改善非活跃用户和长尾行为模式的推荐表现，有助于提升整体用户覆盖和长尾生态健康度。",
+      "持续演化过程中 LION 能够保持稳定增益并更快收敛，可降低反复全量重训的计算成本，适合流式交互环境部署。",
+      "记忆层参数固定且紧凑，在用户和交互持续增长时仍能保持有表达力的表示，具备较强的工业部署可行性。"
+    ],
+    "business_transferability": 0.74,
+    "contributions_zh": [
+      "识别了自进化生成式推荐中一个此前被忽视的关键问题：演化冲突，即共享自回归参数空间内的持续适配会使主导行为模式压制少数/低频偏好动态。",
+      "提出了自进化记忆范式，并归纳了三个关键设计原则：隔离记忆（isolated memorization）、强化演化（reinforced evolution）和可扩展应用（scalable application）。",
+      "开发了 LION 框架，基于稀疏 Key-Value 记忆层实现隔离记忆，通过整合损失（consolidation loss）强化少数行为模式的学习，并支持大规模场景下的高效扩展。",
+      "在多个真实数据集上进行了广泛实验，验证了 LION 在不同持续演化设置下的有效性。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Identification of Evolution Conflict"
+      },
+      {
+        "page": 1,
+        "section": "4 LION"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Overall Performance (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "5.3.1 Ablation Study (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "5.3.3 Gradient Conflict Reduction (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "5.3.5 Empirical Convergence Analysis (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "5.3.6 Memory Compactness (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "4.2.3 Parameter Efficiency and Scalability"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "TIGER",
+        "Replay",
+        "SAIL-PIW",
+        "PISA",
+        "RecICL",
+        "LSAT",
+        "PESO"
+      ],
+      "datasets": [
+        "Games",
+        "CDs",
+        "Toys"
+      ],
+      "findings_zh": [
+        "在三个 Amazon 数据集上，LION 在多数设置下优于所有基线；与 TIGER 相比，Recall@20 提升约 15.1% 至 31.7%，NDCG@20 提升约 17.8% 至 41.2%。",
+        "LION 对非活跃用户组（G3-G5）的提升通常大于活跃用户组（G1-G2），说明稀疏记忆机制有助于缓解少数行为模式被主导梯度淹没的问题。",
+        "消融实验表明，单独使用整合损失甚至可能损害性能，而稀疏记忆层、全序列记忆查询和整合损失三者结合才能取得最佳效果。",
+        "跨用户组梯度余弦测量显示，LION 在不同演化周期均实现正梯度余弦，而 TIGER 存在负梯度冲突，支持稀疏记忆降低梯度冲突的理论。",
+        "LION 在每个演化周期收敛更快且最终评估损失更低，验证了更快收敛的理论分析。",
+        "记忆规模压缩实验表明，记忆词汇量与激活预算在一定范围内缩减时性能几乎不变，说明 LION 具有紧凑且可扩展的记忆表示能力。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "NDCG@10",
+        "Recall@20",
+        "NDCG@20"
+      ]
+    },
+    "limitations_zh": [
+      "当前实现基于 T5 生成式推荐骨干，论文将扩展到 LLM 架构列为未来工作。",
+      "记忆路由采用固定的 Top-K 激活，论文提出未来可基于行为复杂度动态调整激活预算。",
+      "论文指出可与显式用户建模（如轻量用户适配器）结合以获得互补收益，但尚未在本文中系统验证。",
+      "路由键的隔离特化依赖数据分布和优化动态，论文将相关收敛趋势视为实验观察而非保证性结论。"
+    ],
+    "method_zh": "LION 在生成式推荐骨干（T5）中引入稀疏 Key-Value 记忆层。记忆层包含 N 个可训练的键值对，给定用户表示后计算与各记忆键的相似度，并选择 Top-K 激活的记忆槽，加权聚合记忆值后加回 Transformer 隐状态。为利用完整行为上下文，记忆查询由完整交互序列计算，而骨干 Transformer 只在近期交互子序列上运行。训练目标包括推荐损失和整合损失，整合损失直接监督记忆增强表示，以强化少数行为模式的偏好建模。此外，论文给出了梯度冲突减少、更快收敛和参数效率的理论分析。",
+    "problem_zh": "生成式推荐系统需要持续适应不断演化的用户偏好，但现有自进化策略在完全共享的自回归参数空间中优化异构用户行为模式，导致主导性行为模式逐渐支配模型演化过程，而少数/低频行为模式被忽视，造成'演化冲突'（evolution conflict），损害长尾用户和物品的推荐效果。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.915,
+  "id": "arxiv-2609.15598",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-14T14:00:38Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出面向生成式推荐系统的自进化记忆范式LION，通过稀疏键值记忆层缓解不同用户偏好演化中的冲突。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Self-Evolving Memory for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.15598v1"
+}

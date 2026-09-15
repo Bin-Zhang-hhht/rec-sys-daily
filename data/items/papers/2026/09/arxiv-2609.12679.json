@@ -1,0 +1,115 @@
+{
+  "abstract": "Construction workers face workplace risks such as fatigue, heat stress, and other physically demanding conditions that can negatively affect their health and safety. Although monitoring these risks is important, timely and personalized health interventions are also needed to help prevent negative impacts on workers' well-being and productivity. To this end, in this paper, we propose a model to capture the interactions between a trust-aware health recommender system and workers who differ in health and trust sensitivity. Specifically, in our proposed dynamic model, worker health evolves over time, worker trust is affected by both health and recommendation dynamics, and trust in turn affects compliance with future recommendations. Given this model, we characterize the recommender policy, including a health-based recommendation triggering threshold and the recommendation frequency. We do so using both model-based short-horizon control and model-free reinforcement learning. We then investigate how recommendation frequencies are adjusted for different workers to balance their health, productivity, and trust. Our findings provide insight into the design of personalized health recommendation policies in construction workplaces and beyond. Construction workers face workplace risks such as fatigue, heat stress, and other physically demanding conditions that can negatively affect their health and safety. Although monitoring these risks is important, timely and personalized health interventions are also needed to help prevent negative impacts on workers' well-being and productivity. To this end, in this paper, we propose a model to capture the interactions between a trust-aware health recommender system and workers who differ in health and trust sensitivity. Specifically, in our proposed dynamic model, worker health evolves over time, worker trust is affected by both health and recommendation dynamics, and trust in turn affects compliance with future recommendations. Given this model, we characterize the recommender policy, including a health-based recommendation triggering threshold and the recommendation frequency. We do so using both model-based short-horizon control and model-free reinforcement learning. We then investigate how recommendation frequencies are adjusted for different workers to balance their health, productivity, and trust. Our findings provide insight into the design of personalized health recommendation policies in construction workplaces and beyond.",
+  "arxiv_id": "2609.12679",
+  "authors": [
+    "Atefeh Mollabagher",
+    "Yogesh Gautam",
+    "Houtan Jebelli",
+    "Parinaz Naghizadeh"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在建筑工地健康推荐系统中，除了生理健康监测，还应跟踪工人对推荐系统的信任，以提升长期遵从度和干预效果。",
+      "对信任敏感型工人，长期优化的RL策略比过分担心短期生产率损失而减少推荐的短视策略更有利于逐步建立信任并改善健康。",
+      "按工人的健康敏感度和信任敏感度个性化设置推荐阈值与频率，可以在改善健康和减少生产率损失之间取得更好平衡。",
+      "该建模与模拟框架可迁移到建筑工地之外的一般健康推荐场景，但实际部署前需要进一步的现场/实验室验证。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出一个信任感知的离散时间MDP模型，将工人健康与信任作为共同演化的内生状态，并用健康敏感度δ_H和信任敏感度δ_T刻画工人类型。",
+      "在短视（两步）规划下解析刻画最优推荐触发阈值，并考察起始健康状态、用户类型以及健康与生产率权衡的影响。",
+      "开发基于DQN的长期无模型强化学习推荐策略，并构建了PyTorch模拟框架来研究推荐者-用户的长期交互。",
+      "通过数值实验比较短视模型驱动策略与长期RL策略，发现对于信任敏感度较高的工人，长期RL策略能识别逐步建立信任的价值并更优。",
+      "为建筑工地及更广泛健康推荐系统中如何按用户类型调整推荐频率与触发阈值提供设计洞见。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "III. Model"
+      },
+      {
+        "page": 1,
+        "section": "IV. Short-Horizon Analytical Policy Design"
+      },
+      {
+        "page": 1,
+        "section": "V. Long-Horizon RL-Based Policy Design"
+      },
+      {
+        "page": 1,
+        "section": "VI. Discussion"
+      },
+      {
+        "page": 1,
+        "section": "VII. Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "短视两步模型驱动策略（类MPC策略）"
+      ],
+      "datasets": [
+        "PyTorch模拟器生成的合成交互轨迹，无真实建筑工人数据集",
+        "用户类型网格上采样的121个(δ_H,δ_T)组合"
+      ],
+      "findings_zh": [
+        "在固定状态(H,T)=(0.8,0.5)下，短视策略对δ_T或δ_H较小的用户倾向不推荐（f=0、阈值很高），对δ_T和δ_H都较大的用户则倾向始终推荐且阈值较低。",
+        "RL学习的策略大致相反：对δ_H或δ_T较小的用户通常选择更高推荐频率和更小阈值；对δ_H、δ_T都较大的用户则更保守，频率更低且阈值更高。",
+        "RL策略在多数用户类型上的累计奖励优于短视策略，但对δ_H和δ_T较大的用户，两种策略性能接近；短视策略有时也能与RL竞争。",
+        "对于对推荐和信任更新不敏感的用户，长期来看更积极地推荐可带来额外收益，这一效应未被短视规划充分捕捉。",
+        "对于用户类型(0.2,0.1)，短视策略早期不推荐会逐渐失去信任并导致健康下降，之后才因健康损失过高而推荐；RL从开始就推荐，逐步建立信任并持续改善健康。",
+        "对于用户类型(0.2,0.2)，短视策略仍倾向不推荐但信任下降更陡；RL早期推荐短时导致信任和健康较低，但长期建立信任后表现更优。"
+      ],
+      "metrics": [
+        "累计折扣奖励（式(3)目标的负值）",
+        "推荐频率f",
+        "推荐触发阈值η",
+        "信任演化轨迹",
+        "健康演化轨迹",
+        "蒙特卡洛平均轨迹（1000次模拟）"
+      ]
+    },
+    "limitations_zh": [
+      "模型假设推荐类型固定，只控制推荐时机；健康与信任状态被假设为可观测，作者指出未来可扩展到POMDP以处理状态不完全可观测的情况。",
+      "结果基于合成仿真，未在真实建筑工人或实验室环境中验证；作者将“在实验室用建筑工人测试模拟器”列为未来工作。",
+      "短视两步策略无法充分捕捉长期信任建立效应，会在部分用户类型上错失更优的长期推荐方案。",
+      "解析结论依赖若干简化假设，例如不触发健康/信任上下界饱和、δ_T小于min{T_t,1-T_t}、ΔH_t>0等，可能限制其一般性。"
+    ],
+    "method_zh": "提出离散时间MDP：状态S_t=(H_t,T_t)，其中H_t∈[0,bar H]为健康状态，T_t∈[0,1]为信任状态；推荐者选择触发阈值η_t和推荐频率f_t，当健康损失ΔH_t>η_t时以概率f_t发出建议；用户以当前信任T_t作为遵从概率。健康动态按遵从与否分别由κ1和κ2驱动（κ1<1<κ2），信任动态由是否发出建议、下一期健康损失是否越过δ_H以及δ_T共同决定。优化目标为最小化折现损失E[Σγ^{t-1}(λΔH_{t+1}+(1-λ)δ_P c_t)]。在解析部分，作者给出两步规划下最优阈值的选择条件（Proposition 1），并枚举候选频率求联合策略；在RL部分，使用DQN学习长期策略，将动作空间离散化为η∈{0.1,...,0.9}、f∈{0,0.25,0.5,0.75,1}，用两层128宽度神经网络、Adam、经验回放和ε-greedy在PyTorch模拟器中训练与评估。",
+    "problem_zh": "建筑工人面临疲劳、热应激等职业健康风险；现有监控和评估工具多聚焦于检测/评估，而非决定何时以及如何给出个性化干预。健康推荐系统的有效性不仅取决于风险检测能力，还取决于工人是否信任系统并愿意长期遵从；信任会随重复交互动态变化并影响未来遵从。因此需要形式化建模工人健康、信任与推荐决策之间的时序交互，并据此设计个性化、信任感知的推荐策略。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.825,
+  "id": "arxiv-2609.12679",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-09-11T10:24:56Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究建筑工地中信任感知的健康推荐策略，利用模型控制与强化学习动态调整推荐频率以平衡健康、生产力和信任。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Personalized and Trust-Aware Health Recommendation Policies for a Construction Workplace",
+  "url": "https://arxiv.org/abs/2609.12679v1"
+}

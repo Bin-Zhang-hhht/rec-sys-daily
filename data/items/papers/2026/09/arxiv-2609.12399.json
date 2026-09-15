@@ -1,0 +1,128 @@
+{
+  "abstract": "Generative recommendation (GR) relies on large-beam decoding to generate hundreds of candidate items, creating a new scaling challenge for recurrent linear attention. Existing linear attention serving systems either materialize a full recurrent state for every beam or repeatedly replay shared history, incurring substantial memory and traffic overhead. To address this, we present OneLA, a linear-attention decoding framework that exploits the shared prompt and short divergent suffixes of GR workloads. Specifically, OneLA represents all beam states using a single shared prompt-derived state and compact, append-only records of their divergent transitions. Using this representation, OneLA computes only the state information required at each decoding step, without reconstructing a full recurrent state for every beam. Furthermore, OneLA uses a lightweight ancestry index to track the transition records that make up each beam's history, allowing beams to be updated without moving or copying existing records. A fused GPU kernel further reuses the shared state across beams. Our analysis shows that OneLA achieves 1.54-2.46x end-to-end decode speedups while substantially reducing recurrent-state memory use and data movement. Generative recommendation (GR) relies on large-beam decoding to generate hundreds of candidate items, creating a new scaling challenge for recurrent linear attention. Existing linear attention serving systems either materialize a full recurrent state for every beam or repeatedly replay shared history, incurring substantial memory and traffic overhead. To address this, we present OneLA, a linear-attention decoding framework that exploits the shared prompt and short divergent suffixes of GR workloads. Specifically, OneLA represents all beam states using a single shared prompt-derived state and compact, append-only records of their divergent transitions. Using this representation, OneLA computes only the state information required at each decoding step, without reconstructing a full recurrent state for every beam. Furthermore, OneLA uses a lightweight ancestry index to track the transition records that make up each beam's history, allowing beams to be updated without moving or copying existing records. A fused GPU kernel further reuses the shared state across beams. Our analysis shows that OneLA achieves 1.54-2.46x end-to-end decode speedups while substantially reducing recurrent-state memory use and data movement.",
+  "arxiv_id": "2609.12399",
+  "authors": [
+    "Xiangrui Yang",
+    "Cheng Peng",
+    "Yunfeng Zhao",
+    "Liang Zeng",
+    "Ao Hu",
+    "Jiawei Yang",
+    "Shengzhe Wang",
+    "Jingshan Lv",
+    "Xiao Liang",
+    "Chen Yang",
+    "Jiaqiang Liu",
+    "Yiming Qiu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "OneLA 大幅降低大束宽 GDN 解码的显存占用和 DRAM 流量，在相同 GPU 资源下可支持更大 beam width 或更多候选物品，有利于提升生成式推荐的候选多样性与质量。",
+      "1.54–2.46× 端到端解码加速可直接转化为单次推理延迟下降或单位时间服务请求量上升，降低工业推荐系统的单位 GPU 成本。",
+      "由于优化集中在 serving/kernel 层，并与 vLLM/SGLang 等现有 GDN serving 执行路径对标，工业系统有望在不改变模型语义的前提下获得性能收益，减少部署改造风险。",
+      "该工作面向工业级生成式推荐负载，若落地到实际推荐流水线，可缓解长用户历史、大束宽解码带来的存储和带宽瓶颈，改善大规模在线服务的资源效率。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "指出 beam width 是 GR 中循环线性注意力新的扩展维度，现有 per-beam 状态管理在大束宽场景下低效。",
+      "提出 OneLA：用单份共享 post-prefill 状态 S_ctx、紧凑 append-only GDN Transition Records (GTRs) 和轻量 beam ancestry index 表示所有 beam 状态。",
+      "设计 fused shared-context attention kernel：在芯片上完成 projection replay，跨 beam 复用 S_ctx，只写回紧凑 GTR，不物化 per-beam 完整状态矩阵。",
+      "在工业 GR 负载上实现 1.54–2.46× 端到端 decode 加速。"
+    ],
+    "evidence_quality": 0.76,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.4 Key Insight"
+      },
+      {
+        "page": 1,
+        "section": "3.2 OneLA State Representation"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Dynamic Beam Ancestry Index"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Fused Shared-Context Attention Kernel"
+      },
+      {
+        "page": 1,
+        "section": "4 Evaluation"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "vLLM FullState",
+        "vLLM ReplaySSM",
+        "SGLang FullState",
+        "SGLang ReplaySSM",
+        "FlashInfer",
+        "TensorRT-LLM FullState",
+        "Controlled FullState",
+        "FP32 FullState（数值精度参考）"
+      ],
+      "datasets": [
+        "未命名的工业级生成式推荐负载（prompt 长度 1K/5K，输出 token 数 O=3–7）",
+        "算子级测试覆盖 405 个 shape（R=4/8/16, W=128/256/512, T=2–6, 9 种 recurrent-state geometry）"
+      ],
+      "findings_zh": [
+        "端到端 full-model decode-forward 时间相对现有 GDN 执行路径实现 1.54–2.46× 加速，且在 prompt 1K/5K、O=3–7 下始终优于 vLLM FullState 和 ReplaySSM。",
+        "算子级 median speedup：相对 vLLM/SGLang FullState 为 40.5×/42.5×，相对 ReplaySSM 路径为 17.5×，相对 FlashInfer/TensorRT-LLM 为 41.5×/46.3×；最大 Qwen geometry（R=16, W=512）上为 16.0–56.5×。",
+        "持久化 recurrent-state capacity median 最多降低 42.5×；在 Qwen R=4、W=512 设置下，O=3/7 时 OneLA 仅需 36.3/101 MiB，相对 FullState 降低 56.5×/20.3×。",
+        "状态写回：O=3/7 时 OneLA 只写 32.3/96.8 MiB，相对 FullState 降低 127×；O=3 时 DRAM 流量为 161 MiB，相对 FullState/ReplaySSM 降低 76.9×/39.9×，算术强度为 40.0 FLOP/byte。",
+        "recurrent-state-path latency：O=3/7 时 OneLA 为 0.0755/0.308 ms，相对 FullState 降低 39.7×/35.4×。",
+        "全部 405 个 OneLA 用例相对 FP32 FullState 的最大绝对输出误差为 4.88e-4，且 Controlled FullState 与原生 vLLM FullState 的差异在 6.9–9.3% 以内，验证了对照实现可靠性。"
+      ],
+      "metrics": [
+        "full-model decode-forward GPU time",
+        "GDN attention operator latency",
+        "persistent recurrent-state capacity",
+        "state writeback volume",
+        "physical DRAM traffic",
+        "arithmetic intensity (FLOP/byte)",
+        "maximum absolute output error vs FP32 FullState"
+      ]
+    },
+    "limitations_zh": [
+      "论文未设独立的 limitations 或失败案例分析；现有评估只覆盖单一全模型（0.8B Qwen3.5）和有限的 beam width/输出长度（W≤512, O≤7），未展示其他模型规模与模型族。",
+      "实验基于未公开命名的工业 GR 负载，外部复现需要相似内部数据。",
+      "OneLA 的表示和 replay 依赖 GDN 状态只通过 query/key 投影被消费的性质；对其他可能要求完整状态访问的线性注意力变体不必然适用。",
+      "跨框架对比只在各 baseline 原生支持的 shape 上进行，可能限制直接横向比较范围。"
+    ],
+    "method_zh": "OneLA 将每个 beam 的概念状态记为共享的 S_ctx 加上短序列 GTR。每个 GTR 为 r_t=(alpha_t, delta_t, k_t)，大小为 O(d_v+d_k)，其中 delta_t=beta_t(v_t-alpha_t S_{t-1} k_t)。解码时不重建完整状态矩阵，而是沿 beam 祖先链对两个状态投影做向量级 replay：u_q^(j)=S_j q_t、u_k^(j)=S_j k_t，按递推更新累加器；当前步的 GDN 更新和输出由这些累加器直接给出。beam 选择只更新 ancestry index h_t(b,j) 的引用关系，不移动或复制 GTR。GPU kernel 按 value 维 tile 加载 S_ctx 一次并跨 beam 复用，在 thread block 内融合 shared-context projection、ancestry-aware replay 和当前 GDN 更新，最终只 append 新生成的 GTR。",
+    "problem_zh": "生成式推荐（GR）依赖大束宽解码产出数百个候选物品；现有线性注意力（以 Gated Delta Network 为代表）服务系统为每条 beam 维护独立完整循环状态，或反复重放共享历史，导致与束宽成正比的显存占用、状态读写和 DRAM 流量开销，且动态 beam 选择（重排/复制/剪枝）会迫使状态被拷贝、重建或重算。",
+    "technical_depth": 0.84
+  },
+  "doi": null,
+  "final_score": 0.894,
+  "id": "arxiv-2609.12399",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-11T03:41:06Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出OneLA线性注意力解码框架，为生成式推荐的大束宽候选生成加速，属于推荐系统召回环节的工程优化。",
+  "targets": [],
+  "tasks": [],
+  "title": "OneLA: Scaling Linear-Attention Decoding to Large Beams in Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.12399v1"
+}

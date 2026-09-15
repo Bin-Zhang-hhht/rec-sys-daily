@@ -1,0 +1,113 @@
+{
+  "abstract": "Sequential recommenders are typically trained on long user histories to capture rich behavioral signals, yet serving with training-length sequences is often impractical due to real-time efficiency constraints. Directly using only recent behaviors leads to a severe performance drop. To bridge this gap, existing approaches compress user histories into persistent per-user states, storing and retrieving them at inference time; while effective, they impose non-trivial infrastructure overhead and offer little remedy in cold-start scenarios. In this paper, we empirically identify two structural flaws rooted in geometric properties and dataset sparsity, and propose a novel two-stage framework to close the long-short-view performance gap. Specifically, in the first stage, we replace the commonly used dot-product with angular similarity scoring and leverage a modified softmax to counter prefix position bias. In the second stage, we fine-tune only bias and LayerNorm components, which are universal to standard sequential backbones, for further improvement. Both stages are guided by carefully designed learning objectives. Extensive experiments on two representative backbones across three public datasets demonstrate the effectiveness of our proposed framework. Sequential recommenders are typically trained on long user histories to capture rich behavioral signals, yet serving with training-length sequences is often impractical due to real-time efficiency constraints. Directly using only recent behaviors leads to a severe performance drop. To bridge this gap, existing approaches compress user histories into persistent per-user states, storing and retrieving them at inference time; while effective, they impose non-trivial infrastructure overhead and offer little remedy in cold-start scenarios. In this paper, we empirically identify two structural flaws rooted in geometric properties and dataset sparsity, and propose a novel two-stage framework to close the long-short-view performance gap. Specifically, in the first stage, we replace the commonly used dot-product with angular similarity scoring and leverage a modified softmax to counter prefix position bias. In the second stage, we fine-tune only bias and LayerNorm components, which are universal to standard sequential backbones, for further improvement. Both stages are guided by carefully designed learning objectives. Extensive experiments on two representative backbones across three public datasets demonstrate the effectiveness of our proposed framework.",
+  "arxiv_id": "2609.06219",
+  "authors": [
+    "Lingfeng Shi",
+    "Chengkai Huang",
+    "Lina Yao",
+    "James Caverlee"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可显著降低线上推理成本：服务时只需消费最近约 20 个交互，无需为每用户存储 KV缓存、令牌记忆或预填充历史，适合延迟敏感和大规模部署。",
+      "参数高效适应仅微调 bias 和 LayerNorm，Taobao/HSTU 场景下可训练参数从约 302M 降到 2,764，训练时间从 8.34h 降到 1.07h，能加快模型迭代和降低工程运维成本。",
+      "该框架不引入新模块，直接作用于 SASRec、HSTU 等标准骨干已有的 bias/LayerNorm 接口，说明现有系统可较平滑地升级短视图服务能力。",
+      "对没有可用每用户历史状态的场景（如新用户、长时间未活跃用户）具有商业价值，因为方法不依赖每用户缓存，天然支持 cache-cold serving。",
+      "存在质量-成本权衡：在 HSTU/Taobao 上达到 PersRec NDCG@10 的 95.9%，但未完全追平带缓存方法；业务方需根据推荐质量敏感度和基础设施成本决定是否接受该差距。",
+      "由于短视图零样本和适应后性能接近甚至部分超过全视图基线，企业可以在保持推荐质量的同时缩小每请求处理序列长度，从而降低延迟和算力预算。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "通过经验分析识别出导致长-短视图性能差距的两个结构缺陷：点积打分的范数偏差（在稀疏长上下文数据集中嵌入范数与物品流行度相关，成为流行度捷径）和前缀注意力沉溺效应/前缀位置偏置（截断时破坏已学习的注意力模式）。",
+      "提出一种骨干无关的两阶段框架：长视图训练阶段用角度相似度打分替换点积，并采用有界注意力聚合 softmax_1；短视图适应阶段仅微调骨干已有的 bias 和 LayerNorm 参数，不引入任何新参数，也不依赖缓存历史。",
+      "在 SASRec 和 HSTU 两种骨干、三个公开数据集上验证：该框架在仅短视图推理下能够超越或匹配全序列基线，并能与缓存/令牌压缩方法竞争，同时消除每用户预计算与存储开销。",
+      "设计了联合短视图适应目标：BCE 点级对齐损失加来自长视图教师模型的跨视图候选集 KL 蒸馏，用于在短视图分布与长视图相对排序之间迁移结构信息。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Empirical Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4 Proposed Method"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiment"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Original SASRec recipe",
+        "Original HSTU recipe",
+        "LONGER†（适配到ID-only LOO设置）",
+        "PersRec（全参数微调+可学习令牌缓存）"
+      ],
+      "datasets": [
+        "ML-10M",
+        "Taobao",
+        "XLong"
+      ],
+      "findings_zh": [
+        "在 Original 组中，从 Full 切换到 20 个最近交互的 Short 推理时，所有配置性能均明显下降；加入小前缀（+prefix）一致缓解下降，支持前缀沉溺和截断破坏注意力模式的结论。",
+        "Ours Full 在所有数据集-骨干组合上一致优于 Original Full；例如 XLong 上 SASRec NDCG@10 提升 9.5%，Taobao 上 HSTU NDCG@10 提升 5.3%。",
+        "Ours Short 在无任何二次适应的情况下，使用长视图训练权重直接做短视图推理，已在几乎所有场景中达到或超过 Original Full，说明该训练配方带来零样本短视图迁移能力。",
+        "Adapted 设置进一步缩小了与 Ours Full 的差距，甚至在 Taobao/SASRec 上 Hit@5 和 Hit@10 超过 Ours Full（0.6190/0.6810 vs 0.6144/0.6677）。",
+        "效率对比中，HSTU 最小适应方法仅更新 2,764 个参数，而 PersRec 全参数微调约 302M 参数；训练时间 1.07h 对 8.34h；前者无需长期内存和预填充，达到 PersRec NDCG@10 的 95.9%。",
+        "滚动评估显示，在没有每用户缓存的情况下，Ours-Adapted 在 Taobao/SASRec 上恢复 PersRec 平均 NDCG@10 的 97.4%，并在 XLong/HSTU 上以平均 NDCG@10 0.3780 领先 PersRec 的 0.3571；适应收益随时间保持稳定。"
+      ],
+      "metrics": [
+        "Hit@5",
+        "Hit@10",
+        "NDCG@5",
+        "NDCG@10",
+        "NDCG@10相对变化Δ",
+        "可训练参数数",
+        "训练时间",
+        "长期内存占用",
+        "预填充成本"
+      ]
+    },
+    "limitations_zh": [
+      "在 HSTU/Taobao 的对比中，所提最小适应方法 NDCG@10 为 0.5467，仍低于带预填充缓存的 PersRec 的 0.5703，说明在部分场景中缓存型方法仍有质量优势。",
+      "适应阶段的最优参数族和损失权重具有架构/场景依赖性：HSTU 主要受益于 bias-only，LayerNorm-only 贡献很小；Taobao/HSTU 上 BCE-only 最优，而 XLong/SASRec 上 KD-only 更优，λ_KD 需要按截断幅度调节。",
+      "实验仅覆盖 ID-based 顺序推荐骨干（SASRec、HSTU）和三个经过长序列筛选的数据集；论文未验证更长序列、语义/多模态信号或 LLM/生成式推荐场景。",
+      "虽然推理端不需要缓存历史，但第一阶段仍需要长视图训练数据来训练骨干；针对训练数据本身缺少长历史的极端冷启动情形，论文没有专门设计处理方案。"
+    ],
+    "method_zh": "方法分为两个阶段。第一阶段为长视图骨干学习：在完整长视图序列上训练，使用温度缩放的余弦相似度作为打分函数，对用户历史表示和物品 embedding 做 L2 归一化，从而去除范数对排序的影响；用 softmax_1 有界注意力聚合替代标准 softmax，允许模型在可见 token 信息量低时分配接近零的总注意力质量，缓解前缀沉溺效应；训练目标采用 sampled softmax。第二阶段为短视图适应：仅解冻并微调骨干中已有的 bias 张量和 LayerNorm 仿射参数（γ、β），其余权重冻结；输入仅使用最近短窗口；优化目标为二元交叉熵损失与 KL 蒸馏损失的加权组合，其中 KL 蒸馏将长视图教师在共享候选池上的 softmax 分布迁移给短视图学生。该方法不生成、存储或检索任何每用户历史状态，推理时只需最近窗口，因此无需缓存历史。",
+    "problem_zh": "顺序推荐模型在长用户历史上训练可以获得更丰富的行为信号，但生产系统受实时延迟约束，推理时通常只能使用最近短窗口；直接截断输入会导致性能显著下降。现有方案通过压缩历史为每用户状态、KV缓存或令牌记忆来弥补该差距，但需要额外的预处理、存储、刷新和检索基础设施，且在无法获得每用户状态的新用户或长期未活跃用户场景中基本失效。论文研究的问题是：能否在训练侧训练一个骨干模型，使其在没有缓存历史的情况下，仅依靠短近窗口推理也能缩小长-短视图性能差距。",
+    "technical_depth": 0.9
+  },
+  "doi": "10.1145/3799682.3841065",
+  "final_score": 0.93,
+  "id": "arxiv-2609.06219",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-05T18:33:03Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文针对序列推荐提出两阶段框架以缩小长短期行为视角的性能差距，属于推荐系统研究中的序列建模。",
+  "targets": [],
+  "tasks": [],
+  "title": "Closing the Long-Short View Gap in Sequential Recommendation without Cached History",
+  "url": "https://arxiv.org/abs/2609.06219v1"
+}

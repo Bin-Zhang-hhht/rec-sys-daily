@@ -1,0 +1,120 @@
+{
+  "abstract": "Traditional recommender systems are typically trained to predict what item users will interact with next, but not why. However, offering personalized evidence for why a user might like the predicted item is an important way to enhance the service and to raise the likelihood that the user will be genuinely interested in the recommendation. This service can be delivered by integrating a frontier-model call into the member-facing pipeline, but it will add extra cost and latency. In this paper, we train a recommender LLM to generate personalized explanations for its reccomendation, based on the user's watching history at a large video streaming service. We impose two requirements on the generated explanation: it must be faithful to the elements of the shows it links, and it must be strictly non-harmful to the user. To this end, we first train two LLM-judge reward models covering three specific criteria, and propose constrained GRPO to incorporate these different criteria. On a held-out real-world testing set, our fine-tuned model improves the all-three-criteria PASS rate rises from 0.649 to 0.956 under our own judges and from 0.677 to 0.931 under an independent judge, where as the frontier generator performs similar to the untuned recommender baseline. We conduct further experiments to show that the model's language and recommendation abilities remain unchanged. Based on these results, we conclude that an LLM-based recommender can be fine-tuned on other complex tasks without compromising its original recommendation performance, thus provide insights for further agentic user interface powered by a single model. Traditional recommender systems are typically trained to predict what item users will interact with next, but not why. However, offering personalized evidence for why a user might like the predicted item is an important way to enhance the service and to raise the likelihood that the user will be genuinely interested in the recommendation. This service can be delivered by integrating a frontier-model call into the member-facing pipeline, but it will add extra cost and latency. In this paper, we train a recommender LLM to generate personalized explanations for its reccomendation, based on the user's watching history at a large video streaming service. We impose two requirements on the generated explanation: it must be faithful to the elements of the shows it links, and it must be strictly non-harmful to the user. To this end, we first train two LLM-judge reward models covering three specific criteria, and propose constrained GRPO to incorporate these different criteria. On a held-out real-world testing set, our fine-tuned model improves the all-three-criteria PASS rate rises from 0.649 to 0.956 under our own judges and from 0.677 to 0.931 under an independent judge, where as the frontier generator performs similar to the untuned recommender baseline. We conduct further experiments to show that the model's language and recommendation abilities remain unchanged. Based on these results, we conclude that an LLM-based recommender can be fine-tuned on other complex tasks without compromising its original recommendation performance, thus provide insights for further agentic user interface powered by a single model.",
+  "arxiv_id": "2609.13657",
+  "authors": [
+    "Jiashu He",
+    "Emma Yanyang Kong",
+    "JJ Tan",
+    "David Fagnan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可以将推荐与解释合并到同一个 in-house LLM 的成员端流程中，避免每次解释都调用 frontier model 所带来的额外成本和延迟。",
+      "论文引用已有工作指出，解释能提升用户对推荐系统的信任、满意度和接受/点击意愿，因此高质量个性化解释对会员体验和业务指标有直接价值。",
+      "微调后的模型可作为 drop-in replacement 部署，内部检索 nMRR 和多个通用语言基准无回退，降低上线风险。",
+      "领域特定的无危害标准比通用安全更严格，例如避免“只有聪明人才看某政治剧”这类隐含偏见；将安全作为约束有助于减少品牌与用户关系风险。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "提出一套可部署的微调流程，让 in-house 推荐 LLM 在保持原有检索、排序和通用语言能力不退化的情况下，为自己的推荐生成个性化解释。在真实世界 held-out 测试集上，全部三项标准 PASS 率在自家 judge 下从 0.649 提升到 0.956，在独立 judge 下从 0.677 提升到 0.931，且持续优于不微调的前沿模型生成器。",
+      "提出 constrained GRPO：将忠实性作为主优化目标，把无偏性和无冒犯性等无危害性指标作为约束，通过 Lagrange multipliers 在训练中自适应地收紧或放松约束，而不是使用固定的标量权重。",
+      "训练两个基于开源 8B 模型的 LoRA reward judge（一个覆盖无偏/无冒犯两个标准，另一个负责忠实性），judge 先生成 chain-of-thought 理由再输出标签；在领域特定的质量评估上持续超过前沿模型 judge，且被抓到的负例理由与人类标注理由的一致性更高。",
+      "通过实验证明逐样本联合约束（constrained-joint）优于批次级约束和标量化奖励，且提升在独立前沿模型 judge 下依然成立，说明改善不是对训练奖励的过拟合或奖励黑客。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Reward Modeling"
+      },
+      {
+        "page": 1,
+        "section": "3 Warming Up the Generator"
+      },
+      {
+        "page": 1,
+        "section": "4 Constrained Reinforcement Learning"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Frontier LLM generator，使用相同提示词但不微调",
+        "In-house recommender LLM：base、warm-up、+scalarized、+constrained-bias、+constrained-harmful、+constrained-joint",
+        "同规模开源 LLM：base、warm-up、+scalarized、+constrained-bias、+constrained-harmful、+constrained-joint",
+        "Judge 基线：frontier model as judge、untuned open-source 8B base、same base SFT、same base SFT+RL"
+      ],
+      "datasets": [
+        "真实世界 held-out 测试集，由生产选择管线的标题对重放而来，基于目录元数据，未使用会员数据",
+        "judge 训练数据：harmlessness 分裂 train/val/test = 2,587/325/325，faithfulness 分裂 train/val/test = 1,218/151/151，各分裂约 70% PASS",
+        "generator SFT 数据：952 条人工验证高质量解释，按 857/95 划分训练/验证",
+        "能力保持评估：内部检索基准 nMRR，以及 MMLU、HellaSwag、CommonsenseQA、MUSR、ARC 五个公开语言基准"
+      ],
+      "findings_zh": [
+        "Constrained-joint 在所有设计中 PASS-ALL-3 最高：in-house 推荐模型从 base 的 0.649 提升到 0.956（自家 judge），从 0.677 提升到 0.931（独立 judge）；而 frontier generator 只有 0.652/0.667，几乎等同于未调优 base。",
+        "Warm-up 修正了 in-house 推荐模型的一个低忠实性行为：该模型倾向于同时提及两部作品并显式宣称它们相似，给 faithful judge 更多判 FAIL 的机会；同尺寸开源模型 base 的 faithfulness 反而高于 in-house base。",
+        "联合逐样本约束优于批次级约束，因为批次级约束只要求整体比例达标，可能允许部分样本只满足单一无危害性条件；联合约束要求每个样本同时无偏且无冒犯。",
+        "调优后的 judge 在 harmlessness 上 Catch-a-FAIL 达到 0.939，而 frontier model judge 只有 0.778，原因是前沿 judge 对 FAIL 更保守；faithfulness judge 通过 FAIL@8 将 recall 从 greedy 的 0.822 提升到 0.911，达到 frontier judge 的召回并保持更高精度。",
+        "所有调优 judge 的 reason-to-label consistency 为 1.000；在成功抓到的 FAIL 上，harmlessness 理由与人类标注一致性为 0.957，高于 frontier judge 的 0.948。",
+        "微调不损害推荐与语言能力：内部检索 nMRR 提升 +0.0006 到 +0.0009，MMLU、HellaSwag、ARC、MUSR 不变或略升，CommonsenseQA 变化为 -0.001 到 +0.006。",
+        "在独立前沿模型 judge 下仍观察到一致提升，说明 PASS 率改善不是对自家 reward signal 的过拟合。"
+      ],
+      "metrics": [
+        "全部三项标准 PASS 率（all-3），以及 bias、offensiveness、faithfulness 各自的通过率，分别在自家 reward judge 和独立前沿模型 judge 下评分",
+        "Judge 指标：parse、accuracy、FAIL 类 precision/recall/F1、Catch-a-FAIL（生产中最关注的 recall）、reason-label consistency、caught_same",
+        "能力保持指标：内部检索归一化 MRR、MMLU、HellaSwag、CommonsenseQA、MUSR、ARC",
+        "不同奖励设计在验证/测试上的 PASS-ALL-3 对比"
+      ]
+    },
+    "limitations_zh": [
+      "论文只研究了 reference-style 解释；真实生产系统理想上应生成多种风格的解释，并根据不同会员偏好进行个性化。",
+      "虽然后训练能提升解释质量，但不会增强模型对作品内容的内部知识；更根本的方案是继续预训练（CPT），以提升解释的忠实性。",
+      "标注者构建无危害性标签时不可避免地接触了冒犯性材料；论文明确说明未使用会员数据，所有 RL 提示和评估均来自基于目录元数据的标题对。",
+      "在能力保持测试中，CommonsenseQA 出现 -0.001 的轻微波动，但整体结论是检索和语言能力无退化。"
+    ],
+    "method_zh": "先训练两个 LLM judge：无危害性 judge 用同一个模型分别评估 bias 和 offensiveness 两个标准，忠实性 judge 单独评估；均基于开源 8B backbone 做 LoRA 微调，先 SFT 学习包含理由和标签的目标序列，再用 GRPO 在线强化学习，且 faithful judge 使用 FAIL@8 测试时扩展提高召回。生成器先经过 SFT warm-up，在 952 条人工验证全部三项标准通过的解释上微调；随后使用 constrained GRPO，把 faithfulness 作为主奖励最大化，将 bias/offensiveness 或两者的逐样本联合指标作为约束，通过 primal-dual 方法和 Lagrange multiplier 更新求解，并用 GRPO 组内归一化优势与 KL-clipped 更新。论文比较了 scalarized、constrained-bias、constrained-harmful、constrained-joint 四种奖励设计。",
+    "problem_zh": "传统推荐系统通常只预测用户接下来会与哪个物品交互，却不解释为什么推荐该物品。在大型视频流媒体场景中，需要让推荐 LLM 根据用户观看历史为每条推荐生成个性化解释，并同时满足两个要求：一是忠实性，即解释强调的共同元素必须是真实且对两部作品都相关的；二是严格无危害性，即避免冒犯或对潜在用户群体形成敏感联想，且该标准比前沿模型的通用安全对齐更严格。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9435000000000001,
+  "id": "arxiv-2609.13657",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-12T02:28:08Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文训练推荐大语言模型在视频流媒体服务中生成个性化且安全的推荐解释，属于推荐系统内容推荐研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Safety as a Constraint: Fine-Tuning a LLM Recommender to Explain Itself",
+  "url": "https://arxiv.org/abs/2609.13657v1"
+}

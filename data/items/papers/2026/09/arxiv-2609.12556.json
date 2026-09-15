@@ -1,0 +1,123 @@
+{
+  "abstract": "Long-sequence generative recommendation methods autoregressively model the user's interaction sequence to generate the next-item representation. Existing methods generally fall into two categories: efficient full-sequence modeling and target-aware context retrieval. Our experiments reveal that as the sequence length increases, the former incurs steadily growing computational cost while its accuracy gains quickly saturate and even degrade due to noise; the latter, though shortening the input sequence, is susceptible to noise that is semantically consistent yet preference-inconsistent, as well as to incomplete contexts. Both paradigms ignore the dynamic changes of user preferences and the cross-subsequence dependencies when handling historical information, thereby limiting accuracy and efficiency. To address these issues, we propose a preference-drift-aware subsequence learning and hierarchical context fusion for long-sequence generative recommendation. Specifically, we learn differentiable soft subsequence boundaries using multidimensional preference-drift information and aggregate items within each subsequence into preference-coherent representations via linear attention with soft assignment weights, thereby circumventing the expense of full-sequence attention. A cross-attention mechanism is then employed to capture dependencies between recent interactions and relevant subsequence contexts, mitigating noise in learning recent-item representations. Finally, a gated fusion mechanism adaptively combines the recent-item representation with the global subsequence context, allowing the resulting target representation to encode both recent and long-term preferences. Extensive experiments demonstrate that our method consistently outperforms existing baselines in both recommendation accuracy and computational efficiency. Long-sequence generative recommendation methods autoregressively model the user's interaction sequence to generate the next-item representation. Existing methods generally fall into two categories: efficient full-sequence modeling and target-aware context retrieval. Our experiments reveal that as the sequence length increases, the former incurs steadily growing computational cost while its accuracy gains quickly saturate and even degrade due to noise; the latter, though shortening the input sequence, is susceptible to noise that is semantically consistent yet preference-inconsistent, as well as to incomplete contexts. Both paradigms ignore the dynamic changes of user preferences and the cross-subsequence dependencies when handling historical information, thereby limiting accuracy and efficiency. To address these issues, we propose a preference-drift-aware subsequence learning and hierarchical context fusion for long-sequence generative recommendation. Specifically, we learn differentiable soft subsequence boundaries using multidimensional preference-drift information and aggregate items within each subsequence into preference-coherent representations via linear attention with soft assignment weights, thereby circumventing the expense of full-sequence attention. A cross-attention mechanism is then employed to capture dependencies between recent interactions and relevant subsequence contexts, mitigating noise in learning recent-item representations. Finally, a gated fusion mechanism adaptively combines the recent-item representation with the global subsequence context, allowing the resulting target representation to encode both recent and long-term preferences. Extensive experiments demonstrate that our method consistently outperforms existing baselines in both recommendation accuracy and computational efficiency.",
+  "arxiv_id": "2609.12556",
+  "authors": [
+    "Fei Li",
+    "Qingyun Gao",
+    "Jianzhe Zhao",
+    "Guibing Guo",
+    "Beibei Kong",
+    "Lei Cheng",
+    "Chengxiang Zhuo",
+    "Zang Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "训练成本显著降低：DRIFT对TIGER在Taobao MM上实现80.4倍训练加速和22.4倍推理加速，对HSTU减少37.6%-42.1%训练时间，有助于降低推荐模型迭代和推理成本。",
+      "支持更长用户交互序列（如GLASS从50扩展到1000），可利用更完整历史偏好提升推荐准确率，对内容平台和电商场景有价值。",
+      "方法可集成到HSTU、TIGER、GLASS等不同骨干，具备一定通用性，便于在已有工业推荐架构中升级。",
+      "在KuaiRec和ML-20M上显著提升Recall@20，可能带来更高的推荐命中率和用户满意度。",
+      "落地时需权衡资源成本：DRIFT-GLASS在Taobao MM上推理时间和GPU内存上升，企业需根据在线延迟和显存预算选择合适变体。",
+      "论文作者来自腾讯平台与内容事业群，方法面向长序列工业推荐，具有较强的业务相关性。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出偏好漂移感知的子序列学习，利用语义、时间、类别分布等多维漂移信息学习可微软边界，将长历史划分为偏好一致的子序列，并通过软成员线性注意力以线性复杂度聚合。",
+      "提出层次化上下文融合机制，近期交互通过交叉注意力选择相关子序列上下文，门控机制自适应融合近期偏好与全局长期偏好。",
+      "方法可适配目标感知检索方法（如GLASS）和高效全序列建模方法（如HSTU），在三个数据集上显著提升推荐精度和训练效率。",
+      "实验显示DRIFT最多带来21.6%的Recall@20提升，并最多降低97.4%的训练时间。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Assumption Validation"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Experiments"
+      },
+      {
+        "page": 1,
+        "section": "Sensitivity Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "HSTU",
+        "Fuxi-Linear",
+        "TIGER",
+        "DIGER",
+        "GLASS"
+      ],
+      "datasets": [
+        "KuaiRec",
+        "ML-20M",
+        "Taobao MM"
+      ],
+      "findings_zh": [
+        "在KuaiRec上DRIFT-HSTU全面最优，相比HSTU的NDCG@20提升13.1%，Recall@20提升21.6%。",
+        "在ML-20M上DRIFT变体在四项指标上均超过基线，相对TIGER最高提升74.3%，相对GLASS最高提升90.4%。",
+        "在Taobao MM上DRIFT-GLASS在NDCG@20、Recall@5、Recall@20三项指标上排名第一。",
+        "DRIFT-GLASS支持比GLASS长20倍的序列（最大序列长度从50增加到1000），在KuaiRec和Taobao MM上每轮训练分别快3.9倍和2.7倍；DRIFT-TIGER在Taobao MM上训练和推理分别加速80.4倍和22.4倍；DRIFT-HSTU训练时间减少37.6%-42.1%，GPU内存减少39.6%-61.1%。",
+        "消融实验表明，去掉近期交叉注意力或全局交叉注意力均降低性能；直接拼接子序列表示在Taobao MM上导致性能崩溃（N@5下降约99%），门控融合显著优于拼接。",
+        "偏好漂移感知子序列学习优于均匀分段和K-means分段。",
+        "序列长度从50增加到1000时，高效全序列模型训练时间最高增加6.9倍和33.9倍，但准确率未获提升；GLASS在序列长度从100增加到1000时Recall@5分别下降7.3%和33.7%。",
+        "子序列数量K方面，两个数据集均在K=20达到最优，K过小或过大都会降低Recall@5。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@20",
+        "NDCG@5",
+        "NDCG@20"
+      ]
+    },
+    "limitations_zh": [
+      "论文未专门展开DRIFT自身的局限性讨论；从表3可见DRIFT-GLASS相对GLASS在Taobao MM上推理时间增加39.24%，GPU内存增加86.64%，部署成本可能上升。",
+      "在Taobao MM上DRIFT-TIGER的NDCG@5和Recall@5（0.1136/0.1261）仍低于GLASS（0.1249/0.1365），说明增益依赖骨干网络和数据分布。",
+      "性能对子序列数量K敏感：K=20最优，K过小可能混合不同偏好，K过大会割裂连贯行为。",
+      "过强的子序列结构正则化会损害性能，损失权重需要调参，最优设置在不同骨干间不一致。",
+      "DRIFT-GLASS相对GLASS虽然训练更快，但GPU内存占用增加，可能限制其在显存受限场景中的直接替换。"
+    ],
+    "method_zh": "DRIFT先将用户序列分为近期序列R和历史序列H。在偏好漂移感知子序列学习中，对每个历史交互构造语义不相似度、特征变化、交互时间间隔、局部类别分布JSD等多维漂移特征，经MLP得到边界分数；再聚合用户级边界统计自适应估计子序列数κ_u，并将边界分数累积为软坐标。通过带有效门控的Gumbel-Softmax软成员权重和线性注意力，将历史项聚合成K个偏好一致的子序列表示S。近期表示由自回归编码器得到后，使用交叉注意力让每个近期项选择性关注相关子序列上下文，抑制偏好不一致噪声；解码端用门控交叉注意力分别关注近期上下文R*和全局子序列上下文S，门控g自适应融合二者。训练损失由任务损失L_task和子序列结构约束L_sub组成，后者包含语义、时间、类别一致性正则。整体时间复杂度为O(LKd)，随历史长度线性扩展。",
+    "problem_zh": "长序列生成式推荐面临准确率与效率难以兼得的问题：高效全序列建模方法随序列长度增加计算成本显著上升，而准确率提升饱和甚至下降；目标感知上下文检索方法依赖单一相似度检索，会引入语义相似但偏好不一致的噪声，并可能遗漏不完整上下文；同时两类方法都忽略了用户偏好的阶段性漂移和子序列间依赖。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.9,
+  "id": "arxiv-2609.12556",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-15T18:57:06.958914Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-11T08:01:29Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出偏好漂移感知的子序列学习与层次化上下文融合方法，用于长序列生成式推荐以提高准确性和计算效率。",
+  "targets": [],
+  "tasks": [],
+  "title": "Preference-Drift-Aware Subsequence Learning and Hierarchical Context Fusion for Long-Sequence Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.12556v1"
+}
