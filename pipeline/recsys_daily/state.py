@@ -45,6 +45,6 @@ def query_window(state: State | dict[str, Any] | None, *, now: datetime | None =
     else:
         last_success = state_value.last_success_at
         assert last_success is not None
-        papers_since = last_success - timedelta(hours=48)
+        papers_since = last_success - timedelta(days=7)
         blogs_since = last_success - timedelta(days=7)
     return QueryWindow(papers_since=papers_since, blogs_since=blogs_since, until=current)

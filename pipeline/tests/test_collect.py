@@ -43,7 +43,7 @@ def test_query_window_uses_cold_start_and_incremental_offsets() -> None:
 
     assert cold.papers_since == datetime(2021, 8, 10, 0, 0, tzinfo=UTC)
     assert cold.blogs_since == datetime(2023, 8, 10, 0, 0, tzinfo=UTC)
-    assert incremental.papers_since == datetime(2026, 8, 7, 0, 0, tzinfo=UTC)
+    assert incremental.papers_since == datetime(2026, 8, 2, 0, 0, tzinfo=UTC)
     assert incremental.blogs_since == datetime(2026, 8, 2, 0, 0, tzinfo=UTC)
 
 

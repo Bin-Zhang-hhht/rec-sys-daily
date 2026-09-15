@@ -139,7 +139,7 @@ GitHub-hosted runner 自带的 Python 标准库，不需要第三个 Docker 镜�
 站点不再维护第二份 label map。Secret 只来自环境变量或 Actions Secrets。
 
 关键默认值：论文/博客每日目标各 10，预筛上限 100/50，深读 shortlist 上限各 20；不存在有效
-state 时查询窗口为论文 5 年、博客 3 年，后续使用 `last_success_at - 48h/7d`。模型为单一
+state 时查询窗口为论文 5 年、博客 3 年，后续论文和博客均使用 `last_success_at - 7d`。模型为单一
 DeepSeek Chat Completions API；不得增加 provider failover、协议回退或客户端 RPM 限制。
 arXiv metadata 采集保持每次请求至少间隔 3 秒，并使用独立的 6 次有界重试；服务端未提供
 `Retry-After` 时从 60 秒开始指数退避、单次最多等待 600 秒，提供该响应头时优先遵循响应值。
