@@ -1,0 +1,114 @@
+{
+  "abstract": "Generative recommendation reformulates item prediction as semantic identifier generation, yet episodic content introduces a fundamentally different setting where the target is determined by narrative evolution rather than user preference. This task requires models to understand multimodal storyline progression while addressing the efficiency challenges caused by redundant visual contexts and costly explicit reasoning generation. We propose \\textbf{NarraLite}, an efficient multimodal generative recommendation framework that jointly compresses perception and reasoning. Specifically, Progressive Spectral Compression selectively distills long visual contexts into compact narrative-relevant evidence, preserving transition-critical information while reducing redundant visual computation. Latent Narrative Reasoning introduces context-routed latent reasoning tokens and aligns their contextualized representations with future continuation semantics, enabling implicit narrative inference without autoregressively decoding textual rationales. We further establish a user-agnostic multimodal benchmark for short-form drama continuation across UGC, PGC, and OOD settings. Extensive experiments demonstrate that NarraLite consistently improves continuation accuracy, narrative coherence, and robustness over existing approaches, while achieving a favorable accuracy--efficiency trade-off. Generative recommendation reformulates item prediction as semantic identifier generation, yet episodic content introduces a fundamentally different setting where the target is determined by narrative evolution rather than user preference. This task requires models to understand multimodal storyline progression while addressing the efficiency challenges caused by redundant visual contexts and costly explicit reasoning generation. We propose \\textbf{NarraLite}, an efficient multimodal generative recommendation framework that jointly compresses perception and reasoning. Specifically, Progressive Spectral Compression selectively distills long visual contexts into compact narrative-relevant evidence, preserving transition-critical information while reducing redundant visual computation. Latent Narrative Reasoning introduces context-routed latent reasoning tokens and aligns their contextualized representations with future continuation semantics, enabling implicit narrative inference without autoregressively decoding textual rationales. We further establish a user-agnostic multimodal benchmark for short-form drama continuation across UGC, PGC, and OOD settings. Extensive experiments demonstrate that NarraLite consistently improves continuation accuracy, narrative coherence, and robustness over existing approaches, while achieving a favorable accuracy--efficiency trade-off.",
+  "arxiv_id": "2609.16070",
+  "authors": [
+    "Chenxing Wang",
+    "Nantao Zheng",
+    "Hao Miao",
+    "Juyuan Wang",
+    "Xinke Jiang",
+    "Yuchen Fang",
+    "Aolin Li",
+    "Haijun Wu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "NarraLite面向短剧、UGC/PGC等情节式内容推荐，可在保持续集准确率的同时降低多模态推理延迟，适合高吞吐内容平台。",
+      "视觉token压缩与潜在推理设计可减少服务端计算资源消耗，对大规模短视频/微短剧推荐系统的成本控制有直接价值。",
+      "用户无关的叙事续集能力可用于基于剧情发展的内容发现、连续观看推荐和未见结局/冷门内容的泛化推荐。",
+      "好的OOD表现意味着模型可在未见过的新故事结局上保持推荐质量，有助于提升平台对新内容和新剧集的承接能力。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出了高效多模态叙事感知生成式推荐问题：目标是预测连贯的故事续集而非基于用户偏好的物品相关性，并识别出冗余视觉感知和显式推理生成两大效率挑战。",
+      "提出了NarraLite框架，包含渐进式谱压缩（PSC），用于保留紧凑且与文本互补的视觉证据；以及潜在叙事推理（LNR），用于建模隐式故事转换而无需生成显式推理链。",
+      "建立了用户无关的多模态短剧续集基准，覆盖UGC、PGC和OOD设置；实验表明NarraLite在续集准确率、叙事连贯性和推理效率上均优于现有方法。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Method"
+      },
+      {
+        "page": 1,
+        "section": "5 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "6 Experimental Results"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BM25",
+        "Dense Retrieval / Vector Retrieval",
+        "SASRec",
+        "GRU4Rec",
+        "BERT4Rec",
+        "EARec",
+        "TIGER",
+        "LETTER",
+        "LatentR3"
+      ],
+      "datasets": [
+        "用户无关的多模态短剧续集基准（Train/Eval/UGC/PGC/OOD，共超过250,000个视频对）"
+      ],
+      "findings_zh": [
+        "NarraLite在所有数据划分上取得最高H@1/H@3/H@5/H@10，例如Eval H@10=0.3933、OOD H@10=0.3090，显著超过Dense Retrieval（0.2569）和生成式基线。",
+        "生成式推荐优于检索式方法；潜在推理与多模态证据互补，NarraLite在UGC、PGC、OOD上均取得最优结果。",
+        "NarraLite在OPSC上全面最优（Eval 0.5904、UGC 0.6367、PGC 0.5579、OOD 0.5506），说明其预测续集在语义连贯的同时避免视觉上的平凡重复。",
+        "消融实验显示移除LNR或PSC均导致性能下降，尤其在OOD和UGC上分别体现潜在叙事推理和多模态视觉证据的必要性。",
+        "超参分析显示K_v=30、K_r=2时Eval性能最优；效率分析显示NarraLite在准确率-吞吐量空间中严格优于不同分辨率下的全帧变体。"
+      ],
+      "metrics": [
+        "H@1/H@3/H@5/H@10",
+        "OPSC (Overlap-Penalized Semantic Coherence)",
+        "Accuracy-throughput trade-off"
+      ]
+    },
+    "limitations_zh": [
+      "文中未设置专门讨论缺点的章节；从方法讨论看，过于激进的视觉压缩可能丢失细微但决定性的叙事线索，需要在保留关键证据与降低计算开销之间权衡。",
+      "潜在叙事token数量较为敏感：单个token容量有限，而增加token可能引入冗余或冲突的推理信号。",
+      "实验主要围绕短剧续集的用户无关多模态基准开展，未在该文中验证用户偏好驱动的传统推荐场景（如长视频或商品推荐）的可迁移性。",
+      "效率结论主要通过与不同分辨率全帧变体的吞吐量对比体现，文中未系统对比显式CoT推理基线的详细延迟开销。"
+    ],
+    "method_zh": "NarraLite包含两个核心组件。渐进式谱压缩（PSC）首先对文本token进行门控池化得到叙事条件并投影到视觉空间；随后对每帧视觉patch做2D DCT，用文本条件生成的频率门控调制后经IDCT重建，再通过相关性打分和跨帧多样性选择（STGumbelTopK）选出K_v个压缩视觉token。潜在叙事推理（LNR）对多模态上下文做均值池化，通过路由器对专家token库进行STGumbel Top-K选择，得到K_r个潜在叙事token；训练时，多模态LLM对前缀与目标SID编码后的潜在位置隐状态，与冻结教师模型编码的后续文本语义做InfoNCE对齐，推理时改为确定性Top-K路由。最终前缀Z=[T;V_c;R]输入多模态LLM，通过trie约束解码自回归生成目标分段的SID。",
+    "problem_zh": "生成式推荐将物品预测重构为语义标识符生成，但情节式内容的推荐目标由叙事发展而非用户偏好决定。该任务需要跨多模态（视觉关键帧与文本描述）理解事件转换并预测语义和时序上连贯的后续片段，同时面临两大效率挑战：长视觉上下文存在大量冗余、显式链式推理会带来额外自回归解码开销。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.905,
+  "id": "arxiv-2609.16070",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-16T18:45:54.070451Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-13T15:04:05Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出NarraLite多模态生成式推荐框架，通过渐进式频谱压缩与潜在叙事推理提升短剧续集推荐的有效性与效率。",
+  "targets": [],
+  "tasks": [],
+  "title": "Efficient Multimodal Generative Recommendation with Latent Narrative Reasoning",
+  "url": "https://arxiv.org/abs/2609.16070v1"
+}

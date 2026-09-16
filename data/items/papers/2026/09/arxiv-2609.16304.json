@@ -1,0 +1,81 @@
+{
+  "abstract": "Large language models (LLMs) are increasingly used for product recommendation, but evaluating their recommendations presents challenges that differ from conventional information retrieval and recommender systems. LLMs can generate recommendations without an explicit candidate set, and repeated responses to the same query can produce different brands and rankings. We introduce a framework for evaluating open-ended LLM brand recommendations that defines the competitive set independently of model outputs and estimates recommendation prevalence and prominence through repeated sampling. We operationalize these constructs using Brand Recommendation Probability (BRP@$k$) and Mean Reciprocal Rank (MRR@$k$), and apply the framework to six LLMs across five product categories. Category-only queries reveal substantial omission of established brands and limited evidence that recommendation prominence follows conventional brand popularity. Instead, prominence is associated with broader marketplace-visibility signals, particularly search interest and online brand conversation. Needs-based queries show that contextualizing users' goals and constraints changes which brands are retrieved, while diagnostic positioning probes demonstrate that brands omitted from ordinary recommendations can remain conditionally retrievable when distinctive cues are supplied. These findings highlight the need to evaluate LLM recommendation as a stochastic retrieval-and-ranking process rather than from individual generated lists. We provide open-source software and data to support reproducible evaluation of LLM-generated brand recommendations. Large language models (LLMs) are increasingly used for product recommendation, but evaluating their recommendations presents challenges that differ from conventional information retrieval and recommender systems. LLMs can generate recommendations without an explicit candidate set, and repeated responses to the same query can produce different brands and rankings. We introduce a framework for evaluating open-ended LLM brand recommendations that defines the competitive set independently of model outputs and estimates recommendation prevalence and prominence through repeated sampling. We operationalize these constructs using Brand Recommendation Probability (BRP@$k$) and Mean Reciprocal Rank (MRR@$k$), and apply the framework to six LLMs across five product categories. Category-only queries reveal substantial omission of established brands and limited evidence that recommendation prominence follows conventional brand popularity. Instead, prominence is associated with broader marketplace-visibility signals, particularly search interest and online brand conversation. Needs-based queries show that contextualizing users' goals and constraints changes which brands are retrieved, while diagnostic positioning probes demonstrate that brands omitted from ordinary recommendations can remain conditionally retrievable when distinctive cues are supplied. These findings highlight the need to evaluate LLM recommendation as a stochastic retrieval-and-ranking process rather than from individual generated lists. We provide open-source software and data to support reproducible evaluation of LLM-generated brand recommendations.",
+  "arxiv_id": "2609.16304",
+  "authors": [
+    "Edward Malthouse",
+    "Kun-Yu Lee",
+    "Jing Yang",
+    "Sanchary Pal",
+    "Xueyan Feng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "品牌在LLM推荐中的可见性不等同于传统品牌力，企业需关注搜索兴趣与在线口碑等市场可见性信号。",
+      "成熟品牌可能被系统性遗漏，提示品牌需优化在LLM检索中的存在感。",
+      "用户需求描述会改变被推荐的品牌，商家可通过场景化内容和定位线索提升被检索概率。",
+      "品牌即使未出现在常规推荐中，也可能通过独特定位线索被唤起，体现品牌定位资产的价值。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出一个独立于模型输出定义竞争集的评估框架，通过重复采样估计推荐普遍性与突出性。",
+      "将上述构念可操作化为BRP@k和MRR@k，并在六个LLM、五个产品类别上应用。",
+      "发现类别级查询中成熟品牌被大量遗漏，且推荐突出性更与搜索兴趣和在线品牌讨论等市场可见性信号相关，而非传统品牌热度。",
+      "通过需求型查询和诊断性定位探针展示品牌检索如何随用户目标、约束和提示线索变化。",
+      "提供开源软件与数据以支持可复现评估。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "提供来源未报告显式基线"
+      ],
+      "datasets": [
+        "六个LLM在五个产品类别上的推荐输出（提供来源未给出具体类别名称）"
+      ],
+      "findings_zh": [
+        "仅类别查询会大量遗漏成熟品牌。",
+        "推荐突出性遵循传统品牌热度的证据有限；突出性更与搜索兴趣和在线品牌讨论相关。",
+        "需求型查询加入用户目标和约束会改变被检索的品牌。",
+        "诊断性定位探针表明，常规推荐中缺失的品牌在提供独特线索时仍可有条件地被检索。",
+        "评估应把LLM推荐视为随机检索-排序过程，而非依赖单次生成列表。"
+      ],
+      "metrics": [
+        "Brand Recommendation Probability (BRP@k)",
+        "Mean Reciprocal Rank (MRR@k)"
+      ]
+    },
+    "limitations_zh": [
+      "提供来源仅为摘要，未包含完整论文中的局限性讨论、具体实验设置、数据集名称或更细粒度的结果细节。"
+    ],
+    "method_zh": "作者将开放式品牌推荐视为随机检索-排序过程：竞争集独立于模型输出定义；对同一查询重复采样以估计品牌被推荐的概率（BRP@k）和排序质量（MRR@k）；比较仅含类别的查询与包含用户需求和约束的查询，并使用诊断性定位探针测试品牌在常规推荐之外是否仍可有条件检索。",
+    "problem_zh": "大语言模型（LLM）越来越多地用于产品推荐，但在没有显式候选集的情况下评估其开放式品牌推荐存在挑战；对同一查询重复生成可能产生不同品牌和排序，因此需要新的评估框架。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.6575000000000001,
+  "id": "arxiv-2609.16304",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-16T18:45:54.070451Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-14T20:09:12Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出评估LLM开放品牌推荐随机检索与排序表现的框架，属于推荐系统评估研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Evaluating Brand Retrieval and Ranking in Large Language Model Recommendations",
+  "url": "https://arxiv.org/abs/2609.16304v1"
+}

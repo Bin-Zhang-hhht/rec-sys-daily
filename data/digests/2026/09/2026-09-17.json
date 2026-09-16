@@ -1,0 +1,41 @@
+{
+  "blogs": [],
+  "date": "2026-09-17",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.16070",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出NarraLite多模态生成式推荐框架，通过渐进式频谱压缩与潜在叙事推理提升短剧续集推荐的有效性与效率。"
+    },
+    {
+      "item_id": "arxiv-2609.16850",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出ASC和K-ASC算法，用于大规模推荐系统中高效计算Swing分数以支持i2i召回，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2609.16625",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出AURA智能体系统，用于生产推荐系统的定性评估与代码级算法改进，属于推荐系统工程内容。"
+    },
+    {
+      "item_id": "arxiv-2609.16452",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出PCap框架，在Facebook Marketplace检索阶段加入个性化多样性约束以提升用户体验，属于推荐系统工程实践。"
+    },
+    {
+      "item_id": "arxiv-2609.16560",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出ReliGRec，一种基于用户风险感知提示路由的可靠性导向LLM生成式推荐方法，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2609.17391",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出FlashVector，一个优化推荐系统模型服务栈各层性能的智能体系统，属于推荐系统工程内容。"
+    },
+    {
+      "item_id": "arxiv-2609.16304",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出评估LLM开放品牌推荐随机检索与排序表现的框架，属于推荐系统评估研究。"
+    }
+  ]
+}

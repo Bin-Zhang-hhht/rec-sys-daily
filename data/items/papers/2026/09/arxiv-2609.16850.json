@@ -1,0 +1,134 @@
+{
+  "abstract": "Given a user-item graph $G$, a query item $v_q$ and a target item $v_t$, the Swing score $sw(v_q, v_t)$ of the item pair $(v_q, v_t)$ leverages the user-item-user interaction structure to evaluate their similarity. This measure is found to be highly effective in item-to-item (i2i) retrieval task and finds extensive applications in industrial-scale recommender systems. However, existing solutions towards computing Swing scores are either prohibitively expensive due to their quadratic time complexity w.r.t. the item degree, or rely on truncation heuristics that yield unsatisfactory quality, rendering them impractical particularly on graphs with billions of interactions. In this paper, we present ASC and $K$-ASC, two novel and efficient algorithms for approximate and top-$K$ Swing queries, to address the aforementioned limitations. Specifically, these algorithms provide rigorous theoretical guarantees in probabilistic relative and additive errors of Swing values. The basic idea of ASC is to combine two randomized algorithms, GNS and USS, in a simple yet non-trivial way to adaptively process high- and low-degree query items with minimal runtime cost. In particular, $K$-ASC offers practical efficiency and effectiveness for top-$K$ queries through a filter-refinement paradigm with carefully-designed heuristics. Extensive experiments over eight real datasets demonstrate that ASC and $K$-ASC can achieve orders of magnitude speed-up over competitors in terms of computational time while offering the same approximate and top-$K$ query result quality, and in particular, $K$-ASC is highly efficient on massive graphs including the billion-edge Yambda and MAG datasets. Given a user-item graph $G$, a query item $v_q$ and a target item $v_t$, the Swing score $sw(v_q, v_t)$ of the item pair $(v_q, v_t)$ leverages the user-item-user interaction structure to evaluate their similarity. This measure is found to be highly effective in item-to-item (i2i) retrieval task and finds extensive applications in industrial-scale recommender systems. However, existing solutions towards computing Swing scores are either prohibitively expensive due to their quadratic time complexity w.r.t. the item degree, or rely on truncation heuristics that yield unsatisfactory quality, rendering them impractical particularly on graphs with billions of interactions. In this paper, we present ASC and $K$-ASC, two novel and efficient algorithms for approximate and top-$K$ Swing queries, to address the aforementioned limitations. Specifically, these algorithms provide rigorous theoretical guarantees in probabilistic relative and additive errors of Swing values. The basic idea of ASC is to combine two randomized algorithms, GNS and USS, in a simple yet non-trivial way to adaptively process high- and low-degree query items with minimal runtime cost. In particular, $K$-ASC offers practical efficiency and effectiveness for top-$K$ queries through a filter-refinement paradigm with carefully-designed heuristics. Extensive experiments over eight real datasets demonstrate that ASC and $K$-ASC can achieve orders of magnitude speed-up over competitors in terms of computational time while offering the same approximate and top-$K$ query result quality, and in particular, $K$-ASC is highly efficient on massive graphs including the billion-edge Yambda and MAG datasets.",
+  "arxiv_id": "2609.16850",
+  "authors": [
+    "Runhao Jiang",
+    "Renchi Yang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可将亿级边的 i2i 检索从数秒或数小时的精确 Swing 计算压缩到毫秒级响应，使 Swing 类候选生成更适合在线或近在线推荐场景。",
+      "降低对大规模 MapReduce 集群的依赖，使单节点也能完成高热度物品的 Swing top-K 查询，从而减少基础设施和计算成本。",
+      "由于 Swing 已在阿里巴巴、快手、Shopee 等工业平台用于冷启动、直播送礼预测、广告推荐和商品图构建，本文算法的直接加速可提升这些下游业务的可扩展性和更新频率。",
+      "为图神经网络推荐系统构建商品图、查询改写、个性化搜索和广告召回等环节提供更快的近似物品相似度计算，支撑更多实时应用。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "形式化定义了 (ε, λ)-近似 Swing 查询，为高 Swing 值目标提供相对误差保证、为低值目标提供加性误差保证，并通过实证指出 Exact 和 Naïve-MC 的瓶颈主要来自集合交集计算。",
+      "提出 GNS（分组朴素采样）与 USS（用户子集采样）两个互补的随机估计算法：GNS 通过合并重复用户对减少冗余集合交集，USS 通过只计算交集基数并配合采样子集避免昂贵交集物化。",
+      "提出 ASC 自适应框架，基于经验成本模型在 GNS 与 USS 之间为每个查询物品选择更低运行时开销的估计器，并保持相同的近似保证。",
+      "提出 K-ASC 过滤-精化框架用于 top-K Swing 查询：先用少量样本贪心生成候选及边界物品，再利用剩余采样预算精化边界物品，显著降低高热度物品上的 top-K 查询开销。",
+      "设计了 QFilter++，在 BSR 压缩表示上加速集合交集与交集基数计算，并在 8 个真实数据集上验证了 ASC/K-ASC 相比基线的数量级加速。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Preliminaries"
+      },
+      {
+        "page": 1,
+        "section": "3 The ASC Algorithm"
+      },
+      {
+        "page": 1,
+        "section": "4 The K-ASC Algorithm"
+      },
+      {
+        "page": 1,
+        "section": "6 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "6.3 Top-K Query Performance"
+      },
+      {
+        "page": 1,
+        "section": "6.4 Item-to-item Retrieval Performance"
+      },
+      {
+        "page": 1,
+        "section": "6.5 Component Analysis"
+      },
+      {
+        "page": 1,
+        "section": "6.7 Correctness-Efficiency Trade-off of K-ASC"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Exact",
+        "Truncated",
+        "Naïve-MC",
+        "GNS",
+        "USS",
+        "All-Pairs",
+        "WHIMP"
+      ],
+      "datasets": [
+        "MovieLens",
+        "Gowalla",
+        "AmazonBook",
+        "SteamGame",
+        "MIND",
+        "Twitch",
+        "Yambda",
+        "MAG"
+      ],
+      "findings_zh": [
+        "ASC 在全部 8 个数据集和所有 ε 设置下均取得最佳近似查询效率；在 Yambda 和 MAG 上，当 ε=0.02 时相对 Exact 可达约 100 倍加速。",
+        "K-ASC 在 MAG 上实现 top-100 平均精度超过 99.9%，查询时间约 1.5ms，而精确方法需 8.5 秒；在 Yambda 上实现超过 99.97% 的 top-K 精度，同时查询时间相比 Exact 降低超过两个数量级。",
+        "与 ASC 相比，K-ASC 在 Yambda 上进一步减少约 5 倍查询时间，在 MAG 上约快 2 倍；在小图如 MIND/Twitch 上，K-ASC 相对 ASC 也分别约有 5 倍和 8 倍加速。",
+        "在 i2i 检索实验中，精确 Swing 的 Recall@K 与最强基线相当，K-ASC 在 MAG 上可在保留约 99% 召回率的情况下获得超过 4000 倍的端到端加速。",
+        "QFilter++ 相对优化过的 hashmap 集合交集实现一致更快，最高约 2.3 倍；仅计算交集基数而不物化结果可带来最高约 3.6 倍的加速。",
+        "K-ASC 的自适应精化组件（Algorithm 8）在相近高精度的条件下相比 ASC 稳定提升效率，在 Twitch 上约一个数量级，在 Yambda 上为 4.7–10.5 倍。"
+      ],
+      "metrics": [
+        "query running time",
+        "Precision@K",
+        "average relative error (Error@K)",
+        "Recall@K"
+      ]
+    },
+    "limitations_zh": [
+      "K-ASC 本身是面向 top-K 查询的启发式方法，不提供 top-K 结果正确性证明；具备正确性保证的 C-KASC 需要大幅更多样本以分离第 K 与第 K+1 项，运行时间显著增加。",
+      "方法对参数较敏感：β 对运行时间影响较大，ε 与 β 的最优配置需要按数据集、查询类型和 K 进行网格搜索；论文主要给出经验默认值而非严格的自动调参方案。",
+      "USS 和 ASC 在渐近复杂度上并未改变 Exact 的阶数，只是降低常数因子；在较小图上两者自然收敛到 Exact，收益有限。",
+      "实验为单节点评测；论文仅以讨论方式说明可通过分片部署扩展到更大规模，并未提供相应实证结果。",
+      "K-ASC 的边界识别依赖经验 Bernstein 不等式和启发式上下界；当候选边界分数非常接近时，可能影响最终排名的精度保证。"
+    ],
+    "method_zh": "ASC 以二部图 G=(U∪I,E) 为基础：GNS 按式(4)确定样本数 n，从 U(v_q) 中采样用户对并记录去重后的频次，再对每个不重复用户对做一次集合交集并用频次加权更新近似 Swing 值；USS 在枚举用户对时只对较短邻接表的一侧以比例 γ 采样，用 QFilter++ 的交集基数计算估计贡献，从而避免完整交集物化。ASC 使用式(6)所示经验成本模型，在 T_USS 与 T_GNS 之间动态选择较快者。K-ASC 在 GNS 被选择时，将样本预算分成 n_f=βn 和 n_r=n-n_f 两部分：先用 n_f 个样本运行 GNS 的增量版本（Algorithm 7），维护每个目标的经验均值、经验方差和 Bernstein 置信界，选出 top-(K+κ) 候选集 T 以及可能落入/掉出 top-K 的边界集合 B；然后用 n_r 个样本调用 Algorithm 8 对 B 中物品做针对性精化，支持精确枚举或采样估计两种模式；最后按最新估计分数对 T 排序得到 top-K 结果。",
+    "problem_zh": "在大规模用户-物品二部图上计算 Swing 相似度的开销极高：精确计算的复杂度约为 O(d(v_q)^2 · d̄)，在高热度物品上需要枚举海量用户对，在数十亿边数据集上单查询可能耗时数小时甚至不可行；现有方案要么依赖截断启发式（如将用户数限制为 600），导致结果质量下降，要么需要大规模分布式计算资源。本文研究带 (ε, λ) 相对/加性误差保证的近似 Swing 计算及 top-K Swing 查询问题。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8674999999999999,
+  "id": "arxiv-2609.16850",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-16T18:45:54.070451Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-15T08:42:59Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出ASC和K-ASC算法，用于大规模推荐系统中高效计算Swing分数以支持i2i召回，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Efficient Swing Computation for Retrieval in Large-Scale Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.16850v1"
+}

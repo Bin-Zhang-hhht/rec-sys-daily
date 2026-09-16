@@ -1,0 +1,123 @@
+{
+  "abstract": "How and why does a recommender system fail the users it serves? Oftentimes, practitioners are left to improve their algorithms based on a combination of feedback from stakeholder teams, domain expertise, and insights from data analyses. Yet the nuances of how and where recommendations perform well or poorly for end users are difficult to discern from aggregate quantitative metrics. Whereas these metrics provide a high-level and incomplete picture, further granularity into the quality of recommendations and their patterns requires reasoning with domain understanding and objectivity, at scale. We contemplate this complex conundrum and describe a method and implementation that uses the latest AI agentic advances to provide actionable diagnoses and improvements for production recommender systems. We present AURA (Agentic Understanding and Refinement of recommender Algorithms), an end-to-end agentic system that performs qualitative evaluation at scale and can then generate improvements to our algorithms at the code level. Specialized agents read production engagement logs, from thousands of sessions to millions, and surface patterns and examples of how the recommender fails real users. The next step uses those diagnoses and context about the recommender's own code, data, and training pipeline to propose and implement refinements grounded in that codebase. We report the system design, initial tests on production data from two large consumer platforms at a major media-streaming company, safeguards, operational learnings, and early results toward a self-improving recommender system. Finally, the diagnostic gap AURA closes is not specific to streaming. The architecture is built to transfer: every domain-specific element enters through the configuration layer that already ported it between our two platforms. We map it concretely to e-commerce and online-retail recommendation. How and why does a recommender system fail the users it serves? Oftentimes, practitioners are left to improve their algorithms based on a combination of feedback from stakeholder teams, domain expertise, and insights from data analyses. Yet the nuances of how and where recommendations perform well or poorly for end users are difficult to discern from aggregate quantitative metrics. Whereas these metrics provide a high-level and incomplete picture, further granularity into the quality of recommendations and their patterns requires reasoning with domain understanding and objectivity, at scale. We contemplate this complex conundrum and describe a method and implementation that uses the latest AI agentic advances to provide actionable diagnoses and improvements for production recommender systems. We present AURA (Agentic Understanding and Refinement of recommender Algorithms), an end-to-end agentic system that performs qualitative evaluation at scale and can then generate improvements to our algorithms at the code level. Specialized agents read production engagement logs, from thousands of sessions to millions, and surface patterns and examples of how the recommender fails real users. The next step uses those diagnoses and context about the recommender's own code, data, and training pipeline to propose and implement refinements grounded in that codebase. We report the system design, initial tests on production data from two large consumer platforms at a major media-streaming company, safeguards, operational learnings, and early results toward a self-improving recommender system. Finally, the diagnostic gap AURA closes is not specific to streaming. The architecture is built to transfer: every domain-specific element enters through the configuration layer that already ported it between our two platforms. We map it concretely to e-commerce and online-retail recommendation.",
+  "arxiv_id": "2609.16625",
+  "authors": [
+    "SungGeun Kim",
+    "Abhinav Narain",
+    "Daniel Nemirovsky"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可将推荐团队从“指标下降却不知道原因”转变为获得按严重度排序、附原始会话证据的失败分类与根因假设，显著减少手工切片、临时SQL和逐会话检视成本。",
+      "AURA自身成本只占端到端评估的1-8%，相当于以很低边际成本叠加在现有逐会话评估之上，使大规模定性评估在业务上可负担。",
+      "通过“结构化证据+工程师审查界面+命名负责人+允许驳回”机制，企业可以在不直接信任LLM结论的前提下利用agentic诊断，降低生产代码被错误建议破坏的风险。",
+      "对电商/零售推荐具有直接迁移价值：过度推荐高毛利商品给价格敏感用户、长尾商品被埋没、年龄限制商品合规、重复列表等问题与流媒体失败模式同构，可复用同一架构和配置层。",
+      "运营经验表明，早期锁定类别词表能显著减少标签漂移和人工清理成本；把每步成本显示在界面中有助于业务方为每次诊断运行做成本决策。",
+      "离线闭环验证可以低成本否决“看起来合理但实际无效”的修复（如论文中的两种genre修复），避免浪费昂贵且高风险的A/B测试槽位。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出AURA，一个端到端智能体系统，能够大规模读取生产推荐会话并生成带证据的失败分类、根因假设和代码级改进建议，首次将基于证据的失败分类法置于智能体评估与代码级精修之间。",
+      "构建了四阶段流水线：会话选择、诊断与大规模定性评估、根因假设与技术方案、代码实现（目前输出到经工程师审查的pull request），并加入验证、工程师审查和跨轮记忆机制。",
+      "在某大型媒体公司的两个流媒体平台（Platform A、Platform B）生产数据上实现了部署，通过架构修复和提示词修订将六阶段rubric总分从15/25提升到23/25、从17/25提升到24/25，并区分了架构改进与提示词改进各自的贡献。",
+      "总结了可迁移的运营经验：初始探索后锁定类别词表明显优于开放式分类，结构化证据比叙述性解释更能建立工程师信任；并设计了只读数据访问、沙箱代码修改、命名工程师负责制、允许驳回等安全机制。",
+      "核心代码与领域语义解耦，平台间迁移只改配置层；论文将流媒体实例的会话、judge、失败类别和代码库逐项映射到电商/零售推荐场景，说明电商可按配置方式接入。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3. System Architecture"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Diagnostic Quality"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Cost-Effectiveness"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Cross-Platform Generalizability"
+      },
+      {
+        "page": 1,
+        "section": "5 Deployment and Lessons"
+      },
+      {
+        "page": 1,
+        "section": "6 Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "生产克隆baseline（global offline metrics comparison）",
+        "开放式分类baseline（open-ended classification）",
+        "仅百分比阈值保留规则（percentage-only retention rule）"
+      ],
+      "datasets": [
+        "Platform A生产推荐会话：共96,801个会话，其中18,901个被上游逐会话judge标记为BAD（约19.5%）",
+        "Platform B生产推荐会话：共101,594个会话，其中4,154个被标记为BAD（约4.1%）",
+        "用于校验upstream judge的约200/201个会话分层验证样本（两平台）",
+        "用于离线修复验证的Platform B Genre Preference Mismatch队列（1,911个会话）"
+      ],
+      "findings_zh": [
+        "六个架构修复加定向提示修订将rubric总分从15/25提升到23/25（Platform A）、从17/25提升到24/25（Platform B），且大多数质量提升来自架构级修复而非提示词工程，例如category analysis缺少会话百分比字段的问题仅靠加字段即可同时修复两个平台。",
+        "封闭分类法（显式枚举类别并禁止自造类别）明显优于开放式分类：Platform B从30+重叠类别收敛到13个定义类别，后处理缩减为一次改名、零合并；Platform A的12个emergent tags被整合为8个类别且无诊断损失。",
+        "两平台最终诊断均将Genre Preference Mismatch列为占比最大的失败类别，但具体表现不同（Platform A表现为子类型/特许经营偏好错配，Platform B表现为基调与感受错配），说明流水线发现的是平台特有模式而非泛化抱怨；Platform A还自检出上游judge把250个会话判错。",
+        "针对Genre Preference Mismatch提出的两种候选修复（用户-类型×候选-类型交叉特征、候选感知注意力机制）在目标队列上均未带来排序提升，离线全局指标与生产克隆baseline相差±0.1%以内，说明离线闭环筛选能以低成本否决无效修复。",
+        "成本方面，上游逐会话judge占端到端开销的92-99%，AURA自身聚合分析约占Platform A的8%、Platform B的1%；每个可行动发现的聚合诊断成本不超过$5.38，端到端每个发现约$43-50。",
+        "核心pipeline在两个独立schema、内容库、模型和用户群的平台上无需改动即可复用，并通过配置层将流媒体会话/judge/失败类别映射到电商场景（如品类与价格亲和错配、品牌亲和错配、年龄限制商品合规、缺货/季节性陈旧、重复列表等）。"
+      ],
+      "metrics": [
+        "六阶段25项二分rubric总分（每项GOOD/BAD，由Gemini 3.1 Pro和GPT-5.5双人判定）",
+        "LLM-judge面板多数同意率：Platform A 96.0%（192/200），Platform B 87.6%（176/201）",
+        "端到端成本：Platform A $349.26，Platform B $252.85；其中AURA自身占8.1%和1.0%",
+        "离线全局指标变化：Click AUC、WM AUC、WM weighted AUC、NDCG@10，均在±0.1%以内",
+        "Token用量与运行时长：Platform A分类41.8M tokens、端到端1,554分钟；Platform B分类369K tokens、端到端965分钟"
+      ]
+    },
+    "limitations_zh": [
+      "AURA输出的是根因假设而非正式因果推断；需要工程师依据抽样会话、schema和代码引用进行人工验证后才能承诺修改。",
+      "两种genre修复在离线目标队列上均未证明有效，属于尚未被验证的开放候选，论文没有展示在线A/B验证结果。",
+      "诊断质量依赖上游逐会话judge，而judge校验仅是校准检查而非硬真值；由于Platform B的prompt中途修订过，两平台的BAD率（19.5% vs 4.1%）不可直接比较。",
+      "尚未进行留出的人类审计或与外部baseline的对比，自动化训练、离线评估和A/B闭环也仍是规划中的扩展而非已部署能力。",
+      "封闭分类法具有脆弱性：当Platform A类别数据库被清空时，限制性提示词会把所有会话压到两个类别，直到taxonomy重新嵌入才恢复。",
+      "电商映射仍是概念性对应，论文未报告电商部署或电商数据上的实验结果。"
+    ],
+    "method_zh": "AURA是四阶段agentic流水线。第一阶段为会话选择：结合随机/分层采样、工程师编写的域SQL和多个LLM筛选agent，识别待诊断的会话群组，经去重和多数投票排序。第二阶段为诊断与定性评估：以LLM-judge范式按可配置质量准则对每个会话给出GOOD/BAD判定，并通过层次化聚合（classification→consolidation→sampling→analysis→verification→synthesis）在数十万到上百万会话规模上生成按严重度分层的失败/成功类别，附证据与根因假设。第三阶段为假设与技术方案：读取推荐系统自身的代码、特征、训练流水线和数据schema，将诊断发现与具体组件关联，产出结构化技术方案，并明确强调这是根因假设而非正式因果推断。第四阶段为代码实现：采用generate-evaluate-refine循环，由另一模型对建议进行正确性/可行性/副作用评分，再以程序化校验文件路径、导入和引用是否存在，最终生成供工程师审查的pull request。验证、工程师审查与记忆贯穿各阶段，平台差异全部通过配置层注入。",
+    "problem_zh": "推荐系统的聚合评价指标（如AUC、NDCG、精确率/召回率）只能说明模型在平均意义上是否变好，却会掩盖特定用户、物品或场景下的定性失败，例如不当内容曝光、多样性崩塌、个性化退化和时间陈旧性。工程师面对指标回归时往往不知道问题出在哪个地区、哪个用户群或哪条内容槽，而人工定性分析（切片、临时查询、逐会话查看）规模小且依赖领域知识，难以在生产规模上发现和定位问题。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.841,
+  "id": "arxiv-2609.16625",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-16T18:45:54.070451Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-15T04:38:06Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出AURA智能体系统，用于生产推荐系统的定性评估与代码级算法改进，属于推荐系统工程内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "AURA: Agentic Diagnosis and Refinement for Production Recommender Systems at Scale",
+  "url": "https://arxiv.org/abs/2609.16625v1"
+}

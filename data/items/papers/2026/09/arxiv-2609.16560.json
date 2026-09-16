@@ -1,0 +1,134 @@
+{
+  "abstract": "User behavior in real-world recommender systems is heterogeneous. While some users exhibit coherent preferences, others show abrupt interest shifts, bursty interactions, excessive repetition, or inconsistency with collaborative neighborhoods. Such deviations may arise from benign variation or manipulation, including shilling attacks, but do not alone establish malicious intent. Existing robust recommenders exploit user-risk signals through training-time reweighting or graph aggregation, whereas adapting generation to estimated user-level weak risk remains underexplored in LLM-based generative recommendation. We propose ReliGRec (Reliability-oriented Generative Recommendation), a weakly supervised framework whose name denotes its design goal rather than a supervised reliability variable. ReliGRec derives user-level weak-risk proxy labels from review-feedback signals for a subset of users and represents sequential behavior and collaborative context using a Behavior Token and temporal Graph Tokens, respectively. A Dual-View Weak-Risk Estimator fuses the representations to produce a user-level weak-risk score that selects a Simple or Cautious Prompt at inference. The Cautious Prompt is designed to encourage attention to stable, collaboratively supported evidence while reducing overreliance on isolated, short-term, or repeated interactions. The Behavior Token affects generation through weak-risk estimation and routing, whereas the aggregated Graph Token provides collaborative context for next-item Semantic ID generation. ReliGRec thus turns weak-risk estimation from an auxiliary prediction into a generation-time control signal. Experiments report competitive recommendation and weak-risk proxy-label prediction, while routing analyses characterize the recommendation-quality and inference-cost behavior of weak-risk-guided prompting. User behavior in real-world recommender systems is heterogeneous. While some users exhibit coherent preferences, others show abrupt interest shifts, bursty interactions, excessive repetition, or inconsistency with collaborative neighborhoods. Such deviations may arise from benign variation or manipulation, including shilling attacks, but do not alone establish malicious intent. Existing robust recommenders exploit user-risk signals through training-time reweighting or graph aggregation, whereas adapting generation to estimated user-level weak risk remains underexplored in LLM-based generative recommendation. We propose ReliGRec (Reliability-oriented Generative Recommendation), a weakly supervised framework whose name denotes its design goal rather than a supervised reliability variable. ReliGRec derives user-level weak-risk proxy labels from review-feedback signals for a subset of users and represents sequential behavior and collaborative context using a Behavior Token and temporal Graph Tokens, respectively. A Dual-View Weak-Risk Estimator fuses the representations to produce a user-level weak-risk score that selects a Simple or Cautious Prompt at inference. The Cautious Prompt is designed to encourage attention to stable, collaboratively supported evidence while reducing overreliance on isolated, short-term, or repeated interactions. The Behavior Token affects generation through weak-risk estimation and routing, whereas the aggregated Graph Token provides collaborative context for next-item Semantic ID generation. ReliGRec thus turns weak-risk estimation from an auxiliary prediction into a generation-time control signal. Experiments report competitive recommendation and weak-risk proxy-label prediction, while routing analyses characterize the recommendation-quality and inference-cost behavior of weak-risk-guided prompting.",
+  "arxiv_id": "2609.16560",
+  "authors": [
+    "Haoran Yang",
+    "Fei Chen",
+    "Yutian Xiao",
+    "Jiahao Liang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商或内容平台，ReliGRec提供一种在生成前按用户弱风险切换提示词的机制，可用于对历史模式偏离常规的用户采用更谨慎的生成策略；但论文证据显示弱风险路由并未比统一Simple提示带来更高推荐指标，因此当前价值主要在可控性与稳健性，而非直接准确率提升。",
+      "弱风险标签可由平台已有的评论反馈信号（如Beauty的helpful/total，Yelp的useful/(useful+funny+cool)）构造，企业可用弱监督方式覆盖部分用户，降低对人工恶意标注的依赖。",
+      "推理成本上，弱风险路由每用户0.479秒低于All-Cautious的0.548秒但高于All-Simple的0.460秒，表明风险路由不会像全谨慎策略那样大幅增加成本，但仍比统一简单提示略贵；实际部署需权衡质量与算力。",
+      "由于Cautious路由比例66.9%不可解释为高风险用户占比，业务上不能直接据此估算异常或攻击用户规模，需额外做校准。",
+      "若未来路由策略在真实场景被证明有效，可被用于对操纵或异常交互更敏感的用户提供更稳定的推荐；但论文未报告收入、留存等业务指标，商业收益仍待验证。"
+    ],
+    "business_transferability": 0.42,
+    "contributions_zh": [
+      "提出用户级弱风险感知的生成控制方向：在解码前用用户级弱风险选择提示策略，并区分于训练期风险加权和输出端不确定性处理。",
+      "提出ReliGRec框架，集成行为表征与时间协同图表征、双视图用户级弱风险估计、Simple/Cautious提示路由，以及Graph Token条件下的Semantic ID生成。",
+      "在Beauty和Yelp上开展实验，报告推荐性能与弱风险代理标签预测，并刻画弱风险引导提示路由在推荐质量和推理成本上的行为。"
+    ],
+    "evidence_quality": 0.62,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Problem Definition"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Overall Performance (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "Weak-Risk Estimation (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "Prompt-Routing Analysis (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "Graph-Conditioning and Temporal-Aggregation Ablation (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "LightGCN",
+        "SASRec",
+        "LETTER-LC-Rec",
+        "LETTER-TIGER",
+        "GraphRfi",
+        "PGT4Rec"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Yelp2018"
+      ],
+      "findings_zh": [
+        "在Beauty上ReliGRec的H@1、H@5、H@10、N@5、N@10均最好；相比最强基线LETTER-TIGER分别提升54.67%、19.24%、8.93%、27.28%、19.29%。在Yelp上H@1为0.00540，与LETTER-TIGER并列最好，其余四个指标排名第二，差距为0.12%–1.87%。",
+        "弱风险代理标签预测中，ReliGRec在Beauty和Yelp的AUPRC、AUROC、F1均最好；AUPRC从0.2187/0.1990提升到0.2633/0.2990，AUROC从0.4897/0.5311提升到0.5818/0.6550。",
+        "Beauty弱风险输入消融显示，Graph+Behavior融合取得最好AUPRC 0.2631、AUROC 0.5817、F1 0.3651；仅Behavior在AUPRC/AUROC上高于仅Graph，但仅Graph的固定阈值F1更高，说明两视图互补。",
+        "Prompt路由分析中，弱风险路由N@10为0.0370，高于All-Cautious的0.0360但低于All-Simple的0.0379；整体和高代理偏差组的N@10落入同比例随机路由的95%区间；端到端耗时分别为All-Simple 0.460、All-Cautious 0.548、弱风险路由0.479秒/用户。当前证据支持弱风险提示选择，但不能证明其推荐质量优于最强统一策略或非信息随机路由。",
+        "图条件消融显示，Beauty上Graph Token条件化较仅历史生成提升H@5 2.78%、H@10 1.58%、N@5 4.65%、N@10 3.84%；静态Graph Token也超过仅历史生成，时间聚合在排序指标上未一致优于静态，但时间Graph Token对弱风险代理预测更有利（AUPRC 0.2631 vs 0.2313、AUROC 0.5817 vs 0.5299、F1 0.3651 vs 0.2826）。"
+      ],
+      "metrics": [
+        "Hit@1",
+        "Hit@5",
+        "Hit@10",
+        "NDCG@5",
+        "NDCG@10",
+        "AUPRC",
+        "AUROC",
+        "F1",
+        "平均输入token数",
+        "每测试实例推理延迟",
+        "Cautious路由比例"
+      ]
+    },
+    "limitations_zh": [
+      "路由分析未证明弱风险引导相比All-Simple或同比例随机路由带来推荐质量提升，结论仅是实现了基于弱风险的提示选择。",
+      "弱风险分数以正类加权BCE训练且未校准，固定阈值τ=0.5是操作截断，66.9%的Cautious路由比例不能解释为高代理偏差用户占比。",
+      "Yelp上ReliGRec仅H@1并列最好，其余四指标第二；所有结果为seed 42下的点估计，论文未声称跨方法小差异具有统计显著性。",
+      "报告指标衡量与用户级弱风险代理标签的一致性，而非已验证欺诈检测性能；标签来自评论反馈投票阈值，不代表确证恶意身份。",
+      "表3比较的是完整系统，无法分离路由、图条件化、tokenizer与backbone差异的独立贡献。",
+      "受控运行中，时间聚合Graph Token在排序指标上未统一优于静态快照，仅在该运行中更利于弱风险代理标签预测。",
+      "代理标签仅覆盖部分有标签用户，其余用户不参与弱风险损失；弱风险估计与推荐联合训练，但硬路由决策未被推荐损失直接优化。"
+    ],
+    "method_zh": "ReliGRec先用RQ-VAE构造分层Semantic ID；行为路径用带padding mask的Transformer编码最近L_u个交互得到Behavior Token；协同路径将交互划分为K个重叠时间窗口、构建用户-物品二部图，用共享图编码器和时间Transformer聚合得到Graph Token。Dual-View Weak-Risk Estimator将Behavior Token与聚合Graph Token投影到共享空间并拼接，经两层MLP得到弱风险分数s_u=σ(a_u)，用正类加权二元交叉熵训练。训练时高代理偏差标签用户使用Cautious Prompt，其余使用Simple Prompt；推理时s_u≥0.5路由到Cautious Prompt。聚合Graph Token经两层投影注入LLM隐藏空间，与历史Semantic ID和选定提示词共同输入Qwen2.5-1.5B-Instruct（LoRA微调）进行自回归生成；推理时用前缀Trie约束束搜索并过滤已交互物品。",
+    "problem_zh": "真实推荐系统中用户行为是异质的，交互历史中可能存在偏好突变、爆发式交互、过度重复或与协同邻域不一致等现象，这些可能来自正常偏好演化或操纵（如shilling攻击）。现有LLM生成式推荐通常对所有用户采用统一prompt，未在解码前根据用户级弱风险调整生成策略；已有鲁棒推荐多在训练期重加权或图聚合，生成侧方法也未显式将推断出的用户级弱风险作为生成控制信号。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.7945,
+  "id": "arxiv-2609.16560",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-16T18:45:54.070451Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-15T02:56:30Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出ReliGRec，一种基于用户风险感知提示路由的可靠性导向LLM生成式推荐方法，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "ReliGRec: Reliability-Oriented LLM-Based Generative Recommendation via User-Risk-Aware Prompt Routing",
+  "url": "https://arxiv.org/abs/2609.16560v1"
+}

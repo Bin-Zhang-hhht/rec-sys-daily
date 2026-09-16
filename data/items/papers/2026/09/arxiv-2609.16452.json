@@ -1,0 +1,129 @@
+{
+  "abstract": "We propose a personalized capping framework (PCap) to improve the diversity in Facebook Marketplace by introducing user-level diversity constraints at the retrieval stage. PCap models individual diversity preferences using Shannon entropy-based scoring, segments users into diversity buckets, and applies personalized category caps during multi-source candidate retrieval. To navigate the high-dimensional parameter space of per-bucket caps, we leverage an automated online optimization method called Parameter Tuning Sequence. Large-scale online experiments demonstrate that PCap significantly improves users' browsing experience shown in engagement metrics. This work provides practical insights into integrating personalized diversity into industrial retrieval systems. We propose a personalized capping framework (PCap) to improve the diversity in Facebook Marketplace by introducing user-level diversity constraints at the retrieval stage. PCap models individual diversity preferences using Shannon entropy-based scoring, segments users into diversity buckets, and applies personalized category caps during multi-source candidate retrieval. To navigate the high-dimensional parameter space of per-bucket caps, we leverage an automated online optimization method called Parameter Tuning Sequence. Large-scale online experiments demonstrate that PCap significantly improves users' browsing experience shown in engagement metrics. This work provides practical insights into integrating personalized diversity into industrial retrieval systems.",
+  "arxiv_id": "2609.16452",
+  "authors": [
+    "Guangchao Yuan",
+    "Janis Fuh",
+    "Christopher Choate",
+    "Xun Tang",
+    "Wenqi Zhu",
+    "Chengyi Zhang",
+    "Pavan Kumar Paalya Chandrashekar",
+    "Jiang Han",
+    "Jiangyuan Li",
+    "Hongyan Wang",
+    "Shuting Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在检索阶段加入个性化类目多样性上限可以提升市场/电商推荐中的浏览体验和深层互动，说明检索级多样性干预具备业务价值。",
+      "个性化多样性投入应聚焦偏好极端用户（高度专注或高度探索），对中间多数用户做精细调优的边际收益有限，可据此优化算法和算力资源分配。",
+      "PCap相对统一上限仅增加0.8ms延迟，生产开销很小，适合延迟敏感的大规模推荐系统落地。",
+      "仅增加曝光多样性而不匹配用户偏好，难以转化为点击或会话等深层互动；多样性策略需要与用户个性化偏好对齐。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出PCap：在Facebook Marketplace检索阶段引入用户级多样性约束的可扩展上限机制，在索引分片和聚合层施加多样性上限，使下游排序获得更均衡的候选池，同时保持多路召回和低延迟。",
+      "将高维个性化参数空间（用户多样性权重、类目桶、多路来源乘数）映射到自动在线调参框架PTS，替代人工调参，实现在线网格搜索式优化。",
+      "通过大规模在线A/B实验验证PCap显著提升互动指标，并揭示个性化多样性主要惠及偏好极端用户（edge-heavy personalization）。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Personalized Diversity Modeling"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Capping Mechanism"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Phase 1: Uniform Capping vs. No Capping"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Parameter Tuning Sequence"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Phase 2: PCap vs. Uniform Capping"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Summary of Findings"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无上限控制（no capping，生产基线）",
+        "统一上限（uniform capping，非个性化变体）"
+      ],
+      "datasets": [
+        "Facebook Marketplace生产环境大规模在线A/B测试（未公开数据集）"
+      ],
+      "findings_zh": [
+        "Phase 1中，uniform capping相比无上限基线显著提升VPV +0.3088%**，但PDP、MLI和Sessions无显著提升，说明仅增加曝光多样性不足以转化为深层互动。",
+        "Phase 2中，PCap相比uniform capping在VPV +0.2243%**、PDP +0.2250%**、Marketplace Sessions +0.1708%**上均显著提升，MLI +0.1109%未达显著，PF延迟仅增加0.8ms。",
+        "分桶多样性分析显示PCap按预期方向调节多样性：BUCKET-1/2多样性分数显著下降（-1.0537%、-0.9195%），BUCKET-6显著上升（+0.2469%），中间桶变化较小。",
+        "PTS调参显示：中间桶（BUCKET-3/4）的最优乘数接近中性；低多样性桶需要更放松的上限；高多样性桶需要更紧的上限以促进类目探索。",
+        "整体结论是曝光多样性本身不驱动深层互动；个性化多样性在偏好极端用户上效果最明显；自动参数调优是大规模部署多样性策略的前提。"
+      ],
+      "metrics": [
+        "Viewport Views (VPV)",
+        "Product Detail Page Clicks (PDP)",
+        "Message Listing Interactions (MLI)",
+        "Marketplace Sessions",
+        "Diversity Score (HHI)",
+        "PF Latency"
+      ]
+    },
+    "limitations_zh": [
+      "论文完全依赖在线A/B测试，没有使用公开离线数据集，外部复现和离线评估难度较大。",
+      "PTS本质是顺序收缩范围的网格搜索，相比贝叶斯优化或bandit等采样高效方法，计算和数据效率较低。",
+      "当前多样性上限基于FPT类目和固定六个用户桶，未覆盖冷启动用户（缺乏足够点击行为）以及动态库存分布变化。",
+      "实验仅在Facebook Marketplace单平台上进行，结论向其他推荐系统或业务场景迁移时需谨慎。"
+    ],
+    "method_zh": "以Shannon熵建模用户点击类目分布的多样性偏好，归一化后按多样性分数将用户分为6个桶；在检索阶段通过内容分组（Facebook Product Taxonomy类目）与桶级上限控制每个类目进入排序前的候选数量，上限由检索源拉取数乘调参系数f_k和用户多样性乘数m_u决定；利用Parameter Tuning Sequence（PTS）在线自动调参，迭代学习每个桶的最优乘数。",
+    "problem_zh": "Facebook Marketplace浏览流推荐依赖用户历史点击行为，容易形成反馈循环，导致推荐类目集中、多样性下降，影响浏览体验；同时检索阶段有严格的延迟和扩展性约束，难以直接套用排序阶段的个性化多样性方法。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.835,
+  "id": "arxiv-2609.16452",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-16T18:45:54.070451Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-15T00:16:43Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出PCap框架，在Facebook Marketplace检索阶段加入个性化多样性约束以提升用户体验，属于推荐系统工程实践。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "PCap: Personalized Retrieval-Stage Diversity Capping in Facebook Marketplace",
+  "url": "https://arxiv.org/abs/2609.16452v1"
+}

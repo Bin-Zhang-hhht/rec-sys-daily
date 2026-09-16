@@ -1,0 +1,143 @@
+{
+  "abstract": "Model serving is one of the largest cost drivers in production recommender systems. Maximizing its throughput requires navigating a deeply layered hierarchy: GPU kernels, the ML framework computation graph, the model server, and on-demand feature processing -- each demanding specialized domain expertise. Such cross-layer expertise is inherently difficult to acquire, and does not scale with a workload that continuously grows and evolves, leaving significant cost efficiency gains unrealized. While recent AI agents have demonstrated human expert level efficiency in standalone GPU kernel optimization, automated tuning and optimization for the rest of the serving stack remain largely unexplored. We present FlashVector, an agentic system that optimizes performance across all layers of the model serving stack. The key contribution is an extensible framework to generalize the single kernel optimization agent paradigm to heterogeneous technical stacks, and to deliver performance improvements holistically. After deployment in Unity's Vector advertising platform, FlashVector achieved up to 2x throughput increase and up to 1.98x latency speedup on model server, and up to 1.6x throughput increase on feature store. These optimizations were discovered not only at the GPU kernel and computation graph levels, but also across the other components of the model serving stack, such as the model server (NVIDIA Triton's C++ codebase) and the on-demand feature transformation service (Python codebase), demonstrating the extensibility of the framework to more complex system architectures. Model serving is one of the largest cost drivers in production recommender systems. Maximizing its throughput requires navigating a deeply layered hierarchy: GPU kernels, the ML framework computation graph, the model server, and on-demand feature processing -- each demanding specialized domain expertise. Such cross-layer expertise is inherently difficult to acquire, and does not scale with a workload that continuously grows and evolves, leaving significant cost efficiency gains unrealized. While recent AI agents have demonstrated human expert level efficiency in standalone GPU kernel optimization, automated tuning and optimization for the rest of the serving stack remain largely unexplored. We present FlashVector, an agentic system that optimizes performance across all layers of the model serving stack. The key contribution is an extensible framework to generalize the single kernel optimization agent paradigm to heterogeneous technical stacks, and to deliver performance improvements holistically. After deployment in Unity's Vector advertising platform, FlashVector achieved up to 2x throughput increase and up to 1.98x latency speedup on model server, and up to 1.6x throughput increase on feature store. These optimizations were discovered not only at the GPU kernel and computation graph levels, but also across the other components of the model serving stack, such as the model server (NVIDIA Triton's C++ codebase) and the on-demand feature transformation service (Python codebase), demonstrating the extensibility of the framework to more complex system architectures.",
+  "arxiv_id": "2609.17391",
+  "authors": [
+    "Qi Wu",
+    "Lohan Lemire",
+    "Kai Meng",
+    "Zhongmou Cai",
+    "Raphael Bargues",
+    "Petr Zhitnikov",
+    "Zeyuan Cao",
+    "Yao Wang",
+    "Shujun Bian",
+    "Wei Chen",
+    "Sean Sheng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对推荐/广告系统，模型服务栈吞吐-延迟优化直接对应GPU/CPU成本：2×吞吐提升意味着同等硬件可服务约两倍请求或大幅降低单位推理成本。",
+      "该框架降低了对稀缺的全栈性能优化专家人力的依赖，使推荐平台在模型频繁重训、流量变化和硬件更新时仍能持续获得优化，减少人工重复调优开销。",
+      "把代码级优化与runtime参数搜索放入同一自动闭环具有直接工程价值：相同SLO下配置选择可导致超过2×吞吐差异，提醒团队不能只调代码或只调参数。",
+      "对使用NVIDIA Triton、Python后端和PyTorch AOTInductor的推荐服务团队有借鉴意义；其中Triton输入转换优化已开源贡献回上游，可直接复用。",
+      "持续自动触发的优化模式适合大规模、多模型、持续演进的工业推荐平台，可避免优化成果因流量或基础设施变化而隐性失效。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出层智能体抽象（layer agent abstraction）：各服务层通过统一的Profile-Diagnose-Optimize-Verify接口接入同一优化闭环，并在运行结束后通过Refine阶段把经验写回知识库。",
+      "提出“局部优化、全局验证”：各层独立生成代码或配置候选，但只有通过正确性检查、测量噪声下限评估和重放生产流量的全栈负载测试才被接受。",
+      "构建持续运行的always-on优化循环：系统基于历史接受/拒绝记录自动重新触发优化，减少人工介入，使优化不会随模型重训、流量变化和硬件升级而快速衰减。",
+      "在Unity Vector广告平台真实部署：模型服务器吞吐最高提升2×、延迟最高加速1.98×，特征存储吞吐最高提升1.6×，验证了框架可扩展到Triton C++代码库和Python特征处理服务等异构层。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Challenges"
+      },
+      {
+        "page": 1,
+        "section": "4 Core System"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Knowledge Base"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Optimization Loop"
+      },
+      {
+        "page": 1,
+        "section": "5 Evaluation & Case Studies"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Case 1: Optimize Model Server"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Case 2: Improve Model Inference Efficiency"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Case 3: Optimize On-demand Feature Processing"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Case 4: Tune Serving Stack Parameters"
+      },
+      {
+        "page": 1,
+        "section": "6 Discussion and Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "手调基线/框架默认配置（如batch size保持框架默认、按利用率扩缩容）",
+        "PyTorch AOTInductor + FP16量化的AOT编译基线（Case 2）",
+        "基于Python accessor、逐元素解码、NumPy/pandas和顺序处理的CPU特征预处理器基线（Case 3）",
+        "Triton Python后端的Python反序列化/输入转换实现作为Case 1对比基线"
+      ],
+      "datasets": [
+        "Unity Vector广告平台的多个生产DNN模型（检索模型、排序模型1-4、Gamer模型）",
+        "真实生产流量/请求回放；无公开基准数据集"
+      ],
+      "findings_zh": [
+        "在生产模型上，检索模型获得1.67×延迟加速和1.10×吞吐提升；四个排序模型获得1.30×-1.98×延迟加速和1.33×-2.00×吞吐提升；Gamer模型获得1.34×延迟加速和1.15×吞吐提升（Table 1）。",
+        "Case 1发现Triton模型服务器输入转换是瓶颈，将Python反序列化逻辑用C++重写后单步加速约30×，修复被贡献回NVIDIA Triton上游项目。",
+        "Case 2通过融合注意力kernel将单模块延迟从996.5μs降至279.8μs（约3.56×），且输出与基线bit级一致；将嵌入bag分解为可编译的PyTorch原语后，总GPU kernel时间下降33.4%，前向延迟下降30.1%，dispatcher开销从44.8%降至28.5%。",
+        "Case 3通过Cython kernel、零拷贝请求I/O和输出组装重写，使特征预处理器单pod吞吐从940 RPS提升到约1500 RPS（1.6×），且各轮优化效果在上一轮基础上叠加（+28%、+25%）。",
+        "Case 4显示对已做代码优化的模型，仅重调实例数和动态batch size即可在相同延迟SLO下显著提升吞吐；不同配置间吞吐差异超过2×，说明代码优化与参数调优需要联合进行。"
+      ],
+      "metrics": [
+        "端到端/前向延迟加速倍率",
+        "吞吐量提升倍率",
+        "固定延迟SLO下的RPS和p99延迟",
+        "GPU kernel时间、dispatcher开销、注意力模块延迟和内存流量",
+        "预处理器单pod吞吐（RPS）",
+        "配置搜索的实例数/动态batch size组合及对应RPS/p99"
+      ]
+    },
+    "limitations_zh": [
+      "论文没有独立局限性章节或系统性负面结果讨论；所有量化收益来自Unity Vector特定生产环境和真实流量，未在公开基准上验证跨平台泛化性。",
+      "验收依赖测量噪声下限（端到端约±6%）和浮点偏差阈值（10^-3/10^-4），2%-6%的小收益需要加大采样重测，低幅度优化可能被保守拒绝。",
+      "框架需要为每一层定制profiling工具、知识库和正确性验证器，工程接入成本较高；论文还提到为让模型服务器agent处理多仓库而合并了代码库。",
+      "Case 4的实际参数搜索目前只改变了实例数和动态batch size两个杠杆，队列策略由SLO派生而非搜索得到，更大参数空间尚未展示。",
+      "对有意近似类优化依赖业务指标而非统一输出正确性保证，需要额外业务把关；论文未报告端到端财务成本节省或与人类专家团队的严格对照实验。"
+    ],
+    "method_zh": "FlashVector包含三阶段：知识库加载、迭代优化和知识精炼。知识库覆盖业务逻辑、模型服务器架构、特征存储、ML模型实现、硬件配置和专家优化手册。优化循环每次随机采样一个层级，执行该层自己的Profile（使用Nsight/eBPF/Kineto等层专用工具）、Diagnose（基于层知识库对瓶颈假设排序并选出收益最高的候选）、Optimize（生成并应用代码或配置改动）、Verify（按变更类别执行确定性输出相等、浮点偏差阈值或业务指标检查，通过后再做全栈负载测试确认无端到端回归）。循环结束后Refine阶段将优化结果和知识库修订写回，以压缩上下文并减少幻觉。各层智能体实现复杂度不同：GPU kernel agent主要修改单文件，模型服务器agent操作合并后的monorepo并处理复杂C++/Python运行时。",
+    "problem_zh": "论文聚焦推荐/广告系统中DNN模型服务栈的性能优化难题：GPU kernel、ML框架计算图、模型服务器和按需特征处理等层级使用不同语言、工具和性能信号，各自需要专门领域知识，跨层瓶颈难以定位和协调；人工调优无法随模型持续重训、流量漂移和硬件更新而规模化，导致大量成本效率提升空间未被利用。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.79,
+  "id": "arxiv-2609.17391",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-16T18:45:54.070451Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-15T16:27:45Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出FlashVector，一个优化推荐系统模型服务栈各层性能的智能体系统，属于推荐系统工程内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FlashVector: Agent for Hierarchical Model Serving Stack Optimization",
+  "url": "https://arxiv.org/abs/2609.17391v1"
+}
