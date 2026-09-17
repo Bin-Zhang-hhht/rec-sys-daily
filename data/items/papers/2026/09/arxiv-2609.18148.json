@@ -1,0 +1,140 @@
+{
+  "abstract": "The remarkable success of large language models (LLMs) has provided important inspiration for the next generation of recommender systems. Structurally, recommendation and language generation share a similarity: both aim to produce an ordered sequence that optimizes the user's experience. However, how to precisely absorb the essence of the LLM paradigm into mature industrial recommender systems remains an open problem. There are two challenges. First, it is unclear how to incorporate sequence-level generation and optimization from the LLM paradigm into recommendation. Second, real-world recommender systems are mature systems that have been iteratively customized for years around specific products, business constraints, serving infrastructure, and organizational ownership. Replacing such systems wholesale is often technically risky and organizationally disruptive. In this paper, we propose LIGE-GR, a listwise generation and evaluation recommendation framework that upgrades from a traditional ranking system based on itemwise recommendation toward a generative recommendation paradigm. Instead of rebuilding the entire recommendation stack from scratch, LIGE-GR generalizes the existing pointwise recommendation system into a listwise generation system. This allows mature recommender systems to benefit from listwise optimization while preserving compatibility with existing models, value functions, and serving infrastructure. We validate LIGE-GR in short-video recommendation on Instagram Reels and Facebook Video. On these recommendation surfaces, LIGE-GR improves time spent by 1.14 percent on Instagram Reels and 0.72 percent on Facebook Video, while requiring only modest additional inference resources. The remarkable success of large language models (LLMs) has provided important inspiration for the next generation of recommender systems. Structurally, recommendation and language generation share a similarity: both aim to produce an ordered sequence that optimizes the user's experience. However, how to precisely absorb the essence of the LLM paradigm into mature industrial recommender systems remains an open problem. There are two challenges. First, it is unclear how to incorporate sequence-level generation and optimization from the LLM paradigm into recommendation. Second, real-world recommender systems are mature systems that have been iteratively customized for years around specific products, business constraints, serving infrastructure, and organizational ownership. Replacing such systems wholesale is often technically risky and organizationally disruptive. In this paper, we propose LIGE-GR, a listwise generation and evaluation recommendation framework that upgrades from a traditional ranking system based on itemwise recommendation toward a generative recommendation paradigm. Instead of rebuilding the entire recommendation stack from scratch, LIGE-GR generalizes the existing pointwise recommendation system into a listwise generation system. This allows mature recommender systems to benefit from listwise optimization while preserving compatibility with existing models, value functions, and serving infrastructure. We validate LIGE-GR in short-video recommendation on Instagram Reels and Facebook Video. On these recommendation surfaces, LIGE-GR improves time spent by 1.14 percent on Instagram Reels and 0.72 percent on Facebook Video, while requiring only modest additional inference resources.",
+  "arxiv_id": "2609.18148",
+  "authors": [
+    "Venkat Srinivas",
+    "Chenzhang He",
+    "Sam Woodmansee",
+    "Shawn Lian",
+    "Wenjie Hu",
+    "Renjie Jiang",
+    "Ziheng Huang",
+    "Xinyuan Zhang",
+    "Zhihao Zheng",
+    "Zhuoran Yu",
+    "Rui Li",
+    "Lei Yuan",
+    "Ziwei Li",
+    "Jimmy Jia",
+    "Mert Terzihan",
+    "Ekrem Kocaguneli",
+    "Yiming Liao",
+    "Zhichen Zhao",
+    "Yue Yin",
+    "Yue Weng",
+    "Wanlin Ma",
+    "Xufeng Cai",
+    "Weimiao Wu",
+    "Yezhou Huang",
+    "Du Zhang",
+    "Yukun Ding",
+    "Aaron Johnston",
+    "Yueming Wang",
+    "Zhaojie Gong",
+    "Yuting Zhang",
+    "Serena Li",
+    "Adithya Ganesh",
+    "Boying Liu",
+    "Haichuan Yang",
+    "Xialu Li",
+    "Matt Ma",
+    "Qunshu Zhang",
+    "John Joshua Miller",
+    "Praveen Rathinavelu",
+    "Cheng Huang",
+    "Aadhar Sachdeva",
+    "Josh Karns",
+    "Andres Aaron Gutierrez",
+    "Neil Agarwal",
+    "Gustas Pladis",
+    "Vladimir Batygin",
+    "Gopal Ray",
+    "Aditya Priyadarshi",
+    "Shantanu Patil",
+    "Zhe Wang",
+    "Penny Pan",
+    "Yiping Han",
+    "Arun Singh",
+    "Guangdeng Liao",
+    "Bi Xue",
+    "Xinyao Hu",
+    "Yang Song",
+    "Yisong Song",
+    "Meihong Wang",
+    "Haotian Wu",
+    "Deepak Agarwal",
+    "Ji Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "LIGE-GR 支持对成熟推荐系统进行增量升级，避免全栈重建带来的技术与组织风险。",
+      "与现有模型、价值函数和服务基础设施兼容，可降低大型平台的落地迁移成本。",
+      "只需适度增加推理资源即可提升用户时长，对短视频推荐业务具有吸引力。",
+      "框架方向适合用户时长和参与度驱动的工业推荐产品。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 LIGE-GR，一种清单式生成与评估推荐框架，将传统基于逐项排序的推荐系统升级到生成式推荐范式。",
+      "不是从零重建推荐技术栈，而是将现有逐点推荐系统推广为清单式生成系统，使成熟推荐系统能从清单式优化中受益。",
+      "保持与现有模型、价值函数和服务基础设施的兼容，降低工业落地替换成本。",
+      "在 Instagram Reels 与 Facebook Video 的短视频推荐场景中验证了框架有效性。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "原有逐点推荐系统"
+      ],
+      "datasets": [
+        "Instagram Reels 推荐场景",
+        "Facebook Video 推荐场景"
+      ],
+      "findings_zh": [
+        "在 Instagram Reels 上，LIGE-GR 将用户时长提升 1.14%。",
+        "在 Facebook Video 上，LIGE-GR 将用户时长提升 0.72%。",
+        "仅需适度的额外推理资源即可获得上述收益。"
+      ],
+      "metrics": [
+        "用户时长（time spent）",
+        "额外推理资源开销"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供模型结构、训练目标、消融实验或统计显著性等细节。",
+      "验证仅限于两个短视频推荐界面，跨场景和跨业务的泛化性未被说明。",
+      "用户时长提升幅度较小，实际业务意义需要结合成本收益进一步评估。"
+    ],
+    "method_zh": "LIGE-GR 以成熟的逐点排序推荐系统为基础，引入清单式生成与评估机制：将逐项推荐泛化为清单式生成，按序列方式建模推荐结果并优化用户体验，同时保持与现有模型、价值函数和服务基础设施兼容，避免重建整个推荐堆栈。摘要中未披露具体模型结构和训练细节。",
+    "problem_zh": "如何将大语言模型范式中的序列级生成与优化有效融入成熟的工业推荐系统仍然是一个开放问题；另一方面，真实推荐系统围绕特定产品、业务约束、服务架构和组织归属经过多年定制，整体替换在技术和组织上风险较高。",
+    "technical_depth": 0.3
+  },
+  "doi": null,
+  "final_score": 0.7500000000000001,
+  "id": "arxiv-2609.18148",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-17T18:45:16.892395Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-16T05:28:52Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出LIGE-GR框架，将传统逐点排序系统平滑升级为列表式生成推荐系统，并在Instagram Reels和Facebook Video上以较低推理成本提升用户时长。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "LIGE-GR: A Smooth Leap from Ranking to Generative Recommendation in the LLM Era",
+  "url": "https://arxiv.org/abs/2609.18148v1"
+}

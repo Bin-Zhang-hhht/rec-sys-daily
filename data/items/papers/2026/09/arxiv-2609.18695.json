@@ -1,0 +1,119 @@
+{
+  "abstract": "The increasing demand for user privacy and compliance with regulations such as GDPR has made machine unlearning a fundamental requirement for modern recommender systems. However, Sequential Recommender Systems (SRS) pose unique challenges for unlearning due to their reliance on temporal interaction patterns. Existing approaches either require computationally prohibitive full retraining or fail to account for the sequential nature of user behavior. We propose SURF (Subtractive Updates for Recommender Forgetting), a lightweight framework for approximate machine unlearning in SRS. SURF operates in three stages: (i) identifying the neighborhood of the item to forget in the embedding space, (ii) training an auxiliary model on this compact local subset, and (iii) subtracting the auxiliary model's scores from the original model at inference time. Experiments against five baselines on 7 datasets show that SURF achieves unlearning effectiveness comparable to full retraining while substantially reducing computational cost, yielding up to a 32% improvement in NDCG@20 while requiring just 2% of the original retraining baseline time budget. We share our code at https://github.com/FilippoBetello/SURF. The increasing demand for user privacy and compliance with regulations such as GDPR has made machine unlearning a fundamental requirement for modern recommender systems. However, Sequential Recommender Systems (SRS) pose unique challenges for unlearning due to their reliance on temporal interaction patterns. Existing approaches either require computationally prohibitive full retraining or fail to account for the sequential nature of user behavior. We propose SURF (Subtractive Updates for Recommender Forgetting), a lightweight framework for approximate machine unlearning in SRS. SURF operates in three stages: (i) identifying the neighborhood of the item to forget in the embedding space, (ii) training an auxiliary model on this compact local subset, and (iii) subtracting the auxiliary model's scores from the original model at inference time. Experiments against five baselines on 7 datasets show that SURF achieves unlearning effectiveness comparable to full retraining while substantially reducing computational cost, yielding up to a 32% improvement in NDCG@20 while requiring just 2% of the original retraining baseline time budget. We share our code at https://github.com/FilippoBetello/SURF.",
+  "arxiv_id": "2609.18695",
+  "authors": [
+    "Filippo Betello",
+    "Antonio Purificato",
+    "Nicola Tonellotto",
+    "Fabrizio Silvestri"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SURF面向GDPR等隐私法规的“被遗忘权”需求，可用于电商、娱乐、社交等推荐场景中的用户数据删除请求。",
+      "由于保留原始模型不变，遗忘过程可逆，适合生产环境中需要快速恢复已遗忘物品的动态场景。",
+      "仅需约2%的重训时间预算且推理开销低，为大规模序贯推荐系统提供了低成本合规方案。",
+      "在满足遗忘要求的同时保持接近重训的NDCG和较高的FRBO，有助于减少合规操作对用户体验的负面影响。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出SURF，一种轻量级、模型无关的近似机器遗忘框架，结合分区法与影响函数法优势，无需数据分片或二阶优化。",
+      "首次在推荐系统中引入模型减法作为遗忘机制：训练轻量级辅助模型，并在推理时从原模型预测分数中减去其影响。",
+      "提供形式化理论分析，分别给出排序稳定性条件、局部扰动上界以及影响移除的近似误差保证。",
+      "在7个数据集、3种SRS主干模型上验证，SURF达到接近或优于完整重训的遗忘效果，同时大幅降低计算成本（约2%重训时间预算，最高32% NDCG@20提升），且因不修改原模型而天然支持可逆遗忘。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2.2 Recommendation Unlearning"
+      },
+      {
+        "page": 3,
+        "section": "3 Method"
+      },
+      {
+        "page": 4,
+        "section": "4 Experimental Settings"
+      },
+      {
+        "page": 5,
+        "section": "5 Results"
+      },
+      {
+        "page": 6,
+        "section": "6 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Retrain",
+        "RecEraser",
+        "SRU",
+        "UltraRE",
+        "IFRU"
+      ],
+      "datasets": [
+        "Beauty",
+        "ML-1M",
+        "ML-100k",
+        "Steam",
+        "FS-TKY",
+        "FS-NYC",
+        "Yelp"
+      ],
+      "findings_zh": [
+        "在所有主干和数据集上，SURF在遗忘指标上一致取得最好或第二好结果，并在SASRec+Beauty、SASRec+ML-1M等设置中获得最低遗忘分数，部分情形甚至优于完整重训。",
+        "SURF在保持遗忘效果的同时能较好保留推荐质量：NDCG接近Retrain，在ML-1M上有时超过Retrain；FRBO结果显示排序稳定性强，例如ML-1M+SASRec上SURF的FRBO为0.6080，高于Retrain的0.3036。",
+        "相对完整重训，SURF的训练时间大幅降低，如ML-1M上约为0.50x-0.66x，Steam和Yelp上约为0.04x；论文报告其总体仅需约2%的重训时间预算。",
+        "SURF在多数设置中取得最低推理时间，Yelp上SASRec与GRU4Rec仅需0.11x，而竞争方法最高达4.89x；IFRU虽然训练快，但会严重降低NDCG且推理开销高。",
+        "超参数实验选择k=1、alpha=0.7；增大k会显著降低推荐质量，减小alpha会过度抑制推荐，而理论给出的局部扰动与影响移除性质在ML-100k+SASRec上得到实证支持。"
+      ],
+      "metrics": [
+        "NDCG@20",
+        "FRBO",
+        "UnlearnRecall (UL R)",
+        "UnlearnMRR (UL MRR)"
+      ]
+    },
+    "limitations_zh": [
+      "SURF是近似遗忘而非严格等价于完整重训，其遗忘效果受辅助模型对目标物品影响逼近误差epsilon的限制。",
+      "实验仅覆盖GRU4Rec、SASRec和BERT4Rec三种SRS架构，扩展到更新型序贯推荐器仍需后续工作。",
+      "图像、文本等其他领域的应用仅为未来计划，尚未在本文中验证。",
+      "方法依赖k和alpha超参数，增大k会明显降低推荐质量，对冷门物品可能需要更大k，造成效果权衡。",
+      "理论保证为最坏情况下界，实际扰动虽低于该界，但并不能保证所有实践中遗忘场景的精确行为。"
+    ],
+    "method_zh": "SURF包含四个步骤：(1) 在物品嵌入空间中找到待遗忘物品i*的k个最近邻N_k(e_i*)，对无用户嵌入的架构则用其序列内物品嵌入均值表示用户；(2) 构建遗忘数据集D_r，包含与N_k(e_i*)中物品发生过交互的用户序列；(3) 在D_r上训练与原始模型同架构的轻量级辅助遗忘模型M'；(4) 推理时将辅助模型预测分数乘以超参数alpha后从原始模型分数中减去，即tilde_y = f_M(S_u^l) - alpha f_M'(S_u^l)，再取argmax得到最终推荐。理论部分证明：当原分数差Delta > 2alpha||f_M'(S_u^l)||_∞时相对排序保持不变；在邻域内引入的扰动有界于alpha(L·diam(N_k(e_i*)) + C)；当alpha=1时，目标物品的残留贡献受辅助模型逼近误差epsilon控制。",
+    "problem_zh": "序贯推荐系统（SRS）依赖时序交互模式，现有机器遗忘方法要么需要计算代价高昂的完整重训，要么没有充分考虑用户行为的序列特性；分区类方法在高度互联的用户-物品数据中效率低下，影响函数类方法依赖脆弱假设且内存开销高，因此缺乏高效、可靠且适配SRS的遗忘方案。",
+    "technical_depth": 0.9
+  },
+  "doi": "10.1145/3799682.3840731",
+  "final_score": 0.915,
+  "id": "arxiv-2609.18695",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-17T18:45:16.892395Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-16T14:08:16Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出SURF框架，通过在嵌入空间定位目标物品邻域并训练辅助模型进行推理时减法更新，以极低计算成本实现顺序推荐系统的高效近似机器遗忘。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SURF: Subtractive Updates for Recommender Forgetting",
+  "url": "https://arxiv.org/abs/2609.18695v1"
+}

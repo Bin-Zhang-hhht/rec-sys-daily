@@ -1,0 +1,142 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "模型联合预测pCTR、pGCTR30（≥30秒优质点击概率）和pOCTR（外链点击概率）。Query和Pin embedding按任务切分：CTR 144维、gCTR30 32维、oCTR 16维，query塔输出192维；Pin塔除对应任务embedding外再拼接256维候选特征投影，总计448维并在离线缓存。双塔CTR预测仅使用CTR segment前64维；三塔CTR预测使用完整CTR segment与cross embedding。Cross tower采用reduced-query cross-attention：用候选侧特征（advertiser ID、campaign ID、GraphSAGE embedding、Pin PinnerSAGE embedding）生成query tokens，与用户序列特征（organic engagement、ads engagement、search history）交互，输出cross embedding。Inter module将query、Pin、cross三路embedding拼接，学习共享logit，并为gCTR30和oCTR加任务特定偏置，最后过sigmoid输出概率。",
+    "business_implications_zh": [
+      "标准广告CTR、gCTR30和oCTR均提升约1%，CPC下降近1%，意味着广告主在相近成本下获得更多有效互动与外链点击。",
+      "GPU基础设施成本仅适度增加，说明在可控成本内可换取有意义的engagement与效率提升。",
+      "运营上可以弃用独立的生产双塔engagement模型，由co-train双塔头承担快速打分，简化模型维护与部署。",
+      "降低广告点击成本并提升优质点击率，对广告主ROI和用户体验均有正面意义。"
+    ],
+    "business_transferability": 0.75,
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "heading": "Model architecture",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Cross tower",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Inter module",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Loss function",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Offline performance",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Serving optimization",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Optimization 1: Move Pin pre-processing into the Pin tower",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Optimization 2: Lower precision",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Optimization 3: Late expansion of user features",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Optimization 4: Pre-layer normalization in attention",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Rethinking the serving flow",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Stage 2: Focused refinement with three-tower scoring",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Final selection and bias considerations",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Online results and cost",
+        "section": "Blog post"
+      },
+      {
+        "heading": "Conclusion",
+        "section": "Blog post"
+      }
+    ],
+    "implementation_zh": "三塔与双塔在同一个模型中co-train。最终损失为：L = (100*L_main_ctr + 5*L_main_gctr30 + 1*L_main_octr) + (10*L_cotrain_ctr + 5*L_cotrain_gctr30 + 1*L_cotrain_octr)，主三塔损失权重更大，co-train双塔损失用于保持快速打分质量。服务优化方面：(1) 将候选Pin预处理移入Pin tower并离线缓存，省去逐候选MLP；(2) 三塔路径用BF16推理，50K候选延迟从约103ms降至约56ms，20K候选从约45ms降至约26ms；(3) 延迟用户特征展开，在cross模块内部、计算attention前才做batch展开，约省15ms@100K；(4) 改用pre-layer normalization，服务时输入batch size为1，约省3ms@100K。整体P99模型推理从>200ms降至约30ms，最终仅比生产模型慢1-2ms。服务流程上，Stage 1用双塔head对所有候选打分，Stage 2对utility topK=40K的候选用三塔重打分；utility topK之外的候选绕过三塔但保留到后续阶段，最后将双塔与三塔utility混合，执行配额选择与去重。",
+    "lessons_zh": [
+      "co-train一个快速双塔头和一个精细三塔头，可以在保持全量快速打点的同时，把昂贵计算集中到高价值候选子集。",
+      "将候选侧预处理放入Pin tower并离线缓存，可把原本随候选数增长的per-request计算转移到离线。",
+      "模型架构创新必须与服务系统抽象结合，才能突破双塔限制同时满足生产延迟预算。",
+      "两阶段打分中，对topK之外候选的保留和混合策略有助于缓解mixshift与候选覆盖问题。",
+      "在更丰富架构上线后，可以弃用独立的线上生产双塔模型，用co-train头承担快速打分职责。"
+    ],
+    "limitations_zh": [
+      "文章为Pinterest官方技术博客，未提供可复现代码、完整超参数集合或实验统计显著性细节。",
+      "gCTR30的co-train loss出现小幅退化，作者仅说明可接受，未提供进一步消融。",
+      "启发式utility topK选择与双塔/三塔分数混合可能对两塔高分候选产生系统性偏向，需要持续监控校准与mixshift。",
+      "工作主要针对engagement目标，作者将推广到其他目标列为未来方向，因此结论不一定直接外推。",
+      "在线指标为约1%量级的相对提升，具体解释需依赖内部A/B设置与流量环境。"
+    ],
+    "production_constraints_zh": [
+      "每请求需要对数量级为数十万的候选打分，部分表面P99 post-targeting候选数超过200K。",
+      "全量三塔打分的早期实验中，模型推理P99超过70ms，达到超时上限。",
+      "不能无限制提升模型复杂度，必须同时满足延迟与计算成本约束。",
+      "Pin embedding需要离线缓存以支撑高效双塔点积与三塔cross-attention。",
+      "utility topK需要平衡候选覆盖与服务成本：过小会伤害web conversion impressions，过大则直接增加延迟。",
+      "GPU基础设施成本只能接受适度增加。"
+    ],
+    "results_zh": [
+      "离线实验中，三塔预测相对现有生产双塔engagement模型，在CTR、gCTR30、oCTR任务上实现约30%的offline loss下降。",
+      "co-train双塔任务保持与生产双塔模型相当的质量；gCTR30的co-train loss出现小幅退化，被认为可接受。",
+      "模型级优化使P99模型推理从>200ms降至约30ms，最终仅比生产慢1-2ms。",
+      "在线A/B实验中，标准广告的CTR、gCTR30、oCTR均提升约1%，CPC下降近1%，GPU开销仅适度增加。",
+      "三塔模型降低了拍卖候选的过度校准，使预测CTR更接近实际CTR；使用混合打分时未观察到标准web conversion impressions下降。"
+    ],
+    "system_context_zh": "Pinterest广告轻量级排序在Nexus服务栈上的后续演进。单次请求需要对数以十万计的广告候选打分：部分场景P90候选数超过100K，P99可超过200K，且模型推理P99有约70ms的超时上限。在此约束下，团队引入了三塔co-train模型：保留原有双塔做快速全量打分，新增cross tower与inter module对topK候选做更精细的三塔打分，形成两阶段服务流程。",
+    "technical_depth": 0.88,
+    "tradeoffs_zh": [
+      "双塔预测快但精度较低，三塔预测慢但更准；co-train让同一模型同时产出两种分数，把额外计算花在最有价值的候选上。",
+      "更复杂的cross-attention变体（更长序列、更多属性、逐属性交叉）可再降数个百分点的offline loss，但每个请求在100K候选下会多出数十毫秒延迟。",
+      "MMoE+DCN等inter模块结构loss更低但延迟更高；shared-bottom MLP加任务偏置在收益和延迟之间取得较好平衡。",
+      "BF16相对FP32显著降低延迟且质量中性。",
+      "pre-layer normalization训练效果相近，但服务时大幅减少与候选数成比例的归一化计算。",
+      "utility topK较小的值会降低延迟但可能伤害web conversion impressions；较大的值覆盖更充分但直接增加延迟。",
+      "启发式选择topK与双塔/三塔utility混合可能偏向两塔高分候选，但作者观察到三塔模型实际上降低拍卖候选的过度校准，且混合未造成标准web conversion impressions下降。"
+    ]
+  },
+  "final_score": 0.9205,
+  "id": "url-5865bb15cff90c79b39ea2bd",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-17T18:45:16.892395Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "two_tower"
+  ],
+  "published_at": "2026-09-17T15:01:05Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "pinterest_engineering",
+  "summary_zh": "该文介绍Pinterest广告轻量级排序中的3塔联合训练模型，在双塔快速打分基础上引入交叉塔与交互模块，以在超大规模候选集下兼顾效率与效果。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Beyond Two Towers: Launching the 3-Tower Engagement Co-Train Model (Part 2)",
+  "url": "https://medium.com/pinterest-engineering/beyond-two-towers-launching-the-3-tower-engagement-co-train-model-part-2-0b96167d2c14?source=rss----4c5a5f6279b6---4"
+}

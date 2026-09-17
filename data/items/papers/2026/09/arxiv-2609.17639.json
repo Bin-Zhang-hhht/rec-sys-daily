@@ -1,0 +1,182 @@
+{
+  "abstract": "Modern recommendation systems largely infer user preferences from implicit behaviors such as clicks, watch time, and negative feedback, but these signals reveal what users do rather than why they like or dislike content. This work studies articulated user rationales (AURs), i.e., users' natural-language explanations of their preferences, as a new class of polarity-aware and reason-level textual signals for recommendation. Despite their potential value, AURs are difficult to use in industrial systems because they are naturally sparse, often low-quality, and only cover a small fraction of items. We present SARA (Scaling Articulated Rationales), an industrial framework that turns sparse AURs into scalable recommendation signals. SARA first builds a data engine that elicits and curates AURs from 240M Kuaishou Live users, producing SARA-HQ, a quality-controlled and author-centric rationale dataset. It then aligns a general-purpose MLLM into SARA-7B through large-scale SFT and Quality-Refining DPO, extending rationale generation from 86,564 AUR-covered authors to the full 10M-author space. Finally, SARA-Ranker integrates the generated positive and negative rationales into production ranking via rationale-aware interaction modeling and rejection-memory modeling. Extensive offline evaluation, human calibration, and online A/B tests show that SARA-7B generates more specific, polarity-consistent, and grounded rationales than strong MLLM baselines, while SARA-Ranker improves engagement and reduces negative feedback in production. Deployed with daily refresh for over 30 days, SARA establishes articulated rationales as a practical, first-class textual signal for industrial recommendation systems. Modern recommendation systems largely infer user preferences from implicit behaviors such as clicks, watch time, and negative feedback, but these signals reveal what users do rather than why they like or dislike content. This work studies articulated user rationales (AURs), i.e., users' natural-language explanations of their preferences, as a new class of polarity-aware and reason-level textual signals for recommendation. Despite their potential value, AURs are difficult to use in industrial systems because they are naturally sparse, often low-quality, and only cover a small fraction of items. We present SARA (Scaling Articulated Rationales), an industrial framework that turns sparse AURs into scalable recommendation signals. SARA first builds a data engine that elicits and curates AURs from 240M Kuaishou Live users, producing SARA-HQ, a quality-controlled and author-centric rationale dataset. It then aligns a general-purpose MLLM into SARA-7B through large-scale SFT and Quality-Refining DPO, extending rationale generation from 86,564 AUR-covered authors to the full 10M-author space. Finally, SARA-Ranker integrates the generated positive and negative rationales into production ranking via rationale-aware interaction modeling and rejection-memory modeling. Extensive offline evaluation, human calibration, and online A/B tests show that SARA-7B generates more specific, polarity-consistent, and grounded rationales than strong MLLM baselines, while SARA-Ranker improves engagement and reduces negative feedback in production. Deployed with daily refresh for over 30 days, SARA establishes articulated rationales as a practical, first-class textual signal for industrial recommendation systems.",
+  "arxiv_id": "2609.17639",
+  "authors": [
+    "Haoke Xiao",
+    "Yueyang Liu",
+    "Yuhui Zhang",
+    "Xiang Chen",
+    "Yufei Liu",
+    "Jia Xu",
+    "Yalong Guan",
+    "Xiaolan Zhu",
+    "Xiaoyu Zhang",
+    "Shijun Wang",
+    "Shuang Yang",
+    "Zijie Meng",
+    "Zejian Zhang",
+    "Ruochen Yang",
+    "Xiangyu Wu",
+    "Tingting Gao",
+    "Han Li",
+    "Lantao Hu",
+    "Cheng Luo",
+    "Kun Gai"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "首次以工业规模将用户'口头表述的理由'作为推荐系统第一类文本信号，从'用户做了什么'延伸到'用户为什么这么做'，可提升个性化与推荐可解释性。",
+      "在线 A/B 显示正向理由提升互动指标（Watch Time +0.986%、Follow +0.616%），负向理由显著降低反感行为（Hate 下降 8.164%），对内容平台核心互动与留存有直接商业价值。",
+      "每日刷新、运行超过30天的生产部署证明方案具备工业稳定性，可以在主流短视频/直播平台复用。",
+      "问卷数据引擎的'延迟触发+稀疏投放+动态激励'机制为其他 UGC 平台规模化采集高质量用户偏好理由提供了可借鉴的系统设计。",
+      "负向理由 SID 的跨作者语义迁移可为内容治理提供支持，如识别同类风险内容（误导营销、安全隐患）并辅助审核或流量调控。",
+      "理由级信号可支撑生成式推荐解释（'为什么推荐/为什么屏蔽'），增强用户信任，对电商、广告等推荐场景有借鉴意义，但需按场景重新采集 AURs。",
+      "方案依赖 7B 级 MLLM 与多模态上下文（视频、ASR、评论、元数据）生成理由，对算力和数据管线要求较高，中小团队直接复制门槛较大。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出 SARA（Scaling Articulated Rationales），首个将稀疏 AURs 扩展为生产级推荐信号的工业框架，采用 collect-scale-integrate 流水线，并在快手直播推荐系统中每日刷新部署超过30天。",
+      "构建数据引擎：从 240M 快手直播用户中通过问卷机制持续采集合共 1,915,718 条候选 AURs，经 Agent Judge 离线精筛得到 187,532 条高质量理由，形成 SARA-HQ——作者中心、极性感知、原因级监督数据集，覆盖 86,564 位作者、18 个一级直播域与 141 个二级语义类别。",
+      "提出 SARA-7B：基于 SARA-HQ 通过大规模 SFT 与 Quality-Refining DPO（QR-DPO）对齐通用 MLLM（Qwen2.5-VL-7B），将理由生成泛化到 1000 万作者空间；QR-DPO 通过自采样候选 + Agent Judge 排序构造偏好对，迭代提升理由质量。",
+      "建立统一的人类对齐理由质量评估框架：六维度（coherence、relevance、specificity、safety、polarity consistency、grounding）四级别协议，实例化为低延迟在线 LLM Judge 与过程式 Agent Judge（维度专家 + Senior Review，硬维度不可补偿）。",
+      "提出 SARA-Ranker：通过理由嵌入集成（UA 表示与正理由的软对比 MIM 对齐）与理由 SID 集成（负理由三层残差量化成层次化语义 ID，用于跨作者负反馈语义迁移），将正负理由整合进生产级 MMoE 排序模型，离线与在线均取得一致增益。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 3,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 5,
+        "section": "2.2 Online Collection"
+      },
+      {
+        "page": 6,
+        "section": "2.3 Post Curation"
+      },
+      {
+        "page": 7,
+        "section": "2.4 Dataset Statistics and Analysis"
+      },
+      {
+        "page": 10,
+        "section": "3.2 Large-Scale SFT"
+      },
+      {
+        "page": 10,
+        "section": "3.3 Quality-Refining DPO"
+      },
+      {
+        "page": 12,
+        "section": "4.2 Online LLM Judge and Offline Agent Judge"
+      },
+      {
+        "page": 14,
+        "section": "4.4 Evaluator Validation"
+      },
+      {
+        "page": 15,
+        "section": "5.2 Rationale Embedding Integration"
+      },
+      {
+        "page": 17,
+        "section": "5.3 Rationale SID Integration"
+      },
+      {
+        "page": 18,
+        "section": "6.1 SARA-7B Experiments"
+      },
+      {
+        "page": 23,
+        "section": "6.2 SARA-Ranker Experiment"
+      },
+      {
+        "page": 23,
+        "section": "7 Conclusion"
+      },
+      {
+        "page": 24,
+        "section": "8 Appendix"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Gemini-3.1-Pro（闭源 MLLM）",
+        "Qwen3-VL-8B（开源 MLLM）",
+        "SARA-7B-SFT（full-data SFT checkpoint）",
+        "SARA-7B-DPO（QR-DPO 精炼后）",
+        "General LLM Judge（零样本，评测框架验证）",
+        "Online LLM Judge",
+        "Agent w/o Senior Review",
+        "TagNex（Kuaishou 内部标签系统）",
+        "OneLive MLLM / OneLive IA（引用作为参考上界）"
+      ],
+      "datasets": [
+        "SARA-HQ：187,532条质量受控理由，来自240M快手直播用户的问卷",
+        "5K 实例作者不相交评测集（从生产日志构建，极性平衡、类别平衡、按作者热度分层）",
+        "快手特色直播平台生产数据（30秒滑动窗口采样，最后一天作测试集）",
+        "SID 码本分析使用 OneLive 报告的同一作者集合",
+        "公开数据集对比：LiveRec、KuaiLive、KuaiLive-M3、LiveCC、OmniStar、LiViBench、LiveLongBench"
+      ],
+      "findings_zh": [
+        "SARA-7B-DPO 在作者不相交评测集上 holistic 质量达 3.33，显著优于 Gemini-3.1-Pro（2.51）和 Qwen3-VL-8B（2.37）；relevance 3.99 vs. 3.70/3.51，grounding 3.75 vs. 3.60/3.73，BGE-Sim 0.82 vs. 0.70/0.69。",
+        "QR-DPO 相对 SFT 提升 specificity（3.07→3.32）、grounding（3.63→3.75）与 holistic quality（3.15→3.33），同时保持其余维度与 BGE-Sim。",
+        "在线 LLM Judge 使 holistic MAE 从零样本的 0.58 降至 0.35；Agent Judge 进一步将六维平均 MAE 从 0.25 降至 0.19，Senior Review 将 holistic MAE 从 0.29 降至 0.20，接近专家间一致性上界 0.12。",
+        "正向理由嵌入集成在强基线上仍带来一致离线收益：Long-view AUC +0.28pp、GAUC +0.24pp；在线 Click +0.342%、Watch Time +0.986%、Effective View +0.365%、Follow +0.616%。",
+        "负向理由 SID 集成使 Hate AUC +0.35pp、GAUC +0.55pp，Report AUC +0.46pp、GAUC +0.38pp；在线 Hate 下降 8.164%、Report 下降 0.4396%、LT-7 转正 +0.027%。",
+        "SID 码本分析：相同 Res-Kmeans 与 (8192)^3 码本下，SARA 的 SID 级碰撞率为 1.5%（TagNex 7.9%、OneLive MLLM 3.6%），author 级碰撞率 3.3%（TagNex 22.5%、OneLive MLLM 9.5%），说明理由语义比传统内容表征更具判别性。",
+        "SFT 数据规模实验：coherence、safety、polarity consistency 较早饱和，而 relevance、specificity、grounding、holistic quality 随数据量持续提升且未完全饱和，说明领域监督主要改善细粒度理由质量。",
+        "数据引擎产量：1,915,718 候选经离线精筛后保留 187,532（9.8% yield）；负向候选 HQ yield 24.2% 高于正向 6.8%，因为负向反馈更聚焦具体缺陷而正向反馈含较多泛化表扬。"
+      ],
+      "metrics": [
+        "六维理由质量分：Coherence、Relevance、Specificity、Safety、Polarity consistency、Grounding（1-4级）",
+        "Holistic 理由质量分（1-4级）",
+        "BGE-Sim：生成理由与原始问卷回答的余弦相似度",
+        "Evaluator MAE（与专家标注的均值绝对误差）",
+        "Offline AUC/GAUC（Click、Long-view、Gift、Hate、Report）",
+        "Online A/B 指标：Click、Watch Time、Effective View、Follow、Hate、Report、LT-7",
+        "SID 码本利用率与碰撞率（SID级/Author级）"
+      ]
+    },
+    "limitations_zh": [
+      "AURs 数据仅来自快手直播场景，跨平台、跨内容类型（如短视频、图文、商品）的可迁移性未在文中论证。",
+      "问卷应答本身存在自愿自我报告偏差和情绪偏差，文中引用相关文献承认此问题。",
+      "生成的作者中心理由对所有观众共享，不建模个体用户差异；负向理由 R_a^- 被明确说明不代表某个具体用户的拒绝原因，仅为语义迁移。",
+      "在线 LLM Judge 仅用于实时激励分配，离线精筛不依赖其分数，说明在线单次推断的可靠性不足以支撑质量过滤。",
+      "LT-7 在线提升幅度较小（+0.027%），且仅报告 30 天部署窗口，长期稳定性与更长时间窗指标未见报告。",
+      "论文未开源 SARA-HQ 数据集、SARA-7B 模型或 SARA-Ranker 代码，第三方难以完全复现；与公开数据集对比以协议/监督类型层面为主，不可直接量化性能比较。",
+      "部分关键超参数与工程细节（如 DPO 采样温度、MIM 损失权重、滑动窗口 r_obs 的具体口径）未提供完整消融或具体数值。",
+      "SID 分析中 OneLive IA 被承认为结合交互协作监督的参考上界而非严格受控基线，SARA 在交互对齐维度并非最优。"
+    ],
+    "method_zh": "SARA 分为三阶段：（1）数据引擎：在线通过延迟触发问卷（持续观看10秒后）、稀疏投放（基线5%概率并按响应率动态调整至1%-20%）、阈值激励（在线LLM Judge 评分>2 给奖励）收集 AURs；离线由六维度 Agent Judge 精筛（保留整体分>2 且硬维度无严重缺陷），并按作者-极性聚合成原子语义标签，构建 (X_p, r_p) 多模态指令数据 SARA-HQ（上下文含视频帧、元数据、ASR、评论；原始问卷文本不进入输入）。（2）理由对齐：先全参数 SFT（自回归负对数似然，式4）；再用 SFT 模型自采样 K 个候选，由 Agent Judge 六维评估排序，取 rank-1 为 chosen、rank-K 为 rejected 构造 DPO 偏好对（式5a-5b），训练 SARA-7B。（3）理由特征集成：正理由经可训练 token 嵌入与共享编码器（式12），结合双向交叉注意力构造 UA 表示（式13-14），通过软对比 MIM 目标（式15-16）对齐理由语义，融入 MMoE；负理由经 BGE 编码 + 三层残差量化生成层次化 SID（式18-20），与作者 ID 拼接后通过目标感知 MHA（式22）在负反馈任务塔中建模跨作者语义迁移。",
+    "problem_zh": "现代推荐系统主要依赖点击、观看时长、跳过等隐式行为反馈来推断用户偏好，但这些信号只揭示用户做了什么，而无法解释用户为什么喜欢或不喜欢内容。本文提出 Articulated User Rationales（AURs）——用户用自然语言表达的偏好理由——作为一类新的、极性感知的、原因级文本信号，并指出其工业化的三大挑战：AURs 天然稀疏（覆盖率常低于1%）、表达质量普遍偏低、通用 MLLM 生成的理由可能是事后合理化而非基于用户真实表述的可靠信号。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.909,
+  "id": "arxiv-2609.17639",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-17T18:45:16.892395Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-15T13:39:16Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出SARA工业框架，从快手直播用户中规模化获取并生成用户自然语言偏好理由，再将这些正负理由集成到生产排序中以提升互动并降低负反馈。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Scaling Articulated Rationales for MLLM-based Recommendation",
+  "url": "https://arxiv.org/abs/2609.17639v1"
+}

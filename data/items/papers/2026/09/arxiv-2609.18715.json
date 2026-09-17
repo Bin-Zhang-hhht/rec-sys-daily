@@ -1,0 +1,76 @@
+{
+  "abstract": "Conversational recommender systems~(CRS) enable users to express preferences, constraints, and feedback through natural language interaction. However, existing CRS resources are concentrated in English and other high-resource languages, leaving Bangla and code-mixed Bangla--English settings underrepresented. To address this gap, we introduce BanglaShop-CRS, a large-scale user-centric synthetic Bangla conversational recommendation dataset grounded in real e-commerce behavior. It contains 27,178 multi-turn dialogues, 274,802 utterances, and 3.6M tokens across 10 product domains. Our generation pipeline incorporates user purchase histories, positive and negative feedback, and review texts to maintain consistency between dialogue content and user preferences. We evaluate BanglaShop-CRS under catalog-constrained and open-vocabulary recommendation protocols. Results show that dialogue context improves recommendation quality, while fine-tuning yields further gains across models. Human evaluation by five native Bangla-speaking annotators confirms the fluency, informativeness, logicality, and coherence of the dialogues, with significant agreement across all dimensions. Factual-grounding evaluation further shows stronger alignment with correct than shuffled user records, with substantial inter-annotator agreement ($κ=0.65$) and comparable human and GPT-5.1 judgments. BanglaShop-CRS provides a scalable benchmark for advancing conversational recommendation in Bangla. Conversational recommender systems~(CRS) enable users to express preferences, constraints, and feedback through natural language interaction. However, existing CRS resources are concentrated in English and other high-resource languages, leaving Bangla and code-mixed Bangla--English settings underrepresented. To address this gap, we introduce BanglaShop-CRS, a large-scale user-centric synthetic Bangla conversational recommendation dataset grounded in real e-commerce behavior. It contains 27,178 multi-turn dialogues, 274,802 utterances, and 3.6M tokens across 10 product domains. Our generation pipeline incorporates user purchase histories, positive and negative feedback, and review texts to maintain consistency between dialogue content and user preferences. We evaluate BanglaShop-CRS under catalog-constrained and open-vocabulary recommendation protocols. Results show that dialogue context improves recommendation quality, while fine-tuning yields further gains across models. Human evaluation by five native Bangla-speaking annotators confirms the fluency, informativeness, logicality, and coherence of the dialogues, with significant agreement across all dimensions. Factual-grounding evaluation further shows stronger alignment with correct than shuffled user records, with substantial inter-annotator agreement ($κ=0.65$) and comparable human and GPT-5.1 judgments. BanglaShop-CRS provides a scalable benchmark for advancing conversational recommendation in Bangla.",
+  "arxiv_id": "2609.18715",
+  "authors": [
+    "Tabia Tanzin Prama",
+    "Christopher M. Danforth",
+    "Peter Sheridan Dodds"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "为孟加拉语电商平台的对话式推荐与智能客服场景提供可扩展的训练和评测数据。",
+      "支持目录受限和开放词汇两种推荐模式，能够适配实际电商系统中的商品检索与自由表达式推荐需求。",
+      "通过整合购买历史和评论生成用户一致的对话，有助于构建更贴近真实用户偏好、交互更自然的推荐系统。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出BanglaShop-CRS，一个大规模、以用户为中心的合成孟加拉语对话推荐数据集，包含27,178个多轮对话、274,802个话语和360万tokens，覆盖10个产品领域。",
+      "构建了结合用户购买历史、正负反馈和评论文本的生成流程，使对话内容与用户偏好保持一致。",
+      "在目录受限和开放词汇两种推荐协议下评估模型，显示加入对话上下文可提升推荐质量，微调带来进一步提升。",
+      "通过五名孟加拉语母语标注者验证了对话的流畅性、信息性、逻辑性和连贯性，并证明事实性对齐显著强于打乱记录，人类判断与GPT-5.1相当。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "BanglaShop-CRS"
+      ],
+      "findings_zh": [
+        "对话上下文能够提升推荐质量，微调后模型效果进一步提升。",
+        "五名孟加拉语母语标注者在流畅性、信息性、逻辑性和连贯性上具有显著一致性。",
+        "事实性评估显示对话与正确用户记录的对齐强于打乱后的用户记录，标注者间一致性为κ=0.65。",
+        "人类评估结果与GPT-5.1的判断水平相当。"
+      ],
+      "metrics": [
+        "fluency",
+        "informativeness",
+        "logicality",
+        "coherence",
+        "factual-grounding agreement",
+        "inter-annotator agreement κ=0.65"
+      ]
+    },
+    "limitations_zh": [],
+    "method_zh": "基于真实电商行为构建合成数据生成流程，融合用户购买历史、正面与负面反馈及评论文本；生成多轮对话后，在目录受限和开放词汇协议下评测模型，并使用母语标注者与GPT-5.1进行人工和自动评估。",
+    "problem_zh": "现有对话推荐系统资源主要集中在英语等高资源语言，孟加拉语及孟加拉语-英语混用场景严重缺乏基准资源。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.78,
+  "id": "arxiv-2609.18715",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-17T18:45:16.892395Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-16T14:20:26Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文构建并评估BanglaShop-CRS，一个基于真实电商行为、覆盖10个产品领域的孟加拉语对话推荐数据集，用于推动低资源语言环境下的对话推荐研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "BanglaShop-CRS: A User-Centric Bangla Dataset for Conversational Recommendation",
+  "url": "https://arxiv.org/abs/2609.18715v1"
+}

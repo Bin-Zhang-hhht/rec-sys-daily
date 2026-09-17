@@ -1,0 +1,37 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-5865bb15cff90c79b39ea2bd",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文介绍Pinterest广告轻量级排序中的3塔联合训练模型，在双塔快速打分基础上引入交叉塔与交互模块，以在超大规模候选集下兼顾效率与效果。"
+    }
+  ],
+  "date": "2026-09-18",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.18695",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出SURF框架，通过在嵌入空间定位目标物品邻域并训练辅助模型进行推理时减法更新，以极低计算成本实现顺序推荐系统的高效近似机器遗忘。"
+    },
+    {
+      "item_id": "arxiv-2609.17639",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出SARA工业框架，从快手直播用户中规模化获取并生成用户自然语言偏好理由，再将这些正负理由集成到生产排序中以提升互动并降低负反馈。"
+    },
+    {
+      "item_id": "arxiv-2609.18715",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文构建并评估BanglaShop-CRS，一个基于真实电商行为、覆盖10个产品领域的孟加拉语对话推荐数据集，用于推动低资源语言环境下的对话推荐研究。"
+    },
+    {
+      "item_id": "arxiv-2609.12679",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文面向建筑工地提出信任感知的健康推荐策略模型，研究推荐触发阈值与频率，并通过控制方法和强化学习在健康、生产力与信任之间取得平衡。"
+    },
+    {
+      "item_id": "arxiv-2609.18148",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出LIGE-GR框架，将传统逐点排序系统平滑升级为列表式生成推荐系统，并在Instagram Reels和Facebook Video上以较低推理成本提升用户时长。"
+    }
+  ]
+}
