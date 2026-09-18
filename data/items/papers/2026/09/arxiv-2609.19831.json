@@ -1,0 +1,82 @@
+{
+  "abstract": "In this reproducibility study, we investigate the transparency and scrutability of recommender systems enhanced by incorporating generated natural-language user profiles that represent user preferences. The original paper explores the synthesis of user profiles from raw user-generated review text across domains such as movies and accommodations (Amazon Movies & TV, TripAdvisor). Crucially, these natural-language user profiles enable direct user interaction and intervention, allowing users to customize recommendations by correcting misattributed preferences or addressing cold-start settings. We successfully reproduce the core findings of the original study. Additionally, we extend the evaluation by conducting systematic context ablation experiments, multi-seed stability across five distinct random seeds to establish statistical reliability, and a mechanistic interpretability analysis using the nnsight framework to probe internal model representations under counterfactual profile perturbations. Our findings verify the original paper's claim that User Profile Recommendation (UPR) achieves competitive performance under its test-set reranking protocol and makes recommendations more transparent. Perturbing the natural-language profiles does change predictions, but it shifts predicted ratings uniformly across genres with no detectable genre-selective effect, leaving rankings unchanged even under direct activation steering. We trace this back to the rating-regression objective rather than the profile interface, with ranking-objective models clearly exceeding in this task. In this reproducibility study, we investigate the transparency and scrutability of recommender systems enhanced by incorporating generated natural-language user profiles that represent user preferences. The original paper explores the synthesis of user profiles from raw user-generated review text across domains such as movies and accommodations (Amazon Movies & TV, TripAdvisor). Crucially, these natural-language user profiles enable direct user interaction and intervention, allowing users to customize recommendations by correcting misattributed preferences or addressing cold-start settings. We successfully reproduce the core findings of the original study. Additionally, we extend the evaluation by conducting systematic context ablation experiments, multi-seed stability across five distinct random seeds to establish statistical reliability, and a mechanistic interpretability analysis using the nnsight framework to probe internal model representations under counterfactual profile perturbations. Our findings verify the original paper's claim that User Profile Recommendation (UPR) achieves competitive performance under its test-set reranking protocol and makes recommendations more transparent. Perturbing the natural-language profiles does change predictions, but it shifts predicted ratings uniformly across genres with no detectable genre-selective effect, leaving rankings unchanged even under direct activation steering. We trace this back to the rating-regression objective rather than the profile interface, with ranking-objective models clearly exceeding in this task.",
+  "arxiv_id": "2609.19831",
+  "authors": [
+    "Noah Mamié",
+    "Laurin van den Bergh"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "自然语言用户画像可支持用户直接修改偏好、纠正错误属性，有助于提升推荐系统的透明度和用户信任。",
+      "在冷启动场景中，生成式画像可提供可交互偏好表示，降低新用户推荐冷启动门槛。",
+      "但画像扰动仅带来评分整体平移、不改变排序，意味着用户编辑画像可能难以实际改变推荐列表，商业落地时需要配合排序目标优化。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "复现并验证了UPR在测试集重排序协议下能达到有竞争力的性能，且能提升推荐透明度。",
+      "通过上下文消融实验、五种随机种子的多种子稳定性实验，建立了统计可靠性证据。",
+      "使用nnsight框架进行机制可解释性分析，在反事实画像扰动下探测内部模型表征。",
+      "发现扰动自然语言画像会改变预测评分，但效应在体裁间均匀分布且不改变排序，并将此归因于评分回归目标而非画像接口。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "rating-regression objective models",
+        "ranking-objective models"
+      ],
+      "datasets": [
+        "Amazon Movies & TV",
+        "TripAdvisor"
+      ],
+      "findings_zh": [
+        "UPR在测试集重排序协议下达到有竞争力的性能，并实现更透明的推荐。",
+        "扰动自然语言画像会改变预测评分，但评分变化在各体裁上均匀，未检测到体裁选择性效应。",
+        "即使直接进行激活引导，推荐排序仍保持不变。",
+        "该现象可追溯到评分回归目标而非画像接口；使用排序目标的模型在此任务上明显更优。"
+      ],
+      "metrics": [
+        "test-set reranking performance",
+        "predicted rating shifts",
+        "ranking changes/consistency"
+      ]
+    },
+    "limitations_zh": [
+      "扰动画像只产生均匀的评分偏移而不改变排序，说明该画像接口对推荐排序的干预能力有限。",
+      "原始研究的透明性优势可能受限于评分回归目标，难以通过自然语言画像直接调整排名。",
+      "实验覆盖电影与住宿两个领域，结论的跨领域泛化性仍需更多验证。"
+    ],
+    "method_zh": "基于复现研究，使用生成的自然语言用户画像和评论文本，在Amazon Movies & TV与TripAdvisor上进行测试集重排序评估；扩展实验包括上下文消融、五种随机种子重复实验，以及利用nnsight在反事实画像扰动和直接激活引导下探测模型内部表征。",
+    "problem_zh": "研究基于自然语言用户画像的推荐系统（UPR）的可解释性与可审查性：原始工作尝试从用户评论文本合成自然语言用户画像，以支持用户直接交互和干预，但其透明性主张与画像扰动对推荐结果的实际影响机制仍待验证。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.8049999999999999,
+  "id": "arxiv-2609.19831",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-18T18:37:44.170787Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-17T07:36:34Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该复现研究验证并扩展了基于自然语言用户画像的推荐系统，通过画像扰动与机制可解释性分析确认其在重排协议下的竞争性能与透明度。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Reproducing Transparent and Scrutable Recommendations: Exploring Open-Weight Models via Natural-Language User Profiles",
+  "url": "https://arxiv.org/abs/2609.19831v1"
+}
