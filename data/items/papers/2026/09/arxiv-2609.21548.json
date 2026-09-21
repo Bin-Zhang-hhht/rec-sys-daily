@@ -1,0 +1,60 @@
+{
+  "abstract": "Sequential recommendation aims to predict the next item a user will interact with based on their historical behavior. Advances in Transformers have significantly improved sequential recommendation but are still limited by cost efficiency. Although State Space Models (SSMs) have recently enabled efficient long-range modeling, most existing methods encode each item with a single static contextual role, overlooking the phenomenon of item polysemy. In fact, the same item often plays different semantic roles depending on user context, and existing methods are limited in capturing dynamic behavior across different temporal granularities. In this work, we propose DSRec, a novel dual-interest cross-SSM model that explicitly disentangles item roles across long-term and short-term semantic context. Sequential items are encoded into long-term interest embeddings that capture stable preferences via historical aggregation, and a short-term interest branch that emphasizes local session intent modulated by inter-click time intervals. These interest embeddings are processed through distinct SSM encoders: a full-sequence Mamba for long-term modeling, and a time-modulated SSM that dynamically adjusts state evolution based on temporal gaps. To enable effective cross-granularity alignment, we adopt a residual cross-fusion mechanism that exchanges contextual information between the two branches while preserving semantic independence. Experiments on public benchmarks demonstrate that DSRec outperforms other state-of-the-art methods. Sequential recommendation aims to predict the next item a user will interact with based on their historical behavior. Advances in Transformers have significantly improved sequential recommendation but are still limited by cost efficiency. Although State Space Models (SSMs) have recently enabled efficient long-range modeling, most existing methods encode each item with a single static contextual role, overlooking the phenomenon of item polysemy. In fact, the same item often plays different semantic roles depending on user context, and existing methods are limited in capturing dynamic behavior across different temporal granularities. In this work, we propose DSRec, a novel dual-interest cross-SSM model that explicitly disentangles item roles across long-term and short-term semantic context. Sequential items are encoded into long-term interest embeddings that capture stable preferences via historical aggregation, and a short-term interest branch that emphasizes local session intent modulated by inter-click time intervals. These interest embeddings are processed through distinct SSM encoders: a full-sequence Mamba for long-term modeling, and a time-modulated SSM that dynamically adjusts state evolution based on temporal gaps. To enable effective cross-granularity alignment, we adopt a residual cross-fusion mechanism that exchanges contextual information between the two branches while preserving semantic independence. Experiments on public benchmarks demonstrate that DSRec outperforms other state-of-the-art methods.",
+  "arxiv_id": "2609.21548",
+  "authors": [
+    "Shuiying Liao",
+    "P. Y. Mok"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "若 DSRec 在公开基准上的 SOTA 表现可推广到实际场景，则更准确的下一项推荐有望提升用户满意度和点击/转化效率，进而改善推荐系统业务指标。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "提出 DSRec，一种双兴趣跨 SSM 模型，显式解耦长期与短期语义上下文中的物品角色。",
+      "设计长期兴趣嵌入与短期兴趣分支，分别建模稳定偏好和由点击时间间隔调制的局部会话意图。",
+      "采用残差跨融合机制在双分支间交换上下文信息，同时保持语义独立性。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "在公开基准上，DSRec 优于其他 state-of-the-art 方法。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [],
+    "method_zh": "DSRec 将序列物品编码为长期兴趣嵌入（通过历史聚合捕获稳定偏好）和短期兴趣嵌入（强调局部会话意图并由点击时间间隔调制）。两条兴趣流分别输入不同的 SSM 编码器：全序列 Mamba 负责长期建模，时间调制 SSM 根据时间间隔动态调整状态演化；最后通过残差跨融合机制进行跨粒度信息交换。",
+    "problem_zh": "现有序列推荐方法主要依赖 Transformer，成本效率受限；基于状态空间模型（SSM）的方法虽能高效建模长序列，但通常为每个物品赋予单一静态上下文角色，忽略物品多义性，也难以捕捉不同时间粒度下的动态用户行为。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7250000000000002,
+  "id": "arxiv-2609.21548",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-21T18:52:26.573092Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-18T09:40:51Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出面向序列推荐的双兴趣跨状态空间模型，用于预测用户下一个交互物品，是推荐系统研究内容。",
+  "targets": [],
+  "tasks": [],
+  "title": "Dual-Interest Sequential Product Recommendation With Multi-Granular SSM",
+  "url": "https://arxiv.org/abs/2609.21548v1"
+}

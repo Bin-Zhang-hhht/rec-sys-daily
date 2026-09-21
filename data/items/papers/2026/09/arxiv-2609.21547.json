@@ -1,0 +1,108 @@
+{
+  "abstract": "Research on explainability in recommender systems largely centers on end users, overlooking the perspectives of those who build and maintain these systems and their potential use cases such as model debugging. In this study, we examine how news engineers and related technical stakeholders perceive and implement personalization and explainability in practice. We conducted 15 semi-structured interviews across nine news organizations, spanning diverse regions in both public and private sectors, to investigate the challenges and motivations shaping their approaches. Our findings reveal that personalization is not always a straightforward or desirable choice for news organizations, as concerns around user tracking, editorial control, and resource constraints often limit its adoption. Even among organizations implementing personalized news recommender systems in production, explainability is rarely prioritized, with day-to-day operational demands frequently taking precedence over longer-term transparency goals. Definitions of explainability vary widely across organizations, though some demonstrate promising internal practices and visualization tools that facilitate communication between engineering teams and newsrooms. Based on our analysis, we provide actionable and practical guidelines for news engineers and researchers on how to adopt explainability methods within a news personalization pipeline. Research on explainability in recommender systems largely centers on end users, overlooking the perspectives of those who build and maintain these systems and their potential use cases such as model debugging. In this study, we examine how news engineers and related technical stakeholders perceive and implement personalization and explainability in practice. We conducted 15 semi-structured interviews across nine news organizations, spanning diverse regions in both public and private sectors, to investigate the challenges and motivations shaping their approaches. Our findings reveal that personalization is not always a straightforward or desirable choice for news organizations, as concerns around user tracking, editorial control, and resource constraints often limit its adoption. Even among organizations implementing personalized news recommender systems in production, explainability is rarely prioritized, with day-to-day operational demands frequently taking precedence over longer-term transparency goals. Definitions of explainability vary widely across organizations, though some demonstrate promising internal practices and visualization tools that facilitate communication between engineering teams and newsrooms. Based on our analysis, we provide actionable and practical guidelines for news engineers and researchers on how to adopt explainability methods within a news personalization pipeline.",
+  "arxiv_id": "2609.21547",
+  "authors": [
+    "Jasmin Kareem",
+    "Siddharth Mehrotra",
+    "Martijn C. Willemsen",
+    "Maarten de Rijke"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "新闻机构应将可解释性首先定位为内部工具，用于工程团队与编辑部之间的沟通，例如用仪表盘展示推荐行为、多样性指标和业务规则触发情况，而不是急于面向读者提供解释。",
+      "在资源有限时，优先建立系统化调试流程（如分数归一化、用户画像抽查、嵌入可视化）和可追溯的业务规则，而非投入复杂的事后解释算法。",
+      "个性化的商业价值需要与编辑自主权、用户隐私和机构公信力权衡；公共广播机构和注重隐私的聚合商可以合理选择有限个性化或不个性化。",
+      "新闻机构在采用LLM辅助写作、元数据生成和内部工具时，需要明确内容责任和编辑价值对齐，避免因自动化导致公信力或劳资问题。",
+      "可解释性研究应面向多利益相关方沟通和维护者调试，而不只关注终端用户透明度，这有助于缩小学术研究与工业部署之间的差距。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "通过对9家新闻机构的15次半结构化访谈，系统梳理了新闻推荐系统中个性化实践的采用现状与差异。",
+      "识别出新闻推荐工程团队面临的主要挑战：数据/后端/基础设施、资源与人手、编辑部沟通、推荐系统自身问题。",
+      "发现没有任何机构显式部署算法化可解释性工具；内部仪表盘和手工调试是主要的模型理解与跨团队沟通手段。",
+      "提出面向新闻工程师和研究者的可解释性实践指南，强调内部可解释性优先于面向终端用户的解释。",
+      "从跨组织视角证实并扩展了新闻推荐系统中编辑、市场与技术逻辑之间张力的既有研究。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methods"
+      },
+      {
+        "page": 1,
+        "section": "4 Results"
+      },
+      {
+        "page": 1,
+        "section": "5 Overarching Themes"
+      },
+      {
+        "page": 1,
+        "section": "6 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "不适用：质性访谈研究，无算法基线比较"
+      ],
+      "datasets": [
+        "9家新闻机构的15场半结构化访谈记录（参与者编码如D1、P2、E4等，涵盖数据科学、产品、工程团队）"
+      ],
+      "findings_zh": [
+        "9家机构中7家采用某种形式的个性化推荐，但多数采用混合方法，在算法推荐与编辑控制之间取得平衡；公共广播机构比私人机构更少采用个性化。",
+        "一个组织因编辑价值观和回音室担忧移除了个性化，另一家聚合商为避免收集个人数据而主动选择不个性化。",
+        "工程师面临的主要挑战包括数据/后端/基础设施、资源和人员不足、与编辑团队的沟通，以及推荐系统自身问题（如冷启动、复杂业务规则）。",
+        "没有组织显式使用算法化可解释性工具；内部实践主要是面向编辑部的仪表盘、手动调试、分数归一化、用户画像抽查和嵌入可视化。",
+        "对外部可解释性，部分组织持怀疑态度，另一部分开放在未来尝试；主要障碍是优先级、数据基础设施和时间不足。",
+        "跨组织主题包括编辑控制（通过业务规则实现）、可解释性与模型理解之间的差异，以及LLM在新闻机构中的快速采纳。"
+      ],
+      "metrics": [
+        "访谈时长：22–56分钟",
+        "编码者间一致性：初始84.38%，Cohen's κ=0.80；讨论后96.2%"
+      ]
+    },
+    "limitations_zh": [
+      "样本集中于欧洲和北美的组织，受特定监管框架约束，研究发现可能无法推广到全球。",
+      "主要捕捉技术利益相关者（工程师、产品负责人）的视角，缺少编辑部、读者和监管者的系统性观点。",
+      "研究未覆盖跨利益相关方的比较，未来需要纳入编辑、记者、读者和监管者，以形成更细致的设计决策依据。"
+    ],
+    "method_zh": "定性访谈与主题分析：对来自9家新闻机构（公共广播、报纸/杂志、媒体集团、新闻聚合器）的15名工程师和产品负责人进行半结构化访谈，访谈时长22–56分钟；使用MAXQDA 2024进行编码，两名研究者先独立编码再讨论，初始编码一致性84.38%（Cohen's κ=0.80），解决分歧后一致性96.2%；随后用轴向编码归纳主题。",
+    "problem_zh": "论文关注新闻推荐系统研究中被忽视的工程实践者视角：个性化和可解释性在真实新闻机构中如何被理解、采用或回避。作者旨在回答“可解释性方法能否解决工程师构建新闻推荐系统时面临的挑战”，具体包括三个研究问题：个性化在新闻机构的采用程度、工程团队面临的主要挑战、可解释性在推荐系统中的采用程度。",
+    "technical_depth": 0.3
+  },
+  "doi": "10.1145/3773078.3831744",
+  "final_score": 0.8250000000000001,
+  "id": "arxiv-2609.21547",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-21T18:52:26.573092Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-18T09:38:14Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文通过访谈新闻推荐工程师研究个性化与可解释性的工程实践，属于新闻推荐系统工程内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Do We Care About Personalization and Explainability? An Interview Study with News Recommendation Engineers",
+  "url": "https://arxiv.org/abs/2609.21547v1"
+}

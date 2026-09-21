@@ -1,0 +1,127 @@
+{
+  "abstract": "Mixture-of-Experts (MoE) scales capacity, but existing designs cannot set three quantities independently. For a single token, participation is how many experts contribute knowledge to its output, execution is how many are actually computed (compute cost), and materialization is how many expert-sized parameter sets must be built and stored (memory cost). Sparse routing keeps execution and materialization low, but shrinks participation: for each token, only a few experts contribute. Dense output-mixing restores full participation, but its execution grows with the number of experts. Parameter-merging keeps execution at one expert, but its materialization grows with the number of routing decisions. We propose IntBMoE, a block-conditioned MoE that decouples all three by pairing dense expert composition with sparse block execution. Its blocks come from a small learned codebook, one per entry. At each internal layer, a lightweight hypernetwork merges all expert bases in that layer's pool into one composed expert. Participation is full, because every composed expert draws on the entire pool. Execution stays sparse, because a router sends each token to only a few blocks. Materialization is bounded, because the codebook, not the input, fixes how many blocks exist. Dual-Path Residual Gating (DPRG) further couples two independently composed paths through multiplicative gating. Experiments on image classification show consistent gains over representative sparse and dense MoE baselines. Additional experiments on language modeling and sequential recommendation validate its generalization beyond vision. IntBMoE is fully deployed in AMap's generative recommendation system, serving hundreds of millions of users under a 60ms latency budget, with a 2.4% relative UVCTR gain in online A/B testing. Our code is available at https://github.com/AMAP-ML/DreamX-Rec/. Mixture-of-Experts (MoE) scales capacity, but existing designs cannot set three quantities independently. For a single token, participation is how many experts contribute knowledge to its output, execution is how many are actually computed (compute cost), and materialization is how many expert-sized parameter sets must be built and stored (memory cost). Sparse routing keeps execution and materialization low, but shrinks participation: for each token, only a few experts contribute. Dense output-mixing restores full participation, but its execution grows with the number of experts. Parameter-merging keeps execution at one expert, but its materialization grows with the number of routing decisions. We propose IntBMoE, a block-conditioned MoE that decouples all three by pairing dense expert composition with sparse block execution. Its blocks come from a small learned codebook, one per entry. At each internal layer, a lightweight hypernetwork merges all expert bases in that layer's pool into one composed expert. Participation is full, because every composed expert draws on the entire pool. Execution stays sparse, because a router sends each token to only a few blocks. Materialization is bounded, because the codebook, not the input, fixes how many blocks exist. Dual-Path Residual Gating (DPRG) further couples two independently composed paths through multiplicative gating. Experiments on image classification show consistent gains over representative sparse and dense MoE baselines. Additional experiments on language modeling and sequential recommendation validate its generalization beyond vision. IntBMoE is fully deployed in AMap's generative recommendation system, serving hundreds of millions of users under a 60ms latency budget, with a 2.4% relative UVCTR gain in online A/B testing. Our code is available at https://github.com/AMAP-ML/DreamX-Rec/.",
+  "arxiv_id": "2609.21346",
+  "authors": [
+    "Ran Cheng",
+    "Longfei Xu",
+    "Zheng Liu",
+    "Kaikui Liu",
+    "Xiangxiang Chu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "AMap 生成式推荐已全量部署 IntBMoE，服务数亿用户，说明其在强延迟约束（60ms）下具备生产可用性。",
+      "部署中平均延迟 19ms、P99 38ms，并获得 2.4% 相对 UVCTR 提升，可直接作为推荐系统业务指标收益的证据。",
+      "缓存机制将块组合移出请求路径，使请求时计算不随专家池规模增长，适合大规模在线推理场景。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "提出 IntBMoE，用有限码本定义可复用块，共享 hypernetwork 将各层专家基合并为组合专家，路由只选 Top-k 块，从而解耦 participation、execution 和 materialization。",
+      "提出 Dual-Path Residual Gating (DPRG)，将 value 与 gate 两条独立组合路径通过残差乘法耦合，在不大幅增加参数的情况下增强组合专家表达力。",
+      "在 ImageNet-1K、MiniPile、IntTravel 上验证有效性，并在 AMap 生成式推荐系统全量部署，在线 A/B 获得 2.4% 相对 UVCTR 提升。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Method"
+      },
+      {
+        "page": 1,
+        "section": "5 Visual Experiments"
+      },
+      {
+        "page": 1,
+        "section": "6 Generalization to Language Modeling and Recommendation"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Dense",
+        "Switch Transformer",
+        "DeepSeek-V3 MoE",
+        "ReMoE",
+        "V-MoE",
+        "Expert Choice",
+        "DynMoE",
+        "MASS",
+        "Soft MoE",
+        "SMEAR",
+        "Lory",
+        "μMoE (CP)",
+        "μMoE (TR)"
+      ],
+      "datasets": [
+        "ImageNet-1K",
+        "MiniPile",
+        "IntTravel",
+        "AMap 生产推荐流量（在线 A/B）"
+      ],
+      "findings_zh": [
+        "ImageNet-1K 上 IntBMoE 达到 73.76% Top-1 / 91.48% Top-5，比最强基线 SMEAR 高 1.98 / 1.15 个百分点。",
+        "消融显示移除 DPRG gate 路径导致最大性能下降；两层层块优于参数匹配的单层；未归一化、方差缩放的组合系数优于 softmax 归一化。",
+        "MiniPile 上 PPL 为 14.5878，比最强基线 μMoE (CP) 相对降低 2.9%，比 dense 降低 12.4%；IntTravel 上 HR@1、HR@5、NDCG@5 均最高。",
+        "在线 A/B 中 cached IntBMoE 在约 5000 QPS 下平均延迟 19ms、P99 38ms，相对 UVCTR 提升 2.4%。"
+      ],
+      "metrics": [
+        "Top-1 Accuracy",
+        "Top-5 Accuracy",
+        "Params",
+        "Activated Params",
+        "FLOPs",
+        "Loss",
+        "PPL",
+        "HR@1",
+        "HR@5",
+        "NDCG@5",
+        "UVCTR",
+        "Latency"
+      ]
+    },
+    "limitations_zh": [
+      "论文未设专门 limitations 章节；表 1 显示 IntBMoE 激活参数 23.111M、FLOPs 4.063/3.457G，高于 Switch、ReMoE 等稀疏基线，因此稀疏执行优势主要体现在块级而非参数激活量上。",
+      "实验使用较小规模骨干（ImageNet 为 8 层 DeiT-Tiny、MiniPile 为 18 层 Llama），且 MiniPile 仅训练 1 epoch；未提供大规模 LLM 或更长训练下的结论。",
+      "超参敏感性实验表明 K、E、k、L 的收益在默认值后边际递减，实际应用需要针对场景调参。"
+    ],
+    "method_zh": "每个 IntBMoE 模块维护 K 个可学习码本嵌入，每个嵌入对应一个 L 层块。共享 hypernetwork 将码本嵌入映射为 value/gate 两组组合系数，按层把 E 个专家基线性合并成组合专家；系数不经过 softmax/sigmoid 归一化，并用 1/sqrt(E) 保持尺度稳定。token 路由用两层 ReLU MLP 对 K 个块打分并选 Top-k；进入块前用码本嵌入做块条件特征过滤；块内 DPRG 层用 value 与 gate 两条独立组合路径做残差乘法调制，层间加 LayerNorm。最终按路由概率加权聚合选中块输出，并加一个始终激活的共享 SwiGLU expert。由于块组合只依赖输入无关的码本嵌入，推理时可预计算并缓存组合块参数。",
+    "problem_zh": "现有 MoE 设计将专家参与度（participation）、执行成本（execution）和参数物化（materialization）三者耦合：稀疏路由限制每个 token 能利用的专家数量；稠密输出混合会随专家数增加执行开销；参数合并则让物化参数随路由决策数增长。论文提出 IntBMoE，目标是让每个 token 都能利用完整专家池，同时保持稀疏执行和有界参数物化。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9375000000000001,
+  "id": "arxiv-2609.21346",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-21T18:52:26.573092Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling",
+    "large_language_model"
+  ],
+  "published_at": "2026-09-18T06:01:13Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出块条件混合专家模型，并在序列推荐与生成式推荐系统部署中验证，属于推荐系统相关研究方法。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "IntBMoE: Integrating Block-Level Conditioning into Expert Composition for Full-Participation Mixture-of-Experts",
+  "url": "https://arxiv.org/abs/2609.21346v1"
+}
