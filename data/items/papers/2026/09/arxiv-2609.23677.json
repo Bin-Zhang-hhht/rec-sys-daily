@@ -1,0 +1,137 @@
+{
+  "abstract": "Ultra-long user behavior sequences carry rich signals of stable and diverse preferences, yet industrial recommender systems typically truncate histories to a few hundred actions under strict latency and memory budgets, leaving long-term interests under-utilized. Users also pursue multiple heterogeneous intents across modalities such as news, Q&A, and short video, which sparse ID embeddings alone struggle to represent. We present Multi-interest Sequence Representation (MuSeR), a retrieval framework built on the deployed MGS system, which integrates three components: (i) hierarchical temporal compression, which retains recent actions at full resolution while progressively pooling older segments, so that per-user histories of $10^{4}$-$10^{5}$ interactions fit within a fixed serving budget; (ii) disentangled multi-query interest extraction with orthogonality regularization; and (iii) multimodal semantic alignment, which augments sparse item IDs with textual summaries distilled from a large language model. For industrial deployment, MuSeR further adopts asynchronous user-representation refresh with adaptive caching and hierarchical beam-search retrieval across heterogeneous hardware. On three public benchmarks and a large-scale industrial dataset, MuSeR consistently improves Recall@$K$ over strong long-sequence and multi-interest baselines. In online A/B tests on Baidu APP's homepage feed, discovery feed, and short-video scenarios, MuSeR yields +0.26% daily active users and +0.89% total session duration (both statistically significant, p<0.05), alongside reduced serving latency and cost. Rather than proposing a new modeling primitive, our contribution is a system-level integration that makes long-term, multi-interest, and multimodal modeling jointly deployable in a real-time production pipeline, together with the engineering practices required to sustain it. Ultra-long user behavior sequences carry rich signals of stable and diverse preferences, yet industrial recommender systems typically truncate histories to a few hundred actions under strict latency and memory budgets, leaving long-term interests under-utilized. Users also pursue multiple heterogeneous intents across modalities such as news, Q&A, and short video, which sparse ID embeddings alone struggle to represent. We present Multi-interest Sequence Representation (MuSeR), a retrieval framework built on the deployed MGS system, which integrates three components: (i) hierarchical temporal compression, which retains recent actions at full resolution while progressively pooling older segments, so that per-user histories of $10^{4}$-$10^{5}$ interactions fit within a fixed serving budget; (ii) disentangled multi-query interest extraction with orthogonality regularization; and (iii) multimodal semantic alignment, which augments sparse item IDs with textual summaries distilled from a large language model. For industrial deployment, MuSeR further adopts asynchronous user-representation refresh with adaptive caching and hierarchical beam-search retrieval across heterogeneous hardware. On three public benchmarks and a large-scale industrial dataset, MuSeR consistently improves Recall@$K$ over strong long-sequence and multi-interest baselines. In online A/B tests on Baidu APP's homepage feed, discovery feed, and short-video scenarios, MuSeR yields +0.26% daily active users and +0.89% total session duration (both statistically significant, p<0.05), alongside reduced serving latency and cost. Rather than proposing a new modeling primitive, our contribution is a system-level integration that makes long-term, multi-interest, and multimodal modeling jointly deployable in a real-time production pipeline, together with the engineering practices required to sustain it.",
+  "arxiv_id": "2609.23677",
+  "authors": [
+    "Yongkang Fu",
+    "Beining Bao",
+    "Yu Jiang",
+    "Xiangyu Zhao",
+    "Hongyang Wei",
+    "Guangxing Chen",
+    "Zuodong Yang",
+    "Shantao Li",
+    "Zonggang Wu",
+    "Yuqi Lu",
+    "Shouke Qin",
+    "Hanmeng Liu",
+    "Maolin Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在百度APP首页推荐、发现页和短视频场景中，通过单一召回通道获得DAU +0.26%、总会话时长 +0.89%（p<0.05）的线上提升，说明在成熟推荐系统中提升长序列利用率仍可带来可观的用户活跃与时长收益。",
+      "系统级设计带来明确的成本收益：异步计算可减少高达60%的冗余编码，分层beam-search使端到端检索时延降低27%，工程部署成本降低超过35%，适合高QPS、多场景、异构硬件的大规模内容平台。",
+      "多模态语义对齐显著改善稀疏物品和短视频等短生命周期内容的召回，对新闻+视频+问答等跨模态超级App具有直接借鉴意义，有望改善冷启动和跨域消费。",
+      "实际落地需要LLM蒸馏、BGE向量化、分布式缓存、Kafka流式处理、HNSW索引及CPU/GPU/NPU异构计算等基础设施，商业价值显著但复制门槛较高，中小规模系统需要权衡工程投入。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出MuSeR，一个端到端的长序列推荐框架，将层级时序压缩、多查询兴趣提取和多模态语义对齐统一到工业可部署的召回系统中。",
+      "设计层级时序压缩机制，近期行为全分辨率保留、中期行为按16倍池化、早期行为按64倍池化，使10^4-10^5交互量级的用户历史适配固定服务预算。",
+      "提出带正交正则的多查询兴趣提取器，用多个可学习query向量解码多个解耦的兴趣嵌入，在线服务时按候选物品动态选择或融合最相关的兴趣向量。",
+      "构建基于ERNIE-4.0-Turbo蒸馏摘要和BGE语义向量的多模态对齐流程，将稀疏物品ID与稠密语义向量融合，提升冷启动和短视频等稀疏场景的语义召回。",
+      "实现异步用户表示刷新、自适应缓存、动态QPS调节和基于HNSW的分层beam-search检索，形成可运行于异构CPU/GPU/NPU集群的完整部署方案。",
+      "通过公共基准、大规模工业数据集和百度APP线上A/B实验验证了该框架在召回质量和业务指标上的提升。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "II. Method"
+      },
+      {
+        "page": 1,
+        "section": "III. Online Deployment"
+      },
+      {
+        "page": 1,
+        "section": "IV. Experiments"
+      },
+      {
+        "page": 1,
+        "section": "VI. Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "HGN",
+        "SASRec",
+        "BERT4Rec",
+        "FMLP4-Rec",
+        "FDSA",
+        "S^3-Rec",
+        "SID",
+        "CID",
+        "TIGER",
+        "TIGER-SAS",
+        "LETTER",
+        "NANN",
+        "KuaiFormer"
+      ],
+      "datasets": [
+        "Amazon 2023 review data的Instruments、Industrial & Scientific、Video Games三个子集（5-core过滤，序列长度截断/填充为50，70%/10%/20%切分）",
+        "Baidu APP大规模信息流工业数据集（约1亿活跃用户、1000万物品、约50亿日交互，前29天训练、第30天测试）"
+      ],
+      "findings_zh": [
+        "在三个公共Amazon数据集上，MuSeR在多数Recall/NDCG指标上取得最好或次好结果：Instrument上Recall@5=0.0381、Recall@10=0.0587、NDCG@5=0.0258、NDCG@10=0.0319；Scientific上Recall@5=0.0288、Recall@10=0.0441、NDCG@5=0.0188、NDCG@10=0.0238；Game上Recall@10=0.0919、NDCG@5=0.0389、NDCG@10=0.0488，且多数相对于最强基线NANN达到p<0.05的显著提升。",
+        "在百度私有工业数据集上，MuSeR在Home Feed达到Recall@100=0.0870、Recall@500=0.2232；在Discovery/Short-Video达到Recall@100=0.1377、Recall@500=0.2534，均高于SASRec、NANN、TIGER和KuaiFormer。",
+        "线上A/B测试中，MuSeR在百度APP首页推荐、发现页和短视频场景带来DAU +0.26%、总会话时长 +0.89%，均统计显著（p<0.05）；自2025年8月起全面部署。",
+        "消融实验显示，层级压缩（0.2232）显著优于直接截断短序列（0.1749），但略低于不压缩的长序列（0.2351）；多模态语义对齐在Home Feed带来36.4%相对提升，在Discovery带来33.9%相对提升。",
+        "检索策略对比中，Brute-Force召回最高但成本高，Beam search以较小召回损失获得可用效率（Home 0.2232、Discovery 0.2534），HNSW最快但召回折中更大。",
+        "超参数分析表明，兴趣头数量约4-6个最优，超过6个性能持平或下降；压缩长度Lc=1000为最佳权衡，继续增至1500仅提升0.0006-0.0007。",
+        "部署工程结果：异步计算降低冗余编码最高60%，分层beam-search使端到端检索时延降低27%，工程部署成本较普通flat HNSW降低超过35%。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "Recall@100",
+        "Recall@500",
+        "DAU提升",
+        "总会话时长提升",
+        "检索时延与部署成本"
+      ]
+    },
+    "limitations_zh": [
+      "论文没有单列局限性章节，但消融与超参数实验显示：层级压缩相对于不压缩的长序列仍有约0.0119的Recall@100损失（0.2232 vs 0.2351），截断到短序列的损失更大（约0.0602）。",
+      "兴趣头数量超过6个后性能进入平台期甚至轻微下降，压缩长度超过1000后收益递减，表明模型容量和序列长度存在现实的上界。",
+      "公共数据集序列被截断/填充到长度50，主要用于方法对比，并不能直接证明在10^5量级真实超长序列上的能力；工业数据与A/B结果来自百度专有环境，依赖MGS、HNSW、定制缓存和异构硬件集群，论文未提供代码或开放数据，跨平台复现与迁移需额外验证。",
+      "HNSW单独使用会以一定的召回质量为代价换取最快检索，且该论文的方法强依赖异步缓存、负载自适应刷新和多目标打分等系统工程能力，对基础设施较弱的小型推荐系统落地门槛较高。"
+    ],
+    "method_zh": "MuSeR将用户交互序列S_u划分为近期、中期、早期三段：近期段完整保留，中期段使用Pool_16，早期段使用Pool_64进行渐进池化压缩，压缩后序列由轻量Transformer编码。编码后的上下文状态输入M个可学习query向量，通过缩放点积注意力解码出M个兴趣嵌入u_m；训练时用next-K预测的对比损失与兴趣头正交正则联合优化，服务时按候选物品对多个兴趣向量做温度softmax加权。物品侧使用ERNIE-4.0-Turbo通过chain-of-thought生成文本摘要并蒸馏到轻量模型，再用BGE得到语义向量，最终将ID嵌入与语义嵌入加权融合为统一表示。线上部署采用双频异步计算：长周期用户兴趣离线/低频刷新并缓存，短周期会话行为高频在线编码，再用负载相关的β(t)加权融合；检索侧采用基于HNSW的多层图索引和分层beam-search多目标重打分，兼顾召回、时延与异构硬件成本。",
+    "problem_zh": "工业推荐系统通常只截取最近几百条用户行为，未能充分利用10^4-10^5量级的超长行为序列；用户兴趣在新闻、问答、短视频等异质模态上呈多意图、多源且随时间漂移的特征；纯ID稀疏嵌入难以表达内容语义，冷启动和跨域召回受限；同时Transformer二次复杂度、语义对齐缺口以及异步计算/缓存/异构硬件的工程约束，共同阻碍了超长序列、多兴趣与多模态建模在真实时延预算下的联合部署。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8765000000000001,
+  "id": "arxiv-2609.23677",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-22T18:48:03.350117Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-20T14:36:07Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出MuSeR多兴趣序列表示框架，结合分层时间压缩、解耦多查询兴趣提取与多模态语义对齐，实现超长用户行为序列在工业推荐系统中的高效检索与部署。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MuSeR: Scalable Long-sequence Recommendation with Multi-interest Modeling",
+  "url": "https://arxiv.org/abs/2609.23677v1"
+}

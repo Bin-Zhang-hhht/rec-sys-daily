@@ -1,0 +1,130 @@
+{
+  "abstract": "Scaling model capacity has emerged as an effective approach to overcoming performance bottlenecks in industrial recommender systems. However, repeatedly training larger dense models from scratch demands substantial data and time, while their growing computation conflicts with the strict serving budgets of industrial systems. Parameter inheritance provides a promising route for both dense model growth and sparse conversion, yet existing methods are primarily designed for static corpora and can suffer sharp performance drops under dynamically evolving recommendation data. To address these challenges, we propose Inherit4Rec, a parameter-inheritance framework that supports both Dense-to-Dense (D2D) growth and Dense-to-Sparse (D2S) conversion. Inherit4Rec-D2D combines hybrid growth with asymmetric training to preserve the forward function at expansion and maintain update continuity. Inherit4Rec-D2S constructs SMoE networks through co-activation-aware partitioning and a load-balancing loss, preserving dense-model capabilities while promoting balanced expert activation. Experiments on KuaiRand-1K and an industrial short-video recommendation dataset show that both transformations consistently outperform the evaluated inheritance baselines across all prediction objectives. These results demonstrate the effectiveness of Inherit4Rec for continual capacity expansion and computation-efficient sparse conversion in industrial recommender systems. Scaling model capacity has emerged as an effective approach to overcoming performance bottlenecks in industrial recommender systems. However, repeatedly training larger dense models from scratch demands substantial data and time, while their growing computation conflicts with the strict serving budgets of industrial systems. Parameter inheritance provides a promising route for both dense model growth and sparse conversion, yet existing methods are primarily designed for static corpora and can suffer sharp performance drops under dynamically evolving recommendation data. To address these challenges, we propose Inherit4Rec, a parameter-inheritance framework that supports both Dense-to-Dense (D2D) growth and Dense-to-Sparse (D2S) conversion. Inherit4Rec-D2D combines hybrid growth with asymmetric training to preserve the forward function at expansion and maintain update continuity. Inherit4Rec-D2S constructs SMoE networks through co-activation-aware partitioning and a load-balancing loss, preserving dense-model capabilities while promoting balanced expert activation. Experiments on KuaiRand-1K and an industrial short-video recommendation dataset show that both transformations consistently outperform the evaluated inheritance baselines across all prediction objectives. These results demonstrate the effectiveness of Inherit4Rec for continual capacity expansion and computation-efficient sparse conversion in industrial recommender systems.",
+  "arxiv_id": "2609.23111",
+  "authors": [
+    "Ruihao Zhang",
+    "Bo Chen",
+    "Xiao Wang",
+    "Jinlong Jiao",
+    "Tijian Hu",
+    "Qinglin Jia",
+    "Xiuqiang He",
+    "Xiangyu Zhao",
+    "Chaoyi Ma",
+    "Ruiming Tang",
+    "Wenwu Ou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该框架支持推荐模型在流式训练中直接扩增容量或转换为稀疏 MoE，可显著减少模型升级时从零训练所需的 GPU 时间和数据成本，例如论文指出从头训练 0.3B 参数 UniFormer 至收敛需超过 25 万 GPU 小时。",
+      "D2S 转换在接近稠密模型效果的同时降低单样本激活计算量，有助于在工业级低延迟、高吞吐服务预算下部署更大规模模型。",
+      "参数与优化器状态的复用使模型能够适应快速演化的用户兴趣、物品分布和反馈模式，降低继续训练时的性能回退，对在线推荐系统的稳定性和迭代效率有直接价值。",
+      "论文实验基于快手工业短视频推荐数据，说明该方案在真实大规模推荐平台上具备落地可行性，可支撑反复容量升级和计算效率优化。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "首次面向推荐系统提出参数继承框架 Inherit4Rec，同时支持 Dense-to-Dense 容量扩增与 Dense-to-Sparse 稀疏化转换，避免模型规模升级时重复从零训练。",
+      "提出通用参数继承框架，能够复用当前流式训练检查点中的模型参数与优化器状态，降低稠密扩增和稀疏转换的资源开销。",
+      "提出 Inherit4Rec-D2D：通过混合增长策略（gate/up 投影复制并配以零和约束的 down 投影随机初始化）保证扩增后前向函数稳定并打破复制对称性；通过非对称训练策略维持已继承参数的优化连续性，同时让新参数有效特化。",
+      "提出 Inherit4Rec-D2S：通过共激活感知划分构造 SMoE，尽量保留原稠密 FFN 的输出能力；引入负载均衡损失以均衡各 routed expert 的激活概率。"
+    ],
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Parameter Inheritance for Dense-to-Dense Growth"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Parameter Inheritance for Dense-to-Sparse Conversion"
+      },
+      {
+        "page": 1,
+        "section": "6.2 Dense-to-Dense Growth"
+      },
+      {
+        "page": 1,
+        "section": "6.3 Dense-to-Sparse Conversion"
+      },
+      {
+        "page": 1,
+        "section": "6.4 Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "6.5 Visualization Analysis"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Seed (Base)",
+        "Train-from-Scratch (Dense)",
+        "Train-from-Scratch (SMoE)",
+        "bert2BERT",
+        "SPARKLING",
+        "LLaMA-MoE",
+        "G-MoEfication"
+      ],
+      "datasets": [
+        "KuaiRand-1K",
+        "工业短视频推荐数据集（来自短视频推荐平台单页流量）"
+      ],
+      "findings_zh": [
+        "D2D 实验中，在 KuaiRand-1K 和工业数据集上，Inherit4Rec-D2D 在所有四个预测目标上均取得最高 GAUC；相对最强现有继承基线，平均相对 GAUC 提升分别为 0.15%（KuaiRand-1K）和 0.05%（工业数据集），最大单项提升为 KuaiRand-1K 上的 Like 目标 0.22%，距 Oracle 的平均相对 GAUC 差距缩小至 0.10% 和 0.05%。",
+        "D2S 实验中，在匹配的 FFN 激活预算下，Inherit4Rec-D2S 在每个预测目标上都超过 LLaMA-MoE 和 G-MoEfication，相对最强转换基线的 GAUC 提升最高分别达到 0.05%、0.07%、0.74% 和 0.15%；相比 SMoE Train-from-Scratch 参考模型，平均相对 GAUC 仅下降 0.117%（KuaiRand-1K）和 0.019%（工业数据集）。",
+        "与 Dense 和 SMoE 从零训练模型相比，Inherit4Rec-D2S 的性能损失分别仅为约 0.04% 和 0.01%，同时将增量 SMoE 训练成本降低约 72%。",
+        "消融实验显示，D2D 去掉零和初始化后工业集 GAUC 下降 0.066%–0.169%，去掉优化器状态迁移后下降 0.093%–0.254%；D2S 去掉共激活感知划分造成最大性能下降（0.132%–0.240%），而去掉共享专家或负载均衡损失的下降幅度较小。",
+        "可视化分析表明，Inherit4Rec-D2D 的 update-continuity 误差曲线比 bert2BERT 和 SPARKLING 更平滑稳定；在相同稀疏度下，Inherit4Rec-D2S 的 NMSE 低于 LLaMA-MoE 和 G-MoEfication，说明仅追求激活均衡并不能保证对原稠密 FFN 能力的保持。"
+      ],
+      "metrics": [
+        "GAUC",
+        "NMSE（Dense-to-Sparse 能力保持误差）",
+        "Update-continuity error E_t^u",
+        "SMoE 增量训练成本/效率"
+      ]
+    },
+    "limitations_zh": [
+      "方法仅对模型中的 per-token FFN 执行通道级参数继承和结构变换，未覆盖序列建模、特征交互、任务建模等其他模块。",
+      "论文实验主要评估转换后较短的继续训练窗口（工业数据集为后续 7 个日窗口），未充分研究长期分布漂移下的重复变换、自适应专家预算和更长期行为。",
+      "D2S 稀疏执行只激活部分通道，无法精确保持原稠密 FFN 输出，top-1 路由仍会带来一定能力损失；动态数据分布下，静态划分的专家可能随着激活模式演化而失配。",
+      "D2S 依赖转换时可获得的校准数据统计，工业实验使用了约 7.68 亿条校准样本，统计质量和校准成本在小规模或快速变化场景下可能构成约束。"
+    ],
+    "method_zh": "Inherit4Rec 聚焦模型中的 per-token SwiGLU FFN，采用通道级结构变换。D2D 增长中，将源 gate/up 投影复制为 c 组新副本，新 down 投影根据源 W_down 的经验均值和方差采样并在各副本间做零和中心化，使扩展后的 FFN 在精确算术下输出不变；随后采用非对称训练，继承参数保留原优化器一阶/二阶矩并沿用原学习率调度，新参数从零优化器矩开始并采用独立的 warmup-and-decay 调度，以保持前向稳定和更新连续性。D2S 转换中，冻结稠密检查点并进行仅前向的校准，按通道平均输出贡献 I_j 选出最高贡献的 m 个通道构成常开的 shared expert；对剩余通道基于共激活相似度 G_ij 构建等宽、互不重叠的 routed experts，目标函数为最大化专家内通道相似度，使用容量受限贪心初始化和交换精炼求解。推理时每个输入激活 shared expert 和一个 top-1 routed expert，路由权重由新初始化 router 的 softmax 最大值给出；训练中加入 Switch 式辅助负载均衡损失，专家参数和优化器状态按通道索引从原稠密 FFN 直接迁移复用。",
+    "problem_zh": "工业推荐系统通过扩大模型容量可获得明显性能提升，但从零重复训练更大规模模型需要大量训练数据和 GPU 时间，同时工业场景对延迟和吞吐有严格限制。与静态语料上的 LLM 预训练不同，推荐数据是流式且分布持续演化的，直接将面向静态语料设计的参数继承方法（如 bert2BERT、SPARKLING、LLaMA-MoE、G-MoEfication）用于推荐模型，会在继续训练时出现明显性能下降。论文解决的核心问题是：如何在流式推荐场景下通过参数继承实现高效、稳定的稠密模型扩增（Dense-to-Dense）和稠密转稀疏 MoE（Dense-to-Sparse），从而避免从零训练并适应动态数据分布。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.8955000000000001,
+  "id": "arxiv-2609.23111",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-22T18:48:03.350117Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-19T16:27:51Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出Inherit4Rec参数继承框架，支持推荐模型在动态数据下进行稠密到稠密扩展与稠密到稀疏转换，从而提升工业推荐系统的容量扩展与计算效率。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Inherit4Rec: Parameter Inheritance for Efficient Scaling of Recommendation Models",
+  "url": "https://arxiv.org/abs/2609.23111v1"
+}

@@ -1,0 +1,41 @@
+{
+  "blogs": [],
+  "date": "2026-09-23",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.23718",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出UNIQUE统一召回与排序框架，以单层扁平量化整合生成式代码召回和目标感知排序，并在百度大规模移动Feed场景取得显著线上收益。"
+    },
+    {
+      "item_id": "arxiv-2609.22441",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文介绍LinkedIn信息流预排序系统Connected Content Retriever，利用GPU上的稠密图边特征和深度排序模型在低延迟下对候选内容打分，属于推荐系统工程内容。"
+    },
+    {
+      "item_id": "arxiv-2609.23111",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出Inherit4Rec参数继承框架，支持推荐模型在动态数据下进行稠密到稠密扩展与稠密到稀疏转换，从而提升工业推荐系统的容量扩展与计算效率。"
+    },
+    {
+      "item_id": "arxiv-2609.24430",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本论文通过大规模可复现性研究系统考察生成式推荐中语义ID设计的影响，发现不同SID设计在数据集上表现非单调且没有一种设计普遍最优。"
+    },
+    {
+      "item_id": "arxiv-2609.23677",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出MuSeR多兴趣序列表示框架，结合分层时间压缩、解耦多查询兴趣提取与多模态语义对齐，实现超长用户行为序列在工业推荐系统中的高效检索与部署。"
+    },
+    {
+      "item_id": "arxiv-2609.23849",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出基于Barlow Twins去相关正则化的顺序推荐训练框架BT-SR，通过特征去相关实现头部与尾部物品之间准确率与曝光率可控权衡。"
+    },
+    {
+      "item_id": "arxiv-2609.22747",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出面向大型推荐系统的反事实可观测性评估框架，帮助内容创作者和模型开发者更好地归因推荐效果并改进系统。"
+    }
+  ]
+}

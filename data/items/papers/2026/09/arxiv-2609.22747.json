@@ -1,0 +1,115 @@
+{
+  "abstract": "Understanding the performance of large-scale recommender systems remains an underexplored challenge, especially for content creators and model developers. The raw engagement signals available to them, such as views and clicks, conflate content quality, model behavior, presentation bias, and audience reach, making it hard to attribute outcomes to the right cause. In this work, we present a general evaluation framework that enhances observability across multiple recommender systems at Netflix and demonstrate its effectiveness through several production deployments. The framework treats recommender-system observability as a counterfactual measurement problem: estimating what the recommender would have done, and what engagement would have followed, in the absence of a specific content item or model decision. We articulate three stakeholder-centered observability principles for content creators and model developers, and propose measurement methodologies covering bias reduction, relativity, and incrementality, applicable to both single-stage and cascading recommender systems and serving both audiences from a single measurement foundation. Understanding the performance of large-scale recommender systems remains an underexplored challenge, especially for content creators and model developers. The raw engagement signals available to them, such as views and clicks, conflate content quality, model behavior, presentation bias, and audience reach, making it hard to attribute outcomes to the right cause. In this work, we present a general evaluation framework that enhances observability across multiple recommender systems at Netflix and demonstrate its effectiveness through several production deployments. The framework treats recommender-system observability as a counterfactual measurement problem: estimating what the recommender would have done, and what engagement would have followed, in the absence of a specific content item or model decision. We articulate three stakeholder-centered observability principles for content creators and model developers, and propose measurement methodologies covering bias reduction, relativity, and incrementality, applicable to both single-stage and cascading recommender systems and serving both audiences from a single measurement foundation.",
+  "arxiv_id": "2609.22747",
+  "authors": [
+    "Chaoran Guo",
+    "Ding Tong",
+    "Ting-Po Lee",
+    "Scarlet Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "内容创作者（如Netflix行策展人）无需运行A/B测试即可离线估计内容或行的增量价值，加快策展和创意策略迭代。",
+      "避免因展示偏差或模型摆放位置而错误低估高质量内容，减少基于原始CTR的误导性优化。",
+      "模型开发者可借助增量性监控时间序列快速发现标签错配等系统性问题，改善推荐模型质量。",
+      "框架可形成测量、内容制作、模型优化和用户参与的正反馈飞轮，支持长期平台健康与内容多样性。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出以利益相关者为中心的三条可观测性原则：将内容质量与模型行为分离、纠正推荐系统中不同类型的偏差、使测量与长期业务价值对齐。",
+      "构建统一测量工具包：基于探索与利用模块的日志选择概率，覆盖偏差削减（IPS/SNIPS）、相对性（策略级与条目级）和增量性测量，适用于单阶段与级联推荐系统。",
+      "通过模拟对真值验证、与Netflix历史A/B测试对齐（11个测试中R²=0.8212）以及生产监控案例验证框架，并利用增量性指标帮助发现标签错误归属问题。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Common Observability Pitfalls"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Measurement Overview"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Incrementality Measurement for Single-Stage Recommender System"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Incrementality Measurement in Cascading Recommender Systems"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Results for Single-Stage Recommender System"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Alignment with Online A/B Testing Results"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Model Developer Observability Case Study"
+      },
+      {
+        "page": 1,
+        "section": "6.2 Estimator Details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "模拟真值：完整内容集CTR与移除内容项（R1/R2）后CTR之差",
+        "线上A/B测试真值：从推荐系统移除内容/行后测量的用户参与度损失"
+      ],
+      "datasets": [
+        "模拟数据：1000个内容项，内在CTR采样自Beta(1,8)/4，用户点击按伯努利分布与泊松查看深度生成",
+        "Netflix内部生产数据：11个行移除A/B测试及生产监控时间序列（未公开）"
+      ],
+      "findings_zh": [
+        "在单阶段系统模拟中，Leave-One-Out测量与模拟真值（R1/R2移除后的CTR变化）在低噪声下非常接近，噪声增大时偏差增大但仍可接受。",
+        "在11个在线A/B测试中，行增量性测量与A/B测试真值的R²=0.8212，支持内容策展人离线使用该测量来加速策展策略迭代。",
+        "生产监控案例中，增量性指标的时间序列检测到内容A的突发性能下降，而相似内容保持稳定，最终定位为影响内容A正样本的标签错误归属问题。",
+        "级联系统中，将增量性分解为不可替代性与普适性，可以区分条件内容质量与系统触达范围，便于比较小众内容与广泛受欢迎内容。"
+      ],
+      "metrics": [
+        "CTR（完整内容集与移除后内容集）",
+        "SNIPS（自归一逆倾向得分）",
+        "Leave-One-Out增量性提升",
+        "Irreplaceability（Horvitz-Thompson与Hájek估计）",
+        "Universality",
+        "R²（离线增量性测量与A/B测试真值的一致性）"
+      ]
+    },
+    "limitations_zh": [
+      "原文未设独立局限性章节；论文验证主要在Netflix内部系统与数据上进行，缺少外部/第三方平台的可迁移性实证。"
+    ],
+    "method_zh": "将推荐系统可观测性建模为反事实测量问题：估计在移除特定内容项或模型决策时，推荐器会做什么以及会产生什么用户参与。在上下文赌博机/强化学习设置下，用逆倾向得分（IPS/SNIPS）做偏差削减；相对性分为策略级和条目级SNIPS对比；单阶段系统用Leave-One-Out策略构造反事实并计算加权SNIPS差值；级联系统中，针对上游模型开发者使用集合相似度（如Jaccard）匹配的Leave-One-Out，针对内容创作者/平台则将增量性分解为不可替代性（Irreplaceability，可用Horvitz-Thompson或自归一Hájek估计）与普适性（Universality，候选资格概率）的乘积。",
+    "problem_zh": "大规模推荐系统对内容创作者和模型开发者缺乏可观测性；原始互动指标（如观看量、点击量）混淆了内容质量、模型行为、展示偏差与受众触达，导致难以正确归因，可能使优质内容被低估或引发误导性的模型优化决策。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.855,
+  "id": "arxiv-2609.22747",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-22T18:48:03.350117Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-19T04:11:56Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出面向大型推荐系统的反事实可观测性评估框架，帮助内容创作者和模型开发者更好地归因推荐效果并改进系统。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Beyond Raw Engagement: A Counterfactual Observability Framework for Recommender Systems at Netflix",
+  "url": "https://arxiv.org/abs/2609.22747v1"
+}

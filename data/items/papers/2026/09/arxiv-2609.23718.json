@@ -1,0 +1,125 @@
+{
+  "abstract": "Industrial mobile feed systems rely on a retrieval-ranking pipeline to serve large-scale, heterogeneous, and fast-changing content under strict latency constraints. However, existing pipelines still suffer from two critical issues: hierarchical quantization instability in candidate retrieval and information loss between separated retrieval and ranking stages. These issues hurt long-tail and cold-start recommendation and complicate efficient serving. To address them, we present UNIQUE, a unified retrieval and ranking recommendation framework with single-layer flat quantization. UNIQUE integrates generative code-based retrieval and target-aware ranking into one early-fusion architecture, enabling end-to-end training under a shared representation while preserving efficient candidate generation. A balanced quantization mechanism is further introduced to mitigate codebook imbalance and improve long-tail representation. Offline experiments evaluate UNIQUE from both retrieval and ranking perspectives, while codebook analysis shows more balanced resource allocation than hierarchical quantization. We deploy UNIQUE in the homepage feed, discovery-page, and short-video recommendation scenarios of Mobile Baidu, serving large-scale real-world traffic. Online A/B tests achieve a 0.96% gain in total watch duration and a 1.08% gain in total distribution volume, with notable improvements for new users and highly active users. Serving measurements show 89 ms P99 latency and 44.23% online inference MFU. These results show that UNIQUE provides a stable, efficient, and production-ready framework for unified retrieval and ranking in industrial recommendation. Industrial mobile feed systems rely on a retrieval-ranking pipeline to serve large-scale, heterogeneous, and fast-changing content under strict latency constraints. However, existing pipelines still suffer from two critical issues: hierarchical quantization instability in candidate retrieval and information loss between separated retrieval and ranking stages. These issues hurt long-tail and cold-start recommendation and complicate efficient serving. To address them, we present UNIQUE, a unified retrieval and ranking recommendation framework with single-layer flat quantization. UNIQUE integrates generative code-based retrieval and target-aware ranking into one early-fusion architecture, enabling end-to-end training under a shared representation while preserving efficient candidate generation. A balanced quantization mechanism is further introduced to mitigate codebook imbalance and improve long-tail representation. Offline experiments evaluate UNIQUE from both retrieval and ranking perspectives, while codebook analysis shows more balanced resource allocation than hierarchical quantization. We deploy UNIQUE in the homepage feed, discovery-page, and short-video recommendation scenarios of Mobile Baidu, serving large-scale real-world traffic. Online A/B tests achieve a 0.96% gain in total watch duration and a 1.08% gain in total distribution volume, with notable improvements for new users and highly active users. Serving measurements show 89 ms P99 latency and 44.23% online inference MFU. These results show that UNIQUE provides a stable, efficient, and production-ready framework for unified retrieval and ranking in industrial recommendation.",
+  "arxiv_id": "2609.23718",
+  "authors": [
+    "Zhuang Liu",
+    "Yongkang Fu",
+    "Zuodong Yang",
+    "Guangxing Chen",
+    "Zonggang Wu",
+    "Yuqi Lu",
+    "Shouke Qin",
+    "Shantao Li",
+    "Maolin Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在线核心业务指标提升：总观看时长+0.96%、总分发量+1.08%、用户留存+0.70%，说明在不牺牲流量利用的情况下提升了用户参与度。",
+      "对新用户和高度活跃用户均有明显增益，可缓解冷启动并增强对丰富行为序列的利用，适合作为信息流/短视频产品的召回-排序升级方案。",
+      "提升在线曝光多样性、类目覆盖和长尾曝光，有助于内容生态健康和分发均衡。",
+      "统一检索-排序架构共享表示，P99延迟89ms、在线MFU 44.23%、推理成本约$0.0013/千请求，具备大规模生产部署的经济性和效率优势。",
+      "同一架构可复用于首页信息流、发现页和短视频等不同场景，降低维护多套独立检索模型的工程成本。"
+    ],
+    "business_transferability": 0.9,
+    "contributions_zh": [
+      "提出UNIQUE，一个统一的检索与排序推荐框架，通过早期融合在一个共享表示中联合进行基于生成式语义码的候选召回和目标感知排序，支持端到端训练并保持高效候选生成。",
+      "提出反馈感知的单层扁平量化机制（单层codebook + DSSM式反馈感知码本学习 + 平衡用量机制），缓解层级量化不稳定，改善长尾表征和码本均衡。",
+      "在Mobile Baidu首页信息流、发现页和短视频三个生产场景部署，在线A/B测试显示总观看时长+0.96%、总分发量+1.08%，验证了生产可用性和跨场景适用性。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 RQ1: Overall Effectiveness"
+      },
+      {
+        "page": 1,
+        "section": "4.3 RQ2: Design Contribution"
+      },
+      {
+        "page": 1,
+        "section": "4.4 RQ3: Industrial Deployability"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "TIGER",
+        "DCN",
+        "DIN",
+        "HSTU",
+        "UniGRF-HSTU"
+      ],
+      "datasets": [
+        "KuaiRand-Pure",
+        "Mobile Baidu生产推荐系统（首页信息流、发现页、短视频）"
+      ],
+      "findings_zh": [
+        "在KuaiRand-Pure上，UNIQUE在HR@10、HR@50、NDCG@10、NDCG@50和CTR-AUC上均优于所有基线；相对最强统一基线UniGRF-HSTU，HR@10提升12.52%，HR@50提升3.92%，NDCG@10提升4.03%，NDCG@50提升10.00%，CTR-AUC绝对提升0.0084。",
+        "消融实验显示所有主要组件都有贡献：去掉生成式码预测目标使HR@50下降9.01%（检索损失最大），去掉早期融合使HR@50下降7.42%、CTR-AUC下降1.21%，去掉扁平量化使HR@50下降5.89%，去掉目标注意力切分带来较小但一致的下降。",
+        "工业码本分析显示，单层扁平码本相比128×128层级码本显著降低头码资源集中度，资源计数方差从1510.85降至389.57，同时top-1类别平均占比从65.43%提升至78.08%，表明码本更均衡且语义簇保持连贯。",
+        "在线A/B测试（p<0.05）显示总观看时长+0.96%、总分发量+1.08%、用户留存+0.70%；新用户观看时长+1.44%、分发量+1.24%，高活跃用户观看时长+1.11%、分发量+1.29%，低活跃用户增益较小。",
+        "系统效率方面，P80延迟35ms、P99延迟89ms，在线推理MFU 44.23%，峰值约10000 QPS；检索生成N=100个语义码、每码M=30个候选达到质量-效率最佳平衡。",
+        "在线多样性分析显示UNIQUE提高类目覆盖率、每个用户的Shannon熵和长尾候选占比，长尾item曝光占比达1.04%，说明收益并非通过过度集中头部曝光实现。"
+      ],
+      "metrics": [
+        "HR@10",
+        "HR@50",
+        "NDCG@10",
+        "NDCG@50",
+        "CTR-AUC",
+        "Total watch duration",
+        "Total distribution volume",
+        "User retention rate",
+        "P80/P99 latency",
+        "Online inference MFU",
+        "Cache hit rate",
+        "Codebook resource variance/usage balance"
+      ]
+    },
+    "limitations_zh": [
+      "公开离线实验仅在KuaiRand-Pure一个基准上进行，且因数据集只有7583个item而使用较小码本（1024），作者明确表示该基准主要用于初步验证，而非大规模码本分配的证据。",
+      "排序评估主要报告CTR-AUC，相关性、观看时长等目标仅作为辅助工业监督，未在公开数据上单独逐一对比。",
+      "离线评估采用leave-one-out协议，可能不能完全反映在线流式、高动态内容的复杂程度。",
+      "低活跃用户在线增益最小（观看时长+0.29%、分发量+0.15%），说明历史信号弱时统一检索-排序带来的提升有限。",
+      "真实部署细节和部分分析来自Mobile Baidu内部生产平台，外部复现和跨平台可迁移性仍需更多验证。"
+    ],
+    "method_zh": "UNIQUE包含三个核心模块：EQN（端到端量化网络）用item特征和反馈后验信号学习稠密表征，通过DSSM式双塔监督和EMA码本更新得到单层扁平语义码；UIGN（用户兴趣生成网络）将多粒度行为序列（短期、中期、长期兴趣）与用户画像编码为前缀，与候选item目标token和候选code目标token一起进入统一Transformer早期融合编码器；TDN（目标码感知判别网络）通过目标注意力切分，让目标token只关注用户前缀，并行计算所有候选的码预测logits和多目标排序分数（相关性、CTR、观看时长、完播等）。训练联合生成式码预测损失、判别式多任务损失、反馈感知码本学习损失和量化正则。推理时先预测语义码分布并映射回候选item，再在同一个早期融合表示上完成精细排序。",
+    "problem_zh": "工业移动信息流推荐依赖检索-排序级联流程，但在大规模异构和快速变化内容下存在两个关键问题：层级化量化在候选检索中不稳定，容易传播粗粒度分配误差并导致长尾/冷启动物品表征不足；检索与排序分离造成跨阶段信息丢失，排序受限于上游候选质量，检索也无法利用排序监督，同时影响高效服务。",
+    "technical_depth": 0.95
+  },
+  "doi": null,
+  "final_score": 0.9400000000000001,
+  "id": "arxiv-2609.23718",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-22T18:48:03.350117Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-20T15:54:06Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出UNIQUE统一召回与排序框架，以单层扁平量化整合生成式代码召回和目标感知排序，并在百度大规模移动Feed场景取得显著线上收益。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "UNIQUE: A Unified Retrieval and Ranking System for Large-Scale Feed Recommendation",
+  "url": "https://arxiv.org/abs/2609.23718v1"
+}

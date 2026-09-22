@@ -1,0 +1,137 @@
+{
+  "abstract": "Generative recommendation has emerged as an active research direction, where items are commonly represented by semantic IDs (SIDs): discrete codes generated token by token. Despite strong empirical results, SID designs vary widely in construction strategy, codebook organization, and code length, making their true impact on recommendation performance unclear. We conduct a large-scale reproducibility study to systematically investigate the impact of semantic ID design on generative recommendation under a unified experimental framework. We focus on a fundamental question: What makes a good semantic ID for generative recommendation? To answer this question, we examine four aspects: the relative effectiveness of different semantic ID designs, the connection between codebook utilization and recommendation quality, the effect of semantic code length, and the influence of semantic ID design on local item semantic preservation. Through a unified evaluation and additional cross-dataset controlled analyses, we find that the effects of SID design are largely non-monotonic: no single SID design is universally best, and commonly used RQ-VAE- and OPQ-based designs can behave inconsistently across datasets. The method with the most balanced first-level codebook is not consistently the best recommender, showing that utilization is diagnostic but insufficient. Scaling either the generative backbone or the SID length is also not always beneficial. Finally, semantic-neighborhood analysis reveals that no single SID design dominates all notions of local semantic preservation; instead, different designs exhibit complementary strengths that remain stable across datasets and neighborhood sizes. Our study provides a controlled and reproducible understanding of semantic ID design and offers practical insights for future generative recommender systems. Generative recommendation has emerged as an active research direction, where items are commonly represented by semantic IDs (SIDs): discrete codes generated token by token. Despite strong empirical results, SID designs vary widely in construction strategy, codebook organization, and code length, making their true impact on recommendation performance unclear. We conduct a large-scale reproducibility study to systematically investigate the impact of semantic ID design on generative recommendation under a unified experimental framework. We focus on a fundamental question: What makes a good semantic ID for generative recommendation? To answer this question, we examine four aspects: the relative effectiveness of different semantic ID designs, the connection between codebook utilization and recommendation quality, the effect of semantic code length, and the influence of semantic ID design on local item semantic preservation. Through a unified evaluation and additional cross-dataset controlled analyses, we find that the effects of SID design are largely non-monotonic: no single SID design is universally best, and commonly used RQ-VAE- and OPQ-based designs can behave inconsistently across datasets. The method with the most balanced first-level codebook is not consistently the best recommender, showing that utilization is diagnostic but insufficient. Scaling either the generative backbone or the SID length is also not always beneficial. Finally, semantic-neighborhood analysis reveals that no single SID design dominates all notions of local semantic preservation; instead, different designs exhibit complementary strengths that remain stable across datasets and neighborhood sizes. Our study provides a controlled and reproducible understanding of semantic ID design and offers practical insights for future generative recommender systems.",
+  "arxiv_id": "2609.24430",
+  "authors": [
+    "Yufei Chen",
+    "Junchen Fu",
+    "Jujia Zhao",
+    "Yukun Zhao",
+    "Zhaochun Ren"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "实际系统不应默认某一种语义ID设计为普适最优，而应结合具体数据场景选择并验证SID结构。",
+      "RPG是较强的完整系统起点，但仍需与有竞争力的传统序列推荐基线（如SASRec）对比，避免误判生成式方法的优势。",
+      "码本利用率指标适用于检测码本坍缩或不均衡，不应作为独立优化目标；例如LETTER的多样性正则显著提升均衡度却不稳定提升排名效果。",
+      "骨干模型大小与SID码长应在验证集上联合选择，最大设置往往不是最优；紧凑的RQ码与中等长度的OPQ码是更安全的默认选择。",
+      "若业务关注语义迁移或物品语义结构，应同时使用Jaccard与RBO评估，因为集合恢复与排序保持分别偏好不同的tokenizer（OPQ vs RQ-Kmeans）。",
+      "将协同过滤信号作为SID构建期的正则（如LETTER-TIGER）可能比在完整生成流程中直接依赖CF表征更稳健。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "首次在统一预处理、数据划分与评测协议下，对多种语义ID生成式推荐方法进行大规模可复现性对比，涵盖方法级基准和受控的仅变更SID的分析。",
+      "补充了码本平衡与局部语义保持的跨数据集诊断，覆盖多个数据规模与邻域大小，区分了稳定趋势与数据集/协议相关的结论。",
+      "给出了实践性结论：不存在普遍最优的SID设计；码本利用率具有诊断意义但不足以单独决定SID质量；骨干网络与码长缩放均非单调；OPQ与RQ-Kmeans在局部语义保持上具有互补优势。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Overall Benchmark (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "5 Codebook Utilization Investigation (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "6 Scaling Analysis (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "7 Local Semantic Preservation Analysis (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "8 Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "TIGER",
+        "HowToIndex",
+        "RPG",
+        "LETTER-TIGER",
+        "LETTER-LC-Rec",
+        "SETRec",
+        "ETEGRec",
+        "SEATER",
+        "EAGER",
+        "DiffGRM",
+        "OneRec",
+        "RQ-Kmeans",
+        "LETTER-div",
+        "LETTER-no-div",
+        "OPQ"
+      ],
+      "datasets": [
+        "Video Games",
+        "Microlens-50K",
+        "Microlens-100K",
+        "Yelp"
+      ],
+      "findings_zh": [
+        "统一数据划分与评测下，没有任何SID方法在所有数据集上一致最优；RPG总体最强，在Video Games上第一、在Microlens和Yelp上第二，但最佳方法依数据集而变：SEATER在Microlens上最好，LETTER-TIGER在Yelp上最好。",
+        "SASRec作为传统序列推荐基线仍具竞争力，在部分数据集上优于多个生成式推荐方法；生成式推荐并不自动优于传统检索-排序方法。",
+        "同一SID构造家族内部差异很大，例如同为OPQ的RPG与DiffGRM性能差距明显，说明仅用高层tokenizer类型无法解释推荐质量。",
+        "在受控TIGER协议下，RQ-Kmeans的L1码本利用率最均衡（normalized entropy接近1.0、Gini低），但并非一致的最佳推荐器；L1 normalized entropy与NDCG@10相关接近零，说明码本利用率是诊断性指标而非充分标准。",
+        "骨干缩放非单调：T5-small到T5-large并不一致提升效果，部分方法在Video Games上明显退化；在更大数据Microlens-100K上退化有所缓解，提示数据稀疏与过拟合是可能原因。",
+        "SID码长缩放非单调：RQ-VAE与RQ-Kmeans偏好紧凑码（约L=3），OPQ在L=6附近最佳，过长码长增加生成难度并损害性能。",
+        "局部语义保持分析显示，OPQ在全部数据集上取得最高Jaccard@20（0.164–0.174），RQ-Kmeans在全部数据集上取得最高RBO@20（0.190–0.197），且该模式在K=10,20,50上大体稳定。",
+        "融合协同信号的收益依数据集而定；LETTER-TIGER表现最稳定，提示将CF作为SID构建中的正则信号可能比全流程直接依赖CF表示更稳健。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "Jaccard@K (K=10,20,50)",
+        "RBO@K (K=10,20,50)",
+        "码本诊断指标：used codes, entropy, normalized entropy, perplexity, effective usage, Gini, prefix utilization, collision rate"
+      ]
+    },
+    "limitations_zh": [
+      "RQ1优先保证忠实复现而非为每个数据集做穷尽调参，因此方法间小幅差距应谨慎解读；强结论依赖于重复模式或受控对比。",
+      "RQ2至RQ4均固定TIGER骨干与训练协议，结论可能在其他骨干、解码规则或训练设置下不完全成立。",
+      "评测为warm-only协议，冷物品从ground-truth移除，未覆盖冷启动评测场景。",
+      "骨干缩放实验受计算资源限制仅扩展到T5-large，更大模型规模下的趋势未知。",
+      "RQ1主要沿用各方法官方超参数，未做系统性的逐数据集超参搜索，精确排序仍需在更多骨干、目录与协议下验证。"
+    ],
+    "method_zh": "本文构建统一实验框架，包含两层比较：(1) 方法级基准，保留各方法原始训练与推理设计但使用相同数据划分和评测协议；(2) 受控SID-only分析，固定TIGER骨干与训练协议，仅改变语义ID设计。研究分为四个RQ：RQ1对比完整方法性能；RQ2分析码本利用率；RQ3分析骨干规模与SID码长缩放；RQ4用Jaccard与RBO分析局部语义保持。",
+    "problem_zh": "生成式推荐中广泛使用语义ID作为物品的离散标识，但语义ID的构建策略、码本组织、码长等设计差异很大，缺乏统一框架下的系统性验证，导致不同设计对推荐性能的真实影响不清晰。本文核心研究问题是：什么构成了生成式推荐中好的语义ID？",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.889,
+  "id": "arxiv-2609.24430",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-22T18:48:03.350117Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-21T11:26:49Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本论文通过大规模可复现性研究系统考察生成式推荐中语义ID设计的影响，发现不同SID设计在数据集上表现非单调且没有一种设计普遍最优。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "What Makes a Good Semantic ID for Generative Recommendation? A Reproducibility Study",
+  "url": "https://arxiv.org/abs/2609.24430v1"
+}

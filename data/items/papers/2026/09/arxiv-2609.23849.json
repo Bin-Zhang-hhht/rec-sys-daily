@@ -1,0 +1,131 @@
+{
+  "abstract": "Sequential recommendation must operate under long-tailed item distributions and popularity-driven concentration, often forcing practitioners to trade short-list accuracy against long-tail exposure. In this work, we study feature decorrelation as a mechanism for shaping representation geometry in dot-product sequential recommenders, and analyze how this, in turn, affects popularity-driven concentration. We propose a decorrelation-regularized training framework that augments next-item prediction with an auxiliary redundancy-reduction term, and instantiate it with BT-SR, which uses the Barlow Twins objective. To form label-consistent positive pairs without synthetic corruptions, we pair user histories that share the same next-item target. Beyond accuracy, we provide a geometric analysis showing how decorrelation suppresses shared low-rank directions in the user representation space that can give popular items a global scoring advantage, and we introduce a bucket-based alignment concentration metric to quantify this effect. Experiments on five public benchmarks show that BT-SR consistently improves next-item ranking quality, while the decorrelation strength acts as a simple control knob that reallocates accuracy across head and tail items, enabling accuracy-exposure trade-offs. Our analysis also reveals that the impact on head-vs-tail exposure differs across datasets, reflecting interactions between decorrelation and data temporal structure. Sequential recommendation must operate under long-tailed item distributions and popularity-driven concentration, often forcing practitioners to trade short-list accuracy against long-tail exposure. In this work, we study feature decorrelation as a mechanism for shaping representation geometry in dot-product sequential recommenders, and analyze how this, in turn, affects popularity-driven concentration. We propose a decorrelation-regularized training framework that augments next-item prediction with an auxiliary redundancy-reduction term, and instantiate it with BT-SR, which uses the Barlow Twins objective. To form label-consistent positive pairs without synthetic corruptions, we pair user histories that share the same next-item target. Beyond accuracy, we provide a geometric analysis showing how decorrelation suppresses shared low-rank directions in the user representation space that can give popular items a global scoring advantage, and we introduce a bucket-based alignment concentration metric to quantify this effect. Experiments on five public benchmarks show that BT-SR consistently improves next-item ranking quality, while the decorrelation strength acts as a simple control knob that reallocates accuracy across head and tail items, enabling accuracy-exposure trade-offs. Our analysis also reveals that the impact on head-vs-tail exposure differs across datasets, reflecting interactions between decorrelation and data temporal structure.",
+  "arxiv_id": "2609.23849",
+  "authors": [
+    "Veronika Ivanova",
+    "Marina Munkhoeva",
+    "Ivan Razvorotnev",
+    "Evgeny Frolov"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "α 可作为业务可解释的控制参数：运营方可针对不同目标（如头部转化 vs 长尾发现/多样性）切换推荐策略，而无需更换模型架构。",
+      "在 Yelp、Gowalla、Kindle Store 等场景，BT-SR 可提升长尾物品曝光和整体覆盖率，有助于提高目录利用率与个性化体验。",
+      "即使在 HR@10 上不牺牲头部表现，BT-SR 也能把长尾相关物品提升到较高排位，对“爆款+小众”并重的商品或内容平台有直接价值。",
+      "但效果依赖数据集：在 ML-1M 和 Beauty 上覆盖率可能下降，业务落地前需要在具体数据上调节 α，不能默认获得多样性收益。",
+      "与需要负采样和大批量的对比学习方法相比，该方法避免显式负样本与复杂增强管线，工程集成和调参成本相对低，便于工业部署。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出新视角：冗余降低通过改变用户与物品表示几何影响推荐结果的头尾分布，而不仅是作为预训练或正则技巧。",
+      "提出 BT-SR 训练框架：在标准 next-item 预测损失上加入 Barlow Twins 去相关损失，并用共享同一 next-item 目标的用户历史构成正样本对，避免合成扰动，提供可解释的强度超参数 α。",
+      "提出基于分桶的 Alignment Concentration（AC）指标，量化物品嵌入在用户表示共享低秩主方向上的能量集中于头部物品的程度。",
+      "在多个公开基准上的实验表明 BT-SR 一致提升 next-item 排序质量，并且 α 可作为控制旋钮在不同数据集上实现头部精度与长尾覆盖率之间的可调节权衡。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "3.3 Feature-Decorrelation Regularization"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Feature Decorrelation and Popularity Bias"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Datasets"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Metrics"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Accuracy Analysis Across Item Frequency Cohorts"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Alignment Concentration Scores"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion and future work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec(BCE)",
+        "SASRec(CE)",
+        "SASRec(SCE)",
+        "CL4SRec",
+        "DuoRec",
+        "EC4SRec",
+        "BT-PT"
+      ],
+      "datasets": [
+        "ML-1M",
+        "YELP",
+        "Gowalla",
+        "Beauty",
+        "Kindle Store",
+        "Behance"
+      ],
+      "findings_zh": [
+        "在 BCE、CE、SCE 三种基础损失上加入 Barlow Twins 项均一致提升 NDCG@10（Table 1），说明去相关正则对不同训练目标具有稳健性。",
+        "BT-SR 在多数数据集上同时优于 CL4SRec、DuoRec、EC4SRec、BT-PT 等基线，排序与覆盖率指标均提升；但在 ML-1M 与 Beauty 上覆盖率不及最优基线（Table 2）。",
+        "按流行度分桶分析显示，BT-SR 在最流行桶的 HR@1 略低，但在中低频桶显著优于所有基线，且在 HR@10 上即使头部物品也保持领先（Figure 1）。",
+        "在 ML-1M、Yelp、Gowalla 上，BT-SR 取得最低的 Alignment Concentration（AC）分数，表明物品嵌入对共享低秩用户子空间的依赖较少集中在头部（Figure 2）。",
+        "α 是可控旋钮：Yelp、Gowalla、Kindle Store 上增大 α 提升长尾覆盖率，适度降低整体 HR@10；ML-1M 上最佳覆盖率在小 α 处，过大 α 损害中低频桶；Beauty 上因用户历史短，α 带来的收益有限。",
+        "消融显示，扰动式/基于物品的序列增强（如 CL4SRec 式增强）在该非对比多任务设置中导致性能下降（YELP 与 Kindle Store 上至少下降 6%），支持使用共享目标物品的配对策略。"
+      ],
+      "metrics": [
+        "HR@1",
+        "HR@5",
+        "HR@10",
+        "NDCG@5",
+        "NDCG@10",
+        "COV@1",
+        "COV@5",
+        "COV@10"
+      ]
+    },
+    "limitations_zh": [
+      "去相关对头部/尾部曝光的影响存在数据集依赖性：在 ML-1M 和 Beauty 上 BT-SR 的覆盖率低于最优基线，不能保证所有场景都提升目录覆盖。",
+      "在 ML-1M 上，较大的 α 会降低中低频物品的表现；作者归因于时间戳碰撞使频繁终末物品主导配对构造，几何机制可能被数据时序结构干扰。",
+      "在 Beauty 上，用户历史过短限制了去相关正则的作用，增大 α 可能减少模型广泛分发推荐的能力。",
+      "本文不旨在直接修正流行度偏差，也未与专门的 popularity-debiasing 方法对比，因此不能评判该类方法；且排除了 LLM/LoRA 基线，适用范围限定于 ID-based 序列推荐。",
+      "论文提出的是几何直觉与度量而非因果证明，作者在结论中把识别导致曝光变化的因果几何机制列为未来工作。",
+      "文档本身存在数据集名称不一致（4.1 节列出 Behance，而结果表使用 Beauty），对实验复现与解读需谨慎。"
+    ],
+    "method_zh": "框架在标准下一项预测损失上叠加特征去相关正则：L_total = L_pred + α L_BT。BT-SR 以 Barlow Twins 损失为 L_BT：对批内 l2 归一化、均值居中的序列表示计算交叉相关矩阵 C，其中对角线拉向 1（不变性）、非对角线推向 0（去冗余）；正样本对通过采样具有相同 next-item 目标的不同用户历史构造，避免掩码、裁剪等合成扰动。该方法可叠加在 SASRec 的 BCE、全 softmax CE 和 SCE 三种预测损失上。作者给出几何解释：去相关抑制用户表示中的共享低秩方向，使表示趋向零均值且近似各向同性，从而减弱头部物品经由全局对齐获得的系统性评分优势，并用 AC 指标追踪该效应。复杂度方面，BT-SR 需两次前向传播并计算 O(B·D^2) 的交叉相关矩阵，整体渐进复杂度与 SASRec 相同。",
+    "problem_zh": "序列推荐系统在长尾物品分布和流行度集中下，常需要在短列表精度与长尾曝光之间取舍。本文研究在点积式序列推荐器中通过特征去相关（decorrelation）重塑用户与物品表示几何，从而调节流行度驱动的集中程度以及准确率-覆盖率权衡。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.875,
+  "id": "arxiv-2609.23849",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-22T18:48:03.350117Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-20T20:05:14Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出基于Barlow Twins去相关正则化的顺序推荐训练框架BT-SR，通过特征去相关实现头部与尾部物品之间准确率与曝光率可控权衡。",
+  "targets": [],
+  "tasks": [],
+  "title": "A Redundancy Reduction Approach for Controllable Sequential Recommendations",
+  "url": "https://arxiv.org/abs/2609.23849v1"
+}
