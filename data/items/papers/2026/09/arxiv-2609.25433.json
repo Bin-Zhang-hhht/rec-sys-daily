@@ -1,0 +1,128 @@
+{
+  "abstract": "Modern production-scale recommender systems rely on complex, multi-task ranking models. Introducing new prediction tasks into these massive systems often causes bottlenecks - it risks negative task conflicts with existing tasks, and can lead to long development and experimentation cycles due to the expensive retraining of backbone models and downstream models or tuning of reward combination formulas. To address the critical challenge of slow experimentation velocity, we introduce the Lightweight Ranking Heads (Light Heads) framework. Designed for continuous online learning environments, Light Heads enable the dynamic injection of new tasks into existing multi-task ranking models, effectively obviating the need for model cold-starting and retraining of backbone models. By utilizing stop-gradients and stateless daily training, this design strictly isolates new tasks, mitigating the risk of adverse task conflicts. Crucially, this framework uses a centralized configuration that allows Light Heads to be added to multiple models simultaneously, unblocking faster training data generation and co-training of downstream models. Successfully deployed at YouTube scale, this approach reduces the iteration cycle for multi-task experimentation from several weeks to days. In this paper, we detail the system architecture, analyze the training dynamics of stateless cold-started heads, compare their performance to full heads, and demonstrate how Light Heads have enabled the rapid A/B experimentation and deployment of new ranking tasks that yield measurable production value. Modern production-scale recommender systems rely on complex, multi-task ranking models. Introducing new prediction tasks into these massive systems often causes bottlenecks - it risks negative task conflicts with existing tasks, and can lead to long development and experimentation cycles due to the expensive retraining of backbone models and downstream models or tuning of reward combination formulas. To address the critical challenge of slow experimentation velocity, we introduce the Lightweight Ranking Heads (Light Heads) framework. Designed for continuous online learning environments, Light Heads enable the dynamic injection of new tasks into existing multi-task ranking models, effectively obviating the need for model cold-starting and retraining of backbone models. By utilizing stop-gradients and stateless daily training, this design strictly isolates new tasks, mitigating the risk of adverse task conflicts. Crucially, this framework uses a centralized configuration that allows Light Heads to be added to multiple models simultaneously, unblocking faster training data generation and co-training of downstream models. Successfully deployed at YouTube scale, this approach reduces the iteration cycle for multi-task experimentation from several weeks to days. In this paper, we detail the system architecture, analyze the training dynamics of stateless cold-started heads, compare their performance to full heads, and demonstrate how Light Heads have enabled the rapid A/B experimentation and deployment of new ranking tasks that yield measurable production value.",
+  "arxiv_id": "2609.25433",
+  "authors": [
+    "Sanjay Surendranath Girija",
+    "Aniruddh Nath",
+    "Li Wei",
+    "Yanhao Jiang",
+    "Shawn Andrews",
+    "Lukasz Heldt",
+    "Yi Wu",
+    "Aditya Mahajan",
+    "Mohit Sharma"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在 YouTube 两个大型模型族上部署后，涉及排序模型和下游模型的端到端实验周期从 24 天缩短到 11 天，联合实验启动时间从 17 天缩短到 5 天。",
+      "Light Head 可通过集中配置在一天内被持续训练的排序模型加载并可用于服务，免去等待所有实验模型追赶新任务版本的数月部署周期，使验证后的小改动可在几天内上线。",
+      "用于优化长期奖励的 Light Head 带来统计显著（p < 0.05）的 +0.03% 核心参与度提升，以及 0.40% 低质量曝光减少。",
+      "面向 Primetime 频道付费订阅用户的 Light Head 带来 +13.83% 的 Primetime 专项参与度提升。",
+      "框架节省了数月的工程投入和大量 TPU 训练时间，且因部署速度与系统复杂度优势，成功的 Light Head 通常保留在生产中而不升级为全量 Head。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 Lightweight Ranking Heads（Light Heads）框架，通过集中式配置定义新的轻量级排序头，并将配置与具体模型代码解耦。",
+      "支持向已有在线持续学习模型动态注入新任务头，无需冷启动整个模型或重训骨干网络。",
+      "使用 stop-gradients 和每次训练运行开始时重置头的机制，隔离新任务梯度并保证跨模型的预测一致性。",
+      "通过跨所有模型共享统一配置，使多个上游模型同时生成新任务的预测，显著加快下游模型所需训练数据的积累和联合实验启动。",
+      "提供生产级防护措施，包括配置在训练运行期间冻结、跨模型质量监控、自动化评估以及缺失 Light Head 时的默认回退值。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Motivation: Challenges in Developing Production-scale Recommender Systems"
+      },
+      {
+        "page": 2,
+        "section": "3 System Architecture: Lightweight Ranking Heads"
+      },
+      {
+        "page": 3,
+        "section": "3.3 Production Risks and Mitigations"
+      },
+      {
+        "page": 3,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 4,
+        "section": "4.3 Ablation Study on Stop-Gradients"
+      },
+      {
+        "page": 4,
+        "section": "4.4 Ablation Study on Reset at the Start of Training Run"
+      },
+      {
+        "page": 4,
+        "section": "5 Production Impact"
+      },
+      {
+        "page": 5,
+        "section": "6 Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "与模型共同冷启动并全程训练的全量 Full Head",
+        "去除 stop-gradients 的 Light Head 变体",
+        "不执行训练运行开始时重置的 Light Head 变体"
+      ],
+      "datasets": [
+        "YouTube Home Ranking 生产日志数据",
+        "YouTube Watch Next Ranking 生产日志数据"
+      ],
+      "findings_zh": [
+        "分类任务中，Light Head 在稠密任务上略低于 Full Head：P(CTR) AUC 0.772 vs 0.781，E(Interaction Rate) AUC 0.9704 vs 0.9794；在稀疏任务 E(Positive Sentiment) 上接近持平，AUC 0.9553 vs 0.9557。",
+        "回归任务 E(Engagement) 上 Light Head RMSE 为 0.9675，与 Full Head 的 0.9673 接近持平。",
+        "没有对应 Full Head 的独立 Light Head 也能获得较高 AUC：P(Intent to Revisit) 0.8523，P(Intent to Share) 0.9224，说明共享表示可泛化到未显式训练的任务。",
+        "去除 stop-gradients 后，Full Head 和 Light Head 指标均下降，例如 P(CTR) Full Head AUC 从 0.7767 降至 0.7704，E(Engagement) RMSE 从 0.9887 升至 0.9975，支持新任务与现有任务可能产生冲突的论点。",
+        "去除训练运行开始时的重置后，Light Head 可达到略优的局部最优，尤其对训练数据较少的任务有利；因此框架允许用户为特定 Light Head 禁用重置。"
+      ],
+      "metrics": [
+        "AUC",
+        "RMSE"
+      ]
+    },
+    "limitations_zh": [
+      "框架依赖持续学习基础设施：模型必须能够动态加载集中配置并频繁接收新数据；对于低频批量训练系统，无状态重置机制不可行，因为 Light Head 需要足够连续训练步数才能在服务前收敛。",
+      "工程和维护开销只有在大量并行训练模型和大量并发 A/B 实验的环境中才值得；对预测空间碎片化不严重的小规模系统，传统冷启动方式更合理。",
+      "实验提速收益在多阶段推荐系统中才能完整实现；在单阶段推荐系统中，主要收益仅剩无需重训骨干模型带来的算力节省。",
+      "离线评估显示 Light Head 在稠密任务上相对全量联合训练 Head 存在轻微指标下降；框架本质上是成本与质量之间的 Pareto 取舍，对稠密任务质量轻微下降敏感且算力与实验时间不构成瓶颈的系统，更适合冷启动增加全量任务头。"
+    ],
+    "method_zh": "Light Heads 框架由两部分组成：一是集中式中心配置，定义标签、损失函数、激活函数、回归/分类目标、监控指标以及可选的数据采样或加权函数；二是模型内的一段轻量集成代码，负责读取配置、实例化并将 Light Head 注入模型图中，通常注入在与现有主头相同的层次以共享底层表示。每个 Light Head 采用带少量隐藏层的浅层塔结构，并在其底部施加 stop-gradient，使反向传播只更新 Light Head 自身参数而不影响共享层，从而避免任务冲突和梯度不稳定。在持续在线学习环境中，Light Head 检查点不持久化，每个训练运行开始时重置并在当次运行内收敛，称为无状态训练；重置会在运行开始时带来短暂指标下降，但服务导出在完整训练完成后进行，因此不影响最终预测质量。配置在训练运行开始时读取并冻结，避免运行中途变更导致不稳定；系统还提供默认回退值、聚合质量监控和导出前自动评估以处理旧模型未更新配置等情况。",
+    "problem_zh": "生产级推荐系统通常使用大规模多任务排序模型，引入新预测任务时面临多重瓶颈：新任务可能与现有任务产生冲突或负迁移；冷启动大型骨干模型需要数天至数周的训练资源和时间；上游排序模型新增任务会改变预测空间，导致下游模型必须等待足够的新预测日志才能联合训练；此外，所有并行实验模型都需要追赶升级到新任务版本，才能使下游模型获得统一的预测空间，部署成熟改进可能被延迟数月。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.8049999999999999,
+  "id": "arxiv-2609.25433",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-23T18:39:21.819180Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-21T21:37:41Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出用于生产级推荐系统的轻量级排序头框架，通过多任务学习加速推荐系统实验迭代并提升排序效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Lightweight Ranking Heads: Accelerating Multi-Task Experimentation in Production Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.25433v1"
+}
