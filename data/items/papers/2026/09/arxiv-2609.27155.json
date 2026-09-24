@@ -1,0 +1,134 @@
+{
+  "abstract": "With recent advancements in large language models (LLMs) and LLM-based agents, these agents are becoming increasingly autonomous and gaining broader access to act on users' behalf on the internet. However, the vulnerability of automated agents deployed on social media platforms (e.g., for managing a user's personal account) remains underexplored. Existing studies on agent poisoning typically assume that the adversary can expose poisoned content to the agent. Although such an attack is direct and effective, it is more easily detected and mitigated. In the context of social media platforms, this leaves open whether the recommendation system itself would surface such content to the agent in a more subtle manner. Through theoretical analysis, we show that the like-score mechanism used in OASIS can be exploited, and we characterize the conditions under which a multi-stage chain of poisoned posts can steer the agent's feed. Based on these insights, we further develop an algorithm that crafts realistic poisoned posts. Experiments support our theoretical findings and demonstrate the effectiveness of the proposed algorithm. Notably, by exploiting the like-score feedback loop, the attack causes the recommendation system to select poisoned posts even when their user-post similarity falls below the retrieval threshold. With recent advancements in large language models (LLMs) and LLM-based agents, these agents are becoming increasingly autonomous and gaining broader access to act on users' behalf on the internet. However, the vulnerability of automated agents deployed on social media platforms (e.g., for managing a user's personal account) remains underexplored. Existing studies on agent poisoning typically assume that the adversary can expose poisoned content to the agent. Although such an attack is direct and effective, it is more easily detected and mitigated. In the context of social media platforms, this leaves open whether the recommendation system itself would surface such content to the agent in a more subtle manner. Through theoretical analysis, we show that the like-score mechanism used in OASIS can be exploited, and we characterize the conditions under which a multi-stage chain of poisoned posts can steer the agent's feed. Based on these insights, we further develop an algorithm that crafts realistic poisoned posts. Experiments support our theoretical findings and demonstrate the effectiveness of the proposed algorithm. Notably, by exploiting the like-score feedback loop, the attack causes the recommendation system to select poisoned posts even when their user-post similarity falls below the retrieval threshold.",
+  "arxiv_id": "2609.27155",
+  "authors": [
+    "Yue Xing",
+    "Pengfei He",
+    "Zitao Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对采用相似度检索加点赞反馈的社交平台，攻击者只需注入少量看似相关的内容链，即可使低相关恶意内容绕过相似度阈值进入LLM智能体信息流，威胁内容安全与平台信任。",
+      "LLM智能体正被用于代管社交账号，平台需将“智能体即用户”纳入风控，不能仅依赖候选检索相似度阈值防御投毒。",
+      "点赞反馈机制会被攻击者利用为放大信号；平台应监控阶段式相似度下降的内容簇，以及低相似度但点赞放大比异常的内容。",
+      "多阶段内容投毒可能被用于操纵智能体驱动的账号注意力、推广恶意信息或影响用户行为，商业平台需要针对该攻击面设计防御与审核机制。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "理论上分析了OASIS式相似度推荐系统中点赞评分机制的可利用性，给出多阶段投毒链成立的条件：首阶段相似度需超过干净帖子边界、相邻阶段帖子需足够相似、末阶段相似度需高于下界，并推导所需最小阶段数。",
+      "提出多阶段投毒攻击算法：以高相似度清洁帖为锚点，用LLM生成带五种互动偏置（位置、冗长、流行度、可信度、语言风格）的候选帖，并通过相似度修复、凝聚性筛选和加权选择控制各阶段用户-帖子相似度。",
+      "实验验证多阶段投毒链可在多种受害者模型（GPT-5.4系列、DeepSeek-v4-pro、Llama-3.1-8b、Qwen-3.5-9b）及OpenClaw真实智能体上诱使低相似度投毒帖占据信息流，即使其相似度低于top-100检索阈值。",
+      "消融实验验证理论洞见：阶段数量、点赞历史大小/权重、相似度起点/终点设置、智能体记忆模式等均显著影响投毒效果。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "3.1 Recommendation System Setup"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Threat Model Setup"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Theoretical Insights"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Poisoning Post Generation Pipeline"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Experiment Setup"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Real AI Agents"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Limitations"
+      },
+      {
+        "page": 1,
+        "section": "D Additional Experiment Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "clean top-100（正常帖子点赞率）",
+        "M=1（单阶段投毒）",
+        "不同(δ1, δ5)相似度范围配置作为对比组"
+      ],
+      "datasets": [
+        "OASIS中随机采样的50个用户画像",
+        "OASIS原始帖子加AI-tweet语料子集，共2000条帖子",
+        "tweet_eval",
+        "tweet_topic_single",
+        "tweet_topic_multi",
+        "ai_tweets（每个额外帖子集约2500条）"
+      ],
+      "findings_zh": [
+        "主结果中，第5阶段投毒帖达到5/10信息流占比的首轮Rnd_{5/10}^5约为178-248轮，显著低于400轮；Cnt_{100}为47.7-68.3，Like_{100}为31.9-57.0，说明低于top-100相似度阈值的投毒帖能因点赞评分进入候选并被点赞。",
+        "不同受害者模型的行为模式不同，但五阶段基本按顺序出现：阶段1/2早期被大量点赞，阶段3、4、5随后依次出现；OpenClaw真实智能体实验中同样出现大量投毒帖。",
+        "阶段数M=1时仅40/50用户能看到末阶段投毒帖；M>1后覆盖全部50个用户，且更多早期阶段不会推迟末阶段首次出现。",
+        "点赞历史权重w增大时，阶段3/4/5的Rnd_{5/10}减小；点赞历史大小|L|的影响非单调，|L|过大会使点赞评分偏向早期阶段而非后续阶段。",
+        "增大相似度下降范围或降低起点相似度会使投毒帖更晚出现，但Cnt_{100}/Like_{100}增加；末阶段效应相反，因为低相似度帖子本身较难被智能体喜欢。",
+        "投毒生成模型使用GPT-5.4-nano时对不同受害者模型具有良好迁移性；嵌入模型（TwHIN、bge、MiniLM）之间的攻击效果大体可迁移。",
+        "智能体记忆配置影响显著：偏好与记忆相似的内容会放大攻击效果，追求多样性会显著降低Cnt/Like。",
+        "五种投毒设计（credibility、linguistic style、popularity、position bias、verbosity）的点赞率多数高于clean top-100；即使GPT-5.4-nano和DeepSeek-v4-pro与clean接近，也足以利用点赞评分机制。"
+      ],
+      "metrics": [
+        "Rnd_{5/10}^i：信息流10帖中5帖来自阶段i的首轮次",
+        "Rnd_{5/10}：五个阶段的平均首轮次",
+        "Cnt_{100}：低于top-100相似度边界却进入候选集的唯一投毒帖数",
+        "Like_{100}：对应被点赞的投毒帖数",
+        "投毒帖与干净帖的点赞率",
+        "Cnt%_{100}与Like%_{100}：标准化后的候选进入/被点赞比例"
+      ]
+    },
+    "limitations_zh": [
+      "论文只研究相似度加点赞评分这一类推荐算法；图方法、Transformer序列推荐等工作机制不同，脆弱性和受攻击方式也不同，例如Transformer可训练，因此可能受训练数据投毒影响。",
+      "实验设置省略了帖子热度（其他用户互动）、创建时间及创作者粉丝数因素，聚焦于相似度驱动机制。",
+      "攻击者能力假设包括知道目标用户画像；攻击者不需要知道帖子总数或受害者模型，但知道嵌入模型仍有助于攻击，不知道时攻击也可迁移。"
+    ],
+    "method_zh": "攻击者仅需知道目标用户画像并一次性注入帖子链。算法为每个锚点构建M个阶段的帖子，阶段目标相似度递减。LLMGEN结合锚点、目标相似度、上一阶段帖子和五种行为偏置生成候选；REPAIR在相似度偏离时通过profile-prefix注入或稀释修正；COHESION_SCREENING保证阶段内及相邻阶段间帖子的相似度满足理论条件；最终按以目标相似度项权重最大的评分选择最优帖子。实验采用OASIS框架，k=100、t=10、400轮，默认5阶段、每阶段40个投毒帖，评估Rnd_{5/10}、Cnt_{100}、Like_{100}等指标。",
+    "problem_zh": "研究基于相似度的推荐系统中，攻击者能否通过多阶段投毒帖子，利用点赞评分反馈回路，使LLM智能体逐渐被引导至低用户-帖子相似度的攻击者控制内容。现有研究多假设恶意内容已直接到达智能体，缺少对推荐机制如何主动暴露并放大投毒内容的分析。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.845,
+  "id": "arxiv-2609.27155",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-24T18:45:05.681080Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-22T23:39:24Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究一种利用点赞反馈循环对相似度推荐系统进行多阶段投毒攻击的方法，可使系统推荐低相似度的恶意帖子。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "The Like Trap: Multi-Stage Poisoning against Agents in Similarity-based Recommendation Systems",
+  "url": "https://arxiv.org/abs/2609.27155v1"
+}

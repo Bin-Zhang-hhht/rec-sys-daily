@@ -1,0 +1,107 @@
+{
+  "abstract": "Reproduction studies can produce mixed outcomes. Reported values may differ while the ordering of the compared methods remains the same, a result may hold only under some experimental conditions, or a released implementation may fail to reproduce a result that the model can still reach. The terms repeatability, reproducibility, and replicability describe how a follow-up study relates to the original experiment, but not which parts of the original claim are supported by the new results. We introduce \\emph{claim calibration} as a way of stating the strongest claim supported by a follow-up study, together with the conditions under which it holds and the parts that remain untested. We apply this perspective to five original--follow-up paper pairs from recommender-systems research. The cases show that agreement in numerical values, method rankings, statistical results, and overall conclusions does not always coincide, and that follow-up studies often support only part of the original claim. Based on these observations, we propose a Claim Evidence Profile for reporting the original claim, its scope, the reproduction target, the reported results, the calibrated claim, and the parts of the original claim that remain unresolved. Reproduction studies can produce mixed outcomes. Reported values may differ while the ordering of the compared methods remains the same, a result may hold only under some experimental conditions, or a released implementation may fail to reproduce a result that the model can still reach. The terms repeatability, reproducibility, and replicability describe how a follow-up study relates to the original experiment, but not which parts of the original claim are supported by the new results. We introduce \\emph{claim calibration} as a way of stating the strongest claim supported by a follow-up study, together with the conditions under which it holds and the parts that remain untested. We apply this perspective to five original--follow-up paper pairs from recommender-systems research. The cases show that agreement in numerical values, method rankings, statistical results, and overall conclusions does not always coincide, and that follow-up studies often support only part of the original claim. Based on these observations, we propose a Claim Evidence Profile for reporting the original claim, its scope, the reproduction target, the reported results, the calibrated claim, and the parts of the original claim that remain unresolved.",
+  "arxiv_id": "2609.26975",
+  "authors": [
+    "Alan Said"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在推荐系统选型与评估中，使用校准声明和 Claim Evidence Profile 可避免把未测试部分误报为已复现或被反驳，从而减少结论被过度解读的风险。",
+      "案例表明基线调优和评估设置会改变结论，例如NCF与MF的比较、BERT4Rec与SASRec的比较，这对企业选择模型和制定内部评估规范有直接影响。",
+      "额外评估指标可能显示模型间存在权衡，说明仅凭单一准确率排序做业务决策不够充分，需要结合多指标和具体应用场景。",
+      "该框架可供作者、审稿人和读者使用，使“证据到结论”的步骤更易检查，有助于提升推荐系统研究成果的可问责性。"
+    ],
+    "business_transferability": 0.3,
+    "contributions_zh": [
+      "提出声明校准（claim calibration），用于陈述后续研究所能支持的最强主张、成立条件以及仍未测试的部分。",
+      "提出包含七个字段的 Claim Evidence Profile，用于记录原始主张、范围、研究关系、复现目标、报告结果、校准后的主张和未解决范围。",
+      "对推荐系统领域五对原始论文-复现论文进行案例分析，展示数值、方法排序、统计结果和总体结论并不总是一致。",
+      "论证单一‘复现成功/失败’标签不足以描述复现研究，缺失证据不应被解释为反驳主张。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.3. Cross-Case Findings"
+      },
+      {
+        "page": 1,
+        "section": "3. The Claim Evidence Profile"
+      },
+      {
+        "page": 1,
+        "section": "4. Discussion and Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "点积矩阵分解（MF）",
+        "MLP/NeuMF（NCF）",
+        "DeepCRS",
+        "KBRD",
+        "检索式会话推荐系统",
+        "SASRec",
+        "BERT4Rec"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "Pinterest",
+        "五组顺序推荐数据集（Dallmann et al. 案例）"
+      ],
+      "findings_zh": [
+        "在NCF与MF案例中，重新调优的MF基线在相同数据集和评估协议下普遍优于原始论文报告的MLP和NeuMF结果，因此原始实验并不能证明NCF优于经过恰当调优的点积MF。",
+        "在采样指标案例中，均匀采样和流行度采样都会使四种顺序推荐模型在五个数据集上的模型排序发生变化，采样问题对顺序推荐器和流行度采样成立，但原始论文提出的修正方法未被测试。",
+        "在会话推荐案例中，KBRD再次被评为优于DeepCRS，但新的检索式系统同时高于两者，因此研究只支持KBRD相对DeepCRS的优势，不支持KBRD优于其他会话推荐方法的更宽泛主张。",
+        "在MF与NeuMF的独立再实现案例中，MF数值与先前接近，NeuMF数值差异更大，MF仍排在NeuMF之上，但额外评估指标显示两个模型存在权衡，MF并非在所有指标上都更强。",
+        "在BERT4Rec案例中，默认设置无法复现报告结果，但更长训练和独立实现能恢复大部分结果；后续论文中的BERT4Rec与SASRec比较结果不一，因此BERT4Rec并非在实现和研究间一致优于SASRec。"
+      ],
+      "metrics": [
+        "HR@10",
+        "NDCG@10",
+        "采样排序指标",
+        "全目录评估",
+        "额外评估指标（权衡分析）",
+        "用户感知质量评分"
+      ]
+    },
+    "limitations_zh": [
+      "仅分析五对论文，且来自一个更大综述，案例是说明性的而非代表性的。",
+      "编码由一位研究者完成，且没有重新运行实验，分析基于论文和可用公开工件。",
+      "校准后的主张是对报告结果的解释，不同研究者可能对支持与不支持部分划定不同边界。",
+      "为每个主张填写完整档案可能不切实际，且档案本身不代替对实验质量的评估。"
+    ],
+    "method_zh": "从推荐系统可重复性综述的表9中按固定顺序选取前五对原始-复现论文；对每对论文及公开仓库进行分析，记录原始论文的主要主张、主张条件、实验中被保留或改变的部分以及报告结果；无法直接比较的结果标记为不可比，未被复现研究考察的部分标记为未测试；最后为每对论文写出校准后的主张，并归纳为 Claim Evidence Profile 框架。",
+    "problem_zh": "现有可重复性/可再现性/可复制性术语只描述后续研究与原始实验的关系，不能说明原始主张的哪些部分被新结果支持；推荐系统结果强烈依赖基线、采样、实现、训练和评估选择，因此需要一种更细粒度的声明校准方法来区分被支持、未被测试和被反驳的部分。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.6250000000000001,
+  "id": "arxiv-2609.26975",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-24T18:45:05.681080Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-22T19:10:29Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出声明校准框架，以更准确地表述复现研究对原推荐系统论文结论的支持程度。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Calibrating Reproduced Claims in Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.26975v1"
+}

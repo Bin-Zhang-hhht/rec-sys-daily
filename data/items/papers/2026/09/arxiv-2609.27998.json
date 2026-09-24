@@ -1,0 +1,109 @@
+{
+  "abstract": "Group recommender systems typically rely on either aggregating individual preferences or treating groups as distinct meta-users. However, these methods often suffer from static aggregation strategies or data sparsity issues within group histories. This paper introduces a novel approach, that relies on a GNN-based architecture to learn a dual representation of each user's preferences, capturing their behavior as an independent individual from one side and as a member of a collective from the other side. By performing a differential analysis of these individual and group-oriented preferences, our system then determines the behavioral profile of each user when joining a group. Finally, specific preference aggregation strategies are defined to cope with the behavioral profiles of the users composing a group. Consequently, the system is equally capable of delivering precise recommendations to individuals and to arbitrary groups, effectively unifying the two traditional paradigms of recommendation. Experiments on synthetic data simulating diverse group settings and behaviors confirm the flexibility and relevance of the proposed approach compared to state-of-the-art methods. Group recommender systems typically rely on either aggregating individual preferences or treating groups as distinct meta-users. However, these methods often suffer from static aggregation strategies or data sparsity issues within group histories. This paper introduces a novel approach, that relies on a GNN-based architecture to learn a dual representation of each user's preferences, capturing their behavior as an independent individual from one side and as a member of a collective from the other side. By performing a differential analysis of these individual and group-oriented preferences, our system then determines the behavioral profile of each user when joining a group. Finally, specific preference aggregation strategies are defined to cope with the behavioral profiles of the users composing a group. Consequently, the system is equally capable of delivering precise recommendations to individuals and to arbitrary groups, effectively unifying the two traditional paradigms of recommendation. Experiments on synthetic data simulating diverse group settings and behaviors confirm the flexibility and relevance of the proposed approach compared to state-of-the-art methods.",
+  "arxiv_id": "2609.27998",
+  "authors": [
+    "Yacine Mokhtari",
+    "Grégory Smits"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可同时为个体用户和任意群组提供推荐，降低对群组历史交互数据的依赖，适合新组建或低频群组场景。",
+      "通过识别用户是适应性、恒定还是双面行为，在群组推荐中优先保障非适应性成员的偏好，有助于提升家庭、阅读小组等混合群体的满意度。",
+      "行为驱动的双极聚合策略可提供可解释的推荐逻辑：非适应性用户偏好优先，同时兼顾适应性用户的偏好。",
+      "平台可在不牺牲个体推荐能力的情况下扩展群组推荐功能，用于影视、共读等需要群组决策支持的场景。"
+    ],
+    "business_transferability": 0.3,
+    "contributions_zh": [
+      "提出基于知识图谱增强的GAT架构，为每个用户学习“个体偏好”和“群组成员偏好”两种表示，并引入调制向量区分两种情境。",
+      "定义duality与diversity两个指标，据此将用户划分为Adaptable Users、Constant Users和Dual Users三类行为画像。",
+      "提出按群组成员构成选择least/avg/bipolar等聚合策略的行为驱动群组推荐方法，优先保障非适应性成员偏好。",
+      "在个体推荐、已见群组和未见群组三种设置中验证了方法的灵活性，声称统一了个体推荐与群组推荐两种范式。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Related Work"
+      },
+      {
+        "page": 1,
+        "section": "2 Flexible Recommendation System"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Recommending to Groups"
+      },
+      {
+        "page": 1,
+        "section": "3 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusion & Perspectives"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "KGAT-lm",
+        "KGAT-ms",
+        "KGAT-avg",
+        "KGAT-PGR",
+        "KGAG"
+      ],
+      "datasets": [
+        "MovieLens-KG",
+        "genData_small",
+        "genData_small_2",
+        "genData_large"
+      ],
+      "findings_zh": [
+        "在个体推荐上，所提方法在所有生成数据集上的HR@20和NDCG@20均优于所列基线，作者认为这来自双用户表示带来的更强的协同信号。",
+        "在已见群组上，当群组交互数据充足时，KGAT-PGR整体略优于所提方法，因为前者可为每个群组学习专用表示；所提方法仍具有竞争性。",
+        "在未见群组上，PGR类方法无法推荐，所提方法在多数设置下优于OGR基线；例如genData_small_2和genData_large上HR@20、NDCG@20均最高。",
+        "结果也表明结论存在场景差异：在genData_small的未见群组上，所提方法HR@20低于KGAT-ms，但NDCG@20明显更高，因此优势并非在所有指标上一致。"
+      ],
+      "metrics": [
+        "HR@20",
+        "NDCG@20"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅在基于MovieLens-KG生成的合成数据上进行，缺少带物品知识图谱的真实群组推荐数据集验证。",
+      "作者说明基于真实数据集以及鲁棒性分析、消融研究仍在进行中，尚未提供相应证据。",
+      "对已见群组且交互历史充分时，所提方法总体略逊于学习每个群组专用表示的KGAT-PGR。",
+      "duality和diversity的阈值α、β是可调参数，文中未给出系统性的阈值选择与敏感性分析。",
+      "部分未见群组结果存在指标不一致，例如genData_small上HR@20低于某些OGR基线，结论需要更多验证。"
+    ],
+    "method_zh": "首先使用TransR对知识图谱进行嵌入初始化，并在评分函数中通过用户调制向量区分individual_inter与group_inter两类交互。随后用GAT层聚合多跳邻居信息，采用bi-interaction聚合器更新节点表示，分别得到用户的个体表示和群组成员表示，并用BPR损失联合优化。推荐阶段不直接端到端打分，而是基于两种表示计算duality和diversity，按阈值将用户分为AU、CU、DU，再根据群组构成G1-G4选择least、avg或bipolar聚合策略，用非适应性成员的偏好筛选候选物品，并用适应性成员偏好进行重排。",
+    "problem_zh": "现有群组推荐主要分为持久群组推荐（PGR）和偶发群组推荐（OGR）：PGR依赖群组历史交互，难以处理未见或罕见群组；OGR假设用户偏好稳定，常用固定聚合策略，忽视用户在群组情境下的偏好适应性和成员影响力差异。本文旨在同时为个体用户和任意群组提供准确推荐，并对用户加入群组时的行为变化进行显式建模。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.7100000000000002,
+  "id": "arxiv-2609.27998",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-24T18:45:05.681080Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-09-23T12:27:27Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出一种基于GNN的灵活推荐系统，通过区分个体与群体偏好来为个人和任意群体提供推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "A Flexible Recommendation System for Individuals and Groups",
+  "url": "https://arxiv.org/abs/2609.27998v1"
+}

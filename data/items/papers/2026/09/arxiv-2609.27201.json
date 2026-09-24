@@ -1,0 +1,142 @@
+{
+  "abstract": "Sequential RecSys are central to modern personalization, exploiting user's historical interaction sequences to drive next-step decisions. Deep learning models, particularly CNN and Transformer-based architectures, have proven highly effective at capturing temporal dependencies in these histories. For transparency and trust, understanding which past interactions drive a given recommendation is increasingly important --- both for developers auditing model behavior and for users seeking a rationale. However, the non-linearities that give these models their predictive power also render them black boxes, making it difficult to attribute decisions to specific interactions. While gradient-based, perturbation-based, and attention-based explainability methods exist, a systematic benchmark of their faithfulness for sequential recommendation is missing. We address this gap by introducing a dual-model masking metric in which one model supplies per-timestep attribution scores and a separately trained, masking-robust probe measures the resulting change in predicted probability. Using this metric, we benchmark ten XAI methods across CNN, Transformer, SASRec, and BERT4Rec backbones on KuaiRand and MovieLens, complemented by analyses of temporal attribution patterns, item popularity confounding, and robustness to input corruption. Our key findings are: (1) gradient-based methods, particularly GradientSHAP and Integrated Gradients, yield the most faithful and robust attributions; (2) raw attention weights are unreliable, but gradient-weighted attention restores faithfulness on shorter sequences, with degradation on longer horizons as softmax attention probabilities converge toward uniform importance scores, diminishing the method's ability to identify informative interactions; and (3) temporal attribution patterns in faithful methods reflect genuine task structure rather than recency or popularity bias. Sequential RecSys are central to modern personalization, exploiting user's historical interaction sequences to drive next-step decisions. Deep learning models, particularly CNN and Transformer-based architectures, have proven highly effective at capturing temporal dependencies in these histories. For transparency and trust, understanding which past interactions drive a given recommendation is increasingly important --- both for developers auditing model behavior and for users seeking a rationale. However, the non-linearities that give these models their predictive power also render them black boxes, making it difficult to attribute decisions to specific interactions. While gradient-based, perturbation-based, and attention-based explainability methods exist, a systematic benchmark of their faithfulness for sequential recommendation is missing. We address this gap by introducing a dual-model masking metric in which one model supplies per-timestep attribution scores and a separately trained, masking-robust probe measures the resulting change in predicted probability. Using this metric, we benchmark ten XAI methods across CNN, Transformer, SASRec, and BERT4Rec backbones on KuaiRand and MovieLens, complemented by analyses of temporal attribution patterns, item popularity confounding, and robustness to input corruption. Our key findings are: (1) gradient-based methods, particularly GradientSHAP and Integrated Gradients, yield the most faithful and robust attributions; (2) raw attention weights are unreliable, but gradient-weighted attention restores faithfulness on shorter sequences, with degradation on longer horizons as softmax attention probabilities converge toward uniform importance scores, diminishing the method's ability to identify informative interactions; and (3) temporal attribution patterns in faithful methods reflect genuine task structure rather than recency or popularity bias.",
+  "arxiv_id": "2609.27201",
+  "authors": [
+    "Akash Pandey",
+    "Kanisha Shah",
+    "Addrish Roy",
+    "Dwipam Katariya",
+    "Hongyangyang Shi",
+    "Amanda Ding",
+    "Kalanand Mishra",
+    "Pranab Mohanty"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在金融服务、数字内容策展和电子商务等高风险场景中，保真且稳健的时间归因可帮助开发者审计和调试模型，确认推荐源自真实历史偏好而非近因或流行度偏差，从而增强透明度和信任。",
+      "为终端用户提供个性化推荐理由(如购买电脑后推荐键盘)可提供决策上下文，有助于提升用户信任感和产品体验。",
+      "可靠识别负向或噪声交互(如误点击)可支持数据集去噪，改进序列表示；忠实归因分数可作为离线输入序列蒸馏的监督信号，提升在线推理效率。",
+      "对生产系统的实践建议：优先采用基于梯度的后验解释方法，注意力类方法需结合架构和序列长度谨慎评估。",
+      "可解释性方法可帮助开发者判断模型是否真正具有上下文感知能力，对模型行为和合规审计有直接价值。"
+    ],
+    "business_transferability": 0.66,
+    "contributions_zh": [
+      "提出首个面向顺序推荐时间归因的双模型保真度度量框架：一个模型提供逐时间步归因分数，另一个以随机交互掩码训练的相同架构模型作为分布内探针，避免朴素掩码的分布外问题和 remove-and-retrain 的再训练成本。",
+      "在 KuaiRand-1k、KuaiRand-1k-LONG 和 MovieLens-1M 上系统比较 10 种梯度、扰动和注意力类 XAI 方法在 CNN、Vanilla Transformer、SASRec、BERT4Rec 及 TimeSliver 上的保真度。",
+      "实证分析时间归因模式，检验归因是否受近因偏差或物品流行度混杂，发现忠实方法反映真实任务结构而非序列位置或物品频率。",
+      "提供渐进输入噪声下的鲁棒性诊断，识别在真实分布偏移下保持稳定的方法。",
+      "将内在可解释模型 TimeSliver 纳入基准，展示其以更少参数达到与最优后验方法相当的保真度。"
+    ],
+    "evidence_quality": 0.83,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Implementations Details"
+      },
+      {
+        "page": 1,
+        "section": "4 Results and Discussions"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Faithfulness Evaluation of XAI methods"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Robustness of XAI methods"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Attribution Mechanics: Recency and Popularity Bias"
+      },
+      {
+        "page": 1,
+        "section": "5 Limitations"
+      },
+      {
+        "page": 1,
+        "section": "B Detailed Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Random",
+        "Integrated Gradients",
+        "GradientSHAP",
+        "DeepLIFT",
+        "DeepLIFT-SHAP",
+        "KernelSHAP",
+        "LIME",
+        "Grad-CAM",
+        "Attention Tracing",
+        "Grad-SAM",
+        "TimeSliver"
+      ],
+      "datasets": [
+        "KuaiRand-1k (L=100，二分类短视频交互预测)",
+        "KuaiRand-1k-LONG (L=1000，二分类短视频交互预测)",
+        "MovieLens-1M (L=200，下一物品预测)"
+      ],
+      "findings_zh": [
+        "基于梯度的方法，尤其是 Integrated Gradients 和 GradientSHAP，在 CNN、Transformer、SASRec、BERT4Rec 等骨干上一致地产生最忠实且鲁棒的归因；DeepLIFT/DeepLIFT-SHAP 在 KuaiRand-1k 上同样高度忠实。",
+        "原始注意力权重的 Attention Tracing 保真度高度依赖架构，在 KuaiRand-1k 的 Vanilla Transformer 上甚至反保真(cf=+0.930)，说明原始注意力权重不可靠。",
+        "梯度加权注意力 Grad-SAM 在短序列上能恢复保真度，但在长序列上因 softmax 注意力趋近均匀 token 选择而显著退化：Vanilla Transformer 在 L=500 时 cf=-0.368，L=1000 时 cf=-0.308。",
+        "Grad-CAM 在 CNN/Transformer 上不忠实甚至反忠实；LIME 在 KuaiRand 上保真度较低但在 MovieLens-1M 上较高。",
+        "忠实方法的时间归因模式反映任务结构而非简单近因或流行度：KuaiRand-1k 上无近因倾斜，MovieLens-1M 集中于最近交互；所有忠实方法的流行度偏差 cp 落在 [-0.146, +0.110] 窄区间，接近随机基线 cp=0.007。",
+        "TimeSliver 作为内在可解释模型，在参数明显少于 CNN/Transformer 骨干的情况下仍稳定取得 cf<-0.8，说明内在可解释性可与最优后验方法媲美。",
+        "鲁棒性方面，保真方法在渐进噪声下退化不超过 25%；Integrated Gradients、GradientSHAP、DeepLiftSHAP 的退化最小，而 DeepLift、KernelSHAP、TimeSliver 在部分设置下退化相对更高。"
+      ],
+      "metrics": [
+        "保真度 cf：组平均归因与掩码后模型 B 平均预测概率的 Pearson 相关，越接近 -1 越忠实",
+        "鲁棒性 cr(η)：干净与噪声扰动归因在未掩码位置上的 Pearson 相关",
+        "流行度偏差 cp：物品训练频率与平均归因的 Pearson 相关",
+        "预测性能：KuaiRand-1k 的 AUC-ROC、MovieLens-1M 的 NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文聚焦定量基准框架，未进行用户研究来评估技术性归因质量如何转化为实际可解释性结果、领域特定效用和终端用户感知。",
+      "探针模型 B 的掩码概率 p 是数据集相关超参数，改变 p 必须重新训练模型 B 才能保证掩码输入仍在分布内。",
+      "KuaiRand-1k 从 1000 个用户下采样到 100 个用户以控制实验成本，可能限制某些结论的统计范围。",
+      "长序列下 Grad-SAM 等注意力类方法的归因模式受 softmax 注意力收敛到均匀分布的影响，实际部署前需按序列长度和架构谨慎评估。"
+    ],
+    "method_zh": "研究方法包括：(1) 训练常规模型 A 提供归因分数，训练相同架构但经随机交互掩码(默认 p=0.05)的模型 B 作为分布内探针；把序列按归因分数降序分为 k=floor(0.05L) 大小的非重叠组，依次掩码高归因组，用模型 B 的平均目标类预测概率与组平均归因的 Pearson 相关系数 cf 度量保真度。(2) 在 5%、10%、15%、20%、25% 噪声比例下重算归因，计算与干净归因在未掩码位置上的 Pearson 相关 cr 评估鲁棒性。(3) 用物品训练频率与平均归因的 Pearson 相关 cp 评估流行度偏差。梯度与扰动方法基于 Captum 实现，归因分数在各嵌入维度上取 L2 范数聚合成逐时间步标量。",
+    "problem_zh": "顺序推荐系统(SRS)依赖用户历史交互序列预测下一步行为，CNN、Transformer、SASRec、BERT4Rec 等深度模型虽能捕捉时序依赖，但其非线性结构使其成为黑盒，难以将推荐决策归因到具体历史交互。论文指出现有梯度、扰动和注意力类可解释方法在顺序推荐中缺乏系统性的保真度基准评估，导致开发者难以审计模型是否真正具有上下文感知能力。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.85,
+  "id": "arxiv-2609.27201",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-24T18:45:05.681080Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-23T01:07:25Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文系统评估了十种可解释性方法在序列推荐模型上时间归因的忠实性，发现梯度类方法表现最佳。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "A Systematic Benchmark of Explainable Methods for Temporal Attribution in Sequential Recommendation Systems",
+  "url": "https://arxiv.org/abs/2609.27201v1"
+}
