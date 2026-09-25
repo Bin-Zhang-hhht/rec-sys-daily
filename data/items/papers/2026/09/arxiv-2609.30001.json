@@ -1,0 +1,147 @@
+{
+  "abstract": "Sustaining industrial recommendation research requires using the results of one experiment to decide what to investigate next. We present AgentX-Model, the next generation of AgentX's model research framework, which connects proposal development and model experimentation within sandboxes defined by business inputs and prediction tasks. AgentX-Model adopts a dual-agent architecture comprising a Research Agent and a Model Agent. The Research Agent develops independently reviewed proposals from papers and experimental findings, while the Model Agent conducts multi-round investigations and returns code, measurements, and unresolved questions. Using the returned results, the Research Agent selects a starting implementation and formulates the next research question, allowing subsequent experiments to build on earlier findings. We organize this continuing research around four actions: Reproduce, Follow-up, Composition, and Diagnose. The first three actions drive routine research, while Diagnose acquires the evidence needed to choose a repair, including for issues raised by business feedback and online evaluation, such as prediction bias measured by PCOC. Across the production evaluation, 560 of 636 completed model-changing experiments recorded AUC above their business baselines. As research continued, some experiments recorded AUC above every comparable ancestor in their lineages. The five latest online A/B evaluations across different business settings reported gains including 10-15% in acquisition efficiency, 15-20% in target-segment advertising spend, and 0.3-0.8% in watch time; the watch-time model used approximately 10% fewer FLOPs and parameters. A dependency-aware historical-replay benchmark further evaluates research allocation, with initial results showing no consistent efficiency gain from more complex scheduling when agents already analyze and select concrete candidates. Sustaining industrial recommendation research requires using the results of one experiment to decide what to investigate next. We present AgentX-Model, the next generation of AgentX's model research framework, which connects proposal development and model experimentation within sandboxes defined by business inputs and prediction tasks. AgentX-Model adopts a dual-agent architecture comprising a Research Agent and a Model Agent. The Research Agent develops independently reviewed proposals from papers and experimental findings, while the Model Agent conducts multi-round investigations and returns code, measurements, and unresolved questions. Using the returned results, the Research Agent selects a starting implementation and formulates the next research question, allowing subsequent experiments to build on earlier findings. We organize this continuing research around four actions: Reproduce, Follow-up, Composition, and Diagnose. The first three actions drive routine research, while Diagnose acquires the evidence needed to choose a repair, including for issues raised by business feedback and online evaluation, such as prediction bias measured by PCOC. Across the production evaluation, 560 of 636 completed model-changing experiments recorded AUC above their business baselines. As research continued, some experiments recorded AUC above every comparable ancestor in their lineages. The five latest online A/B evaluations across different business settings reported gains including 10-15% in acquisition efficiency, 15-20% in target-segment advertising spend, and 0.3-0.8% in watch time; the watch-time model used approximately 10% fewer FLOPs and parameters. A dependency-aware historical-replay benchmark further evaluates research allocation, with initial results showing no consistent efficiency gain from more complex scheduling when agents already analyze and select concrete candidates.",
+  "arxiv_id": "2609.30001",
+  "authors": [
+    "Shuang Yang",
+    "Zijie Zhuang",
+    "Changxin Lao",
+    "Pengbo Xu",
+    "Hanwen Xu",
+    "Yusheng Huang",
+    "Han Gao",
+    "Guanchen Wang",
+    "Tianbao Ma",
+    "Linxun Chen",
+    "Peilin Song",
+    "Xuming Wang",
+    "Chen Li",
+    "Fan Wu",
+    "Tao Wang",
+    "Zibo Zhao",
+    "Xiangyu Wu",
+    "An Liu",
+    "Fei Pan",
+    "Peng Jiang",
+    "Chen Yang",
+    "Zhaojie Liu",
+    "Wenwu Ou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "研究框架可在业务定义的沙箱内持续产生超过基线的模型，并通过受控 Launch Review 上线；最新 5 个 A/B 实验报告获客效率、目标 segment 广告花费、观看时长、DAU 和关注行为等相对增益。",
+      "多任务目标剪枝在保留所需输出的同时降低约 10% FLOPs 和参数数量，可降低在线推理与训练成本。",
+      "面对 ranking 收益上线后出现的预测偏差，系统可用 Diagnose + Follow-up 在校准误差降低约 22.8% 的同时保持高于业务基线的排序表现，说明业务反馈可以被纳入长期研究目标。",
+      "知识迁移把低成本场景的发现压缩为提案，在目标场景中产生了比纯论文复现更多的高于基线起点，提示跨业务设置复用研究经验具有落地价值。",
+      "调度层面，复杂自适应分配没有一致优于固定动作轮转加 agent 候选人选择的方案；实际落地时可先用较简单调度，把 agent 能力集中于具体候选构造与筛选。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出双 agent 研究框架 AgentX-Model：Research Agent 负责跨实验规划、提案构造与独立评审，Model Agent 负责多轮实验实施并返回代码、测量结果与未解决问题，使实验输出成为下一提案的输入。",
+      "将长期研究组织为 Reproduce、Follow-up、Composition、Diagnose 四种研究动作，覆盖方法引入、实现精化、跨实验组合和面向业务反馈的诊断修复。",
+      "构建依赖感知的历史回放基准（473 个实验节点、6 个环境），用于比较固定轮转、bandit 路由和 joint 选择等实验分配策略；初步结果显示在 agent 已做候选人筛选时，更复杂的调度并不稳定提升研究效率。",
+      "生产评估记录 560/636 个模型改动实验超过业务基线 AUC，5 个最新在线 A/B 实验报告获客效率、广告花费、观看时长等业务增益。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 4,
+        "section": "1. Introduction"
+      },
+      {
+        "page": 5,
+        "section": "2. System Overview"
+      },
+      {
+        "page": 7,
+        "section": "3. Long-Horizon Research Cycle"
+      },
+      {
+        "page": 10,
+        "section": "4. Evaluation and Findings"
+      },
+      {
+        "page": 16,
+        "section": "4.3.3 From Ranking Gains to Calibration Repair"
+      },
+      {
+        "page": 17,
+        "section": "4.4 Knowledge Transfer Across Settings"
+      },
+      {
+        "page": 18,
+        "section": "4.5 Selecting the Next Experiment"
+      },
+      {
+        "page": 23,
+        "section": "6. Lessons from Long-Horizon Model Research"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Scenario A baseline AUC 0.773683",
+        "Scenario B baseline AUC 0.815403",
+        "Scenario C baseline AUC 0.816849",
+        "Scenario D baseline AUC 0.809656",
+        "Scenario E baseline AUC 0.815403",
+        "在线 A/B 实验对应 Launch Review 的 control 组"
+      ],
+      "datasets": [
+        "工业业务场景 Scenario A/B/C/D/E 的内部业务数据与训练评估环境",
+        "生产记录：10 天采样 886 次提案尝试、262 个交付提案；约 25 天 636 个模型改动实验；continuation archive 1218 个实验、923 个有效结果",
+        "Agent 评估子集：200 个交付提案执行子集、189 个多轮实验子集",
+        "依赖感知历史回放基准：473 个节点、6 个图环境（Scenario A 348 节点、B 26、C 21、D 两个小图 3/6、E 69）",
+        "指令修订回归评估：40 个论文复现输入"
+      ],
+      "findings_zh": [
+        "离线约 25 天中，636 个完成的模型改动实验里有 560 个记录到高于对应业务基线的 AUC；Scenario A 为 500/527（94.9%），B 为 21/29（72.4%），C 为 20/33（60.6%），D 为 19/47（40.4%）。",
+        "Scenario A 中 46/91 个可比 Follow-up 高于直接父实验，7/77 个高于全部可比祖先；Composition 中 6/139 个高于直接父实验，5/120 个高于全部祖先——持续改进更多体现为局部恢复而非新路径最优。",
+        "189 个多轮实验中，111 个在首个有效轮之后记录到更高 AUC，但 91 个的最后一个有效轮 AUC 低于中间最优，因此应保留最佳测量实现而非只保留最后版本。",
+        "5 个最新 Launch Review 的在线 A/B 报告相对增益：获客效率 10–15%、目标 segment 广告花费 15–20%、观看时长 0.3–0.8%（并减少约 10% FLOPs/参数）、DAU 0.5–1%、关注行为 3–4%、跨场景机制迁移带来的广告花费 5–10%。",
+        "校准路径中，SMES 变体把 Scenario A AUC 从 0.773683 提升到 0.778940；业务反馈的过预测问题驱动 Diagnose 和 Follow-up，两轮健康执行的校准误差分别降低 22.8% 和 22.7%，AUC 保持在业务基线上。",
+        "历史回放中，Fixed/Bandit/Joint 等策略在不同图上的最终 AUC 排序不一致，没有一种分配策略稳定领先；固定轮转加 agent 候选人选择仍是竞争性基线。",
+        "知识迁移来源的 Scenario D 实验中 5/15 高于基线，而论文来源的复现实验 0/7 高于基线；给原始证据增加摘要并未一致改善 best AUC 或缩短达到同一结果的选择路径。"
+      ],
+      "metrics": [
+        "AUC 及 ΔAUC（相对业务基线、直接父实验、全部可比祖先）",
+        "PCOC（预测总量/观测总量）与校准误差降低比例",
+        "在线相对增益：获客效率、目标 segment 广告花费、观看时长、DAU、关注行为",
+        "FLOPs 与参数数量",
+        "提案生产时间（中位数/90 分位）、回放决策时间与 token 用量",
+        "首稿结构通过率、语义保真度、未声明机制遗漏数"
+      ]
+    },
+    "limitations_zh": [
+      "知识迁移与论文来源的两个历史队列采集于不同时间段，没有匹配实验预算，属于探索性对比而非严格受控实验。",
+      "历史回放只覆盖实际执行过的研究分支，且比较条件受历史采样影响；Scenario A 图中 Composition 因前置源实验未被选完而从未被解锁，策略评价会受到候选可达性的限制。",
+      "回放以 AUC 类即时结果为主要奖励，未纳入 Diagnose 对未来修复的信息价值；baseline+0.001 目标在多数图上第一轮即达到，区分度有限。",
+      "指令修订回归使用同一批 40 个输入并由 LLM judge 评估，摘要评审者已知先前回放结果、并非盲评。",
+      "最佳 AUC 记录在后段趋于平稳，同时研究方向转向 loss/optimization 与简化，无法据此断言继续追求 AUC 的长期潜力。",
+      "业务基线会随模型改进而演化，所有结果需连同基线版本和评估条件解读；跨业务设置迁移时需要重新适配到目标输入与预测任务。"
+    ],
+    "method_zh": "系统由业务输入和预测任务定义研究沙箱，两个 agent 通过提案协调。Research Agent 的 Assembler 根据共享研究状态 S_t=(I_t,E_t,Q_t) 构造提案 P_t=(q_t,s_t,delta_t,nu_t)，Auditor 在独立上下文中评审并退回修订；Model Agent 在提案范围内进行多轮规划、编码、验证、训练和测量，保留每轮代码、中间最优实现与失败记录。研究动作包括：Reproduce 在目标业务基线上引入论文机制；Follow-up 从带测量结果的实现出发改进；Composition 检查两个源实验的完整有效改动后测试其互补性；Diagnose 通过额外观测或干预区分失败解释并指导后续修复。实验结果按业务基线、直接父实验和最强可比祖先三个参照评估；业务反馈可把研究方向从排序增益转向校准修复（如 PCOC）。",
+    "problem_zh": "工业推荐系统的模型研究需要把一次实验的结果转化为下一步研究决策；现有 agent 主要完成单个实验的实施，缺少跨实验的长期研究规划与证据继承机制。本文研究如何在业务定义的输入/预测任务沙箱内，让 agent 自主地提出、执行并延续模型研究，包括复现、跟进、组合与诊断四类研究动作。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.915,
+  "id": "arxiv-2609.30001",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-24T15:45:07Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文介绍AgentX-Model，以研究主体与模型主体双智能体架构在工业推荐系统内推进长周期模型研究与实验，属推荐系统工程内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Advancing Model Research in AgentX: Long-Horizon Autonomy for Industrial Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.30001v1"
+}

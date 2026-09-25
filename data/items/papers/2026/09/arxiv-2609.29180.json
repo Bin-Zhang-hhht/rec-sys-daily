@@ -1,0 +1,93 @@
+{
+  "abstract": "Recent advances in generative modeling have reshaped recommender systems by formulating recommendation as a next-item generation problem. Existing retrieval approaches primarily follow two paradigms: user-to-item (U2I) methods represent user context using one or a few deterministic embeddings, which limits the ability to capture diverse and multi-mode interests, while semantic-ID-based autoregressive (SID-AR) methods model more expressive distributions but suffer from quantization errors and the low throughput of sequential decoding. To address these limitations, we propose X-Rec to directly learn the recommendation distribution in the continuous item embedding space through flow matching and generate embedding triggers for approximate nearest neighbor retrieval. X-Rec incorporates three key designs to make this formulation effective and efficient. First, we introduce anchor conditioning to decompose generation into coarse semantic-region selection and fine-grained refinement. Second, we adopt Riemannian flow matching to align generative trajectories with the hyperspherical geometry of item embeddings. Third, we design a late-interaction diffusion Transformer that restricts repeated velocity-field estimation to the final Transformer layer. On a streaming benchmark, X-Rec substantially outperforms U2I baselines, matches the retrieval quality of SID-AR methods, and delivers 3.46x higher inference throughput than SID-AR. X-Rec has also been deployed as a new retrieval source for a specific vertical content on TikTok, where two consecutive launches have yielded significant improvements in both vertical engagement (+4.1484%) and general engagement (+0.0111%). Recent advances in generative modeling have reshaped recommender systems by formulating recommendation as a next-item generation problem. Existing retrieval approaches primarily follow two paradigms: user-to-item (U2I) methods represent user context using one or a few deterministic embeddings, which limits the ability to capture diverse and multi-mode interests, while semantic-ID-based autoregressive (SID-AR) methods model more expressive distributions but suffer from quantization errors and the low throughput of sequential decoding. To address these limitations, we propose X-Rec to directly learn the recommendation distribution in the continuous item embedding space through flow matching and generate embedding triggers for approximate nearest neighbor retrieval. X-Rec incorporates three key designs to make this formulation effective and efficient. First, we introduce anchor conditioning to decompose generation into coarse semantic-region selection and fine-grained refinement. Second, we adopt Riemannian flow matching to align generative trajectories with the hyperspherical geometry of item embeddings. Third, we design a late-interaction diffusion Transformer that restricts repeated velocity-field estimation to the final Transformer layer. On a streaming benchmark, X-Rec substantially outperforms U2I baselines, matches the retrieval quality of SID-AR methods, and delivers 3.46x higher inference throughput than SID-AR. X-Rec has also been deployed as a new retrieval source for a specific vertical content on TikTok, where two consecutive launches have yielded significant improvements in both vertical engagement (+4.1484%) and general engagement (+0.0111%).",
+  "arxiv_id": "2609.29180",
+  "authors": [
+    "Chenglei Shen",
+    "Chenzhe Huang",
+    "Dong Jiang",
+    "Hongjie Gao",
+    "Jue Zhang",
+    "Kun Xú",
+    "Lincan Cai",
+    "Nan Zhuang",
+    "Pan Zhang",
+    "Shi Chen",
+    "Shunchi Zhang",
+    "Xiaoyu Ye",
+    "Yang Jin",
+    "Yu Zhang",
+    "Zhenwei An",
+    "Zhongtao Jiang",
+    "Zhiwei Wang",
+    "Kun Xǔ"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "已在 TikTok 特定垂直内容上作为新检索源部署，连续两次上线带来垂直参与度 +4.1484% 与总体参与度 +0.0111%，说明在真实推荐系统中可带来参与度增益。",
+      "推理吞吐量较 SID-AR 提升 3.46 倍，有助于降低大规模推荐检索的推理成本与延迟压力。",
+      "总体参与度提升幅度相对较小，且场景仅限特定垂直内容，跨品类/跨业务复制收益时需谨慎验证。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 X-Rec，将推荐建模为连续物品嵌入空间上的分布学习，通过流匹配生成嵌入触发器，供近似最近邻检索使用。",
+      "引入 anchor conditioning，把生成过程分解为粗粒度语义区域选择与细粒度精化两步。",
+      "采用 Riemannian flow matching，使生成轨迹与物品嵌入的超球面几何对齐。",
+      "设计 late-interaction diffusion Transformer，将重复的 velocity-field 估计限制在最后 Transformer 层，提升推理效率。",
+      "在流式基准上显著优于 U2I 基线，并匹配 SID-AR 检索质量，同时推理吞吐量较 SID-AR 提升 3.46 倍；在 TikTok 某垂直内容完成线上部署并带来参与度提升。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "user-to-item (U2I) 方法",
+        "semantic-ID-based autoregressive (SID-AR) 方法"
+      ],
+      "datasets": [
+        "streaming benchmark（摘要未具名）",
+        "TikTok 某垂直内容线上部署流量"
+      ],
+      "findings_zh": [
+        "在流式基准上，X-Rec 显著优于 U2I 基线，并与 SID-AR 方法检索质量相当。",
+        "X-Rec 的推理吞吐量比 SID-AR 方法高 3.46 倍。",
+        "在 TikTok 某垂直内容作为新检索源两次上线，垂直参与度提升 4.1484%，总体参与度提升 0.0111%。"
+      ],
+      "metrics": [
+        "检索质量",
+        "推理吞吐量（较 SID-AR 提升 3.46 倍）",
+        "垂直内容参与度（+4.1484%）",
+        "总体参与度（+0.0111%）"
+      ]
+    },
+    "limitations_zh": [],
+    "method_zh": "X-Rec 利用流匹配在连续物品嵌入空间中直接学习推荐条件分布，并生成嵌入触发器用于 ANN 检索。关键机制包括：anchor conditioning 将生成为粗粒度语义区域选择与细粒度精化；Riemannian flow matching 将生成轨迹对齐到物品嵌入的超球面几何；late-interaction diffusion Transformer 只在最后一层 Transformer 重复估计速度场，以减少计算开销。",
+    "problem_zh": "现有生成式推荐检索主要分为两条路线：U2I 方法用一个或少量确定性嵌入表示用户上下文，无法充分捕获多样、多峰兴趣；SID-AR 方法虽然能建模更具表达力的分布，但存在量化误差以及顺序解码吞吐低的问题。论文提出直接在连续物品嵌入空间中通过流匹配学习推荐分布并生成嵌入触发器，以兼顾表达力与解码效率。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.835,
+  "id": "arxiv-2609.29180",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-24T07:53:52Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "X-Rec通过流匹配在连续物品嵌入空间中学习推荐分布并生成用于近似最近邻检索的嵌入触发器，显著提升召回质量与推理吞吐量。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "X-Rec Technical Report",
+  "url": "https://arxiv.org/abs/2609.29180v1"
+}

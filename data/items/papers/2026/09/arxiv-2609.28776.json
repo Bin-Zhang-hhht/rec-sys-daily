@@ -1,0 +1,144 @@
+{
+  "abstract": "We propose a framework that learns cross-task relationships in multi-task models by approximating the joint distribution of task labels through targeted pairwise relationships. This approach improves performance via transfer learning and enhances information extraction without the intractable complexity of modeling the full joint space. Although our framework applies to any multi-task system, we demonstrate its efficacy within YouTube's production recommendation systems. Experiments across the Notifications, Homepage, and Watch Next surfaces show improvements in both accuracy and user satisfaction metrics. Finally, we propose a workflow template to facilitate broader future implementation. We propose a framework that learns cross-task relationships in multi-task models by approximating the joint distribution of task labels through targeted pairwise relationships. This approach improves performance via transfer learning and enhances information extraction without the intractable complexity of modeling the full joint space. Although our framework applies to any multi-task system, we demonstrate its efficacy within YouTube's production recommendation systems. Experiments across the Notifications, Homepage, and Watch Next surfaces show improvements in both accuracy and user satisfaction metrics. Finally, we propose a workflow template to facilitate broader future implementation.",
+  "arxiv_id": "2609.28776",
+  "authors": [
+    "Victor Zhang",
+    "Yiping Yuan",
+    "Florian Raudies",
+    "Bosun Adeoti",
+    "Brian Y. C. Leung",
+    "Sanjay Surendranath Girija",
+    "Naijing Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该框架可作为可复用工作流（任务筛选、数据筛查、离线验证、两阶段A/B测试）嵌入现有推荐系统，降低其他多任务推荐系统采用成本。",
+      "可同时提升用户参与度和满意度，并减少Opt-outs、低质量曝光等负面指标，形成多方共赢而非简单指标权衡。",
+      "在大型成熟推荐系统中，即使0.1%量级的线上提升也能在十亿级用户规模下产生显著绝对业务影响。",
+      "辅助头不改变原有标签定义，且可直接连接共享body实现，工程上简单、可扩展，适合已有MTL模型的渐进式升级。",
+      "将交叉任务预测作为RL策略输入可为策略提供更丰富的用户环境建模，适用于通知发送、首页排序等有RL决策环节的推荐场景。",
+      "需要结合任务间业务关系（嵌套、互斥、冗余条件头）进行针对性筛选，避免无信息或重复的辅助头，确保增量收益。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出通过成对任务交互（如协方差）近似任务标签联合分布的框架，以策略性添加的辅助头（交叉标签头或无条件头）高效实现，辅助头数量至多O(N^2)，且不改变原有标签定义。",
+      "提出两个主要假设：迁移学习假设（显式学习任务关系可提升现有任务头性能）和环境建模假设（为下游RL策略提供更丰富的环境状态信息），并给出各自验证流程。",
+      "给出包含任务选择、数据筛查、离线评估、两阶段在线实验和迭代优化的通用实施工作流模板。",
+      "在YouTube Notifications、Homepage与Watch Next生产推荐系统完成部署和实验，展示准确率与用户体验指标的提升。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "ABSTRACT"
+      },
+      {
+        "page": 1,
+        "section": "2 MATHEMATICAL FORMULATION"
+      },
+      {
+        "page": 1,
+        "section": "3 TWO PRIMARY HYPOTHESES"
+      },
+      {
+        "page": 1,
+        "section": "5 IMPLEMENTATION AND TESTING WORKFLOW"
+      },
+      {
+        "page": 1,
+        "section": "6.1.1 Initial Launch of 10 Heads"
+      },
+      {
+        "page": 1,
+        "section": "6.1.2 Follow-Up Launch on More Heads"
+      },
+      {
+        "page": 1,
+        "section": "6.2.1 Multi-Task Model Auxiliary Heads"
+      },
+      {
+        "page": 1,
+        "section": "6.2.2 Passing Heads to RL Policy Model"
+      },
+      {
+        "page": 1,
+        "section": "6.3.1 Addition of Four Auxiliary Non-Serving Heads"
+      },
+      {
+        "page": 1,
+        "section": "7.1 Contrasting with Scalar Loss Weighting"
+      },
+      {
+        "page": 1,
+        "section": "8 CONCLUSION AND FUTURE WORK"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "未加跨任务关系辅助头的标准多任务模型/线上对照臂",
+        "Phase 1只训练辅助头但不向RL策略输出服务的迁移学习臂（作为Phase 2基线）"
+      ],
+      "datasets": [
+        "YouTube Notifications推荐系统生产数据",
+        "YouTube Homepage推荐系统生产数据",
+        "YouTube Watch Next推荐系统生产数据",
+        "每日数十亿级训练样本、数周时间窗口、1%评估集"
+      ],
+      "findings_zh": [
+        "Notifications初始10个辅助头：直接交互类任务离线AUC提升3–8%，环境类任务中性；线上组合臂DAU +0.17% [0.01,0.32]、Valued watch time +0.19% [0.02,0.37]、Opt-outs -1.05% [-1.84,-0.26]、Sends -7.21%、CTR +7.67%。",
+        "Homepage第一次主发布（5个无条件头）：主任务AUC提高0.2–0.5%，无关任务出现小幅回退；线上Valued watch time +0.05%、Shorts engagement +0.10%、Low quality impressions -0.24%。",
+        "Homepage第二次主发布（7个被动辅助头）：share/download AUC提升1–2%，like/dislike约-0.5%；线上Valued watch time +0.05%、Shorts engagement +0.06%、Low quality impressions -0.16%。",
+        "Homepage Phase 2（11个头输出作为RL排序模型输入）：Home engagement +0.03%、Shorts engagement +0.10%、Low quality impressions -0.64%，增益幅度小于纯迁移学习阶段。",
+        "Watch Next添加4个无条件变体头：原服务头离线AUC提升0.2–2.6%；线上Watch Next Valued Watch Time +0.19%、整体Valued watch time +0.08%、Low quality impressions -0.42%。",
+        "Notifications后续对比显示，交叉任务梯度直接回传到共享事件基底层（Path 2）比经过变体塔层（Path 1）在稀疏/类别不平衡任务上AUC显著提升约0.6%–4%。",
+        "离线AUC结果总体积极但混合；所有已完成的线上实验在用户参与度与满意度指标上均取得统计显著增益，呈现出系统运行点扩展而非目标间简单折中。",
+        "与增加现有头损失权重或复制现有头相比，未见相同改进效果；增加权重无法复现交叉任务头将梯度集中到双正例子集上的学习信号。"
+      ],
+      "metrics": [
+        "AUC",
+        "Daily Active Users",
+        "Valued watch time",
+        "Opt-outs",
+        "Sends",
+        "Click-Through Rate",
+        "Shorts engagement",
+        "Low quality impressions",
+        "Home engagement",
+        "Watch Next Valued Watch Time"
+      ]
+    },
+    "limitations_zh": [
+      "全联合空间仍不可行，该框架只提供成对/一阶近似，无法捕获更高阶任务交互。",
+      "辅助头的选择主要依赖经验试错与迭代，缺乏自动化、系统化的选择方法。",
+      "生产环境下部分指标与预测标签的具体数学定义被抽象化，文中承认需要一定领域知识。",
+      "部分实验和部署仍在进行中，Watch Next目前仅完成Phase 1（迁移学习验证），更多证据待补充。",
+      "线上指标变动幅度看似很小，其显著绝对影响依赖YouTube十亿级用户规模，迁移到较小规模系统时需谨慎评估。",
+      "梯度路径（Path 1 vs Path 2）仍需进一步研究，变体专用塔层可能过滤或衰减交叉任务梯度。"
+    ],
+    "method_zh": "在不改动现有任务标签的前提下，按配对关系加入辅助头：对无条件任务对X、Y增加交叉标签头估计E[XY]；对条件任务Y|X增加无条件头估计E[Y]，从而覆盖计算协方差Cov(X,Y)=E[XY]-E[X]E[Y]所需的三个项，并可推出成对联合分布的四个状态。辅助头可直接连接到共享body（推荐的首选方案）或连接到原任务头顶部隐层，梯度均不截断回传。验证方法为离线AUC评估原任务头提升，以及两阶段线上实验：Phase 1只训练辅助头但不将其输出服务给RL策略，Phase 2将辅助头输出作为RL策略输入特征，以分离迁移学习收益与环境建模收益。",
+    "problem_zh": "标准多任务学习模型通常只输出各任务的边际概率，丢弃了任务标签联合分布中的交叉结构信息；完整建模N个二值任务的联合分布需要O(2^N)复杂度，导致模型表达能力受限，无法显式刻画跨任务关系。",
+    "technical_depth": 0.8
+  },
+  "doi": "10.1145/3773078.3831878",
+  "final_score": 0.9000000000000001,
+  "id": "arxiv-2609.28776",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-23T20:40:33Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该工作通过近似任务标签联合分布中的成对关系学习多任务模型中的跨任务关联，并应用于YouTube通知、首页与Watch Next等推荐场景。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Learned Cross-Task Relationships in Multi-Task Models",
+  "url": "https://arxiv.org/abs/2609.28776v1"
+}

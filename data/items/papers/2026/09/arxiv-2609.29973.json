@@ -1,0 +1,125 @@
+{
+  "abstract": "Generative recommendation reformulates item retrieval as sequence generation, allowing a unified model to directly generate the next item from a user's interaction history. Semantic IDs further make this paradigm effective and scalable by representing each item as discrete codes, enabling knowledge sharing among semantically related items. Recent studies introduce explicit reasoning before Semantic-ID generation, helping models summarize user interests and infer possible preference transitions. However, reasoning is not inherently beneficial: Inaccurate or uninformative reasoning may mislead subsequent item generation and ultimately degrade recommendation performance. This raises a central challenge: how can a recommender select and learn effective reasoning traces and progressively evolve toward better reasoning from its own generations? In this work, we propose Evo-Rec, a three-stage framework for learning better reasoning and further enhancing it through reinforcement learning. First, we align Semantic IDs with their textual and behavioral contexts, enabling the model to understand and generate item identifiers. Second, we sample multiple candidate reasoning traces and retain those that improve the prediction of the ground-truth item, providing a stronger reasoning initialization through supervised fine-tuning. Third, we further optimize the reasoning policy through reinforcement learning with catalog-constrained item generation and ranking-aware recommendation feedback. Experiments on three Amazon Review benchmarks show that Evo-Rec consistently outperforms discriminative, generative, and reasoning-enhanced recommenders across all evaluation metrics. These results demonstrate the effectiveness of our framework in learning better reasoning for SID-based generative recommendation. Generative recommendation reformulates item retrieval as sequence generation, allowing a unified model to directly generate the next item from a user's interaction history. Semantic IDs further make this paradigm effective and scalable by representing each item as discrete codes, enabling knowledge sharing among semantically related items. Recent studies introduce explicit reasoning before Semantic-ID generation, helping models summarize user interests and infer possible preference transitions. However, reasoning is not inherently beneficial: Inaccurate or uninformative reasoning may mislead subsequent item generation and ultimately degrade recommendation performance. This raises a central challenge: how can a recommender select and learn effective reasoning traces and progressively evolve toward better reasoning from its own generations? In this work, we propose Evo-Rec, a three-stage framework for learning better reasoning and further enhancing it through reinforcement learning. First, we align Semantic IDs with their textual and behavioral contexts, enabling the model to understand and generate item identifiers. Second, we sample multiple candidate reasoning traces and retain those that improve the prediction of the ground-truth item, providing a stronger reasoning initialization through supervised fine-tuning. Third, we further optimize the reasoning policy through reinforcement learning with catalog-constrained item generation and ranking-aware recommendation feedback. Experiments on three Amazon Review benchmarks show that Evo-Rec consistently outperforms discriminative, generative, and reasoning-enhanced recommenders across all evaluation metrics. These results demonstrate the effectiveness of our framework in learning better reasoning for SID-based generative recommendation.",
+  "arxiv_id": "2609.29973",
+  "authors": [
+    "Mengdan Zhu",
+    "Yufan Zhao",
+    "Sophie Di",
+    "Yao Zhao",
+    "Tao Di",
+    "Yulan Yan",
+    "Sridhar Iyer",
+    "Liang Zhao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "论文的全目录离线排序结果显示，Evo-Rec可显著提升top-k推荐中的命中率与排序质量，例如Games上NDCG@10相对提升32.5%，这提示在电商等大规模目录推荐场景中，方法有潜力改善候选商品被有效曝光和排到前列的效率。",
+      "在交互稀疏、目录更具挑战性的品类（如游戏）上增益最大，说明其对长尾商品或冷启动场景可能有更明显价值，可帮助减少单纯依赖交互次数的推荐偏差。",
+      "优化后的推理轨迹更短且推荐性能更强，意味着在部署生成式推荐时可能降低每请求的推理计算成本，同时保持更好排名表现。",
+      "论文在伦理讨论中明确指出，未来若用于真实系统需考虑隐私保护、偏差审计和过度个性化防护；商业落地前应结合在线指标、公平性和用户画像风险做进一步验证。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "识别出推理轨迹质量是推理增强式生成推荐的核心瓶颈，并提出基于预测效用的Best-of-N Rejection Sampling SFT：按候选推理对目标SID似然的增量贡献排序，只保留比纯历史预测更有利于目标预测的高效用轨迹进行监督微调，而非把所有生成的思维链视为同等有用。",
+      "提出Evo-Rec三阶段渐进式推理优化框架：第一阶段通过SID-语言/行为对齐建立Semantic ID的语义与行为基础；第二阶段用预测效用选择更优推理轨迹做初始化；第三阶段用排序感知的强化学习让推理策略从自生成轨迹中继续演化。",
+      "引入目录受限且排序感知的RL目标：以目录SID前缀树约束beam search生成完整候选排序，用目标SID在beam中的排名构造NDCG@10奖励并直接优化推理token；实验与消融表明该排序感知反馈显著优于粗粒度结果奖励。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "5 Analysis on Best-of-N Rejection Sampling"
+      },
+      {
+        "page": 1,
+        "section": "Ethical Considerations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "Caser",
+        "SASRec",
+        "TIGER",
+        "HSTU",
+        "LETTER",
+        "LC-Rec",
+        "ReaRec",
+        "R²ec",
+        "SIDReasoner"
+      ],
+      "datasets": [
+        "Video Games (Games)",
+        "Office Products (Office)",
+        "Industrial and Scientific (Industrial)"
+      ],
+      "findings_zh": [
+        "在三个Amazon Review数据集上，Evo-Rec在所有评估指标上一致超过判别式、经典生成式和推理增强式基线；最强基线为SIDReasoner。",
+        "在最具挑战性的Games数据集上，Evo-Rec将Recall@5从0.0710提升到0.0847、NDCG@10从0.0563提升到0.0746，相对提升19.3%和32.5%；NDCG的相对增益普遍大于Recall，说明方法不仅能提高目标物品被召回的概率，还能将其推向排名更靠前的位置。",
+        "消融实验显示，固定N=5时Best-of-N选择比随机选择提升N@10 27.1%、比简单rejection sampling提升37.1%，R@1相对提升83.8%；随机选择即使付出同样的N次采样成本，效果与N=1单条训练相当，说明收益来自对候选推理的效用排序而非单纯增加采样数。",
+        "采样预算从N=1增至N=3、N=5时各指标单调提升，且作者指出增益可能尚未饱和；最佳预测效用Δ主要来自组内排序，五个候选采样槽被选中的概率接近均匀，排除采样位置偏差。",
+        "RL采样策略上，trie受限beam search在N@10上比受限采样高30.9%、R@1高56.5%；奖励设计上，纯NDCG奖励优于Exact Match、Prefix Match和NDCG+Recall混合奖励，因为NDCG同时编码检索成功与排序位置。",
+        "Stage-3 RL显著提升thinking模式下的推荐性能：Games的R@1从0.0103提升至0.0443，相对提升333.0%；训练中推理长度自动下降且推荐性能继续提升，表明有效推理依赖信息效用而非更长的思维链。"
+      ],
+      "metrics": [
+        "Recall@1",
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "三个数据集各自拥有独立的SID码本且每个数据集单独训练一个模型，参数不跨域共享，因此论文未验证单个模型跨域或多目录泛化的效果。",
+      "采样预算只探索到N=5，消融显示性能随N单调上升且可能未饱和，更大候选池是否带来更高收益在本论文中未验证。",
+      "实验采用5-core过滤、最多10条交互历史的滑动窗口和离线时间切分，属于离线推荐评估，论文明确说明未涉及真实用户部署；对更长、更稀疏、更大规模或在线场景的适用性未被直接检验。",
+      "候选推理质量依赖教师LLM采样，且部分实例的目标SID已接近history-only预测的似然上限，出现饱和候选；在Office等高饱和数据集上best-of-N的选择收益相对更小。"
+    ],
+    "method_zh": "Evo-Rec包含三阶段：(1) SID-语言对齐：将RQ-VAE得到的Semantic ID token加入LLM词表，通过SID历史→SID/标题、标题历史→标题/SID、标题-SID互译、SID-文本交织数据以及通用推理语料等统一自回归目标进行多任务对齐，使模型理解并生成item identifier。(2) Best-of-N Rejection Sampling SFT：对每个交互历史从教师LLM采样K条显式CoT，用冻结的phase-2模型计算每条CoT条件下目标SID的log-likelihood与history-only预测的差值Δ；仅当最大Δ>0时保留argmax Δ对应的推理轨迹，并在选中轨迹与目标SID对上做联合自回归SFT。(3) 排序感知强化学习：当前策略为每个历史采样G条推理轨迹，在每条轨迹条件下用目录全部SID构建的前缀trie做受限beam search，得到B个目录有效且有序的物品；以目标SID在beam中的rank构造NDCG@10奖励，并在G条轨迹间归一化后用GRPO优化推理策略。推理时先解码推理轨迹，再用同一trie受限beam search生成下一个SID。",
+    "problem_zh": "生成式推荐将物品检索重构为序列生成，基于Semantic ID可共享语义并提升泛化，但引入显式推理并不天然有益：不准确或无信息的推理轨迹会误导后续SID生成，反而损害推荐效果。现有推理增强推荐器主要关注“能否推理”，缺少对推理轨迹质量的甄别，强化学习阶段也常以精确SID匹配等粗糙结果信号作为奖励，无法反映全目录排序中的相对改进。核心挑战是如何为推荐器选择有效推理轨迹，并让其从自身生成中逐步演化出更符合推荐排序目标的推理策略。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8725,
+  "id": "arxiv-2609.29973",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-09-24T15:24:54Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出Evo-Rec框架，通过筛选候选推理轨迹并引入强化学习，为基于语义ID的生成式推荐学习更有效的推理并提升推荐性能。",
+  "targets": [],
+  "tasks": [],
+  "title": "Learning Better Reasoning for Generative Recommendation with Semantic IDs",
+  "url": "https://arxiv.org/abs/2609.29973v1"
+}

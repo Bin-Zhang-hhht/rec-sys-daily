@@ -1,0 +1,146 @@
+{
+  "abstract": "Semantic IDs (SIDs) encode each catalog item as a short token sequence, enabling generative recommenders to predict the next item autoregressively. Reasoning-enhanced variants, an increasingly common extension, first generate a textual trace and then decode a next-item SID by beam search. Such recommenders are commonly trained with group-relative policy optimization under an exact-match SID reward, which is sparse in large catalogs. Two failure modes follow. When all rollouts in a group miss the target, the group yields zero advantage and no learning signal. Rollouts sharing the same SID reward receive identical advantages, however much their traces differ. In both cases the reward reflects only the decoded SID, never the reasoning that produced it. This creates a credit-assignment gap. We address this gap with retrieval-grounded query attribution. Each trace is structured into a history summary, a set of interest hypotheses, and a final SID. A frozen retriever executes every hypothesis as a catalog query, so that each hypothesis becomes independently verifiable rather than judged only through the final SID. A rollout is rewarded when any of its queries retrieves the target within the \\mbox{top-$K$}, and per-query hit indicators localize that reward to individual hypotheses. Credit is thus assigned at the span level: only hypotheses that individually hit receive positive retrieval advantage, while the retrieval channel never updates the final SID span. Rollouts that share a SID reward can therefore receive different updates. Across experiments on three Amazon Reviews datasets, this yields consistent improvements in SID recommendation. On Video Games, an oracle analysis further reveals the potential of interest-conditioned SID decoding: selecting the target-relevant query among generated interests improves both recall and ranking. Semantic IDs (SIDs) encode each catalog item as a short token sequence, enabling generative recommenders to predict the next item autoregressively. Reasoning-enhanced variants, an increasingly common extension, first generate a textual trace and then decode a next-item SID by beam search. Such recommenders are commonly trained with group-relative policy optimization under an exact-match SID reward, which is sparse in large catalogs. Two failure modes follow. When all rollouts in a group miss the target, the group yields zero advantage and no learning signal. Rollouts sharing the same SID reward receive identical advantages, however much their traces differ. In both cases the reward reflects only the decoded SID, never the reasoning that produced it. This creates a credit-assignment gap. We address this gap with retrieval-grounded query attribution. Each trace is structured into a history summary, a set of interest hypotheses, and a final SID. A frozen retriever executes every hypothesis as a catalog query, so that each hypothesis becomes independently verifiable rather than judged only through the final SID. A rollout is rewarded when any of its queries retrieves the target within the \\mbox{top-$K$}, and per-query hit indicators localize that reward to individual hypotheses. Credit is thus assigned at the span level: only hypotheses that individually hit receive positive retrieval advantage, while the retrieval channel never updates the final SID span. Rollouts that share a SID reward can therefore receive different updates. Across experiments on three Amazon Reviews datasets, this yields consistent improvements in SID recommendation. On Video Games, an oracle analysis further reveals the potential of interest-conditioned SID decoding: selecting the target-relevant query among generated interests improves both recall and ranking.",
+  "arxiv_id": "2609.29983",
+  "authors": [
+    "Mengdan Zhu",
+    "Yufan Zhao",
+    "Yao Zhao",
+    "Sophie Di",
+    "Tao Di",
+    "Yulan Yan",
+    "Sridhar Iyer",
+    "Liang Zhao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对拥有大目录的电商、视频或商品推荐平台，该方法可不训练独立过程奖励模型，仅用生成兴趣查询和冻结检索器提供中间监督，提升Recall和NDCG，适合作为生成式推荐训练与推理管线的一部分。",
+      "生成兴趣天然提供辅助召回接口：线上可将多个兴趣的top-K结果合并成候选池，再用候选约束的SID beam search产出最终推荐，兼顾覆盖率和排序质量。",
+      "奖励编码器在4B规模即达到8B效果，且K=50的检索判定成本相对可控，说明工程落地时可用中等规模嵌入模型平衡质量与推理开销。",
+      "部署需注意隐私与公平：兴趣查询可能推断用户敏感偏好，不应存储查询文本，并应对不同用户/商品群体的检索奖励做审计；生成轨迹不应直接作为解释呈现给用户。",
+      "兴趣检索能在SID beam未命中目标时补充召回，对改善冷门或长尾覆盖可能有商业价值，但检索器本身也可能放大流行偏差，需要偏置缓解设计。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "指出基于最终解码项的奖励存在结构性局限：奖励只能在SID跨度内变细，前面推理轨迹的每个token只获得一个rollout级别的优势，无法区分奖励相同但推理不同的轨迹，也无法在奖励恒定的组中提供信号。",
+      "提出检索接地查询归因（retrieval-grounded query attribution）：将推理轨迹中的未来兴趣按固定格式生成为可执行查询，用冻结的目录检索器逐一执行验证；只有检索到目标的兴趣行获得正向检索优势，最终SID跨度仍由精确匹配奖励监督。",
+      "在三个Amazon Reviews数据集上，检索接地信用分配稳定提升SID推荐指标并在全部12项指标上取得最佳结果；生成的兴趣查询还可作为辅助召回池，可选地约束SID beam search，oracle分析显示兴趣条件化SID解码有进一步提升潜力。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Recommendation Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Retrieval Credit and Routing"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Reward Validity and Interest Utility"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Sensitivity to Reward Encoder and Cutoff"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "6 Ethical Considerations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "Caser",
+        "TIGER",
+        "HSTU",
+        "LETTER",
+        "LCRec",
+        "ReaRec",
+        "R²ec",
+        "SIDReasoner",
+        "Stage-2 SFT checkpoint (no RL)",
+        "Stage-3 RL with SID exact-match reward",
+        "Stage-3 RL + Trace-validity reward",
+        "SID-prefix variant",
+        "Full broadcast",
+        "Interest block",
+        "Hit query (Ours)"
+      ],
+      "datasets": [
+        "Video Games",
+        "Office Products",
+        "Industrial and Scientific"
+      ],
+      "findings_zh": [
+        "相比匹配的无检索对照（SID精确匹配加轨迹有效性），检索接地信用分配在三个域上提升Recall@10达15.5%–39.6%、NDCG@10达18.5%–61.5%，并在表4全部12个指标上取得最佳结果；仅用SID精确匹配或仅加轨迹有效性奖励的RL基本不优于Stage-2检查点。",
+        "训练中SID通道在69.1%–80.8%的组内奖励恒定、无组内优势；检索在最后一个训练窗口使Video Games上37.8%、Office上37.7%、Industrial上19.6%的SID无信号组重新获得学习信号。",
+        "信用路由消融中，命中查询路由一致优于把检索优势广播到整个响应或整个兴趣块：相比块路由，R@10/N@10提升在Video Games为11.4%/30.5%，Office为6.2%/6.1%，Industrial为4.0%/5.7%。",
+        "在Video Games上兴趣检索@50与SID解码@10显著相关：兴趣命中时SID Recall@10为27.56%，兴趣未命中时仅4.78%，优势比7.58（95% bootstrap CI [6.40, 9.06]）；SID beam未命中的目标中有25.91%仍可被生成兴趣检索到，说明兴趣提供互补覆盖。",
+        "编码器敏感性显示4B奖励编码器优于0.6B并匹配8B；训练截断K=50在扫描中SID指标最佳，增大K主要提高兴趣召回而非SID推荐指标，表明最大化检索覆盖率不一定是最佳SID学习信号。",
+        "Video Games上的oracle分析中，从已生成兴趣里选择目标相关兴趣可提升召回和排序，全部兴趣合并也能略超直接全目录SID解码，显示兴趣条件化SID解码的潜力。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "Recall@10",
+        "NDCG@10",
+        "Interest Recall@50",
+        "SID no-signal rate",
+        "Joint no-signal rate",
+        "Retrieval reactivation rate",
+        "Odds ratio between interest hit and SID hit"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅覆盖Amazon Reviews三个商品类别，未在视频、新闻、大规模工业场景等更多域验证。",
+      "训练奖励与评估Interest Recall使用同一个固定检索器，因此图2(c)衡量的是训练进展而非检索器的独立泛化。",
+      "oracle兴趣选择是上界，论文未提出能在不借助目标标签时选出相关兴趣的方法；随机选单个兴趣会显著差于全局SID解码。",
+      "当组内检索奖励也恒定时检索通道优势为零，无法为SID无信号组提供额外信号；轨迹有效性奖励在组内几乎恒定，通常不提供组内优势。",
+      "奖励编码器和截断敏感性主要在Video Games上考察，且trace与retrieval奖励权重固定为0.1，缺少跨域系统调参证据。",
+      "作者在伦理部分指出，生成的兴趣可能暴露敏感偏好、放大目录与检索器的流行度/代表性偏差，且轨迹是为检索效用优化而非作为忠实解释被验证。"
+    ],
+    "method_zh": "方法分为三阶段。Stage 1沿用SIDReasoner的SID对齐训练，将SID token加入语言模型词表并与商品语言及顺序行为对齐。Stage 2用GPT-4o监督生成结构化推理轨迹：<think>内先输出历史摘要，再输出若干未来兴趣行（每行含被引用历史SID和查询文本），最后生成目标SID。Stage 3对同一条用户历史采样G条轨迹，分别对SID精确匹配、轨迹结构有效性和兴趣检索三类奖励做组内标准化得到优势；检索奖励由冻结的目录检索器按每个查询的top-K命中判定，逐查询命中指示器把正向检索优势路由到命中的兴趣行，负向优势分摊到全部有效兴趣行，且检索优势从不作用于SID跨度。SID解码用目录前缀trie约束自回归采样，PPO目标使用双裁剪代理和KL项。推理时既可直接做全目录SID beam search，也可先用生成兴趣召回候选池，再在该候选trie上做候选约束beam search。",
+    "problem_zh": "在基于语义ID（SID）的生成式推荐中，模型先生成推理轨迹、再自回归解码下一项SID，但常用训练目标只用最终SID的精确匹配作为奖励。该奖励在大型目录中非常稀疏：当一组采样轨迹都未命中目标时，组内SID奖励恒定，标准化后优势为零，模型得不到学习信号；共享相同SID奖励的轨迹即使推理过程差异很大，也会获得相同的SID优势。奖励只反映解码出的SID，从不评估产生该SID的推理内容，从而形成信用分配缺口。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8775000000000001,
+  "id": "arxiv-2609.29983",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-24T15:34:11Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出面向生成式推荐的检索归因信用分配方法，将推理轨迹中的兴趣假设交由冻结检索器独立验证，从而改进语义ID推荐。",
+  "targets": [],
+  "tasks": [],
+  "title": "From Interests to Semantic IDs: Retrieval-Grounded Credit Assignment for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.29983v1"
+}

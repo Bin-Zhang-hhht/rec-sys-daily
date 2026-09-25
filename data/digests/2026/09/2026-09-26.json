@@ -1,0 +1,46 @@
+{
+  "blogs": [],
+  "date": "2026-09-26",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.28589",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出OneTrans-V2，用单个Transformer统一工业推荐系统中的召回、粗排和精排级联，并显著提升GMV与吞吐量。"
+    },
+    {
+      "item_id": "arxiv-2609.28972",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：CMRec提出基于双重约束与上下文感知代码混合的跨国家生成式推荐框架，在数据稀疏国家提升推荐质量并带来广告收入与订单增长。"
+    },
+    {
+      "item_id": "arxiv-2609.30001",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文介绍AgentX-Model，以研究主体与模型主体双智能体架构在工业推荐系统内推进长周期模型研究与实验，属推荐系统工程内容。"
+    },
+    {
+      "item_id": "arxiv-2609.29815",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出LSF-SR，用基于流的条件变分自编码器融合物品ID嵌入与LLM语义信号，以改进序列推荐的效果。"
+    },
+    {
+      "item_id": "arxiv-2609.28776",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该工作通过近似任务标签联合分布中的成对关系学习多任务模型中的跨任务关联，并应用于YouTube通知、首页与Watch Next等推荐场景。"
+    },
+    {
+      "item_id": "arxiv-2609.29983",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出面向生成式推荐的检索归因信用分配方法，将推理轨迹中的兴趣假设交由冻结检索器独立验证，从而改进语义ID推荐。"
+    },
+    {
+      "item_id": "arxiv-2609.29973",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出Evo-Rec框架，通过筛选候选推理轨迹并引入强化学习，为基于语义ID的生成式推荐学习更有效的推理并提升推荐性能。"
+    },
+    {
+      "item_id": "arxiv-2609.29180",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：X-Rec通过流匹配在连续物品嵌入空间中学习推荐分布并生成用于近似最近邻检索的嵌入触发器，显著提升召回质量与推理吞吐量。"
+    }
+  ]
+}

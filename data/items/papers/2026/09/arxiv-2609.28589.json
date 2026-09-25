@@ -1,0 +1,202 @@
+{
+  "abstract": "Industrial recommendation systems typically operate as a \\emph{cascade} of retrieval, pre-rank, and fine-rank, but these stages are usually trained and served as separate models, causing repeated user-sequence encoding, isolated optimization, and duplicated engineering effort. Building on OneTrans' model-level unification, we present OneTrans-V2, one Transformer that unifies the entire cascade. It encodes the user behavior sequence once as a shared context while preserving stage-specific candidate features and computation. Joint training lets the three stages reinforce one another and enables in-model knowledge distillation from fine-rank to pre-rank. We scale the shared backbone with sparse mixture-of-experts (MoE), which increases capacity with bounded activated computation, and stabilize scaling with $μ$P-style parameterization. To consolidate objective-specific retrieval channels, we introduce Decision-Conditioned Generative Retrieval (DCGR). DCGR predicts a decision prefix describing the upcoming interaction and generates items conditioned on it, allowing business objectives to steer a single generative process. Finally, Sequence-Native Training (SNT) organizes training around each user's lifelong behavior sequence and amortizes its encoding across exposures. Deployed across all three stages of a large-scale industrial recommendation system, OneTrans-V2 improves gross merchandise value (GMV) by 9.74\\% and, with a co-designed serving stack, delivers $3.2\\times$ the throughput of the cascade it replaces under the same hardware budget. Industrial recommendation systems typically operate as a \\emph{cascade} of retrieval, pre-rank, and fine-rank, but these stages are usually trained and served as separate models, causing repeated user-sequence encoding, isolated optimization, and duplicated engineering effort. Building on OneTrans' model-level unification, we present OneTrans-V2, one Transformer that unifies the entire cascade. It encodes the user behavior sequence once as a shared context while preserving stage-specific candidate features and computation. Joint training lets the three stages reinforce one another and enables in-model knowledge distillation from fine-rank to pre-rank. We scale the shared backbone with sparse mixture-of-experts (MoE), which increases capacity with bounded activated computation, and stabilize scaling with $μ$P-style parameterization. To consolidate objective-specific retrieval channels, we introduce Decision-Conditioned Generative Retrieval (DCGR). DCGR predicts a decision prefix describing the upcoming interaction and generates items conditioned on it, allowing business objectives to steer a single generative process. Finally, Sequence-Native Training (SNT) organizes training around each user's lifelong behavior sequence and amortizes its encoding across exposures. Deployed across all three stages of a large-scale industrial recommendation system, OneTrans-V2 improves gross merchandise value (GMV) by 9.74\\% and, with a co-designed serving stack, delivers $3.2\\times$ the throughput of the cascade it replaces under the same hardware budget.",
+  "arxiv_id": "2609.28589",
+  "authors": [
+    "Hannan Cao",
+    "Jun Guo",
+    "Haolei Pei",
+    "Zhaoqi Zhang",
+    "Tianyu Wang",
+    "Ziyang Wang",
+    "Youchen Sun",
+    "Yue Xue",
+    "Yucheng Mao",
+    "Lintao Yan",
+    "Yufei Feng",
+    "Shaowei Liu",
+    "Rongkun Xing",
+    "Feiling Gong",
+    "Xinyu Chenli",
+    "Cong Xu",
+    "Mingge Zhang",
+    "Yunjia Zhu",
+    "Yajing Zhang",
+    "Pengfei Ren",
+    "Yue Lin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "以单一模型替代检索、粗排、精排三个独立模型，可将用户行为序列编码从每阶段一次降为每请求一次，显著降低算力开销与工程重复；在相同硬件预算下 3.2× 的端到端吞吐意味着硬件成本或延迟预算可大幅压缩。",
+      "DCGR 允许通过在线可调的业务偏移 β 在点击、GMV、发现、广告等目标之间平滑折中，无需为每个目标重训或新增检索通道，可显著降低多目标运营和多业务线扩展的模型维护成本。",
+      "线上 A/B 显示 GMV 提升 9.74%、用户活跃天数提升 0.25%，且单个 DCGR 在其原生指标上分别达到主通道、发现通道、广告通道的 1.5×/2.2×/2.1×，说明统一模型可以巩固现有业务目标而不是牺牲目标覆盖。",
+      "值得注意的是主通道细分显示千次曝光订单 -34.0%、千次曝光 GMV -13.0%、曝光均单价 -4.4%，GMV 增长主要来自曝光与点击量扩张而非单次价值提升，业务方需关注流量扩张带来的转化稀释与低价化风险。",
+      "粗排-精排一致性提升（反演率 -6.7%，top-10 覆盖率 +31.4%）说明统一模型可减少粗排误杀精排头部商品，直接改善最终排序质量和用户体验。",
+      "SNT 降低 95% 序列特征存储并加速训练 4.4×，对大规模推荐系统的数据管道和训练成本有直接节省；FP8 低精度与内核融合带来的吞吐收益可降低单位请求推理成本。",
+      "多模态嵌入注入方式随模型容量而变（小模型用预计算相似度直方图、大模型直接注入嵌入），企业在扩容或缩减模型时需重新评估特征接入方式，不能照搬既有实践。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "提出 OneTrans-V2，将检索、粗排、精排建模为同一个因果 Transformer 的三个任务，共享候选无关的用户上下文（user context），同时保留各阶段自身的候选特征、异构目标与服务预算，实现计算复用、跨阶段知识迁移和整体容量扩展。",
+      "提出 Decision-Conditioned Generative Retrieval (DCGR)：先在用户上下文上预测决策前缀（购买层级、消费层级、发现层级、供给类型），再基于该前缀生成语义标识符（SID），并通过业务偏移（business offset）在解码时引导决策分布，使单个生成式检索模型覆盖多个业务目标，无需新增检索通道。",
+      "提出 Sequence-Native Training (SNT)：按用户窗口组织训练样本，将用户完整行为序列在每个窗口内只编码一次，各曝光保留各自因果视角，取得 4.4× 训练加速并降低序列特征存储 95%。",
+      "使用稀疏 MoE 扩展共享骨干容量并限制激活计算，采用 μP/Depth-μP 参数化稳定宽度与深度缩放，结合 GQA、门控注意力、QKNorm、AdamW 等稳定训练，并在服务侧通过两阶段 top-k、前缀单步打分、内核融合与 FP8 低精度推理提升吞吐。",
+      "在大型工业推荐系统全量部署：GMV 提升 9.74%，在相同硬件预算下取得 3.2× 的端到端 QPS。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "4 OneTrans-V2"
+      },
+      {
+        "page": 3,
+        "section": "4.1 One Transformer across the Cascade"
+      },
+      {
+        "page": 4,
+        "section": "4.2.1 Decision-Conditioned Generative Retrieval"
+      },
+      {
+        "page": 5,
+        "section": "4.2.2 Discriminative Ranking Tasks"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Scaling and Stabilization"
+      },
+      {
+        "page": 7,
+        "section": "4.4 Sequence-Native Training"
+      },
+      {
+        "page": 8,
+        "section": "5 Serving and System Optimization"
+      },
+      {
+        "page": 8,
+        "section": "6.1 Experimental Setup"
+      },
+      {
+        "page": 9,
+        "section": "6.2 Offline Performance"
+      },
+      {
+        "page": 9,
+        "section": "6.3 Online A/B Performance"
+      },
+      {
+        "page": 10,
+        "section": "7.1 Effect of Joint Training"
+      },
+      {
+        "page": 10,
+        "section": "7.2 Distillation and Consistency between the Ranking Stages"
+      },
+      {
+        "page": 11,
+        "section": "7.3 Objective Coverage of DCGR"
+      },
+      {
+        "page": 12,
+        "section": "7.4 DCGR Decision Dimensions Analysis"
+      },
+      {
+        "page": 12,
+        "section": "7.5 DCGR Decision Steering and Prefix Design"
+      },
+      {
+        "page": 13,
+        "section": "7.6 Architecture Analysis"
+      },
+      {
+        "page": 13,
+        "section": "7.7 Stabilization Analysis"
+      },
+      {
+        "page": 14,
+        "section": "7.8 Multimodal Embedding and Model Capacity"
+      },
+      {
+        "page": 14,
+        "section": "7.9 Training and Inference Speedup"
+      },
+      {
+        "page": 15,
+        "section": "8 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "OneTrans-GR（部署的独立生成式检索模型，SID-only，无决策前缀）",
+        "OneTrans-Lite（部署的粗排模型）",
+        "OneTrans（部署的精排模型）",
+        "UniSGR",
+        "UniPinRec（其检索非生成式，未参与 SID 检索对比）"
+      ],
+      "datasets": [
+        "大规模工业推荐系统生产日志（按时间顺序、曝光时快照特征、固定窗口点击/订单标签）"
+      ],
+      "findings_zh": [
+        "离线评估：OneTrans-V2_S 以 239 GFLOPs 服务全部三阶段，略低于现有级联的 275 GFLOPs，但在其覆盖的各阶段上超过对应基线（如检索 HR@1 +21.10%、精排 CVR UAUC +2.17%）；OneTrans-V2_L 以 662 GFLOPs 在所有十项质量指标上取得最大提升（检索 HR@1 相对 OneTrans-GR +69.36%，粗排 CTR UAUC +4.65%、CVR UAUC +3.14%，精排 CTR UAUC +2.31%、CVR UAUC +3.42%）。",
+        "联合训练消融：仅合并粗排与精排时，粗排 CTR AUC +0.09%、UAUC +0.17%，精排 +0.12%、+0.21%；三阶段联合训练且检索梯度写入共享上下文后，检索 HR@1 +15.44%，粗排与精排 CTR UAUC 分别 +0.28% 与 +0.31%。",
+        "知识蒸馏：从 OneTrans-V2 中移除 L_kd 使粗排 CTR AUC 损失 0.55%、CTR UAUC 损失 0.97%，精排最多移动 0.04%；与分离训练相比，OneTrans-V2 将两级反演率降低 6.7%，top-10/top-50 覆盖率分别提升 31.4%/13.5%。",
+        "DCGR 目标覆盖线上检索 A/B：单个 DCGR 在 GMV 上达到主通道的 1.5×，在人均新类目数上达到发现通道的 2.2×，在 sponsored GPM 上达到广告通道的 2.1×；主通道细节显示曝光 +69.3%、点击 +74.6%、总订单 +11.4%、总 GMV +48.0%，但千次曝光订单 -34.0%、千次曝光 GMV -13.0%。",
+        "决策维度分析：决策维度携带检索信号且控制生成，如强制 z_ad=sponsored 使 sponsored HR@1 +31.5%、GMV HR@1 +16.0%，点击 HR@1 -19.6%；业务偏移强度从弱到强时 GMV 从 +7.5% 升至 +26.7%，CTR 从 +2.2% 降至 -5.4%。",
+        "架构分析：GQA 几乎不损失精排质量；门控注意力贡献 CTR AUC +0.08%、UAUC +0.15%；MoE 相对同算力密集 FFN 贡献 +0.13% AUC、+0.30% UAUC；sigmoid 路由器相对 softmax 贡献 +0.10% AUC、+0.20% UAUC。",
+        "稳定化分析：RMSProp 下加宽无增益且方差大；改用 Adam 后加宽增益 0.15% CTR UAUC，加 AdamW 后接近 0.3%；QKNorm 使加宽从负值转为 +0.09% AUC/+0.16% UAUC；μP 使加宽在无需重调超参下获得 +0.09% AUC/+0.20% UAUC；Depth-μP 使加深增益从 +0.04%/+0.05% 提升到 +0.08%/+0.11%。",
+        "多模态嵌入：小模型 OneTrans-V2_XS 下直接注入多模态嵌入有害（-0.05% AUC/-0.10% UAUC），SimTier 预计算直方图有效（+0.07%/+0.10%）；大模型 OneTrans-V2_L 下直接注入嵌入更优（+0.21% AUC/+0.33% UAUC vs SimTier +0.08%/+0.14%）。",
+        "训练与推理加速：SNT 相对曝光中心样本取得 4.4× 训练加速，序列特征存储降低 95%；检索两阶段 top-k 使吞吐提升 19.7×、束搜索延迟降低 2.3×，决策前缀单步打分使延迟再降约 30%，累计解码吞吐加速 27.6×；内核融合加 FP8 使统一模型精排吞吐从 0.58× 升至 2.16×，共享用户上下文再加 1.53×，共同形成端到端 3.2× QPS。",
+        "线上 A/B：OneTrans-V2_L 替换现有三级联后 GMV 提升 9.74%，用户活跃天数提升 0.25%。"
+      ],
+      "metrics": [
+        "HR@1 / HR@10（检索）",
+        "AUC / UAUC（粗排与精排的 CTR、CVR）",
+        "GFLOPs（每请求服务算力）",
+        "GMV、用户活跃天数、QPS、GPM、AOV（线上业务指标）",
+        "反演率、top-10/top-50 覆盖率（跨阶段一致性）"
+      ]
+    },
+    "limitations_zh": [
+      "精排阶段仍保留多 token 与较丰富特征，粗排受限为单 token 与小特征子集，阶段间的特征丰富度差异仍存在，粗排丢弃的候选无法被精排恢复。",
+      "DCGR 的四个决策维度仅涵盖购买层级、消费层级、发现层级与供给类型；论文未覆盖广告主/供给方等其他潜在业务目标，新目标需要新增决策维度与轻量决策头。",
+      "类别无关指导（classifier-free guidance）在物品侧控制决策执行强度的扩展（参数 w）尚未部署验证，仅作为未来工作。",
+      "SNT 实验将用户窗口按天切分以保持评估可比，限制了序列编码共享的加速上限；周/月级窗口的配置留给未来工作。",
+      "离线评估基于生产日志，论文明确说明与 OneTrans 原论文时间窗口不同、绝对值不可比；检索 HR@1 等离线指标与线上业务指标（GMV 等）存在方向性差异（如离线强制 z_oc=0 的 CTR 与线上表现）。",
+      "3.2× QPS 与 27.6× 解码吞吐等提升依赖专门设计的融合内核、FP8 低精度与两阶段 top-k 等系统优化，迁移到其他硬件/框架时收益可能显著变化。",
+      "论文未报告统计显著性检验；部分结论基于单次线上 A/B 或三次运行的均值/标准差，且存在将检索任务曝光归属单通道的口径假设。"
+    ],
+    "method_zh": "OneTrans-V2 在统一 Transformer 中处理共享行为序列 S 与各阶段非序列特征 NS_r/NS_p/NS_f：行为 token 共享 Q/K/V 与 FFN 参数，阶段特定 token 使用各自非共享参数；阶段可见性掩码让各阶段 token 只读取其请求时间之前的行为前缀，并隔离不同阶段/不同曝光。检索采用 DCGR，先并行预测购买层级 z_oc、发现层级 z_disc、供给类型 z_ad，再链式预测消费层级 z_aov，随后条件生成三层 SID，解码时对决策前缀分数施加业务偏移 βφ(z) 并做前缀-代码联合 beam search；粗排用轻量特征子集压缩为单 token 预测 CTR/CVR，精排用多 token 保留丰富候选特征并预测 CTR/CVR，同时以精排为教师、粗排为学生做模型内知识蒸馏。骨干采用 GQA、稀疏 MoE（sigmoid 路由器、共享专家）、门控注意力、QKNorm、残差乘数 γ=1/√(2N) 与 μP/Depth-μP 超参数规则；训练用 SNT 按用户窗口共享序列编码，并使用请求相对时间编码区分行为时效。服务时仍按检索→粗排→精排级联，仅执行各阶段自身的候选侧计算，共享一次用户上下文缓存。",
+    "problem_zh": "工业推荐系统通常以检索、粗排、精排的三级级联方式运行，但各阶段往往作为独立模型分别训练和服务，导致用户行为序列被重复编码、各阶段优化割裂、工程重复且模型容量分散；此外检索通道常按不同业务目标拆分为多个专用模型，进一步加剧碎片化。",
+    "technical_depth": 0.95
+  },
+  "doi": null,
+  "final_score": 0.9480000000000001,
+  "id": "arxiv-2609.28589",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-23T14:57:10Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出OneTrans-V2，用单个Transformer统一工业推荐系统中的召回、粗排和精排级联，并显著提升GMV与吞吐量。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "OneTrans-V2: Unifying Retrieval, Pre-rank, and Fine-rank with One Transformer in Industrial Recommender",
+  "url": "https://arxiv.org/abs/2609.28589v1"
+}

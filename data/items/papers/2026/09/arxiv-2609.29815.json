@@ -1,0 +1,130 @@
+{
+  "abstract": "Sequential recommendation aims to predict users' future interests from their historical interactions. Although Large Language Models (LLMs) capture rich item semantics, existing methods often struggle to align collaborative signals with textual semantic knowledge. As a result, the learned item representations fail to capture the complementary strengths of both signals, leading to suboptimal recommendation quality. To address this limitation, we propose Latent Semantic Fusion for Sequential Recommendation via Flow-based Conditional Variational Autoencoders (LSF-SR), a novel framework that uses a Conditional Variational Autoencoder (CVAE) with Normalizing Flows to fuse item ID embeddings and LLM-generated semantic signals. At the core of LSF-SR is a conditional fusion module augmented with planar or radial flows. This module learns a flexible latent space that encourages items with similar semantic profiles to cluster together within the latent manifold. Through extensive experiments on five public benchmark datasets, we demonstrate that LSF-SR consistently outperforms state-of-the-art baselines, achieving gains of up to 12.98% and 14.13% in Recall@20 and NDCG@20, respectively. Sequential recommendation aims to predict users' future interests from their historical interactions. Although Large Language Models (LLMs) capture rich item semantics, existing methods often struggle to align collaborative signals with textual semantic knowledge. As a result, the learned item representations fail to capture the complementary strengths of both signals, leading to suboptimal recommendation quality. To address this limitation, we propose Latent Semantic Fusion for Sequential Recommendation via Flow-based Conditional Variational Autoencoders (LSF-SR), a novel framework that uses a Conditional Variational Autoencoder (CVAE) with Normalizing Flows to fuse item ID embeddings and LLM-generated semantic signals. At the core of LSF-SR is a conditional fusion module augmented with planar or radial flows. This module learns a flexible latent space that encourages items with similar semantic profiles to cluster together within the latent manifold. Through extensive experiments on five public benchmark datasets, we demonstrate that LSF-SR consistently outperforms state-of-the-art baselines, achieving gains of up to 12.98% and 14.13% in Recall@20 and NDCG@20, respectively.",
+  "arxiv_id": "2609.29815",
+  "authors": [
+    "Shih-Hong Chen",
+    "Josh Jia-Ching Ying",
+    "Vincent S. Tseng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "通过LLM离线为物品生成语义画像，再以概率融合增强物品表示，可在交互稀疏和冷启动场景下改善推荐排序，尤其提升长尾物品的NDCG@20（Beauty提升22.88%、Yelp提升18.50%）。",
+      "将LLM调用限制在物品级并离线完成，避免了用户级实时LLM画像带来的推理开销，更适合在线推荐系统的低延迟要求。",
+      "在5个公开电商和本地生活数据集上获得一致的Recall/NDCG提升，表明该方法在真实稀疏交互环境下有较强的跨域推荐潜力。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出LSF-SR，将协同ID嵌入与LLM语义信号的对齐建模为概率推断问题，而非确定性拼接或晚期融合。",
+      "设计基于条件变分自编码器的条件语义融合模块，并引入平面流/径向流堆叠以建模更灵活的后验分布。",
+      "提出动态KL退火策略，防止后验塌陷并稳定训练。",
+      "在5个公开基准数据集上一致优于SOTA基线，最高Recall@20提升12.98%、NDCG@20提升14.13%。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Conditional Semantic Fusion"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Expressive Posterior with Normalizing Flows"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Training Objectives and KL Annealing"
+      },
+      {
+        "page": 1,
+        "section": "5.5.1 Comparison with SOTA"
+      },
+      {
+        "page": 1,
+        "section": "5.5.2 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Case Study: Cold Scenarios"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "ICLRec",
+        "DuoRec",
+        "MCLRec",
+        "ICSRec",
+        "FENRec",
+        "FMLP-Rec",
+        "FEARec",
+        "BSARec",
+        "DIFF",
+        "LRD",
+        "LLM-ESR",
+        "SRA-CL"
+      ],
+      "datasets": [
+        "Beauty",
+        "Office",
+        "Sports",
+        "Toys",
+        "Yelp"
+      ],
+      "findings_zh": [
+        "LSF-SR在5个数据集的所有指标上一致且显著（p<0.05）优于全部基线；最高相对提升为Sports上的Recall@20提升12.98%、NDCG@20提升14.13%。",
+        "全排序评估下，行为中心基线仍具竞争力，LLM-ESR在5个数据集上均落后于强行为中心方法；SRA-CL是LLM增强基线中最强的，但仍低于LSF-SR。",
+        "消融实验中，去掉KL损失的性能下降最大，说明潜空间正则化对条件融合模块至关重要。",
+        "去掉LLM生成画像（w/o LLM）在所有数据集上都会降低性能，其中Yelp下降最小，原因是其原始元数据缺少丰富文本特征。",
+        "去掉流（K=0）会降低性能，但在Sports和Yelp上降幅较小；这些领域的共现结构接近高斯分布，简单高斯后验已足够。",
+        "与固定、线性、Sigmoid退火相比，循环KL退火在5个数据集上取得最好或接近最好的NDCG@20，并在4个数据集上取得最好或可比的Recall@20。",
+        "K=2或3、β_end=0.1~0.2附近性能最优；K过大会过参数化，β_end过大会过度正则化并损害推荐质量。",
+        "冷启动案例中，LSF-SR对短序列和尾物品表现更好；在Beauty和Yelp的尾物品上，相对最强LLM增强基线SRA-CL的NDCG@20提升分别达22.88%和18.50%。",
+        "Yelp上所有模型在短序列上优于长序列，因为长序列跨越更长时间段并包含地点转移和意图变化，预测更难。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "NDCG@10",
+        "Recall@20",
+        "NDCG@20"
+      ]
+    },
+    "limitations_zh": [
+      "LSF-SR的性能优势与输入元数据的文本丰富度密切相关；Yelp原始元数据缺少详细描述，限制了LLM生成文本的质量和增益。",
+      "在协同信号更稀疏的部分数据集（如Sports/Yelp）上，去除流堆叠仅小幅下降，说明深度流对这些领域收益有限；论文也指出未来需根据领域数据特征动态校准后验表达能力。",
+      "流数量过大（K过大）会导致过参数化、优化复杂化并中等程度降低推荐质量；β_end过大会使KL惩罚主导联合损失，过度压制行为信号。",
+      "Yelp上的长序列因地点转移和意图漂移而更难预测，现有语义条件机制未显式建模这种时变用户偏好。"
+    ],
+    "method_zh": "离线用LLM为每个物品生成描述性文本，并用语义编码器提取向量，经线性投影得到语义条件；条件编码器以[协同嵌入;语义条件]为输入，用MLP输出均值和方差并采用重参数化采样；采样后的潜变量经K层可逆归一化流变换，由条件解码器生成增强物品嵌入；增强嵌入输入Transformer序列推荐骨干进行下一项预测。训练目标为推荐负对数似然与KL散度的加权和，并采用动态KL退火（默认循环退火）避免后验塌陷。",
+    "problem_zh": "传统序列推荐主要依赖物品ID的协同信号，在交互稀疏和冷启动场景下物品表示不足；LLM生成的语义嵌入与协同行为嵌入存在明显的分布失配，简单拼接或晚期融合难以对齐；依赖用户级LLM画像的方法在推理时需要实时查询，带来较高的计算开销。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9025000000000001,
+  "id": "arxiv-2609.29815",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-24T13:50:12Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出LSF-SR，用基于流的条件变分自编码器融合物品ID嵌入与LLM语义信号，以改进序列推荐的效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "LSF-SR: Latent Semantic Fusion for Sequential Recommendation via Flow-based Conditional Variational Autoencoders",
+  "url": "https://arxiv.org/abs/2609.29815v1"
+}

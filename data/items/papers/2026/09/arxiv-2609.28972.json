@@ -1,0 +1,135 @@
+{
+  "abstract": "Cross-country recommendation on modern e-commerce platforms is typically deployed with disjoint user and item ID spaces across markets, removing the shared anchors that conventional cross-domain methods rely on. Generative recommendation (GR) mitigates this by mapping items into a shared token space and training a unified model, but existing approaches keep behavior sequences strictly country-specific, so knowledge transfer occurs only at the parameter level and remains absent at the data level. Inspired by code-switching corpora in multilingual natural language processing, we propose CMRec, a cross-country GR framework that injects cross-country supervision at the data level via dual-constrained, context-aware code-mixing. CMRec first learns a shared semantic codebook from multi-modal content and behavioral co-occurrence across countries. It then uses this codebook to synthesize mixed-country sequences via token-level substitutions that satisfy both static (content) and dynamic (e.g., price, audience, popularity) constraints. Finally, it introduces a context-aware loss that reweights mixed samples according to their plausibility in the current sequence. Experiments on two real-world multi-country datasets and an online A/B test show that CMRec substantially improves recommendation quality in data-sparse countries while preserving performance in data-rich countries, achieving +1.77% advertising revenue and +2.64% orders on a large-scale e-commerce platform. Cross-country recommendation on modern e-commerce platforms is typically deployed with disjoint user and item ID spaces across markets, removing the shared anchors that conventional cross-domain methods rely on. Generative recommendation (GR) mitigates this by mapping items into a shared token space and training a unified model, but existing approaches keep behavior sequences strictly country-specific, so knowledge transfer occurs only at the parameter level and remains absent at the data level. Inspired by code-switching corpora in multilingual natural language processing, we propose CMRec, a cross-country GR framework that injects cross-country supervision at the data level via dual-constrained, context-aware code-mixing. CMRec first learns a shared semantic codebook from multi-modal content and behavioral co-occurrence across countries. It then uses this codebook to synthesize mixed-country sequences via token-level substitutions that satisfy both static (content) and dynamic (e.g., price, audience, popularity) constraints. Finally, it introduces a context-aware loss that reweights mixed samples according to their plausibility in the current sequence. Experiments on two real-world multi-country datasets and an online A/B test show that CMRec substantially improves recommendation quality in data-sparse countries while preserving performance in data-rich countries, achieving +1.77% advertising revenue and +2.64% orders on a large-scale e-commerce platform.",
+  "arxiv_id": "2609.28972",
+  "authors": [
+    "Yuan Gao",
+    "Hao Deng",
+    "Haibo Xing",
+    "Yi Xu",
+    "Lingyu Mu",
+    "Jinxin Hu",
+    "Yu Zhang",
+    "Xiaoyi Zeng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在数据稀疏国家上的推荐质量提升更明显，说明该方法能让大市场交互信号帮助小市场，适合跨国电商平台冷启动或低资源市场业务。",
+      "线上A/B测试在六国整体实现广告收入+1.77%、订单量+2.64%的提升，具备直接转化到商业收入的潜力。",
+      "在数据丰富国家性能保持稳定且仍有小幅提升，降低了跨国家扩展时损伤成熟市场的风险。",
+      "方法不依赖跨国家共享用户或商品ID，可直接适配现实中按国家分别部署、ID空间互相隔离的电商系统，工程落地约束较小。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "提出CMRec，一种在数据层面注入跨国家监督的跨国家生成式推荐框架，通过双重约束、上下文感知的code-mixing合成跨国家训练序列。",
+      "构建行为与多模态内容共同驱动的共享语义codebook，同时充当GR的tokenizer以及跨国家token替换的公共语义空间。",
+      "设计token级双重约束替换机制，同时满足静态内容约束与价格、受众、流行度等动态市场约束，用于生成混合国家序列。",
+      "提出上下文感知自适应重加权损失，让GR模型根据替换样本在当前上下文中的合理性对混合样本进行降权，抑制噪声替换。",
+      "在工业数据集、Amazon M2数据集和线上A/B测试中验证了效果，展示了大市场向小市场迁移知识的实际价值。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Problem Formulation"
+      },
+      {
+        "page": 2,
+        "section": "3 Method"
+      },
+      {
+        "page": 2,
+        "section": "3.1 Behavior- and Content-Grounded Shared Codebook"
+      },
+      {
+        "page": 2,
+        "section": "3.2 Dual-Constrained Cross-Country Code-Mixing"
+      },
+      {
+        "page": 3,
+        "section": "3.3 Context-Aware Adaptive Reweighting"
+      },
+      {
+        "page": 3,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Experimental Results"
+      },
+      {
+        "page": 5,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "HSTU",
+        "TIGER",
+        "REG4Rec",
+        "GenCDR",
+        "GenCDR+Cont（内容增强变体）",
+        "GenCDR+CF（协同行为增强变体）"
+      ],
+      "datasets": [
+        "工业电商广告数据集：6个国家、1900万用户、2500万广告、超10亿交互，最大与最小国家训练交互量相差约10倍",
+        "Amazon M2公开数据集：6个locale，高资源locale约占91%训练session，呈长尾分布"
+      ],
+      "findings_zh": [
+        "在工业数据集和Amazon M2上，CMRec在Recall@10/100与NDCG@10/100的六国/locale平均及代表性国家/locale指标上均优于所有基线。",
+        "工业数据集上，CMRec相对最强基线的六国平均提升为：Recall@10 +3.01%、Recall@100 +5.27%、NDCG@10 +1.98%、NDCG@100 +4.28%；小国C^S提升尤其明显，如Recall@10 +5.32%、Recall@100 +6.96%、NDCG@100 +7.03%。",
+        "Amazon M2上，六locale平均相对最强基线提升为：Recall@10 +4.02%、Recall@100 +6.04%、NDCG@10 +2.73%、NDCG@100 +5.03%。",
+        "消融实验显示，去掉token级距离约束下降最大（Recall@100相对Full下降4.59%，NDCG@100下降3.96%），去掉side-info相似度约束以及上下文自适应重加权也均造成性能下降。",
+        "在两种backbone上扫描(p,k)时，所有组合均优于未增强基线，默认p=10%、k=10%接近最优，说明方法对超参数和backbone选择较稳健。",
+        "线上A/B测试覆盖6个国家10%流量，CMRec在六国整体上带来广告收入+1.77%、订单量+2.64%的提升。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "Recall@100",
+        "NDCG@10",
+        "NDCG@100",
+        "在线广告收入",
+        "在线订单量"
+      ]
+    },
+    "limitations_zh": [
+      "原文未设置专门局限性章节；从方法动机和设计可推断的局限包括：codebook仅间歇更新，难以捕捉折扣、热度、受众标签等快速变化属性，因此需额外side-info动态约束。",
+      "替换候选若与用户当前意图冲突，仅靠item级过滤无法识别，仍需模型侧上下文感知重加权来抑制噪声合成样本。",
+      "合成序列的质量依赖共享codebook、内容编码器、i2i行为对齐以及p、k、λ、τ、τ_s等超参数设定。",
+      "证据主要来自工业数据集和Amazon M2，方法在更多公开多国家数据集上的泛化性仍有待进一步验证。"
+    ],
+    "method_zh": "CMRec包含三部分。首先，用跨国家共享的预训练多模态编码器得到每件商品的内容向量，并联合训练一个行为驱动的i2i对齐模型，使内容相似且行为共现相似的商品在向量空间中对齐；再用RQ-VAE残差量化得到共享token序列q_i，作为GR tokenizer和跨国家替换基底。其次，对token序列做双重约束的跨国家code-mixing：候选需在token Hamming距离上接近（静态内容约束），且在按国家分位数离散化的动态属性side-information向量上余弦相似度足够高（动态市场约束），以速率k替换训练序列中的部分token，并对比例p的样本生成孪生混合序列。最后，引入上下文感知自适应重加权：用模型在原始上下文x下对替换目标y'和原目标y的似然比例计算权重w（stop-gradient），w高的混合样本贡献更大，w低的上下文不合理替换被抑制；总损失为原始监督损失与加权的混合样本监督损失之和。",
+    "problem_zh": "跨国家电商场景中，用户与商品ID空间在不同市场间完全不相交，用户行为序列也严格按国家隔离，因此传统跨域推荐依赖的共享用户、共享商品或人工锚点并不存在。生成式推荐虽然通过共享语义token空间和统一模型实现参数级知识迁移，但训练序列仍按国家划分，数据层面缺少跨国家共现监督，导致大市场的丰富交互信号难以帮助小市场。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9475000000000001,
+  "id": "arxiv-2609.28972",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-25T18:55:28.334033Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-24T03:38:51Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "CMRec提出基于双重约束与上下文感知代码混合的跨国家生成式推荐框架，在数据稀疏国家提升推荐质量并带来广告收入与订单增长。",
+  "targets": [],
+  "tasks": [],
+  "title": "Cross-Country Code-Mixing for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.28972v1"
+}
