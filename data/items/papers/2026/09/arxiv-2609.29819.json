@@ -1,0 +1,105 @@
+{
+  "abstract": "In large-scale participatory budgeting, citizens cannot inspect the full proposal pool, so the order in which proposals are shown becomes a form of agenda-setting power. We argue that fair exposure should therefore be treated as a democratic-design goal. We study Consul Democracy, a widely deployed open-source digital-democracy platform, and show that its proposal feeds are typically ordered by popularity, recency, or comment activity. Building on this diagnosis, we propose FairFeed, a feed-ranking design for PB that uses transparently declared preferences, boosts under-exposed proposals, and admits a rate-limited reject channel for crowd-sourced vetting. We evaluate the design in a simulation anchored in Munich's 2025 PB process and compare it with random, newest, and most-commented feeds. In this simulation, FairFeed broadens proposal discovery, distributes visibility more evenly across the eligible pool, increases cross-cutting support, and improves resistance to manipulation relative to comment-based ranking. We conclude by outlining the human-subjects evaluation needed to test whether onboarding can recover voter preferences accurately enough for deployment in practice. In large-scale participatory budgeting, citizens cannot inspect the full proposal pool, so the order in which proposals are shown becomes a form of agenda-setting power. We argue that fair exposure should therefore be treated as a democratic-design goal. We study Consul Democracy, a widely deployed open-source digital-democracy platform, and show that its proposal feeds are typically ordered by popularity, recency, or comment activity. Building on this diagnosis, we propose FairFeed, a feed-ranking design for PB that uses transparently declared preferences, boosts under-exposed proposals, and admits a rate-limited reject channel for crowd-sourced vetting. We evaluate the design in a simulation anchored in Munich's 2025 PB process and compare it with random, newest, and most-commented feeds. In this simulation, FairFeed broadens proposal discovery, distributes visibility more evenly across the eligible pool, increases cross-cutting support, and improves resistance to manipulation relative to comment-based ranking. We conclude by outlining the human-subjects evaluation needed to test whether onboarding can recover voter preferences accurately enough for deployment in practice.",
+  "arxiv_id": "2609.29819",
+  "authors": [
+    "Carina I. Hausladen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对公民科技/电子参与平台：公平曝光可成为差异化功能，帮助平台在“议程设置权力”透明化方面建立公众信任。",
+      "对推荐系统产品：将排序从互动量信号转向用户声明信号，并加入低曝光加权，可减少“富者愈富”和虚假评论攻击面。",
+      "对市政/公共机构：以 D21–Janeček 门控拒绝通道作为低成本众包筛选，能降低行政审查负担并改善入围提案质量。",
+      "对商业平台的风险启示：评论数排序易被单个账号操纵（如慕尼黑 2026 年约 40% 评论来自一个账号），应避免将评论量作为核心排名信号。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "提出将公平曝光（fair exposure）视为大规模参与式预算的民主设计目标，并将 feed 排序界定为议程设置权力。",
+      "审计 Consul 多个部署及 MünchenBudget 数据，指出现有排序主要依赖热度、最新和评论信号，评论信号稀疏且易被操纵。",
+      "提出 FairFeed 排序设计：仅使用用户声明的偏好，对曝光不足的提案进行加权提升，并加入有速率限制的拒绝通道（D21–Janeček 2:1 规则）。",
+      "通过锚定慕尼黑 2025 PB 的仿真表明 FairFeed 扩大发现、均衡曝光、增加跨群体支持并提高抗操纵性。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Data"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Modeling PB"
+      },
+      {
+        "page": 1,
+        "section": "3 Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Random 随机排序",
+        "Newest 最新排序",
+        "Most-commented 评论数排序"
+      ],
+      "datasets": [
+        "MünchenBudget 2025（1,043 个提交、459 个可投票提案、7,134 名参与者）",
+        "MünchenBudget 2026（1,059 个提交及评论活动数据）",
+        "Consul Democracy 各部署 feed 排序审计（瓦伦西亚、慕尼黑、格拉斯哥等）"
+      ],
+      "findings_zh": [
+        "FairFeed 使每位市民浏览约 5.2 个提案，且基本保持主题相关；Newest/Most-commented 仅约 3.8 个，其中仅约 0.3 个在主题内。",
+        "FairFeed 下所有提案均超过可见性下限，随机为 98%，而热度类排序仅 7–8%；以完全均等曝光（约 97 次）为基准，FairFeed 有 39% 提案达标，随机仅 5%。",
+        "FairFeed 将人均交叉支持票从约 0.7 提高到 1.4，67% 市民投出至少一张跨群组支持票（对照约 44%）；其中 35% 为位置稳健支持，Most-commented 仅 12%。",
+        "可选拒绝按钮（约 0.10 拒绝率）使 top-20 质量相对 approve-only 提高 18%，短名单争议度下降 21%；拒绝率约 0.30 为拐点，质量 +32%、争议度 −35%。",
+        "无拒绝通道时操纵者需约 36 个验证身份将低质提案推上短名单；使用拒绝策略后仍约需 25 个身份，明显难于评论操纵——单个账号即可制造约 40% 的 2026 年评论，在 Most-commented 下可将 top-20 质量从 0.35 降至 0.27。"
+      ],
+      "metrics": [
+        "每位市民浏览提案数",
+        "主题相关命中率",
+        "曝光覆盖率（达到可见性下限的提案比例）",
+        "交叉支持票数（种子之外的支持）",
+        "top-20 短名单平均质量",
+        "短名单争议度",
+        "操纵成本（所需验证身份数）"
+      ]
+    },
+    "limitations_zh": [
+      "模型用宽泛主题类别代理真实偏好，未做真人受试者实验；onboarding 能否准确恢复选民偏好仍是未决问题。",
+      "作者明确假设 feed 影响发现和参与但不改变偏好，偏好漂移（preference drift）被列为效度威胁。",
+      "主题类别过宽，若真实兴趣更细碎，基于主题匹配的曝光纠正可能强化信息茧房；这是待测的实证问题。",
+      "质量与覆盖相互独立的假设是保守但简化的；更高相关度（rho=0.6）会削弱最不受见四分之一提案的平均质量。",
+      "部署还需解决可争辩性、审计、身份验证及拒绝通道的制度问题。"
+    ],
+    "method_zh": "构建以 MünchenBudget 2025 数据校准的仿真：459 个提案、7134 名市民；提案质量、覆盖、争议度建模，选民依序到达并以一个种子提案进入，按位置衰减、契合度、争议折扣决定支持；浏览长度可固定或依信息觅食动态变化。FairFeed 按声明信号排序（主题匹配 + 低曝光加权 − 标准化拒绝惩罚），并与随机、最新、最多评论三种 feed 比较；另模拟不同拒绝率和以身份数为计的攻击成本。",
+    "problem_zh": "大规模参与式预算（PB）中提案池可达数千，市民无法逐一查看，平台展示顺序因而成为一种议程设置权力。现有 Consul 等平台的 feed 多按热度、最新或评论数排序，导致注意力集中于已可见提案，形成“富者愈富”的反馈循环；同时弱质、重复、不可行或低质量提案缺乏有效的众包筛选机制。",
+    "technical_depth": 0.7
+  },
+  "doi": "10.1145/3794786.3830735",
+  "final_score": 0.6975,
+  "id": "arxiv-2609.29819",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-26T18:38:55.111181Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-24T13:54:27Z",
+  "relevance_score": 0.8,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "该文提出面向参与式预算的公平信息流排序设计FairFeed，比较不同排序策略以扩大提案发现与均衡曝光，属于信息流排序相关研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Fair Feed Ranking for Participatory Budgeting",
+  "url": "https://arxiv.org/abs/2609.29819v1"
+}

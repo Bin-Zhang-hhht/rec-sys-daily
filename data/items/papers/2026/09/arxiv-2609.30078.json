@@ -1,0 +1,103 @@
+{
+  "abstract": "Matrix completion, the problem of estimating missing entries in a matrix from noisily observed ones, underlies a diverse array of problems such as recommender systems and counterfactual outcome estimation in panel data. Many algorithms address the problem using regularized least squares, often with the nuclear norm as a regularizer, but this method yields a point estimate with no built-in uncertainty quantification. A Bayesian formulation is a natural alternative, and if the noise variance is known, the nuclear norm-based prior yields a log-concave posterior. Unfortunately, in practice, the noise variance will not be known a priori, so for a fully Bayesian approach, a prior must be imposed on it. We give the first sampler for this model with an explicit non-asymptotic guarantee: polynomial in the matrix dimensions and in the reciprocal of the target accuracy. Our technique is to discretize the distribution of the noise precision onto a grid and build a categorical posterior via thermodynamic integration. This extension is not specific to matrix completion and may be useful in other non-log-concave sampling problems where the non-log-concavity is restricted to a single variable and the joint distribution of the remaining variables is nonsmooth. Our contribution is a feasibility result: we show that a polynomial-time Bayesian sampler for this model exists at all, and the resulting complexity, while polynomial, is not intended as a deployable algorithm at current problem scales. Matrix completion, the problem of estimating missing entries in a matrix from noisily observed ones, underlies a diverse array of problems such as recommender systems and counterfactual outcome estimation in panel data. Many algorithms address the problem using regularized least squares, often with the nuclear norm as a regularizer, but this method yields a point estimate with no built-in uncertainty quantification. A Bayesian formulation is a natural alternative, and if the noise variance is known, the nuclear norm-based prior yields a log-concave posterior. Unfortunately, in practice, the noise variance will not be known a priori, so for a fully Bayesian approach, a prior must be imposed on it. We give the first sampler for this model with an explicit non-asymptotic guarantee: polynomial in the matrix dimensions and in the reciprocal of the target accuracy. Our technique is to discretize the distribution of the noise precision onto a grid and build a categorical posterior via thermodynamic integration. This extension is not specific to matrix completion and may be useful in other non-log-concave sampling problems where the non-log-concavity is restricted to a single variable and the joint distribution of the remaining variables is nonsmooth. Our contribution is a feasibility result: we show that a polynomial-time Bayesian sampler for this model exists at all, and the resulting complexity, while polynomial, is not intended as a deployable algorithm at current problem scales.",
+  "arxiv_id": "2609.30078",
+  "authors": [
+    "Calvin Tolbert"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "为推荐系统、协同过滤和面板数据反事实估计中的矩阵补全提供带可信区间与不确定性量化的贝叶斯后验，而不仅是点估计。",
+      "在该贝叶斯框架下，保证不需要奇异向量不相干性、最低采样率或完全随机缺失等条件，并允许任意处理状态依赖。",
+      "目前采样复杂度虽为多项式但开销较大，实际业务部署仍需常数优化或更实用的算法。"
+    ],
+    "business_transferability": 0.3,
+    "contributions_zh": [
+      "给出该模型第一个具有显式非渐近总变差界的高精度贝叶斯采样器，复杂度为矩阵维度和目标精度倒数的多项式。",
+      "提出基于热力学积分（thermodynamic integration）的噪声精度离散化边际化方案，避免朴素重要性加权估计的指数样本复杂度。",
+      "将 Andrieu et al. (2024) 的等周剖面混合时间分析扩展到光滑加非光滑 Lipschitz 复合势，使 random-walk Metropolis 无需近端采样 oracle 也能获得显式混合界。",
+      "证明该策略全程不对非强对数凹连续分布采样，作为一个可行性结果显示该模型存在多项式时间贝叶斯采样器。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Discretizing the precision"
+      },
+      {
+        "page": 1,
+        "section": "5 Our posterior"
+      },
+      {
+        "page": 1,
+        "section": "6 Numerical illustration"
+      },
+      {
+        "page": 1,
+        "section": "C.1 Proof of Theorem 1"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "naive importance sampling from the untilted prior",
+        "heuristic Gibbs sampling on L|tau and tau|L"
+      ],
+      "datasets": [
+        "toy synthetic n×n matrices, n=6,...,16",
+        "rank-2 ground truth at n=12 with lambda=0.2"
+      ],
+      "findings_zh": [
+        "随着观测数 N 增长，朴素重要性采样的有效样本量占比 ESS/M 大约下降两个数量级。",
+        "在可比总采样预算下，热力学积分估计量的相对蒙特卡洛标准误保持有界，并随 N 改善。",
+        "在实用步数预算下，热力学积分采样器与无保证的启发式 Gibbs 采样器在后验均值上定量一致，跨方法差距小于各自 split-half 蒙特卡洛噪声。",
+        "实现检查验证了 E_mu[L]=0、Brascamp-Lieb 方差界以及 E_mu[R(L)]<=R1 三个模型推论。"
+      ],
+      "metrics": [
+        "effective sample size fraction ESS/M",
+        "relative Monte Carlo standard error",
+        "split-half Monte Carlo noise",
+        "cross-method gap between posterior means",
+        "posterior on tau and leading singular value of L"
+      ]
+    },
+    "limitations_zh": [
+      "作者明确表示这是可行性结果：复杂度虽为多项式，但不打算在当前问题规模下作为可部署算法。",
+      "收敛率常数未优化，定理所需 RWM 步数 K(t) 很可能宽松，在小规模可绘图范围内也难以执行。",
+      "未在数值上验证所给出的最坏情况收敛率；数值实验采用实际步数而非定理步数。",
+      "Q（精度网格点数）带来的 eta^4 分母是否可以收紧仍是开放问题。",
+      "数值验证限于合成玩具数据，没有真实推荐系统或面板数据集。"
+    ],
+    "method_zh": "对潜在矩阵 L 使用核范数加 Frobenius 范数先验，使其成为强对数凹目标；对噪声精度 tau 使用截断 Jeffreys 先验，并离散化为对数等距网格上的均匀分类先验。似然为高斯，定义倾斜测度后，Algorithm 2 在每个网格点用 random-walk Metropolis 从正确倾斜测度采样，估计边际对数似然导数，再经热力学积分恢复各 tau_q 的边际对数似然，softmax 得到精度后验的分类近似。Algorithm 3 先从该分类分布采样 tau，再运行 RWM 采样条件后验 mu_tau，最终逼近连续混合后验。",
+    "problem_zh": "矩阵补全（推荐系统、协同过滤、面板数据反事实估计等）需要在带噪且不完整观测下估计矩阵缺失条目。现有核范数正则化方法多给出点估计，缺少不确定性量化；贝叶斯核范数先验在噪声精度已知时是对数凹的，但实际中噪声精度未知，需要对其施加先验。对联合后验直接采样缺乏非渐近保证，而朴素重要性加权边际化会随观测数增加产生指数级样本复杂度。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.68,
+  "id": "arxiv-2609.30078",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-26T18:38:55.111181Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-24T16:29:25Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究核范数正则化贝叶斯矩阵补全的采样器并给出多项式非渐近保证，指出其可用于推荐系统与面板数据反事实估计。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Nuclear Norm-Regularized Bayesian Matrix Completion",
+  "url": "https://arxiv.org/abs/2609.30078v1"
+}
