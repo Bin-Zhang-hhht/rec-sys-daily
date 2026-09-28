@@ -1,0 +1,56 @@
+{
+  "blogs": [],
+  "date": "2026-09-29",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.30601",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出嵌入子空间划分（ESP）框架，将双编码器嵌入分解为任务感知子空间并支持在线调整多目标召回权重，是面向工业推荐检索的研究工作。"
+    },
+    {
+      "item_id": "arxiv-2609.30576",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向序列生成式推荐的时间感知旋转位置编码T-RoPE，在多个大规模推荐数据集上显著提升推荐效果。"
+    },
+    {
+      "item_id": "arxiv-2609.31297",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文研究Bluesky启动包（人工策展的账户与订阅集合）能否捕捉有意义的主题与社交结构，并讨论将人工策展融入推荐系统。"
+    },
+    {
+      "item_id": "arxiv-2609.30717",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出基于MCP的RecToolBench基准，用于在模糊用户指令下评估推荐智能体的工具编排能力，识别出工具编排是智能体推荐系统的关键瓶颈。"
+    },
+    {
+      "item_id": "arxiv-2609.31166",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出AgentRecommender，利用LLM智能体的调查能力和内部知识在用户侧构建无需额外数据的可定制推荐系统。"
+    },
+    {
+      "item_id": "arxiv-2609.30711",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出UA-TWM，一种以效用锚定的世界模型接口，用于在训练好的序列排序器上支持面向未来状态控制的决策。"
+    },
+    {
+      "item_id": "arxiv-2609.31253",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出用物品共现图的拉普拉斯位置编码替代SASRec中可学习的位置编码，在多个序列推荐基准上提升排序指标。"
+    },
+    {
+      "item_id": "arxiv-2609.31164",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出SPADE指标，通过计算用户特定的流行度-相似性Pareto前沿距离来衡量推荐结果的偶然发现性（serendipity），并验证其有效性。"
+    },
+    {
+      "item_id": "arxiv-2609.30351",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文系统综述了2017至2024年间代码推荐系统的评估研究现状，发现以离线系统中心评估为主，属于推荐系统研究内容。"
+    },
+    {
+      "item_id": "arxiv-2609.30656",
+      "rank": 10,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出Component Benchmark（CB），一个面向大规模推荐模型的分层子模块性能剖析系统，帮助工程师定位性能瓶颈。"
+    }
+  ]
+}

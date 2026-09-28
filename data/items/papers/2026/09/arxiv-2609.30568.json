@@ -1,0 +1,131 @@
+{
+  "abstract": "A deployed B2B music-discovery platform serves both query-driven search (text prompts, vibe tags) and seed-driven recommendation (seed-track and artist stations) over one licensed catalog, one LAION-CLAP joint audio-text embedding space, one candidate-generation filter, and one ranking head -- and neither path consumes end-listener behavioral signal. In this content-only regime, curator judgment is the principal feedback signal available, and offline cosine similarity predicts it poorly: 38% of cosine-nearest neighbors are rejected by curators. The rejections reveal a clean partition: a majority (55%) are sound failures the encoder could address (style, tempo, mood mismatch), and a substantial minority (37%) are context failures orthogonal to the waveform (wrong language, holiday content, devotional content, rights and lyric flags). We deploy this sound-vs-context decomposition as feedback infrastructure, routing each failure mode to the layer that can absorb it: context failures to a constraint filter at candidate generation, sound failures to an embedding reweighting head at the representation layer -- both below the search/recommendation split, so a single curator loop maintains both experiences. On 1,200 curator judgments collected over two production rounds one month apart, the combined intervention reduces rejection rate from 38.17% to 28.83% (-24.5% relative, McNemar chi-squared = 22.4, p = 2.2e-6). An accounting decomposition attributes 4.08 pp of the drop to filter-eligible categories and 5.25 pp to the rest; the deployment was unblinded and compound, so this is a production accounting bound, not a causal estimate. We present this as an industrial case study rather than a validated general method, and close with lessons for content-only discovery: the failure partition is orthogonal to the paradigm partition, and corrections land in layers shared by both paradigms. A deployed B2B music-discovery platform serves both query-driven search (text prompts, vibe tags) and seed-driven recommendation (seed-track and artist stations) over one licensed catalog, one LAION-CLAP joint audio-text embedding space, one candidate-generation filter, and one ranking head -- and neither path consumes end-listener behavioral signal. In this content-only regime, curator judgment is the principal feedback signal available, and offline cosine similarity predicts it poorly: 38% of cosine-nearest neighbors are rejected by curators. The rejections reveal a clean partition: a majority (55%) are sound failures the encoder could address (style, tempo, mood mismatch), and a substantial minority (37%) are context failures orthogonal to the waveform (wrong language, holiday content, devotional content, rights and lyric flags). We deploy this sound-vs-context decomposition as feedback infrastructure, routing each failure mode to the layer that can absorb it: context failures to a constraint filter at candidate generation, sound failures to an embedding reweighting head at the representation layer -- both below the search/recommendation split, so a single curator loop maintains both experiences. On 1,200 curator judgments collected over two production rounds one month apart, the combined intervention reduces rejection rate from 38.17% to 28.83% (-24.5% relative, McNemar chi-squared = 22.4, p = 2.2e-6). An accounting decomposition attributes 4.08 pp of the drop to filter-eligible categories and 5.25 pp to the rest; the deployment was unblinded and compound, so this is a production accounting bound, not a causal estimate. We present this as an industrial case study rather than a validated general method, and close with lessons for content-only discovery: the failure partition is orthogonal to the paradigm partition, and corrections land in layers shared by both paradigms.",
+  "arxiv_id": "2609.30568",
+  "authors": [
+    "Matt Sandler"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "内容-only检索系统无需行为信号也能获得显著改进：4名内部策展人、每轮1200条判断即可驱动可部署且统计显著的干预。",
+      "按失败模式而非按入口组织反馈，使一次策展修正被搜索与推荐所有入口共享，避免为四条入口重复支付修正成本。",
+      "成本比例强烈偏向约束过滤器：数天SQL谓词/元数据目录工作与数周模型重训练的贡献接近（约4.08pp vs 5.25pp），建模资源有限的团队应优先构建C_ctx类规则。",
+      "先投资非音频元数据基础设施（语言、节日、宗教、版权、歌词等）可解锁廉价的检索质量提升，本文补充了元数据富化之前的检索侧修正环节。",
+      "共享候选过滤器与共享表示层为内容-only环境下的跨任务迁移提供了结构性路径，但商业推广前需实测文本/vibe入口的收益转移。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出并部署 sound-vs-context 失败分解：将策展人 thumbs-down 按失败码划分为 C_sound（风格/速度/情绪）、C_ctx（语言/节日/宗教/儿童/版权/歌词等）和 C_other，作为路由反馈的操作性判据。",
+      "设计双层共享反馈基础设施：C_ctx 路由到候选生成层的约束过滤器，C_sound 路由到表示层的嵌入重加权头，两层均位于搜索/推荐分支之下，使单一策展人循环同时维护所有入口。",
+      "在生产环境两轮共2400条判断（每轮1200条）上，综合干预将拒绝率从38.17%降至28.83%（相对降24.5%，McNemar χ²=22.37，p=2.25×10⁻⁶）。",
+      "账目分解显示约束过滤器贡献约4.08pp、重加权头贡献约5.25pp，而过滤器成本为数天目录工程、模型为数周建模工作，形成优先做C_ctx类规则的成本不对称结论。",
+      "以工业案例研究方式证明：内容-only场景下，按失败模式而非按入口组织反馈，可由小规模内部策展人面板驱动可部署、统计稳健的检索改进。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Deployed system: one stack, four entry points"
+      },
+      {
+        "page": 1,
+        "section": "3.2 The sound-vs-context partition"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Routing failures to mechanisms"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Curator panel and protocol"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Baseline failure-mode breakdown"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Round-2 intervention"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Inter-rater agreement: a brief note"
+      },
+      {
+        "page": 1,
+        "section": "5 Lessons and Limitations"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "baseline LAION-CLAP系统：预过滤器加精确余弦检索，无重加权头",
+        "将余弦相似度作为策展判断的二分类器（AUC=0.644）"
+      ],
+      "datasets": [
+        "57,758首权利已清理的可推荐目录，以及98,789首仅用于种子查找的参考目录",
+        "从可推荐目录均匀抽样400个评估种子，每种子k=3，每轮N=1,200条策展判断",
+        "Round-1基线（仅预过滤器、无重加权头）与Round-2干预后生产工作负载；269个种子在两轮中均有完整判断用于配对检验"
+      ],
+      "findings_zh": [
+        "Round-1中458/1200条被拒绝；其中55.2%为C_sound（风格168、速度52、情绪33），36.9%为C_ctx（节日68、语言67等），7.9%为other。",
+        "被接受与拒绝样本的余弦相似度分布高度重叠（均值0.897 vs 0.881，AUC=0.644），余弦既不能强预测拒绝，也不能区分拒绝类型。",
+        "Round-2综合部署后拒绝率降至28.83%；种子级配对检验（76改善 vs 27恶化）支持改善不是种子集差异驱动；四名策展人的变化均在聚合变化±5pp内，排除单一策展人效应。",
+        "账目分解显示C_ctx类拒绝从169降至120（-4.08pp），C_sound∪C_other从289降至226（-5.25pp），两机制贡献接近但成本差异近一个数量级。",
+        "策展人间一致性中等（κ=0.451），36个分歧中75%在C_sound侧、22%在C_ctx侧；C_ctx判断更稳健，C_sound训练标签噪声更大。",
+        "该部署是未盲、复合干预，4.08pp/5.25pp分解是算术账目界而非干净的每机制因果估计。"
+      ],
+      "metrics": [
+        "拒绝率：38.17% → 28.83%（-9.33pp，相对-24.5%）",
+        "种子级配对McNemar χ²=22.37，df=1，p=2.25×10⁻⁶（269个配对种子）",
+        "余弦相似度判别策展判断的AUC=0.644（95% bootstrap CI [0.613, 0.675]）",
+        "Cohen's κ=0.451（95% CI [0.30, 0.60]）",
+        "失败模式占比：φ_sound=55.2%，φ_ctx=36.9%，φ_other=7.9%",
+        "账目分解：过滤器可及类别-4.08pp，非过滤器类别-5.25pp，合计-9.33pp"
+      ]
+    },
+    "limitations_zh": [
+      "Round-1到Round-2是未盲的复合部署，约束过滤器与重加权头同时上线，每机制分解存在双向池构成/重排序泄漏，只能作为账目界。",
+      "范围仅限于一个已部署系统、一个目录和LAION-CLAP编码器，未验证跨目录、跨编码器或跨音乐类型的泛化。",
+      "策展人为内部专业策展人，未与外部策展人池或听者偏好校准；绝对拒绝率水平泛化受限，代理有效性未验证。",
+      "四策展人面板较小；训练与评估工作负载重叠，Round-2结果是生产反馈回路结果而非留出集泛化基准。",
+      "跨入口传递（文本提示、vibe标签）由共享架构推出但未测量：策展协议仅评估种子曲目路径。",
+      "结果是在产生反馈的同一工作负载上拒绝率变化，不是未见种子上的变化，也不是听者满意度变化。"
+    ],
+    "method_zh": "系统采用单一LAION-CLAP 512维联合音频-文本嵌入空间、单一目录（57,758首可推荐曲目）、单一候选生成过滤器和排名头，四个入口（语义文本提示、vibe标签、种子曲目、艺人）共享同一检索栈。策展人每次 thumbs-down 记录失败码，Algorithm 1 将 C_ctx 失败送入目录规则更新队列（约束过滤器），将 C_sound∪C_other 失败构造成三元组训练重加权头。约束过滤器是元数据表上的 SQL 谓词，在候选生成阶段生效；重加权头是冻结CLAP嵌入上的512×512线性投影，L2归一化，使用欧氏三元组 margin 0.2、AdamW、身份正则化与早停训练，排序时仅使用投影空间余弦。两者位于范式分裂之下，因此一条种子路径上学到的修正结构上可作用于文本/vibe入口，但本文未测量跨入口传递。",
+    "problem_zh": "在无听者行为反馈（content-only）的已部署音乐发现系统中，基于单一音频-文本联合嵌入空间的近邻检索有约38%的结果被专业策展人拒绝。失败可分为两类：音频本身可解释的声音失败（风格、速度、情绪）和与波形正交的上下文失败（语言、节日、宗教、版权等）。余弦相似度无法区分这两类失败，系统需要一种让小型策展人团队的反馈同时维护搜索与推荐两条路径的共享反馈基础设施。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.8325,
+  "id": "arxiv-2609.30568",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-24T21:26:23Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文以内容驱动的B2B音乐发现平台为例，将策展人反馈中的声音与上下文失败分别路由到候选生成过滤和嵌入重加权层，属于推荐系统工程内容。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Nearest but Not Dearest: Shared Curator-Feedback Infrastructure for Content-Only Search and Recommendation",
+  "url": "https://arxiv.org/abs/2609.30568v1"
+}

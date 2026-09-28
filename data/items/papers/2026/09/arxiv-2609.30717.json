@@ -1,0 +1,142 @@
+{
+  "abstract": "Recent advances in agentic recommender systems are shifting recommender systems from passive filtering engines to instruction-following agents that use external tools to resolve user intent. However, existing benchmarks often assume explicit user intent, simplified tool environments, or isolated function calls, leaving realistic tool orchestration for recommendation underexplored. To bridge this gap, we propose RecToolBench, a Model Context Protocol (MCP)-based benchmark for evaluating tool-using recommender agents under fuzzy user instructions. RecToolBench contains more than 1,200 executable tasks across three recommendation domains, 13 MCP servers, and 32 tools, spanning single-tool calls, parallel tool calls, sequential tool chains, and hybrid tool orchestration. We construct RecToolBench with a scalable synthesize--fuzzify--judge pipeline that generates executable fuzzy recommendation tasks, and evaluates agent trajectories using rule-based execution checks and rubric-based LLM evaluation. Experiments on representative LLMs show that syntactically valid tool calls do not guarantee successful recommendations. Models struggle with semantic parameter grounding, multi-step evidence integration, and grounded final recommendations, especially as orchestration complexity increases. Our results identify tool orchestration under fuzzy user intent as a major bottleneck for agentic recommender systems. Our data and code are available at https://github.com/ShawnChenn/RecToolBench. Recent advances in agentic recommender systems are shifting recommender systems from passive filtering engines to instruction-following agents that use external tools to resolve user intent. However, existing benchmarks often assume explicit user intent, simplified tool environments, or isolated function calls, leaving realistic tool orchestration for recommendation underexplored. To bridge this gap, we propose RecToolBench, a Model Context Protocol (MCP)-based benchmark for evaluating tool-using recommender agents under fuzzy user instructions. RecToolBench contains more than 1,200 executable tasks across three recommendation domains, 13 MCP servers, and 32 tools, spanning single-tool calls, parallel tool calls, sequential tool chains, and hybrid tool orchestration. We construct RecToolBench with a scalable synthesize--fuzzify--judge pipeline that generates executable fuzzy recommendation tasks, and evaluates agent trajectories using rule-based execution checks and rubric-based LLM evaluation. Experiments on representative LLMs show that syntactically valid tool calls do not guarantee successful recommendations. Models struggle with semantic parameter grounding, multi-step evidence integration, and grounded final recommendations, especially as orchestration complexity increases. Our results identify tool orchestration under fuzzy user intent as a major bottleneck for agentic recommender systems. Our data and code are available at https://github.com/ShawnChenn/RecToolBench.",
+  "arxiv_id": "2609.30717",
+  "authors": [
+    "Xiao Chen",
+    "Yicheng Zhao",
+    "Yingying Wu",
+    "Zhendong Chu",
+    "Changyi Ma",
+    "Qingsong Wen",
+    "Xuan Song"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商与本地生活推荐厂商而言，模糊用户指令下的工具编排能力应纳入智能体评测，不能仅以 API 调用格式合规作为成功标准。",
+      "当前模型在语义参数接地、多步证据整合与接地式推荐上薄弱，意味着需要投入指令微调、工具对齐、依赖跟踪与证据溯源能力建设，以提升端到端推荐效果。",
+      "模型调用冗余（如 Llama 系列大量重复调用）直接影响推理成本与延迟，效率指标应作为商业落地的重要考量。",
+      "L4 混合任务中执行成功与推荐命中差距大，提示系统需具备可审计的中间证据传播机制，以支持可解释、可验证的推荐决策。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "提出首个面向模糊推荐指令的 MCP 工具编排基准 RecToolBench，包含 1,288 个可执行任务、13 个 MCP 服务器、32 个工具，覆盖单工具调用、并行调用、串行工具链与混合编排四类模式。",
+      "提出 AmbiFlow Synthesis 可扩展任务合成流程（synthesize-fuzzify-judge），通过五类受控模糊化（underspecification、soft contradiction、vague quantifiers、preference uncertainty、implicit constraints）生成可执行的模糊推荐任务，并经过人工验证（Cohen's kappa 0.78）。",
+      "建立规则检查与 rubric 式 LLM-as-a-Judge 相结合的分级评测协议，并在 SLM 与专有模型上开展综合实验，指出语义参数接地、多步证据整合与接地式最终推荐是主要瓶颈。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Benchmark Construction"
+      },
+      {
+        "page": 3,
+        "section": "3 Evaluation Protocol and Metrics"
+      },
+      {
+        "page": 4,
+        "section": "4 Experiment Results"
+      },
+      {
+        "page": 5,
+        "section": "5 Related Work"
+      },
+      {
+        "page": 6,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 6,
+        "section": "Limitations"
+      },
+      {
+        "page": 16,
+        "section": "B.1 Synthesis Pipeline Details"
+      },
+      {
+        "page": 23,
+        "section": "D.3 Error Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Llama-3.2-3B-instruct",
+        "Qwen-2.5-3B-instruct",
+        "Gemma-3-4B-instruct",
+        "Qwen-2.5-7B-instruct",
+        "Mistral-v0.3-7B-instruct",
+        "Llama-3.1-8B-instruct",
+        "GPT-5.4",
+        "Gemini-3.1-Flash",
+        "Claude-Sonnet-4.5"
+      ],
+      "datasets": [
+        "Amazon Electronics",
+        "Yelp 2019",
+        "Foursquare"
+      ],
+      "findings_zh": [
+        "L1 单工具任务中，专有模型工具选择准确率达 100%，而最强 SLM（Qwen-2.5-7B）仅 58%；格式有效不意味着语义正确，例如 Gemma-3-4B 工具名有效率达 99% 但工具选择准确率仅 49%。",
+        "L2 并行任务中，所有模型的规则化 Parameter Accuracy 均低于 24%，参考无关 Parameter Appropriateness 排序与 P_acc 高度一致（Spearman rho=0.88），表明模糊意图下的参数接地是核心瓶颈；高并行率并不保证高效率，许多并行调用是冗余的。",
+        "L3 串行任务中，SLM 仍保持较高 Schema Compliance 与 Execution Success，但 Hit Ratio 与 rubric 指标明显低于专有模型；Qwen-2.5-7B 在 SLM 中工具选择 F1 最高（60.18%），Hit Ratio 仅 52.76%，说明识别正确工具集不等于串行编排成功。",
+        "L4 混合任务中任务完成率大幅下降，最佳专有模型 Hit Ratio 为 54.05%（GPT-5.4），SLM 普遍在 20%-28%；高规则得分不保证混合任务成功，执行与推荐命中之间存在持续 gap。",
+        "错误分析显示 GPT-5.4 在 L4 的主要失败模式为依赖推理失败（54.1%）与目标检索未命中（53.6%），说明跨步骤依赖保持与中间证据传播仍是强模型的短板。",
+        "效率分析显示专有模型更贴近 ground-truth 执行预算，而 Llama 系列存在严重冗余调用；SLM 在 L3 倾向每轮一个调用的串行化，缺乏依赖感知的并行化。"
+      ],
+      "metrics": [
+        "Tool Name Valid Rate",
+        "Schema Compliance Rate",
+        "Execution Success Rate",
+        "Tool Selection Accuracy",
+        "Tool Selection F1 Score",
+        "Parameter Accuracy",
+        "Parameter Appropriateness (PA)",
+        "Parallel Rate",
+        "Efficiency Score",
+        "Hit Ratio @All",
+        "Dependency Awareness",
+        "Information Grounding",
+        "Planning Coherence",
+        "Multi-round Efficiency"
+      ]
+    },
+    "limitations_zh": [
+      "RecToolBench 在受控 MCP 环境中评测，支持可复现执行，但未完全反映真实工业级推荐系统的噪声与延迟。",
+      "当前基准仅覆盖有限的推荐场景、工具生态和用户行为，难以穷尽工业生产的多样性。",
+      "受成本约束，研究未覆盖完整的智能体设计空间，后续需扩展模型与智能体架构的覆盖面。"
+    ],
+    "method_zh": "RecToolBench 将任务形式化为工具增强的部分可观测马尔可夫决策过程（POMDP）。任务生成基于 Amazon Electronics、Yelp 2019、Foursquare 的真实用户交互序列，由 AmbiFlow 先识别基于 MCP 工具 schema 的可行工具工作流，再由 GLM-5.1 生成显式指令，经受控模糊化转换为模糊用户指令，最后通过质量过滤与人工验证。评测采用多轮 plan-execute 循环，维护规划状态、Candidate Bus 与完整轨迹；规则指标包括 Tool Name Validity、Schema Compliance、Execution Success、Tool Selection Accuracy/F1、Parallel Ratio、Efficiency、Hit Ratio，rubric 指标包括 Parameter Appropriateness、Dependency Awareness、Information Grounding、Planning Coherence 与 Multi-round Efficiency，并由 DeepSeek-V3.2 作为独立裁判、通过 prompt shuffling 减轻位置偏差。",
+    "problem_zh": "现有推荐系统评测基准多假设用户意图明确、工具环境简化或仅评测孤立函数调用，缺乏在模糊用户指令下对推荐智能体进行组合式工具编排（tool orchestration）的评测。RecToolBench 提出基于 Model Context Protocol (MCP) 的基准，覆盖 1,288 个可执行任务、3 个推荐领域、13 个 MCP 服务器和 32 个工具，并设置 L1-L4 四级难度，以刻画模糊意图下工具编排的瓶颈。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.898,
+  "id": "arxiv-2609.30717",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-25T02:44:07Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于MCP的RecToolBench基准，用于在模糊用户指令下评估推荐智能体的工具编排能力，识别出工具编排是智能体推荐系统的关键瓶颈。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "RecToolBench: Benchmarking Recommendation-Specific Tool Orchestration under Fuzzy User Intent",
+  "url": "https://arxiv.org/abs/2609.30717v1"
+}

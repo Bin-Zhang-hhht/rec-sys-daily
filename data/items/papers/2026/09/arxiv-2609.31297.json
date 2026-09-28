@@ -1,0 +1,134 @@
+{
+  "abstract": "Bluesky starter packs are human curated collections of accounts and feeds aimed at helping users discover new communities, especially during onboarding. Prior research has examined their effects on platform growth and account visibility. However, whether these packs capture meaningful topical and social structure remains unanswered. We study 2718 active starter packs containing approximately 144K accounts, combining pack metadata, follow graphs, user post histories and inferred demographic attributes to answer this question. We assign starter packs to 17 topical categories, and examine semantic coherence, curator--member resemblance, shared audiences, and follow reciprocity. We found that pack members are closely aligned with both their fellow pack members and their pack's description compared to accounts included in other packs of the same topic, indicating topical specificity beyond the broader topical categories. We also identify semantic resemblance between curators and their pack members, while demographic resemblance varies by attribute and topic. Network analyses show higher follow reciprocity among members of the same pack and between members and curators than between a pack member and either another member from the same broader topic or a nonmember. Members also share substantial portions of their follower networks with fellow pack members. Despite this coherence, a typical member's follower follows only a small fraction of other members in the pack, indicating limited audience coverage. These results suggest that starter packs capture coherent topical and social groups while leaving opportunities for further account discovery. More broadly, results show human-curation can be useful to capture relevant communities and connections, and platforms could integrate human-curation into recommendation systems as a complement to algorithmic systems to expand opportunities for discovery. Bluesky starter packs are human curated collections of accounts and feeds aimed at helping users discover new communities, especially during onboarding. Prior research has examined their effects on platform growth and account visibility. However, whether these packs capture meaningful topical and social structure remains unanswered. We study 2718 active starter packs containing approximately 144K accounts, combining pack metadata, follow graphs, user post histories and inferred demographic attributes to answer this question. We assign starter packs to 17 topical categories, and examine semantic coherence, curator--member resemblance, shared audiences, and follow reciprocity. We found that pack members are closely aligned with both their fellow pack members and their pack's description compared to accounts included in other packs of the same topic, indicating topical specificity beyond the broader topical categories. We also identify semantic resemblance between curators and their pack members, while demographic resemblance varies by attribute and topic. Network analyses show higher follow reciprocity among members of the same pack and between members and curators than between a pack member and either another member from the same broader topic or a nonmember. Members also share substantial portions of their follower networks with fellow pack members. Despite this coherence, a typical member's follower follows only a small fraction of other members in the pack, indicating limited audience coverage. These results suggest that starter packs capture coherent topical and social groups while leaving opportunities for further account discovery. More broadly, results show human-curation can be useful to capture relevant communities and connections, and platforms could integrate human-curation into recommendation systems as a complement to algorithmic systems to expand opportunities for discovery.",
+  "arxiv_id": "2609.31297",
+  "authors": [
+    "Sima Adleyba",
+    "Onur Varol"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "Starter packs 可作为冷启动与发现的非算法信号：平台可向已关注部分成员的活跃用户推荐相关 starter pack，帮助其发现同一主题或社群中的更多账号。",
+      "人工策展可以与算法推荐互补，有潜力缓解只依赖流行度与参与度信号导致的 popularity bias；但策展人的选择也会造成可见性差异，需关注公平性与代表性。",
+      "由于 follower 通常只关注 pack 的一小部分成员（low fullness），starter packs 可被设计为持续性的发现路径，而不只是 onboarding 或策展人直接分享链接的工具。",
+      "平台可利用 pack 的主题对齐与网络凝聚力评估社区结构，并在推荐系统中对语义相邻 pack 的内容或账号提高排序（论文提出建议，但未做在线实验验证）。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "构建并分析了 2,718 个活跃 starter packs（约 144,987 个唯一账号、约 1.658 亿条去重帖子、约 1.03 亿条关注边），并按 17 个主题类别进行系统实证分析。",
+      "发现 pack 成员与其所属 pack 的语义一致性显著高于同主题非成员（成员对齐的 topic-level AUC 为 0.754–0.954，描述对齐为 0.725–0.898），表明 pack 粒度上存在超出宽泛主题标签的特定性。",
+      "发现策展人与成员在所有 17 个主题上均存在语义相似性（AUC 0.725–0.937），而人口属性（年龄/性别/种族）相似性因属性和主题而异，例如性别偏斜在所有主题为正，Foreign Language Communities 的种族偏斜为 +17.80 个百分点。",
+      "在关注网络中发现同 pack 成员之间以及成员与策展人之间的互关率更高、共同受众重叠可观，但 pack fullness 较低（全语料中位约 0.21），说明 pack 仍有促进进一步账号发现的潜力。",
+      "提出平台可将人工策展的 starter packs 作为算法推荐的补充，例如向已关注部分成员的活跃用户推荐相关 pack 的其余成员。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Data and Methods"
+      },
+      {
+        "page": 1,
+        "section": "Assignment of pack communities"
+      },
+      {
+        "page": 1,
+        "section": "Embeddings for members and packs"
+      },
+      {
+        "page": 1,
+        "section": "Results"
+      },
+      {
+        "page": 1,
+        "section": "RQ1: Are starter-pack members more aligned with their own pack than comparable accounts from the same broader topic?"
+      },
+      {
+        "page": 1,
+        "section": "RQ2: Do pack curators resemble the accounts they include?"
+      },
+      {
+        "page": 1,
+        "section": "RQ3: How cohesive and complete are the follow relationships within starter packs?"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "同主题但不属于该 pack 的账号（U_t \\ M_p）",
+        "随机账号对（random pairs）",
+        "同主题随机账号对",
+        "follower 中的非成员（nonmember reciprocity）",
+        "全分析范围内成员互关率（analysis-wide member reciprocity）"
+      ],
+      "datasets": [
+        "2,718 个活跃 Bluesky starter packs（至少 5 个 followers）",
+        "144,987 个唯一 pack 成员账号（其中 142,972 个返回关注记录）",
+        "约 1.658 亿条去重帖子（处理前约 2.186 亿行）",
+        "约 1.03 亿条有向关注边",
+        "17 个人工标注主题类别，验证 Cohen's κ=0.912"
+      ],
+      "findings_zh": [
+        "RQ1：在全部 17 个主题中，pack 成员与所属 pack 质心及描述的语义对齐均高于同主题非成员；topic-level 平均 AUC 分别为 0.754–0.954 和 0.725–0.898，说明 starter packs 捕获了超出宽泛主题标签的特定子群。",
+        "同 pack 成员对的余弦相似度均值约 0.909，高于同主题对（0.832）和随机对（0.789），且该排序在每个主题内成立；仅使用原创帖子时结果依然成立。",
+        "RQ2：策展人与成员在语义上比同主题非成员更相似（AUC 0.725–0.937）；人口属性上，性别偏斜在所有主题为正，年龄与种族偏斜的异质性较大（如 Foreign Language Communities 种族 +17.80pp，LGBTQ+ 种族 -8.17pp）。",
+        "RQ3：同 pack 成员之间及成员-策展人之间存在更高互关率；成员间 follower overlap coefficient 约 0.35–0.60，说明成员共享相当比例的受众。",
+        "pack fullness 较低：每个主题至少一半 pack 的 fullness ≤50%，全语料中位 pack fullness ≈0.21，且 fullness 与 pack size 强负相关（ρ=-0.849），表明现有关注网络只覆盖 pack 的一小部分。",
+        "总体结论：starter packs 捕获连贯的主题与社会群体，可作为超出即时关注网络的新账号发现路径；建议将相关 starter pack 推荐给已关注部分成员的用户。"
+      ],
+      "metrics": [
+        "AUC（member alignment、description alignment、curator semantic similarity）",
+        "Cosine similarity（账号-账号、账号-pack 质心、账号-pack 描述）",
+        "Demographic skew（百分点；年龄/性别/种族）",
+        "Follower overlap coefficient",
+        "Reciprocity rates（成员、同 pack、非成员、策展人关注率）",
+        "Pack fullness（全语料中位约 0.21）",
+        "Cohen's kappa（主题标注一致性 0.912）",
+        "Spearman 相关（fullness 与 pack size，ρ=-0.849）"
+      ]
+    },
+    "limitations_zh": [
+      "仅分析至少 5 个 followers 的 2,718 个 pack（约占成功获取 pack 的 0.99%），结论未必推广到低采纳度的 starter packs。",
+      "人口属性为模型推断（M3Inference、ethnicolr），存在跳过或错误标签，且大量账号被跳过（例如 ethnicolr 跳过 93,580 个成员），人口分析基于子集样本。",
+      "嵌入过程排除图片/媒体、无文本或少于 5 个词的帖子以及回复帖；11,201 个账号因没有符合条件的帖子而没有向量，可能引入偏差。",
+      "由于嵌入空间的各向异性，绝对余弦值不可解释，只能比较相对差异与排序。",
+      "研究是横截面的，无法区分策展人-成员相似性来自选择偏好还是预先存在或后期发展的社交关系，也没有对加入 pack 前后的因果效应做推断。",
+      "API 对已删除或停用账号不返回记录，重建的成员数可能低于实际 listItemCount；帖子分两批收集，日期范围与覆盖率存在限制。"
+    ],
+    "method_zh": "从 Bluesky Directory 与 Bluesky Starter Packs 两个聚合站点收集 starter pack URI，通过 AT Protocol API 获取元数据与成员列表，筛选出至少 5 个 followers 的 2,718 个 pack。先用 BERTopic 生成种子主题，再由 Gemini 3.5 Flash 将每个 pack 归入 17 个主题标签（人工验证 Cohen's κ=0.912）。使用 EmbeddingGemma300M 对 pack 标题/描述以及成员帖子（原创、转发、引文；排除回复、无文本和过短帖子）生成 768 维 L2 归一化向量，账号向量取帖子向量的均值。定义 member alignment 与 description alignment，用 AUC 比较 pack 成员与同主题非成员；用 M3Inference 与 ethnicolr 推断年龄/性别/种族，以 demographic skew 度量策展人-成员人口相似性；基于约 1.03 亿条关注边计算 follower overlap、互关率（成员、同 pack、非成员、策展人关注率）与 pack fullness。",
+    "problem_zh": "Bluesky 的 starter packs 是人工策展的账号/信息流列表，旨在帮助新用户（尤其冷启动阶段）发现社区。论文研究这些 starter packs 是否真正捕获了有意义的主题与社会结构，而不仅是平台增长工具；具体回答：成员是否与所属 pack 更一致、策展人是否与纳入的成员相似、成员之间如何通过共同受众与关注关系连接。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.904,
+  "id": "arxiv-2609.31297",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-25T14:07:19Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究Bluesky启动包（人工策展的账户与订阅集合）能否捕捉有意义的主题与社交结构，并讨论将人工策展融入推荐系统。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Who Belongs Together? Topical and Social Structure in Bluesky Starter Packs",
+  "url": "https://arxiv.org/abs/2609.31297v1"
+}

@@ -1,0 +1,125 @@
+{
+  "abstract": "Large-scale recommendation models pose distinct, under-explored profiling challenges. Most recommendation model architectures are structurally heterogeneous, intermixing memory-bandwidth-bound operations, small compute-bound dense layers, dynamic shapes from jagged categorical features, and low-arithmetic-intensity operations. Recommendation models evolve rapidly as modeling engineers experiment with compositions, often written without visibility into hardware execution characteristics. Standard profiling tools offer either end-to-end throughput or operator-level traces, but cannot attribute performance to the submodules that practitioners reason about. We present Component Benchmark (CB), a profiling system that independently characterizes each submodule performance in a hierarchical manner, providing a tree-structured, interactive visualization that brings performance clarity to ML practitioners. At its core, CB provides a simple yet extensible, submodule-based benchmarking framework with a plugin architecture that enables hierarchical performance analysis. These large-scale recommendation models are TB-scale, run on thousands of GPUs and ingest 100B examples per day. We demonstrate CB's effectiveness on common open sourced models and discuss how CB has been leveraged to accelerate modern recommendation model performance analysis and optimization. Large-scale recommendation models pose distinct, under-explored profiling challenges. Most recommendation model architectures are structurally heterogeneous, intermixing memory-bandwidth-bound operations, small compute-bound dense layers, dynamic shapes from jagged categorical features, and low-arithmetic-intensity operations. Recommendation models evolve rapidly as modeling engineers experiment with compositions, often written without visibility into hardware execution characteristics. Standard profiling tools offer either end-to-end throughput or operator-level traces, but cannot attribute performance to the submodules that practitioners reason about. We present Component Benchmark (CB), a profiling system that independently characterizes each submodule performance in a hierarchical manner, providing a tree-structured, interactive visualization that brings performance clarity to ML practitioners. At its core, CB provides a simple yet extensible, submodule-based benchmarking framework with a plugin architecture that enables hierarchical performance analysis. These large-scale recommendation models are TB-scale, run on thousands of GPUs and ingest 100B examples per day. We demonstrate CB's effectiveness on common open sourced models and discuss how CB has been leveraged to accelerate modern recommendation model performance analysis and optimization.",
+  "arxiv_id": "2609.30656",
+  "authors": [
+    "Dharak Kharod",
+    "Yuzhen Huang",
+    "Zhou Wang",
+    "Jackie Xu",
+    "Fuzail Khan",
+    "Jacky Zhou",
+    "Hao Yan",
+    "Lidong Zhao",
+    "Xizhou Feng",
+    "Yvonne Liu",
+    "Karthik Jayaraman",
+    "Praveen Ramachandran",
+    "Vishwa Karia",
+    "Yashasvi Makin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "将 profiling 单位从 job/operator 降到 submodule，使工程团队能直接把性能归因到可操作的模块，缩短定位和优化周期。",
+      "在 TB 级、数千 GPU、每天 100B 样本的推荐训练规模下，即使个位数百分比的吞吐提升也会转化为 fleet-wide 容量效率，论文对此有明确论述。",
+      "支持在用 PT2 编译前量化收益、对跨模型回归做归因、定向压缩低效子模块，有助于避免盲目重构和资源浪费。",
+      "交互式层次化可视化降低非性能专家参与 profiling 的门槛，并可用于硬件 bring-up、子模块数值等价性验证等扩展场景。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 Component Benchmark（CB）：轻量、可扩展的组件级 profiling 系统，核心约 1000 行代码，在单 GPU 上独立剖析每个子模块并重建树状性能视图。",
+      "基于 PyTorch hooks 捕获各子模块的运行期输入，按广度优先递归方式对每个子模块独立执行 profiling；高层模块放不进单 GPU 时跳过并聚合其子模块结果。",
+      "提供插件架构：Component Provider、Preprocessor Plugins、Profiler Plugins、Result Plugins，覆盖不同训练栈接入、批大小/混合精度预处理、FLOPs/内存快照/Kineto trace/内核分析、Icicle view/模型图可视化等扩展点。",
+      "在开源 DLRM（DeepFM）和 NanoGPT 上展示了分层性能分析，并报告了多个实际生产案例，包括吞吐提升、PT2 编译收益量化、跨模型回归归因和定向子模块压缩。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "II. Related Work"
+      },
+      {
+        "page": 1,
+        "section": "III. System Overview"
+      },
+      {
+        "page": 1,
+        "section": "IV. Experimental Analysis"
+      },
+      {
+        "page": 1,
+        "section": "V. Results in Practice"
+      },
+      {
+        "page": 1,
+        "section": "VI. Practical Lessons Learned"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无明显实验基线对比；相关工作部分定性对比了 NVIDIA Nsight Systems、Kineto/PyTorch Profiler、MLPerf、DeepSpeed FLOP profiler、DeepRecSys"
+      ],
+      "datasets": [
+        "DLRM DeepFM（TorchRec 开源模型）",
+        "NanoGPT（开源 GPT 模型）",
+        "训练栈中的真实 batch 输入（未指明具体数据集名称）"
+      ],
+      "findings_zh": [
+        "在 H100 上，DLRM 的 sparse_arch 几乎完全受内存带宽限制、算术强度低（FLOPs 极低但带宽利用率高），与其 embedding lookup 特性一致。",
+        "inter_arch 内部：deep_fm 为计算密集（MFU 27.06%），fm 为带宽密集（MFU 0.06%）；dense_module 是容器模块，自身无计算，性能由叶子按 latency 加权聚合。",
+        "dense_arch 中叶子交替为计算密集的 Linear（MFU 25.91%/20.74%）和带宽密集的 ReLU（MFU 0%）；两个 Linear 的 MFU 差异来自 shape（1024x4096 vs 4096x512）。",
+        "NanoGPT 中 12 个 transformer block 占据主要运行时间且彼此相似；attn block MFU 约为 MLP block 的一半（10% vs 20%），低 MFU 模块为 layer-norm、GeLU、dropout。",
+        "实际案例：将低利用率 GEMV 改为 elementwise kernels（单核更慢）后通过扩大 PT2 fusion 区域获得净 3% 吞吐提升；将 PT2 编译扩展到整个模型使迭代时间从 83ms 降到 50ms，对应 34% QPS 提升。",
+        "实际案例：某 generative recommender 的 2.8× 内存和 39% FLOPs 增长被归因到 event model 和 set-transformer blocks；恢复基线尺寸后收回 10% QPS 和 22% 内存。"
+      ],
+      "metrics": [
+        "Latency (ms)",
+        "Model size (MB)",
+        "TFLOPS/sec",
+        "MFU%",
+        "CPU/GPU time total (ms)",
+        "Estimated avg BW (GB/s) / BW utilization (%)",
+        "FLOPs、内存快照、Kineto/Perfetto trace",
+        "实际案例中的 QPS、训练/服务吞吐、内存与 FLOPs 变化"
+      ]
+    },
+    "limitations_zh": [
+      "CB 运行在单 GPU 上；超大顶层模块无法放入单 GPU 时会被跳过，只能通过子模块聚合来估计其性能。",
+      "本地 profiling 需要对 embedding hash size 和 batch size 做缩减/复制，可能不完全等价于真实训练运行条件。",
+      "论文在开源模型上的实验为 demonstration 性质，作者明确说明仅用于演示；缺少与现有 profiler 的正式定量对比。",
+      "CB 是 PyTorch-native，依赖 PyTorch nn.Module 抽象；对非 PyTorch 栈或 PyTorch 2 编译后模块边界被抹掉的场景需要额外适配。"
+    ],
+    "method_zh": "CB 通过 Component Provider 从训练栈获取顶层 nn.Module 和真实输入；在默认所有子模块上注册 forward hooks，捕获各子模块运行期输入；按层级深度做 BFS 遍历，对每个子模块先运行 Preprocessor（如复制张量匹配原始 batch size、混合精度调整），再运行 Profiler Plugins（FLOPs、内存 snapshot、trace、kernel analysis）得到独立剖析结果；对无法放入单 GPU 的高层模块跳过并用子模块结果聚合；最后 Result Plugins 生成带层次结构的表格和 Icicle 交互可视化。",
+    "problem_zh": "大规模推荐模型结构异构、输入 shape 动态且架构快速演进，现有 profiling 工具要么只提供端到端吞吐，要么提供算子级 trace，无法把性能归因到实践者真正关心的子模块/组件；PyTorch 2 编译还会抹掉模块边界，使算子到模块的映射不可靠。CB 针对这类模型提出在组件/子模块层级进行分层性能剖析，将性能数据组织为树状结构，帮助定位瓶颈。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.845,
+  "id": "arxiv-2609.30656",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-25T00:51:36Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出Component Benchmark（CB），一个面向大规模推荐模型的分层子模块性能剖析系统，帮助工程师定位性能瓶颈。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Component Benchmark: Hierarchical Model Profiling for Large-scale Recommendation Systems",
+  "url": "https://arxiv.org/abs/2609.30656v1"
+}

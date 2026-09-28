@@ -1,0 +1,123 @@
+{
+  "abstract": "Large-scale recommenders increasingly adopt the sequential generative recipe behind large language models, bringing the Transformer into recommendation along with design choices made for text, including Rotary Position Embedding (RoPE). In language models, RoPE encodes token indices for relative position reasoning, but in recommendation, an interaction index records only event order, saying nothing about elapsed time, behavioral cycles across scales, or calendar phase. We revisit this choice and propose T-RoPE, a time-aware RoPE for sequential generative recommendation that replaces index-only rotation with timestamp-based angles, learnable temporal coefficients, multiscale frequency banks, shifted query alignment, and non-stationary key rotation. We prove that standard RoPE, even on timestamps, remains time-translation invariant and cannot distinguish seasonal contexts, and that T-RoPE breaks this invariance while preserving the RoPE interface. Across five public benchmarks, T-RoPE achieves the best result on every metric on every dataset, improving over the strongest baseline by 78--130\\% in HR@10 on the sparse PixelRec data and 8--12\\% across metrics on Amazon Books. On an industrial-scale e-commerce dataset with more than 6B interactions, it improves every metric over the HSTU + Time RAB backbone by 13--82\\%, with ablations attributing the largest gains to multiscale frequencies ($+56\\%$ NDCG@50) and non-stationary keys ($+4\\%$). An online A/B test in the Shop app yields positive lifts in conversion rate ($+0.33\\%$) and order count ($+0.63\\%$). We also provide forward and backward algorithms whose added cost is linear in sequence length and head dimension, keeping time-aware RoPE practical for large generative recommenders. Large-scale recommenders increasingly adopt the sequential generative recipe behind large language models, bringing the Transformer into recommendation along with design choices made for text, including Rotary Position Embedding (RoPE). In language models, RoPE encodes token indices for relative position reasoning, but in recommendation, an interaction index records only event order, saying nothing about elapsed time, behavioral cycles across scales, or calendar phase. We revisit this choice and propose T-RoPE, a time-aware RoPE for sequential generative recommendation that replaces index-only rotation with timestamp-based angles, learnable temporal coefficients, multiscale frequency banks, shifted query alignment, and non-stationary key rotation. We prove that standard RoPE, even on timestamps, remains time-translation invariant and cannot distinguish seasonal contexts, and that T-RoPE breaks this invariance while preserving the RoPE interface. Across five public benchmarks, T-RoPE achieves the best result on every metric on every dataset, improving over the strongest baseline by 78--130\\% in HR@10 on the sparse PixelRec data and 8--12\\% across metrics on Amazon Books. On an industrial-scale e-commerce dataset with more than 6B interactions, it improves every metric over the HSTU + Time RAB backbone by 13--82\\%, with ablations attributing the largest gains to multiscale frequencies ($+56\\%$ NDCG@50) and non-stationary keys ($+4\\%$). An online A/B test in the Shop app yields positive lifts in conversion rate ($+0.33\\%$) and order count ($+0.63\\%$). We also provide forward and backward algorithms whose added cost is linear in sequence length and head dimension, keeping time-aware RoPE practical for large generative recommenders.",
+  "arxiv_id": "2609.30576",
+  "authors": [
+    "Yang Liu",
+    "Noel Loo",
+    "Ali Khanafer",
+    "Shuying Sun",
+    "Akshay Soni",
+    "Zhong Wu",
+    "Linjun Yang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "Shop应用在线A/B测试显示转化率相对提升+0.33%（p=0.037）、订单数相对提升+0.63%（p=0.094），表明时间感知的旋转位置编码可直接带来交易转化收益。",
+      "内部Shop数据集上T-RoPE相对HSTU+Time RAB骨干在每个指标提升13–82%，说明该技术对大规模电商推荐质量有实际提升。",
+      "T-RoPE保持RoPE的计算接口且额外成本随序列长度和头维度线性增长，可作为生成式推荐Transformer的即插即用模块，降低生产部署改造难度。",
+      "在稀疏和商业性数据上增益最大（如Amazon Books提升8–12%、PixelRec的HR@10相对提升78–130%），对拥有长尾用户和稀疏行为记录的电商、市场类业务尤其有价值。"
+    ],
+    "business_transferability": 0.84,
+    "contributions_zh": [
+      "提出T-RoPE（Time-aware RoPE）：在保持RoPE接口的前提下，用时间戳角度替代索引角度，并加入可学习时间系数、多尺度频率库、预测时间对齐查询和非平稳键旋转，在同一个旋转编码中表示时间间隔、多尺度周期性与日历相位。",
+      "理论分析：证明共享系数的时间戳RoPE（包括标准RoPE直接用于时间戳以及TO-RoPE的时间分量）仍是时间平移不变的；T-RoPE的非平稳键可打破这种不变性，并能在一定频率条件下表示以周期P变化的季节效应（Corollary 1）。",
+      "实验验证：在五个公开基准、一个超过6B交互的内部Shop数据集以及Shop应用在线A/B测试中，T-RoPE全面优于已有基线和时间感知方法，并带来正向业务提升。",
+      "工程实现：给出T-RoPE的前向与后向算法及成本分析，额外计算量随序列长度和头维度线性增长，适合大规模生成式推荐系统部署。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 T-RoPE Method"
+      },
+      {
+        "page": 1,
+        "section": "4 Theoretical Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "TiSASRec",
+        "HSTU",
+        "HSTU+Time RAB",
+        "HSTU+TO-RoPE"
+      ],
+      "datasets": [
+        "ML-20M",
+        "Amazon Books",
+        "Pixel200K",
+        "Pixel1M",
+        "Pixel8M",
+        "Shop内部工业数据集（约150M用户、4.8M商品、>6B交互）",
+        "Shop应用在线A/B测试"
+      ],
+      "findings_zh": [
+        "在五个公开基准数据集的全部五个指标（HR@10、HR@50、NDCG@10、NDCG@50、MRR）上，HSTU+T-RoPE均取得最佳结果；其中Amazon Books相对HSTU+Time RAB提升8–12%，PixelRec稀疏数据在HR@10上相对TO-RoPE提升78–130%。",
+        "在内部Shop数据集上，T-RoPE相对HSTU+Time RAB骨干在所有指标上提升13–82%；消融显示多尺度频率库贡献最大，非平稳键带来Recall@200约3.2%和NDCG@50约4.2%的额外提升。",
+        "在线A/B测试显示转化率相对提升+0.33%（p=0.037），Shop应用订单数相对提升+0.63%（p=0.094），结果方向与离线收益一致。",
+        "消融实验表明Time RAB与T-RoPE互补：移除Time RAB会使MRR下降27.0%，说明RAB仍捕获T-RoPE未完全覆盖的相对新近度信号，两者结合效果最佳。"
+      ],
+      "metrics": [
+        "HR@10",
+        "HR@50",
+        "NDCG@10",
+        "NDCG@50",
+        "MRR",
+        "Recall@50",
+        "Recall@200",
+        "NDCG@200",
+        "CVR",
+        "订单数"
+      ]
+    },
+    "limitations_zh": [
+      "在线订单数提升的p值为0.094，未达到常规显著性水平，论文将其描述为方向性证据而非强显著结论。",
+      "季节性可表示性依赖训练后满足α_d^q+α_d^k≠0；若所有维度退化为α_d^q=-α_d^k，T-RoPE会退化到时间平移不变情形，论文也指出这种退化并非自动避免。",
+      "论文未报告公开基准实验的方差或显著性检验结果，也未提供内部数据集与生产部署细节，工业结论的可独立复现性有限。",
+      "时间戳以秒为单位导致相关梯度可能很大，实现中需要截断或重缩放以稳定训练。"
+    ],
+    "method_zh": "T-RoPE以绝对Unix时间戳（秒）直接构造RoPE旋转角度。每个旋转平面d分配几何间隔的基础频率β_d（默认10^2到10^8秒），查询和键分别乘以可学习系数α_d^q、α_d^k。查询角度在训练时使用下一事件时间戳t_{m+1}、推理时使用当前会话时间t_now，实现移位查询对齐；键采用标准旋转矩阵的转置R(-φ_n^d)，使每个平面的相位变为-(α_d^q t_{m+1}+α_d^k t_n)/β_d，从而将时间差转成时间之和，打破时间平移不变性。最终沿所有旋转平面拼接得到时间感知、多尺度、预测对齐且非平稳的查询和键向量，并保持与标准RoPE兼容的注意力计算接口。",
+    "problem_zh": "基于大语言模型的生成式推荐沿用文本领域的RoPE，但交互索引只记录事件顺序，无法表达真实时间间隔、多尺度行为周期和绝对日历相位。标准RoPE即使直接作用于时间戳仍是时间平移不变的，无法区分同一段历史位于不同季节或日历阶段；TiSASRec、HSTU的Time RAB、TO-RoPE等现有方法仅部分解决这一问题，仍未从根本上改变查询和键的旋转几何。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9420000000000001,
+  "id": "arxiv-2609.30576",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling",
+    "large_language_model"
+  ],
+  "published_at": "2026-09-24T21:39:12Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向序列生成式推荐的时间感知旋转位置编码T-RoPE，在多个大规模推荐数据集上显著提升推荐效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "T-RoPE: Time-Aware Rotary Position Embedding for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2609.30576v1"
+}

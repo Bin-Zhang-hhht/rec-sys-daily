@@ -1,0 +1,108 @@
+{
+  "abstract": "Sequential recommenders typically rely on learnable positional embeddings to encode the order of user interactions. In this work, we ask whether this ordinal signal can be replaced by a structural one derived from the item space. We propose to use Laplacian positional embeddings in SASRec: we build an item co-occurrence graph from training interactions, compute eigenvectors of its symmetric normalized Laplacian, and use them as frozen graph-derived positional embeddings. The backbone architecture and training objective remain unchanged. Experiments on four public sequential-recommendation benchmarks show that this simple replacement improves SASRec performance on most ranking metrics and remains competitive with strong positional and temporal encoding baselines. These findings indicate that item-item graph structure can be an effective substitute for standard ordinal positional embeddings in sequential recommendation. Sequential recommenders typically rely on learnable positional embeddings to encode the order of user interactions. In this work, we ask whether this ordinal signal can be replaced by a structural one derived from the item space. We propose to use Laplacian positional embeddings in SASRec: we build an item co-occurrence graph from training interactions, compute eigenvectors of its symmetric normalized Laplacian, and use them as frozen graph-derived positional embeddings. The backbone architecture and training objective remain unchanged. Experiments on four public sequential-recommendation benchmarks show that this simple replacement improves SASRec performance on most ranking metrics and remains competitive with strong positional and temporal encoding baselines. These findings indicate that item-item graph structure can be an effective substitute for standard ordinal positional embeddings in sequential recommendation.",
+  "arxiv_id": "2609.31253",
+  "authors": [
+    "Ekaterina Trushkova",
+    "Artur Gimranov",
+    "Anton Lysenko"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该方法为推荐系统提供轻量增强路径：在不改变现有 SASRec 在线推理结构的前提下，仅用离线图特征向量替换位置嵌入，可在保持训练/推理开销接近的情况下提升排序质量。",
+      "在 Yelp2018 上同时提升排序和覆盖率，有助于改善推荐多样性与用户发现长尾物品；但 Clothing 上覆盖率下降，实际部署需根据业务目标权衡准确率与目录覆盖。",
+      "由于不依赖额外在线编码计算且无需图神经网络分支，工程集成成本较低，适合已有 Transformer 顺序推荐架构快速试验。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出轻量级图派生位置编码 SASRec-LapPE：基于训练交互构造物品共现图，用对称归一化拉普拉斯算子的特征向量作为冻结的物品位置嵌入。",
+      "无需修改 SASRec 骨干或训练目标，仅替换输入层可学习位置嵌入；图构造和特征分解在训练前一次性离线完成。",
+      "在四个公开顺序推荐基准上经验比较了可学习、旋转、时间感知位置编码基线，显示图派生位置嵌入在多数排序指标上提升 SASRec，且与更强的位置/时间编码基线具有竞争力。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3 Method"
+      },
+      {
+        "page": 3,
+        "section": "4 Experiments and Results"
+      },
+      {
+        "page": 4,
+        "section": "4.4 Results"
+      },
+      {
+        "page": 5,
+        "section": "5 Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "SASRec-NoPE",
+        "SASRec-RoPE",
+        "TiSASRec",
+        "SASRec-LapPE-MLP"
+      ],
+      "datasets": [
+        "Amazon-Beauty",
+        "Amazon-Clothing",
+        "Amazon-Sports",
+        "Yelp2018"
+      ],
+      "findings_zh": [
+        "SASRec-LapPE 在大多数排序指标上优于 SASRec，最大提升出现在 Amazon-Clothing 与 Yelp2018；例如 Clothing 的 NDCG@10 从 0.89 升至 1.11，Yelp2018 的 Recall@100 从 20.12 升至 23.37。",
+        "在 @100 排序指标上，SASRec-LapPE 在全部四个数据集上超越 TiSASRec，并在四个中的三个数据集上优于 SASRec-RoPE，且不需要在线位置或时间计算。",
+        "与 SASRec-NoPE 相比，SASRec-LapPE 在四个数据集的 @100 指标上均更好，说明收益并非仅来自删除位置嵌入，而是图结构提供了额外排序信号。",
+        "覆盖率方面，SASRec-LapPE 在 Amazon-Beauty 和 Yelp2018 上提高覆盖率且强于 TiSASRec，但在 Amazon-Clothing 上排名提升伴随覆盖率下降，低频谱分量可能使推荐集中于物品社区。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "NDCG@100",
+        "Recall@10",
+        "Recall@100",
+        "Coverage@10",
+        "Coverage@100"
+      ]
+    },
+    "limitations_zh": [
+      "论文未设专门限制分析章节；由结果可见，在 Amazon-Clothing 上 NDCG/Recall 提升伴随 Coverage 下降，存在准确率与目录覆盖率之间的权衡。",
+      "LPE 来自训练交互构建的静态物品共现图，不使用时间戳、位置变换或时间间隔，无法显式建模时间动态或非平稳偏好变化。",
+      "作者指出仍需理解图谱的哪些频率分量对推荐最有用，并需要验证集上的频谱频带搜索或可学习频谱滤波等系统化频率选择方法。"
+    ],
+    "method_zh": "给定用户-物品交互矩阵 R，构造物品共现邻接矩阵 A=R^T R 并将对角线置零；用度矩阵 D 归一化得到对称归一化拉普拉斯 L=I-D^{-1/2}AD^{-1/2}。对 L 做特征分解后，取 k=d 个最小非零特征值对应的特征向量组成 P；若 k≠d 则通过可学习投影 W_p 映射到模型维度。SASRec-LapPE 的输入表示为 h_t^(0)=E[i_t]+α·LPE[i_t]，其中 α 为可学习标量，LPE 表在训练和推理中冻结，取代原来的可学习序列位置嵌入 p_t。",
+    "problem_zh": "顺序推荐中，SASRec 等自注意力模型依赖可学习的位置嵌入来编码交互顺序；作者提出能否用物品空间的图结构信号替代这种顺序位置信号，以在不改变骨干架构和训练目标的情况下提升推荐性能。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.8600000000000001,
+  "id": "arxiv-2609.31253",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-25T13:27:23Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出用物品共现图的拉普拉斯位置编码替代SASRec中可学习的位置编码，在多个序列推荐基准上提升排序指标。",
+  "targets": [],
+  "tasks": [],
+  "title": "Enriching Sequential Recommendation with Graph Laplacian Positional Embeddings",
+  "url": "https://arxiv.org/abs/2609.31253v1"
+}

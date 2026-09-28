@@ -1,0 +1,114 @@
+{
+  "abstract": "Recommender systems have traditionally been developed for platforms. However, this has given rise to many phenomena that may be advantageous for platform lock-in but are a nuisance to users, such as clickbait, filter bubbles, and the spread of fake news. Recently, user-side recommender systems have been proposed as a new paradigm for solving this problem. If users deploy their own recommender systems, they are no longer at the mercy of the platform's interests. However, building a user-side recommender system is not trivial; in particular, customizing one for oneself requires additional data. We propose AgentRecommender, a method that leverages the investigation capability and internal knowledge of LLM agents to flexibly build user-side recommender systems without additional data. AgentRecommender allows users to easily create recommender systems tailored to their own preferences. Recommender systems have traditionally been developed for platforms. However, this has given rise to many phenomena that may be advantageous for platform lock-in but are a nuisance to users, such as clickbait, filter bubbles, and the spread of fake news. Recently, user-side recommender systems have been proposed as a new paradigm for solving this problem. If users deploy their own recommender systems, they are no longer at the mercy of the platform's interests. However, building a user-side recommender system is not trivial; in particular, customizing one for oneself requires additional data. We propose AgentRecommender, a method that leverages the investigation capability and internal knowledge of LLM agents to flexibly build user-side recommender systems without additional data. AgentRecommender allows users to easily create recommender systems tailored to their own preferences.",
+  "arxiv_id": "2609.31166",
+  "authors": [
+    "Ryoma Sato"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对用户而言，AgentRecommender 提供了一种不依赖平台配合的途径，自行实现防过滤气泡、多样性、价格平衡等需求，减少平台锁定效应。",
+      "对平台而言，用户侧 LLM agent 可能削弱平台对推荐结果的控制力，并带来额外流量与服务器负载，平台需要重新评估推荐接口和页面的可访问性。",
+      "对浏览器扩展、本地推荐工具等产品形态，该方法是可落地的增值功能：普通用户安装后即可获得可控推荐，无需服务商开放 API。",
+      "对电商和内容平台，这类用户侧系统可能暴露官方推荐在公平性、多样性上的不足，促使平台提升透明度与可解释性。",
+      "实际商业化需考虑查询成本与延迟，论文提出的 localStorage 缓存策略可支撑低开销的用户端产品设计。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出 AgentRecommender：利用 LLM agent 的探索能力与内部世界知识，在用户侧构建可定制的推荐系统，无需额外标签数据。",
+      "将用户需求以自然语言表达为属性约束，通过有预算限制地反复访问平台推荐网络来收集候选物品，最终由 LLM 选出满足条件的 K 个物品。",
+      "据论文所述，这是首个无需标签且能发现新物品的用户侧推荐系统；相比仅重排官方候选的 iAgent，能够真正扩展候选集合。",
+      "在电影、音乐、电商三个领域的实验中，AgentRecommender 在多样性和平衡性指标上显著优于平台推荐与 iAgent。",
+      "支持用户自行设计属性划分，例如流行度、价格区间、政治倾向等，从而在不依赖平台实现的前提下获得希望的功能。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Proposed Method: AgentRecommender"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "4.1 MovieLens 1M"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Amazon Home and Kitchens"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Budget Sensitivity"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Provider（BPR 实现的官方 item-to-item 推荐）",
+        "iAgent"
+      ],
+      "datasets": [
+        "MovieLens 1M",
+        "LastFM",
+        "Amazon Home and Kitchens"
+      ],
+      "findings_zh": [
+        "MovieLens 1M 的 oldness 标准（新旧各至少 5 部）下，Provider 和 iAgent 成功率均为 0.00，AgentRecommender 达到 0.68 ± 0.47。",
+        "MovieLens 1M 的流派覆盖上，AgentRecommender 平均包含 8.94 ± 2.43 个流派，约为 Provider/iAgent（5.51 ± 2.35）的 1.6 倍。",
+        "LastFM 的流派覆盖上，AgentRecommender 平均包含 4.34 ± 1.62 个流派，约为 Provider/iAgent（2.50 ± 1.02）的 1.7 倍。",
+        "Amazon Home and Kitchens 的价格平衡成功率上，AgentRecommender 为 0.64 ± 0.48，约为 Provider/iAgent（0.16 ± 0.37）的 4 倍。",
+        "预算敏感性实验中，B=1 时 AgentRecommender 已大幅超过 Provider 和 iAgent；随着预算增加性能总体提升。",
+        "Amazon 数据集上成功率约在 0.6 附近平台期，论文归因于仅凭商品名称估计价格较难，即使候选池更大也难以实现完美价格平衡。"
+      ],
+      "metrics": [
+        "满足每个类别至少出现 tau 次的成功率",
+        "推荐列表中不同类别的数量（覆盖/多样性）"
+      ]
+    },
+    "limitations_zh": [
+      "每次访问物品页面额外发出 B 次查询会带来延迟，并可能给服务造成负担；缓存方案只是缓解而非完全消除。",
+      "LLM 只能看到物品名称，当属性难以从名称和世界知识估计时（如 Amazon 商品价格），性能受限。",
+      "实验中官方推荐由 BPR 嵌入黑盒模拟，与真实平台推荐网络可能存在差异。",
+      "在 MovieLens oldness 任务中，仍有 32% 的案例未达到新旧各 5 部的严格平衡，只是较为接近。",
+      "实验采用固定的 K=10、B=8 等设置，并选取单一用户最后交互物品作为起点，结论的外推范围有限。"
+    ],
+    "method_zh": "方法从用户当前访问物品 i 的平台推荐列表 L=P_prov(i) 出发，在预算 B 内迭代：(1) 将当前列表中尚未扩展的物品及约束要求以自然语言呈现给 LLM，由 LLM 选择要扩展的物品 j；(2) 在浏览器后台访问物品 j 的页面，获取平台推荐 P_prov(j) 并加入候选列表 L。最后将积累的候选列表与要求交给 LLM，由其选出最终呈现给用户的 K 个物品。LLM 仅根据物品名称，利用内部知识（必要时结合搜索等工具）估计物品属性，从而选择有助于满足约束的节点进行探索；最终选择时也会要求 LLM 保留与原物品足够相关的物品。由于每次访问都额外发起查询可能带来延迟和负载，论文提出可像 RecCycle 一样利用浏览器 localstorage 缓存用户日常使用中获得的推荐结果，以降低在线查询负担。",
+    "problem_zh": "传统推荐系统由平台控制，可能带来点击诱饵、过滤气泡、假新闻传播等问题，用户对推荐结果缺乏控制力。用户侧推荐系统让用户自己构建推荐功能，但以往方法需要物品标签等额外数据，普通用户负担重。本文研究在用户只能黑盒访问平台 item-to-item 推荐、且物品属性（如年代、流派、价格、政治倾向）在构建时不可观测的条件下，如何让用户无需额外数据即可构建满足自定义约束的推荐系统。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.8725,
+  "id": "arxiv-2609.31166",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-25T11:58:23Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出AgentRecommender，利用LLM智能体的调查能力和内部知识在用户侧构建无需额外数据的可定制推荐系统。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "AgentRecommender: LLM Agents Enable Customizable Recommender Systems on the User Side",
+  "url": "https://arxiv.org/abs/2609.31166v1"
+}

@@ -1,0 +1,123 @@
+{
+  "abstract": "Sequential recommendation optimizes which items to rank, while each displayed slate also shapes subsequent feedback and user state. We study how a trained ranker can support decisions about these future consequences. We introduce UA-TWM, a utility-anchored world-model interface that constructs nearby slate actions, estimates their target-relevant consequences, and selects an alternative subject to utility constraints. The reference slate serves as a fallback when no alternative qualifies. A logged-replay instantiation combines utility and target-gain estimates with calibrated failure-risk prediction; a closed-loop instantiation uses one-step state-action prediction and updates its decisions after observed feedback. We evaluate transfer across twelve sequential backbones on MovieLens-25M and KuaiRand-Pure, and repeated target-directed interaction in KuaiSim. Attaching the interface improves Recall@20, NDCG@20, and future-state alignment for every matched logged backbone. Selection ablations reveal the utility and risk costs of aggressive target pursuit, while closed-loop diagnostics isolate the contribution of action-conditioned prediction. Local consequence modeling thus enables target-aware selection around a trained sequential ranker. Sequential recommendation optimizes which items to rank, while each displayed slate also shapes subsequent feedback and user state. We study how a trained ranker can support decisions about these future consequences. We introduce UA-TWM, a utility-anchored world-model interface that constructs nearby slate actions, estimates their target-relevant consequences, and selects an alternative subject to utility constraints. The reference slate serves as a fallback when no alternative qualifies. A logged-replay instantiation combines utility and target-gain estimates with calibrated failure-risk prediction; a closed-loop instantiation uses one-step state-action prediction and updates its decisions after observed feedback. We evaluate transfer across twelve sequential backbones on MovieLens-25M and KuaiRand-Pure, and repeated target-directed interaction in KuaiSim. Attaching the interface improves Recall@20, NDCG@20, and future-state alignment for every matched logged backbone. Selection ablations reveal the utility and risk costs of aggressive target pursuit, while closed-loop diagnostics isolate the contribution of action-conditioned prediction. Local consequence modeling thus enables target-aware selection around a trained sequential ranker.",
+  "arxiv_id": "2609.30711",
+  "authors": [
+    "Jinfeng Xu",
+    "Zheyu Chen",
+    "Ziyue Peng",
+    "Jianheng Tang",
+    "Zheng Lin",
+    "Jing Yang",
+    "Puzhen Wu",
+    "Zheng Xing",
+    "Victor C. M. Leung"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "UA-TWM 可以直接挂在已有冻结序列排序器上，无需重训骨干，即可提升 Recall/NDCG 并同时改善未来消费分布对齐，对现有推荐系统的改造成本较低。",
+      "企业可用同一套接口实现多样性与类别混合、降低兴趣集中度、增加曝光均衡等平台级目标，并在效用、目标增益和失败风险三者之间做显式权衡。",
+      "约束门控与风险预测支持低风险干预：不合格候选时回退到锚点列表，可减少激进调参带来的效用下降和不安全推荐。",
+      "因具有引导未来消费状态的能力，此类技术在商业化部署前需要平台治理、用户同意和持续监测，避免对用户行为造成隐蔽操纵。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "将未来状态感知推荐形式化为围绕效用锚点的选择性列表动作控制，并给出受锚点效用约束的目标损失最小化问题。",
+      "提出 UA-TWM，一个效用锚定的局部世界模型接口，将候选生成、单步后果预测与约束选择分离，并在无候选通过门控时回退到锚点列表。",
+      "在 12 个序列推荐骨干、两个公开日志数据集和 KuaiSim 闭环模拟上评估跨骨干迁移与闭环行为：日志回放提升 Recall@20、NDCG@20 和未来状态对齐，动作条件预测支撑了目标导向的重复交互。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 INTRODUCTION"
+      },
+      {
+        "page": 2,
+        "section": "3 METHODOLOGY"
+      },
+      {
+        "page": 3,
+        "section": "4.2 LOGGED TRANSFER ACROSS BACKBONES"
+      },
+      {
+        "page": 4,
+        "section": "4.4 ALTERNATIVES, ABLATIONS, AND MODEL DIAGNOSTICS"
+      },
+      {
+        "page": 4,
+        "section": "4.5 CLOSED-LOOP TARGET-CONTROL"
+      },
+      {
+        "page": 6,
+        "section": "F LOGGED SENSITIVITY ANALYSIS"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Base sequential backbones: GRU4Rec, SASRec, BERT4Rec, NextItNet, FPMC, TransRec, STAMP, LightSANs, S3Rec, SINE, ADRec, FAVE",
+        "target-only reranking",
+        "diversity reranking",
+        "aggressive world-model selection",
+        "RFSS-U support-frontier control reference",
+        "semantic diversity and semantic repeat target-aggressive controls",
+        "state-only dynamics ablation"
+      ],
+      "datasets": [
+        "MovieLens-25M",
+        "KuaiRand-Pure",
+        "KuaiSim"
+      ],
+      "findings_zh": [
+        "在 MovieLens-25M 和 KuaiRand-Pure 上，附加 UA-TWM 后 12 个骨干全部同时提升 Recall@20、NDCG@20 与未来状态对齐；MovieLens 上 Recall@20 增益约 0.0119–0.0144，NDCG@20 增益约 0.0028–0.0102，未来状态 L1 下降约 0.037–0.046，KuaiRand-Pure 上对应增益分别为 0.0054–0.0068、0.0018–0.0037 和 0.064–0.082。",
+        "约束式选择相比激进的 world-model 选择显著降低不安全选择率：例如 MovieLens FPMC 上 invalidity 从 12.5% 降到 3.5%，KuaiRand ADRec 上从 10.5% 降到 5.8%，且约束式选择在 ADRec/FAVE 等场景恢复为正的 Recall 和 NDCG 增益。",
+        "风险门控有效：split-risk gating 将 MovieLens S3Rec 的 selected unsafe rate 从 5.9% 降到 4.1%，将 KuaiRand LightSANs 的从 6.4% 降到 4.8%。",
+        "在 KuaiSim 闭环测试中，UA-TWM 获得 click 42.936、目标 L1 2.581，发出 4 个有效目标控制主张、0 个无效主张并回退 3 次；state-only dynamics 消融不发主张并回退 7 次，动作条件预测带来 0.173 的配对目标 L1 优势（95% CI [0.044, 0.313]）。",
+        "动作摘要改善岭回归转移预测：held-out seed 上 MAE 从 0.491 降到 0.266，held-out policy 上从 0.433 降到 0.345；但随机森林在 held-out policy 上反而变差，说明动作条件建模的收益依赖预测器与迁移设置。",
+        "语义类目标激进控制器和 RFSS-U 达到更低目标损失但点击效用低于锚点，UA-TWM 在保留点击效用的同时做出较小的目标改进，体现效用约束的作用。"
+      ],
+      "metrics": [
+        "Recall@20",
+        "NDCG@20",
+        "future-state L1 loss",
+        "coverage",
+        "replay-unsafe rate / invalidity",
+        "click utility",
+        "target L1",
+        "normalized MAE",
+        "AUC and ECE for risk calibration"
+      ]
+    },
+    "limitations_zh": [
+      "日志回放只是回顾性代理：日志中的未来正样本并不能识别未展示列表的转移分布，因此无法在真实反馈下证明该列表的因果后果。",
+      "候选支持局限于锚点附近的局部搜索；在 KuaiSim 中低熵、高重复等不可达目标会导致回退，论文承认全局可达性仍未确定。",
+      "闭环实验使用单步预测 P=1 且交互长度 H=10，未评估更长预测深度或更长交互视野下的表现。",
+      "动作条件动力学建模的收益不稳定：随机森林在 held-out policy 上反而变差，说明动作摘要的增益依赖具体预测模型和迁移场景。",
+      "目标状态控制可能被用于引导消费统计分布，论文指出部署需要用户同意、平台治理审查和群体层面危害监控。"
+    ],
+    "method_zh": "UA-TWM 冻结已有序列推荐骨干并取其 Top-K 列表作为锚点；在锚点附近构造候选列表（锚点局部编辑和图语义替换），并用后果模型对每个候选预测效用增益、目标状态增益和失败风险。日志回放中，效用边际用标准化骨干分数差估计，状态边际用候选与前缀目标的 L1 距离差估计，风险头学习候选是否会违反目标增益或效用下限；选择时要求候选通过效用、目标、风险三个门控，并选择通过门控候选中预测目标增益最大的一个，若没有合格候选则返回锚点。闭环控制中，使用岭回归状态-动作动力学模型做单步预测（深度 P=1），根据预测目标分数和即时点击效用估计在十步交互中重复选择并执行列表，观察反馈后更新状态。",
+    "problem_zh": "序列推荐模型只优化下一件物品的排序，但展示的推荐列表会改变后续反馈和用户状态；两个 Recall/NDCG 接近的列表可能带来不同的未来类别分布、重复曝光或兴趣集中度。因此需要一个决策层，在保持现有排序器效用的前提下，依据对候选列表未来后果的估计，进行面向未来状态目标的受约束选择。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.8635000000000002,
+  "id": "arxiv-2609.30711",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-25T02:37:48Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出UA-TWM，一种以效用锚定的世界模型接口，用于在训练好的序列排序器上支持面向未来状态控制的决策。",
+  "targets": [],
+  "tasks": [],
+  "title": "Recommendation World Models for Future-State Control",
+  "url": "https://arxiv.org/abs/2609.30711v1"
+}

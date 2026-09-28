@@ -1,0 +1,102 @@
+{
+  "abstract": "Recommender systems engineer serendipity to foster active exploration and break predictable consumption cycles. The problem with existing offline beyond-accuracy metrics is that they often either isolate historical similarity or global popularity. We aim to design an evaluation metric that examines similarity, popularity, and actual user relevance. To achieve this, we introduce SPADE (Serendipitous Pareto Distance Evaluation). SPADE maps all items into a two-dimensional space to directly calculate a user-specific Pareto frontier of maximally popular and historically similar items. The final serendipity score is then computed by averaging the minimum Euclidean distance from this boundary strictly for the correctly recommended test-set items. Evaluating SPADE across five datasets and five baseline algorithms confirms its effectiveness; our results show that the metric successfully prevents algorithms from exploiting beyond-accuracy measures with irrelevant or non-personalized recommendations, reliably isolating serendipitous discoveries. Recommender systems engineer serendipity to foster active exploration and break predictable consumption cycles. The problem with existing offline beyond-accuracy metrics is that they often either isolate historical similarity or global popularity. We aim to design an evaluation metric that examines similarity, popularity, and actual user relevance. To achieve this, we introduce SPADE (Serendipitous Pareto Distance Evaluation). SPADE maps all items into a two-dimensional space to directly calculate a user-specific Pareto frontier of maximally popular and historically similar items. The final serendipity score is then computed by averaging the minimum Euclidean distance from this boundary strictly for the correctly recommended test-set items. Evaluating SPADE across five datasets and five baseline algorithms confirms its effectiveness; our results show that the metric successfully prevents algorithms from exploiting beyond-accuracy measures with irrelevant or non-personalized recommendations, reliably isolating serendipitous discoveries.",
+  "arxiv_id": "2609.31164",
+  "authors": [
+    "Tobias Vente",
+    "Maarten Peirsman",
+    "Noah Daniëls",
+    "Hannu Toivonen",
+    "Bart Goethals"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SPADE 可作为推荐系统团队的离线评估指标，用于筛选既能保持相关性又能带来惊喜发现的排序或生成模型。",
+      "通过惩罚随机/纯流行度推荐，帮助企业避免只追求点击或精度造成的过滤气泡和用户审美疲劳，支持长期用户留存。",
+      "论文公开了实验代码，降低了落地复现成本，便于在实际推荐管道中接入 SPADE 进行 A/B 测试前的离线筛选。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 SPADE（Serendipitous Pareto Distance Evaluation），一种将历史相似度与全局流行度联合映射到二维空间、并基于用户特定 Pareto 前沿计算惊喜度的离线评估指标。",
+      "SPADE 只对正确预测的测试集项目计算到 Pareto 前沿的最小欧氏距离，从而强制保证相关性并惩罚无意义/非个性化推荐。",
+      "在五个数据集和五个基线算法上验证，证明相比 Novelty、Co-Occurrence、Primitivity，SPADE 能隔离真正的惊喜发现并防止算法利用现有指标。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Section 3. SPADE (Serendipitous Pareto Distance Evaluation)"
+      },
+      {
+        "page": 1,
+        "section": "Section 4. Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "Section 5.2. Cross-Domain Empirical Evaluation"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "EASE",
+        "SLIM",
+        "ItemKNN",
+        "Popularity",
+        "Random"
+      ],
+      "datasets": [
+        "CiteULike",
+        "MIND",
+        "MovieLens-1M",
+        "MovieLens-20M",
+        "Netflix"
+      ],
+      "findings_zh": [
+        "在 MIND 等数据集上，Random 算法 NDCG 近零（如 0.0006），却能在 Primitivity 和 Co-Occurrence 上获得高分；SPADE 给其非常低的分数（如 0.0036），说明 SPADE 能惩罚与相关性无关的随机推荐。",
+        "Popularity 与 Random 基线在全部数据集上取得最低 SPADE 分数，符合真正的惊喜推荐既需相关、又需避开高流行和高相似的定义。",
+        "EASE 在多数数据集上取得较高 NDCG 和 SPADE（如 Netflix 0.127368、ML-1M 0.101459），说明 SPADE 可区分高精度模型中的惊喜推荐。",
+        "用户案例显示，如 Retroactive（User 1874）和 The Way of the Gun（User 2186）等低流行、低相似但相关的测试集物品被 SPADE 给予高惊喜分数。"
+      ],
+      "metrics": [
+        "NDCG",
+        "Primitivity",
+        "Co-Occurrence",
+        "Novelty",
+        "SPADE"
+      ]
+    },
+    "limitations_zh": [
+      "SPADE 要求相似度与流行度不呈正相关；论文指出若使用余弦相似度这类正相关度量，Pareto 前沿会坍缩为单点，距离度量失去意义。",
+      "SPADE 只对测试集中被正确预测的物品计分，因此其相关性判断完全依赖隐式/历史交互，可能无法捕捉未被记录但真实的用户兴趣。",
+      "由于硬件内存限制，MIND、MovieLens-20M 和 Netflix 被下采样至 10,000 用户，且所有数据经过 5-core 过滤，结果可能受数据规模与稀疏度影响。"
+    ],
+    "method_zh": "将每个候选物品表示为（全局流行度，与用户档案的平滑正点互信息相似度）；流行度归一化到[0,1]，相似度采用经验贝叶斯平滑的 PPMI 并做 Min-Max 缩放；构造用户特定 Pareto 前沿：不存在另一个物品同时在流行度和相似度上更优；SPADE 分数为正确推荐（测试集命中物品）到 Pareto 前沿的最小欧氏距离，再在用户和算法层面取平均。",
+    "problem_zh": "现有离线 beyond-accuracy 指标往往只孤立考虑历史相似度或全局流行度，无法同时评估相似度、流行度与真实用户相关性，导致随机或不相关推荐可被误判为高惊喜度。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.8600000000000001,
+  "id": "arxiv-2609.31164",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-25T11:57:53Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出SPADE指标，通过计算用户特定的流行度-相似性Pareto前沿距离来衡量推荐结果的偶然发现性（serendipity），并验证其有效性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SPADE: Escaping the Popularity-Similarity Frontier to Measure Serendipitous Recommendations",
+  "url": "https://arxiv.org/abs/2609.31164v1"
+}

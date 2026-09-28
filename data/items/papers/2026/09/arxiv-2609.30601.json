@@ -1,0 +1,130 @@
+{
+  "abstract": "Modern industrial recommender systems must optimize across competing objectives, balancing semantic relevance with business metrics such as engagement and revenue. While bi-encoders dominate large-scale retrieval due to their efficiency, they collapse these heterogeneous signals into a single static embedding space. This design creates a fundamental limitation: once trained, the retriever cannot adapt to shifting objective priorities at serving time without retraining. Moreover, joint optimization with multi-objective losses often induces interference between objectives, leading to suboptimal trade-offs. We propose Embedding Subspace Partitioning (ESP), a retrieval framework that decomposes the embedding into task-aware subspaces and replaces the single dot product with a weighted sum of per-subspace similarities, whose weights are tunable at serving time. For Transformer bi-encoders, ESP uses the model's native end-of-sequence token as a segment delimiter, with segment-aware attention masking and position encoding resets to guarantee subspace isolation in a single forward pass. Serving is performed via GPU-accelerated exhaustive kNN over one concatenated index, eliminating the need for per-objective Approximate Nearest Neighbor (ANN) infrastructure required by multi-head approaches. We evaluate ESP on an open-source benchmark built from MS MARCO. A single ESP model traces a broad Pareto frontier, consistently outperforming strong multi-task baselines across diverse operating points. In LinkedIn's job matching platform (70M+ weekly users), ESP enabled dynamic retrieval reconfiguration and delivered significant key business metric lifts. Modern industrial recommender systems must optimize across competing objectives, balancing semantic relevance with business metrics such as engagement and revenue. While bi-encoders dominate large-scale retrieval due to their efficiency, they collapse these heterogeneous signals into a single static embedding space. This design creates a fundamental limitation: once trained, the retriever cannot adapt to shifting objective priorities at serving time without retraining. Moreover, joint optimization with multi-objective losses often induces interference between objectives, leading to suboptimal trade-offs. We propose Embedding Subspace Partitioning (ESP), a retrieval framework that decomposes the embedding into task-aware subspaces and replaces the single dot product with a weighted sum of per-subspace similarities, whose weights are tunable at serving time. For Transformer bi-encoders, ESP uses the model's native end-of-sequence token as a segment delimiter, with segment-aware attention masking and position encoding resets to guarantee subspace isolation in a single forward pass. Serving is performed via GPU-accelerated exhaustive kNN over one concatenated index, eliminating the need for per-objective Approximate Nearest Neighbor (ANN) infrastructure required by multi-head approaches. We evaluate ESP on an open-source benchmark built from MS MARCO. A single ESP model traces a broad Pareto frontier, consistently outperforming strong multi-task baselines across diverse operating points. In LinkedIn's job matching platform (70M+ weekly users), ESP enabled dynamic retrieval reconfiguration and delivered significant key business metric lifts.",
+  "arxiv_id": "2609.30601",
+  "authors": [
+    "Shaobo Zhang",
+    "Alice Leung",
+    "Yunxiang Ren",
+    "Ping Liu",
+    "Yuchin Juan",
+    "Qianqi Shen",
+    "Benjamin Le",
+    "Jianqiang Shen",
+    "Chengming Jiang",
+    "Ko-Cheng Wang",
+    "Vidya Krishnamurthy",
+    "Caleb Johnson",
+    "Fedor Borisyuk",
+    "Luke Simon",
+    "Jingwei Wu",
+    "Wenjing Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在LinkedIn求职匹配平台（70M+周活用户）部署DNN-ESP后，仅调整serving权重即实现+4.0% revenue、+3.95% job applications、-8.95% no-fit rate，且同一模型覆盖多个生产运行点无需重训。",
+      "serving-time knob使产品/业务团队能随优先级变化快速重新平衡目标，避免因目标权重调整触发重新训练、重新索引和基础设施变更。",
+      "相比multi-head/多目标多索引方案，ESP只需一个拼接索引加exhaustive KNN，降低多目标检索的基础设施复杂度和成本。",
+      "方法可迁移到电商搜索（语义 vs 品牌/属性匹配）和信息流推荐（相关性 vs 新鲜度/多样性）等存在多目标权衡的工业推荐场景。"
+    ],
+    "business_transferability": 0.9,
+    "contributions_zh": [
+      "提出Embedding Subspace Partitioning (ESP)，将embedding分解为k个正交任务子空间，并以serving时可调权重的子空间点积加权和作为检索评分。",
+      "给出共享embedding多目标容量下界（Theorem 3）和划分构造的上界（Theorem 4），证明分区结构可消除冲突造成的容量损失；并给出按有效秩分配维度的方法（Theorem 5）。",
+      "提出Transformer bi-encoder的EOS分隔段、segment-aware attention masking、position-ID reset实现，以及DNN用的per-objective projection heads实现，无需新增Transformer参数即可保证子空间隔离。",
+      "通过GPU加速exhaustive KNN在单个拼接索引上serving，避免multi-head方法为每个目标维护独立ANN索引的基础设施开销。",
+      "在开源MS MARCO多目标基准和LinkedIn生产系统验证：单个ESP模型即可通过serving权重扫出Pareto前沿，并取得显著业务提升。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract / Section 1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Section 3 Geometric Analysis of Multi-Objective Embedding"
+      },
+      {
+        "page": 1,
+        "section": "Section 4 Method: Embedding Subspace Partitioning"
+      },
+      {
+        "page": 1,
+        "section": "Section 5 Open-Source Experiments"
+      },
+      {
+        "page": 1,
+        "section": "Section 6 Production Validation at LinkedIn"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Baseline (no entity)",
+        "Entity in prompt",
+        "MTMH（预训练模拟：per-objective prompts + merge）",
+        "ColBERT",
+        "MTSH（多任务单头，不同alpha_e）",
+        "MTSH + PCGrad",
+        "JRC"
+      ],
+      "datasets": [
+        "MS MARCO多目标基准（含硬实体负样本：13,951训练/2,093评估样例，1,359条评估查询，约39K passage语料）",
+        "BEIR（NFCorpus、SciFact、FiQA）",
+        "LinkedIn求职匹配生产数据（70M+周活跃用户；30天135M点击/12M申请/3M保存；25K人工标注生成fitness软标签）"
+      ],
+      "findings_zh": [
+        "在预训练0.6B模型上测得语义与实体排序目标Kendall τ=0.34，对应冲突ε≈0.66；Theorem 3预测共享embedding有效秩上限约616，即约40%容量损失。",
+        "预训练检索对比中，ESP以1个向量/文档达到Sem NDCG .843、Entity Recall .932，接近ColBERT（.849/.935），而ColBERT需每文档O(L)个token向量和MaxSim；MTMH的n/2合并会同时损害两个指标。",
+        "训练对比中，MTSH加大实体权重会使Sem NDCG从.924降到.823，PCGrad只能缓解而不能消除；ESP在w_e=0.8达到Sem NDCG .900、Entity Recall .999，在匹配的entity recall下比最好MTSH高+2.5pp（p<0.001）。",
+        "单个ESP模型通过改变serving权重w_e即可描出Pareto前沿，而MTSH每个点需重训；由于子空间隔离，w_e在0.3–0.8时语义NDCG稳定在.899–.900，到w_e=1.0才降至.583。",
+        "维度消融显示实体匹配只需d_ent=32（H=1024的3%）即达100%实体准确率，验证辅助业务目标可用紧凑子空间。",
+        "扩展到k=3（语义+实体+长度偏好）时，权重(0.5,0.3,0.2)达到Sem .843、Ent .957、Len .912；相对k=2以-1.8pp语义/-2.8pp实体换+5.4pp长度匹配，无灾难性干扰。",
+        "BEIR单目标测试（NFCorpus、SciFact、FiQA）中，ESP相对基线≤0.3pp变化，无显著语义回归。",
+        "生产离线对比中，MTSH α=0.99损失28.24% in-batch recall和21.19% offline KNN recall；ESP w_rev=0.99仅损失0.54%/-0.17%，约50倍改善；JRC虽保recall但MSE惩罚达+5307%。",
+        "生产k=3新增fitness子空间，AUC 0.938且engagement/revenue保持k=2水平；7天在线A/B在w=0.3下Revenue +4.01%、Job Application +3.95%、Click Rate +0.92%，选点post-ramp no-fit率-8.95%；同一模型通过weight sweep覆盖+0.91%至+7.36% revenue的多个生产运行点。"
+      ],
+      "metrics": [
+        "Semantic NDCG@10",
+        "Entity Recall@10",
+        "Length Match@10",
+        "MSE diff (%)",
+        "In-batch recall@10 diff (%)",
+        "Offline-KNN @6400 diff (%)",
+        "Fitness AUC",
+        "Revenue / Job Application / Click Rate / No-fit rate"
+      ]
+    },
+    "limitations_zh": [
+      "ESP依赖上游实体/属性标注；若查询无标签属性则退化为标准单embedding检索。",
+      "ESP的加权点积与IVFPQ等partition-based ANN不兼容，需依赖GPU加速exhaustive KNN，这是基础设施层面的前置条件。",
+      "Kendall τ代理与真实子空间冲突并非严格相等，奇异值差异会造成排名不一致；Theorem 5的维度分配假设均匀谱衰减。",
+      "开源实验中的辅助目标（实体、长度）是低分辨率信号，高分辨率、高冲突的多目标场景仍需进一步验证。",
+      "预训练MTMH基线使用per-objective prompt模拟而非真训练头；trained ColBERT因存储成本未纳入训练对比；线上结果主要由DNN-ESP变体贡献。"
+    ],
+    "method_zh": "ESP将完整embedding组织为e=[e1;...;ek]，各子向量独立L2归一化；检索得分S(q,d)=Σ_i w_i·<e_i,e_i'>，权重{w_i}在serving时于请求端设置，不重新训练。每个子空间使用各自目标损失训练，输出端梯度互不干扰。Transformer实现复用原生EOS作段分隔，属性段放在主文本前，配合segment-aware因果attention mask和position-id reset（RoPE校正），取各段EOS hidden state作为子embedding，可按Theorem 5截断维度；DNN实现则使用共享trunk上的k个projection heads。",
+    "problem_zh": "现代工业推荐/检索系统需同时优化语义相关性、互动、收入等多重且常互相冲突的目标；现有bi-encoder将多目标信号压缩进单一静态embedding，训练后无法在serving时调节目标优先级，加权多目标损失和梯度手术也无法消除目标间的表征干扰，形成'无旋钮'问题。论文从几何容量角度论证单一共享embedding在多冲突目标下存在容量损失，需要架构级的任务子空间划分。",
+    "technical_depth": 0.9
+  },
+  "doi": "10.1145/3773078.3831892",
+  "final_score": 0.9450000000000001,
+  "id": "arxiv-2609.30601",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-24T22:30:49Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出嵌入子空间划分（ESP）框架，将双编码器嵌入分解为任务感知子空间并支持在线调整多目标召回权重，是面向工业推荐检索的研究工作。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Embedding Subspace Partitioning for Dynamic Multi-Objective Retrieval",
+  "url": "https://arxiv.org/abs/2609.30601v1"
+}

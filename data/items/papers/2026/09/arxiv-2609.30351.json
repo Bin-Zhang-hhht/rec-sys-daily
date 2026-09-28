@@ -1,0 +1,135 @@
+{
+  "abstract": "Context: Code recommender systems (CRSs) are specialized software systems operating on source artifacts to provide automatically generated recommendations to software developers in all phases of development. The goal is to improve software quality while enhancing developers' efficiency, effectiveness, and experience. Problem: Despite the growing importance, little is known about the state of evaluating these systems in a human-centric manner. Research Approach: We conducted a systematic literature review to identify and to synthesize primary studies evaluating CRSs (2017-2024). Ninety-two publications were included and subjected to a systematic content analysis. Results: Our study confirms that Offline Evaluations are the most common, system-centric evaluation type, whereas user-centric evaluations (Online Evaluations, User Studies) are rarely reported. Evaluations are concentrated on the Software Construction phase. Most studies explicitly report threats to validity, with External threats to study Materials being the most common. Conclusion: The state of evaluations on CRSs is narrowly focused on single or a few system qualities. There is an imbalance between a majority of system-centric evaluations and a minority of user-centric evaluations. Combined, multi-type evaluations are rarely reported. Context: Code recommender systems (CRSs) are specialized software systems operating on source artifacts to provide automatically generated recommendations to software developers in all phases of development. The goal is to improve software quality while enhancing developers' efficiency, effectiveness, and experience. Problem: Despite the growing importance, little is known about the state of evaluating these systems in a human-centric manner. Research Approach: We conducted a systematic literature review to identify and to synthesize primary studies evaluating CRSs (2017-2024). Ninety-two publications were included and subjected to a systematic content analysis. Results: Our study confirms that Offline Evaluations are the most common, system-centric evaluation type, whereas user-centric evaluations (Online Evaluations, User Studies) are rarely reported. Evaluations are concentrated on the Software Construction phase. Most studies explicitly report threats to validity, with External threats to study Materials being the most common. Conclusion: The state of evaluations on CRSs is narrowly focused on single or a few system qualities. There is an imbalance between a majority of system-centric evaluations and a minority of user-centric evaluations. Combined, multi-type evaluations are rarely reported.",
+  "arxiv_id": "2609.30351",
+  "authors": [
+    "Daniel Borst",
+    "Stefan Sobernig"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "当前证据以系统中心离线评估为主（70%），且用户中心评估占比在下降；企业在选型或采购代码推荐工具时，不应只依据离线benchmark（如HumanEval、BLEU等）做决策，应要求并审阅用户研究或在线评估证据。",
+      "用户中心或混合评估往往覆盖更多质量维度（如功能适用性、可用性、可维护性、可接受性），能更全面反映开发者真实体验；企业可结合推荐接受率、任务完成时间和主观问卷开展内部试点评估。",
+      "LLM类CRS存在因非确定性导致的可复制性威胁，企业在部署和审计此类工具时应关注评估的可复现性，并建立相应评估与验收指引。",
+      "外部威胁中最常见的是材料相关威胁（工具、软件、数据集泛化性有限），提示跨语言、跨领域和跨开发场景的结论可能无法直接迁移，企业需在自身代码库与流程中验证。",
+      "提供完整复制包可降低用户中心评估的搭建成本，有助于企业和研究者更均衡地评估CRS，减少系统中心与用户中心评估之间的失衡。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "对2017—2024年间CRS评估研究开展系统文献综述（SLR）：基于4,126篇初始文献，经选择与质量评估后纳入405篇，并对92篇将评估作为主要贡献的HR研究进行系统内容分析。",
+      "量化了四类评估类型的流行度：离线评估70.0%、人参与离线评估17.3%、用户研究11.1%、在线评估1.6%；并通过logistic回归发现用户中心评估类型占比随时间显著下降。",
+      "刻画了评估范围：评估集中在软件构建阶段（61.6%）和Create操作（53.8%），并报告了编程/建模语言、领域无关/特定、文本/图形表示等维度的分布。",
+      "汇总了393个独特度量（556次出现），识别出最常使用的测量目标（功能适用性、可用性、可维护性）和常用度量（BLEU、pass@k、精确率、召回率等），并指出NLP token匹配度量作为代码质量代理的局限。",
+      "综合了威胁效度报告状况：85.9%的研究报告了威胁效度，外部威胁最常见；还识别出LLM类CRS研究特有的可复制性威胁。"
+    ],
+    "evidence_quality": 0.84,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2.1 Evaluating Code Recommenders"
+      },
+      {
+        "page": 3,
+        "section": "3 Review Design"
+      },
+      {
+        "page": 4,
+        "section": "3.4 Main Search"
+      },
+      {
+        "page": 5,
+        "section": "4.1 RQ1"
+      },
+      {
+        "page": 6,
+        "section": "4.2 RQ2"
+      },
+      {
+        "page": 7,
+        "section": "4.3 RQ3"
+      },
+      {
+        "page": 8,
+        "section": "4.4 RQ4"
+      },
+      {
+        "page": 9,
+        "section": "5 Threats to Validity"
+      },
+      {
+        "page": 10,
+        "section": "6 Discussion"
+      },
+      {
+        "page": 11,
+        "section": "7 Related Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "作为系统文献综述，无直接算法/模型基线；对比参照包括Bauer等（2024）通用推荐系统评估综述、Almonte等（2022）MDE推荐系统映射研究、Wyrich等（2024）代码理解实验系统映射研究",
+        "Kitchenham等、Zhang等、Wohlin等的SLR方法指南作为方法学基线"
+      ],
+      "datasets": [
+        "4,126篇初始检索出版物（其中主检索4,101篇，另含准金标准补充）",
+        "去重并筛选后形成的405篇纳入文献语料（N1=405，用于RQ1）",
+        "92篇HR主要研究子集（N2=92，用于RQ2-RQ4）",
+        "25篇准金标准（QGS）出版物语料"
+      ],
+      "findings_zh": [
+        "RQ1：在497个评估类型中，离线评估占70.0%，人参与离线评估17.3%，用户研究11.1%，在线评估1.6%；94篇研究报告了两种评估类型，最常见的组合是离线评估+人参与离线评估（72例，76.6%）。logistic回归显示用户中心评估的几率每年下降11.8%（OR=0.882），完全用户中心评估每年下降14.6%（OR=0.854）。",
+        "RQ2：125个软件工程领域代码中，Sw. Construction占61.6%，Sw. Maintenance占16.8%，Sw. Testing占13.6%；130个CRS操作代码中，Create占53.8%，Complete占18.5%，Repair占11.5%。评估主要针对编程语言（94.2%）、领域无关语言（90.4%）和文本表示（96.2%）。",
+        "RQ3：393个独特度量/556次出现中，62.9%由作者定义，27.2%来自其他文献；最常见的测量目标是功能适用性（50.7%）和可用性（17.4%）；测量对象以推荐本身（43.9%）和开发者（33.3%）为主。",
+        "RQ4：92篇中79篇（85.9%）报告威胁效度；威胁类型中外部效度占38.8%、内部效度32.4%、构念效度19.4%、结论效度7.2%；13篇未报告威胁的研究中有11篇为会议论文。",
+        "时间趋势：纳入出版物从2017年10篇增至2024年157篇，增长主要由系统中心评估驱动；75%的后续出版物沿用前作评估类型，组合评估最多只覆盖两种评估类型。",
+        "研究工件可用比例从2017年27%增至2024年72%；用户中心评估的工件可用比例（59%）低于系统中心（68%）和组合评估（71%）。"
+      ],
+      "metrics": [
+        "评估类型流行度：离线评估70.0%、人参与离线评估17.3%、用户研究11.1%、在线评估1.6%",
+        "高使用频次度量：BLEU（15项研究）、pass@k（11）、精确率（10）、召回率（9）、任务完成时间（9）、准确率（8）、MRR（8）、接受率（6）、正确性（6）、ROUGE（6）、METEOR（6）、CodeBLEU（5）、可感知可读性（5）",
+        "测量目标分布：功能适用性50.7%、可用性17.4%、可维护性10.8%、可接受性6.3%、安全与保密4.5%、性能效率4.1%",
+        "方法学一致性指标：C9筛选一致性p_a=82.6%，C10 Cohen加权kappa=0.71，质量评估p_a=50.0%，双重编码Kupper-Hafner KH=0.62"
+      ]
+    },
+    "limitations_zh": [
+      "检索限于同行评审、英文、全文可访问且2017—2024年间发表的文献，未纳入灰色文献，可能漏检相关研究。",
+      "RQ1与RQ2-RQ4使用不同规模语料（N1=405 vs N2=92），相关性等级依赖评审者主观判断，N2相关评级的kappa=0.53较低，存在误分类风险。",
+      "数据抽取由第一作者独立完成，仅27%由第二作者双重编码；D2度量抽取存在文献记录异质性和编码子类重叠导致的差异。",
+      "logistic回归假设各年份观测独立，但同一研究团队或刊物可能具有相关评估实践；时间范围窄且2022—2024年观测高度集中，限制趋势外推。",
+      "作者自身指出，部分主要研究存在威胁效度分类误用（例如混淆构念效度与内部效度、构念效度与外部效度），可能影响分析。",
+      "CRS领域缺乏广泛认可的评估设计框架，作者认为这限制了对评估实践进行更标准化比较和引导。"
+    ],
+    "method_zh": "遵循Kitchenham等、Zhang等和Wohlin的SLR指南；使用PICOC方法形成研究问题，以25篇准金标准文献迭代构建含27个检索词的检索串；在ACM Digital Library、IEEE Xplore、Scopus和SpringerLink执行检索（2024年11月4日）；对去重后的3,004篇文献应用8项元数据标准和2项内容标准，由多位评审者独立筛选并计算评分者间一致性；对405篇纳入文献回答RQ1，对92篇HR文献按六维编码框架（D1-D6）进行以演绎为主、允许归纳的混合内容分析，并对25/92篇进行独立双重编码与冲突解决。",
+    "problem_zh": "尽管代码推荐系统（CRS）日益重要，但学界对这类系统如何被评估、尤其是以人为中心的评估状况知之甚少。已有综述要么覆盖通用推荐系统，要么局限于MDE、LLM代码生成等特定子类型，缺少独立于底层推荐方法和技术、专门聚焦CRS评估实践的系统综述。",
+    "technical_depth": 0.72
+  },
+  "doi": null,
+  "final_score": 0.8575,
+  "id": "arxiv-2609.30351",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-28T18:59:53.154028Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-24T15:20:29Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文系统综述了2017至2024年间代码推荐系统的评估研究现状，发现以离线系统中心评估为主，属于推荐系统研究内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Evaluating Code Recommender Systems: A Review",
+  "url": "https://arxiv.org/abs/2609.30351v1"
+}
