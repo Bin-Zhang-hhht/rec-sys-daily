@@ -1,0 +1,62 @@
+{
+  "abstract": "In this work, we consider algorithmic harms that may arise as generative models are incorporated into machine learning platforms. We argue that existing harm taxonomies and threat models require extension to (1) address novel causal drivers of well-studied representational and quality-of-service harms; and (2) anticipate and mitigate endogenous harms, such as sanitization, which may arise when system inputs are misaligned with the system designer's objectives, or the generative model's inductive priors. To this end, we introduce an expanded taxonomy of algorithmic harms associated with the use of generative models in non-conversational recommendation systems. In addition, we offer a causal analysis of how problematic subsets of the (input, output) joint distribution can arise, in an effort to inform harms detection and mitigation efforts. In this work, we consider algorithmic harms that may arise as generative models are incorporated into machine learning platforms. We argue that existing harm taxonomies and threat models require extension to (1) address novel causal drivers of well-studied representational and quality-of-service harms; and (2) anticipate and mitigate endogenous harms, such as sanitization, which may arise when system inputs are misaligned with the system designer's objectives, or the generative model's inductive priors. To this end, we introduce an expanded taxonomy of algorithmic harms associated with the use of generative models in non-conversational recommendation systems. In addition, we offer a causal analysis of how problematic subsets of the (input, output) joint distribution can arise, in an effort to inform harms detection and mitigation efforts.",
+  "arxiv_id": "2609.33073",
+  "authors": [
+    "Christine Herlihy",
+    "Xumei Xi",
+    "Shloka Desai",
+    "Kevin Bannerman Hutchful",
+    "Pedro Silva"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "企业在推荐系统中引入生成模型时，需要将伤害治理范围从代表性伤害和服务质量伤害扩展到内生伤害（如 sanitization）",
+      "系统输入与设计目标或模型归纳先验不一致可能成为业务风险来源，需要在检测与缓解机制中纳入因果分析"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出针对生成模型在非对话式推荐系统中使用的扩展算法伤害分类法",
+      "论证现有伤害分类与威胁模型需扩展，以涵盖代表性伤害和服务质量伤害的新因果驱动因素",
+      "对（输入，输出）联合分布中问题子集的产生原因进行因果分析，以辅助伤害检测与缓解"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [],
+      "metrics": []
+    },
+    "limitations_zh": [],
+    "method_zh": "采用概念性论证与分类学方法：先指出现有分类法的不足，再引入扩展的伤害分类法，并提供因果分析框架来研究（输入，输出）联合分布中问题子集的成因。",
+    "problem_zh": "生成模型被纳入机器学习平台及非对话式推荐系统时，可能产生算法伤害；现有伤害分类法与威胁模型不足以覆盖新的因果驱动因素，也无法预判因系统输入与设计者目标或生成模型归纳先验错配而产生的内生伤害（如 sanitization）。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.7250000000000001,
+  "id": "arxiv-2609.33073",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-27T01:08:41Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出生成模型增强推荐系统中算法危害的扩展分类与因果分析，属于推荐系统安全与评测研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Algorithmic Harms Associated with Generative Model-Augmented Recommendation Systems",
+  "url": "https://arxiv.org/abs/2609.33073v1"
+}

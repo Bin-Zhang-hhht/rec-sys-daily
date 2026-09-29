@@ -1,0 +1,115 @@
+{
+  "abstract": "Recommender systems rely heavily on heterogeneous behavioral feedback to infer user preference. Although abundant, these signals are imperfect measurements: the same observed behavior can arise from different underlying states, such as genuine enjoyment, passive consumption, or inattention. The challenge is especially acute in short-form video, where watch-based signals are strongly affected by measurement confounders such as video duration - the same watch time can imply different levels of preference for videos of different lengths, while ratio-based metrics can systematically favor short videos. As a result, optimizing raw engagement can amplify measurement artifacts rather than improving user value. We propose a Factorized Latent Value Model (FLVM) for measuring user preference from heterogeneous behavioral feedback. The model treats observed behaviors as noisy measurements of a low-dimensional, factorized latent value state and uses structured output heads to model heterogeneous feedback signals. A restricted baseline path captures predictable variation from measurement-confounding features such as video duration, user propensity, and session context, while a routed latent path estimates preference-relevant value advantage. The resulting latent value score can be integrated into an existing recommender system as a ranking feature or ranking score. On YouTube Shorts, a major short-form video platform, this model improves offline metrics and lifts a primary viewer enjoyment metric by 2.67% in online A/B tests. Recommender systems rely heavily on heterogeneous behavioral feedback to infer user preference. Although abundant, these signals are imperfect measurements: the same observed behavior can arise from different underlying states, such as genuine enjoyment, passive consumption, or inattention. The challenge is especially acute in short-form video, where watch-based signals are strongly affected by measurement confounders such as video duration - the same watch time can imply different levels of preference for videos of different lengths, while ratio-based metrics can systematically favor short videos. As a result, optimizing raw engagement can amplify measurement artifacts rather than improving user value. We propose a Factorized Latent Value Model (FLVM) for measuring user preference from heterogeneous behavioral feedback. The model treats observed behaviors as noisy measurements of a low-dimensional, factorized latent value state and uses structured output heads to model heterogeneous feedback signals. A restricted baseline path captures predictable variation from measurement-confounding features such as video duration, user propensity, and session context, while a routed latent path estimates preference-relevant value advantage. The resulting latent value score can be integrated into an existing recommender system as a ranking feature or ranking score. On YouTube Shorts, a major short-form video platform, this model improves offline metrics and lifts a primary viewer enjoyment metric by 2.67% in online A/B tests.",
+  "arxiv_id": "2609.32839",
+  "authors": [
+    "Shuo Chang",
+    "Yueqi Wang",
+    "Zihuan Diao",
+    "Ali Montazer",
+    "Jiangguo Zhang",
+    "Joyneel Misra",
+    "Dapeng Hong",
+    "Tomer Margolin",
+    "Sourabh Bansod",
+    "Ningren Han"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可直接替换/融入现有推荐系统预排序阶段：FLVM的潜在值分数作为排序公式的主要输入，替代现有多任务预评分器。",
+      "在YouTube Shorts生产环境中提升核心观众愉悦度2.67%且护栏指标中性，说明可兼顾体验指标与业务安全。",
+      "通过分离时长/用户倾向/会话上下文等混杂因素，可减少短视频排序中对短内容启发式的依赖，更利于长视频和高质量内容被公平推荐。",
+      "冷启动切片持续>2%的增益表明该方法有助于新内容快速进入主流分发，降低对历史互动数据的过拟合。",
+      "对于同样拥有丰富异构行为反馈（观看、完播、点赞、不喜欢、调查）的短视频/沉浸式feed产品，该测量层思路具有较高的迁移参考价值；但需要多信号标签和线上实验基建支撑。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "将推荐中的偏好学习重新定义为测量问题：异构行为信号是对潜在用户偏好的有噪声、有混杂的观测。",
+      "提出因子化潜在价值模型（FLVM）：在测量混杂特征上的受限基线路径 + 稀疏路由的潜在解码器，用来从异构反馈中估计偏好残差。",
+      "在短视频推荐系统中实例化，使用时长、会话上下文、用户倾向作为基线特征，观看、互动、效价和满意度类标签作为反馈头。",
+      "在 YouTube Shorts 上验证：离线指标改善，在线主要观看者愉悦度提升 2.67%，并在新上传内容（冷启动切片）上保持一致增益。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Factorized Latent Value Model"
+      },
+      {
+        "page": 3,
+        "section": "3.5 Training Objective"
+      },
+      {
+        "page": 4,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 5,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "生产环境现有多任务预排序模型（multi-task pre-scoring model）"
+      ],
+      "datasets": [
+        "YouTube Shorts 生产数据（十亿级活跃用户平台，离线+在线实验）"
+      ],
+      "findings_zh": [
+        "离线对比生产多任务基线：FLVM 将 item watch time RMSE 从24.47降到23.35，Like PR-AUC从0.2522提升到0.3190，Dislike PR-AUC从0.0038提升到0.0054，但Completion PR-AUC整体从0.6898略降至0.6722。",
+        "按时长分层分析：FLVM在长视频（>60s）全面优于基线，例如Completion PR-AUC平均提高0.0032；在短视频（<60s）平均低0.0053，说明其避免利用短视频启发式、更贴近真实偏好。",
+        "路径分解显示Full模型优于单独Baseline或单独Latent；对Like存在显著协同效应，说明受限基线剥离用户倾向等混杂后，潜在路径能恢复偏好相关信号。",
+        "在线A/B实验14天，主要观众愉悦度指标相对生产基线提升2.67%，护栏指标中性。",
+        "冷启动切片上，新视频获得持续>2%的早期互动/进入主流分发提升，说明模型对历史上偏置的反馈更鲁棒。",
+        "隐因子语义分离稳定：喜欢和不喜欢样本在 z_s 上相距1.7-2.0个标准差；多次独立训练中因子符号和顺序一致，A/A测试指标中性。"
+      ],
+      "metrics": [
+        "Item watch time RMSE（越低越好）",
+        "Completion PR-AUC",
+        "Like PR-AUC",
+        "Dislike PR-AUC",
+        "Skip PR-AUC（跨系统比较中因标签定义不同而省略）",
+        "在线主要观众愉悦度指标",
+        "冷启动新视频吸引早期互动的提升（>2%）"
+      ]
+    },
+    "limitations_zh": [
+      "论文报告了若干权衡：Completion PR-AUC整体略有下降；FLVM在短视频（<60s）上的平均分低于生产基线，改善主要集中在长视频。",
+      "Skip未纳入跨系统比较，因为两个系统对skip标签定义不同，无法直接比较。",
+      "论文主要报告聚合/分层离线指标和一次在线A/B，未提供完整超参数扫描、更细分的用户群结果或长期指标。",
+      "模型依赖生产环境中的多种异构反馈标签和特定架构设计，论文未给出面向无此类信号场景的通用性证据。"
+    ],
+    "method_zh": "FLVM将观测行为视为潜在价值 z 的有噪声测量。编码器把服务时特征 x 映射为对角高斯 q_phi(z|x)，并将 z 分解为消费(z_p)、主动互动(z_a)、效价(z_s)三个因子。每个反馈任务 k 有受限基线路径 b_k(x_b)（x_b为时长/用户倾向/会话上下文等混杂特征）和潜在路径 gamma_k^+ h_k(m_k ⊙ z)，最终logit为 ell_k = sg(ell_k^b)+delta_k，通过stop-gradient和辅助基线损失迫使潜在因子只编码基线无法解释的偏好残差。硬稀疏路由掩码 m_k 把每个解码器连接到语义相关的因子。训练目标为主反馈CE损失 + 基线锚定CE损失 + beta KL正则。服务时用 sigma(z_s) 与 softplus(z_p) 标量化得到排序分数，z_a仅作为训练辅助构造。",
+    "problem_zh": "短视频推荐中，观察到的行为（观看时长、完播、点赞等）只是用户潜在偏好的有噪声测量：同一行为可能源于真正喜欢、被动消费或不专注；观看时长受视频时长影响，完播率偏向短视频，显式反馈稀疏且用户依赖。论文称此为“测量差距”（measurement gap），并指出直接优化原始互动会放大测量伪影而非提升用户价值。",
+    "technical_depth": 0.88
+  },
+  "doi": "10.1145/3773078.3831923",
+  "final_score": 0.917,
+  "id": "arxiv-2609.32839",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-26T18:11:20Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "FLVM 通过分解潜在价值模型从异质行为反馈中估计短视频用户偏好，并将潜在价值分数用于推荐排序以提升用户体验。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Mend the Measurement Gap: Latent User Preference Modeling for Short-Form Video Recommendation",
+  "url": "https://arxiv.org/abs/2609.32839v1"
+}

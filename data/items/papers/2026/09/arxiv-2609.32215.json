@@ -1,0 +1,127 @@
+{
+  "abstract": "Transformers have redefined sequential recommendation by effectively modeling dynamic user behaviors and long-range dependencies. However, they remain inherently inefficient: standard architectures operate at a fixed rate, allocating comparable computation to every item in a user's history regardless of its information content. This leads to prohibitive computational overhead on long sequences and increased sensitivity to behavioral noise. To address this, practitioners often resort to lossy sequence compression, staged modeling, or truncation. This limits the model's ability to leverage the full context of long histories during inference. Inspired by the recent success of Byte Latent Transformer, we propose DP-Rec, a dynamic latent patching architecture for recommendation. DP-Rec shifts from item-level modeling to patch-level modeling by segmenting interaction sequences using contrastive entropy surprise to identify informative behavioral boundaries. A lightweight patch encoder compresses these temporally contextualized segments into a reduced set of dynamic latent behavior vectors, which are then processed by a larger latent transformer and decoded for next-item prediction. Extensive experiments show that, under constrained computational budgets, DP-Rec scales effectively to long sequences and achieves a superior efficiency-accuracy trade-off over both non-compressed and fixed-size compression baselines. Transformers have redefined sequential recommendation by effectively modeling dynamic user behaviors and long-range dependencies. However, they remain inherently inefficient: standard architectures operate at a fixed rate, allocating comparable computation to every item in a user's history regardless of its information content. This leads to prohibitive computational overhead on long sequences and increased sensitivity to behavioral noise. To address this, practitioners often resort to lossy sequence compression, staged modeling, or truncation. This limits the model's ability to leverage the full context of long histories during inference. Inspired by the recent success of Byte Latent Transformer, we propose DP-Rec, a dynamic latent patching architecture for recommendation. DP-Rec shifts from item-level modeling to patch-level modeling by segmenting interaction sequences using contrastive entropy surprise to identify informative behavioral boundaries. A lightweight patch encoder compresses these temporally contextualized segments into a reduced set of dynamic latent behavior vectors, which are then processed by a larger latent transformer and decoded for next-item prediction. Extensive experiments show that, under constrained computational budgets, DP-Rec scales effectively to long sequences and achieves a superior efficiency-accuracy trade-off over both non-compressed and fixed-size compression baselines.",
+  "arxiv_id": "2609.32215",
+  "authors": [
+    "Dwipam Katariya",
+    "Thomas Caputo",
+    "Akshat Shreemali",
+    "Juan Manuel Origgi",
+    "Nikita Seleznev",
+    "Pranab Mohanty",
+    "Kalanand Mishra",
+    "Nam Nguyen",
+    "James Montgomery"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "DP-Rec允许在相同推理预算下处理更长用户行为序列，可在在线推荐场景中降低每次展示的推理成本，或在不增加成本的情况下提升个性化质量。",
+      "动态压缩机制可推广到点击率预测、用户生命周期建模、广告定向等长行为序列任务，帮助工业系统摆脱固定截断带来的信息损失。",
+      "在等精度条件下显著减少FLOPs，有助于降低大规模推荐服务的基础设施开销，或为更大模型和更长上下文释放算力。",
+      "对高异质性、稀疏多样的MovieLens类行为历史收益更大，说明在非高频、长周期用户行为场景中尤其有部署价值。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "首次将动态潜在分块（dynamic latent patching）引入序列推荐，提出DP-Rec，在同等推理FLOPs预算下取得更优的精度-效率权衡。",
+      "提出对比熵惊奇（Contrastive Entropy Surprise）作为全词表softmax熵的轻量代理，用于在百万级物品词表下识别行为边界，实现动态、可变长分块。",
+      "将时间信息作为一等特征纳入分块机制，通过Time-RoPE对绝对时间戳建模，使边界检测、局部编码和潜在Transformer具备连续的时间感知能力。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 DP-Rec"
+      },
+      {
+        "page": 2,
+        "section": "2.2 Behavioral Boundary Detection"
+      },
+      {
+        "page": 5,
+        "section": "3.6 Results"
+      },
+      {
+        "page": 5,
+        "section": "3.7 Model Efficiency"
+      },
+      {
+        "page": 5,
+        "section": "3.8 Ablations"
+      },
+      {
+        "page": 6,
+        "section": "3.9 Sensitivity to Target Patch Budget"
+      },
+      {
+        "page": 6,
+        "section": "5 Limitations and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "HSTU",
+        "LONGER"
+      ],
+      "datasets": [
+        "KuaiRand",
+        "ML-1M",
+        "ML-10M-L"
+      ],
+      "findings_zh": [
+        "在与最优验证SASRec匹配的固定FLOPs预算下，DP-Rec在所有数据集和指标上均为最优；相比最强基线，NDCG@10在ML-10M-L上提升+21.1%，在KuaiRand上提升+11.0%，在ML-1M上相比LONGER提升+24.8%。",
+        "DP-Rec可在相同成本下处理4-5倍更长的用户历史，从而恢复截断方法丢弃的信号；在ML-1M上达到NDCG@10=0.22时，所需FLOPs约为SASRec/HSTU的1/7。",
+        "帕累托分析显示DP-Rec持续定义或扩展效率前沿；在KuaiRand约10^11.5 FLOPs时，NDCG@10约0.45，领先于LONGER等基线。",
+        "分块方案消融显示，对比熵边界（CE）一致优于固定等长分块和随机分块；在ML-1M、ML-10M-L、KuaiRand上分别比固定分块高+4.2%、+2.4%、+2.7%。",
+        "架构消融显示，移除Time-RoPE在ML-1M上导致NDCG@10下降-9.83%；局部窗口w=8时显著退化，w=32提供最佳效率权衡。",
+        "DP-Rec对极端压缩具有韧性：在M=2时仍保留ML-1M约94%、ML-10M-L约98%、KuaiRand约96%的峰值NDCG@10。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "NDCG@20",
+        "HR@5",
+        "HR@10",
+        "HR@20"
+      ]
+    },
+    "limitations_zh": [
+      "理论复杂度与实际吞吐量之间存在差距，patch聚合内核需要底层优化才能与高度优化的固定长度服务系统相比。",
+      "边界检测器是预训练后冻结的，尚未与推荐目标联合学习分块边界。",
+      "受硬件限制，未研究N>500的超长序列；更丰富的多通道行为信号可能提供更具信息量的边界。",
+      "主要依赖三个公开数据集和采样评估，缺少在线A/B或工业部署验证。"
+    ],
+    "method_zh": "DP-Rec包含四个阶段：首先用轻量级行为边界检测器（滑动窗口注意力+Time-RoPE）计算对比熵惊奇分数，并通过自适应全局阈值算法将交互序列划分为M个可变长行为块；随后时间局部编码器通过池化和patch内交叉注意力将每个块压缩为潜在表示；时间潜在Transformer在块级进行因果建模；最后局部解码器将块表示投影回事件级状态，用于下一物品预测和采样式sigmoid损失训练。",
+    "problem_zh": "基于Transformer的序列推荐模型在用户行为序列上计算复杂度呈二次增长，且固定长度压缩或截断会丢失长历史中的有效信息；现有方法难以根据用户行为的信息密度进行自适应压缩，导致效率与精度难以兼顾。",
+    "technical_depth": 0.85
+  },
+  "doi": "10.1145/3773078.3831823",
+  "final_score": 0.881,
+  "id": "arxiv-2609.32215",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-26T04:21:40Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出 DP-Rec，一种通过动态潜在分块提升长序列顺序推荐的效率与准确率的方法，属于序列推荐研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "DP-Rec: Towards Dynamic Patching for Efficient Long-Sequence Recommendation",
+  "url": "https://arxiv.org/abs/2609.32215v1"
+}

@@ -1,0 +1,141 @@
+{
+  "abstract": "Generative recommenders retrieve items by generating identifiers, but a valid identifier can remain outside the beam after catalog expansion. This raises two connected questions: which failures can identifier assignment repair, and how should retrieval proceed beyond the initial beam? We characterize assignment repair with a fixed generator and retained old identifiers. Output-invariance certificates identify failures shared by all admissible assignments. Under a common effective prefix, coupled support and ranking constraints give the exact feasible interval of new-item counts for target recovery. Building on this characterization, Beyond the Beam (BB) obtains minimum-replacement repairs through an integral flow formulation, selects a shared map and adapts the generator. At inference, generative likelihood and collaborative evidence define one score for ranking, candidate priority and stopping. Retained prefix bounds guide candidate completion and certify its global Top-$K$ when the stopping condition is met. Exhaustive finite-catalog evaluation confirms construction in every feasible case. Across three Amazon Reviews categories and three random seeds, the full T5 procedure improves mean Recall@10 by 15.5--46.3% and NDCG@10 by 15.2--44.4% over the best-performing evaluated generative baseline for each dataset and metric. Matched controls show that shared construction and adaptation improve new-target ranking and certification efficiency on Beauty and Toys. Combined scoring and candidate completion improve NDCG@10 across all three datasets with both T5 and decoder-only LC-Rec. Generative recommenders retrieve items by generating identifiers, but a valid identifier can remain outside the beam after catalog expansion. This raises two connected questions: which failures can identifier assignment repair, and how should retrieval proceed beyond the initial beam? We characterize assignment repair with a fixed generator and retained old identifiers. Output-invariance certificates identify failures shared by all admissible assignments. Under a common effective prefix, coupled support and ranking constraints give the exact feasible interval of new-item counts for target recovery. Building on this characterization, Beyond the Beam (BB) obtains minimum-replacement repairs through an integral flow formulation, selects a shared map and adapts the generator. At inference, generative likelihood and collaborative evidence define one score for ranking, candidate priority and stopping. Retained prefix bounds guide candidate completion and certify its global Top-$K$ when the stopping condition is met. Exhaustive finite-catalog evaluation confirms construction in every feasible case. Across three Amazon Reviews categories and three random seeds, the full T5 procedure improves mean Recall@10 by 15.5--46.3% and NDCG@10 by 15.2--44.4% over the best-performing evaluated generative baseline for each dataset and metric. Matched controls show that shared construction and adaptation improve new-target ranking and certification efficiency on Beauty and Toys. Combined scoring and candidate completion improve NDCG@10 across all three datasets with both T5 and decoder-only LC-Rec.",
+  "arxiv_id": "2609.33745",
+  "authors": [
+    "Zijun Zhao",
+    "Peng Zhang",
+    "Gang Zhang",
+    "Yuanchi Ma",
+    "Hui He",
+    "Zhendong Niu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商或内容平台目录扩展后的新物品召回有直接价值：无需重写旧标识符即可部分修复束搜索遗漏，并可在固定预算下返回可认证的全局 Top-K 排名。",
+      "T5 推理约 10–12 ms/query，LC-Rec 约 0.25–0.64 s/query，具备在线推荐场景可考虑的延迟水平。",
+      "在 Beauty/Toys 上新目标排名和 Primary 查询提升显著，有助于缓解新物品曝光不足，但需权衡旧目标排名下降。",
+      "协同信号与生成式似然的校准会在新旧物品之间重新分配排名质量，可用于调整新物品曝光策略。",
+      "Tools 上新目标训练数据稀疏时收益有限，说明业务上需要足够的新目标交互数据才能发挥构造/适配优势。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "在固定生成器和保留旧标识符的条件下刻画标识符分配修复：输出不变性证书识别所有合法分配共有的失败；在共同有效前缀下，支持约束与排序约束共同给出目标恢复所需新物品数量的精确可行区间。",
+      "提出 Beyond the Beam (BB)：通过整数最小费用流构造最小叶子替换修复，选择共享标识符映射并适配生成器。",
+      "推理时将生成式似然与协同证据合并为一个分数，用于排序、候选优先级和停止；保留前缀上界指导候选补全，并在满足停止条件时证明全局 Top-K。",
+      "穷举有限目录验证表明完整构造在所有可行情形下均可完成修复；T5 在三个 Amazon 数据集上相对最佳生成式基线平均 Recall@10 提升 15.5–46.3%、NDCG@10 提升 15.2–44.4%，LC-Rec 骨干上同样领先。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Assignment Limits and Constructive Guarantees"
+      },
+      {
+        "page": 1,
+        "section": "4 Constructive Repair and Bound-Guided Candidate Completion"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "D Feasibility Validation and Certificate Coverage"
+      },
+      {
+        "page": 1,
+        "section": "E Extended T5 Results and Component Analysis"
+      },
+      {
+        "page": 1,
+        "section": "F LC-Rec Backbone"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Frozen model",
+        "Static assignment",
+        "Frozen/Frozen",
+        "FT/Frozen",
+        "Frozen/FT",
+        "FT/FT",
+        "FT/RT",
+        "JTM matching (adapted)",
+        "DREAM voting (adapted)",
+        "DACT",
+        "Reformer",
+        "SASRec",
+        "EASE",
+        "ItemKNN",
+        "LC-Rec: Frozen",
+        "LC-Rec: Fine-tuning",
+        "LSAT",
+        "PESO"
+      ],
+      "datasets": [
+        "Amazon 2014 Beauty",
+        "Amazon 2014 Tools",
+        "Amazon 2014 Toys and Games"
+      ],
+      "findings_zh": [
+        "穷举 96 个打分器、221,184 个完整解码目录、2,016 个计数/截断条件中，完整构造解决了全部 1,816 个可行条件，参考状态构造只解决 1,708 个；高分数分配在完整状态打分族中只解决 733/934。",
+        "直接 Beauty 解码验证了 27 个修复，其中 22 个需要新前缀支撑；去掉支撑约束或任一计数端点会产生假可行判定。",
+        "T5 主比较中 BB 在 Beauty/Tools/Toys 的 Recall@10 为 3.217/4.956/2.154，NDCG@10 为 1.535/2.806/1.027，均高于所有对比生成式基线。",
+        "匹配消融显示，共享构造与适配使 Beauty/Toys 新目标 NDCG@10 提高 3.82%/9.56%，Primary 提高 13.95%/19.42%，数值 Top-20 认证率提高 3.54/9.87 个百分点，额外评估减少 2.86%/7.90%；旧目标损失部分抵消总体增益。",
+        "候选补全在 T5 九个运行中均进一步改善 Recall@10 和 NDCG@10；边界优先级将 Beauty 额外评估从 60.69 降到 51.08，数值 Top-20 认证率 77.64% vs 45.40%。",
+        "LC-Rec 骨干上 BB 在全部六个 Recall@10/NDCG@10 单元格领先，相对最强基线提升 15.7–32.9%（R@10）和 10.5–35.6%（N@10）。",
+        "Tools 仅有 133 个新目标训练上下文（Beauty 2,993、Toys 4,950），两个种子的共享映射未变，第三个只改两个身份，构造效果接近零。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "NDCG@10",
+        "Recall@20",
+        "NDCG@20",
+        "Numerical Top-20 certification rate",
+        "Additional candidate evaluations per query",
+        "Inference ms/query"
+      ]
+    },
+    "limitations_zh": [
+      "精确可行性定理设定在共同有效前缀之后，扩展到更早分支或完整状态仍是论文指明的后续工作。",
+      "Tools 新目标训练上下文很少，共享映射训练支持有限，构造和适配的匹配效果接近零。",
+      "共享构造和适配会带来旧目标损失，整体 NDCG@10 增益仅为 1.13%/0.37%，Beauty Recall@10 略降。",
+      "候选补全预算耗尽时返回排名但没有全局 Top-K 证书；停止条件不保证在预算内达到。",
+      "未验证的数值并列或执行前提返回 unknown；未来目录目标仍计为 miss，混合历史在分配界中贡献乐观值 1。",
+      "数值停止检查使用容差，论文明确说明该容差不构成正式浮点误差界。"
+    ],
+    "method_zh": "BB 首先在共同有效前缀设定下，用可行区间和最小替换目标构造修复：将新叶子按支撑组、相对目标的排序位置、保留代价分桶，转化为整数最小费用流，求得固定状态-目标对的最小叶子替换占用。将局部提案组合为共享映射，用重编码训练历史上的平均 NDCG@10 选择映射，并以固定映射适配生成器。随后拟合岭回归物品级预测器，用校准校正项与生成器分数相加得到统一分数。推理时记录每个物品最长已评估前缀的上界，按上界批量补全候选，当第 K 个已评估分数高于所有未评估上界时停止并给出全局 Top-K 证书。",
+    "problem_zh": "生成式推荐器通过生成物品标识符来检索物品；目录扩展后，新物品可能拥有有效标识符和强协同信号，但仍被束搜索遗漏，而重排序无法找回候选池之外的物品。本文研究两个问题：在保留旧标识符不变的前提下，哪些检索失败可以由标识符分配修复；在初始束之外应如何继续评估候选物品。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8935000000000001,
+  "id": "arxiv-2609.33745",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-27T16:46:55Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出 Beyond the Beam，针对生成式推荐中标识符超出波束的问题进行构造性修复与候选补全，属于生成式推荐研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Beyond the Beam: Constructive Repair and Candidate Completion for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.33745v1"
+}

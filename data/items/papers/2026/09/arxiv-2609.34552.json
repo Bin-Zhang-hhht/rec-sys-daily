@@ -1,0 +1,192 @@
+{
+  "abstract": "Modern recommender systems advance not only by scaling data and parameters, but also by encoding task-specific inductive biases through architecture, including sparse feature interactions for click-through rate (CTR) prediction, temporal attention for sequential recommendation, and expert routing for multi-task learning. However, these biases are typically human expert designed or searched within predefined operator spaces. Although Recent LLM-driven code evolution expands this space, unconstrained edits often produce invalid or ineffective architectures, underuse established architecture design knowledge, and fail to preserve successful innovations for reuse. We introduce EvoSkillRec, a promotion-and-reuse framework for cumulative recommender architecture evolution. It first decomposes recommenders into atomic executable skills and represents architectures as typed skill genomes, with each skill equipped with input--output types, semantic annotations, and implementation code. We then evolve models with different tasks through two coupled spaces: a constrained skill--space that mutates, recombines, specializes, and reuses validated skills, and an open-ended code--space in which LLM planners and synthesizers invent new skill modules using prior evolution traces and accumulated experience. An autoresearch controller evaluates candidates, diagnoses failures, retrieves relevant skills, promotes validated innovations into the skill library, and adaptively allocates the proposal budget between the two spaces. Extensive experiments on CTR prediction, multi-task learning, and multi-domain learning, including resource-constrained co-optimization of predictive quality and model FLOPs utilization in generative ranking models, consistently demonstrate the effectiveness of our proposed EvoSkillRec. Modern recommender systems advance not only by scaling data and parameters, but also by encoding task-specific inductive biases through architecture, including sparse feature interactions for click-through rate (CTR) prediction, temporal attention for sequential recommendation, and expert routing for multi-task learning. However, these biases are typically human expert designed or searched within predefined operator spaces. Although Recent LLM-driven code evolution expands this space, unconstrained edits often produce invalid or ineffective architectures, underuse established architecture design knowledge, and fail to preserve successful innovations for reuse. We introduce EvoSkillRec, a promotion-and-reuse framework for cumulative recommender architecture evolution. It first decomposes recommenders into atomic executable skills and represents architectures as typed skill genomes, with each skill equipped with input--output types, semantic annotations, and implementation code. We then evolve models with different tasks through two coupled spaces: a constrained skill--space that mutates, recombines, specializes, and reuses validated skills, and an open-ended code--space in which LLM planners and synthesizers invent new skill modules using prior evolution traces and accumulated experience. An autoresearch controller evaluates candidates, diagnoses failures, retrieves relevant skills, promotes validated innovations into the skill library, and adaptively allocates the proposal budget between the two spaces. Extensive experiments on CTR prediction, multi-task learning, and multi-domain learning, including resource-constrained co-optimization of predictive quality and model FLOPs utilization in generative ranking models, consistently demonstrate the effectiveness of our proposed EvoSkillRec.",
+  "arxiv_id": "2609.34552",
+  "authors": [
+    "Xiaopeng Li",
+    "Kuo Cai",
+    "Bo Chen",
+    "Wenlin Zhang",
+    "Mengyang Ma",
+    "Yingyi Zhang",
+    "Zichuan Fu",
+    "Yu Yang",
+    "Qidong Liu",
+    "Yiyu Wang",
+    "Ruiming Tang",
+    "Wenwu Ou",
+    "Jiang Wu",
+    "Zhanbo Xu",
+    "Xiangyu Zhao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "自动化架构发现可缩短推荐系统从新任务/新场景到强模型的手工试错周期，降低对资深算法工程师手工设计架构的依赖，使架构设计决策保持可检查（inspectable）而非埋在搜索轨迹中。",
+      "技能库机制将一次运行中验证成功的架构创新沉淀为可复用资产，避免同一死胡同被重复探索，从而在跨任务、跨业务线的持续优化中累积组织级推荐架构知识。",
+      "在生成式排序模型规模扩大、硬件效率成为约束的背景下，EvoSkillRec在QK-Video上实现了AUC与MFU的联合优化，且多数候选同时在两个目标上优于生产级骨干RankMixer，提示可在不牺牲精度的前提下提升GPU训练利用率、降低计算成本。",
+      "LLM骨干选择对下游任务表现有明显影响且无全胜模型：CTR任务选Claude Opus 4.8，MTL/MDL可选用开权重的GLM-5.2以较低成本达到与闭源模型相当或更好的结果，这直接影响预算分配与模型选型决策。",
+      "当前成本仍然较高（实验中约7000美元API费用、每次代码提案需完整训练评估），限制了学术机构大规模探索；在行业落地时需配合更便宜骨干、自适应预算和筛选机制控制成本。",
+      "作者认为技能库是最可能跨模型与跨任务延续的组件，因为它以无需模型或下一任务重建的形式存储所学知识，对长期自动化推荐架构设计具有实践价值。"
+    ],
+    "business_transferability": 0.74,
+    "contributions_zh": [
+      "提出技能基因组累积（skill-genome accumulation）：通过模型到技能编译器（model-to-skill compiler）将推荐模型分解为经过验证、可复用的原子化可执行技能，并存入不断增长的分层技能库（Tier-1人工策展技能与Tier-2演化生成技能），而非用完即弃。",
+      "设计双空间演化算法：将技能库上的类型检查变异（增、替换、杂交、特化）与开放式代码空间发明结合，并通过自适应预算分配（adaptive budget allocation）在两者之间权衡利用与探索。",
+      "引入AutoResearch闭环：诊断候选模型失败模式、检索相关技能、将验证成功的发明沉淀回技能库（sedimentation into Tier-2），使搜索空间随演化单调增长（Ω_t ⊆ Ω_{t+1}），从而实现技能基因组的持续累积。",
+      "实验证明EvoSkillRec在CTR、多任务学习、多域学习及AUC-MFU多目标联合优化上均优于强手工设计基线和自动化设计基线，且双空间贡献互补、因任务而异。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract / 5.2 RQ1"
+      },
+      {
+        "page": 2,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Problem Setting"
+      },
+      {
+        "page": 4,
+        "section": "4.1.1 The Skill Card Abstraction"
+      },
+      {
+        "page": 5,
+        "section": "4.1.3 Two-Tier Skill Library"
+      },
+      {
+        "page": 5,
+        "section": "4.2 Dual-Space Evolution / 4.2.1 / 4.2.2"
+      },
+      {
+        "page": 6,
+        "section": "4.2.3 Adaptive Budget Allocation"
+      },
+      {
+        "page": 7,
+        "section": "5.2 RQ1: Effectiveness Across Recommendation Tasks / Table 1"
+      },
+      {
+        "page": 7,
+        "section": "5.3 RQ2: How Do Architectures Evolve?"
+      },
+      {
+        "page": 8,
+        "section": "5.4 RQ3: What Does Each Mechanism Contribute? / Table 2 / Table 3"
+      },
+      {
+        "page": 8,
+        "section": "5.5 RQ4: Multi-Objective Evolution"
+      },
+      {
+        "page": 9,
+        "section": "5.6 RQ5: Effect of the LLM Backbone"
+      },
+      {
+        "page": 10,
+        "section": "6 Discussion and Limitations"
+      },
+      {
+        "page": 16,
+        "section": "C.2 Datasets and Data Splits"
+      },
+      {
+        "page": 17,
+        "section": "C.3 Baseline and Seed Models"
+      },
+      {
+        "page": 20,
+        "section": "D.2 Search Budgets and Survivor Selection"
+      },
+      {
+        "page": 21,
+        "section": "D.5 Implementation of the Automated Search Baselines"
+      },
+      {
+        "page": 22,
+        "section": "E.1 Baseline Comparisons on the Six Accuracy Benchmarks"
+      },
+      {
+        "page": 26,
+        "section": "E.2 Architecture Changes and Scores by Generation"
+      },
+      {
+        "page": 30,
+        "section": "E.3 Generative Ranking on QK-Video"
+      },
+      {
+        "page": 33,
+        "section": "F Results with Different LLM Backbones / Table 34"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "手工设计模型：CTR 7个（Wide&Deep、DeepFM、DCN、DCN-V2、EDCN、AFM、AutoInt）、MTL 5个（Shared-Bottom、MMoE、PLE、ESMM、AITM）、MDL 11个（Shared-Bottom、MMoE、PLE、STAR、SAR-Net、AdaSparse、AdaptDHM、EPNet、PPNet、HAMUR大/小、M3oE）",
+        "NASRec（权值共享神经架构搜索）",
+        "OpenEvolve（受AlphaEvolve启发的LLM代码演化基线）"
+      ],
+      "datasets": [
+        "MovieLens-1M (CTR)",
+        "Amazon Beauty (CTR)",
+        "Amazon Books (CTR)",
+        "Census-Income (MTL)",
+        "Amazon (MDL, 5-core)",
+        "MovieLens-1M (MDL)",
+        "QK-Video (Tenrec, 多目标AUC-MFU)"
+      ],
+      "findings_zh": [
+        "在所有六个准确率基准上，EvoSkillRec均为最高测试AUC，相对最强非EvoSkillRec基线的提升为+0.0001~+0.0085；相对最强手工模型，CTR提升0.0035/0.0121/0.0179，MTL平均AUC提升0.0022，MDL提升0.0021/0.0008。",
+        "NASRec在全部六个基准上低于最强手工模型；OpenEvolve在三个CTR基准上超过最强手工模型，但在MTL和MDL上低于最强手工模型（最大差距为MDL-MovieLens 0.0194 AUC）。",
+        "消融显示单空间变体均不占优：Code-space only在三个CTR基准上更强，Skill-space only在MTL-Census和MDL-Amazon上更强，二者在MDL-MovieLens上接近（0.7924 vs 0.7926）；完整模型在全部六个基准上取得最高测试AUC。",
+        "完整模型内部按空间分组统计显示，两空间正增益率相近或互补；技能空间在五个基准上取得更大的单次最大验证增益Δ_max；技能空间在CTR/MTL上幸存率更高，但在两个MDL基准上幸存率仅3.1%/6.2%，而代码空间为62.5%/50.6%（因多域兼容性约束下大量技能空间重组被去重）。",
+        "多目标实验（QK-Video，RankMixer为种子）中，大量演化候选在验证AUC和MFU两个轴上同时支配种子，而非简单权衡；Pareto前沿5个点中仅P1（round 19）在测试集上同时保持两项提升；最佳验证AUC达0.9301、最佳MFU达1.605%。",
+        "LLM骨干对比（CTR Amazon-Books、MTL Census、MDL MovieLens）：无单一骨干全面领先；Claude Opus 4.8在CTR上最强（0.6738），GLM-5.2在MTL（0.9739）和MDL（0.7935）上领先；GPT-5.5主实验在表1中MDL为0.7932，与GLM-5.2相当；GLM-5.2按token价格更具成本效益；DeepSeek-V4-Pro在三个任务上均较弱，其提案在演化中有效成功率更低。"
+      ],
+      "metrics": [
+        "测试AUC（CTR）",
+        "平均测试AUC（MTL两个任务）",
+        "整体测试AUC（MDL跨域）",
+        "LogLoss",
+        "训练MFU（Model FLOPs Utilization，模型FLOPs利用率）",
+        "验证AUC与MFU联合（多目标，含Pareto前沿与合格性约束：MFU≥基线95%，验证AUC距当前最优≤1e-3）"
+      ]
+    },
+    "limitations_zh": [
+      "统计分辨率有限：部分报告差距在1e-4 AUC量级，单次演化运行无法与运行间波动可靠区分；表1每个单元是一整次演化运行而非单模型拟合，重复多次种子所需计算超出作者资源。",
+      "成本与LLM依赖：代码空间每次提案消耗两次LLM调用加一次完整训练验证周期，大量提案在训练前被拒；全部实验中API费用约7000美元，且骨干选择显著影响能发现的架构，因此结果应视为EvoSkillRec与驱动它的模型共同的特征，而非框架孤立表现。",
+      "跨任务迁移未测试：所有实验中的技能库均在单一任务族内生长和使用，未验证一个任务上发现的技能是否有利于其他任务的演化。",
+      "工业验证有限：技能库从公开学术架构播种，QK-Video是唯一工业规模设置；专有骨干和工业在线流量下技能分解是否成立仍有待验证。",
+      "仅用AUC选择可能损害校准：在CTR Amazon-Books上，每个骨干的最佳模型测试LogLoss（0.533–0.554）高于所有手工模型（0.495–0.507）。",
+      "单次运行限制：所有骨干对比均来自每个骨干单次运行，骨干间低于约5e-4 AUC的差异应视为平局。"
+    ],
+    "method_zh": "EvoSkillRec将推荐模型表示为带类型的技能基因组（typed skill genome）。技能卡（skill card）包含实现代码、输入输出类型、归纳偏置、适用任务、失败签名、验证套件与累积经验记忆。模型到技能编译器通过解析、语义标注、可执行提取、验证四阶段将DeepFM、Wide&Deep、DCN、DIN、DIEN、SASRec、MMoE、PLE等已有架构编译为Tier-1技能库。演化过程在每代通过AutoResearch控制器：（1）诊断父代失败模式；（2）按自适应预算分配候选名额；（3）技能空间通过类型检查的ADD/REPLACE/HYBRIDIZE/SPECIALIZE算子重组库中技能，并按多面评分函数检索；（4）代码空间由LLM规划器生成架构草图、合成器生成可执行模块，经静态安全检查、形状/梯度验证和可移植性测试后接入基因组；（5）训练评估后按验证指标与容差选择幸存者，并将幸存者携带的生成技能提升为Tier-2技能，追加到演化记忆。",
+    "problem_zh": "现代推荐系统的关键进展常来自架构归纳偏置（如CTR的特征交叉、序列推荐的时间注意力、多任务学习的专家路由），但这些架构通常依赖人工专家设计或在预定义算子空间内搜索。若直接使用LLM进行开放式代码演化，容易产生大量无效或低价值修改，且未能充分利用已有架构设计知识，成功创新也难以被保留和复用，导致每次进化都从零开始。",
+    "technical_depth": 0.93
+  },
+  "doi": null,
+  "final_score": 0.918,
+  "id": "arxiv-2609.34552",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "multi_task_learning"
+  ],
+  "published_at": "2026-09-28T08:12:08Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "EvoSkillRec 提出一种基于技能基因组的累积式推荐架构演化框架，结合受限技能空间和 LLM 代码空间来搜索并复用推荐模型架构。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "EvoSkillRec: Skill-Genome Evolution for Recommender Architecture Discovery",
+  "url": "https://arxiv.org/abs/2609.34552v1"
+}

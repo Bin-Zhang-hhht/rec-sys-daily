@@ -1,0 +1,143 @@
+{
+  "abstract": "Semantic ID (SID) based generative recommendation represents each item as a sequence of discrete tokens, and recommends by generating the SID of the item a user would like to interact with. Both dominant paradigms in this domain generally pay for generation token by token: autoregressive models decode the tokens left-to-right, while non-autoregressive models decode in parallel yet still need multiple rounds of refinement to stay competitive. Therefore, both generally spend multiple forward passes per item, a cost that is prohibitive in latency-sensitive recommender systems. We ask whether an item can be generated in a single forward pass, and answer it through a new perspective which we call average probability velocity. We view SID generation as a flow of token generation probabilities and characterize it by its average velocity over the whole generation process. We prove that this average velocity is fully determined by the average generation probability of each token. Therefore, we directly parameterize and learn the probabilities of all tokens in a single forward pass with a bidirectional Transformer. As these probabilities are generated independently across positions and the coherence among tokens is lost, we further design a dual-level flow contrastive objective to restore the coherence among an item's tokens. It contrasts the target SID against negative SIDs at both the token and SID levels. The token level ranks the generation probabilities of the target tokens above those of negative SIDs, while the SID level scores the tokens of each SID as a whole item for capturing token coherence of each item. Extensive experiments show that our model not only generates recommendations far more efficiently ($8.39-10.04\\times$ speedup over the second-fastest AR/NAR method) but also attains superior recommendation accuracy ($7.77\\%$ average improvement over the second-best. Semantic ID (SID) based generative recommendation represents each item as a sequence of discrete tokens, and recommends by generating the SID of the item a user would like to interact with. Both dominant paradigms in this domain generally pay for generation token by token: autoregressive models decode the tokens left-to-right, while non-autoregressive models decode in parallel yet still need multiple rounds of refinement to stay competitive. Therefore, both generally spend multiple forward passes per item, a cost that is prohibitive in latency-sensitive recommender systems. We ask whether an item can be generated in a single forward pass, and answer it through a new perspective which we call average probability velocity. We view SID generation as a flow of token generation probabilities and characterize it by its average velocity over the whole generation process. We prove that this average velocity is fully determined by the average generation probability of each token. Therefore, we directly parameterize and learn the probabilities of all tokens in a single forward pass with a bidirectional Transformer. As these probabilities are generated independently across positions and the coherence among tokens is lost, we further design a dual-level flow contrastive objective to restore the coherence among an item's tokens. It contrasts the target SID against negative SIDs at both the token and SID levels. The token level ranks the generation probabilities of the target tokens above those of negative SIDs, while the SID level scores the tokens of each SID as a whole item for capturing token coherence of each item. Extensive experiments show that our model not only generates recommendations far more efficiently ($8.39-10.04\\times$ speedup over the second-fastest AR/NAR method) but also attains superior recommendation accuracy ($7.77\\%$ average improvement over the second-best.",
+  "arxiv_id": "2609.34306",
+  "authors": [
+    "Zhuo Cai",
+    "Shoujin Wang",
+    "Peilin Zhou",
+    "Min Xu",
+    "Julian McAuley",
+    "Fang Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SPRINT每次推荐只需一次前向传播即可生成完整SID，可显著降低延迟敏感型推荐系统的响应延迟，避免因额外延迟导致的用户参与度下降与大规模服务成本上升。",
+      "在六个人数据集上测试集推理仅需1.28–7.55秒，相对第二快的生成式方法有8.39×–10.04×加速，可降低在线服务的算力与时间开销。",
+      "模型轻量（5.59M参数）且保持4-token紧凑SID，避免了RPG扩展SID到16–64 token带来的嵌入表4×–16×膨胀，便于部署。",
+      "训练效率也更高（每epoch时间更低、20–40 epoch收敛），可缩短模型迭代周期。",
+      "适用场景偏向候选生成之后的排序/精排阶段，业务若需要覆盖数十亿物品的端到端检索，则需额外的检索候选集或进一步扩展。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "首次从平均概率速度（average probability velocity）的视角刻画SID生成，将生成目标SID转化为概率流在时间区间上的平均速度，并证明该平均速度完全由每个位置token的平均生成概率决定，从而实现单步SID生成。",
+      "提出双层级流对比目标（dual-level flow contrastive objective）：token级对比提升每个位置的预测准确性，SID级对比把token组合作为一个整体来打分，恢复单步独立解码所丢失的token间一致性。",
+      "在8个真实数据集上的实验验证了SPRINT在推荐准确率和生成效率上的优越性，包括较快的训练收敛和较小的参数规模。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Average Probability Velocity for Single-Step GR"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Dual-Level Flow Contrastive Training and Inference"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "D.6 Comparison between SPRINT and Other Efficiency-oriented Methods"
+      },
+      {
+        "page": 1,
+        "section": "F Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "PreferDiff",
+        "FAVE",
+        "TIGER",
+        "ActionPiece",
+        "COBRA",
+        "SID-MLP",
+        "RPG",
+        "LLaDA-Rec",
+        "DiffGRM",
+        "OneGR",
+        "AtSpeed",
+        "EARN",
+        "NEZHA"
+      ],
+      "datasets": [
+        "Sports",
+        "Beauty",
+        "Toys",
+        "Instruments",
+        "Scientific",
+        "Games",
+        "Yelp",
+        "Arts"
+      ],
+      "findings_zh": [
+        "在8个数据集上，SPRINT均优于所有基线；相对于第二好的方法，平均准确率提升约7.77%，R@5最高提升11.50%，N@5最高提升10.26%。",
+        "在六个人数据集上，SPRINT相对第二快的RPG取得8.39×–10.04×推理加速；相对TIGER/ActionPiece为25.35×–56.68×，相对LLaDA-Rec最高125.94×。",
+        "与效率导向方法相比，SPRINT在六个数据集上推理成本最低（1.28–7.55s），约比AtSpeed/EARN快24–29×，比NEZHA快约6×，并快于SID-MLP。",
+        "训练效率：SPRINT每epoch训练时间低于现有AR/NAR模型，相对RPG约1.11×–1.31×，且一般20–40 epoch内收敛。",
+        "消融实验表明完整模型最佳：移除SID级flow比移除token级flow造成更大下降；把对比目标替换为纯逐token交叉熵（w/o Contrast）下降最大；OPQ tokenizer优于RQ-VAE/RQ-Kmeans。",
+        "超参数分析：训练源锚定在r=0的比例ρ在0.75–1时最佳，且收敛更快；负样本数N=100时准确率/训练成本权衡最优。",
+        "SPRINT参数量仅5.59M，与DiffGRM（5.60M）相当，明显小于TIGER（13.97M）和RPG（8.53–23.69M）。",
+        "在更大的K（20/50/100/1000）下SPRINT仍在所有数据集和指标上保持最佳。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "Recall@10",
+        "NDCG@10",
+        "inference time (s)",
+        "training time per epoch (s)",
+        "parameter count (#Parameters)",
+        "speedup (×)"
+      ]
+    },
+    "limitations_zh": [
+      "SPRINT固定终端时间t=1，并且训练时大部分源时间锚定在r=0（ρ∈{0.75,1}最佳），中间时间区间仅作为辅助监督，未探索其在推理时的作用或可调少步变体。",
+      "由于需要在SID前缀树上的所有有效轨迹上解码，SPRINT的推理成本随物品语料库规模增长，因此最适合已生成候选集的排序/精排阶段，而非直接从数十亿物品中端到端检索；作者指出这一限制也存在于许多现有GR工作中。"
+    ],
+    "method_zh": "SPRINT将推荐生成建模为从全掩码序列到目标SID的离散概率流，使用凸插值路径和条件速度插值，将瞬时概率速度在区间[r,t]上平均，得到闭式平均概率速度。理论推导表明边际平均概率速度等价于λ_{r,t}乘以一个加权平均后验，因此网络只需学习区间平均生成概率。骨干为轻量双向Transformer：1层编码器编码用户历史、4层解码器以L个掩码query输出L×M的概率表。训练时采用双层级流对比损失：token级对比目标项token与负样本SID token的生成概率；SID级对比将L个解码器隐状态拼接经MLP作为用户表示u，与项SID嵌入拼接的表示v_c做余弦对比。推理时从全掩码出发做一次前向，得到概率表和u，在SID前缀树T上按softmax(sum log p)+softmax(cosine)对有效SID打分并取Top-K。实现使用OPQ tokenizer、L=4、每个codebook M=256。",
+    "problem_zh": "基于语义ID（SID）的生成式推荐中，自回归模型逐token解码一个L token的SID需要L次前向传播；非自回归掩码扩散模型为了保持token间条件依赖通常仍需多轮精炼，二者都会带来高推理延迟，在延迟敏感的推荐系统中构成效率瓶颈。已有单步方案（RPG、OneGR）要么将SID扩展到16–64个token从而显著扩大嵌入表，要么依赖A*搜索等耗时过程。SPRINT旨在以一次前向传播同时生成SID的全部token，并保持SID内部token之间的连贯性。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.905,
+  "id": "arxiv-2609.34306",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-28T04:47:34Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "SPRINT 通过平均概率速度视角提出单步生成式推荐方法，仅用一次前向传播生成物品语义 ID，大幅提升生成式推荐的效率与准确性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SPRINT: Single-Step Generative Recommendation via Average Probability Velocity",
+  "url": "https://arxiv.org/abs/2609.34306v1"
+}

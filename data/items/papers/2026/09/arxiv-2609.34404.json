@@ -1,0 +1,133 @@
+{
+  "abstract": "Leveraging the strong generative capabilities and stable training dynamics of diffusion models, diffusion-based recommender systems (RSs) have recently emerged as a novel recommendation paradigm, attracting increasing attention from both academia and industry. However, despite the rapid growth of diffusion-based RSs, a critical issue has emerged: the lack of a unified and systematic quantitative evaluation benchmark, which often results in irreproducible experimental results and unfair comparisons across studies due to inconsistent data processing, training configurations, inference procedures, and evaluation protocols. To address this challenge, we propose Eval4DiRec, the first unified and open-source evaluation framework specifically designed for diffusion-based RSs. Eval4DiRec supports 14 representative diffusion-based RS models across five different recommendation scenarios, providing consistent and reproducible experimental settings to systematically assess their performance. Built upon this framework, we conduct extensive empirical studies to benchmark these models under unified protocols. The results highlight the strong potential of diffusion models for recommendation while also revealing key factors and practical challenges that substantially affect their performance, thereby establishing a solid foundation to facilitate fair evaluation and guide future research in this promising field. Our code and data are available at: https://github.com/wangcong2001/Eval4DiRec. Leveraging the strong generative capabilities and stable training dynamics of diffusion models, diffusion-based recommender systems (RSs) have recently emerged as a novel recommendation paradigm, attracting increasing attention from both academia and industry. However, despite the rapid growth of diffusion-based RSs, a critical issue has emerged: the lack of a unified and systematic quantitative evaluation benchmark, which often results in irreproducible experimental results and unfair comparisons across studies due to inconsistent data processing, training configurations, inference procedures, and evaluation protocols. To address this challenge, we propose Eval4DiRec, the first unified and open-source evaluation framework specifically designed for diffusion-based RSs. Eval4DiRec supports 14 representative diffusion-based RS models across five different recommendation scenarios, providing consistent and reproducible experimental settings to systematically assess their performance. Built upon this framework, we conduct extensive empirical studies to benchmark these models under unified protocols. The results highlight the strong potential of diffusion models for recommendation while also revealing key factors and practical challenges that substantially affect their performance, thereby establishing a solid foundation to facilitate fair evaluation and guide future research in this promising field. Our code and data are available at: https://github.com/wangcong2001/Eval4DiRec.",
+  "arxiv_id": "2609.34404",
+  "authors": [
+    "Cong Wang",
+    "Shoujin Wang",
+    "Yishuo Li",
+    "Qi Zhang",
+    "Liang Hu",
+    "Wenpeng Lu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "统一的评估框架可减少因数据切分、预处理、指标实现和采样配置不一致导致的不可复现与不公平比较，有助于企业在选型和内部基准测试中做出更可靠的判断。",
+      "扩散推荐模型在稀疏、噪声交互和长尾物品上表现出相对稳健的性能，可能有助于改善冷启动、低活跃内容和长尾物品的推荐效果。",
+      "扩散模型训练和推理成本明显更高，企业需要考虑推理延迟和计算资源约束，探索减少扩散步数、轻量采样器或蒸馏方法以降低部署成本。",
+      "该框架通过模块化设计和统一配置提供可复现的基准，并开放代码与数据，可能降低新模型接入和跨团队复现实验的工程成本。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "提出Eval4DiRec，首个面向扩散推荐系统的统一开源评估框架，标准化数据预处理、训练、推理、指标计算等端到端评测流程。",
+      "在一个统一代码库中实现覆盖5类推荐场景的14个代表性扩散推荐模型，提供一致接口、可配置组件和可扩展设计。",
+      "在统一协议下开展大规模实验，对扩散推荐系统进行综合基准测试，并从扩散配置、鲁棒性、长尾物品表现等角度给出实证发现和实践建议。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Eval4DiRec"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Overall Performance Comparison (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Diffusion Configuration Analysis (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Robustness Analysis of Diffusion-Based RSs (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Analysis of Long-tail Items (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BPR-MF",
+        "LightGCN",
+        "BERT4Rec",
+        "STOSA",
+        "BM3",
+        "STAN",
+        "PTUPCDR"
+      ],
+      "datasets": [
+        "Yelp",
+        "Beauty",
+        "ML-1M",
+        "TikTok",
+        "Baby",
+        "Sports",
+        "NYC",
+        "TKY",
+        "Gowalla",
+        "Video",
+        "Music",
+        "Book"
+      ],
+      "findings_zh": [
+        "在统一评估协议下，协同过滤场景中扩散方法整体优于非扩散基线：DiffRec在Yelp和ML-1M上最优，DDRM在Beauty上最优。",
+        "序列推荐场景中，CDDRec在Yelp、Beauty和ML-1M三个数据集上均取得最优结果，T-DiffRec和CaDiRec也表现较强。",
+        "多模态推荐场景中，DiffMM在TikTok上最优，CCDRec在Baby和Sports上最优，两者均优于非扩散基线BM3。",
+        "POI推荐中Diff-POI在TKY、NYC、Gowalla上均优于STAN；跨域推荐中DiffCDR在Video→Music、Book→Video、Book→Music三个迁移任务上均优于PTUPCDR。",
+        "扩散配置分析发现，线性（linear）和指数（exponential）噪声调度整体更稳定；较小的扩散步数通常即可达到较好效果，增加步数不一定提升排序质量；高斯噪声分布在不同设置下表现最一致。",
+        "鲁棒性实验中，在训练交互随机缺失10%-50%或注入10%-50%噪声时，扩散模型比非扩散基线的性能下降更平缓，表现出更强的抗稀疏和抗噪能力。",
+        "长尾物品分析显示，扩散方法在低频长尾物品上的性能衰减比非扩散基线更平缓，能保留更多可用排序信号。",
+        "效率分析表明，扩散推荐模型通常比非扩散模型更耗时，训练和推理开销随模型与场景不同有明显差异。"
+      ],
+      "metrics": [
+        "Recall@20",
+        "NDCG@20",
+        "MRR@20",
+        "HR@20"
+      ]
+    },
+    "limitations_zh": [
+      "当前模型覆盖是代表性而非穷举性的，桥式生成（bridge-based generation）、谱空间扩散等新兴范式尚未纳入框架。",
+      "现有评估主要关注排序质量、计算时间、鲁棒性和长尾表现，尚未系统评估多样性、校准性和公平性等维度。",
+      "扩散模型通常带来更多训练和推理计算开销，其性能优势具有场景和配置依赖性，不能简单认为扩散方法天然优于非扩散方法。",
+      "鲁棒性实验使用的是人工构造的缺失和噪声模式，与实际系统中的误点击、曝光偏差、日志错误等非随机噪声不一定一致，鲁棒性收益取决于去噪过程与真实污染模式的匹配程度。"
+    ],
+    "method_zh": "Eval4DiRec由Data、DiRec、Execution、Utils四个模块组成。Data模块负责原始数据加载、统计记录、场景化切分和统一张量格式转换；DiRec模块将推荐骨干与扩散过程解耦，统一管理前向过程、反向过程、噪声调度和采样配置；Execution模块统一编排训练、验证、测试与检查点选择；Utils模块提供配置解析、随机种子控制、日志和Top-K指标计算。论文还采用DDPM和基于SDE的扩散模型形式化框架来说明扩散过程。",
+    "problem_zh": "扩散推荐系统（diffusion-based RSs）快速发展，但缺乏统一、系统的定量评估基准，导致不同研究在数据处理、训练配置、推理流程和评估协议上不一致，实验结果难以复现且比较不公平。现有通用推荐框架（如RecBole、ReChorus）主要面向判别式模型，未将扩散步数、噪声调度、噪声分布等扩散特有配置作为统一的评估协议组件加以管理。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.8365,
+  "id": "arxiv-2609.34404",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-28T06:16:44Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出 Eval4DiRec，一个面向扩散模型推荐系统的统一评测框架，属于推荐系统评估研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Eval4DiRec: A Unified and Systematic Evaluation Framework for Diffusion-based Recommender Systems",
+  "url": "https://arxiv.org/abs/2609.34404v1"
+}

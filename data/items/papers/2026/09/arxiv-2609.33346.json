@@ -1,0 +1,125 @@
+{
+  "abstract": "Sign-aware recommender systems have recently been developed to leverage negative feedback for a deeper understanding of user preferences. However, our empirical diagnosis reveals that state-of-the-art graph-based sign-aware recommender systems are paradoxically valence-blind. Even though they explicitly incorporate sign information during training, they consistently fail to differentiate liked items from disliked ones at the ranking stage, frequently infiltrating top-K recommendations with disliked content. Through linear probing, we show that while valence information exists in the learned embeddings, it remains inaccessible to the inner-product scoring function. This widespread failure remains entirely undetected because conventional evaluation metrics, such as Recall, HR, and NDCG, assign a uniform utility of zero to both negative and unobserved items, creating a systematic evaluation blind spot. To bridge this gap, we propose a family of signed metrics, Signed Recall, Signed HR, and Signed NDCG, that explicitly penalize the recommendation of disliked content. Systematic re-evaluation under our proposed metrics fundamentally reshapes the established performance landscape, revealing that methods ranked highly under conventional metrics often fail to protect users from disliked content. Finally, through a proof-of-concept auxiliary loss, we confirm that the proposed metrics provide actionable training signals, guiding models toward valence-aware behavior without sacrificing conventional relevance. For transparency, our source code is available at: https://anonymous.4open.science/r/signed-rec-benchmark-07E4 Sign-aware recommender systems have recently been developed to leverage negative feedback for a deeper understanding of user preferences. However, our empirical diagnosis reveals that state-of-the-art graph-based sign-aware recommender systems are paradoxically valence-blind. Even though they explicitly incorporate sign information during training, they consistently fail to differentiate liked items from disliked ones at the ranking stage, frequently infiltrating top-K recommendations with disliked content. Through linear probing, we show that while valence information exists in the learned embeddings, it remains inaccessible to the inner-product scoring function. This widespread failure remains entirely undetected because conventional evaluation metrics, such as Recall, HR, and NDCG, assign a uniform utility of zero to both negative and unobserved items, creating a systematic evaluation blind spot. To bridge this gap, we propose a family of signed metrics, Signed Recall, Signed HR, and Signed NDCG, that explicitly penalize the recommendation of disliked content. Systematic re-evaluation under our proposed metrics fundamentally reshapes the established performance landscape, revealing that methods ranked highly under conventional metrics often fail to protect users from disliked content. Finally, through a proof-of-concept auxiliary loss, we confirm that the proposed metrics provide actionable training signals, guiding models toward valence-aware behavior without sacrificing conventional relevance. For transparency, our source code is available at: https://anonymous.4open.science/r/signed-rec-benchmark-07E4",
+  "arxiv_id": "2609.33346",
+  "authors": [
+    "Minchan Kim",
+    "Jungmin Hwang",
+    "Hyunwoo Park"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "推荐系统可直接用 signed 指标评估和筛选模型，减少向用户推荐明确讨厌内容的概率，从而改善用户体验、降低因推荐不满意导致的流失/抵触。",
+      "γ 是可调评估参数，业务方可根据领域成本设定：新闻/广告等不满意成本高的场景用 γ>1，探索性内容场景用 γ<1。",
+      "指标与现有流程向后兼容（γ=0 时即传统指标），企业可以在几乎零迁移成本下加入 signed 评估维度。",
+      "要注意若只优化 signed 指标，可能导致推荐列表过度保守、减少发现性内容，需要在业务目标中平衡。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "通过 V-AUC 和线性探针诊断发现：SOTA 基于图的 sign-aware 方法在排序阶段 V-AUC 接近随机水平（常低于 0.5），但其嵌入中实际编码了较多 valence 信息，说明失败源于内积打分无法读取嵌入中的符号信息。",
+      "提出 Signed Recall / Signed HR / Signed NDCG 一类带符号评估指标，用可调惩罚参数 γ 显式惩罚顶级推荐中的不喜欢物品；γ=0 时退化为传统指标，保证向后兼容。",
+      "在五个真实数据集上重新评估 10 个模型，发现传统指标下的性能排名在 signed 指标下发生根本性变化；传统指标表现好的无符号基线常出现负 SNDCG，即主动把讨厌物品排到喜欢物品之上。",
+      "通过最小辅助损失 L_sign 与推理期 valence-aware 调整的概念验证，证明新指标能提供可操作训练信号，在不明显牺牲 NDCG 的前提下提升 SRecall/SHR/SNDCG。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 3,
+        "section": "4.1 Are Sign-aware Methods Really Sign-aware?"
+      },
+      {
+        "page": 3,
+        "section": "4.2 Why Does This Happen?"
+      },
+      {
+        "page": 4,
+        "section": "5 The Proposed Signed Evaluation Metrics"
+      },
+      {
+        "page": 5,
+        "section": "6.2 Re-evaluation under Signed Metrics"
+      },
+      {
+        "page": 7,
+        "section": "6.3 Proof of Concept"
+      },
+      {
+        "page": 7,
+        "section": "7 Conclusion and Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "LightGCN",
+        "LightGCL",
+        "XSimGCL",
+        "GFormer",
+        "SiReN",
+        "SiGRec",
+        "NFARec",
+        "SIGformer",
+        "Pone-GNN",
+        "SDCGCL"
+      ],
+      "datasets": [
+        "Amazon-CDs",
+        "Amazon-Music",
+        "Epinions",
+        "KuaiRand",
+        "KuaiRec"
+      ],
+      "findings_zh": [
+        "在四个低/中 ρ 数据集上，现有 sign-aware 方法的 V-AUC 接近 0.5（例如 SIGformer 在 Amazon-CDs 上为 .486），且最高 NDCG 的模型往往 valence 分离最差；在负交互主导的 KuaiRec 上，无符号基线的 SNDCG 可低至 -1.9 左右，说明其常规指标的低分实际掩盖了灾难性失败。",
+        "线性探针 AUC 明显高于 V-AUC（如 SiGRec 在 Amazon-CDs 上 Probe AUC=.696 而 V-AUC=.527），表明嵌入空间中存在 valence 信息，但内积打分函数无法有效提取。",
+        "在 signed 指标（γ=1）下，排名格局从无符号基线/部分架构驱动方法转向 Loss-driven sign-aware 方法（SiReN、Pone-GNN、SDCGCL 等），在多个数据集上取得最高 SNDCG；传统 NDCG 领先者（如 KuaiRand 上的 GFormer）SNDCG 为负。",
+        "配对 t 检验与 Holm-Bonferroni 校正表明，NDCG 到 SNDCG 的再排名是统计显著的，而非用户异质性噪声。",
+        "对 SIGformer 加入 L_sign 后，SNDCG 在 Amazon-CDs（+26%）、Amazon-Music（+46%）、Epinions（+187%）显著提升，KuaiRand 由负转正，且 NDCG 保持在基线的 95% 以上；KuaiRec 因基线已强且无配置同时满足约束而例外。"
+      ],
+      "metrics": [
+        "NDCG@20",
+        "Recall@20",
+        "HR@20",
+        "SNDCG@20",
+        "SRecall@20",
+        "SHR@20",
+        "V-AUC",
+        "Overlap ratio",
+        "Probe AUC",
+        "Neg>Pos infiltration"
+      ]
+    },
+    "limitations_zh": [
+      "分析只覆盖基于图的、使用内积打分的推荐模型，未推广到序列推荐或 LLM 推荐系统。",
+      "概念验证 L_sign 在密集负反馈环境（如 KuaiRec）中，强制 valence 分离可能与保持常规相关性表现冲突。",
+      "Signed 指标可能被过度优化，导致过度保守、抑制内容探索的推荐。"
+    ],
+    "method_zh": "论文将二值相关性指示扩展为三值 signed relevance rel_s(i)=+1/-γ/0（分别对应正反馈、负反馈、未观测），据此定义 Signed Recall@K=(|P∩π_K|-γ|N∩π_K|)/|P|、Signed HR@K=I[|P∩π_K|>0]-γ I[|N∩π_K|>0]、Signed NDCG@K=SDCG@K/ISDCG@K，其中 SDCG 对负反馈项施加 -γ 的位置衰减惩罚，ISDCG 将正物品排在前面、负物品排在后面；γ 是评估期可调的超参数。进一步提出概念验证：在 SIGformer 上加入基于 e_u⊙e_i 的符号分类辅助损失 L_sign，并在推理时用 y_hat_final = y_hat + λ_inf(2p_hat-1) 做 valence 调整。",
+    "problem_zh": "论文指出，现有基于图神经网络的 sign-aware 推荐系统尽管在训练中显式使用了正负反馈的符号信息，但在排序阶段却表现出“valence-blind”：它们无法稳定地将用户喜欢的物品排在讨厌的物品之前，而传统评估指标（Recall/HR/NDCG）将负反馈与未观测物品同样视为零效用，因此系统性地掩盖了这种推荐讨厌内容的失败。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9075000000000001,
+  "id": "arxiv-2609.33346",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-27T08:17:30Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文揭示符号感知推荐系统在排序阶段存在“效价盲”问题，并提出带符号的评测指标，属于推荐系统评测与排序研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "What Gets Measured Gets Managed: Sign-aware Recommendation Needs Sign-aware Evaluation",
+  "url": "https://arxiv.org/abs/2609.33346v1"
+}

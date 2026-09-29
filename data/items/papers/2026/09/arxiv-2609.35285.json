@@ -1,0 +1,141 @@
+{
+  "abstract": "Foundation model recommender systems require user context that can be consumed by large language models, reasoned over, and refined through natural-language interaction. Traditional behavioral embedding vectors remain highly effective for retrieval and ranking, but they are opaque to users and not natively expressed for language model workflows. We present Textual User Taste, a system that generates structured natural-language taste profiles from listening behavior, interaction signals, content metadata, and optional user feedback, and deploys them to millions of Spotify users. We describe the end-to-end production lifecycle required to generate, evaluate, optimize, and maintain these representations at industrial scale, including prompt development and compression, user steering, and integration with downstream personalization systems. Because no unique ground-truth taste profile exists, we introduce a multi-faceted evaluation framework to evaluate taste profiles as a production representation: they carry user-specific predictive signal independently, and when integrated with behavioral embeddings, improve MRR by 0.6% for future-track prediction and NDCG@7 by 2.2% for search ranking. Our evaluation also reveals that taste profiles support positive natural-language steering, while exposing important limitations, including challenges with negation and short-term temporal adaptation. These findings position taste profiles not as replacements for behavioral embeddings, but as an interpretable and steerable interface between evolving user context and foundation-model recommender systems. Foundation model recommender systems require user context that can be consumed by large language models, reasoned over, and refined through natural-language interaction. Traditional behavioral embedding vectors remain highly effective for retrieval and ranking, but they are opaque to users and not natively expressed for language model workflows. We present Textual User Taste, a system that generates structured natural-language taste profiles from listening behavior, interaction signals, content metadata, and optional user feedback, and deploys them to millions of Spotify users. We describe the end-to-end production lifecycle required to generate, evaluate, optimize, and maintain these representations at industrial scale, including prompt development and compression, user steering, and integration with downstream personalization systems. Because no unique ground-truth taste profile exists, we introduce a multi-faceted evaluation framework to evaluate taste profiles as a production representation: they carry user-specific predictive signal independently, and when integrated with behavioral embeddings, improve MRR by 0.6% for future-track prediction and NDCG@7 by 2.2% for search ranking. Our evaluation also reveals that taste profiles support positive natural-language steering, while exposing important limitations, including challenges with negation and short-term temporal adaptation. These findings position taste profiles not as replacements for behavioral embeddings, but as an interpretable and steerable interface between evolving user context and foundation-model recommender systems.",
+  "arxiv_id": "2609.35285",
+  "authors": [
+    "Ghazal Fazelnia",
+    "Paul Gigioli",
+    "Eliza Klyce",
+    "Sharon Zheng",
+    "Katie Zelvin",
+    "Ye Myat Thein",
+    "Anurag Deshpande",
+    "Seda Davtyan",
+    "Kate Remeika",
+    "Maya Hristakeva",
+    "Erik Franco",
+    "Karen Banzon",
+    "Peng Ge",
+    "Jacqueline Wood",
+    "Nandini Singh",
+    "David Murgatroyd",
+    "Mounia Lalmas",
+    "Yves Raimond",
+    "Andreas Damianou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "为推荐系统提供可检查、可纠正的用户表示：用户可以通过自然语言反馈（如“more jazz”）影响后续生成，提高透明度和可控性。",
+      "在生产规模（数百万Spotify用户）上验证了文本用户画像的可行性，并显示其与行为嵌入组合能在搜索排序和未来内容预测中带来一致但较小的指标提升。",
+      "提示压缩与DSPy优化可显著降低推理成本（约2000 token达到80.2%复合目标），对预算敏感的大规模生产系统有价值。",
+      "建议企业将文本画像视为行为嵌入的互补层而非替代品，在引入此类表示时保留行为信号基础设施，并设计双表示融合方案。",
+      "需要建立画像治理与安全机制，包括过滤受保护属性推断、PII、情绪过度推断和关于创作者的无依据断言；由于画像被多系统复用，安全必须在表示层实现。",
+      "揭示自然语言交互界面的商业机会：正向反馈和情境化请求有效，但否定偏好需要显式产品机制，否则用户意图不仅不能实现还可能被反向放大。",
+      "刷新策略需要平衡稳定性和响应性：在行为基本不变时保持画像稳定，在真实偏好变化时及时更新。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "提出Textual User Taste，一套端到端生产框架，用于在大规模环境中生成、评估、优化、维护、治理和服务结构化自然语言用户画像。",
+      "提出结合内在质量评估（7个LLM judge维度）与功能评估（预测、搜索排序、可操控性、稳定性和表示互补性）的多维评估框架，以应对没有唯一ground-truth画像的问题。",
+      "实证表明口味画像与行为嵌入是互补表示而非替代关系：将两者结合在MRR、AUC、NDCG@10和搜索排序SessionNDCG@7上均取得一致提升。",
+      "揭示自然语言steering的能力与边界：正向请求有效，简单否定请求会因嵌入语义产生反效果；负面偏好需要显式推理或过滤机制。",
+      "给出生产级提示优化路径，包括人工迭代、LLMLingua压缩和DSPy程序优化，并展示压缩与质量之间的权衡。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Textual User Taste System"
+      },
+      {
+        "page": 1,
+        "section": "4 Evaluation Methodology"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "6 Discussion and Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "生产行为嵌入",
+        "仅口味画像嵌入",
+        "行为嵌入+口味画像拼接",
+        "行为嵌入+口味画像门控融合",
+        "无用户上下文基线",
+        "随机分配的其他用户画像（用户特异性对照）"
+      ],
+      "datasets": [
+        "Spotify生产环境行为与搜索数据：40万用户-曲目预测样本（按用户80/20划分）",
+        "10,000个查询会话、约560万查询-候选对的搜索排序评估",
+        "约50个压力场景，覆盖9类挑战（如矛盾反馈、prompt injection、PII、不安全内容、多语言、共享账号、空画像等）",
+        "8种风格/情绪方向上的steering测试",
+        "3天/7天时间稳定性重生成样本"
+      ],
+      "findings_zh": [
+        "未来曲目预测中，行为嵌入仍是单表示最强基线；口味画像+行为嵌入拼接最优，MRR从0.956升至0.962，AUC从0.957升至0.963，NDCG@10从0.932升至0.941，其中AUC提升统计显著；约30%用户单独从画像中获益。",
+        "用户特异性测试中，使用用户自己的画像使MRR从0.656升至0.776（+18.3%，p=0.0003，d=0.26），而换成随机用户画像后MRR降至0.477，说明画像编码的是用户特定预测信息而非额外文本的通用效果。",
+        "搜索排序中，仅口味画像提升SessionNDCG@7 0.9%，仅行为嵌入提升1.7%，两者组合提升2.2%，且在第二个时间划分上组合使用保持一致正收益，单表示收益不稳定。",
+        "正向自然语言请求如“more jazz”在所有8个方向都显著将推荐移向请求方向（p<0.0001），平均Top-20精确率从56%升至74%；将请求追加到现有画像比重新生成更有效（相似度0.031 vs 0.022）。",
+        "否定请求如“no electronic music”会把推荐移向该概念而非远离，因为嵌入捕获的是“electronic music”的语义而非否定的逻辑含义；情境请求（如“deep focus”）产生更大移动（0.069）。",
+        "口味画像与行为嵌入结构一致性较低：RSA Spearman=0.286，k=5最近邻重叠17.5%，ARI=0.08，说明两种表示在表示空间中以不同方式组织用户偏好。",
+        "画像在短期内高度稳定：3天和7天重生成的完整画像嵌入余弦相似度为0.954和0.955，对应输入约95.0%和94.4%未变，7项输出指标均无显著差异（Wilcoxon p>0.05）。",
+        "内在质量呈多维性：7个LLM judge得分的PCA产生两个主成分解释93.7%方差；事实性与相关性仅弱负相关（r=-0.18），说明单一内在指标不足以刻画画像质量。",
+        "提示压缩存在清晰权衡：2倍LLMLingua压缩几乎保持事实性与100%有效输出，4倍压缩使事实性从8.61降至7.80、有效输出降至73.1%，8倍压缩事实性降至3.31、有效输出仅16.5%。",
+        "DSPy优化生成的约2000 token提示达到了80.2%的复合目标，约为最优人工提示长度的三分之一。"
+      ],
+      "metrics": [
+        "MRR",
+        "ROC-AUC",
+        "NDCG@10",
+        "SessionNDCG@7",
+        "Top-20 precision",
+        "嵌入余弦相似度",
+        "RSA Spearman相关性",
+        "k=5最近邻重叠率",
+        "Adjusted Rand Index (ARI)",
+        "LLM judge评分：事实性、连贯性、覆盖度、特异性、多样性、相关性、安全性"
+      ]
+    },
+    "limitations_zh": [
+      "口味画像生成是无监督摘要问题，不存在金标准画像；评估框架更适合比较系统变体而非建立绝对画像质量。",
+      "作者指出专有数据和基础设施限制外部精确复现，且画像作为新表示面缺乏成熟交互模式和长期用户价值度量。",
+      "部署到大规模用户证明运行可行性，但不意味着每个画像都同样准确或每个下游消费者都一定受益，仍需逐应用受控评估和监控。",
+      "否定请求、用户陈述与行为矛盾、意图变化等需要显式策略和信号溯源，不能仅靠文本嵌入处理。",
+      "短期稳定性实验主要衡量输入基本不变时生成的稳定性，并未评估对真实偏好变化的响应性。",
+      "安全需要在表示层强制，因为画像推断对用户可见且被多个系统复用。"
+    ],
+    "method_zh": "系统从用户聚合行为信号（艺人、曲目、流派、播客、有声书、关注、负反馈、发现模式、周内时间等）以及可选的用户自然语言笔记生成结构化画像。肖像包含Music Taste、Podcast Taste、Audiobook Taste和Listening Rhythms四个字段。生成使用成本高效的指令微调LLM，输入输出两侧都有guardrails，用于过滤不安全内容、受保护属性推断、PII、情绪过度推断和对创作者的无依据断言。模型与提示词版本绑定，生成结果被存储并同时提供给用户端和后端系统，而不是每次都重新生成；用户反馈在受控的刷新循环中进入后续重新生成。提示词开发采用迭代人工优化、LLMLingua压缩与DSPy MIPROv2/BootstrapFewShot程序优化。评估体系包括内在质量评估、未来曲目预测、用户特异性、搜索排序、steering、表示互补性与时间稳定性测试。",
+    "problem_zh": "大模型推荐系统需要可被大语言模型消费、可推理、可交互的用户上下文，但传统行为嵌入对用户不透明、难以用自然语言工作流表达，也无法让用户检查或纠正模型对自身偏好的假设。需要一种可扩展、可评估、可维护、可治理的结构化自然语言用户表示。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.914,
+  "id": "arxiv-2609.35285",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-28T14:34:14Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "Textual User Taste 为大规模基础模型推荐系统生成结构化自然语言用户偏好画像，并在工业场景中验证其作为可解释、可引导用户表示的效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Textual User Taste: Natural-Language User Context for Foundation-Model Recommender System at Scale",
+  "url": "https://arxiv.org/abs/2609.35285v1"
+}

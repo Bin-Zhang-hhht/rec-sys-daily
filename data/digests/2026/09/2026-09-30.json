@@ -1,0 +1,56 @@
+{
+  "blogs": [],
+  "date": "2026-09-30",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.34552",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：EvoSkillRec 提出一种基于技能基因组的累积式推荐架构演化框架，结合受限技能空间和 LLM 代码空间来搜索并复用推荐模型架构。"
+    },
+    {
+      "item_id": "arxiv-2609.32839",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：FLVM 通过分解潜在价值模型从异质行为反馈中估计短视频用户偏好，并将潜在价值分数用于推荐排序以提升用户体验。"
+    },
+    {
+      "item_id": "arxiv-2609.35285",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Textual User Taste 为大规模基础模型推荐系统生成结构化自然语言用户偏好画像，并在工业场景中验证其作为可解释、可引导用户表示的效果。"
+    },
+    {
+      "item_id": "arxiv-2609.35041",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Mult-BiW 将全局列表式多项似然与渐进式双加权策略结合，以缓解推荐系统中的流行度偏差问题。"
+    },
+    {
+      "item_id": "arxiv-2609.33346",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文揭示符号感知推荐系统在排序阶段存在“效价盲”问题，并提出带符号的评测指标，属于推荐系统评测与排序研究。"
+    },
+    {
+      "item_id": "arxiv-2609.34306",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：SPRINT 通过平均概率速度视角提出单步生成式推荐方法，仅用一次前向传播生成物品语义 ID，大幅提升生成式推荐的效率与准确性。"
+    },
+    {
+      "item_id": "arxiv-2609.34229",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：PromptShift 提出一种可解释且无需训练的框架，用于量化和缓解 LLM 推荐系统中身份提示引发的偏好漂移，并通过自适应重排进行修正。"
+    },
+    {
+      "item_id": "arxiv-2609.33745",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出 Beyond the Beam，针对生成式推荐中标识符超出波束的问题进行构造性修复与候选补全，属于生成式推荐研究。"
+    },
+    {
+      "item_id": "arxiv-2609.33045",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文介绍 RecSys 2026 对话式音乐推荐挑战赛的任务、数据集、评测协议与官方结果，并通过检索-重排-生成框架分析参赛系统。"
+    },
+    {
+      "item_id": "arxiv-2609.32215",
+      "rank": 10,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出 DP-Rec，一种通过动态潜在分块提升长序列顺序推荐的效率与准确率的方法，属于序列推荐研究。"
+    }
+  ]
+}

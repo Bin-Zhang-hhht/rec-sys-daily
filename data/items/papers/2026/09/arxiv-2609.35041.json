@@ -1,0 +1,142 @@
+{
+  "abstract": "In recommender systems, user feedback typically follows a long-tail distribution, which leads many recommendation algorithms to exacerbate popularity bias by disproportionately favoring popular items. To mitigate this issue, recent studies have employed Inverse Propensity Scoring (IPS) to rebalance training data via reweighting user-item interactions. However, the effectiveness of IPS-based approaches is often constrained by locally unbiased objectives and inaccurate propensity estimation. In this paper, we propose Multinomial Likelihood with Bi-Weighting (Mult-BiW) to address these limitations. First, we introduce a debiasing framework, termed Mult-IPS, which integrates multinomial likelihood with IPS to capture global and unbiased user preferences over the entire item set. Second, we develop a Bi-Weighting (BiW) strategy that jointly leverages propensity scores and a collection model, incorporating a smoothing mechanism to enhance the robustness of propensity estimation. We further provide theoretical analyses that establish an upper bound on the empirical bias and characterize the optimal form of the collection model. Third, to mitigate the adverse effects of aggressive reweighting on representation learning, we design a Progressive Bi-Weighting strategy that gradually transitions from discriminative representation learning to popularity debiasing. Extensive experiments on real-world datasets show that Mult-BiW consistently outperforms state-of-the-art baselines. In recommender systems, user feedback typically follows a long-tail distribution, which leads many recommendation algorithms to exacerbate popularity bias by disproportionately favoring popular items. To mitigate this issue, recent studies have employed Inverse Propensity Scoring (IPS) to rebalance training data via reweighting user-item interactions. However, the effectiveness of IPS-based approaches is often constrained by locally unbiased objectives and inaccurate propensity estimation. In this paper, we propose Multinomial Likelihood with Bi-Weighting (Mult-BiW) to address these limitations. First, we introduce a debiasing framework, termed Mult-IPS, which integrates multinomial likelihood with IPS to capture global and unbiased user preferences over the entire item set. Second, we develop a Bi-Weighting (BiW) strategy that jointly leverages propensity scores and a collection model, incorporating a smoothing mechanism to enhance the robustness of propensity estimation. We further provide theoretical analyses that establish an upper bound on the empirical bias and characterize the optimal form of the collection model. Third, to mitigate the adverse effects of aggressive reweighting on representation learning, we design a Progressive Bi-Weighting strategy that gradually transitions from discriminative representation learning to popularity debiasing. Extensive experiments on real-world datasets show that Mult-BiW consistently outperforms state-of-the-art baselines.",
+  "arxiv_id": "2609.35041",
+  "authors": [
+    "Tianyu Zhu",
+    "Jiandong Ding",
+    "Yansong Shi",
+    "Guoqing Chen",
+    "Jian-Yun Nie"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商、本地生活、社交内容等平台，缓解流行度偏置可提升尾部/长尾物品曝光，改善个性化、惊喜度和推荐公平性。",
+      "Mult-BiW 是模型无关且无需额外参数的方法，可集成到 MF、LightGCN 等现有推荐骨干，训练时间与高效基线相当，具备规模化应用潜力。",
+      "在保持总体推荐精度的同时显著提高尾部物品推荐质量，有助于长尾商品/内容变现和用户多样性体验。",
+      "需要调节 α、η 等超参数，且去偏会以头部物品适度精度下降为代价；业务上需根据目标权衡头部转化与长尾探索。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出 Mult-IPS：将逆倾向得分（IPS）与多项似然（multinomial likelihood）结合，构造列表级无偏估计器，在全物品集上建模用户全局偏好；该框架模型无关，可适配 MF、LightGCN 等推荐骨干。",
+      "提出 Bi-Weighting（BiW）策略：借鉴 Jelinek-Mercer 平滑，将估计倾向性与集合模型线性插值，缓解尾部物品倾向性被低估的问题；给出经验偏差上界，并推导最优集合模型为物品平均倾向性。",
+      "提出 Progressive Bi-Weighting（PBiW）：通过累积学习调度 α=1-(T/Tmax)^η，使训练前期侧重表示学习、后期逐步加大去偏强度，减轻激进重加权对表示学习的负面影响。",
+      "在六个真实数据集上的实验显示，Mult-BiW 一致优于现有 SOTA 基线；论文报告相对各数据集最强基线平均提升 Recall@20 9.43%、NDCG@20 14.80%，且能更有效地缓解流行度偏置。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 4,
+        "section": "3.1 IPS-Weighted Multinomial Likelihood"
+      },
+      {
+        "page": 5,
+        "section": "3.2 Bi-Weighting"
+      },
+      {
+        "page": 6,
+        "section": "3.3 Progressive Bi-Weighting"
+      },
+      {
+        "page": 6,
+        "section": "3.4.2 Applicability of Doubly Robust Estimation"
+      },
+      {
+        "page": 7,
+        "section": "4.1 Experimental Settings"
+      },
+      {
+        "page": 8,
+        "section": "4.2 Main Results (RQ1)"
+      },
+      {
+        "page": 9,
+        "section": "4.3 Ablation Studies (RQ2)"
+      },
+      {
+        "page": 11,
+        "section": "4.6 Heterogeneous Analysis of Item Groups (RQ5)"
+      },
+      {
+        "page": 16,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Expo-MF",
+        "Rel-MF",
+        "UBPR",
+        "DICE",
+        "MACR",
+        "CPR",
+        "TTEN",
+        "Mult-IPS",
+        "Mult-CIPS",
+        "Mult-FBiW",
+        "Mult-PBiW"
+      ],
+      "datasets": [
+        "Amazon Books",
+        "Google Local",
+        "Gowalla",
+        "Yelp Challenge 2019",
+        "MovieLens-10M (ML10M)",
+        "Netflix",
+        "Coat（附录）",
+        "Yahoo! R3（附录）"
+      ],
+      "findings_zh": [
+        "主实验：Mult-BiW 在六个数据集上总体一致最佳；论文报告相对各数据集最强基线平均提升 Recall@20 9.43%、NDCG@20 14.80%，在 Amazon 和 Yelp 等长尾更严重的数据集上增益更明显。",
+        "基线对比：成对无偏方法 UBPR 优于逐点 Rel-MF；CPR 和 TTEN 是基线中最强的方法，但 Mult-BiW 在多数指标上仍领先。",
+        "效率：Mult-BiW 不引入额外模型参数；与高效基线 CPR-MF 相比，在 Amazon、Google、Gowalla、Yelp 上总训练时间更短，在 ML10M 和 Netflix 上相当。",
+        "消融：多项似然损失优于逐点平方损失、逐点逻辑损失和成对损失；BiW 和 PBiW 均优于 vanilla IPS 和 CIPS，PBiW 在多数情况下最佳。",
+        "超参数：α 取适中值时 BiW 显著优于 IPS；η 对 MF 和 LightGCN 影响不同，MF 偏好较小 η，LightGCN 偏好较大 η。",
+        "去偏可视化：Mult-BiW 的 top-10 推荐频率与训练流行度关系曲线最平坦、Pearson 相关系数最低，表明更强的流行度偏置缓解。",
+        "分组分析：相对 Mult-MF，Mult-IPS 和 Mult-BiW 以头部物品精度适度下降为代价，换来尾部物品大幅提升；Mult-BiW 在低流行度物品上尤其优于 Mult-IPS。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "Recall@20",
+        "NDCG@10",
+        "NDCG@20",
+        "推荐频率-训练流行度 Pearson 相关系数（去偏可视化）"
+      ]
+    },
+    "limitations_zh": [
+      "仅针对隐式反馈；由于没有显式观测指示变量 o_ui，直接应用 Doubly Robust 估计具有挑战性，论文未将 Mult-BiW 扩展到 DR 框架。",
+      "全物品 softmax 多项似然的每轮训练复杂度为 O(|U||I|d)；在 |D|(1+K) << |U||I| 时，逐点/成对负采样方法渐进更高效，实际效率依赖 GPU 上的稠密矩阵运算优化。",
+      "倾向性仍主要基于物品流行度统计估计，真实暴露概率可能受社交效应、用户探索等因素影响；BiW 只能缓解而不能完全消除倾向性估计误差。",
+      "过度激进的去偏（如持续降低 α）可能导致过拟合，需要谨慎控制平滑程度。",
+      "在 Google Local 数据集的 Recall@10 和 Recall@20 等指标上，Mult-BiW 相对最强基线 CPR 出现负提升，说明并非所有数据集和指标都一致领先。"
+    ],
+    "method_zh": "方法名为 Mult-BiW。首先假设用户相关性向量 r_u 服从以 softmax 归一化预测为参数的多项分布，以负多项对数似然作为局部损失，并用 IPS 重加权得到列表级无偏目标：L_Mult-IPS = -(1/|U|) Σ_{u,i} (y_ui/θ_ui) log r̃_ui。其次，用 Bi-Weighting 将估计倾向性 θ̂_ui 与集合模型 C 线性插值：θ̂_ui^BiW=(1-α)θ̂_ui+αC，理论推导最优 C 为物品平均倾向性 (1/|I|) Σ_j θ̂_uj，从而得到 Mult-BiW 估计器。最后，用累积学习调度 α=1-(T/Tmax)^η，使模型从判别式表示学习平滑过渡到流行度去偏。",
+    "problem_zh": "推荐系统中的用户反馈呈长尾分布，导致模型偏向流行物品，加剧流行度偏置。现有IPS去偏方法主要受两个问题限制：一是使用逐点或成对损失，只能实现局部无偏，难以捕捉用户在整个物品集上的全局偏好；二是倾向性通常仅由物品流行度估计，会系统性低估尾部物品的暴露概率，造成经验偏差并严重降低推荐性能。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.912,
+  "id": "arxiv-2609.35041",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-29T19:04:00.523331Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-28T12:39:49Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "Mult-BiW 将全局列表式多项似然与渐进式双加权策略结合，以缓解推荐系统中的流行度偏差问题。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Mitigating Popularity Bias in Recommendation with Global Listwise Learning and Progressive Bi-Weighting",
+  "url": "https://arxiv.org/abs/2609.35041v1"
+}
