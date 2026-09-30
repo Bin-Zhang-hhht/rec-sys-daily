@@ -1,0 +1,137 @@
+{
+  "abstract": "Many recommender systems such as for e-commerce and news platforms aim to provide users with rankings they are likely to interact with. Off-Policy Learning (OPL) of ranking policies enables us to learn new ranking policies using only historical logged data. However, ranking settings make OPL remarkably challenging because their action spaces consist of permutations of unique items, being extremely large. Existing methods primarily use either policy- or regression-based approaches. The policy-based approach, which typically uses importance-weighted policy gradients, can suffer from high variance due to large action spaces. The regression-based approach, on the other hand, estimates the expected reward using conventional machine learning methods, avoiding variance issues but potentially suffering from severe bias. To circumvent these issues of existing methods, we propose a new OPL method for ranking, named Ranking Policy Optimization via Top-$k$ Policy Decomposition (R-POD), which combines the policy- and regression-based approaches in an effective fashion. Specifically, R-POD decomposes a ranking policy into a first-stage policy for selecting top-$k$ actions and a second-stage policy for choosing the bottom actions given the top-$k$ actions. It learns the first-stage policy using a new policy gradient estimator and the second-stage policy via the regression-based approach. This method can substantially reduce variance, since it applies importance weighting only to the top-$k$ actions. We also demonstrate that our policy-gradient estimator for the first-stage policy is unbiased under a conditional pairwise correctness condition, which only requires that the expected reward differences of pairs of rankings sharing the same top-$k$ actions can be estimated correctly. Many recommender systems such as for e-commerce and news platforms aim to provide users with rankings they are likely to interact with. Off-Policy Learning (OPL) of ranking policies enables us to learn new ranking policies using only historical logged data. However, ranking settings make OPL remarkably challenging because their action spaces consist of permutations of unique items, being extremely large. Existing methods primarily use either policy- or regression-based approaches. The policy-based approach, which typically uses importance-weighted policy gradients, can suffer from high variance due to large action spaces. The regression-based approach, on the other hand, estimates the expected reward using conventional machine learning methods, avoiding variance issues but potentially suffering from severe bias. To circumvent these issues of existing methods, we propose a new OPL method for ranking, named Ranking Policy Optimization via Top-$k$ Policy Decomposition (R-POD), which combines the policy- and regression-based approaches in an effective fashion. Specifically, R-POD decomposes a ranking policy into a first-stage policy for selecting top-$k$ actions and a second-stage policy for choosing the bottom actions given the top-$k$ actions. It learns the first-stage policy using a new policy gradient estimator and the second-stage policy via the regression-based approach. This method can substantially reduce variance, since it applies importance weighting only to the top-$k$ actions. We also demonstrate that our policy-gradient estimator for the first-stage policy is unbiased under a conditional pairwise correctness condition, which only requires that the expected reward differences of pairs of rankings sharing the same top-$k$ actions can be estimated correctly.",
+  "arxiv_id": "2609.36740",
+  "authors": [
+    "Ren Kishimoto",
+    "Koichi Tanaka",
+    "Haruka Kiyohara",
+    "Yusuke Narita",
+    "Yasuo Yamamoto",
+    "Nobuyuki Shimizu",
+    "Yuta Saito"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可帮助电商、新闻、招聘等推荐系统仅利用历史日志离线优化排序策略，降低对在线 A/B 实验的依赖与试错成本。",
+      "top-k 重要性加权显著降低策略梯度方差，使训练数据较少或日志策略接近确定性的实际生产场景也能稳定学习排序策略。",
+      "不依赖级联或独立性等用户行为假设，更能适应真实用户多样化的点击与交互行为，减少因假设违背导致的策略性能损失。",
+      "k 超参数可解释为 policy-based 与 regression-based 的混合比例，便于工程上根据数据量和回归精度进行验证集调优与部署。",
+      "在 Yahoo! LETOR 和 MSLR-WEB10K 上相对基线的 DCG 提升表明其有望改善线上排名质量，但论文未提供实际线上部署案例。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "提出 R-POD，将排序策略分解为选择 top-k 动作的第一阶段策略与给定 top-k 后选择底部动作的第二阶段策略，并以有效方式结合 policy-based 与 regression-based 优化。",
+      "提出 R-POD 梯度估计器，仅对 top-k 动作空间施加重要性加权，并用奖励回归模型考虑底部动作的影响，从而大幅降低方差且不引入用户行为假设。",
+      "理论上证明在条件成对正确性（CPC）条件下 R-POD 梯度估计器无偏；CPC 只要求回归模型正确保持共享同一 top-k 动作的排序对之间的相对奖励差异，比要求全局奖励建模的回归方法更宽松。",
+      "通过超参数 k 统一政策基方法与回归方法：k=L 时退化为 policy-based 方法，k=0 时退化为 regression-based 方法，并可用验证集估计调优。",
+      "在合成数据及 MSLR-WEB10K、Yahoo! LETOR 上的实验表明 R-POD 显著优于现有基线，尤其在小样本、较大排序空间、日志策略接近确定性以及行为假设被违反时。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Off-Policy Learning for Ranking"
+      },
+      {
+        "page": 1,
+        "section": "3 The R-POD Algorithm"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Optimizing the First-stage Policy"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Optimizing the Second-stage Policy"
+      },
+      {
+        "page": 1,
+        "section": "3.4 The Role of Hyperparameter k in R-POD"
+      },
+      {
+        "page": 1,
+        "section": "4 Empirical Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Synthetic Data"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Real-World Data"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "IPS-PG",
+        "DR-PG",
+        "RIPS-PG",
+        "IIPS-PG",
+        "Regression-based (Reg-based)",
+        "R-POD (tuning)",
+        "R-POD (best)"
+      ],
+      "datasets": [
+        "合成数据（5维上下文、Plackett-Luce 日志策略、含交互项奖励）",
+        "Yahoo! LETOR（DCG@3，每查询抽样10个文档）",
+        "MSLR-WEB10K（DCG@5，每查询抽样100个文档）"
+      ],
+      "findings_zh": [
+        "在训练数据量 n 从 250 到 2000 变化时，R-POD (tuning) 一致优于基线，且数据量小时优势更明显，反映方差降低带来的数据效率提升。",
+        "当唯一动作数 |A| 从 4 增加到 8（唯一排序数从 24 到 336）时，R-POD 在所有设置下均优于基线方法。",
+        "当日志策略温度 τ 较小、接近确定性时，IPS-PG 和 DR-PG 明显恶化，而 R-POD 由于 top-k 重要性加权、方差更小而表现更好。",
+        "当交互参数 λ 增大、即级联与独立性假设被违反时，RIPS-PG 与 IIPS-PG 性能下降，R-POD 因不依赖这些假设且用回归模型处理底部动作交互而更稳健。",
+        "数据驱动的 k 选择与 oracle 的 R-POD (best) 选择常一致；小数据时中间 k 值有效，大数据时选择倾向于 k=0 或 k=L。",
+        "真实数据实验中，R-POD (tuning) 通常优于基线；Reg-based 仅在回归模型较准确（MSLR-WEB10K）时与 R-POD 接近，在回归误差较大（Yahoo! LETOR）时明显落后。"
+      ],
+      "metrics": [
+        "测试策略价值（归一化后的 policy value）",
+        "DCG@3（Yahoo! LETOR）",
+        "DCG@5（MSLR-WEB10K）"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅覆盖 |A|≤100 的动作规模（真实数据中从 MSLR 抽样 100 个文档、从 Yahoo 抽样 10 个文档），更大的排序动作空间仍需未来工作。",
+      "R-POD 梯度估计器的无偏性依赖 full top-k support 条件与 CPC 回归条件；实际回归模型通常只能近似满足 CPC，因此仍可能残留偏差。",
+      "附录提出的两步回归（先成对回归降偏、再回归降方差）需要成对日志数据并增加实现成本，未必总能实用；实际实验常用一步绝对奖励回归。",
+      "数据驱动的超参数 k 调优不完美，与使用真实策略价值的 R-POD (best) 存在差距，调优误差较大时性能会下降。"
+    ],
+    "method_zh": "R-POD 的核心是 top-k 策略分解：π_overall(a|x) = π_θ^1st(a_{1:k}|x) · π_φ^2nd(a_{k+1:L}|x, a_{1:k})。第一阶段策略用 R-POD 梯度估计器训练，对每条日志计算 top-k 重要性权重 w(x,a_{1:k}) 乘以（观测总奖励 - 回归模型预测），再乘第一阶段得分函数，并加上回归模型在 π_θ^1st 下的期望项；这样用重要性加权无偏估计 top-k 动作价值，同时用回归刻画底部动作影响。回归模型 \\(f_φ\\) 可用平方损失等常规监督学习拟合。第二阶段策略基于同一回归模型，在给定 top-k 条件下选择预测奖励最大的底部动作，满足 CPC 时该策略最优。推理时先由第一阶段采样 top-k 动作，再由第二阶段补全底部排序。k 控制偏差-方差权衡。",
+    "problem_zh": "离线学习排序策略（Off-Policy Learning for Ranking）的目标是仅用历史日志数据优化新的排序策略，但排序动作空间由唯一物品的排列构成、极其巨大；现有 policy-based 方法（如 IPS/DR 策略梯度）因对完整排序施加重要性权重而方差极高，回归方法则难以对每一个唯一排序准确建模、偏差较大；基于独立性或级联用户行为假设的方法在假设被违反时又会引入明显偏差。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.875,
+  "id": "arxiv-2609.36740",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-30T19:04:06.044969Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-29T05:12:12Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于Top-k策略分解的排序策略离线学习方法R-POD，结合策略梯度与回归方法以降低方差，用于推荐系统中的排序策略学习。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Efficient Offline Learning of Ranking Policies via Top-$k$ Policy Decomposition",
+  "url": "https://arxiv.org/abs/2609.36740v1"
+}

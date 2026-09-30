@@ -1,0 +1,148 @@
+{
+  "abstract": "While the \"Matthew Effect\" and filter bubbles are widely recognized outcome-level biases in recommender systems, we reveal that Diffusion Recommender Models (DRMs) uniquely compound this issue through their generative dynamics. Rather than merely inheriting data imbalances, DRMs trigger a self-reinforcing amplification of popularity bias. We identify that this phenomenon is driven by two compounding mechanisms. First, while optimization loss is universally dominated by high-frequency items across recommenders, DRMs suffer from a unique structural prior mismatch during generation. Because the forward terminal distribution of long-tailed data deviates significantly from the standard Gaussian prior, reverse sampling trajectories inherently collapse toward high-density popular items, fundamentally suppressing niche item generation. To dismantle this self-reinforcing loop, we propose FairDiff, a plug-and-play fairness-aware diffusion framework. To overcome the popularity-dominated loss, we introduce Popularity Condition Guidance (PCG). Rather than altering the training objective, PCG acts as an inference-time distributional reweighting mechanism, mathematically reshaping the score-based gradient field to penalize high-popularity regions and guide trajectories toward niche semantics. Furthermore, we design a Semantic Calibration (SC) Module to bridge the prior mismatch, aligning the forward and reverse distributions via one-step optimal transport. Comprehensive evaluations demonstrate that FairDiff achieves state-of-the-art performance while effectively mitigating the self-reinforcing Matthew Effect, highlighting its value as a general framework for DRMs. While the \"Matthew Effect\" and filter bubbles are widely recognized outcome-level biases in recommender systems, we reveal that Diffusion Recommender Models (DRMs) uniquely compound this issue through their generative dynamics. Rather than merely inheriting data imbalances, DRMs trigger a self-reinforcing amplification of popularity bias. We identify that this phenomenon is driven by two compounding mechanisms. First, while optimization loss is universally dominated by high-frequency items across recommenders, DRMs suffer from a unique structural prior mismatch during generation. Because the forward terminal distribution of long-tailed data deviates significantly from the standard Gaussian prior, reverse sampling trajectories inherently collapse toward high-density popular items, fundamentally suppressing niche item generation. To dismantle this self-reinforcing loop, we propose FairDiff, a plug-and-play fairness-aware diffusion framework. To overcome the popularity-dominated loss, we introduce Popularity Condition Guidance (PCG). Rather than altering the training objective, PCG acts as an inference-time distributional reweighting mechanism, mathematically reshaping the score-based gradient field to penalize high-popularity regions and guide trajectories toward niche semantics. Furthermore, we design a Semantic Calibration (SC) Module to bridge the prior mismatch, aligning the forward and reverse distributions via one-step optimal transport. Comprehensive evaluations demonstrate that FairDiff achieves state-of-the-art performance while effectively mitigating the self-reinforcing Matthew Effect, highlighting its value as a general framework for DRMs.",
+  "arxiv_id": "2609.36671",
+  "authors": [
+    "Song-Li Wu",
+    "Xianquan Wang",
+    "Zhaocheng Du",
+    "Weinan Gan",
+    "Jingyi Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "作为即插即用模块，FairDiff无需改变现有DRM架构或训练流程，便于在已有推荐系统中低成本部署。",
+      "在提升整体效用的同时降低曝光差异并提高长尾覆盖（APLT），有助于改善中小商家和长尾商品的曝光公平性。",
+      "截断采样显著缩短训练与推理时间（如CDiff4Rec+FairDiff在Beauty上训练时间从313分钟降至95分钟），可降低线上计算成本。",
+      "公平与效用可同时提升，有望减少平台“头部通吃”的生态失衡，提升用户对推荐多样性的满意度。",
+      "在多模态与跨域冷启动场景中保持增益，可在内容生态、新用户冷启动等业务中扩展应用。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "揭示DRMs存在由优化偏差与DRM特有的结构先验失配共同组成的自强化马太效应。",
+      "提出FairDiff：即插即用、不修改架构或训练过程的公平感知扩散框架，包含推理时分布重加权机制PCG和最优传输初始化SC。",
+      "在多个推荐任务上取得SOTA性能，同时降低曝光差异、提升长尾覆盖，不引入额外计算开销。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 3,
+        "section": "Method: Popularity Condition Guidance"
+      },
+      {
+        "page": 4,
+        "section": "Method: Semantic Calibration Module"
+      },
+      {
+        "page": 5,
+        "section": "Experiments"
+      },
+      {
+        "page": 10,
+        "section": "Theory"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "BERT4Rec",
+        "TiMiRec",
+        "TIGER",
+        "BASRec",
+        "HSTU",
+        "ACVAE",
+        "CSRec",
+        "DiffuRec",
+        "DreamRec",
+        "CDiff4Rec",
+        "BPR",
+        "LightGCN",
+        "VBPR",
+        "MMGCN",
+        "DualGNN",
+        "SLMRec",
+        "BM3",
+        "MGCN",
+        "Freedom",
+        "DiffMM",
+        "DiffCL",
+        "PDRec",
+        "T-DiffRec",
+        "TI-DiffRec",
+        "GRU4Rec",
+        "CL4SRec",
+        "CDRNP",
+        "DMCDR"
+      ],
+      "datasets": [
+        "Beauty",
+        "Toys",
+        "Steam",
+        "MovieLens-1M",
+        "TikTok",
+        "Baby",
+        "Sports",
+        "Game",
+        "Book",
+        "Toy"
+      ],
+      "findings_zh": [
+        "在Beauty、Toys、Steam上，FairDiff在三个扩散骨干（DreamRec、DiffuRec、CDiff4Rec）上均取得统计显著提升，NDCG增益尤其明显。",
+        "FairDiff持续降低ΔExp、ΔRecall、ΔNDCG并提高APLT，说明在过程层面缓解自强化马太效应，而非简单事后重加权。",
+        "按物品/用户流行度分段评估中，cold segment提升最大，同时hot segment仍有增益，说明弱信号被增强而密集区判别力被保留。",
+        "消融实验显示PCG与SC互补：PCG纠正优化导致的流行度主导，SC纠正推理期先验失配；两者组合达到最佳公平-效用权衡。",
+        "可视化与KL散度显示SC将前向终态与反向初始分布之间的KL从10.6447降至0.2475，显著改善前向-反向一致性。",
+        "多模态推荐（TikTok、Sports、Baby）与跨域/冷启动场景中FairDiff同样一致提升，表明可迁移性。"
+      ],
+      "metrics": [
+        "HR@K",
+        "NDCG@K",
+        "Recall@10",
+        "ΔRecall",
+        "ΔNDCG",
+        "ΔExp",
+        "APLT",
+        "AUC",
+        "MAE",
+        "RMSE"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确说明显式建模长期反馈动力学超出研究范围，因此未直接建模曝光-交互的长期闭环。",
+      "完全流行度无关设置（PCG w=0.0）会轻微牺牲推荐效用，说明流行度信号并非可完全移除。",
+      "单独引入流行度条件（PC）只能中度缓解差异，不能根本解决偏差，需要配合PCG与SC。"
+    ],
+    "method_zh": "FairDiff由两个互补模块组成。(1) Popularity Condition Guidance (PCG)：将流行度p作为显式条件输入噪声预测器 εθ(x_t,t,c,p)，用从边际流行度先验采样的p̂构造流行度无关估计，再按 w_PCG 在流行度无关与流行度感知分数之间线性插值，推理时重塑分数梯度场以惩罚高流行度区域、引导轨迹走向长尾语义。(2) Semantic Calibration (SC)：通过一步静态最优传输映射T将标准高斯噪声对齐到经验前向终态分布，得到校准初始化 x̃_T=T(x̂_T)，并支持截断扩散，跳过冗余早期去噪步骤。二者均以即插即用方式作用于推理阶段。",
+    "problem_zh": "论文指出扩散推荐模型(DRM)不仅继承数据中的流行度偏差，还会通过生成动力学自我强化马太效应：一是扩散训练目标在长尾分布下被高频物品主导，梯度贡献与物品频率成正比；二是前向终态分布 q(x_T) 偏离标准高斯先验，反向采样从 N(0,I) 初始化造成结构先验失配，导致轨迹从早期就向高密度流行物品坍缩，压制 niche/长尾物品生成。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.904,
+  "id": "arxiv-2609.36671",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-30T19:04:06.044969Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-29T04:10:13Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文针对扩散推荐模型中流行度偏差的自我强化放大问题，提出公平性感知的FairDiff框架，包含流行度条件引导与语义校准模块。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FairDiff: Mitigating the Self-Reinforcing Matthew Effect in Diffusion Recommender Models",
+  "url": "https://arxiv.org/abs/2609.36671v1"
+}

@@ -1,0 +1,145 @@
+{
+  "abstract": "A critical prerequisite of generative recommendation is designing semantic identifiers (SIDs) that are both scalable to large item sets and efficiently learnable. Existing SID learning methods fundamentally rely on Top-1 hard assignment during vector quantization. While heuristic strategies -- such as clustering-based initialization or forced post-hoc collision resolution -- can artificially inflate codebook coverage, they often disrupt end-to-end semantic alignment and fail to address the underlying optimization bottleneck: sparse gradient propagation. In standard Top-1 assignment, gradients concentrate on a narrow subset of frequently selected codewords, leaving the majority inherently under-trained and causing severe SID collisions. To overcome this limitation natively without relying on complex initialization priors, we propose FineSID, a unified quantization framework that moves beyond Top-1 assignment by enabling fine-grained gradient propagation across the entire codebook. Instead of updating only a single selected codeword, FineSID distributes learning signals to all codewords in a soft, differentiable manner. This design promotes globally balanced codebook optimization while strictly preserving semantic consistency, effectively alleviating SID collisions and stabilizing training in large, high-dimensional codebooks. Extensive experiments on multiple public benchmarks demonstrate that FineSID is robust to initialization configurations and consistently improves both codebook utilization and recommendation accuracy. Our work provides a principled, initialization-agnostic solution for semantic identifier learning, advancing the practicality of generative recommendation. A critical prerequisite of generative recommendation is designing semantic identifiers (SIDs) that are both scalable to large item sets and efficiently learnable. Existing SID learning methods fundamentally rely on Top-1 hard assignment during vector quantization. While heuristic strategies -- such as clustering-based initialization or forced post-hoc collision resolution -- can artificially inflate codebook coverage, they often disrupt end-to-end semantic alignment and fail to address the underlying optimization bottleneck: sparse gradient propagation. In standard Top-1 assignment, gradients concentrate on a narrow subset of frequently selected codewords, leaving the majority inherently under-trained and causing severe SID collisions. To overcome this limitation natively without relying on complex initialization priors, we propose FineSID, a unified quantization framework that moves beyond Top-1 assignment by enabling fine-grained gradient propagation across the entire codebook. Instead of updating only a single selected codeword, FineSID distributes learning signals to all codewords in a soft, differentiable manner. This design promotes globally balanced codebook optimization while strictly preserving semantic consistency, effectively alleviating SID collisions and stabilizing training in large, high-dimensional codebooks. Extensive experiments on multiple public benchmarks demonstrate that FineSID is robust to initialization configurations and consistently improves both codebook utilization and recommendation accuracy. Our work provides a principled, initialization-agnostic solution for semantic identifier learning, advancing the practicality of generative recommendation.",
+  "arxiv_id": "2609.36670",
+  "authors": [
+    "Song-Li Wu",
+    "Weinan Gan",
+    "Zhaocheng Du",
+    "Xianquan Wang",
+    "Jingyi Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对拥有超大规模商品/内容目录的平台，FineSID 可降低 SID 碰撞、提升码本利用率，改善长尾与冷门物品的推荐准确率，有助于缓解流行度偏差并提升目录覆盖面。",
+      "训练时间相比最强基线 CAR 降低超过 50%（例如 Game 从 24.5 小时降至 9.3 小时），可显著降低大规模生成式推荐模型的训练算力与成本。",
+      "不同于增加额外标识符 token 的方案，FineSID 保持固定长度 SID（L=3），自回归解码开销较低，推理速度与最强基线相当，有利于在线推荐服务的效率与部署成本控制。",
+      "作者团队包括华为诺亚方舟实验室，面向生成式推荐工程落地；该框架可作为工业推荐系统中物品 tokenizer 的改进方案，兼容 T5/LLM 自回归骨干，并支持随机初始化以降低调参成本。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "识别出 Top-1 硬赋值是 SID 学习中的根本优化瓶颈：启发式初始化与贪心碰撞重分配只能以码本坍缩换取语义失真，限制了生成式推荐的真实可扩展性。",
+      "提出 FineSID，一种统一量化框架：在严格保持离散标识符以兼容自回归生成解码的同时，实现跨整个码本的细粒度全局梯度传播，联合解决扩展性与效率问题。",
+      "设计两个紧密耦合的组件——全局-局部量化（GLQ）与量化语义一致性模块（QSCM）——尤其针对长尾物品提供稳定优化与语义对齐。",
+      "在多个公开基准上的实验表明，FineSID 在码本利用率和推荐准确率上一致优于现有 SID 方法，在长尾物品分布下增益尤为明显。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Methodology（GLQ 与 QSCM）"
+      },
+      {
+        "page": 1,
+        "section": "Experiment Setup"
+      },
+      {
+        "page": 1,
+        "section": "Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "Further Analysis"
+      },
+      {
+        "page": 1,
+        "section": "Theoretical Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "HGN",
+        "SASRec",
+        "BERT4Rec",
+        "FMLP-Rec",
+        "FDSA",
+        "S^3-Rec",
+        "TIGER",
+        "LETTER",
+        "SaviorRec",
+        "OneSearch",
+        "CAR",
+        "DreamRec",
+        "E4SRec",
+        "BIGRec",
+        "IDGenRec",
+        "CID",
+        "SemID",
+        "SETRec",
+        "ETEGRec",
+        "EAGLE"
+      ],
+      "datasets": [
+        "Musical Instruments（Instrument）",
+        "Video Games（Game）",
+        "Industrial Scientific（Scientific）",
+        "Toys",
+        "Beauty",
+        "ML-1M"
+      ],
+      "findings_zh": [
+        "在主表对比中，FineSID 在 Instrument、Scientific、Game 三个数据集上的所有 Recall@5/10 与 NDCG@5/10 指标均优于全部基线，且差异具有统计显著性（p < 10^-2 或 10^-4）。",
+        "消融实验中，去除 GLQ 造成最大的性能下降（如 Instrument 上 Recall@10 从 0.0703 降至 0.0649），说明全局码本优化是核心模块；去除 LRQ、GAQ、QSCM 也均造成一致下降。",
+        "随机初始化表现有竞争力且常优于聚类/语义/协作初始化（如 Game 上 Random 的 Recall@10 为 0.1031，高于 SASRec/LLM/BERT 初始化），FineSID 对初始化配置具有鲁棒性。",
+        "训练效率：FineSID 在 Game/Instrument/Scientific 上的收敛时间分别为 9.3/4.8/3.7 小时，相比最强基线 CAR（24.5/13.3/11.9 小时）减少超过 50%，推理速度与最强基线相当或更优。",
+        "无需辅助训练目标或额外 ID，FineSID 即可达到 0.4812 的 SID 平衡率；在不同码本大小下维持稳定且最高的码本利用率，而对比方法（尤其 CAR）随码本扩大出现明显利用率下降。",
+        "在 ML-1M 与 Beauty 的头尾划分和未见用户评估中，FineSID 均优于 LETTER、SaviorRec、CAR，尾部/冷门物品的相对提升更突出，表明可缓解流行度偏差。",
+        "在 Qwen（1.5B/3B/7B）解码器-only LLM 的扩展实验中，FineSID 在多数 All/Warm/Cold 指标上达到最佳或与最强基线（SETRec/ETEGRec）相当。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "训练时间（小时）",
+        "推理速度（秒/样本）",
+        "码本利用率",
+        "平衡率（归一化熵）"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确将跨域推荐场景和自然语言指令可控推荐列为未来方向，当前方法未在这些场景下验证。",
+      "主要实验集中在 Amazon 系列数据集（乐器、游戏、工业科学、玩具、美妆）与 ML-1M；对超大规模工业级物品目录的直接实证有限。",
+      "理论分析（码本容量上界、防坍缩保证、量化误差界、收敛速率、泛化界）依赖若干理想化假设（如码本的 ε-net 覆盖半径、量化噪声方差、损失景观条件数有界），实际效果主要通过码本利用率/平衡率等间接指标佐证。",
+      "关键超参数（γ、τ、ε）通过有限网格选取（如 γ ∈ {0.4,0.5,0.6,0.7} 且最优为 0.6），论文未系统报告更广泛数据集与模型规模下的敏感性。"
+    ],
+    "method_zh": "FineSID 由 GLQ 与 QSCM 两个模块组成。GLQ 包含局部细化量化（LRQ）与全局锚点量化（GAQ）：LRQ 通过 softmax 软分配分布并结合直通估计器（STE）实现前向使用 Top-1 硬索引、反向经软概率向所有码字传播梯度，解决梯度稀疏与死码字问题；GAQ 用指数移动平均（EMA）跟踪各码字历史使用频率，并按频率自适应调整码字更新率，引导低频码字移向高密度语义区域，实现全局码本平衡。QSCM 通过双向一致性损失（||ẑ−sg[z]||² + ||sg[ẑ]−z||²）将量化后的离散语义锚点与连续语义嵌入互相拉近，防止语义漂移。总目标为 L = L_rank + L_GLQ + L_QSCM，其中 L_rank 为温度缩放 softmax 交叉熵排序损失，L_GLQ 为 RQ-VAE 语义重构与码字损失；推理时仍输出严格离散的 SID 序列以保持自回归解码兼容。",
+    "problem_zh": "生成式推荐的核心是为物品学习语义标识符（SID），通常借助 RQ-VAE 等向量量化码本将连续物品表示离散化为可自回归生成的 token 序列。现有方法在量化时普遍采用 Top-1 硬赋值，导致梯度只集中于少量高频码字，大量码字欠训练，引发码本坍缩与严重的 SID 碰撞。聚类初始化、事后碰撞重分配等启发式手段只能掩盖症状：要么牺牲标识符的语义保真度（强制映射到语义较远的码字），要么（如正则化/额外 token 方案）压缩码本表示容量或增加自回归解码成本，无法同时满足大规模物品集所需的扩展性和高效 SID 生成两个关键性质。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.905,
+  "id": "arxiv-2609.36670",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-30T19:04:06.044969Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-29T04:09:58Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出FineSID，一种面向生成式推荐的语义标识符学习框架，通过软可微的细粒度梯度传播缓解Top-1硬分配导致的码本稀疏优化问题，提升码本利用率和推荐精度。",
+  "targets": [],
+  "tasks": [],
+  "title": "FineSID: Scalable and Efficient Semantic Identifier Learning for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2609.36670v1"
+}

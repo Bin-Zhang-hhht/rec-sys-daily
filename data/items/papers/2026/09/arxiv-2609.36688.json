@@ -1,0 +1,151 @@
+{
+  "abstract": "Industrial recommendation systems rely on multi-stage cascades whose retrieval, ranking, and serving components are difficult to replace jointly. We present GRP, a generative recommendation framework that combines retrieval, ranking, and reward modeling in a single encoder-decoder model, and evaluate a progressive path toward end-to-end recommendation. The model generates multimodal Semantic IDs and scores candidates with a jointly trained ranking module. The frozen ranking module then supplies rewards for reinforcement-learning post-training. We introduce mGRPO, which adds a reference-anchored margin to reward optimization to preserve the likelihood of logged targets. Offline experiments examine history encoding, model capacity allocation, event selection, tokenization, and reward discrimination. Serving optimizations reduce end-to-end retrieval latency by 69%. Online experiments evaluate the model as a retrieval source, with early-ranking bypass, and with replacement of weaker sources. In a retrieval-only comparison, view time increases by 0.46% and shares by 0.77% relative to production. A separate comparison combining bypass and source replacement yields increases of 0.82% in view time and 2.56% in shares, with neutral platform-level guardrails. These results support progressive deployment while identifying remaining gaps in ranking quality and performance across recommendation metrics. Industrial recommendation systems rely on multi-stage cascades whose retrieval, ranking, and serving components are difficult to replace jointly. We present GRP, a generative recommendation framework that combines retrieval, ranking, and reward modeling in a single encoder-decoder model, and evaluate a progressive path toward end-to-end recommendation. The model generates multimodal Semantic IDs and scores candidates with a jointly trained ranking module. The frozen ranking module then supplies rewards for reinforcement-learning post-training. We introduce mGRPO, which adds a reference-anchored margin to reward optimization to preserve the likelihood of logged targets. Offline experiments examine history encoding, model capacity allocation, event selection, tokenization, and reward discrimination. Serving optimizations reduce end-to-end retrieval latency by 69%. Online experiments evaluate the model as a retrieval source, with early-ranking bypass, and with replacement of weaker sources. In a retrieval-only comparison, view time increases by 0.46% and shares by 0.77% relative to production. A separate comparison combining bypass and source replacement yields increases of 0.82% in view time and 2.56% in shares, with neutral platform-level guardrails. These results support progressive deployment while identifying remaining gaps in ranking quality and performance across recommendation metrics.",
+  "arxiv_id": "2609.36688",
+  "authors": [
+    "Wenfeng Zhuo",
+    "Vincent Xue",
+    "Charles Wei",
+    "Cong Ni",
+    "Ruiming Lu",
+    "Jiwen Ren",
+    "Mo Li",
+    "Peng Yang",
+    "Xufei Wang",
+    "Dongheng Li",
+    "Jiacong He",
+    "Yi Song",
+    "Yufei Fan",
+    "Mikhail Obukhov",
+    "Yiwen Chen",
+    "Yvette Liu",
+    "Yin Ye",
+    "Chengjie Wu",
+    "Mingtao Zhang",
+    "Jinchao Ye",
+    "Lili Zhang",
+    "Chunhui Zhu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对拥有成熟推荐级联的平台，本报告提供了一条可度量、可逐步上线的端到端生成式推荐迁移路径，避免一夜替换带来的负面线上结果，降低替换风险。",
+      "将排序模型同时复用为强化学习奖励模型，省去单独训练奖励模型的成本，并保证奖励信号与serving路径一致；此设计可迁移到其他生成式推荐或广告系统。",
+      "渐进式按源淘汰与配额再分配策略，使业务可以在每个阶段用同一套surface指标和逐源指标判断是否扩大生成模型流量，便于与现有漏斗共存并控制护栏。",
+      "服务端优化（延迟降低69%）证明生成式检索可以进入直播feed的延迟预算，但应注意到在线收益是在短视频surface、特定头部预测和较大解码预算下获得，跨场景推广需重新验证。",
+      "业务上应同时关注观看时长、分享、完成率等多目标：当前单一观看时长奖励只能优化单一指标，多目标奖励是弥合与生产排序器差距的下一步。"
+    ],
+    "business_transferability": 0.71,
+    "contributions_zh": [
+      "提出GRP统一生成式推荐范式：一个编码器-解码器主干生成Qwen3-VL语义ID作为检索输出，联合训练的多头预测（MHP）模块对候选打分作为排序输出，并在强化学习后训练中冻结复用同一模块作为奖励模型。",
+      "给出预训练配方：条目级历史融合使同编码器token预算下历史长度提升4倍，解码器更深的1:2编解码比例在HR@K和吞吐上均为Pareto改进，为稀疏显式动作保留独立历史预算可提升奖励加权召回。",
+      "提出mGRPO后训练目标：在GRPO基础上加入单侧、参考锚定的边际项，只有当策略开始用高奖励样本牺牲日志目标时才激活，从而在保护召回的同时优化奖励加权召回。",
+      "构建生产级服务路径：推理仅需编码器、分块解码器和MHP打分模块，异步刷新的语义ID到条目目录处理目录新鲜度，KV缓存、CUDA图捕获、C++预处理与批量反向查找将端到端检索阶段延迟降低约69%。",
+      "通过在线A/B测试验证渐进式部署路径：作为检索源、绕过早期排序、淘汰弱检索源并接管其配额三个轴向上分别获得可量化收益，并给出逐源差距分析。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 4,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 5,
+        "section": "2 A Progressive Path to End-to-End Generative Recommendation"
+      },
+      {
+        "page": 6,
+        "section": "3 Model Architecture and Pre-training"
+      },
+      {
+        "page": 11,
+        "section": "3.6 Empirical results"
+      },
+      {
+        "page": 13,
+        "section": "4 Post-training: Reward-Guided Alignment"
+      },
+      {
+        "page": 17,
+        "section": "5 Deployment and Serving"
+      },
+      {
+        "page": 19,
+        "section": "6 Online A/B Test"
+      },
+      {
+        "page": 22,
+        "section": "7 Conclusion, Limitations, and Future Directions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SID级历史编码 vs 条目级融合编码",
+        "2:1编码器解码器比例 vs 1:1 vs 1:2",
+        "无合并显式流的条目级历史 vs 合并显式流不同预算分配",
+        "MM-SID vs Qwen3-VL语义ID",
+        "vanilla GRPO、仅边际项 vs mGRPO联合目标",
+        "SFT模型 vs SFT+RL",
+        "生产级联（production）作为在线对照"
+      ],
+      "datasets": [
+        "生产短视频平台留出用户会话（未来日期、未见训练数据的评估集）",
+        "七天训练数据上的事件选择阶梯实验",
+        "短视频surface在线A/B测试（覆盖短视频内容）"
+      ],
+      "findings_zh": [
+        "条目级历史融合在匹配编码器token长度时容纳4倍历史，吞吐基本不变，HR@10提升1.7%、HR@20提升0.9%；扩展到2倍参考预算不再提升检索且吞吐减半。",
+        "固定总深度下编解码比例从2:1移到1:2时HR@5/10/20单调提升且吞吐提升21%，证明解码器更重是Pareto胜。",
+        "将显式动作合并为受保护流后，相对于无合并的条目级基线，reward-recall@20提升20%，recall@20提升7%，HR@20提升11.6%；25%显式预算、1倍总预算配置最优。",
+        "Qwen3-VL SID相比MM-SID在匹配设置下使Recall@20提升11.9%、Reward Recall@20提升10.3%、HR@20提升9.9%，机制是更高的码本质量和条目唯一性。",
+        "MHP模块重设计（候选残差路径、容量调整、基率初始化、logit钳制）使Watch≥10s、Complete、Watch≥p75头部AUROC分别提升17.1%、20.9%、17.7%，Share/Favorite/Reply的AUPRC提升96.7%-183.7%，且不泄漏到解码。",
+        "mGRPO在单节点上实现reward-recall@10 +1.6%、recall@10 +0.3%，在两节点上为+3.1%/+0.9%；vanilla GRPO单独作用时recall@10下降1.25%而reward-recall仅-0.1%。",
+        "在线A/B：RL（以观看时长为唯一奖励）相对SFT提升GRP观看时长贡献+0.45%；更大解码预算使GRP作为检索源升至第5名，观看时长+0.39%（p=.031）；20倍预算下观看时长+0.46%、分享+0.77%均显著。",
+        "早期排序绕过使GRP服务份额排名从14升至8（SFT）或4（SFT+RL+更大预算）；RL使绕过配置的观看时长由-0.45%转为+0.04%中性，分享+0.98%。",
+        "在绕过基础上淘汰低绩效源并接管配额，相对生产获得+0.47% views、+0.82% view time、+2.56% shares，全部显著且平台级护栏中性。",
+        "推理优化累计将模型服务器p50延迟降低67.7%、吞吐提升208%，生成阶段延迟降低84.6%，端到端检索阶段p95延迟降低69.0%。"
+      ],
+      "metrics": [
+        "HR@5/10/20",
+        "Recall@20",
+        "Reward Recall@10/20",
+        "AUROC（稠密头）",
+        "AUPRC（稀疏头）",
+        "Views、View time、Shares（线上surface指标）",
+        "Source-rate rank、完成率、跳过率、均观看时长、收藏率、发送率",
+        "训练吞吐（steps/s）、推理延迟（p50/p95）"
+      ]
+    },
+    "limitations_zh": [
+      "尚未在所有指标上领先：后训练+早期绕过配置在平均观看时长和跳过率上仍落后于最强的单个源，且提升率低于全源平均，因此辅助源仍属必要，配额增长受这些差距约束。",
+      "排序器仍在回路中：仅部分GRP候选绕过早期排序，所有候选仍经过晚期排序器；MHP模块是约束瓶颈，重设计后仍落后于生产排序器，且在收藏、分享、回复等稀有头上AUPRC绝对值低，奖励对最重要动作的信息量不足。",
+      "模型规模偏小：历史超过B_ref事件后增益平坦或为负，RL收益随批规模增长，说明稠密容量配置不足而非错配，需验证更大模型下的缩放规律。",
+      "目录非平稳是结构性限制：冻结预训练模型的精确条目召回在数天内崩溃，需持续增量训练纳入新条目；后训练只能重塑窗口内可表示条目的概率，无法为截止后条目制造表示。"
+    ],
+    "method_zh": "GRP采用渐进式迁移而非一夜替换：第一阶段将生成模型作为额外检索源加入现有漏斗，与所有现有源在同一指标下对比；第二阶段淘汰被其击败的源并将配额转移给模型；第三阶段让越来越多的候选基于模型自身排序绕过早期乃至晚期排序器。模型方面，编码器将用户上下文与显式+观看事件历史融合为每个条目一个token，解码器以块内因果、块间独立的方式逐块生成语义ID；MHP排序模块通过stop-gradient路径接收候选，候选查询经残差路径进入DCNv2交叉网络，输出多个校准的参与度预测头。后训练阶段冻结编码器、嵌入、归一化统计和MHP模块，仅训练解码器作为策略，以温度采样生成G个候选，由冻结MHP打分，采用带KL惩罚的PPO-clipped GRPO目标，并加入参考锚定单侧边际项mGRPO保护日志目标。服务阶段将推理产物封装为仅含编码器、分块解码器、MHP的服务，请求只携带用户侧特征，生成后经异步刷新的目录映射回具体条目，并支持可配置的早期排序绕过比例。",
+    "problem_zh": "工业推荐系统依赖检索、排序、重排等多阶段级联，级联中沉淀了数千项细粒度优化（如新鲜度规则、资格过滤、校准层、多样性控制），因此直接用一个生成式模型端到端替换现有级联会产生负面线上效果。本文指出三个核心障碍：1）排序仍然关键，生成式检索的原始排序远非最终排序；2）目录非平稳，短视频目录逐日几乎完全换新，冻结模型的精确条目召回在数天内崩溃；3）对齐需要一个能对生成候选（而非仅日志候选）排序的奖励信号，而这本身是困难的建模问题。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.9085000000000001,
+  "id": "arxiv-2609.36688",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-30T19:04:06.044969Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-29T04:30:34Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出生成式推荐框架GRP，将召回、排序与奖励建模统一到编码器-解码器模型中，并通过强化学习后训练和线上渐进部署验证效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "GRP v0.1 Technical Report",
+  "url": "https://arxiv.org/abs/2609.36688v1"
+}

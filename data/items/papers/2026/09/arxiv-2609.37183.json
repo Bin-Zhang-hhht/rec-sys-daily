@@ -1,0 +1,167 @@
+{
+  "abstract": "Industrial recommendation ranking models typically scale along two modeling axes: feature interaction over heterogeneous user, item, context, and cross features, and sequence modeling over long, informative, and multi-type user behavior histories. We find that scaling either capability in isolation is insufficient, as each exhibits a limited scaling ceiling and a suboptimal scaling-law slope. We conjecture that achieving a more favorable scaling-law slope requires jointly scaling both axes. To support this, we present HELIX, a purified and unified architecture for large-scale recommendation. HELIX interleaves sequence retrieval and feature interaction while enforcing one-way information flow from reusable sequence states to candidate-conditioned mix-tokens. This design preserves cross-depth communication between the two modeling axes while keeping user-side sequence computation amortizable, enabling flexible and asymmetric scaling of sequence modeling and feature interaction. Deployed in TikTok's e-commerce recommendation system, HELIX consistently improves offline CTR AUC, CVR AUC, and other ranking metrics. In online A/B tests, it achieves an approximately 6% increase in e-commerce video GMV per user. Industrial recommendation ranking models typically scale along two modeling axes: feature interaction over heterogeneous user, item, context, and cross features, and sequence modeling over long, informative, and multi-type user behavior histories. We find that scaling either capability in isolation is insufficient, as each exhibits a limited scaling ceiling and a suboptimal scaling-law slope. We conjecture that achieving a more favorable scaling-law slope requires jointly scaling both axes. To support this, we present HELIX, a purified and unified architecture for large-scale recommendation. HELIX interleaves sequence retrieval and feature interaction while enforcing one-way information flow from reusable sequence states to candidate-conditioned mix-tokens. This design preserves cross-depth communication between the two modeling axes while keeping user-side sequence computation amortizable, enabling flexible and asymmetric scaling of sequence modeling and feature interaction. Deployed in TikTok's e-commerce recommendation system, HELIX consistently improves offline CTR AUC, CVR AUC, and other ranking metrics. In online A/B tests, it achieves an approximately 6% increase in e-commerce video GMV per user.",
+  "arxiv_id": "2609.37183",
+  "authors": [
+    "Yuntao Zheng",
+    "Miao Zhang",
+    "Yadong Ding",
+    "Yanchuan Tang",
+    "Lixiyu Chen",
+    "Hao Wang",
+    "Quan Li",
+    "Shiying Cai",
+    "Yue Lin",
+    "Jiayu Li",
+    "Yu Feng",
+    "Wentao Yang",
+    "Rongkun Xing",
+    "Jiekai Wang",
+    "Mingge Zhang",
+    "Feiling Gong",
+    "Xiang Gao",
+    "Jinyu Dong",
+    "Yajing Zhang",
+    "Pengfei Ren",
+    "Yinzhou Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在TikTok电商视频推荐中，HELIX-L的在线A/B测试带来电商视频GMV/用户约+5.99%、支付订单/用户约+6.10%、GPM约+5.46%，表明离线AUC的微小提升可转化为显著的电商交易业务收益。",
+      "通过候选无关的用户侧K/V cache，同一用户历史可在一次请求的多个候选间共享，并可进一步被生成式检索、粗排和精排复用，能够降低线上重复计算成本，为部署更深的序列模型创造条件。",
+      "单向信息流允许用户级训练（ULT）和M-FALCON式跨候选共享，使企业在不按候选数倍增用户侧算力的情况下扩展序列建模能力，适合高并发、大候选集的工业推荐系统。",
+      "非参数化Gate-Up-Norm、QK-Norm、GQA与最后一层K/V cache等设计降低了数值不稳定性和内存压力，有助于在FP16/BF16生产环境下训练更大模型。",
+      "其他电商、视频或内容推荐平台若要迁移，需要重新验证数据分布、特征体系、业务目标和online serving约束；本论文的收益证据仅直接来自TikTok电商视频场景。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "提出HELIX，一种净化且统一的大规模推荐排序架构，交错执行序列检索与特征交互，并强制从可复用用户侧序列状态到候选条件mix-token的单向信息流。",
+      "设计三流Tokenization：MixTokenizer生成候选侧mix-token，SeqTokenizer分别处理候选无关U-only序列和候选条件U×C序列，SeqFormer Encoder将U-only历史编码为候选无关的可复用K/V cache。",
+      "提出MixFormer与SeqFormer Decoder：候选侧mix-token通过cross-attention从U×C序列和缓存中反复检索，并通过Mixup-PerToken-FFN（MPTF）这一简化版TokenMixer交互算子进行特征交互。",
+      "通过内部工业数据集上的S/M/L/XL/XXL规模实验给出scaling-law分析，表明联合扩展特征交互和序列建模可将额外参数与算力转化为一致的CTR/CVR AUC提升。",
+      "在TikTok电商视频推荐系统中部署HELIX-L，取得显著离线收益与在线A/B提升：电商视频GMV/用户约+6%，支付订单/用户约+6.1%。",
+      "提出金字塔式查询压缩、变长序列执行、M-FALCON候选级K/V cache共享和user-level training摊销，使深层用户侧序列建模在生产训练和serving中可行。"
+    ],
+    "evidence_quality": 0.68,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 3,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 4,
+        "section": "2 HELIX"
+      },
+      {
+        "page": 5,
+        "section": "2.3 MixFormer"
+      },
+      {
+        "page": 6,
+        "section": "2.4 SeqFormer"
+      },
+      {
+        "page": 8,
+        "section": "3.1 Experimental Setup"
+      },
+      {
+        "page": 8,
+        "section": "3.2 RQ1: Overall Offline Performance"
+      },
+      {
+        "page": 8,
+        "section": "3.3 RQ2: Scaling Behavior"
+      },
+      {
+        "page": 9,
+        "section": "3.4 RQ3: Which Design Choices Matter?"
+      },
+      {
+        "page": 11,
+        "section": "3.5 RQ4: Online Impact"
+      },
+      {
+        "page": 11,
+        "section": "4 Training and Serving Optimizations"
+      },
+      {
+        "page": 13,
+        "section": "5 Related Work"
+      },
+      {
+        "page": 17,
+        "section": "B Detailed Online Metrics"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "RankMixer + Transformer（生产baseline）",
+        "RankMixer + Transformer (Large)",
+        "OneTrans（更新后的生产实现）"
+      ],
+      "datasets": [
+        "TikTok电商视频推荐系统内部工业数据集（offline）",
+        "TikTok电商视频推荐线上随机全流量A/B测试"
+      ],
+      "findings_zh": [
+        "HELIX-L离线相对RankMixer+Transformer baseline达到CTR ΔAUC +0.21%、CTR ΔUAUC +0.82%、CVR ΔAUC +0.17%、CVR ΔUAUC +1.38%，参数量358M、FLOPs 35.28G；而OneTrans为361M/39.27G，说明HELIX在更低或相近算力下取得更优排序质量。",
+        "HELIX-S到XXL在2.31G–130.24G FLOPs范围内CTR/CVR AUC平滑提升且未饱和；log-log线性拟合显示可预测的扩展行为，而RankMixer在低FLOPs下尚可但高算力时落后，OneTrans算力更大仍不及HELIX-L。",
+        "Ablation显示MPTF相比self-attention在CTR/CVR AUC上+0.05%/+0.02%；cache-only cross-attention（不让mix-token自注意力进入KV集合）分别+0.02%/+0.02%；final-layer K/V cache比per-layer cache更省内存且CTR +0.01%；Non-parametric Gate-Up-Norm稳定FP16/BF16训练并带来+0.02%/+0.01%；gated attention放在value投影后优于放在SDPA后；QK-Norm带来+0.03%/+0.01%。",
+        "在线A/B测试中HELIX-L相对RankMixer+Transformer control提升电商视频点击/用户+2.0591%、GMV/用户+5.9932%、支付订单/用户+6.0964%、GPM+5.4624%，另有购买天数+4.3789%、新付费用户率+5.8657%、30日复购率+0.6661%等提升。",
+        "通过用户侧K/V cache复用，处理n个候选的Amdahl形式加速比为Speedup(n)=1/((1-p)+p/n)，其中p为SeqFormer Encoder可摊销算力占比；当p=0.95、n=100时理论加速约16.8×。",
+        "一致的离线相对AUC提升、A/B业务提升和scaling趋势均来自同一TikTok电商视频内部工业数据集与生产训练栈。"
+      ],
+      "metrics": [
+        "CTR AUC/UAUC",
+        "CVR AUC/UAUC",
+        "参数量（non-embedding）",
+        "每样本训练FLOPs（摊销前）",
+        "电商视频点击/用户",
+        "电商视频GMV/用户",
+        "电商视频支付订单/用户",
+        "电商视频GPM",
+        "复购率和购买天数等附加业务指标"
+      ]
+    },
+    "limitations_zh": [
+      "离线实验只使用TikTok电商视频推荐系统的单一内部工业数据集，未采用公开数据集，绝对指标因保密需要仅报告相对提升。",
+      "线上验证仅覆盖电商视频推荐场景，结论对搜索、广告或其他推荐业务的可迁移性未在本文中直接验证。",
+      "论文未公开代码和模型权重，架构细节按内部实现描述，难以独立复现全部结果。",
+      "用户侧计算摊销的16.8×加速是基于公式的理论估算，文中未报告实际serving延迟、吞吐或端到端线上算力节省的实测数据。",
+      "Scaling-law拟合仅基于5个模型配置及有限的参考点，且限于该内部数据集，不能外推至其他规模或场景。",
+      "论文未报告模型训练时长、稳定性细节以及与新基线（如最近出现的其他统一架构）的完整对比。"
+    ],
+    "method_zh": "HELIX将输入划分为三流：非序列候选特征x_c、候选无关U-only序列s_u、候选条件U×C序列s_{u×c}。MixTokenizer对非序列特征和各序列的均值池化摘要执行All-Concat与Auto-Split，将向量分成固定宽度分组并用逐token LayerNorm和FFN生成M个mix-token；SeqTokenizer对每个序列用独立投影矩阵映射并施加独立位置编码，随后按依赖类型拼接并加入[SINK] token。主干堆叠三类块：SeqFormer Encoder先把U-only序列编码为候选无关的可复用K/V cache；MixFormer块依次执行从U×C序列的cross-attention检索和Mixup-PerToken-FFN（MPTF）特征交互；SeqFormer Decoder块依次从用户侧K/V cache检索和MPTF交互。所有注意力使用QK-Norm、grouped-query attention和gated SDPA（sigmoid gate作用于value投影后）；MPTF将每个token按通道切分，经Mixup变换后用带SwiGLU的逐token FFN做非线性交互。SeqFormer Encoder采用非因果自注意力、变长序列打包执行、金字塔式查询压缩（Gather按per-sequence预算选取最近状态，后续块用Truncate保留前缀），并在最后一层只做K/V投影和value gating以构造最终K/V cache。信息流单向从用户侧序列走向候选侧mix-token，保证cache可在serving中跨候选用M-FALCON共享、在训练中跨同一用户的样本摊销。最后对候选侧mix-token做RMSNorm和mean pooling后送入任务塔。",
+    "problem_zh": "工业推荐排序模型通常沿两个独立方向扩展：一是对用户、物品、上下文和交叉特征进行高阶特征交互建模，二是对长而多类型的用户行为序列进行候选感知的序列建模。论文指出，单独扩展任一方向都存在扩展上限和较差的扩展律斜率，需要联合扩展两轴才能获得更优的扩展行为；同时现有统一架构存在三个局限：自注意力并非最适合异构特征token的交互算子；在同一个建模步骤中耦合特征交互和序列检索会分散mix-token对行为序列的注意力；双向信息流使候选侧特征反向更新用户侧序列状态，导致用户侧序列计算无法在候选间或样本间摊销。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.865,
+  "id": "arxiv-2609.37183",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-30T19:04:06.044969Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-29T10:06:26Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出HELIX统一架构，联合扩展特征交互与序列建模以提升大规模工业推荐系统的排序性能，并在TikTok电商推荐中取得显著线上收益。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "ranking"
+  ],
+  "title": "HELIX: Purified and Unified - Rethinking Feature Interaction and Sequence Modeling for Large-Scale Recommendation",
+  "url": "https://arxiv.org/abs/2609.37183v1"
+}

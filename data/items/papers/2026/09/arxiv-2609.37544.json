@@ -1,0 +1,159 @@
+{
+  "abstract": "Content-generation agents continuously receive impressions, clicks, conversions, and negative feedback from recommendation systems, providing real-world outcome signals for memory evolution. However, these signals are delayed and noisy, confounded by audience composition, placement, and recommendation policies, and may result from the combined influence of multiple memories, making accurate attribution difficult. Existing methods rely primarily on immediate feedback or semantic retrieval and therefore struggle to reliably translate recommendation outcomes into memory fitness. To address this challenge, we propose TIDE (Trajectory-Informed Directed Memory Evolution), an external memory evolution framework driven by delayed recommendation feedback. We further introduce Memory Evolution Gain (MEG), which measures the utility improvement of evolved memory over a no memory baseline on strictly future tasks. TIDE treats memory as a capacity-constrained population of experiences: temporal and semantic credit assignment estimates contextual fitness, while responsibility credit distributes outcome signals according to the memories referenced during generation. These signals are then used to reinforce, crossover, mutate, or evict memories. On an e-commerce membership marketing content-generation agent, TIDE achieves a +7.75-percentage-point MEG in offline temporal replay and significantly improves both unique click-through rate (UCTR) and activation rate in an online A/B test. On a delayed-label benchmark, TIDE achieves the lowest mean absolute error (MAE) and root mean squared error (RMSE) and the highest MEG among the compared methods, demonstrating its effectiveness. Content-generation agents continuously receive impressions, clicks, conversions, and negative feedback from recommendation systems, providing real-world outcome signals for memory evolution. However, these signals are delayed and noisy, confounded by audience composition, placement, and recommendation policies, and may result from the combined influence of multiple memories, making accurate attribution difficult. Existing methods rely primarily on immediate feedback or semantic retrieval and therefore struggle to reliably translate recommendation outcomes into memory fitness. To address this challenge, we propose TIDE (Trajectory-Informed Directed Memory Evolution), an external memory evolution framework driven by delayed recommendation feedback. We further introduce Memory Evolution Gain (MEG), which measures the utility improvement of evolved memory over a no memory baseline on strictly future tasks. TIDE treats memory as a capacity-constrained population of experiences: temporal and semantic credit assignment estimates contextual fitness, while responsibility credit distributes outcome signals according to the memories referenced during generation. These signals are then used to reinforce, crossover, mutate, or evict memories. On an e-commerce membership marketing content-generation agent, TIDE achieves a +7.75-percentage-point MEG in offline temporal replay and significantly improves both unique click-through rate (UCTR) and activation rate in an online A/B test. On a delayed-label benchmark, TIDE achieves the lowest mean absolute error (MAE) and root mean squared error (RMSE) and the highest MEG among the compared methods, demonstrating its effectiveness.",
+  "arxiv_id": "2609.37544",
+  "authors": [
+    "Shanwen Mao",
+    "Mingming Li",
+    "Hao Zhang",
+    "Zhiheng Li",
+    "Yige Wang",
+    "Penghua Yu",
+    "Junxiong Zhu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对推荐系统驱动的生成式内容业务，TIDE展示了一条无需反复训练生成模型即可利用点击、转化、负反馈等延迟信号持续改进内容质量的路径，降低持续调优成本并提升可追踪性。",
+      "在电商会员营销场景中，TIDE演化产生的素材在可控在线流量下带来UCTR +5.10%和激活率 +4.79%的显著提升，说明将推荐反馈转化为外部记忆可直接改善业务指标。",
+      "MEG提供了一种面向未来任务的记忆演化评估口径，可用于内容平台在离线回放和在线实验中统一衡量记忆更新策略的业务价值，避免仅看历史拟合效果。",
+      "容量受限的记忆种群与证据链/来源保留机制使内容运营可以审计、修订或回滚单条记忆，适合对合规、品牌风格和投放策略有强治理要求的推荐内容场景。",
+      "TIDE与SFT等参数训练互补：在较小骨干上叠加TIDE仅需微小增量计算（+0.118 PFLOPs）即可提升生成质量，业务方可在已有微调模型基础上以较低增量成本获得记忆演化收益。",
+      "TIDE在延迟标签的长期用户任务上表现优于全历史提示、RAG、ReAct、Reflexion、Mem0等记忆方法，提示其可推广到推荐系统中的用户长期画像、个性化偏好记忆和多域连续学习的应用场景。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "将推荐反馈驱动的记忆演化形式化为延迟、上下文相关结果下的适应度评估与多层信用分配问题，并引入Memory Evolution Gain（MEG）衡量经验种群更新对严格未来任务的平均效用增益。",
+      "提出TIDE（Trajectory-Informed Directed Memory Evolution），一种免训练的外部记忆演化方法：通过时间-语义信用构建上下文适应度、通过责任信用定位具体记忆、通过定向变异与容量约束选择更新经验种群。",
+      "在电商会员营销内容生成智能体上验证：离线时间回放MEG提升+7.75个百分点，在线A/B测试中UCTR相对提升5.10%、激活率提升4.79%；并在改编自MemoryCD的延迟标签基准上取得最低MAE/RMSE和最高MEG，证明方法可迁移。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Main Results (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Aligning Online Outcomes with Feedback Memory (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "4.3 From Aligned Feedback to Memory Evolution (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Generalization to Delayed-Label Tasks (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "A Additional Experimental Configuration"
+      },
+      {
+        "page": 1,
+        "section": "B Multi-Round Memory Evolution and Convergence"
+      },
+      {
+        "page": 1,
+        "section": "E Adaptation and Recovery after a Distribution Shift"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "No Memory",
+        "Initial Memory (Frozen)",
+        "Full History",
+        "ExpRAG",
+        "Reflexion",
+        "AWM",
+        "Mem0",
+        "A-MEM",
+        "SFT",
+        "GRPO",
+        "MMPO",
+        "SFT + TIDE",
+        "Lifecycle",
+        "LLM Rubric",
+        "Direct LLM",
+        "BERT",
+        "Distilled Recommender",
+        "RAG",
+        "ReAct",
+        "Self-RAG",
+        "DC-Cu",
+        "Append-only",
+        "Random Replacement",
+        "Frozen Memory"
+      ],
+      "datasets": [
+        "电商会员营销（88VIP）内容生成智能体的离线部署日志与严格未来任务评估",
+        "一周在线随机A/B实验（真实商品池、流量与投放机制）",
+        "改编自MemoryCD的延迟标签基准（按时间顺序交互流，标签延迟δ=5发布）",
+        "受控分布偏移实验（12个分层任务、seed 13、从分布A切换到分布B）"
+      ],
+      "findings_zh": [
+        "离线主实验中，TIDE在qwen3.5-27b上取得最高合规率、格式率、效率、多样性和联合通过率，MEG为+7.75，推理开销最低（750 tokens/请求），负迁移率14.0%；在Qwen3-4B上TIDE为最强纯记忆方法（MEG +1.75），与SFT结合后MEG达+6.71且仅增加0.118 PFLOPs增量计算。",
+        "一周在线A/B实验中，TIDE演化内容池相对基线池取得统计显著的UCTR相对提升5.10%和激活率提升4.79%（p<0.001）。",
+        "在RQ2反馈-记忆对齐实验中，TIDE取得最高CVR秩相关（0.116）、最高CTR成对准确率（0.604）、最大Future MEG（+0.180）、最高胜率（60.7%）和最低负迁移率（25.0%）。",
+        "在RQ3责任归因与定向编辑实验中，TIDE取得Responsibility F1为0.817、Correct Edit率0.650、Bad-Memory Survival为0、Future MEG +0.0750；去掉责任信用或反事实回放造成最大性能下降，说明责任归因是核心机制。",
+        "在MemoryCD延迟标签基准上，TIDE取得最低MAE（0.531）和RMSE（0.895），最高MEG@δ=5（+0.0365），延迟敏感性Δ_delay最小（+0.0019），用户级负迁移率与Mem0并列最低（16.7%），且记忆token数（48,603）低于其他自适应记忆方法。",
+        "多轮演化与分布偏移实验中，TIDE保持80项有界记忆种群，第10轮平均效用0.809，记忆token较Full History低20.1%；分布偏移后TIDE恢复最快（0.33轮恢复到95%偏移前效用），Post-shift Utility AUC最高（0.833），且对注入噪声记忆的选择性淘汰显著（10次淘汰中9次命中注入噪声，p=5.81e-5）。"
+      ],
+      "metrics": [
+        "MEG / Future MEG / MEG@δ=5",
+        "Compliance / Format / Efficiency / Diversity / Joint Pass",
+        "Negative Transfer / User-level Negative Transfer",
+        "Adaptation Compute (PFLOPs) / Inference Overhead (tokens/req)",
+        "UCTR / Activation Rate / CTR pairwise accuracy / CVR rank correlation",
+        "Responsibility F1 / Correct Edit rate / Bad-Memory Survival",
+        "MAE / RMSE",
+        "Δ_delay",
+        "Memory Tokens / LLM tokens per feedback-equivalent",
+        "Mean Utility / Post-shift Utility AUC / Recovery Time / Immediate Drop"
+      ]
+    },
+    "limitations_zh": [
+      "在Qwen3-4B这种格式跟随能力较弱的骨干上，所有纯记忆方法（包括TIDE）的格式分都为零，记忆演化无法弥补骨干模型的固有格式能力缺陷。",
+      "在线A/B实验受保密要求约束，未报告绝对流量和业务率，只报告相对效应，且仅报告UCTR和激活率两类结果。",
+      "MemoryCD实验是作者改写的延迟标签评估协议，原数据集并非天然包含延迟标签；作者也明确说明该实验引入的是延迟标签协议而非声称MemoryCD原生延迟。",
+      "计算成本（PFLOPs、tokens等）是统一核算约定下的估算值，而非墙钟时间或硬件效率的实测，跨异构系统（BERT、推荐模型、LLM）不做未校准的跨系统排名。",
+      "TIDE在MemoryCD上的LLM tokens per feedback-equivalent（2,693.3）高于多数检索类基线（约2,420–2,440），仅显著低于FullHistory。",
+      "论文的嵌入空间语义多样性诊断显示TIDE表面嵌入多样性（0.174）和近重复率（0.131）不及部分基线，作者将其归因于短营销文案的强约束而非策略种群过早收敛，但仍说明TIDE并未在所有多样性维度上占优。"
+    ],
+    "method_zh": "TIDE保持生成模型参数冻结，仅更新外部记忆。对生成记录D_i=(x_i,a_i,T_i,G_i)，先由时间信用C_temp判断反馈生命周期是否成熟、连续、可比，并生成生命周期对齐的多目标摘要；再由语义信用C_sem利用匹配控制集和环境记录估计相对控制组的上下文适应度，并形成包含可编辑内容决策、适用条件和证据链的结构化证据e_i；随后责任信用通过实际使用痕迹、语义对齐和留一法反事实回放识别导致该结果的记忆集合R_i。归属后，TIDE对记忆执行强化、交叉（MERGE）、变异（REVISE）或淘汰（EVICT），并加入周期性抽象候选，最终在固定容量B下通过GovernAndSelect进行去重、冲突消解、过期过滤和容量约束选择，形成下一代记忆种群。",
+    "problem_zh": "内容生成智能体通过推荐系统获得点击、转化、负反馈等信号，但推荐反馈存在延迟、噪声、受众/场景/推荐策略混杂等问题，且一次生成可能由多条记忆共同影响，难以将推荐结果准确归因到具体外部记忆。现有方法多依赖即时反馈或语义检索，不能可靠地把延迟推荐结果转化为记忆适应度，因此需要研究如何用延迟、上下文相关的推荐反馈来演化智能体的外部记忆。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.793,
+  "id": "arxiv-2609.37544",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-09-30T19:04:06.044969Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-29T13:22:20Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于延迟推荐反馈的外部记忆演化框架TIDE，通过时序与语义信用分配和责任信用分配提升电商营销内容生成代理的记忆效用与点击转化表现。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "How Can Recommendation Feedback Evolve Agent Memory?",
+  "url": "https://arxiv.org/abs/2609.37544v1"
+}
