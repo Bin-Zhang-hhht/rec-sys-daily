@@ -1,0 +1,56 @@
+{
+  "blogs": [],
+  "date": "2026-10-02",
+  "papers": [
+    {
+      "item_id": "arxiv-2609.38999",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文在生产流媒体推荐中对比聚合与LLM生成用户画像，指出应根据用户消费模式选择画像策略，并观察到LLM画像的流行度吸引效应。"
+    },
+    {
+      "item_id": "arxiv-2609.38270",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：VirusCascade针对LLM驱动的智能体推荐系统提出首个黑盒定向推广攻击，利用协作反思的反射洗白与跨智能体传播机制提升目标物品曝光。"
+    },
+    {
+      "item_id": "arxiv-2609.39043",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文在真实推荐管道中训练服务时路由门，选择性将用户路由至LLM画像模型，在保持NDCG的前提下提升新颖性。"
+    },
+    {
+      "item_id": "arxiv-2609.39327",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出GEAR端到端生成式检索框架，联合优化分词器、生成器与重排器，解决广告推荐中的表征坍缩与物品碰撞问题。"
+    },
+    {
+      "item_id": "arxiv-2609.38455",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：AdaM-Rec提出基于LLM的自适应模态路由多模态推荐框架，通过代理召回任务估计模态可靠性并动态调整文本与视觉证据依赖。"
+    },
+    {
+      "item_id": "arxiv-2609.39828",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该挑战赛介绍基于语义ID的OneRec系列与OneReason等模型，探索大语言模型在生成式推荐与自然语言链式推理中的潜力。"
+    },
+    {
+      "item_id": "arxiv-2609.40241",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文实证研究名为Jev的决策导向模型在个性化推荐重排中的效果与延迟权衡，并对比Qwen点式与列表式重排器。"
+    },
+    {
+      "item_id": "arxiv-2609.39007",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：RouteRec将会话行为作为稀疏专家路由依据，在宏观、中观、微观范围路由计算，显著提升序列推荐效果。"
+    },
+    {
+      "item_id": "arxiv-2609.38646",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文在Facebook Forum探索使用跨平台语义ID和3B参数指令微调语言模型进行生成式推荐，验证跨平台迁移的有效性。"
+    },
+    {
+      "item_id": "arxiv-2609.39412",
+      "rank": 10,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向探索性数据任务的推荐系统愿景与研究议程，虽属推荐系统方向，但不是传统内容推荐。"
+    }
+  ]
+}

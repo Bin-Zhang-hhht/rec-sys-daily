@@ -1,0 +1,79 @@
+{
+  "abstract": "Contextual information in recommender systems is shifting from static, predefined variables toward latent representations inferred from behavior. Large language models support this shift by rendering an unstructured interaction history as a natural-language summary, which yields a thematic user context that can be encoded and used in place of an aggregate profile. The conditions under which such generated profiles outperform aggregate embeddings have received limited characterization mainly at the domain level. We evaluate semantic user-profiling strategies on a production streaming platform, ranking against the full catalog. The evaluation covers a 2*2 design space crossing representation type (aggregate or LLM-generated) with contextual scope (holistic history or attention-fused short-term and long-term contexts). The relative ordering of the two representation types is conditional on the user's consumption regime. Aggregate profiles are consistently stronger under habitual consumption, which characterizes approximately four-fifths of the population, while LLM-generated profiles are stronger for exploratory users whose subsequent interactions diverge semantically from their history. We also observe a popularity-attractor effect in LLM-generated profiles, which modestly raises within-list diversity while substantially lowering catalog coverage and reducing novelty. These results indicate that a context-aware system can select a profiling strategy from the inferred consumption regime rather than applying one representation to all users. Contextual information in recommender systems is shifting from static, predefined variables toward latent representations inferred from behavior. Large language models support this shift by rendering an unstructured interaction history as a natural-language summary, which yields a thematic user context that can be encoded and used in place of an aggregate profile. The conditions under which such generated profiles outperform aggregate embeddings have received limited characterization mainly at the domain level. We evaluate semantic user-profiling strategies on a production streaming platform, ranking against the full catalog. The evaluation covers a 2*2 design space crossing representation type (aggregate or LLM-generated) with contextual scope (holistic history or attention-fused short-term and long-term contexts). The relative ordering of the two representation types is conditional on the user's consumption regime. Aggregate profiles are consistently stronger under habitual consumption, which characterizes approximately four-fifths of the population, while LLM-generated profiles are stronger for exploratory users whose subsequent interactions diverge semantically from their history. We also observe a popularity-attractor effect in LLM-generated profiles, which modestly raises within-list diversity while substantially lowering catalog coverage and reducing novelty. These results indicate that a context-aware system can select a profiling strategy from the inferred consumption regime rather than applying one representation to all users.",
+  "arxiv_id": "2609.38999",
+  "authors": [
+    "Milad Sabouri",
+    "Neeraj Sharma",
+    "Sardar Hamidian",
+    "Shaghayegh Agah"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "平台可按推断的用户消费模式动态选择画像策略，为习惯性用户保留聚合画像、为探索性用户启用 LLM 画像，避免一刀切。",
+      "LLM 画像提高多样性但降低覆盖率/新颖性，业务上需权衡内容发现与头部流行内容曝光。",
+      "约五分之四用户仍受益于聚合画像，说明 LLM 生成画像应聚焦特定探索性用户群体。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "在生产流媒体平台上，通过 2×2 设计（表示类型：聚合 vs LLM 生成；上下文范围：整体历史 vs 注意力融合短期/长期上下文）系统评估语义用户画像策略，并针对全目录排序。",
+      "发现两种表示类型的相对优劣取决于用户消费模式：习惯性消费用户（约占五分之四人口）使用聚合画像更稳定，探索性用户使用 LLM 生成画像更强。",
+      "识别出 LLM 生成画像的流行度吸引效应：可适度提升列表内多样性，但显著降低目录覆盖率和新颖性。",
+      "提出可根据推断的消费模式选择画像策略，而非对所有用户应用同一种表示。"
+    ],
+    "evidence_quality": 0.6,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "摘要"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "聚合用户画像/聚合嵌入表示"
+      ],
+      "datasets": [
+        "生产流媒体平台数据（摘要中未提供具体名称）"
+      ],
+      "findings_zh": [
+        "在习惯性消费下（约占五分之四用户群），聚合画像稳定优于 LLM 生成画像；",
+        "在探索性消费下，后续交互与历史语义偏离较大的用户，LLM 生成画像更强；",
+        "LLM 生成画像存在流行度吸引效应，会适度提高列表内多样性，同时显著降低目录覆盖率和新颖性。"
+      ],
+      "metrics": [
+        "全目录排序表现",
+        "列表内多样性",
+        "目录覆盖率",
+        "新颖性"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未明确讨论局限性；评估仅在单一生产流媒体平台进行，未报告跨平台或跨领域验证。",
+      "LLM 生成画像的目录覆盖率和新颖性下降，可能限制其在长尾推荐场景的直接使用。"
+    ],
+    "method_zh": "在真实生产流媒体平台上，以全目录排序为任务评估语义用户画像策略；实验设计为 2×2 组合，交叉表示类型（聚合或 LLM 生成）与上下文范围（整体历史或注意力融合短期/长期上下文），并按用户消费模式（习惯性消费 vs 探索性消费）比较表现。",
+    "problem_zh": "推荐系统中的用户上下文正从静态预定义变量转向从行为推断的潜在表示；大语言模型可将非结构化交互历史转为自然语言摘要以形成主题化用户画像，但相比聚合嵌入何时更优缺乏系统刻画，需要评估不同语义用户画像策略并据此选择策略。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.835,
+  "id": "arxiv-2609.38999",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-30T05:12:57Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文在生产流媒体推荐中对比聚合与LLM生成用户画像，指出应根据用户消费模式选择画像策略，并观察到LLM画像的流行度吸引效应。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "When LLM-Inferred User Context Adds Value in Production Streaming Recommendation",
+  "url": "https://arxiv.org/abs/2609.38999v1"
+}

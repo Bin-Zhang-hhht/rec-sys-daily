@@ -1,0 +1,81 @@
+{
+  "abstract": "Generative recommendation (GR) has emerged as an alternative to embedding-based retrieval, building on the success of generative models in language and vision. We are exploring GR on Facebook Forum, a standalone application for medium-to-heavy users of Facebook Groups. Because Forum is a new surface, its own interaction data are too sparse to train a GR model from scratch. We address this with transfer along two axes: we train on a broader corpus of Facebook Groups engagements rather than Forum sessions alone, and we reuse hierarchical, prefix-based semantic IDs (SIDs) learned from cross-platform Facebook Feed data instead of fitting a Forum-specific tokenizer. A 3B-parameter instruction-tuned language model is then supervised-fine-tuned to generate SIDs directly from user context. We systematically ablate the design choices that matter most in practice, including SID construction, the composition and length of user history, and the inclusion of user-profile features. Our results show that cross-platform SIDs transfer to a new recommendation surface, and offer practical guidance for teams deploying GR on real-world social platforms. Generative recommendation (GR) has emerged as an alternative to embedding-based retrieval, building on the success of generative models in language and vision. We are exploring GR on Facebook Forum, a standalone application for medium-to-heavy users of Facebook Groups. Because Forum is a new surface, its own interaction data are too sparse to train a GR model from scratch. We address this with transfer along two axes: we train on a broader corpus of Facebook Groups engagements rather than Forum sessions alone, and we reuse hierarchical, prefix-based semantic IDs (SIDs) learned from cross-platform Facebook Feed data instead of fitting a Forum-specific tokenizer. A 3B-parameter instruction-tuned language model is then supervised-fine-tuned to generate SIDs directly from user context. We systematically ablate the design choices that matter most in practice, including SID construction, the composition and length of user history, and the inclusion of user-profile features. Our results show that cross-platform SIDs transfer to a new recommendation surface, and offer practical guidance for teams deploying GR on real-world social platforms.",
+  "arxiv_id": "2609.38646",
+  "authors": [
+    "Yang Li",
+    "Yaguang Liu",
+    "Heng Liu",
+    "Shengbo Guo",
+    "Samson Komo",
+    "Jane Kou",
+    "Yulian Zhou",
+    "Gang Yang",
+    "Shubhojeet Sarkar",
+    "Gaurav Chakravorty",
+    "Yujie Liu",
+    "Haipeng Chen",
+    "Yonghuan Yang",
+    "Deepti Chheda",
+    "Yamin Wang",
+    "Mike Plumpe",
+    "Rish Tandon"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "利用跨平台SIDs和更广泛的社交参与数据，可显著降低新推荐产品的冷启动依赖，加速推荐能力上线。",
+      "复用Facebook Feed/Groups等已有生态数据，有助于在Forum等新场景快速获得可用的GR模型。",
+      "对SID构建与用户历史设计做系统消融，可为实际工程选型和资源投入提供决策依据，减少试错成本。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出沿两个轴迁移以解决新推荐场景的数据稀疏问题：使用更广泛的Facebook Groups参与语料而非仅Forum会话，并复用从跨平台Facebook Feed数据学到的分层前缀式语义ID(SIDs)，而非为Forum单独训练分词器。",
+      "使用3B参数的指令微调语言模型进行监督微调，使其直接从用户上下文生成SIDs，并验证了跨平台SIDs可迁移到新的推荐surface。",
+      "系统消融了SID构建、用户历史构成与长度、用户画像特征等实践中的重要设计选择，为真实社交平台部署GR提供实用指导。"
+    ],
+    "evidence_quality": 0.2,
+    "evidence_refs": [],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "Facebook Forum交互数据",
+        "Facebook Groups广泛参与语料",
+        "Facebook Feed跨平台数据"
+      ],
+      "findings_zh": [
+        "跨平台SIDs可以迁移到新的推荐surface，验证了联合跨平台数据训练的可行性。",
+        "SID构建、用户历史构成与长度、用户画像特征等设计选择在实践层面对GR系统效果有重要影响。",
+        "3B参数指令微调语言模型经监督微调后可直接由用户上下文生成SIDs。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "Facebook Forum作为新surface自身交互数据稀疏，难以支撑从零训练GR模型，是主要限制之一。",
+      "摘要未提供定量评测指标、基线对比或失败案例分析，证据以方法描述和定性结论为主。"
+    ],
+    "method_zh": "在Facebook Forum上探索生成式推荐：训练数据采用Facebook Groups更广泛的参与语料，语义编码复用Facebook Feed跨平台数据学习到的分层前缀式语义ID(SIDs)；模型采用3B参数指令微调语言模型，通过监督微调直接根据用户上下文生成SIDs，并对SID构建方式、用户历史组成与长度、用户画像特征进行系统消融。",
+    "problem_zh": "Facebook Forum作为新推荐场景，自身交互数据过于稀疏，难以从零训练生成式推荐模型，需要研究如何通过跨平台数据和语义ID实现迁移。",
+    "technical_depth": 0.35
+  },
+  "doi": null,
+  "final_score": 0.7000000000000001,
+  "id": "arxiv-2609.38646",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-29T23:04:09Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文在Facebook Forum探索使用跨平台语义ID和3B参数指令微调语言模型进行生成式推荐，验证跨平台迁移的有效性。",
+  "targets": [],
+  "tasks": [],
+  "title": "Exploring Forum Post Retrieval with Generative Modeling",
+  "url": "https://arxiv.org/abs/2609.38646v1"
+}

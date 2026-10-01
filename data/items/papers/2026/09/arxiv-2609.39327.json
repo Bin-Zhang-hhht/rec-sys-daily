@@ -1,0 +1,81 @@
+{
+  "abstract": "Generative retrieval reformulates recommendation as the generation of discrete item tokens. However, scaling this paradigm to real-world recommender systems reveals two critical bottlenecks: 1) Representation collapse, where the item tokenizer converges to degenerate results under continuous distribution shifts, fundamentally hindering stable end-to-end adaptation. 2) Item collisions, where the massive candidate pool causes distinct items to share identical token sequences, compromising the final retrieval precision. Crucially, these bottlenecks are inherently coupled: expanding codebook capacity to mitigate collisions inevitably exacerbates collapse. To address them simultaneously, we propose GEAR, an end-to-end framework that jointly optimizes the tokenizer, generator, and reranker. To mitigate representation collapse, we introduce BasisVQ, which re-parameterizes the codebook via an orthogonal basis to enable global gradient sharing and rigid spatial rotation of the latent space, effectively stabilizing gradient dynamics without ad-hoc heuristics. We further extend it to prefix-aware BasisRQ, substantially enhancing the codebook's expressiveness with the same asymptotic time complexity. To resolve item collisions, GEAR integrates a context-conditioned reranking head into the generative process, efficiently disambiguating colliding items with minimal computational overhead. By unifying stable tokenization and joint reranking within an end-to-end generative framework, GEAR establishes a fully differentiable and scalable paradigm. It currently serves hundreds of millions of daily active users on Douyin Ads, yielding substantial empirical improvements in extensive online A/B tests. Generative retrieval reformulates recommendation as the generation of discrete item tokens. However, scaling this paradigm to real-world recommender systems reveals two critical bottlenecks: 1) Representation collapse, where the item tokenizer converges to degenerate results under continuous distribution shifts, fundamentally hindering stable end-to-end adaptation. 2) Item collisions, where the massive candidate pool causes distinct items to share identical token sequences, compromising the final retrieval precision. Crucially, these bottlenecks are inherently coupled: expanding codebook capacity to mitigate collisions inevitably exacerbates collapse. To address them simultaneously, we propose GEAR, an end-to-end framework that jointly optimizes the tokenizer, generator, and reranker. To mitigate representation collapse, we introduce BasisVQ, which re-parameterizes the codebook via an orthogonal basis to enable global gradient sharing and rigid spatial rotation of the latent space, effectively stabilizing gradient dynamics without ad-hoc heuristics. We further extend it to prefix-aware BasisRQ, substantially enhancing the codebook's expressiveness with the same asymptotic time complexity. To resolve item collisions, GEAR integrates a context-conditioned reranking head into the generative process, efficiently disambiguating colliding items with minimal computational overhead. By unifying stable tokenization and joint reranking within an end-to-end generative framework, GEAR establishes a fully differentiable and scalable paradigm. It currently serves hundreds of millions of daily active users on Douyin Ads, yielding substantial empirical improvements in extensive online A/B tests.",
+  "arxiv_id": "2609.39327",
+  "authors": [
+    "Shaowen Zeng",
+    "Yanhua Huang",
+    "Jiacheng Sun",
+    "Jiarui Liu",
+    "Qian Dai",
+    "Zhikai Yang",
+    "Hancheng Li",
+    "Boya Wu",
+    "Tuoyu Zhang",
+    "Yekui Chen",
+    "Xiang Sun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "GEAR在抖音广告服务数亿日活跃用户，说明生成式检索可在超大规模工业推荐系统中落地。",
+      "通过稳定tokenizer和联合重排可减少物品碰撞造成的检索精度损失，有利于提升在线推荐/广告效果。",
+      "上下文条件重排头以最小计算开销消歧，适合对延迟敏感的在线系统。",
+      "企业需在现有工程栈中适配新的codebook与生成式tokenizer，改造成本取决于基础设施情况。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出GEAR，一种端到端生成式检索框架，联合优化tokenizer、generator和reranker。",
+      "提出BasisVQ，通过正交基重新参数化codebook，实现全局梯度共享和潜在空间刚性旋转，缓解表征坍塌且无需临时启发式规则。",
+      "进一步扩展出prefix-aware BasisRQ，在相同渐近时间复杂度下提升codebook表达能力。",
+      "将上下文条件重排头集成到生成式检索流程中，以最小计算开销消除碰撞物品的歧义，提升检索精度。",
+      "GEAR已在抖音广告上线，服务数亿日活跃用户，并在大规模在线A/B测试中取得显著改进。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "摘要仅报告GEAR在抖音广告的大规模在线A/B测试中取得显著经验改进，服务数亿日活跃用户。",
+        "未给出具体离线数据集、基线、指标数值或统计显著性细节。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "当前仅基于摘要信息，缺少可复现的实验设置、具体离线数据集、基线和指标。",
+      "未提供BasisVQ/BasisRQ的完整推导、算法细节或复杂度证明。",
+      "未讨论碰撞消除失败模式、极端分布漂移下的鲁棒性上限，以及其他推荐场景中的泛化性。"
+    ],
+    "method_zh": "GEAR联合优化tokenizer、generator和reranker。tokenizer端采用BasisVQ：用正交基重新参数化codebook，使梯度全局共享并允许潜在空间刚性旋转；进一步扩展为prefix-aware BasisRQ，在相同渐近时间复杂度下增强codebook表达能力。generator生成离散物品token序列，reranker作为上下文条件重排头嵌入生成过程，对碰撞物品进行消歧。整体形成完全可微且可扩展的生成式检索范式。",
+    "problem_zh": "生成式检索在真实推荐系统规模化部署时面临两个关键瓶颈：1）表征坍塌，物品tokenizer在持续分布漂移下收敛到退化结果，阻碍稳定的端到端适配；2）物品碰撞，大规模候选池中不同物品共享相同token序列，降低最终召回精度。这两个瓶颈相互耦合：扩大codebook容量以缓解碰撞会加剧表征坍塌。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.76,
+  "id": "arxiv-2609.39327",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-30T09:00:47Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出GEAR端到端生成式检索框架，联合优化分词器、生成器与重排器，解决广告推荐中的表征坍缩与物品碰撞问题。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Generative End-to-end Ad Retrieval at Douyin",
+  "url": "https://arxiv.org/abs/2609.39327v1"
+}

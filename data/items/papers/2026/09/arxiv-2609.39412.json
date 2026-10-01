@@ -1,0 +1,64 @@
+{
+  "abstract": "A large class of data-centric tasks is exploratory, where users iteratively steer workflows, refining subjective goals as new insights emerge. These Exploratory Data Tasks (EDTs) are performed by millions of users with varying levels of expertise to understand unfamiliar data, discover trends, and identify evidence that informs critical decision-making. However, a key challenge in EDTs is the enormous space of possible actions that one can take at each step: users struggle to choose among thousands of joins, transformations, and aggregations, causing \"exploration paralysis\". Because EDT workflows are interconnected, each choice impacts subsequent exploration, and suboptimal choices can lead to inefficiency, missed insights, confirmation bias, and incomplete coverage. This calls for intelligent recommendations that efficiently guide users toward optimal EDT actions. We envision recommendation as a core capability of data systems, proactively guiding users toward promising actions and thereby lowering the barrier to exploratory data tasks. EDT recommendation is challenging because the action space is combinatorial and actions are data-dependent, which require costly materialization. Moreover, recommendation often involves bundles or sequences of actions across interdependent tasks, requiring coordination across tasks. In this paper, we present our vision of EDT recommendation systems along two axes: single-task vs. multi-task settings and single-action vs. multi-action recommendations. We outline a research agenda that progresses from recommending individual EDT actions to constrained bundles and sequences of actions, and ultimately to coordinated recommendations across interconnected EDTs. We identify research directions for incorporating various contexts (user, data, task, and ecosystem), addressing efficiency challenges, and coordinating across tasks. A large class of data-centric tasks is exploratory, where users iteratively steer workflows, refining subjective goals as new insights emerge. These Exploratory Data Tasks (EDTs) are performed by millions of users with varying levels of expertise to understand unfamiliar data, discover trends, and identify evidence that informs critical decision-making. However, a key challenge in EDTs is the enormous space of possible actions that one can take at each step: users struggle to choose among thousands of joins, transformations, and aggregations, causing \"exploration paralysis\". Because EDT workflows are interconnected, each choice impacts subsequent exploration, and suboptimal choices can lead to inefficiency, missed insights, confirmation bias, and incomplete coverage. This calls for intelligent recommendations that efficiently guide users toward optimal EDT actions. We envision recommendation as a core capability of data systems, proactively guiding users toward promising actions and thereby lowering the barrier to exploratory data tasks. EDT recommendation is challenging because the action space is combinatorial and actions are data-dependent, which require costly materialization. Moreover, recommendation often involves bundles or sequences of actions across interdependent tasks, requiring coordination across tasks. In this paper, we present our vision of EDT recommendation systems along two axes: single-task vs. multi-task settings and single-action vs. multi-action recommendations. We outline a research agenda that progresses from recommending individual EDT actions to constrained bundles and sequences of actions, and ultimately to coordinated recommendations across interconnected EDTs. We identify research directions for incorporating various contexts (user, data, task, and ecosystem), addressing efficiency challenges, and coordinating across tasks.",
+  "arxiv_id": "2609.39412",
+  "authors": [
+    "Anna Fariha"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "EDT由数百万不同专业水平的用户执行,用于理解陌生数据、发现趋势并为关键决策提供证据,改进推荐可带来广泛的用户价值。",
+      "通过降低探索门槛并减少次优选择,可提升数据工作流的效率和洞察覆盖率,降低确认偏差和遗漏带来的决策风险。",
+      "将推荐嵌入数据系统可成为数据分析平台的核心差异化能力,帮助产品在竞争中获得优势。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出将推荐作为数据系统的核心能力,主动引导用户采取有前景的EDT动作,降低探索性数据任务的门槛。",
+      "给出EDT推荐系统的二维分类:单任务vs多任务、单动作vs多动作推荐。",
+      "规划从单个EDT动作推荐,到受约束的动作组合与序列推荐,再到跨互连EDT的协调推荐的研究路线图。",
+      "识别结合用户、数据、任务和生态系统等上下文的研究方向,以及解决效率挑战和跨任务协调的方向。"
+    ],
+    "evidence_quality": 0.25,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "EDT推荐面临组合爆炸的动作空间,且动作依赖于具体数据,需要代价高昂的物化。",
+      "推荐常涉及跨互连任务的捆绑或序列动作,需要跨任务协调,现有方法难以直接处理。",
+      "该研究仍处于愿景阶段,尚未提供实现方案或实验验证。"
+    ],
+    "method_zh": "本文属于愿景/研究议程类论文,未给出具体算法;其提出的研究框架是沿单/多任务与单/多动作两条轴线构建EDT推荐系统,并逐步从单一动作推荐推进到组合、序列及跨任务协调推荐。",
+    "problem_zh": "探索性数据任务(EDT)中,用户在每一步面对巨大的动作空间(数千种连接、转换和聚合),导致'探索瘫痪';由于工作流相互关联,每次选择都会影响后续探索,次优选择会造成效率低下、错过洞察、确认偏差和覆盖不全,因此需要智能推荐来高效引导用户。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.6350000000000001,
+  "id": "arxiv-2609.39412",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-30T09:53:10Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向探索性数据任务的推荐系统愿景与研究议程，虽属推荐系统方向，但不是传统内容推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Recommendation Systems for Exploratory Data Tasks",
+  "url": "https://arxiv.org/abs/2609.39412v1"
+}

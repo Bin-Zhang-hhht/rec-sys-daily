@@ -1,0 +1,72 @@
+{
+  "abstract": "While recent multimodal recommender systems have demonstrated the effectiveness of incorporating visual and textual information to improve downstream performance, most existing methods rely on static modality fusion, assuming that the relative importance of textual and visual signals remains stable across recommendation scenarios. This design may not fully account for an important variation across recommendation requests: some queries require fine-grained visual cues, whereas others are better served by textual or functional semantics, in which case indiscriminate modality fusion brings in uninformative cues and impairs recommendation quality. To address this, we propose AdaM-Rec, an LLM-based framework for adaptive modality routing in multimodal recommendation, which enables dynamic calibration of reliance on textual and multimodal evidence for user-specific queries. Built on structured natural-language representations of items and user preferences, it estimates modality reliability using proxy recall tasks. Specifically, it generates pseudo-queries that match the granularity of the actual query while pointing to the user's positively interacted items as verifiable proxy targets, evaluating which modality yields better recall performance in analogous scenarios and optimizing the routing strategy in an agentic manner. It then performs routed recall with optimized strategy, enriches results with collaborative items, and ranks candidates by their relevance to both the query and user preferences. Experiments demonstrate that AdaM-Rec delivers strong performance against state-of-the-art baselines, highlighting the effectiveness and broader potential of adaptive control over modality reliance in multimodal recommendation. While recent multimodal recommender systems have demonstrated the effectiveness of incorporating visual and textual information to improve downstream performance, most existing methods rely on static modality fusion, assuming that the relative importance of textual and visual signals remains stable across recommendation scenarios. This design may not fully account for an important variation across recommendation requests: some queries require fine-grained visual cues, whereas others are better served by textual or functional semantics, in which case indiscriminate modality fusion brings in uninformative cues and impairs recommendation quality. To address this, we propose AdaM-Rec, an LLM-based framework for adaptive modality routing in multimodal recommendation, which enables dynamic calibration of reliance on textual and multimodal evidence for user-specific queries. Built on structured natural-language representations of items and user preferences, it estimates modality reliability using proxy recall tasks. Specifically, it generates pseudo-queries that match the granularity of the actual query while pointing to the user's positively interacted items as verifiable proxy targets, evaluating which modality yields better recall performance in analogous scenarios and optimizing the routing strategy in an agentic manner. It then performs routed recall with optimized strategy, enriches results with collaborative items, and ranks candidates by their relevance to both the query and user preferences. Experiments demonstrate that AdaM-Rec delivers strong performance against state-of-the-art baselines, highlighting the effectiveness and broader potential of adaptive control over modality reliance in multimodal recommendation.",
+  "arxiv_id": "2609.38455",
+  "authors": [
+    "Honghao Fu",
+    "Jiacheng Chen",
+    "Manxi Lin",
+    "Junjun Zheng",
+    "Xiangheng Kong",
+    "Yiwei Wang",
+    "Xin Yu",
+    "Miao Xu",
+    "Yuning Jiang",
+    "Yujun Cai"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在电商与内容平台中，按查询动态选择视觉或文本信号可减少无关推荐，提升推荐相关性与用户体验。",
+      "对商品搜索与广告投放等场景有潜在价值：可根据用户当前查询意图更灵活地组织多模态信息，可能提升点击与转化效率。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 AdaM-Rec，一种基于 LLM 的自适应模态路由推荐框架，可根据用户特定查询动态校准对文本与多模态证据的依赖。",
+      "利用代理召回任务估计模态可靠性：生成与真实查询粒度匹配的伪查询，并以用户正向交互商品作为可验证代理目标，比较各模态在类似场景下的召回表现，以智能体方式优化路由策略。",
+      "将优化后的路由召回与协同商品扩充、基于查询和用户偏好相关性的排序相结合，构成完整推荐流程。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "实验中 AdaM-Rec 相对现有最强基线取得了更好的性能；摘要未提供具体数据集、基线与指标名称。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "摘要未披露明确的局限性。",
+      "来源仅包含摘要，缺少具体实验设置与数值结果，因此无法验证泛化性、鲁棒性或计算开销。"
+    ],
+    "method_zh": "AdaM-Rec 基于商品和用户偏好的结构化自然语言表示，先通过代理召回任务（生成伪查询并指向用户正向交互商品）评估文本与多模态证据在类似场景中的可靠性；随后按优化路由策略执行召回，扩充协同过滤商品，并根据候选与查询及用户偏好的相关性进行排序。",
+    "problem_zh": "现有多模态推荐系统大多采用静态模态融合，假设文本与视觉信号在不同推荐场景中的重要性保持稳定；但实际查询中，有些需要细粒度视觉线索，有些更依赖文本或功能语义，不加区分地融合会引入无关信息并损害推荐质量。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.76,
+  "id": "arxiv-2609.38455",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-29T19:46:31Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "AdaM-Rec提出基于LLM的自适应模态路由多模态推荐框架，通过代理召回任务估计模态可靠性并动态调整文本与视觉证据依赖。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "AdaM-Rec: Adaptive Modality Routing for Multimodal Recommendation",
+  "url": "https://arxiv.org/abs/2609.38455v1"
+}

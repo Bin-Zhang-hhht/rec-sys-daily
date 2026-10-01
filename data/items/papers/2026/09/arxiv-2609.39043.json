@@ -1,0 +1,79 @@
+{
+  "abstract": "Large language models (LLMs) enable rich semantic user profiles for recommendation, but such profiles are more expensive to generate and are not necessarily desirable to deploy uniformly. We study whether LLM-generated profiles can instead be invoked selectively within a production recommendation pipeline. Using a real-world streaming dataset covering movies, TV shows, and sports content, we train a serving-time routing gate that assigns each user to either a collaborative sequential recommendation model or a recommendation model driven by an LLM-generated profile. The gate uses only serving-time features and learns to identify users for whom profile-based routing can increase Novelty@10 while preserving ranking relevance. A routing threshold controls how aggressively users are sent to the generative model, exposing a tunable novelty--relevance trade-off. At an overall NDCG-loss budget of 5\\%, the learned gate increases Novelty@10 by 6.5\\% while routing 12.5\\% of users, outperforming simple heuristic and random routing policies at comparable relevance cost. These results show that LLM-generated user profiles can serve as a controllable complement to collaborative recommendation, while results with non-generative semantic profiles indicate that the benefit stems from selective routing rather than LLM generation alone. Large language models (LLMs) enable rich semantic user profiles for recommendation, but such profiles are more expensive to generate and are not necessarily desirable to deploy uniformly. We study whether LLM-generated profiles can instead be invoked selectively within a production recommendation pipeline. Using a real-world streaming dataset covering movies, TV shows, and sports content, we train a serving-time routing gate that assigns each user to either a collaborative sequential recommendation model or a recommendation model driven by an LLM-generated profile. The gate uses only serving-time features and learns to identify users for whom profile-based routing can increase Novelty@10 while preserving ranking relevance. A routing threshold controls how aggressively users are sent to the generative model, exposing a tunable novelty--relevance trade-off. At an overall NDCG-loss budget of 5\\%, the learned gate increases Novelty@10 by 6.5\\% while routing 12.5\\% of users, outperforming simple heuristic and random routing policies at comparable relevance cost. These results show that LLM-generated user profiles can serve as a controllable complement to collaborative recommendation, while results with non-generative semantic profiles indicate that the benefit stems from selective routing rather than LLM generation alone.",
+  "arxiv_id": "2609.39043",
+  "authors": [
+    "Milad Sabouri",
+    "Neeraj Sharma",
+    "Sardar Hamidian",
+    "Shaghayegh Agah"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "生产推荐系统可以通过路由门控仅为部分用户调用昂贵的LLM画像，在相关性损失预算内提升新颖性，兼顾推荐质量与生成成本。",
+      "对于电影、电视和体育等内容流媒体平台，以12.5%的用户路由比例换取Novelty@10约6.5%的提升，提供了一种可控的新颖性-相关性业务权衡。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出一个服务时路由门控，利用仅服务时可用特征，将用户分配给协同序列推荐模型或由LLM画像驱动的推荐模型。",
+      "展示通过路由阈值可以在保持排名相关性的同时，显式调节Novelty@10与相关性之间的权衡。",
+      "在真实流媒体数据集上，以整体NDCG损失预算5%为约束，学习式门控将Novelty@10提升6.5%，同时仅路由12.5%的用户。",
+      "与使用非生成式语义画像的结果对比表明，性能提升来自选择性路由本身，而非LLM生成画像这一因素。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "摘要"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "简单启发式路由策略",
+        "随机路由策略",
+        "协同序列推荐模型（非画像路由侧）"
+      ],
+      "datasets": [
+        "真实世界流媒体数据集（涵盖电影、电视节目和体育内容）"
+      ],
+      "findings_zh": [
+        "在整体NDCG损失预算5%下，学习式门控将Novelty@10提升6.5%，同时路由12.5%的用户。",
+        "在相近的相关性成本下，学习式门控优于简单启发式路由策略和随机路由策略。",
+        "与非生成式语义画像的对比结果表明，收益主要来自选择性路由而非LLM生成本身。"
+      ],
+      "metrics": [
+        "Novelty@10",
+        "NDCG（相关性损失预算）",
+        "路由用户比例"
+      ]
+    },
+    "limitations_zh": [
+      "评估基于单一真实世界流媒体数据集，未提供多领域或在线A/B实验证据。",
+      "摘要未披露门控架构、画像生成成本及阈值选择细节，限制了对方法进行深度复现和评估的依据。"
+    ],
+    "method_zh": "使用真实世界流媒体数据集训练服务时路由门控；门控仅使用服务时特征，学习识别哪些用户通过画像驱动的推荐模型可以获得更高的Novelty@10且不显著损失排名相关性；通过路由阈值控制被发送到生成式模型的用户比例，从而暴露并利用新颖性-相关性权衡。",
+    "problem_zh": "LLM生成的语义用户画像有助于推荐，但生成成本较高，且对所有用户统一部署未必理想；因此需要研究在生产推荐管线中是否以及何时选择性调用这种画像。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7925000000000001,
+  "id": "arxiv-2609.39043",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-30T05:53:08Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文在真实推荐管道中训练服务时路由门，选择性将用户路由至LLM画像模型，在保持NDCG的前提下提升新颖性。",
+  "targets": [],
+  "tasks": [],
+  "title": "Routing Between Generative and Collaborative User Profiles: A Serving-Time Gate for Controllable Novelty",
+  "url": "https://arxiv.org/abs/2609.39043v1"
+}

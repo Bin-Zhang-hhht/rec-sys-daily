@@ -1,0 +1,72 @@
+{
+  "abstract": "Sessionized interaction histories contain behavioral patterns that can improve sequential recommendation. However, existing models process all sessions through the same parameterized blocks, regardless of their behavioral differences. Mixture of Experts (MoE) enables conditional computation, but it leaves open what should guide expert allocation. We propose RouteRec, a sequential recommender that uses observed session behavior as the routing criterion. RouteRec summarizes four types of behavioral evidence from sessionized histories: interaction tempo, item-group focus, repetition and carryover, and popularity tendency. It uses these cues to route computation at macro, mid, and micro scopes. Cue-derived scores first select expert groups; within each selected group, the current backbone state then refines expert selection. Across six public datasets and 18 dataset-metric combinations, RouteRec ranks first in 12 and second in three, yielding the best overall average rank of 1.61 compared with 4.11 for the next-best baseline. Additional analyses suggest that the behavioral cues guide expert allocation beyond added capacity and produce routing patterns aligned with observed behavior. Our code is available at https://github.com/jy1559/RouteRec Sessionized interaction histories contain behavioral patterns that can improve sequential recommendation. However, existing models process all sessions through the same parameterized blocks, regardless of their behavioral differences. Mixture of Experts (MoE) enables conditional computation, but it leaves open what should guide expert allocation. We propose RouteRec, a sequential recommender that uses observed session behavior as the routing criterion. RouteRec summarizes four types of behavioral evidence from sessionized histories: interaction tempo, item-group focus, repetition and carryover, and popularity tendency. It uses these cues to route computation at macro, mid, and micro scopes. Cue-derived scores first select expert groups; within each selected group, the current backbone state then refines expert selection. Across six public datasets and 18 dataset-metric combinations, RouteRec ranks first in 12 and second in three, yielding the best overall average rank of 1.61 compared with 4.11 for the next-best baseline. Additional analyses suggest that the behavioral cues guide expert allocation beyond added capacity and produce routing patterns aligned with observed behavior. Our code is available at https://github.com/jy1559/RouteRec",
+  "arxiv_id": "2609.39007",
+  "authors": [
+    "Junyeong Song",
+    "Jaemin Yoo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "RouteRec通过行为线索路由专家计算，在多个数据集上提升排序表现，可能有助于改善推荐系统的点击、留存或转化效果。",
+      "论文表明行为导向的专家路由改进超越单纯增加容量，为大规模推荐系统的高效条件计算提供了有潜力的方向。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "提出RouteRec，一个以会话行为为路由标准的序列推荐模型。",
+      "从会话化历史中总结交互节奏、物品组关注、重复与延续、流行度倾向四类行为证据。",
+      "在宏观、中观、微观三个范围上使用行为线索和主干状态进行层级专家路由。",
+      "在6个公开数据集、18个数据集-指标组合中平均排名优于次优基线。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "次优基线（具体名称未在摘要中给出）"
+      ],
+      "datasets": [
+        "6个公开数据集（具体名称未在摘要中列出）"
+      ],
+      "findings_zh": [
+        "RouteRec在18个数据集-指标组合中12次排名第一、3次排名第二，整体平均排名1.61，优于次优基线的4.11。",
+        "行为线索对专家分配的引导作用不能仅归因于模型容量增加。",
+        "路由模式与观测到的人类行为模式一致。"
+      ],
+      "metrics": [
+        "数据集-指标组合（具体指标名称未在摘要中列明）"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未给出具体数据集名称、基线名称，也未报告计算成本、部署限制或失败案例。"
+    ],
+    "method_zh": "RouteRec从会话化交互历史中提取交互节奏、物品组关注、重复与延续、流行度倾向四类行为证据；线索得分先选择专家组，再由当前主干状态在组内细化专家选择，实现宏观、中观、微观三种范围的条件计算。",
+    "problem_zh": "现有序列推荐模型对所有会话使用同一套参数化模块，未根据会话行为差异进行条件计算；论文提出以观测到的会话行为作为专家分配路由标准的序列推荐问题。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.7200000000000002,
+  "id": "arxiv-2609.39007",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-09-30T05:18:00Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "RouteRec将会话行为作为稀疏专家路由依据，在宏观、中观、微观范围路由计算，显著提升序列推荐效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "RouteRec: Behavior-Guided Sparse Routing for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2609.39007v1"
+}

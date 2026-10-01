@@ -1,0 +1,77 @@
+{
+  "abstract": "Advancing beyond traditional static scoring models, LLM-powered agentic recommender systems (LLM-ARS) instantiate users and items as autonomous agents, whose semantic states are dynamically refined through a recurrent process known as collaborative reflection. While this mechanism improves recommendation quality, it simultaneously introduces a systemic vulnerability: adversarial evidence injected into a single agent can be rationalised into a legitimate preference narrative, written back into memory, and propagated to other agents through interaction contexts. We term the local rationalisation process reflection laundering, and its system-wide escalation through collaborative reflection collaborative-reflection hijacking. Existing attacks on recommender systems, whether based on interaction-level data poisoning or text-level adversarial perturbations, assume static pipelines and thus cannot exploit this recurrent, multi-agent amplification pathway. To bridge this gap, we first conduct a controlled vulnerability analysis that establishes two exploitable properties underlying collaborative-reflection hijacking: reflective persistence and cross-agent propagation. Then building on these findings, we propose VirusCascade, the first black-box targeted promotion attack that jointly shapes semantic and structural attack surfaces: the former ensures the target item is naturally rationalised as satisfying broad user preferences, the latter positions it for system-wide propagation. Extensive experiments on four real-world datasets across diverse LLM-ARS architectures demonstrate that VirusCascade consistently achieves state-of-the-art targeted exposure under evaluated stealth constraints, reaching a mean E@20 of 0.384 and surpassing the strongest baseline by an absolute margin of +0.185. Advancing beyond traditional static scoring models, LLM-powered agentic recommender systems (LLM-ARS) instantiate users and items as autonomous agents, whose semantic states are dynamically refined through a recurrent process known as collaborative reflection. While this mechanism improves recommendation quality, it simultaneously introduces a systemic vulnerability: adversarial evidence injected into a single agent can be rationalised into a legitimate preference narrative, written back into memory, and propagated to other agents through interaction contexts. We term the local rationalisation process reflection laundering, and its system-wide escalation through collaborative reflection collaborative-reflection hijacking. Existing attacks on recommender systems, whether based on interaction-level data poisoning or text-level adversarial perturbations, assume static pipelines and thus cannot exploit this recurrent, multi-agent amplification pathway. To bridge this gap, we first conduct a controlled vulnerability analysis that establishes two exploitable properties underlying collaborative-reflection hijacking: reflective persistence and cross-agent propagation. Then building on these findings, we propose VirusCascade, the first black-box targeted promotion attack that jointly shapes semantic and structural attack surfaces: the former ensures the target item is naturally rationalised as satisfying broad user preferences, the latter positions it for system-wide propagation. Extensive experiments on four real-world datasets across diverse LLM-ARS architectures demonstrate that VirusCascade consistently achieves state-of-the-art targeted exposure under evaluated stealth constraints, reaching a mean E@20 of 0.384 and surpassing the strongest baseline by an absolute margin of +0.185.",
+  "arxiv_id": "2609.38270",
+  "authors": [
+    "Yurong Hao",
+    "Wen Zhou",
+    "Guowei Guan",
+    "Tiantong Wu",
+    "Fuyao Zhang",
+    "Wei Yang Bryan Lim"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对LLM-ARS平台而言，单个智能体的对抗证据可能通过协作反思被放大为系统性推荐操纵，威胁推荐内容可信度与排序公正性。",
+      "平台需要监测智能体记忆写入及跨智能体传播路径，以降低目标物品被定向推广的风险。",
+      "此类黑盒定向推广攻击可能造成不公平的曝光优势，影响依赖推荐流量的商业生态。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出协作反思劫持（collaborative-reflection hijacking）概念，并通过受控漏洞分析识别两个可利用属性：反思持久性与跨智能体传播。",
+      "提出VirusCascade，首个黑盒定向推广攻击，联合塑造语义攻击面和结构攻击面。",
+      "在四个真实世界数据集和多种LLM-ARS架构上验证，平均E@20达到0.384，超过最强基线绝对幅度+0.185。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "摘要"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "最强基线（摘要未给出名称）"
+      ],
+      "datasets": [
+        "四个真实世界数据集（摘要未列出具体名称）"
+      ],
+      "findings_zh": [
+        "VirusCascade在四种真实世界数据集和多种LLM-ARS架构上持续达到最优的定向曝光效果。",
+        "平均E@20为0.384，相对最强基线绝对提升+0.185。",
+        "受控漏洞分析确认协作反思劫持依赖于反思持久性和跨智能体传播。"
+      ],
+      "metrics": [
+        "E@20"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供关于攻击检测成本、防御措施或实际部署局限性的明确说明。",
+      "摘要未披露具体数据集名称、基线模型及完整方法细节，限制了对结果可复现性的判断。"
+    ],
+    "method_zh": "VirusCascade联合塑造语义与结构两类攻击面：语义层面确保目标物品被自然合理化，以满足广泛的用户偏好；结构层面将目标物品置于系统级传播路径中。方法建立在对反思持久性和跨智能体传播两种漏洞属性的受控分析之上。",
+    "problem_zh": "LLM驱动的智能体推荐系统（LLM-ARS）通过协作反思动态精炼用户和物品智能体的语义状态，但对抗性证据可被单个智能体合理化并写回记忆，再通过交互上下文传播到其他智能体，形成系统性漏洞。现有推荐系统攻击假设静态流水线，无法利用这种循环多智能体放大路径。",
+    "technical_depth": 0.7
+  },
+  "doi": "10.14722/ndss.2027.230685",
+  "final_score": 0.8099999999999999,
+  "id": "arxiv-2609.38270",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-01T21:22:19.144983Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-29T14:13:35Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "VirusCascade针对LLM驱动的智能体推荐系统提出首个黑盒定向推广攻击，利用协作反思的反射洗白与跨智能体传播机制提升目标物品曝光。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "VirusCascade: Hijacking Collaborative Reflection in LLM-Powered Recommender Agents",
+  "url": "https://arxiv.org/abs/2609.38270v1"
+}
