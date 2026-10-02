@@ -1,0 +1,84 @@
+{
+  "abstract": "Generative retrieval has emerged as a general retrieval paradigm, representing items with discrete Semantic IDs (SIDs) and retrieving them through autoregressive identifier generation. When SIDs are constructed with residual quantization (RQ), standard retrieval training supervises only the selected codes and discards the residual trajectories that produce them. The same hard code can nevertheless arise from different preferences over competing codewords, while the residual trajectory also contains information about subsequent quantization decisions. As a result, hard SID supervision collapses distinct quantization behaviors into identical targets and leaves information available during indexing unused in retrieval training. We introduce ResTD, a Residual Trajectory Distillation framework that transfers this discarded indexing information into retrieval training. Treating the frozen RQ indexer as a process teacher, it distills residual-induced codeword preferences into SID-decoding states. This supervision recovers distinctions hidden by hard assignments and allows earlier decoder states to capture information about subsequent quantization decisions before the corresponding SID suffix is generated. In this way, richer information from SID construction is incorporated into retrieval learning while preserving the original retrieval index and inference procedure. Experiments on multilingual e-commerce retrieval show consistent improvements over strong baselines and matched training controls. Controlled comparisons show that residual-derived targets outperform the tested codebook-only soft targets. Representation probes further show that future codebook preferences become more recoverable from earlier decoder states. ResTD can also be readily extended beyond retrieval to generative recommendation. Code is available at: https://github.com/Nevaeh7/iclr2027_ResTD.git. Generative retrieval has emerged as a general retrieval paradigm, representing items with discrete Semantic IDs (SIDs) and retrieving them through autoregressive identifier generation. When SIDs are constructed with residual quantization (RQ), standard retrieval training supervises only the selected codes and discards the residual trajectories that produce them. The same hard code can nevertheless arise from different preferences over competing codewords, while the residual trajectory also contains information about subsequent quantization decisions. As a result, hard SID supervision collapses distinct quantization behaviors into identical targets and leaves information available during indexing unused in retrieval training. We introduce ResTD, a Residual Trajectory Distillation framework that transfers this discarded indexing information into retrieval training. Treating the frozen RQ indexer as a process teacher, it distills residual-induced codeword preferences into SID-decoding states. This supervision recovers distinctions hidden by hard assignments and allows earlier decoder states to capture information about subsequent quantization decisions before the corresponding SID suffix is generated. In this way, richer information from SID construction is incorporated into retrieval learning while preserving the original retrieval index and inference procedure. Experiments on multilingual e-commerce retrieval show consistent improvements over strong baselines and matched training controls. Controlled comparisons show that residual-derived targets outperform the tested codebook-only soft targets. Representation probes further show that future codebook preferences become more recoverable from earlier decoder states. ResTD can also be readily extended beyond retrieval to generative recommendation. Code is available at: https://github.com/Nevaeh7/iclr2027_ResTD.git.",
+  "arxiv_id": "2609.39319",
+  "authors": [
+    "Weihao Shen",
+    "Wei Chen",
+    "Fuwei Zhang",
+    "Guojun Liu",
+    "Qingsong Hua",
+    "Wei Lin",
+    "Fuzhen Zhuang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对多语言电商检索场景，ResTD 可在不改变检索索引和推理流程的前提下提升生成式检索效果，可能改善商品召回与推荐质量。",
+      "由于可扩展到生成式推荐，该方法有望用于推荐系统中的物品标识生成与用户行为建模。",
+      "保留原有推理过程意味着部署端可复用现有检索索引与推理基础设施，降低迁移成本。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 ResTD（Residual Trajectory Distillation）框架，将 RQ 索引过程中被丢弃的残差轨迹信息迁移到生成式检索训练中。",
+      "将冻结的 RQ 索引器视为过程教师，把残差诱导的码本偏好蒸馏到 SID 解码状态，恢复被硬赋值隐藏的区分度。",
+      "使更早的解码状态在对应 SID 后缀生成前即可捕获后续量化决策信息，同时保留原始检索索引和推理过程。",
+      "实验表明 ResTD 在多语言电商检索上优于强基线和匹配训练控制，残差派生目标优于测试的仅码本软目标，且可扩展到生成式推荐。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "强基线（strong baselines）",
+        "匹配训练控制（matched training controls）",
+        "仅码本软目标（codebook-only soft targets）"
+      ],
+      "datasets": [
+        "多语言电商检索场景（摘要未给出具体数据集名称）"
+      ],
+      "findings_zh": [
+        "ResTD 在多语言电商检索上持续优于强基线和匹配训练控制。",
+        "受控对比中，残差派生目标优于所测试的仅码本软目标。",
+        "表示探测表明，未来码本偏好能从更早的解码状态中更好地恢复。",
+        "方法可扩展到生成式推荐，但摘要未提供该扩展的实验证据。"
+      ],
+      "metrics": [
+        "检索性能指标（摘要未给出具体指标名）",
+        "表示探测（future codebook preference recoverability）"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供数据集名称、基线细节和具体定量指标，因此无法评估改进幅度与统计显著性。",
+      "未报告失败案例或方法在非电商、非多语言场景下的表现。",
+      "扩展至生成式推荐仅有声明，未提供相应实验证据。"
+    ],
+    "method_zh": "ResTD 将冻结的 RQ 索引器作为过程教师，在生成式检索训练中把残差量化产生的码本偏好蒸馏到 SID 解码状态，而不是只监督被选中的硬编码；这样保留残差轨迹信息，使解码状态携带后续量化决策信息，且不改变原有检索索引与推理流程。",
+    "problem_zh": "生成式检索使用残差量化构造 Semantic ID 时，标准训练只监督最终选中的编码，丢弃了残差轨迹；同一硬编码可能来自不同的码本偏好，且残差轨迹包含后续量化决策信息，导致硬 SID 监督将不同量化行为压缩为相同目标，使索引阶段可用的信息未被检索训练利用。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.76,
+  "id": "arxiv-2609.39319",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-02T23:28:27.111679Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-09-30T08:59:09Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出残差轨迹蒸馏（ResTD）框架，将索引阶段丢弃的量化轨迹信息转移到生成式检索训练中，并在多语言电商检索与生成式推荐场景中取得改进。",
+  "targets": [],
+  "tasks": [],
+  "title": "Residual Trajectory Distillation for Generative Retrieval",
+  "url": "https://arxiv.org/abs/2609.39319v1"
+}

@@ -1,0 +1,74 @@
+{
+  "abstract": "Existing work on Semantic IDs (SIDs) for generative recommendation treats SID construction as a representation learning problem: encode items into a quantised latent space and read off codes. We argue this view is incidental. SID construction is, at heart, a recursive clustering problem, and once stated this way the natural object to cluster is a graph whose nodes carry semantic content and whose edges carry collaborative signal; SID assignment becomes a hierarchical graph partition. This reframing yields a unified framework, Graph-Informed Semantic IDs (GrIS), that subsumes prior approaches rather than displacing them. RQ-VAE and RQ-KMeans are recovered as the special case where the graph is empty, exposing content-only quantisation as one corner of a larger design space along two so-far-collapsed axes: graph construction and recursive partition algorithm. We explore two contrasting instantiations: RecDMoN, which performs hierarchical assignment via differentiable graph pooling, and RQ-GAE, which extends RQ-VAE with graph-aware item representations and a graph reconstruction objective. On multiple real-world datasets, GrIS consistently improves over CF-aware SOTA, with gains of up to +52\\% Hit@10. Because graph construction and partition are explicit, separately configurable components, improvements on either axis can be combined and evaluated systematically. Existing work on Semantic IDs (SIDs) for generative recommendation treats SID construction as a representation learning problem: encode items into a quantised latent space and read off codes. We argue this view is incidental. SID construction is, at heart, a recursive clustering problem, and once stated this way the natural object to cluster is a graph whose nodes carry semantic content and whose edges carry collaborative signal; SID assignment becomes a hierarchical graph partition. This reframing yields a unified framework, Graph-Informed Semantic IDs (GrIS), that subsumes prior approaches rather than displacing them. RQ-VAE and RQ-KMeans are recovered as the special case where the graph is empty, exposing content-only quantisation as one corner of a larger design space along two so-far-collapsed axes: graph construction and recursive partition algorithm. We explore two contrasting instantiations: RecDMoN, which performs hierarchical assignment via differentiable graph pooling, and RQ-GAE, which extends RQ-VAE with graph-aware item representations and a graph reconstruction objective. On multiple real-world datasets, GrIS consistently improves over CF-aware SOTA, with gains of up to +52\\% Hit@10. Because graph construction and partition are explicit, separately configurable components, improvements on either axis can be combined and evaluated systematically.",
+  "arxiv_id": "2610.01533",
+  "authors": [
+    "Aleksei Medvedev",
+    "Alejandro Ariza-Casabona",
+    "Steven Derby",
+    "Gonzalo Fiz Pontiveros",
+    "Xinyang Shao",
+    "Florian Spiess"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "生成式推荐中语义ID的改进可直接体现在推荐命中率上，最高可带来+52% Hit@10的提升。",
+      "图构建与递归划分可分别配置，便于推荐系统团队将两类优化组合并系统评估，从而迭代验证不同策略。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "将语义ID构建重新定义为递归聚类/层次图划分问题，而非单纯的表示学习。",
+      "提出统一框架GrIS，将RQ-VAE与RQ-KMeans视为空图特例，揭示图构建和递归划分算法两个可独立配置的设计轴。",
+      "提出两种实例化：RecDMoN（可微图池化的层次分配）与RQ-GAE（图感知物品表示加图重构目标）。",
+      "在多个真实数据集上相对CF感知SOTA一致提升，最高+52% Hit@10。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "CF感知SOTA（CF-aware SOTA）"
+      ],
+      "datasets": [
+        "多个真实世界数据集（原文摘要未列具体名称）"
+      ],
+      "findings_zh": [
+        "GrIS在多个真实世界数据集上相较CF感知SOTA一致提升，最高达+52% Hit@10。",
+        "RQ-VAE与RQ-KMeans被恢复为空图特例，显示纯内容量化只是设计空间中的一个角落。",
+        "图构建与递归划分作为独立可配置组件，使两类改进能够组合并系统评估。"
+      ],
+      "metrics": [
+        "Hit@10"
+      ]
+    },
+    "limitations_zh": [],
+    "method_zh": "GrIS将物品与交互构建为图：节点含语义内容，边含协同信号，然后通过层次化图划分分配语义ID。框架包含两个显式可配置组件：图构建与递归划分算法；RQ-VAE/RQ-KMeans是空图情形下的特例。实例化包括RecDMoN（可微图池化）和RQ-GAE（扩展RQ-VAE，加入图感知物品表示与图重构目标）。",
+    "problem_zh": "现有语义ID构建被当作表示学习问题（将物品编码到量化潜在空间并读出代码），本文认为其本质是递归聚类问题：应以节点承载语义内容、边承载协同信号的图为对象，将语义ID分配转化为层次化图划分。",
+    "technical_depth": 0.4
+  },
+  "doi": "10.1145/3799682.3840883",
+  "final_score": 0.7250000000000001,
+  "id": "arxiv-2610.01533",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-02T23:28:27.111679Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-01T12:08:56Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出图感知语义ID（GrIS）框架，通过图神经网络与生成式推荐方法平衡语义与协同信号，提升推荐性能。",
+  "targets": [],
+  "tasks": [],
+  "title": "Neither Black nor White: Balancing Semantic and Collaborative Signals with Graph-Informed Semantic IDs (GrIS)",
+  "url": "https://arxiv.org/abs/2610.01533v1"
+}

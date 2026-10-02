@@ -1,0 +1,83 @@
+{
+  "abstract": "Virtual clients offer a cost-effective approach to support applications such as A/B testing, recommender system development, and interface evaluation. However, building them requires access to large-scale, semantically faithful, fine-grained online user trajectories. These data are difficult to obtain because proprietary logs are subject to privacy restrictions and small businesses often lack sufficient traffic. Consequently, existing public datasets either abstract away fine-grained user interaction details or preserve rich context but remain platform-specific and small-scale. To address this gap, we propose SimTrace, a framework that generates faithful, fine-grained synthetic multimodal clickstreams through a computer-use client agent that is grounded in real user trajectories and the given web environment. SimTrace anonymizes real interactions and constructs a simulated twin of the given web environment, then uses both to generate synthetic interaction trajectories. Each action is paired with its corresponding web observations and user context, yielding a shareable alternative to confidential logs for developing computer-use agent-style virtual clients. We apply SimTrace to an e-commerce setting and evaluate both its fidelity and downstream utility. SimTrace outperforms competing baselines on 7 out of 8 fidelity metrics. Models trained on synthetic data achieve performance comparable to those trained on real data on downstream tasks such as purchase prediction and recommendation. For next action prediction task, augmenting real data with synthetic data further improves accuracy by 11.0% relative to training on real data alone. We release SimTrace as an open-source package to facilitate research on online user behavior modeling. Virtual clients offer a cost-effective approach to support applications such as A/B testing, recommender system development, and interface evaluation. However, building them requires access to large-scale, semantically faithful, fine-grained online user trajectories. These data are difficult to obtain because proprietary logs are subject to privacy restrictions and small businesses often lack sufficient traffic. Consequently, existing public datasets either abstract away fine-grained user interaction details or preserve rich context but remain platform-specific and small-scale. To address this gap, we propose SimTrace, a framework that generates faithful, fine-grained synthetic multimodal clickstreams through a computer-use client agent that is grounded in real user trajectories and the given web environment. SimTrace anonymizes real interactions and constructs a simulated twin of the given web environment, then uses both to generate synthetic interaction trajectories. Each action is paired with its corresponding web observations and user context, yielding a shareable alternative to confidential logs for developing computer-use agent-style virtual clients. We apply SimTrace to an e-commerce setting and evaluate both its fidelity and downstream utility. SimTrace outperforms competing baselines on 7 out of 8 fidelity metrics. Models trained on synthetic data achieve performance comparable to those trained on real data on downstream tasks such as purchase prediction and recommendation. For next action prediction task, augmenting real data with synthetic data further improves accuracy by 11.0% relative to training on real data alone. We release SimTrace as an open-source package to facilitate research on online user behavior modeling.",
+  "arxiv_id": "2609.38397",
+  "authors": [
+    "Yunan Lu",
+    "Shuang Xie",
+    "Meghna Allamudi",
+    "Mingyu Zhao",
+    "Han Li",
+    "Lingyun Wang",
+    "Zhou Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可为A/B测试、推荐系统开发和界面评估提供低成本、可分享的合成用户行为数据，帮助流量不足的小企业绕过真实数据积累门槛。",
+      "通过匿名化真实交互并以合成轨迹替代机密日志，可在保留细粒度行为语义的同时缓解隐私合规压力。",
+      "合成数据与真实数据混合训练能提升下一动作预测准确率，为推荐系统等在线应用的数据增强提供可行路径。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出SimTrace框架，利用计算机使用型客户代理，基于真实用户轨迹和给定Web环境生成保真、细粒度的合成多模态点击流。",
+      "SimTrace对真实交互进行匿名化，并构建给定Web环境的模拟孪生，将每条动作与对应Web观察和用户上下文配对，生成可分享的合成轨迹以替代机密日志。",
+      "在电子商务场景中，SimTrace在8项保真度指标中的7项上优于对比基线，且合成数据在下游任务中表现出与真实数据相当或互补的价值。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "摘要中提及的多个对比基线（competing baselines，未具名）"
+      ],
+      "datasets": [
+        "电子商务场景中的真实用户交互轨迹（摘要未给出具体数据集名称）",
+        "SimTrace生成的合成交互轨迹"
+      ],
+      "findings_zh": [
+        "SimTrace在8项保真度指标中的7项上优于对比基线。",
+        "在购买预测和推荐等下游任务中，使用合成数据训练的模型性能与使用真实数据训练的模型相当。",
+        "在下一动作预测任务中，使用真实数据加合成数据相比仅使用真实数据，准确率相对提升11.0%。"
+      ],
+      "metrics": [
+        "8项保真度指标",
+        "购买预测性能",
+        "推荐性能",
+        "下一动作预测准确率"
+      ]
+    },
+    "limitations_zh": [
+      "SimTrace依赖真实用户轨迹和给定Web环境作为输入，其效果受真实数据可得性和环境仿真程度制约。",
+      "摘要仅报告电子商务场景下的验证结果，未提供跨平台或跨领域的泛化证据。",
+      "现有公开数据集的细粒度缺失或平台特定且规模较小的问题，仍可能限制相关研究的开展。"
+    ],
+    "method_zh": "SimTrace首先对真实交互日志进行匿名化，并构建目标Web环境的模拟孪生；然后通过计算机使用型客户代理，基于真实用户轨迹与模拟环境生成合成交互轨迹，使每条动作都关联对应的Web观察与用户上下文，最终形成可分享的细粒度合成多模态点击流。",
+    "problem_zh": "构建虚拟客户需要大规模、语义保真、细粒度的在线用户轨迹数据，但此类数据因专有日志受隐私限制、小企业流量不足而难以获取；现有公开数据集要么丢失细粒度交互细节，要么仅在特定平台上保留丰富上下文且规模较小。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.6230000000000001,
+  "id": "arxiv-2609.38397",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-02T23:28:27.111679Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-09-29T18:53:23Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出SimTrace框架，通过计算机使用智能体依据真实轨迹生成高保真多模态合成点击流，服务于虚拟客户端构建、推荐系统开发与用户行为建模。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SimTrace: Grounded Multimodal User Trajectories Generation for Online User Modeling",
+  "url": "https://arxiv.org/abs/2609.38397v1"
+}

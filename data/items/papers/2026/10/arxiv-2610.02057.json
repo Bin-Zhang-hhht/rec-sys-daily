@@ -1,0 +1,107 @@
+{
+  "abstract": "Lifecycle overhead silently consumes accelerator capacity across large-scale recommendation training fleets. Our largest recommendation workloads process tens of billions train- ing examples per day on thousands of GPUs. Before this work, only 50-60% of their end-to-end wall time advanced training on new data. We present a fleet-scale study of this lifecycle overhead and a set of optimizations spanning the full training stack. We use Effective Training Time (ETT%) as an operational framework to instrument lost time, localize it to independently owned infrastructure components, and expose work repeated across job restarts. This analysis guides optimizations like communication elimination and pipeline overlap during trainer initialization; dynamic-shape handling, autotuning pruning, and reusable Py- Torch 2 compilation caches; asynchronous checkpointing; stan- dalone model publishing; and reductions in recovery cost. We evaluate the optimizations on representative models and measure their impacts in our training fleet. ETT% improves on every benchmark, by 15.5% on average, and reaches 85% on our largest workload. Fleet-wide ETT% rose from about 80% to above 90% after deployment. Lifecycle overhead silently consumes accelerator capacity across large-scale recommendation training fleets. Our largest recommendation workloads process tens of billions train- ing examples per day on thousands of GPUs. Before this work, only 50-60% of their end-to-end wall time advanced training on new data. We present a fleet-scale study of this lifecycle overhead and a set of optimizations spanning the full training stack. We use Effective Training Time (ETT%) as an operational framework to instrument lost time, localize it to independently owned infrastructure components, and expose work repeated across job restarts. This analysis guides optimizations like communication elimination and pipeline overlap during trainer initialization; dynamic-shape handling, autotuning pruning, and reusable Py- Torch 2 compilation caches; asynchronous checkpointing; stan- dalone model publishing; and reductions in recovery cost. We evaluate the optimizations on representative models and measure their impacts in our training fleet. ETT% improves on every benchmark, by 15.5% on average, and reaches 85% on our largest workload. Fleet-wide ETT% rose from about 80% to above 90% after deployment.",
+  "arxiv_id": "2610.02057",
+  "authors": [
+    "Mingming Ding",
+    "Ruilin Chen",
+    "Yuzhen Huang",
+    "Hang Qi",
+    "Menglu Yu",
+    "San Tan",
+    "Damian Reeves",
+    "Boris Sarana",
+    "Kevin Tang",
+    "Satendra Gera",
+    "Gagan Jain",
+    "Sahil Shah",
+    "Vishwa Karia",
+    "Fuzail Khan",
+    "Yashasvi Makin",
+    "Edward Z. Yang",
+    "Oguz Ulgen",
+    "Jia Chen Ren",
+    "Laith Sakka",
+    "Mayank Garg",
+    "Meet Vadakkanchery",
+    "Aici Lin",
+    "Wei Sun",
+    "Mengjiao Zhou",
+    "Shuai Yang",
+    "Junqing Zhou",
+    "Max Leung",
+    "Apoorv Purwar",
+    "Musharaf Sultan",
+    "John Bocharov",
+    "Zhenyu Tang",
+    "Vivek Trehan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "通过减少生命周期开销可将集群有效训练时间从约80%提升至90%以上，意味着在相同加速器容量下可处理更多训练数据或减少所需GPU数量，降低训练成本。",
+      "对运营大型推荐训练集群的企业，ETT%框架可用于持续观测和定位基础设施中的时间浪费，从而指导成本优化与容量规划。",
+      "诸如异步检查点、编译缓存复用、初始化流水线重叠等优化具备工程可落地性，可在不改变模型精度的情况下提升GPU利用率。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出有效训练时间（ETT%）作为运营框架，用于度量丢失时间、定位到独立拥有的基础设施组件，并暴露作业重启间重复执行的工作。",
+      "提出涵盖完整训练栈的优化集合，包括通信消除与初始化流水线重叠、动态形状处理、autotuning剪枝、PyTorch 2编译缓存复用、异步检查点、独立模型发布以及降低恢复成本。",
+      "在代表性模型和训练集群上评估优化效果：所有基准测试的ETT%平均提升15.5%，最大工作负载达到85%；部署后集群整体ETT%从约80%提升到90%以上。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "优化前的训练配置与基准（源文档未明示具体基线方法）"
+      ],
+      "datasets": [
+        "大规模推荐训练集群每日处理数百亿训练样本",
+        "代表性推荐模型（源文档未给出具体数据集名称）"
+      ],
+      "findings_zh": [
+        "ETT%在所有评估的基准上都得到提升，平均提升15.5%。",
+        "在最大工作负载上ETT%达到85%。",
+        "部署优化后，集群整体ETT%从约80%上升到90%以上。"
+      ],
+      "metrics": [
+        "ETT%有效训练时间百分比",
+        "端到端训练时间",
+        "集群整体ETT%"
+      ]
+    },
+    "limitations_zh": [
+      "供给材料仅包含摘要级描述，未提供具体方法细节、数据集名称、模型规模或完整的实验设置。",
+      "未说明优化在非推荐类工作负载或不同硬件/规模条件下的泛化情况。",
+      "未报告基准测试的具体数量、分布或统计显著性，也未报告失败或未改善的场景。"
+    ],
+    "method_zh": "以ETT%（有效训练时间百分比）作为运营框架，对训练生命周期中的丢失时间进行量化分析，将时间损失定位到独立拥有的基础设施组件，并识别作业重启间重复执行的工作；基于该分析指导多项跨训练栈优化，包括初始化阶段的通信消除与流水线重叠、动态形状处理、autotuning剪枝、PyTorch 2可复用编译缓存、异步检查点、独立模型发布和恢复成本降低。",
+    "problem_zh": "大规模推荐训练集群中，生命周期开销（Lifecycle overhead）静默消耗加速器容量，导致端到端训练时间中只有50-60%用于推进新数据训练。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.7650000000000001,
+  "id": "arxiv-2610.02057",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-02T23:28:27.111679Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-01T17:02:16Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文针对大规模推荐系统训练生命周期提出有效训练时间优化框架，属于推荐系统基础设施优化。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Optimizing Effective Training Time for Large-Scale Recommendation Systems",
+  "url": "https://arxiv.org/abs/2610.02057v1"
+}
