@@ -1,0 +1,78 @@
+{
+  "abstract": "Background music that matches the mood of a text has been shown to make readers feel more immersed and improve their reading experience, motivating recommender systems that pair books with mood-matched music. In this direction, we present Sentiment Aware Generative Adversarial Network for Cross Domain Recommendation (SAGA-CDR), a two-phase cross-domain recommendation framework that personalizes music suggestions and emotionally aligns them with the book being read. In the first phase, transformer-based sentiment embeddings are constructed from user reviews and mapped across domains via a Conditional Generative Adversarial Network, whose mask-conditioned generator handles missing sentiment components and injects stochasticity for richer preference transfer. A compact rating neural network then fuses sentiment-specific interaction scores with a collaborative filtering prior to predict music ratings. In the second phase, large language models classify each book into a valence-arousal emotional quadrant, and candidate tracks are filtered to match that quadrant. Experiments on both the English Amazon and Chinese Douban datasets show that SAGA-CDR achieves the best rating prediction accuracy on Amazon (RMSE 0.98) and the lowest RMSE on Douban (0.91), with ranking performance competitive with the strongest sentiment-aware baseline, even in cross-lingual settings. Background music that matches the mood of a text has been shown to make readers feel more immersed and improve their reading experience, motivating recommender systems that pair books with mood-matched music. In this direction, we present Sentiment Aware Generative Adversarial Network for Cross Domain Recommendation (SAGA-CDR), a two-phase cross-domain recommendation framework that personalizes music suggestions and emotionally aligns them with the book being read. In the first phase, transformer-based sentiment embeddings are constructed from user reviews and mapped across domains via a Conditional Generative Adversarial Network, whose mask-conditioned generator handles missing sentiment components and injects stochasticity for richer preference transfer. A compact rating neural network then fuses sentiment-specific interaction scores with a collaborative filtering prior to predict music ratings. In the second phase, large language models classify each book into a valence-arousal emotional quadrant, and candidate tracks are filtered to match that quadrant. Experiments on both the English Amazon and Chinese Douban datasets show that SAGA-CDR achieves the best rating prediction accuracy on Amazon (RMSE 0.98) and the lowest RMSE on Douban (0.91), with ranking performance competitive with the strongest sentiment-aware baseline, even in cross-lingual settings.",
+  "arxiv_id": "2610.06703",
+  "authors": [
+    "Manousos Linardakis",
+    "Georgios Alexandridis"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "阅读平台可将书籍与情绪匹配的背景音乐捆绑推荐，提升用户沉浸感和阅读时长。",
+      "跨领域推荐能力有助于在缺少音乐行为数据的冷启动场景下，利用用户阅读数据实现个性化音乐推荐。",
+      "情绪匹配推荐可应用于数字阅读、有声书、学习辅助和娱乐内容等场景，丰富用户增值服务。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出SAGA-CDR，一个两阶段跨领域推荐框架，将书籍与情绪匹配的音乐进行个性化配对。",
+      "第一阶段利用基于Transformer的评论文本情感嵌入，并通过带掩码条件的条件生成对抗网络（cGAN）跨领域映射偏好，处理缺失情感成分并引入随机性以增强偏好迁移。",
+      "第二阶段使用大语言模型将书籍分类到效价-唤醒情绪象限，并据此过滤候选音乐曲目。",
+      "在英文Amazon和中文Douban数据集上验证了评分预测准确性和排名性能。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "最强的情感感知基线（原文未具名）"
+      ],
+      "datasets": [
+        "英文Amazon数据集",
+        "中文Douban数据集"
+      ],
+      "findings_zh": [
+        "SAGA-CDR在Amazon上取得最优的评分预测准确度，RMSE为0.98。",
+        "SAGA-CDR在Douban上取得最低RMSE，为0.91。",
+        "排名性能与最强情感感知基线相当，在跨语言设置下依然如此。"
+      ],
+      "metrics": [
+        "RMSE",
+        "排名性能"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未报告明确的局限性，如模型复杂度、推理成本或不同类型书籍/音乐覆盖范围的限制。",
+      "仅基于摘要，缺乏完整实验细节、消融研究和统计显著性信息。"
+    ],
+    "method_zh": "该方法分为两阶段：第一阶段从用户评论构建Transformer情感嵌入，通过条件GAN跨域映射，其中掩码条件生成器处理缺失情感成分并注入随机性；随后用紧凑的评分神经网络融合特定情感交互分数与协同过滤先验来预测音乐评分。第二阶段利用大语言模型将书籍划分到效价-唤醒情绪象限，并筛选与之匹配的候选曲目。",
+    "problem_zh": "阅读时匹配文本情绪的背景音乐能提升读者的沉浸感和阅读体验，但需要一种跨领域推荐方法，将用户对书籍的偏好与情绪迁移到音乐推荐中，实现个性化且情绪对齐的音乐推荐。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.7650000000000001,
+  "id": "arxiv-2610.06703",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-10-05T17:01:18Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出SAGA-CDR跨领域推荐框架，结合协同过滤先验、条件生成对抗网络和大语言模型实现图书到音乐的评分预测与情绪匹配推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Reading the Mood: Emotion-Guided Book-to-Music Recommendation via CGANs and LLMs",
+  "url": "https://arxiv.org/abs/2610.06703v1"
+}

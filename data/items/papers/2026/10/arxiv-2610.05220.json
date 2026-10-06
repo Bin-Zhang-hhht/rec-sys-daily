@@ -1,0 +1,74 @@
+{
+  "abstract": "Carousel interfaces allow a recommender system to directly observe how far a user has browsed. This signal distinguishes displayed but unclicked items from items that were never displayed, whereas conventional ranking-bandit models, including cascade and position-based models, generally treat examination as latent. We formulate a ranking-bandit problem in which a learner presents a list of $L$ items, observes the user's maximum browsing depth, and receives click feedback only for positions up to that depth. The objective is to maximize the expected number of clicks under an unknown item-attractiveness vector and a browsing-depth distribution. We propose three algorithms based on UCB, Thompson Sampling, and DMED, all of which update item statistics only from observed exposures. We derive an instance-dependent logarithmic upper bound for our UCB-based algorithm and an asymptotic upper bound for our DMED-based algorithm that coincides with the lower bound as its parameter $α\\downarrow 0$, establishing asymptotic optimality in this limit. Simulations in synthetic shallow- and deep-browsing environments, together with experiments parameterized from RecGaze interaction logs, show that OD-TS attains final mean regret similar to PBM-TS, while the proposed methods achieve lower final mean regret than PBM-UCB. Carousel interfaces allow a recommender system to directly observe how far a user has browsed. This signal distinguishes displayed but unclicked items from items that were never displayed, whereas conventional ranking-bandit models, including cascade and position-based models, generally treat examination as latent. We formulate a ranking-bandit problem in which a learner presents a list of $L$ items, observes the user's maximum browsing depth, and receives click feedback only for positions up to that depth. The objective is to maximize the expected number of clicks under an unknown item-attractiveness vector and a browsing-depth distribution. We propose three algorithms based on UCB, Thompson Sampling, and DMED, all of which update item statistics only from observed exposures. We derive an instance-dependent logarithmic upper bound for our UCB-based algorithm and an asymptotic upper bound for our DMED-based algorithm that coincides with the lower bound as its parameter $α\\downarrow 0$, establishing asymptotic optimality in this limit. Simulations in synthetic shallow- and deep-browsing environments, together with experiments parameterized from RecGaze interaction logs, show that OD-TS attains final mean regret similar to PBM-TS, while the proposed methods achieve lower final mean regret than PBM-UCB.",
+  "arxiv_id": "2610.05220",
+  "authors": [
+    "Takuma Yasuda",
+    "Atsuyoshi Nakamura"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "利用轮播界面已有的浏览深度信号，可帮助推荐系统区分已展示未点击与从未展示物品，从而优化排序策略。",
+      "该方法以减少最终平均遗憾为目标，可望改进推荐列表的点击效果，对轮播式或信息流推荐产品具有应用潜力。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "将轮播界面中可观测的最大浏览深度引入排序 Bandit 建模，显式区分已展示未点击与从未展示的物品。",
+      "提出基于 UCB、Thompson Sampling 和 DMED 的三种算法，且仅在观测到曝光的位置更新物品统计量。",
+      "推导了 UCB 算法的实例相关对数遗憾上界，以及 DMED 算法在参数 α→0 时与下界一致的渐近上界；并通过合成环境和 RecGaze 日志实验进行验证。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "PBM-UCB",
+        "PBM-TS"
+      ],
+      "datasets": [
+        "合成浅浏览环境",
+        "合成深浏览环境",
+        "RecGaze 交互日志"
+      ],
+      "findings_zh": [
+        "OD-TS 的最终平均遗憾与 PBM-TS 相近。",
+        "所提方法在最终平均遗憾上低于 PBM-UCB。"
+      ],
+      "metrics": [
+        "最终平均遗憾",
+        "期望点击次数"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供明确的局限性说明；实验主要基于合成环境和 RecGaze 日志，真实大规模部署效果仍需进一步验证。"
+    ],
+    "method_zh": "提出基于 UCB、Thompson Sampling 和 DMED 的三种排序 Bandit 算法，例如 OD-TS。算法利用用户最大浏览深度作为额外的曝光信号，仅从实际曝光位置收集点击反馈并更新物品统计量，从而优化 L 个物品的展示顺序，以增加期望点击数；同时给出相应的理论遗憾上界和渐近最优性分析。",
+    "problem_zh": "在轮播式推荐界面中，推荐系统可以观察到用户浏览的最大深度，从而区分“已展示但未点击”和“从未展示”的物品；传统排序 Bandit 模型通常将曝光与否视为隐变量。本文将问题建模为排序 Bandit：学习者展示 L 个物品，观察最大浏览深度，只获得该深度之前的点击反馈，目标是在未知物品吸引力向量和浏览深度分布下最大化期望点击次数。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.7400000000000001,
+  "id": "arxiv-2610.05220",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-04T13:39:38Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究可观察浏览深度的轮播列表排序赌臂问题，提出UCB、汤普森采样和DMED算法并给出最优性分析，属于推荐排序研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Ranking Bandits for Carousel Interfaces with Observable Browsing Depth",
+  "url": "https://arxiv.org/abs/2610.05220v1"
+}

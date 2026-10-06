@@ -1,0 +1,73 @@
+{
+  "abstract": "Large language model (LLM)-enhanced recommender systems leverage rich item semantics to support personalized recommendation. However, semantic representations alone do not determine which historical behaviors reflect persistent preferences and which mainly indicate recent interests, leaving an important aspect of user understanding unresolved. Recent advances in LLM inference show that newly available information can be used to refine the internal state during inference, thereby improving subsequent predictions. Inspired by this principle, we propose MATE (Memory Adaptation with Temporal Evidence), an adaptive user modeling framework for LLM-enhanced sequential recommendation. MATE first evaluates each newly observed interaction from two temporal perspectives: whether it is repeatedly supported by historical behaviors and whether it is consistent with recent interactions. The resulting temporal evidence controls the updates of two user-specific memories, where the long-term memory conservatively preserves persistent preferences while the short-term memory rapidly adapts to recent interests. For each recommendation, a recent-context representation dynamically determines how strongly the two memories contribute to the current user representation. During offline training, next-item prediction is jointly optimized with temporal supervision, while during online adaptation, the shared model remains fixed and only the two user memories are updated from newly observed interactions. Experiments on MovieLens-10M, Amazon Luxury Beauty, and KuaiRec show that MATE improves mean NDCG@10 over the strongest external baseline by 7.0--13.2%. Further analyses support its ability to adapt to recent interests while retaining useful information about recurring earlier preferences. Large language model (LLM)-enhanced recommender systems leverage rich item semantics to support personalized recommendation. However, semantic representations alone do not determine which historical behaviors reflect persistent preferences and which mainly indicate recent interests, leaving an important aspect of user understanding unresolved. Recent advances in LLM inference show that newly available information can be used to refine the internal state during inference, thereby improving subsequent predictions. Inspired by this principle, we propose MATE (Memory Adaptation with Temporal Evidence), an adaptive user modeling framework for LLM-enhanced sequential recommendation. MATE first evaluates each newly observed interaction from two temporal perspectives: whether it is repeatedly supported by historical behaviors and whether it is consistent with recent interactions. The resulting temporal evidence controls the updates of two user-specific memories, where the long-term memory conservatively preserves persistent preferences while the short-term memory rapidly adapts to recent interests. For each recommendation, a recent-context representation dynamically determines how strongly the two memories contribute to the current user representation. During offline training, next-item prediction is jointly optimized with temporal supervision, while during online adaptation, the shared model remains fixed and only the two user memories are updated from newly observed interactions. Experiments on MovieLens-10M, Amazon Luxury Beauty, and KuaiRec show that MATE improves mean NDCG@10 over the strongest external baseline by 7.0--13.2%. Further analyses support its ability to adapt to recent interests while retaining useful information about recurring earlier preferences.",
+  "arxiv_id": "2610.06050",
+  "authors": [
+    "Yu Hou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在电商（Amazon Luxury Beauty）与视频/交互（KuaiRec）推荐数据集上的NDCG@10提升，说明改进长短期用户建模对个性化推荐排序质量具有实际价值。",
+      "通过区分持久偏好与近期兴趣，系统可同时响应用户的即时需求和周期性回看/复购偏好，可能有利于电商与内容平台的个性化推荐体验。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "提出MATE（Memory Adaptation with Temporal Evidence），一种面向LLM增强序列推荐的自适应用户建模框架。",
+      "从时间维度评估每个新交互是否被历史行为反复支持、是否与近期交互一致，并据此控制长期与短期两类用户记忆的更新。",
+      "提出近期上下文表示动态决定长期记忆与短期记忆对当前用户表征的贡献强度。",
+      "离线训练联合优化下一项预测与时间监督；在线适应时共享模型保持固定，仅更新两个用户记忆。",
+      "在MovieLens-10M、Amazon Luxury Beauty和KuaiRec上，平均NDCG@10相比最强外部基线提升7.0%–13.2%。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "最强外部基线（摘要未给出具体名称）"
+      ],
+      "datasets": [
+        "MovieLens-10M",
+        "Amazon Luxury Beauty",
+        "KuaiRec"
+      ],
+      "findings_zh": [
+        "在三个数据集上，MATE相比最强外部基线将平均NDCG@10提升7.0%–13.2%。",
+        "进一步分析表明MATE能够适应近期兴趣，同时保留关于周期性早期偏好的有用信息。"
+      ],
+      "metrics": [
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [],
+    "method_zh": "MATE首先从两个时间视角评估每个新观察到的交互：是否被历史行为反复支持，以及是否与近期交互一致，并生成时间证据。该证据控制两个用户特定记忆的更新：长期记忆保守保留持久偏好，短期记忆快速适应用户近期兴趣。每次推荐时，近期上下文表示动态决定两个记忆对当前用户表征的贡献强度。离线训练中，下一项预测与时间监督联合优化；在线适应中，共享模型保持不变，仅根据新交互更新两个用户记忆。",
+    "problem_zh": "LLM增强的推荐系统虽然利用物品语义提升个性化推荐，但仅凭语义表示无法确定用户历史行为中哪些反映持久偏好、哪些主要反映近期兴趣，导致对用户理解仍有缺失。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.7200000000000002,
+  "id": "arxiv-2610.06050",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-05T09:44:24Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出MATE自适应用户建模框架，基于时间证据动态更新长短期记忆以改进LLM增强的序列推荐性能。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MATE: Adaptive Long- and Short-Term User Memory for LLM-Based Recommendation",
+  "url": "https://arxiv.org/abs/2610.06050v1"
+}

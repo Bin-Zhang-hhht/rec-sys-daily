@@ -1,0 +1,67 @@
+{
+  "abstract": "Generative recommendation (GR) represents items with semantic IDs (i.e., discrete token sequences) and generates target item tokens as recommendations. Despite its promising results, existing methods predominantly optimize for accuracy while neglecting the credibility of the recommendations they generate. This oversight inevitably exposes users to uncredible content (e.g., fake news) with serious societal consequences, including user distrust, reputation harm to platforms, and broader social instability. To address this critical yet underexplored challenge, we propose CreGR, the first credible GR model that jointly tackles content credibility across the two core stages of GR: tokenization and generation. In the tokenization stage, we design a new credibility-aware tokenizer that explicitly encourages the model to learn discriminative tokens respectively for credible and uncredible items, thereby disentangling credibility signals at the token level. Building on this, in the generation stage, we propose a novel accuracy-preserving and credibility-oriented generator grounded in discrete diffusion. Specifically, we introduce an asymmetric masking probability reduction strategy that selectively diminishes the contribution of tokens associated with uncredible content to the generation process, while leaving tokens encoding user preference signals unaffected so as to preserve recommendation accuracy. Experiments on three real-world datasets demonstrate the effectiveness of CreGR. Generative recommendation (GR) represents items with semantic IDs (i.e., discrete token sequences) and generates target item tokens as recommendations. Despite its promising results, existing methods predominantly optimize for accuracy while neglecting the credibility of the recommendations they generate. This oversight inevitably exposes users to uncredible content (e.g., fake news) with serious societal consequences, including user distrust, reputation harm to platforms, and broader social instability. To address this critical yet underexplored challenge, we propose CreGR, the first credible GR model that jointly tackles content credibility across the two core stages of GR: tokenization and generation. In the tokenization stage, we design a new credibility-aware tokenizer that explicitly encourages the model to learn discriminative tokens respectively for credible and uncredible items, thereby disentangling credibility signals at the token level. Building on this, in the generation stage, we propose a novel accuracy-preserving and credibility-oriented generator grounded in discrete diffusion. Specifically, we introduce an asymmetric masking probability reduction strategy that selectively diminishes the contribution of tokens associated with uncredible content to the generation process, while leaving tokens encoding user preference signals unaffected so as to preserve recommendation accuracy. Experiments on three real-world datasets demonstrate the effectiveness of CreGR.",
+  "arxiv_id": "2610.05670",
+  "authors": [
+    "Zhuo Cai",
+    "Guanghao Wu",
+    "Shoujin Wang",
+    "Peilin Zhou",
+    "Victor W. Chu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "不推荐不可信内容有助于减少假新闻等有害信息的传播，降低用户信任流失和平台声誉受损的风险。",
+      "将可信度纳入推荐优化目标，可帮助内容平台在保持用户体验与推荐准确性的同时履行社会责任。",
+      "可信度感知的推荐机制有望成为平台风险控制和内容治理的重要补充，具有业务合规与社会稳定方面的潜在价值。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "提出CreGR，据称是首个同时处理内容可信度的生成式推荐模型。",
+      "在tokenization阶段提出可信度感知tokenizer，促使模型为可信与不可信商品学习判别性token，从而在token层面分离可信度信号。",
+      "在generation阶段提出基于离散扩散的、保持准确性并面向可信度的生成器。",
+      "引入非对称掩码概率降低策略，选择性地降低不可信内容相关token对生成过程的贡献，同时保留用户偏好信号以保持推荐准确性。",
+      "在三个真实数据集上的实验验证了CreGR的有效性。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "在三个真实世界数据集上的实验证明了CreGR的有效性。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [],
+    "method_zh": "CreGR在生成式推荐的两个核心阶段联合处理内容可信度：在tokenization阶段设计可信度感知tokenizer，显式鼓励模型学习可信与不可信商品的判别性token；在generation阶段采用离散扩散模型，提出非对称掩码概率降低策略，选择性地削减与不可信内容关联的token在生成过程中的作用，同时保持用户偏好相关token不受影响，从而在提升可信度的同时保留推荐准确性。",
+    "problem_zh": "现有生成式推荐方法主要优化推荐准确性，而忽视生成内容本身的可信度问题，导致用户可能接触到假新闻等不可信内容，进而引发用户不信任、平台声誉受损以及更广泛的社会不稳定。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.73,
+  "id": "arxiv-2610.05670",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-05T01:33:29Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于可信感知分词与离散扩散的生成式推荐模型CreGR，用于生成可信内容推荐，属于推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Generate What You Can Trust: Content Credibility in Generative Recommenders",
+  "url": "https://arxiv.org/abs/2610.05670v1"
+}

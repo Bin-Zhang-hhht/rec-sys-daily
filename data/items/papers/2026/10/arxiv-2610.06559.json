@@ -1,0 +1,75 @@
+{
+  "abstract": "Modern online platforms commonly rank ads and organic content separately before blending them into a feed displayed to the user, overlooking externalities: an item's click-through rate depends on its surrounding content, not only on its own position. Recent learning-based feed generation mechanisms model some of these cross-type interactions to globally optimize for the whole feed's welfare. However, these approaches either fix the ordering of organic content, or lack exact strategyproofness guarantees for bidders. To combat these shortfalls, we introduce the Maximal-in-Range Transformer (MIRT) mechanism class, which uses a transformer to generate a range of candidate feeds that jointly order ads and organic content, and selects the welfare-maximizing feed in the range. However, there is a tension: strategyproofness requires the generated range to be bid-independent, even though a candidate feed's welfare depends linearly on the bids. Our key technical contribution is a reinforcement learning approach that incorporates both candidate generation and bid-aware selection into training, enabling a bid-independent transformer to learn to generate high-welfare ranges by accounting for both individual feed quality and the collective quality of the range. Additionally, we bound the pseudo-dimension of the MIRT class under hard attention, showing that near-optimal expected welfare is learnable with sample complexity polynomial in the transformer size and only logarithmic in the range size. Empirically, MIRT outperforms the previous non-strategyproof state-of-the-art feed models while remaining exactly strategyproof. Our results show that transformer-based auctions can deliver externality-aware whole-feed optimization without sacrificing exact incentive compatibility, removing a major obstacle to their practical deployment. Modern online platforms commonly rank ads and organic content separately before blending them into a feed displayed to the user, overlooking externalities: an item's click-through rate depends on its surrounding content, not only on its own position. Recent learning-based feed generation mechanisms model some of these cross-type interactions to globally optimize for the whole feed's welfare. However, these approaches either fix the ordering of organic content, or lack exact strategyproofness guarantees for bidders. To combat these shortfalls, we introduce the Maximal-in-Range Transformer (MIRT) mechanism class, which uses a transformer to generate a range of candidate feeds that jointly order ads and organic content, and selects the welfare-maximizing feed in the range. However, there is a tension: strategyproofness requires the generated range to be bid-independent, even though a candidate feed's welfare depends linearly on the bids. Our key technical contribution is a reinforcement learning approach that incorporates both candidate generation and bid-aware selection into training, enabling a bid-independent transformer to learn to generate high-welfare ranges by accounting for both individual feed quality and the collective quality of the range. Additionally, we bound the pseudo-dimension of the MIRT class under hard attention, showing that near-optimal expected welfare is learnable with sample complexity polynomial in the transformer size and only logarithmic in the range size. Empirically, MIRT outperforms the previous non-strategyproof state-of-the-art feed models while remaining exactly strategyproof. Our results show that transformer-based auctions can deliver externality-aware whole-feed optimization without sacrificing exact incentive compatibility, removing a major obstacle to their practical deployment.",
+  "arxiv_id": "2610.06559",
+  "authors": [
+    "Ali Elahi",
+    "Ermis Soumalias",
+    "Jason Cheuk Nam Liang",
+    "Daniel Yao",
+    "Michael J. Curry"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "为在线信息流广告与自然内容联合排序提供了可部署的激励兼容方案，减少对外部性的忽视。",
+      "精确策略证明可增强竞价者对机制公平性的信任，降低操纵报价的动机，有利于平台长期生态。",
+      "该工作消除了基于 transformer 的拍卖机制在实际部署中的主要障碍，有助于推动激励兼容的端到端信息流生成落地。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 Maximal-in-Range Transformer (MIRT) 机制类，利用 transformer 生成候选信息流范围，并选择范围内福利最大化的广告与自然内容联合排序。",
+      "提出一种强化学习训练方法，将候选生成与出价感知选择联合训练，使 bid-independent transformer 能学会生成高福利候选范围。",
+      "在 hard attention 假设下给出 MIRT 类的伪维数界，证明接近最优期望福利可学习，样本复杂度随 transformer 规模多项式增长、随候选范围大小仅对数增长。",
+      "实验表明 MIRT 优于先前的非策略证明最先进 feed 模型，同时保持精确策略证明。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "previous non-strategyproof state-of-the-art feed models"
+      ],
+      "datasets": [],
+      "findings_zh": [
+        "MIRT 在经验上优于先前的非策略证明最先进 feed 模型，同时保持精确策略证明。",
+        "接近最优期望福利在理论上可学习，样本复杂度随 transformer 规模多项式增长、随候选范围大小对数增长。"
+      ],
+      "metrics": [
+        "welfare",
+        "exact strategyproofness"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供具体数据集、基线名称和详细实验数值，实际效果幅度仍需进一步验证。",
+      "理论可学习性证明仅在 hard attention 下建立，软注意力或更一般注意力设定下的性质未在摘要中说明。"
+    ],
+    "method_zh": "MIRT 使用 transformer 生成一系列广告与自然内容联合排序的候选信息流，并根据出价选择其中福利最大化的候选。由于策略证明要求生成范围与出价独立，而候选福利线性依赖于出价，作者通过强化学习同时训练候选生成与出价感知选择，使 bid-independent transformer 学会生成高福利范围。",
+    "problem_zh": "在线平台通常将广告与自然内容分开排序后再混合成信息流，忽略了外部性：点击率不仅取决于自身位置，还受周围内容影响。现有基于学习的 feed 生成方法要么固定自然内容顺序，要么缺乏对竞价者的精确策略证明（strategyproofness）保证。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.855,
+  "id": "arxiv-2610.06559",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-10-05T15:47:23Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出MIRT机制，将Transformer与强化学习结合，在保持策略防护性的前提下生成并选择整体福利最优的广告与内容混合信息流排序方案。",
+  "targets": [],
+  "tasks": [],
+  "title": "MIRT: Transformers for Truthful Generative Auctions with Whole-feed Permutation Externalities",
+  "url": "https://arxiv.org/abs/2610.06559v1"
+}

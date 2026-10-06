@@ -1,0 +1,82 @@
+{
+  "abstract": "Recommender systems leveraging generative models often generate item identifiers directly, rather than ranking catalog items by a recommendation score. Recent work extends beyond pure sequential interaction signals by incorporating item content and structured relationships among items, with two distinct directions emerging. Semantic IDs (SIDs) enrich item representations by replacing opaque, randomly initialized embeddings with hierarchically quantized discrete codes derived from item content. Knowledge-graph (KG) path reasoning instead generates entity-relation paths that ground recommendations in structured relationships between items, attributes, and external entities, thereby enriching the relational context. These two lines have complementary limitations: SID-based models lack relational grounding, while KG-based generative recommenders still represent items as arbitrary, opaque tokens tied to large embedding tables, limiting parameter sharing and generalization. We propose SPRIG, a generative recommender that integrates content-derived SIDs into KG path reasoning. SPRIG is trained on information-rich KG paths that terminate in items represented as discrete, content-derived tokens, combining the advantages of both approaches. We evaluate SPRIG on movie and music recommendation datasets against baselines spanning sequential language models, KG-augmented methods, and SID-based approaches. Our results show that SPRIG achieves competitive performance over prior generative models while using fewer parameters and a lower compute cost. Code: https://github.com/justinhangoebl/semantic-id-knowledge-graph-recommender Recommender systems leveraging generative models often generate item identifiers directly, rather than ranking catalog items by a recommendation score. Recent work extends beyond pure sequential interaction signals by incorporating item content and structured relationships among items, with two distinct directions emerging. Semantic IDs (SIDs) enrich item representations by replacing opaque, randomly initialized embeddings with hierarchically quantized discrete codes derived from item content. Knowledge-graph (KG) path reasoning instead generates entity-relation paths that ground recommendations in structured relationships between items, attributes, and external entities, thereby enriching the relational context. These two lines have complementary limitations: SID-based models lack relational grounding, while KG-based generative recommenders still represent items as arbitrary, opaque tokens tied to large embedding tables, limiting parameter sharing and generalization. We propose SPRIG, a generative recommender that integrates content-derived SIDs into KG path reasoning. SPRIG is trained on information-rich KG paths that terminate in items represented as discrete, content-derived tokens, combining the advantages of both approaches. We evaluate SPRIG on movie and music recommendation datasets against baselines spanning sequential language models, KG-augmented methods, and SID-based approaches. Our results show that SPRIG achieves competitive performance over prior generative models while using fewer parameters and a lower compute cost. Code: https://github.com/justinhangoebl/semantic-id-knowledge-graph-recommender",
+  "arxiv_id": "2610.06590",
+  "authors": [
+    "Justin Hangoebl",
+    "Marta Moscati",
+    "Alessandro B. Melchiorre",
+    "Shah Nawaz",
+    "Markus Schedl"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在电影、音乐等内容型推荐场景中，结合内容语义ID与知识图谱关系的生成式推荐可增强推荐依据的丰富性，并可能迁移到视频、阅读、电商等具有内容与实体关系的业务。",
+      "更少的参数和更低的计算成本可能降低生成式推荐模型的训练与部署成本，有利于大规模个性化服务的落地。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出SPRIG，一种将内容派生的语义ID（SID）集成到知识图谱路径推理中的生成式推荐器。",
+      "SPRIG在富含信息的KG路径上训练，路径终止于用离散、内容派生的token表示的物品，从而结合SID表示与KG路径推理两方面的优势。",
+      "在电影和音乐推荐数据集上的结果表明，SPRIG相比先前的生成式模型具有有竞争力的性能，同时使用更少的参数和更低的计算成本。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "序列语言模型（sequential language models）",
+        "知识图谱增强方法（KG-augmented methods）",
+        "语义ID方法（SID-based approaches）"
+      ],
+      "datasets": [
+        "电影推荐数据集",
+        "音乐推荐数据集"
+      ],
+      "findings_zh": [
+        "SPRIG在电影和音乐推荐数据集上相对于先前的生成式模型取得有竞争力的性能。",
+        "SPRIG使用更少的参数量和更低的计算成本，表现出效率优势。",
+        "SPRIG通过在KG路径中以内容派生的离散token表示物品，结合了语义ID与KG路径推理两方面的优势。"
+      ],
+      "metrics": [
+        "竞争性推荐性能（competitive performance，摘要未给出具体指标名）",
+        "参数量（parameter count）",
+        "计算成本（compute cost）"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未报告SPRIG在冷启动、长尾物品或复杂知识图谱路径下的失败案例与自身局限性。",
+      "摘要未给出具体数据集规模、基线版本和正式评测指标（如召回率/NDCG），因此无法独立评估性能优势的幅度。"
+    ],
+    "method_zh": "SPRIG是一种生成式推荐器，将内容派生的语义ID（SID）整合进知识图谱（KG）路径推理；它利用富含信息的KG路径进行训练，路径以物品节点结束，而物品被表示为离散的、从内容派生的token，从而把语义ID表示与基于路径的关系推理结合起来。",
+    "problem_zh": "生成式推荐系统越来越多地直接生成物品标识而非输出排序分数；当前两条扩展路线各有局限：基于语义ID（SID）的模型缺乏知识图谱关系支撑，而基于知识图谱路径推理的生成式推荐器仍将物品表示为任意、不透明的token，并依赖大规模嵌入表，限制参数共享与泛化。",
+    "technical_depth": 0.4
+  },
+  "doi": "10.1145/3799682.3839870",
+  "final_score": 0.7450000000000001,
+  "id": "arxiv-2610.06590",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-05T16:04:55Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出SPRIG生成式推荐模型，将内容派生的语义ID融入知识图谱路径推理，在电影和音乐推荐中实现更高效的有竞争力推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SPRIG: Semantic-ID-enhanced Paths for Knowledge Graph-based Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.06590v1"
+}

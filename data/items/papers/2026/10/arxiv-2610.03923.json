@@ -1,0 +1,77 @@
+{
+  "abstract": "LLM-driven sequential recommendation formulates next-item prediction as autoregressive generation conditioned on natural-language prompts. However, minor wording changes in semantically equivalent prompts can cause substantial performance fluctuations, undermining robustness and requiring costly manual prompt engineering. Continuous prompt learning reduces template dependence but faces two interacting challenges: shared task-level instructions lack user-specific reasoning guidance, while gradient updates can push continuous prompts outside the LLM's effective semantic space. Injecting personalized signals can further amplify this semantic drift. To address these challenges, we propose LRPRec, a learnable prompting framework that initializes continuous instruction prompts from discrete templates and introduces two complementary mechanisms. Personalized prompt injection encodes user behavior into a preference embedding and additively injects it into shared prompts, enabling parameter-efficient user-level adaptation. A semantic drift constraint regularizes the shared prompts within a trust region around their initialization anchors to preserve semantic validity during optimization. By constraining the shared component while allowing additive personalization, LRPRec decouples stability from expressiveness. Extensive experiments on three benchmark datasets demonstrate consistent improvements over strong baselines while eliminating the need for manual tuning of background and task inference templates. LLM-driven sequential recommendation formulates next-item prediction as autoregressive generation conditioned on natural-language prompts. However, minor wording changes in semantically equivalent prompts can cause substantial performance fluctuations, undermining robustness and requiring costly manual prompt engineering. Continuous prompt learning reduces template dependence but faces two interacting challenges: shared task-level instructions lack user-specific reasoning guidance, while gradient updates can push continuous prompts outside the LLM's effective semantic space. Injecting personalized signals can further amplify this semantic drift. To address these challenges, we propose LRPRec, a learnable prompting framework that initializes continuous instruction prompts from discrete templates and introduces two complementary mechanisms. Personalized prompt injection encodes user behavior into a preference embedding and additively injects it into shared prompts, enabling parameter-efficient user-level adaptation. A semantic drift constraint regularizes the shared prompts within a trust region around their initialization anchors to preserve semantic validity during optimization. By constraining the shared component while allowing additive personalization, LRPRec decouples stability from expressiveness. Extensive experiments on three benchmark datasets demonstrate consistent improvements over strong baselines while eliminating the need for manual tuning of background and task inference templates.",
+  "arxiv_id": "2610.03923",
+  "authors": [
+    "Xiaolin Zheng",
+    "Qiyong Zhong",
+    "Jiajie Su",
+    "Xiang Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "减少人工提示工程与模板调优成本，有望降低推荐系统上线和迭代的运营负担。",
+      "提升对用户措辞差异的鲁棒性，有助于保持推荐输出的一致性和用户体验稳定。",
+      "个性化提示注入支持参数高效的用户级适配，可能支撑大规模用户群体下的个性化推荐服务。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出LRPRec可学习提示框架，从离散模板初始化连续指令提示。",
+      "引入个性化提示注入机制，将用户行为编码为偏好嵌入并加性注入共享提示，实现参数高效的用户级自适应。",
+      "引入语义漂移约束，将共享提示限制在初始化锚点附近的信任区域内，以在优化过程中保持语义有效性。",
+      "通过约束共享组件并允许加性个性化，LRPRec将稳定性与表达能力解耦。",
+      "在三个基准数据集上的实验表明相比强基线有一致改进，同时无需人工调整背景模板和任务推理模板。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "若干强基线模型（摘要未披露具体名称）"
+      ],
+      "datasets": [
+        "三个基准数据集（摘要未披露具体名称）"
+      ],
+      "findings_zh": [
+        "LRPRec在三个基准数据集上相较强基线取得一致性改进。",
+        "LRPRec消除了对背景模板和任务推理模板进行人工调优的需求。"
+      ],
+      "metrics": [
+        "摘要未披露具体指标名称"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未披露具体数据集名称、基线模型和评估指标细节，难以评估结果的可复现性与泛化范围。",
+      "摘要未提供消融实验、计算开销或人工提示调优成本的定量对比。",
+      "摘要未说明语义漂移约束的信任区域超参数如何选择及其敏感性。"
+    ],
+    "method_zh": "LRPRec是一种可学习提示框架：先从离散模板初始化连续指令提示，再结合两种互补机制。其一为个性化提示注入：将用户行为编码为偏好嵌入，并以加性方式注入共享提示，从而进行参数高效的用户级适应。其二为语义漂移约束：将共享提示正则化在初始化锚点附近的信任区域内，保持优化过程中的语义有效性。整体上通过约束共享组件、允许加性个性化，实现了稳定性与表达能力的解耦。",
+    "problem_zh": "基于LLM的序列推荐将下一项预测建模为以自然语言提示为条件的自回归生成；语义等价提示的微小措辞变化会导致性能大幅波动，且需要昂贵的人工提示工程。连续提示学习可减少模板依赖，但仍面临两个相互作用的挑战：共享的任务级指令缺乏用户特定的推理指导，而梯度更新可能将连续提示推出LLM的有效语义空间；注入个性化信号会进一步放大这种语义漂移。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.775,
+  "id": "arxiv-2610.03923",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-02T18:34:26Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出LRPRec可学习提示框架，通过个性化提示注入与语义漂移约束改进大语言模型驱动的序列推荐。",
+  "targets": [],
+  "tasks": [],
+  "title": "Learning Robust Personalized Prompts for LLM-Driven Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2610.03923v1"
+}

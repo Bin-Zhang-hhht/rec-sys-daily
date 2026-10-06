@@ -1,0 +1,46 @@
+{
+  "blogs": [],
+  "date": "2026-10-07",
+  "papers": [
+    {
+      "item_id": "arxiv-2610.06559",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出MIRT机制，将Transformer与强化学习结合，在保持策略防护性的前提下生成并选择整体福利最优的广告与内容混合信息流排序方案。"
+    },
+    {
+      "item_id": "arxiv-2610.05559",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出CutBCE硬件加速的二分类交叉熵损失与梯度算子，面向大词汇量多标签序列推荐，显著降低TPU内存占用并提升训练速度。"
+    },
+    {
+      "item_id": "arxiv-2610.03923",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出LRPRec可学习提示框架，通过个性化提示注入与语义漂移约束改进大语言模型驱动的序列推荐。"
+    },
+    {
+      "item_id": "arxiv-2610.06703",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出SAGA-CDR跨领域推荐框架，结合协同过滤先验、条件生成对抗网络和大语言模型实现图书到音乐的评分预测与情绪匹配推荐。"
+    },
+    {
+      "item_id": "arxiv-2610.06590",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出SPRIG生成式推荐模型，将内容派生的语义ID融入知识图谱路径推理，在电影和音乐推荐中实现更高效的有竞争力推荐。"
+    },
+    {
+      "item_id": "arxiv-2610.05220",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文研究可观察浏览深度的轮播列表排序赌臂问题，提出UCB、汤普森采样和DMED算法并给出最优性分析，属于推荐排序研究。"
+    },
+    {
+      "item_id": "arxiv-2610.05670",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出基于可信感知分词与离散扩散的生成式推荐模型CreGR，用于生成可信内容推荐，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2610.06050",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出MATE自适应用户建模框架，基于时间证据动态更新长短期记忆以改进LLM增强的序列推荐性能。"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "abstract": "Industrial sequential recommender systems operate over massive item catalogs (e.g., 10^5--10^7 items). Multi-label recommendation models are trained with Binary Cross-Entropy (BCE) loss over the full vocabulary, but standard BCE materializes a dense [B, N, V] logits tensor in High Bandwidth Memory (HBM), incurring prohibitive $O(BNV)$ memory and fatal Out-Of-Memory (OOM) errors. While chunked loss optimizations exist for Softmax Cross-Entropy in LLMs, large-scale multi-label BCE optimization remains unexplored across deep learning ecosystems. We propose CutBCE, an exact, hardware-accelerated BCE loss and gradient operator implemented in JAX and Pallas for large-vocabulary workloads. CutBCE introduces (1) an exact fused reformulation evaluating dense background loss and sparse target corrections; (2) a custom Vector-Jacobian Product (VJP) with a dedicated Pallas TPU backward kernel computing logit tiles on-chip in both passes so logits and their gradients never reside in HBM; (3) dynamic VMEM budgeting and sharding-aware collective hoisting for distributed meshes; and (4) count-based zero-overhead training metrics. On single-chip TPU v5e/v6e mini-benchmarks, CutBCE eliminates OOM errors with up to 91.9% speedup. On 8-chip TPU slice training for multi-label SASRec with 876k items (Yambda-50M), CutBCE reduces peak HBM by 65.7% (>14 GiB saved per chip) and increases training speed by 225.9% with comparable accuracy. CutBCE is open-sourced at https://github.com/AI-Hypercomputer/RecML/blob/main/recml/core/ops/binary_cross_entropy_ops.py. Industrial sequential recommender systems operate over massive item catalogs (e.g., 10^5--10^7 items). Multi-label recommendation models are trained with Binary Cross-Entropy (BCE) loss over the full vocabulary, but standard BCE materializes a dense [B, N, V] logits tensor in High Bandwidth Memory (HBM), incurring prohibitive $O(BNV)$ memory and fatal Out-Of-Memory (OOM) errors. While chunked loss optimizations exist for Softmax Cross-Entropy in LLMs, large-scale multi-label BCE optimization remains unexplored across deep learning ecosystems. We propose CutBCE, an exact, hardware-accelerated BCE loss and gradient operator implemented in JAX and Pallas for large-vocabulary workloads. CutBCE introduces (1) an exact fused reformulation evaluating dense background loss and sparse target corrections; (2) a custom Vector-Jacobian Product (VJP) with a dedicated Pallas TPU backward kernel computing logit tiles on-chip in both passes so logits and their gradients never reside in HBM; (3) dynamic VMEM budgeting and sharding-aware collective hoisting for distributed meshes; and (4) count-based zero-overhead training metrics. On single-chip TPU v5e/v6e mini-benchmarks, CutBCE eliminates OOM errors with up to 91.9% speedup. On 8-chip TPU slice training for multi-label SASRec with 876k items (Yambda-50M), CutBCE reduces peak HBM by 65.7% (>14 GiB saved per chip) and increases training speed by 225.9% with comparable accuracy. CutBCE is open-sourced at https://github.com/AI-Hypercomputer/RecML/blob/main/recml/core/ops/binary_cross_entropy_ops.py.",
+  "arxiv_id": "2610.05559",
+  "authors": [
+    "Yaoyiran Li",
+    "Haowen Ning",
+    "Mohamed Hammad"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "将峰值 HBM 降低 65.7%、每芯片节省超过 14 GiB，可显著降低超大物品目录推荐模型训练的内存门槛，减少 OOM 导致的训练失败与资源浪费。",
+      "训练速度提升 225.9% 能缩短模型迭代周期、提高训练吞吐，从而降低大规模推荐模型训练的计算与时间成本。",
+      "在不损失准确率的前提下支持更大物品目录或更长用户序列，有助于提升工业推荐系统的覆盖能力和业务效果。",
+      "开源实现便于工程团队直接集成到 JAX/TPU 工作流中，降低落地成本并加速推荐系统的算法迭代。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出 CutBCE，一种在 JAX/Pallas 中实现的精确且硬件加速的 BCE 损失与梯度算子，专门面向大词汇量多标签推荐训练。",
+      "提出精确融合重构，将稠密背景损失与稀疏目标修正分开计算，避免全量稠密 logits 物化。",
+      "设计自定义 Vector-Jacobian Product，配备专用 Pallas TPU 反向核，在前向与反向传递中均在片上计算 logit tiles，使 logits 和梯度不驻留 HBM。",
+      "引入动态 VMEM 预算与面向分布式网格的 sharding-aware collective hoisting，支持多芯片分布式训练。",
+      "提供基于计数的零开销训练指标，并开源实现。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "标准 BCE（稠密 logits 物化实现）"
+      ],
+      "datasets": [
+        "Yambda-50M（多标签 SASRec，876k items）",
+        "单芯片 TPU v5e/v6e 微型基准"
+      ],
+      "findings_zh": [
+        "在单芯片 TPU v5e/v6e 微型基准上，CutBCE 消除了 OOM 错误，最高获得 91.9% 的加速。",
+        "在 8-chip TPU slice 上训练多标签 SASRec 且物品数为 876k 时，峰值 HBM 降低 65.7%，每芯片节省超过 14 GiB 显存。",
+        "训练速度提升 225.9%，同时保持与基线可比的准确率。",
+        "标准 BCE 在 [B,N,V] 稠密 logits 下存在 O(BNV) 级 HBM 开销，是大词汇量场景 OOM 的原因之一。"
+      ],
+      "metrics": [
+        "峰值 HBM 占用",
+        "训练吞吐/训练速度提升",
+        "加速比（最高 91.9%）",
+        "训练准确率（与基线相当）",
+        "OOM 错误发生情况"
+      ]
+    },
+    "limitations_zh": [
+      "原文为摘要级材料，未提供完整实验设置、消融实验或统计显著性细节。",
+      "评估主要覆盖 TPU v5e/v6e 和单一大规模数据集 Yambda-50M/876k items，未报告 GPU 或其他深度学习框架下的验证结果。",
+      "方法聚焦于多标签推荐的 BCE 训练，对其他损失函数、任务类型和更广泛硬件生态的适用性未在摘要中展开。"
+    ],
+    "method_zh": "CutBCE 是在 JAX/Pallas 中实现的精确、硬件加速 BCE 算子。其核心包括：(1) 精确融合重构：将稠密背景损失与稀疏目标修正拆分求值；(2) 自定义 VJP：使用专用 Pallas TPU 反向核在两个 pass 中于片上计算 logit tiles，避免 logits 和梯度进入 HBM；(3) 动态 VMEM 预算与分布式 mesh 上的 sharding-aware collective hoisting；(4) 基于计数的零开销训练指标。",
+    "problem_zh": "工业级序列推荐系统需在超大物品目录（10^5–10^7）上训练多标签模型；标准 BCE 损失会在高带宽内存 HBM 中物化稠密的 [B,N,V] logits 张量，带来 O(BNV) 的显存开销，导致大规模训练出现 Out-of-Memory 错误。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.8174999999999999,
+  "id": "arxiv-2610.05559",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T23:02:20.593071Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-04T21:47:02Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出CutBCE硬件加速的二分类交叉熵损失与梯度算子，面向大词汇量多标签序列推荐，显著降低TPU内存占用并提升训练速度。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Cut Binary Cross Entropy: Efficient Large-Vocabulary Loss and Gradient Kernels for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2610.05559v1"
+}
