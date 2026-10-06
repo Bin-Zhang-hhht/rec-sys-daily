@@ -1,0 +1,84 @@
+{
+  "abstract": "In instruction-guided generative recommendation, LLM-based recommenders need to balance two goals: responding to the user's current request and aligning with the preferences in their interaction history. When the two conflict, history events can override the request. We show that turning the effect of individual history events into supervision faces two obstacles. First, the events that most influence a recommendation are not necessarily the ones that support the target item. Second, removing a misleading event can raise the target's score but a competing item's score even more, so a higher target score alone does not guarantee a better ranking. We propose Asymmetric Intervention-Guided Margin Supervision (AIMS), which converts the effect of removing individual history events into ranking supervision. For training requests already ranked correctly, a frozen reference model identifies request-specific deletions that improve both the target's score and its margin over a competitor near the recommendation cutoff. These margins serve as training targets, while the complete history is retained as input. Training combines cross-entropy with an asymmetric auxiliary loss that penalizes margin shortfalls and routes its gradient only through the competitor score. Inference is unchanged, requiring no history editing or deletion search. Across six LLM backbones on an industrial dataset and two public benchmarks, AIMS improves Recall and NDCG over strong baselines. Ablations support request-specific margins and asymmetric supervision, and the selected deletions preferentially remove constraint-violating history. In instruction-guided generative recommendation, LLM-based recommenders need to balance two goals: responding to the user's current request and aligning with the preferences in their interaction history. When the two conflict, history events can override the request. We show that turning the effect of individual history events into supervision faces two obstacles. First, the events that most influence a recommendation are not necessarily the ones that support the target item. Second, removing a misleading event can raise the target's score but a competing item's score even more, so a higher target score alone does not guarantee a better ranking. We propose Asymmetric Intervention-Guided Margin Supervision (AIMS), which converts the effect of removing individual history events into ranking supervision. For training requests already ranked correctly, a frozen reference model identifies request-specific deletions that improve both the target's score and its margin over a competitor near the recommendation cutoff. These margins serve as training targets, while the complete history is retained as input. Training combines cross-entropy with an asymmetric auxiliary loss that penalizes margin shortfalls and routes its gradient only through the competitor score. Inference is unchanged, requiring no history editing or deletion search. Across six LLM backbones on an industrial dataset and two public benchmarks, AIMS improves Recall and NDCG over strong baselines. Ablations support request-specific margins and asymmetric supervision, and the selected deletions preferentially remove constraint-violating history.",
+  "arxiv_id": "2610.02600",
+  "authors": [
+    "Ming Yin",
+    "Yuhan Yang",
+    "Chen Chen",
+    "Xinyu Lin",
+    "Wentao Shi",
+    "Fangcong Yin",
+    "Chaofei Yang",
+    "Chao Yang",
+    "Jiyan Yang",
+    "Hui Zhang",
+    "Ning Jiang",
+    "Yiran Chen",
+    "Qifan Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "AIMS推理时无需历史编辑或删除搜索，降低了部署复杂度，适合工业推荐系统中对在线延迟敏感的场景。",
+      "通过提升Recall和NDCG，可改善指令引导式生成推荐中用户请求与历史偏好冲突时的排序质量，有助于提升用户体验和推荐效果。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出AIMS（Asymmetric Intervention-Guided Margin Supervision），将删除单个历史事件的效果转化为排序监督信号。",
+      "针对已正确排序的训练请求，使用冻结的参考模型识别能够同时提高目标物品分数及其与推荐截断附近竞争者边际的请求特定删除，并以这些边际作为训练目标。",
+      "训练结合交叉熵与非对称辅助损失，该损失惩罚边际不足并仅通过竞争者分数路由梯度，推理时无需历史编辑或删除搜索。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "多个强基线（原文未给出具体名称）"
+      ],
+      "datasets": [
+        "工业数据集",
+        "两个公开基准数据集"
+      ],
+      "findings_zh": [
+        "在六个LLM骨干上，AIMS在工业数据集和两个公开基准上相比强基线提升了Recall和NDCG。",
+        "消融实验支持请求特定边际与非对称监督的有效性。",
+        "被选中的历史删除倾向于优先移除违反约束的历史事件。"
+      ],
+      "metrics": [
+        "Recall",
+        "NDCG"
+      ]
+    },
+    "limitations_zh": [
+      "原文摘要未明确报告局限性。"
+    ],
+    "method_zh": "AIMS方法：对于训练请求，若当前排序已正确，则使用冻结的参考模型识别请求特定的历史事件删除，这些删除能同时提升目标物品分数及其相对推荐截断附近竞争者的边际。训练时保留完整历史作为输入，将参考模型得到的边际作为训练目标；训练损失由交叉熵与一个非对称辅助损失组成，辅助损失惩罚边际不足，且梯度只通过竞争者分数传播。推理过程与标准模型一致，不需要编辑历史或进行删除搜索。",
+    "problem_zh": "在指令引导的生成式推荐中，基于LLM的推荐器需要同时响应用户当前请求并符合交互历史中的偏好。当二者冲突时，历史事件可能覆盖请求。将单个历史事件的影响转化为监督信号面临两个障碍：影响推荐最多的事件不一定支持目标物品；删除误导性事件可能提高目标物品分数，但竞争物品分数提升更多，因此单纯提高目标分数不能保证更好的排序。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7750000000000001,
+  "id": "arxiv-2610.02600",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-06T00:14:29.187447Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-01T23:53:42Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文面向指令引导的LLM生成式推荐提出非对称干预引导边际监督方法，利用冻结参考模型识别删除历史事件带来的排序边际训练目标，提升推荐排序质量。",
+  "targets": [],
+  "tasks": [],
+  "title": "When History Misleads: Asymmetric Margin Supervision for Instruction-Guided LLM Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.02600v1"
+}
