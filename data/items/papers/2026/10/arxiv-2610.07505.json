@@ -1,0 +1,161 @@
+{
+  "abstract": "Long-history recommenders often compress each user's history into a compact, candidate-independent memory that is cached and reused to score large candidate pools. We show that real user histories exhibit multi-scale semantic structure, with short-lived intent, medium-term interests, and long-term preferences coexisting in one sequence, and that monolithic cached memories preserve these scales unevenly: linear probes recover recent and mid-range content far worse than long-range content. We call this failure mode \\textit{temporal aliasing}. We propose \\textbf{MARS}, a multi-resolution user memory that writes the full history into recurrent state tracks anchored to different half-lives, and a sparse routing reader that materializes compact seed memories by selecting the relevant temporal resolutions for each seed, preserving fixed-size candidate scoring. MARS outperforms strong baselines on three public datasets, with gains that grow with history length. Component-matched ablations with paired tests show that temporal diversity and selective routing each contribute beyond what hard-window memories or added capacity provide. The advantage of MARS over its interface-matched baseline also widens after within-user behavioral shifts, at about $1.02\\times$ that baseline's warm-cache serving latency for $1{,}000$ candidates per user. Long-history recommenders often compress each user's history into a compact, candidate-independent memory that is cached and reused to score large candidate pools. We show that real user histories exhibit multi-scale semantic structure, with short-lived intent, medium-term interests, and long-term preferences coexisting in one sequence, and that monolithic cached memories preserve these scales unevenly: linear probes recover recent and mid-range content far worse than long-range content. We call this failure mode \\textit{temporal aliasing}. We propose \\textbf{MARS}, a multi-resolution user memory that writes the full history into recurrent state tracks anchored to different half-lives, and a sparse routing reader that materializes compact seed memories by selecting the relevant temporal resolutions for each seed, preserving fixed-size candidate scoring. MARS outperforms strong baselines on three public datasets, with gains that grow with history length. Component-matched ablations with paired tests show that temporal diversity and selective routing each contribute beyond what hard-window memories or added capacity provide. The advantage of MARS over its interface-matched baseline also widens after within-user behavioral shifts, at about $1.02\\times$ that baseline's warm-cache serving latency for $1{,}000$ candidates per user.",
+  "arxiv_id": "2610.07505",
+  "authors": [
+    "Ming Yin",
+    "Sixun Dong",
+    "Yudong Liu",
+    "Wen-Yun Yang",
+    "Yunjiang Jiang",
+    "Yiran Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在保持候选无关缓存接口的前提下，MARS相比VISTA基线在KuaiRec提升AUC 0.011（0.793→0.804），相对NE降低，且增益随历史长度增长，表明对长活跃用户的排序质量提升在业务上可直接转化为点击/参与度改善。",
+      "服务成本可控：暖缓存下与VISTA几乎相同的打分延迟（约1.02×端到端，打分仅1.009–1.014×），并保持每用户16 KiB的紧凑记忆缓存，适合大规模候选池（1000候选/用户，约1650万候选评估/秒/张A100）的线上排序阶段。",
+      "增量更新与缓存设计提供部署灵活性：支持周期刷新（仅16 KiB/用户）、低秩/对角状态压缩（如r=4将更新缓存降到0.75 KiB）或仅在活跃用户上保留完整状态，便于在存储成本与更新新鲜度间权衡。",
+      "行为偏移后优势扩大（相对VISTA的ΔAUC从+0.006增至+0.017），对用户近期兴趣漂移更稳健，有助于减少因偏好变化导致的推荐失配与参与度下滑。",
+      "工业数据上相对VISTA的NE降低约1.5%–19.7%（四项任务、两种历史采样设置），但为单次运行且数据专有，业务迁移时需要自主复现验证。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "诊断出时间混叠现象：识别出单体缓存记忆对长历史的结构性局限，并用无模型证据（多尺度结构分析与分频带可恢复性探针）加以支撑。",
+      "提出MARS多分辨率自适应用户记忆：将完整历史写入锚定不同半衰期的循环状态轨道，并通过稀疏、历史条件化的路由读出为固定大小的种子记忆，维持与VISTA相同的候选打分接口与成本。",
+      "受控实证验证：在三个公开数据集上超过强基线，且增益随历史长度增长；通过组件匹配消融、成对显著性检验、窗口与容量对照、行为偏移评估以及A100延迟测量支持设计选择与服务可行性。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3 Method / 3.1 Memory Write"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Memory Read"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 5,
+        "section": "4.3.1 Temporal-Scale Recoverability"
+      },
+      {
+        "page": 5,
+        "section": "4.3.2 User-Adaptive Routing Aligns with Semantic Signals"
+      },
+      {
+        "page": 5,
+        "section": "4.3.3 Routing and Robustness Under Behavioral Shift"
+      },
+      {
+        "page": 5,
+        "section": "4.3.4 MARS Gains Grow with History Length"
+      },
+      {
+        "page": 6,
+        "section": "4.4 Ablation Study"
+      },
+      {
+        "page": 6,
+        "section": "4.5 Efficiency Analysis"
+      },
+      {
+        "page": 9,
+        "section": "Appendix B Industrial Dataset Result"
+      },
+      {
+        "page": 10,
+        "section": "Appendix D Compressed State-Bank Variants"
+      },
+      {
+        "page": 12,
+        "section": "Appendix J Component Decomposition"
+      },
+      {
+        "page": 14,
+        "section": "Appendix M Measured Serving Latency"
+      },
+      {
+        "page": 15,
+        "section": "Appendix P Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DIN",
+        "DIEN",
+        "TTSN",
+        "MHA",
+        "SASRec",
+        "RetNet",
+        "Mamba4Rec",
+        "HSTU",
+        "VISTA",
+        "用户无关Top-k对照",
+        "单分辨率/单轨道/均匀读出/稠密softmax等消融对照"
+      ],
+      "datasets": [
+        "Amazon-Electronics",
+        "KuaiRand-1K",
+        "KuaiRec",
+        "工业数据集（四项匿名任务，Task-A/B/C/D，附录B补充证据）"
+      ],
+      "findings_zh": [
+        "在三个公开数据集上，MARS在所有基线中取得最佳或相当结果：Amazon上AUC 0.887±0.001、KuaiRand-1K上AUC 0.748±0.001、KuaiRec上AUC从VISTA的0.793提升到0.804，增益随历史长度增长（KuaiRec短/中/长分箱相对VISTA增益为+0.0005/+0.0073/+0.0114）。",
+        "线性探针显示MARS缓存记忆的短/中/长频带R²为0.14/0.12/0.19，比VISTA（0.04/0.07/0.31）更均衡，跨频带极差从0.27降至0.07；成对用户级bootstrap下MARS相对固定窗口记忆平均R²高+0.022（95% CI [0.010,0.034]），跨频带极差更小。",
+        "路由与行为信号对齐：短半衰期轨道（H=5,25）与爆发率、分段漂移正相关，与平均回访间隔、聚类跨度负相关；长半衰期轨道（H=125,625）相反（q<0.01，BH校正）。路由不会塌缩：最终层有效轨道数3.92/4，跨用户路由方差随层加深从0增至0.167。",
+        "行为偏移鲁棒性：对4000用户定位偏移点后，MARS相对VISTA的AUC优势从偏移前+0.006增至偏移后+0.017（G=+0.011，95% CI [+0.006,+0.016]）；相对用户无关Top-k对照，偏移前不显著、偏移后显著（G=+0.0032），表明部分增益来自历史条件化路由。",
+        "消融显示时间多样性与选择性路由互补：单分辨率Top-k仅比单轨道提高+0.002 AUC，而多分辨率Top-k相对均匀读出提高+0.007 AUC；移除历史条件化或稀疏性（稠密softmax）均降低性能，Top-k+softmax与稠密softmax相当（0.802/0.795），不如均匀Top-k。",
+        "容量对照表明增益不能由VISTA容量/算力解释：VISTA-4heads/wider/deeper将AUC最多提到0.7949（更新FLOPs达3.9×），MARS为0.8041且FLOPs仅为VISTA-base的1.04×。",
+        "延迟方面，增量更新+种子记忆物化在历史长度500到5000之间仅从0.421ms变化到0.425ms；1000候选/用户下MARS端到端15.478ms vs VISTA 15.152ms（约1.02×），打分延迟比1.009–1.014×，约1650万候选评估/秒（单张A100）。"
+      ],
+      "metrics": [
+        "AUC",
+        "NE（归一化熵）",
+        "R²（线性探针可恢复性）",
+        "Jaccard相似度（路由稳定性）",
+        "延迟（ms）",
+        "FLOPs",
+        "缓存占用（KiB）"
+      ]
+    },
+    "limitations_zh": [
+      "范围限于长历史CTR风格推荐（缓存并复用候选无关用户记忆）；短历史场景增益有限（Amazon和短历史分箱），未涉及冷启动用户。",
+      "所有评估均为离线，在线部署与其他推荐目标未验证；延迟仅测单张A100暖缓存服务，排除从原始历史的一次性初始化。",
+      "结构化超参数（轨道数M、路由预算k、半衰期范围H_max等）对性能非单调，需要按领域活动率重新调参；M=8无进一步增益，过大H_max会混入陈旧证据。",
+      "统计证据方面，公开结果平均3次训练，bootstrap量化的是评估集不确定性而非训练种子变异性；工业数据集、压缩状态变体和部分诊断为单次运行，工业结果仅在专有数据上报告相对NE变化。",
+      "事件级增量更新需额外每用户状态（默认全状态时总缓存64 KiB，可压缩或仅保留活跃用户）；行为偏移分析仅针对模型无关漂移分数定位的户内偏移，不覆盖任意分布偏移。"
+    ],
+    "method_zh": "MARS将预测分解为Write(历史)->记忆状态、Read(状态)->紧凑记忆H、Score(H,候选)。写入端使用M条循环状态轨道，每条轨道通过维度级遗忘门与秩一更新处理完整历史，基门偏置按目标半衰期H_i设为logit(2^{-1/H_i})，半衰期在对数尺度上从H_min到H_max分布；输入相关偏移允许局部自适应但保持快慢顺序。读出端维护J个虚拟种子，每个种子通过Top-k稀疏路由选择若干轨道做加权读出并残差更新种子表示；训练用Gumbel噪声与直通估计器，推理用确定性Top-k。多层路由逐层变为历史条件化。打分端仍为标准候选到种子记忆的目标感知注意力，成本与历史长度无关。训练用门控线性注意力的并行扫描（log空间前缀差）实现O(L)线性复杂度。",
+    "problem_zh": "长历史推荐系统通常将用户完整历史压缩为单一、与候选无关的缓存记忆，但真实用户行为具有多时间尺度语义结构（短期意图、中期兴趣、长期偏好共存）。现有基于摘要式压缩的方法（如VISTA）在构造统一种子记忆时会把不同时间尺度的证据纠缠在一起，导致注意力难以恢复合适的时间信号，作者称之为 temporal aliasing（时间混叠）。线性探针显示VISTA缓存记忆对最近30次交互的可恢复度R²仅0.04，而对200步以上内容为0.31。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9015000000000001,
+  "id": "arxiv-2610.07505",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-05T23:14:39Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出多分辨率自适应路由记忆MARS，以缓解长序列推荐中的时间混叠问题并保持固定规模候选评分，属于序列推荐研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "MARS: Multi-resolution Adaptive Routing for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2610.07505v1"
+}

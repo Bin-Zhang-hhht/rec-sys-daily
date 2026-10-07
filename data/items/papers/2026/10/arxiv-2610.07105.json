@@ -1,0 +1,122 @@
+{
+  "abstract": "Recommendation recursive self-improvement (Rec-RSI) feeds recommender outputs into subsequent training. Evaluating each round solely through its latest model assumes that the successor consolidates the update, although pre- and post-update models may retain complementary ranking decisions. We term this \\emph{distributed progress} and quantify it using cross-generation advantage (CGA), a marginally matched contrast between cross- and within-generation model pairs. A rank-separation statistic, label-free at selection time, predicts which family to retain. Across four datasets and three sequential recommendation encoders, the preferred retention regime varies by architecture: cross-generation pairing benefits GRU4Rec and SASRec, whereas FMLP initially favors within-generation pairing and shifts toward cross-generation pairing after a second update. Rank separation selects the stronger family in 12/12 first-update and 5/6 second-update dataset-encoder settings; on held-out tests, the selected family outperforms the direct successor in 34/36 trajectories. Five transfer mechanisms do not consistently reproduce these gains in one model. These findings establish state retention as a distinct Rec-RSI problem: progress may reside in relations between generations as well as in the latest model. Code is available at \\href{https://github.com/Jinfeng-Xu/RecRSI}{https://github.com/Jinfeng-Xu/RecRSI}. Recommendation recursive self-improvement (Rec-RSI) feeds recommender outputs into subsequent training. Evaluating each round solely through its latest model assumes that the successor consolidates the update, although pre- and post-update models may retain complementary ranking decisions. We term this \\emph{distributed progress} and quantify it using cross-generation advantage (CGA), a marginally matched contrast between cross- and within-generation model pairs. A rank-separation statistic, label-free at selection time, predicts which family to retain. Across four datasets and three sequential recommendation encoders, the preferred retention regime varies by architecture: cross-generation pairing benefits GRU4Rec and SASRec, whereas FMLP initially favors within-generation pairing and shifts toward cross-generation pairing after a second update. Rank separation selects the stronger family in 12/12 first-update and 5/6 second-update dataset-encoder settings; on held-out tests, the selected family outperforms the direct successor in 34/36 trajectories. Five transfer mechanisms do not consistently reproduce these gains in one model. These findings establish state retention as a distinct Rec-RSI problem: progress may reside in relations between generations as well as in the latest model. Code is available at \\href{https://github.com/Jinfeng-Xu/RecRSI}{https://github.com/Jinfeng-Xu/RecRSI}.",
+  "arxiv_id": "2610.07105",
+  "authors": [
+    "Jinfeng Xu",
+    "Zheyu Chen",
+    "Ziyue Peng",
+    "Zheng Lin",
+    "Wenhao Yuan",
+    "Jian Chen",
+    "Shujie Li",
+    "Edith Ngai"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对线上推荐系统，仅看最新模型的Recall/NDCG可能低估更新价值；保留跨代模型对可以比直接后继模型平均提升2.018×10^-3 NDCG@20（相对10.6%），代价是额外存储一个模型和一次前向推理。",
+      "推荐平台在Self-RSI循环中可选择基于排序分离的标签无关选型规则，在无标注的情况下决定保留跨代还是同代配对，适合在线持续更新场景。",
+      "不同模型架构（GRU4Rec、SASRec、FMLP）对保留策略的需求不同，实际部署时需要按架构决定是否采用跨代集成，而不能一刀切。",
+      "将分布式进展蒸馏或重训到单个模型中尚不可靠，商业上若想降低推理成本需要开发更有效的状态压缩方法；在压缩成熟前，跨代模型对是更稳健的部署形态。",
+      "正CGA意味着更新边界附近的互补排序可以转化为整体排序效用的提升，对电商、内容推荐等注重Top-k曝光的业务有直接收益。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出跨代优势（CGA）指标，通过边际匹配的跨代与同代模型对对比，量化更新边界上的互补关系状态，而不是仅比较单个模型的效用。",
+      "提出标签无关的排序分离统计量Sep_k，利用早期窗口的top-k重叠在选型时预测应保留跨代家族还是同代家族。",
+      "在4个数据集、3种序列推荐编码器、两轮递归更新上的实验表明，保留哪种家族具有架构依赖性：跨代配对稳定有利于GRU4Rec和SASRec，而FMLP首轮倾向同代配对、第二轮后转向跨代配对。",
+      "排序分离在12/12个首轮设置和5/6个第二轮设置中选择出更强的配对家族；在36条轨迹中有34条选中的家族优于直接后继模型A，35条优于快照控制。",
+      "发现五种单模型整合路线（数据重训、全目录KL蒸馏、top-50 listwise蒸馏、互补目标、参数插值）不能稳定复现跨代配对增益，从而将关系状态保留确立为Rec-RSI中的独立设计问题。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Relational State across Updates"
+      },
+      {
+        "page": 3,
+        "section": "3 Evaluation Protocol"
+      },
+      {
+        "page": 4,
+        "section": "4 Empirical Results"
+      },
+      {
+        "page": 6,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "直接后继模型A",
+        "快照控制（best of four within-model pairs: P和A的5k-10k与best-final检查点组合）",
+        "单模型整合路线：硬生成数据重训、全目录KL蒸馏、top-50 listwise蒸馏、互补物品目标、线性参数插值",
+        "对应控制：独立教师B重训、仅A学生蒸馏、上下文匹配随机目标、较强端点插值"
+      ],
+      "datasets": [
+        "Amazon Toys",
+        "Amazon Beauty",
+        "Yelp",
+        "Amazon Sports"
+      ],
+      "findings_zh": [
+        "GRU4Rec和SASRec在所有4个数据集上的跨代家族都优于同代家族，NDCG@20均为3/3轨迹正向，CGA为正。",
+        "FMLP在首轮NDCG@20上反转这一顺序（CGA为负），但k=10差异接近零；第二轮后FMLP的CGA从-0.187×10^-3变为+0.035×10^-3，Sep_20在18条轨迹中全部变为正，说明第二轮朝向跨代发散。",
+        "首轮中CGA与Sep_20在全部12个设置上同号，Spearman ρ=0.916；在开发设置上，top-20分离与CGA的相关为0.850，而全目录Jensen-Shannon和总变差分离的相关仅0.500和0.270，说明预测信号在排序边界附近而非全目录。",
+        "排序分离在选择时正确选择更强家族的设置数为12/12（首轮）和5/6（第二轮）；轨迹级别为32/36和15/18。",
+        "选中家族在35/36条首轮轨迹中优于快照控制，平均增益2.065×10^-3 NDCG@20，95%数据集簇bootstrap区间为[1.597, 2.512]×10^-3。",
+        "选中家族在34/36条轨迹中优于直接后继A，平均提升2.018×10^-3 NDCG@20（相对提升10.6%），并在33/36条轨迹中优于最佳单模型。",
+        "五种单模型整合路线无法稳定保留分布式进展：listwise迁移保留最多，将源到后继的NDCG@20损失从2.313×10^-3降到1.375×10^-3，但仍留下可观的跨模型分布式增益；参数插值在10条轨迹中从未优于较强端点。",
+        "排序分离主要反映架构之间而非同架构不同种子之间的差异：跨轨迹相关为0.814，但按架构中心化后降至0.205，因此不能可靠选择同一种子的不同随机种子。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "NDCG@10",
+        "Recall@20",
+        "NDCG@20",
+        "CGA (NDCG@20 ×10^-3)",
+        "Sep_20 排序分离"
+      ]
+    },
+    "limitations_zh": [
+      "CGA的正负和推荐保留机制随编码器架构变化，不存在对所有序列推荐模型普遍适用的单一保留策略。",
+      "在固定融合规则β=0.5下，CGA反映的交互可能来自校准、分数尺度或top-rank决策，无法将机制归因到某个具体因素。",
+      "排序分离主要能诊断架构对当前更新的响应，不能在同一种编码器内可靠区分不同随机种子（种子层面相关中心化后仅0.205）。",
+      "五种单模型整合路线均不能一致复现跨代配对增益，说明关系状态难以压缩进单一后继模型。",
+      "第二轮更新的CGA仍随设置而定（5/6个设置方向正确），第二轮并非第一轮的简单重复，泛化判断仍有限。"
+    ],
+    "method_zh": "将每条轨迹包含4个模型：独立预更新模型P、B和后更新模型A、A'（A、A'共用P生成的数据但种子不同）。用β=0.5的logits融合构成跨代家族C={(P,A),(P,A'),(B,A),(B,A')}与同代家族W={(P,B),(A,A')}，定义CGA为两家族平均排序效用的差。排序分离Sep_k则计算同代模型top-k重叠均值减去跨代模型top-k重叠均值，选择时间不需要相关性标签。训练协议为10,000步更新，m=5条连续生成、k=20的上游保真阈值；在最终三个事件上划分选择窗口、诊断窗口和确认窗口。评估用Recall@10/20和NDCG@10/20。",
+    "problem_zh": "推荐系统递归自改进（Rec-RSI）中，每一轮只通过最新后继模型的准确率（如Recall/NDCG）评估更新，默认后继模型已合并全部进展；但更新前后的模型可能保留互补的排序决策，即存在跨代互补的“分布式进展”。该工作提出应当关注更新边界上的关系状态（relational state），而不只是后继模型的个体准确率，并回答“一次更新后应该保留什么状态”这一问题。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.885,
+  "id": "arxiv-2610.07105",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-05T15:03:27Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究推荐递归自提升中的跨代状态保留，提出CGA与秩分离统计以选择更优代际模型，属于序列推荐与排序研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Beyond Successor Accuracy: State Retention for Recursive Self-Improvement in Recommendation",
+  "url": "https://arxiv.org/abs/2610.07105v1"
+}

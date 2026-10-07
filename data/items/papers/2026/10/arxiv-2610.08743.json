@@ -1,0 +1,125 @@
+{
+  "abstract": "Sequential recommenders typically use a fixed slate size even though the number of useful alternatives changes within a session. We propose Reinforcement Learning with Calibrated Pruning (RLCP), which adapts the retained action set using critic scores and an online threshold. The threshold is updated from binary feedback indicating whether the set contains an action in a proxy target. We prove a deterministic bound on the observed proxy miss rate along adaptive trajectories. To quantify the effect of pruning on reward, we derive an exact decomposition of value loss into filtering and selection losses. Under explicit proxy and critic approximation conditions, this decomposition yields a finite session reward bound that also accounts for imperfect selection and set truncation, without requiring the learning parameters to converge. Experiments on KuaiRand-Pure and MovieLens 1M compare two RLCP implementations with four RL baselines. In each of the 19 configurations, at least one RLCP variant achieves the highest catalog diversity, reaching $1.11\\times$ to $5.21\\times$ that of the strongest baseline, with competitive session depth and no larger retained sets. Sequential recommenders typically use a fixed slate size even though the number of useful alternatives changes within a session. We propose Reinforcement Learning with Calibrated Pruning (RLCP), which adapts the retained action set using critic scores and an online threshold. The threshold is updated from binary feedback indicating whether the set contains an action in a proxy target. We prove a deterministic bound on the observed proxy miss rate along adaptive trajectories. To quantify the effect of pruning on reward, we derive an exact decomposition of value loss into filtering and selection losses. Under explicit proxy and critic approximation conditions, this decomposition yields a finite session reward bound that also accounts for imperfect selection and set truncation, without requiring the learning parameters to converge. Experiments on KuaiRand-Pure and MovieLens 1M compare two RLCP implementations with four RL baselines. In each of the 19 configurations, at least one RLCP variant achieves the highest catalog diversity, reaching $1.11\\times$ to $5.21\\times$ that of the strongest baseline, with competitive session depth and no larger retained sets.",
+  "arxiv_id": "2610.08743",
+  "authors": [
+    "Wenwen Si",
+    "Honghao Wei"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可将推荐从固定 slate 改为状态依赖的可变大小候选集，在相同或更小的集合规模下扩大目录覆盖，有助于增加长尾和多样性曝光。",
+      "阈值在线校准提供路径式的代理 miss 率控制，可作为产品中控制“排除所有满意选项”风险的可解释机制，但需配合可用的代理验证信号。",
+      "模拟结果显示 catalog diversity 与 session depth 可同时保持，提示候选集压缩不必然牺牲用户停留，但实际收益需在真实推荐链路中验证。",
+      "方法提示点击/点赞类指标不能直接推导会话深度收益，业务 KPI 需选择与用户留存/流失机制一致的奖励信号。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 RLCP，通过评论分数与在线保留校准来构建动作集，并用双层公式在保留策略诱导的状态占用下评估集合大小与保留率，从而考虑过滤对后续状态访问的影响。",
+      "建立路径式代理 miss 界和精确的 value 分解，进一步给出折扣价值与有限会话奖励的条件界，量化代理误差、评论误差、选择误差与集合截断的影响，且不要求学习参数收敛。",
+      "在 KuaiRand-Pure 与 MovieLens 1M 上对比两种 RLCP 实现与四个 RL 基线；19 个配置中每个配置至少一个 RLCP 变体取得最高目录多样性，且使用的保留集规模不超过最强基线。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 INTRODUCTION"
+      },
+      {
+        "page": 1,
+        "section": "2 PROBLEM FORMULATION"
+      },
+      {
+        "page": 1,
+        "section": "3 MAIN RESULTS"
+      },
+      {
+        "page": 1,
+        "section": "4 RLCP ALGORITHM"
+      },
+      {
+        "page": 1,
+        "section": "5 EXPERIMENTS"
+      },
+      {
+        "page": 1,
+        "section": "Appendix B ADDITIONAL MODELING DETAILS"
+      },
+      {
+        "page": 1,
+        "section": "Appendix C ADDITIONAL SUPPORTING RESULTS"
+      },
+      {
+        "page": 1,
+        "section": "Appendix D COMPLETE PROOFS"
+      },
+      {
+        "page": 1,
+        "section": "Appendix F FULL RESULTS"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "A2C",
+        "DDPG",
+        "TD3",
+        "HAC"
+      ],
+      "datasets": [
+        "KuaiRand-Pure",
+        "MovieLens 1M (ML-1M)"
+      ],
+      "findings_zh": [
+        "在全部 19 个配置中，至少一个 RLCP 变体取得最高 catalog diversity，数值为最强基线的 1.11 倍到 5.21 倍，且平均保留集尺寸不大于对应基线 slate 尺寸。",
+        "在 KuaiRand-Pure 上，RLCP-Single 在 10 个配置中均取得最高 catalog diversity，保留集在 9 个配置中小于 M，最大缩减 25.5%；在 6 个配置中达到或追平最高 session depth。",
+        "在 ML-1M 上，full RLCP 在 5 个配置中 catalog diversity 领先，8 个配置超过最强基线，7 个配置达到或追平最高 session depth，并始终维持 ILD 1.00。",
+        "RLCP-Single 在更长耐心设定下 catalog diversity 为最强基线的 3.17 倍到 5.21 倍，但多方法都达到 48 的深度上限；主要收益是更广曝光与相近深度，而非所有指标一致领先。"
+      ],
+      "metrics": [
+        "session depth",
+        "average reward",
+        "total reward",
+        "catalog diversity",
+        "intra-list diversity (ILD)",
+        "admissible set size"
+      ]
+    },
+    "limitations_zh": [
+      "item MDP 抽象要求奖励与下一状态在选定 item 后不再依赖集合；若位置、竞争或未选 item 的曝光影响奖励/转移，则需要将集合本身作为动作，原价值结果不自动成立。",
+      "定理依赖代理目标、评论者对 Q* 的误差和选择误差等近似条件；论文只给出这些条件下误差如何影响性能，不保证学习更新会让这些误差变小或参数收敛。",
+      "实验基于 KuaiSim 模拟器，而非真实线上部署；表格比较为点估计，标记“最高”不代表统计显著性。",
+      "实验中代理目标使用即时响应模型 p_hat(s,a)，其对长期 Q* 有偏差；代理命中不自动等于保留高长期价值动作。",
+      "部署时需要合适的验证器或反事实响应模型提供“原始集是否包含代理目标动作”的二元信号，仅靠已执行 item 的反馈一般无法识别该集合事件。",
+      "当奖励是点击/点赞而非用户留存的终止信号时，得到的界并不直接等价于会话深度保证。"
+    ],
+    "method_zh": "RLCP 用评论网络定义动作的估计价值 gap：g_t(s,a)=max_b Q_hat_t(s,b)-Q_hat_t(s,a)，以在线阈值 tau_t 形成原始集 C_t={a:g_t(s,a)<=tau_t}，保留容量截断；空集时用最小分数动作作为 fallback 保证可执行。阈值按 tau_{t+1}=tau_t+eta_t(e_t-alpha) 更新，其中 e_t 是原始集是否未命中代理目标集合的二元反馈。下游选择器从执行集中选择动作；critic/selector 在慢时间尺度更新，阈值校准在快时间尺度更新。两个变体：full RLCP 用保留集约束下游 slate actor；RLCP-Single 将保留集直接交给模拟器，以模拟器第一个奖励项作为 rollout 动作。",
+    "problem_zh": "顺序推荐通常使用固定 slate 大小，但会话中有用候选项的数量和质量会变化；固定大小无法兼顾紧凑候选集和保留有价值动作的风险控制。论文提出需要区分“保留”与“选择”，并处理阈值随策略、评论者与访问状态变化时的校准问题。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.865,
+  "id": "arxiv-2610.08743",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling",
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-10-06T17:40:52Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文面向序列推荐提出基于强化学习与校准剪枝的自适应候选动作集方法，属于推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Reinforcement Learning with Conformal Action Sets: An Application to Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2610.08743v1"
+}

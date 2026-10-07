@@ -1,0 +1,130 @@
+{
+  "abstract": "Existing research on user fairness in recommender systems has developed diverse objectives. However, it has paid limited attention to a distinct distributive perspective: whether users' contributions to model learning should be reflected in the recommendation benefits they receive. We argue that, in addition to existing fairness protections, a fair system may account for the alignment between users' estimated contributions and the recommendation performance they receive. Such alignment can incentivize sustained and informative engagement, thereby supporting a sustainable recommendation ecosystem. To this end, we propose Contribution-Performance Fairness, a novel fairness perspective which requires recommendation performance to be aligned with estimated contribution across user groups and to remain equitable among users with comparable contributions within a same group. To instantiate this perspective, we introduce the Contribution-Performance Fair Recommender (CPFR), a framework applicable to different backbone recommenders. CPFR constructs ordered user groups from a training-dependent contribution considering interaction volume, loss alignment, and optimization intensity, and jointly optimizes recommendation accuracy with the two fairness requirements. A game-theoretic analysis shows that such alignment can strengthen contribution incentives and improve system-level recommendation accuracy under voluntary contribution. Experiments on three datasets and three backbone models demonstrate that CPFR achieves a strong accuracy--fairness trade-off under the proposed operational metric. Existing research on user fairness in recommender systems has developed diverse objectives. However, it has paid limited attention to a distinct distributive perspective: whether users' contributions to model learning should be reflected in the recommendation benefits they receive. We argue that, in addition to existing fairness protections, a fair system may account for the alignment between users' estimated contributions and the recommendation performance they receive. Such alignment can incentivize sustained and informative engagement, thereby supporting a sustainable recommendation ecosystem. To this end, we propose Contribution-Performance Fairness, a novel fairness perspective which requires recommendation performance to be aligned with estimated contribution across user groups and to remain equitable among users with comparable contributions within a same group. To instantiate this perspective, we introduce the Contribution-Performance Fair Recommender (CPFR), a framework applicable to different backbone recommenders. CPFR constructs ordered user groups from a training-dependent contribution considering interaction volume, loss alignment, and optimization intensity, and jointly optimizes recommendation accuracy with the two fairness requirements. A game-theoretic analysis shows that such alignment can strengthen contribution incentives and improve system-level recommendation accuracy under voluntary contribution. Experiments on three datasets and three backbone models demonstrate that CPFR achieves a strong accuracy--fairness trade-off under the proposed operational metric.",
+  "arxiv_id": "2610.08245",
+  "authors": [
+    "Shuai Zhang",
+    "Hui Fang",
+    "Zun Sun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "平台可通过贡献-性能对齐激励用户持续提供信息量高的反馈，有助于形成可持续的推荐生态系统。",
+      "高贡献用户获得不低于低贡献组的平均性能，可减少高活跃、高质量用户的参与挫败与流失风险。",
+      "CPFR 是模型无关框架，可嵌入 NCF、DCN、DeepFM 等常见骨干推荐模型，降低实际部署的适配成本。",
+      "平台可根据自身贡献策略设置三信号权重 w1/w2/w3，并通过 λ1、λ2 在准确性、组内公平与跨组对齐之间选择运营目标。",
+      "论文强调低贡献不应使服务低于合理质量底线，以保护冷启动、访问受限或隐私选择用户，降低公平激励引入的声誉与合规风险。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 Contribution-Performance Fairness 新视角：同一贡献估计组内用户应获得相近性能，高贡献组平均性能不低于低贡献组。",
+      "提出 CPFR（Contribution-Performance Fair Recommender）模型无关框架，利用交互数量、损失对齐和优化强度三个训练相关信号估计用户贡献，并用 Jenks Natural Breaks 划分有序贡献组。",
+      "将组内公平（UIF 损失）与跨组对齐（UGF 损失）作为可微正则项与推荐损失联合优化，并用 MoCo 多目标优化缓解梯度冲突。",
+      "博弈论分析表明，在理想化分配模型下，贡献比例分配相比等性能分配能带来更高的均衡用户贡献和更高的聚合推荐性能。",
+      "在 MovieLens-100K、MovieLens-1M、Amazon Office 三个数据集及 NCF、DCN、DeepFM 三个骨干模型上的实验显示，CPFR 在大多数设置下取得更优的综合推荐质量 Q，同时保持有竞争力的准确性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3.3 Contribution-Performance Fairness"
+      },
+      {
+        "page": 4,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 4,
+        "section": "4.4 Theoretical Analysis of Incentives"
+      },
+      {
+        "page": 6,
+        "section": "5.2 Main Results (RQ1)"
+      },
+      {
+        "page": 6,
+        "section": "5.3 Trade-off Analysis (RQ2)"
+      },
+      {
+        "page": 7,
+        "section": "5.4 Ablation Study (RQ3)"
+      },
+      {
+        "page": 7,
+        "section": "5.5 Hyper-parameter Analysis (RQ4)"
+      },
+      {
+        "page": 8,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Vanilla",
+        "AFRL",
+        "CUGF",
+        "FairNS"
+      ],
+      "datasets": [
+        "MovieLens-100K",
+        "MovieLens-1M",
+        "Amazon Office"
+      ],
+      "findings_zh": [
+        "CPFR 在几乎全部配置下取得最优或接近最优的 Q：相比 AFRL 在 9 个配置中的 8 个胜出，并保持香草模型约 90% 以上的准确性，而 AFRL 准确性大幅下降。",
+        "与 FairNS 相比，CPFR 的准确性差距保持在 3% 以内，并在多数情况下取得更高的 UGF（跨组对齐）。",
+        "与 CUGF 相比，CPFR 在所有设置下 Q 均严格更高，且同时在 UIF 与 UGF 两个公平维度上占优。",
+        "λ1 和 λ2 可分别独立控制组内公平与跨组对齐；提高公平权重会系统性降低 NDCG（高公平设置约下降 5-10%），在不牺牲准确性的前提下无法同时改进两个公平维度。",
+        "分组策略上，Jenks Natural Breaks 因确定性而稳定且 Q 表现最好；K-means 因随机性不稳定；等大小分组较均衡但常牺牲准确性。",
+        "组数 J 过少时公平结构较弱；中等 J 可显著改善 UGF/UIF 但 NDCG 略降；J 过大时组内样本过少、引入统计噪声并降低 Q，最优 J 需平衡信号丰富度与统计稳定性。",
+        "理想化博弈分析显示，贡献比例分配比等性能分配产生更高均衡贡献和更高聚合推荐性能。"
+      ],
+      "metrics": [
+        "NDCG@K",
+        "HR@K",
+        "UIF@K",
+        "UGF@K",
+        "Q@K"
+      ]
+    },
+    "limitations_zh": [
+      "估计贡献 C_ux 是模型相关的操作代理，不度量用户内在价值；公平准则主要基于贡献排序与分组，而非把绝对分数差解释为基数贡献差异。",
+      "博弈论结论依赖于理想化假设：N 个同质理论用户、严格凸成本函数、凹且边际递减的总性能函数以及唯一对称 Nash 均衡，且 CPFR 并非实现精确比例分配，而是鼓励组层面的贡献-性能排序。",
+      "Q 是单一标量摘要，论文明确不声称它是贡献-性能公平的唯一规范定义，实际使用需同时报告平均性能、UGF 与 UIF。",
+      "实验采用 leave-one-out 评估并过滤交互少于 10 条的用户，且仅基于 MovieLens 与 Amazon Office 公开数据集，外部有效性可能受限。",
+      "组数 J 过小时公平优化不足，J 过大时统计噪声增加，最优 J 需要调参；不同平台数据规模下最佳分组粒度可能不同。"
+    ],
+    "method_zh": "CPFR 分为两阶段。阶段一：先用 BCE 损失训练骨干推荐模型，并在早期训练中为每个用户收集交互数量 Vol、损失对齐 Align（负平均训练损失）和优化强度 Grad（平均每样本梯度范数）；三者经 z-score 标准化后按默认等权 w1=w2=w3=1/3 合成为估计贡献分数 C_ux，再通过 Jenks Natural Breaks 将用户划分为 J 个有序贡献组。阶段二：联合优化总损失 L_total = L_rec + λ1·L_UIF + λ2·L_UGF。L_UIF 最小化同一贡献组内用户平均 BCE 损失的成对离散度，按组归一化以避免大组主导；L_UGF 按贡献降序排列组，惩罚高贡献组平均损失高于低贡献组的情形。整体采用 MoCo 多目标优化以协调梯度冲突。公平量化指标包括 UGF（贡献组排名与性能组排名的 Spearman 相关归一化到 [0,1]）、UIF（组内用户性能两两差平方的均值）以及综合质量 Q = 平均性能 × UGF/(1+UIF)。",
+    "problem_zh": "现有推荐系统用户公平性研究多聚焦群体或个体结果均等，忽视了用户同时是数据贡献者这一不对称性：高贡献用户提供大量高质量交互用于模型训练，而均等化处理可能压低高贡献用户的表现以匹配低贡献用户，从而削弱贡献激励并损害推荐生态的长期健康。论文提出贡献-性能公平（Contribution-Performance Fairness）：估计贡献相近的用户应获得相近的推荐性能，高贡献用户组的平均性能不应低于低贡献组；该原则适用于自愿且与模型相关的反馈场景，与既有公平保护互补，且低贡献不应导致服务质量低于合理底线。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.905,
+  "id": "arxiv-2610.08245",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-06T12:26:50Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出贡献-性能公平推荐框架，使推荐表现与用户估计贡献对齐并联合优化公平性，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Aligning Performance with Contribution: Towards Contribution-Aware Fair Recommendation",
+  "url": "https://arxiv.org/abs/2610.08245v1"
+}

@@ -1,0 +1,85 @@
+{
+  "abstract": "Generative recommenders decode items from a user's interaction history, but offer no way for users to correct a recommendation that misses their current intent. Adding conversation is natural since items and words share same output space, yet training the model to converse may overwrite the history-to-item mapping it relies on. We introduce INTEGER (**INTE**ractive **GE**nerative **R**ecommendation), which extends generative recommendation to multi-turn interaction with a learned routing token that lets the model decide when to recommend, history re-anchoring that conditions each item on both past behavior and the dialogue, and behavioral replay with instruction-data rehearsal that prevents forgetting during adaptation. Users can thus give feedback on recommendations within the dialogue, while recommendations stay grounded in behavioral history and accuracy is not traded for fluency. On Amazon Beauty and Toys, INTEGER matches or exceeds the strongest baselines in accuracy with competitive conversation quality, improving Hit@10 by 13.3% on Amazon Beauty, and significantly outperforms the generative recommender it starts from. Our analyses show that INTEGER learns behaviors that naive adaptation fails to acquire, recommending once the user's intent is clear and staying attentive to behavioral history at the moment of recommendation. INTEGER also learns an intent-agnostic replacement over the item space, which suppresses rejected items but points to attribute-aware feedback as the next step. Generative recommenders decode items from a user's interaction history, but offer no way for users to correct a recommendation that misses their current intent. Adding conversation is natural since items and words share same output space, yet training the model to converse may overwrite the history-to-item mapping it relies on. We introduce INTEGER (**INTE**ractive **GE**nerative **R**ecommendation), which extends generative recommendation to multi-turn interaction with a learned routing token that lets the model decide when to recommend, history re-anchoring that conditions each item on both past behavior and the dialogue, and behavioral replay with instruction-data rehearsal that prevents forgetting during adaptation. Users can thus give feedback on recommendations within the dialogue, while recommendations stay grounded in behavioral history and accuracy is not traded for fluency. On Amazon Beauty and Toys, INTEGER matches or exceeds the strongest baselines in accuracy with competitive conversation quality, improving Hit@10 by 13.3% on Amazon Beauty, and significantly outperforms the generative recommender it starts from. Our analyses show that INTEGER learns behaviors that naive adaptation fails to acquire, recommending once the user's intent is clear and staying attentive to behavioral history at the moment of recommendation. INTEGER also learns an intent-agnostic replacement over the item space, which suppresses rejected items but points to attribute-aware feedback as the next step.",
+  "arxiv_id": "2610.08136",
+  "authors": [
+    "Yu-Chen Den",
+    "Zhi Rui Tam",
+    "Yung-Yu Shih",
+    "Shih-Hsin Wang",
+    "Yun-Nung Chen",
+    "Pu-Jen Cheng",
+    "Eugene Yang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在多轮对话中允许用户纠正推荐结果，可减少推荐错过用户当前意图所带来的体验损失。",
+      "在 Amazon Beauty/Toys 等电商商品目录中，该方法能在不牺牲历史行为准确率的前提下提升交互能力，具有较强落地潜力。",
+      "通过学习何时推荐，模型可在用户意图明确后再给出推荐，减少无关推荐对用户的干扰。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出 INTEGER，将生成式推荐扩展为多轮交互推荐，使用户可以在对话中对推荐结果给出反馈。",
+      "引入学习得到的路由 token，让模型自行决定何时进行推荐。",
+      "提出历史重锚定，使每个推荐物品同时基于过去行为与当前对话进行条件生成。",
+      "采用行为回放与指令数据排练，在适应对话能力时防止遗忘历史到物品的映射。",
+      "在 Amazon Beauty 和 Toys 上达到或超过最强基线的准确率，并在 Amazon Beauty 上将 Hit@10 提升 13.3%，且显著优于其初始生成式推荐器。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "最强基线（摘要未给出具体名称）",
+        "初始生成式推荐器"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Toys"
+      ],
+      "findings_zh": [
+        "INTEGER 在 Amazon Beauty 和 Toys 上匹配或超过最强基线的准确率，并在 Amazon Beauty 上使 Hit@10 提升 13.3%。",
+        "INTEGER 的对话质量与基线相当，且没有为了流畅对话而牺牲推荐准确率。",
+        "INTEGER 显著优于其初始化所用的生成式推荐器。",
+        "分析表明 INTEGER 学会了在用户意图明确时才推荐，并在推荐时保持对行为历史的关注。",
+        "INTEGER 学到的是与意图无关的物品空间替换，能够抑制被拒绝物品，但作者指出属性感知反馈是下一步改进方向。"
+      ],
+      "metrics": [
+        "Hit@10",
+        "对话质量（摘要未给出具体指标名）"
+      ]
+    },
+    "limitations_zh": [
+      "当前 INTEGER 学习到的物品替换是意图无关的，只能抑制被用户拒绝的物品，无法利用属性级反馈进行更细粒度的纠正。",
+      "若缺少行为回放与指令数据排练，直接让生成式推荐器学会对话可能覆盖历史到物品的映射，带来灾难性遗忘风险。"
+    ],
+    "method_zh": "在生成式推荐基础上增加可学习路由 token 以决定推荐时机；使用历史重锚定让推荐同时以行为历史和对话为条件；结合行为回放与指令数据排练来保留历史到物品的映射，从而在不牺牲推荐准确率的情况下获得多轮对话修正能力。",
+    "problem_zh": "生成式推荐器只能从用户交互历史中解码推荐物品，用户无法对不符合当前意图的推荐进行纠正；直接加入对话训练可能覆盖模型依赖的历史到物品映射，从而损害推荐准确率。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.775,
+  "id": "arxiv-2610.08136",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-06T10:51:53Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出INTEGER交互式生成推荐方法，通过路由标记和历史重锚定在多轮对话中生成推荐，属于生成式推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Adapting Generative Recommenders for Multi-Turn Interaction",
+  "url": "https://arxiv.org/abs/2610.08136v1"
+}

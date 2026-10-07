@@ -1,0 +1,128 @@
+{
+  "abstract": "Recommender systems learn from observed user-item interactions, but explicit negative feedback is often unavailable. Since deep learning models require negative signals for training, negative sampling methods typically treat selected unobserved interactions as negatives. However, a missing interaction does not explain why a user is uninterested in an item or whether there is sufficient evidence to label it negative. This is especially important in business recommendation, where negative signals should be interpretable and aligned with business objectives. We formulate implicit negative candidate discovery to identify unobserved interactions supported by observed customer behavior. We encode these patterns as symbolic rules, score them based on support, informativeness, and product relevance, and rank the retained rules by evidence. An LLM then interprets the retained rules using business objectives and domain knowledge; the interpretations are combined with the statistical evidence in the final report. We evaluate our method in an industrial B2B setting and across five public recommendation datasets. Candidate-quality evaluations in the industrial setting and three public datasets show higher precision than the evaluated baselines, while symbolic selection improves downstream test PR-AUC by 12.5% over random selection with four negatives per positive example in the industrial task. Our results show that negative candidate validity can be evaluated separately from downstream recommendation performance. This distinction enables evidence-based, business-aligned, and explainable negative selection, improving both interpretability and model training in sparse, skewed, real-world recommendation settings. Recommender systems learn from observed user-item interactions, but explicit negative feedback is often unavailable. Since deep learning models require negative signals for training, negative sampling methods typically treat selected unobserved interactions as negatives. However, a missing interaction does not explain why a user is uninterested in an item or whether there is sufficient evidence to label it negative. This is especially important in business recommendation, where negative signals should be interpretable and aligned with business objectives. We formulate implicit negative candidate discovery to identify unobserved interactions supported by observed customer behavior. We encode these patterns as symbolic rules, score them based on support, informativeness, and product relevance, and rank the retained rules by evidence. An LLM then interprets the retained rules using business objectives and domain knowledge; the interpretations are combined with the statistical evidence in the final report. We evaluate our method in an industrial B2B setting and across five public recommendation datasets. Candidate-quality evaluations in the industrial setting and three public datasets show higher precision than the evaluated baselines, while symbolic selection improves downstream test PR-AUC by 12.5% over random selection with four negatives per positive example in the industrial task. Our results show that negative candidate validity can be evaluated separately from downstream recommendation performance. This distinction enables evidence-based, business-aligned, and explainable negative selection, improving both interpretability and model training in sparse, skewed, real-world recommendation settings.",
+  "arxiv_id": "2610.07708",
+  "authors": [
+    "Shreya Rajpal",
+    "Sonia Sharma",
+    "Swapnil Parekh",
+    "Lisa Li",
+    "Jeyendran Balakrishnan",
+    "Nagaraj Janardhana",
+    "Andrew Mattarella-Micke"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "企业推荐/客服场景可用可解释符号规则记录负候选证据，帮助数据科学家在训练前审查客户行为模式，减少数据探索工作量。",
+      "负样本选择可同时考虑业务目标与领域知识，拒绝无合理解释的业务无关规则，并保留不确定标签供人工复核，适合高风险B2B决策支持。",
+      "在稀疏或MNAR数据中，符号化证据能降低把真实购买当作负样本的污染，改善模型训练信号；但业务审查会缩减候选规模，部署时应将规则报告作为人工审查辅助而非自动高影响决策依据。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "形式化隐式负候选发现问题：区分候选有效性(candidate validity)与下游采样策略，先记录证据再用于训练。",
+      "用Scope、Evidence Strength、Hierarchical Contribution、Product Relevance四个统计准则评估符号规则，并用独立LLM领域审查将规则关联到业务目标与可信领域知识，生成领域知识报告。",
+      "在工业B2B设置和多个公开推荐数据集上，符号化选择比基线取得更高负候选精度；工业下游测试PR-AUC相对随机采样提升12.5%（K=4）。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.3.2 Evidence Strength"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Candidate Admission"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "A.1 Industrial Candidate Quality"
+      },
+      {
+        "page": 1,
+        "section": "A.2 Generalization Across Public Recommendation Datasets"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Uniform random",
+        "Popularity-based sampling",
+        "Product-matched random / category-matched random",
+        "Bayesian Negative Sampling (BNS)",
+        "BNS-S",
+        "DNS (Dynamic Negative Sampling)",
+        "No additional implicit negatives (K=0)"
+      ],
+      "datasets": [
+        "工业B2B客户支持数据（9个产品、10,000客户会话）",
+        "KuaiRec",
+        "MIND",
+        "RetailRocket",
+        "KuaiRand",
+        "Santander Product Recommendation"
+      ],
+      "findings_zh": [
+        "工业候选质量评估：Scope+Evidence阶段的负候选精度0.9223，高于均匀随机0.7950、流行度0.6988和产品匹配随机0.8578（相对提升7.5%）；加上Hierarchical Contribution和Product Relevance后精度达0.9490，保留1098个候选。",
+        "下游训练（K=4）中，符号化采样CL从0.4120提高到0.4562，测试PR-AUC从0.5166提高到0.5814（相对提升12.5%）；但K=2时随机采样PR-AUC 0.5907略高于符号化0.5837，更多负例并不总是一致提升效果。",
+        "在公开数据上，KuaiRec自然分布中Positive Symbolic达到0.5417 PR-AUC，优于Negative Symbolic 0.4100、BNS 0.5086、DNS 0.4135和Random 0.4617；MIND上Positive Symbolic为0.0398，略高于其他采样器，但差异接近种子波动。",
+        "RetailRocket上DNS最强（PR-AUC 0.0526），Positive Symbolic仅0.0413，因为强保护区域的正例提升只有0.49×；符号化证据方向应随数据可用证据而选择。",
+        "在稀疏/缺失正反馈压力测试中：KuaiRec 1% clean时Symbolic PR-AUC 0.0213，优于Random 0.0139、BNS 0.0150、DNS 0.0131；MNAR-75时Symbolic 0.1337，并降低BNS的标记负例污染（4.45%→3.16%，Positive Symbolic 0.30%）。",
+        "公开候选质量上，Symbolic在KuaiRec精度0.7722（vs Bayesian 0.7611）、KuaiRand 0.9030、Santander 0.9992，并减少正例污染。",
+        "将符号化作为候选过滤层时不一定总是有益：在稠密自然KuaiRec上过滤会损害随机/BNS/DNS性能；在1%和MNAR-75稀疏条件下过滤能提升各基线的PR-AUC。"
+      ],
+      "metrics": [
+        "Negative-candidate precision",
+        "Contamination (selected purchases count)",
+        "Coverage",
+        "Test PR-AUC",
+        "Top-1 accuracy",
+        "Case-Load (CL)",
+        "Early Recommendation (ER)",
+        "Ground Zero (GZ)"
+      ]
+    },
+    "limitations_zh": [
+      "LLM领域审查在工业消融中使候选精度从0.9490降至0.8902，说明业务解释过滤不保证提升候选精度；解释准确性未用购买结果评估。",
+      "添加更多负样本并不总是一致改善下游推荐：K=2时随机PR-AUC高于符号化，K=4/6才有增益。",
+      "公开数据上的符号化方向依赖数据：RetailRocket的positive rules未富集真实正例（lift 0.49×），此时Positive Symbolic弱于DNS。",
+      "在稠密且干净的KuaiRec自然数据上，符号化过滤会移除有信息量的负例，导致性能下降；5% clean时Symbolic也弱于Random/BNS。",
+      "候选质量精度只在具有已知标签的候选上计算，公开数据许多目录对未标记；无法证明发现的是用户真实不喜欢而非曝光/资格偏差。",
+      "依赖LLM解释存在幻觉和忠实性风险，论文通过只让LLM解释统计保留规则来缓解，但未完全消除。"
+    ],
+    "method_zh": "从客户特征构造最多两个谓词的规则（数值特征用训练集四分位数及零谓词），合并签名相同的规则并按Hasse式DAG组织父子关系。对每个产品分别计算：Scope（满足规则且有已知结果的用户占比）、Evidence Strength（基于Beta(1/2,1/2)先验和10000次后验抽样，取相对购买率降低的10分位数）、Hierarchical Contribution（相对各父规则剩余人群的额外购买率降低）、Product Relevance（目标产品相对其他产品的中位额外效果差）。通过阈值门控后，由LLM依据业务目标和可信域知识给规则标注BUSINESS_RELEVANT/UNCERTAIN/OTHER/BUSINESS_IRRELEVANT，仅拒绝后者；最终按证据分数排序并生成报告。下游按分层tier从保留规则中选取负样本。",
+    "problem_zh": "在真实推荐系统中显式负反馈通常不可得，传统负采样把未观测交互直接当作负例，但缺失交互可能是未曝光或缺失反馈而非缺乏兴趣；尤其在企业(B2B)场景中，需要可解释且符合业务目标的负样本证据。论文提出隐式负候选发现(implicit negative candidate discovery)：在把未观测交互用于训练前，先用可观测的客户行为符号规则判断其是否有足够证据被视为负候选，并支持业务审查。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9285,
+  "id": "arxiv-2610.07708",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-06T04:02:47Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于符号规则与LLM解释的证据驱动隐式负样本候选发现方法，用于推荐模型训练，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Evidence Before Sampling: Interpretable Implicit Negative Candidate Discovery for Recommendation",
+  "url": "https://arxiv.org/abs/2610.07708v1"
+}

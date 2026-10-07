@@ -1,0 +1,107 @@
+{
+  "abstract": "Since the early adoption of e-commerce, travel and tourism has been a lab for the design of recommender systems: tools that help travelers choose destinations, flights, accommodations, and combine them into itineraries. Data-driven recommendation techniques, ranging from case-based reasoning to reinforcement learning, have been adapted to travelers' needs. The research community has produced multifaceted prototypes of travel and tourism recommender systems (TTRSs), which are context-dependent, multistakeholder-oriented, and more recently, addressing sustainability issues, such as overtourism. Despite this enduring work, TTRSs are not widespread yet. We argue that three limitations can explain this: outdated and sparse data sets used to train and validate TTRSs, algorithms that prioritize prediction accuracy over domain-specific dimensions such as novelty and contextual relevance, and a failure to address the specific needs of travelers. Targeted incremental research could address these limitations, but a disruptive factor has meanwhile entered the ecosystem of tourism information and commercialization platforms: generative artificial intelligence. According to market research, GenAI applications are becoming the primary entry point for travelers planning their trips. This forces research to rethink how TTRSs should be designed and which core techniques should be integrated. We claim that future TTRSs, in addition to offering personalized information filtering, should become more flexible advisors that support decision making, integrating multiple data types and AI techniques, from data mining to natural language processing. Moreover, they must transparently balance the conflicting goals of travelers, service suppliers, platform owners, and local communities. We then outline research targets for building more effective TTRSs, fruitfully combining old and new recommendation techniques. Since the early adoption of e-commerce, travel and tourism has been a lab for the design of recommender systems: tools that help travelers choose destinations, flights, accommodations, and combine them into itineraries. Data-driven recommendation techniques, ranging from case-based reasoning to reinforcement learning, have been adapted to travelers' needs. The research community has produced multifaceted prototypes of travel and tourism recommender systems (TTRSs), which are context-dependent, multistakeholder-oriented, and more recently, addressing sustainability issues, such as overtourism. Despite this enduring work, TTRSs are not widespread yet. We argue that three limitations can explain this: outdated and sparse data sets used to train and validate TTRSs, algorithms that prioritize prediction accuracy over domain-specific dimensions such as novelty and contextual relevance, and a failure to address the specific needs of travelers. Targeted incremental research could address these limitations, but a disruptive factor has meanwhile entered the ecosystem of tourism information and commercialization platforms: generative artificial intelligence. According to market research, GenAI applications are becoming the primary entry point for travelers planning their trips. This forces research to rethink how TTRSs should be designed and which core techniques should be integrated. We claim that future TTRSs, in addition to offering personalized information filtering, should become more flexible advisors that support decision making, integrating multiple data types and AI techniques, from data mining to natural language processing. Moreover, they must transparently balance the conflicting goals of travelers, service suppliers, platform owners, and local communities. We then outline research targets for building more effective TTRSs, fruitfully combining old and new recommendation techniques.",
+  "arxiv_id": "2610.08232",
+  "authors": [
+    "Alejandro Bellogín",
+    "Linus W. Dietz",
+    "Francesco Ricci",
+    "Pablo Sánchez"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "GenAI正成为旅行者搜索和规划的主要入口，平台需将推荐能力嵌入对话式、多来源信息流而非独立的过滤工具。",
+      "调查显示GenAI使用增长快且被认为有用，但信任不足，企业需在采用AI与维护用户信任之间取得平衡。",
+      "GenAI可帮助目的地和服务商生成定向推广内容、主题行程及合成交互数据，服务于旅行者之外的多方利益相关者。",
+      "平台需透明地平衡旅行者、服务供应商、平台所有者与当地社区的目标，同时应对可持续旅游和过度旅游问题。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出并归纳TTRS研究在数据集、算法、评估方法三方面的缺陷，解释其实际应用有限的原因。",
+      "按推荐任务分类梳理了当前采用GenAI的旅行平台（如GuideGeek、Layla、Mindtrip、Google Gemini等）及其功能。",
+      "汇总Phocuswright、JTB、Booking.com等调查证据，刻画旅行者对GenAI的采用、有用性感知与信任情况。",
+      "提出将传统推荐技术与GenAI融合的五个研究目标：个性化交互、利用非结构化内容、支持知情且可持续的决策、生成定向推广内容、帮助旅行者获得更好体验。",
+      "建立GenAI潜力与TTRS缺陷之间的机会映射（Opp.1–9），给出可操作的研究议程。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1.4 Pitfalls of Travel RSs"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Data Sets Pitfalls"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Algorithms Pitfalls"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Evaluation Methodology Pitfalls"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Initial Adoption of GenAI"
+      },
+      {
+        "page": 1,
+        "section": "3.2 GenAI Tool Usage and Effectiveness"
+      },
+      {
+        "page": 1,
+        "section": "4 The Disruptive Potential of GenAI"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无（未进行算法对比实验）"
+      ],
+      "datasets": [
+        "无（作者未使用实验数据集）"
+      ],
+      "findings_zh": [
+        "本文未报告传统意义上的实验验证；主要发现来自市场调查与平台功能观察：GenAI已被旅行者快速采用并视为有用，但信任度有限。",
+        "现有GenAI工具会产生事实性错误、无法在会话内或跨旅行学习用户画像，且受流行度偏差影响，因此需与经典推荐技术结合。"
+      ],
+      "metrics": [
+        "无（仅引用消费者调查统计，如78%认为GenAI结果有帮助、约1/3完全信任、Booking.com调查中6%完全信任AI）"
+      ]
+    },
+    "limitations_zh": [
+      "当前GenAI工具存在事实性不准确（如步行时间、活动信息过时），且缺少从用户反馈中学习画像的机制。",
+      "LLM在过度代表热门景点的网络语料上训练，可能放大而非解决流行度偏差。",
+      "消费者对GenAI的信任仍低，仅少数人完全信任，且多数人对AI独立决策感到不适。",
+      "本文是研究议程型论文，提出的研究目标与机会映射未经过实证或商业落地验证。"
+    ],
+    "method_zh": "本文是观点/议程型综述而非实验研究；方法上结合TTRS文献缺陷分析、现有GenAI旅游平台功能观察、以及多项市场调查报告，提出概念性研究框架和未来研究方向。",
+    "problem_zh": "旅行与旅游推荐系统（TTRS）研究活跃但实际落地有限，主要受三类缺陷制约：可用数据集过时、稀疏且多来自LBSN而非真实推荐系统交互；算法侧重预测精度，忽略新颖性、多样性、上下文和多利益相关者目标；评估方法依赖离线准确率，无法衡量对真实决策过程的支持。同时，生成式AI正快速成为旅行者搜索和规划的主要入口，使传统信息过滤型TTRS面临被边缘化的风险。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.7775000000000001,
+  "id": "arxiv-2610.08232",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-06T12:18:15Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文讨论旅行与旅游推荐系统当前局限与未来方向，主张结合生成式AI构建灵活顾问式推荐系统。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Behavior-Mining, Generative Conversations, and Collaborative Advisory: the Future of Travel and Tourism Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.08232v1"
+}

@@ -1,0 +1,110 @@
+{
+  "abstract": "Contextual information, capturing the circumstances of a user-item interaction, is central to recommender systems. Prior work draws context from location, time, or reviews, but not images; multimodal recommender systems mainly use images to enrich item or user representations, not identify situational context. We propose a new representation of context derived from images, spanning physical, social, and modal categories learned via a vision-language model. We introduce ICE-Fuse, a pipeline for evaluating this representation that fuses these categories and integrates them into a context-aware recommender system, using TripAdvisor data and Review-aware Graph Contrastive Learning as the recommendation algorithm. Image context does not outperform established signals standalone, but improves them combined, indicating complementary information. Semantic analysis shows image- and review-derived context capture distinct aspects of the interaction, positioning images as complementary context. Contextual information, capturing the circumstances of a user-item interaction, is central to recommender systems. Prior work draws context from location, time, or reviews, but not images; multimodal recommender systems mainly use images to enrich item or user representations, not identify situational context. We propose a new representation of context derived from images, spanning physical, social, and modal categories learned via a vision-language model. We introduce ICE-Fuse, a pipeline for evaluating this representation that fuses these categories and integrates them into a context-aware recommender system, using TripAdvisor data and Review-aware Graph Contrastive Learning as the recommendation algorithm. Image context does not outperform established signals standalone, but improves them combined, indicating complementary information. Semantic analysis shows image- and review-derived context capture distinct aspects of the interaction, positioning images as complementary context.",
+  "arxiv_id": "2610.08407",
+  "authors": [
+    "Tal Cordova",
+    "Tomer Geva",
+    "Moshe Unger"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在TripAdvisor等图片丰富的评价平台上，平台无需在推荐推理时保存或处理图片，只需在训练时将图像情境融入用户/物品表示，便于工程部署。",
+      "将图像情境与已有城市-日期、文本或直接图像内容特征组合，可带来统计显著的评级预测改进，尽管绝对值较小，论文指出推荐精度的小幅提升也能产生可观经济价值。",
+      "图像情境捕捉评论文字容易遗漏的现场氛围、社交场景和情绪基调，有助于餐饮、酒店、旅游等体验型消费领域提供更贴合用户当下需求的情境化推荐。",
+      "该方法可扩展到其他带图片的用户生成内容平台（如本地生活、外卖、旅行住宿），作为现有情境信号的低成本补充来源。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "首次提出将图像作为推荐系统的新型情境信号来源，将情境划分为物理、社交和模态三类。",
+      "提出ICE-Fuse评估管道，利用视觉语言模型为每张图片生成三类情境描述，使用门控机制融合，并集成到RGCL推荐模型中，用于对比图像情境与其他情境/内容信号的独立与组合效果。",
+      "通过评级预测任务验证：图像情境单独使用不优于已有情境信号，但与其组合可提升性能，表明图像携带互补性情境信息。",
+      "语义分析发现图像与评论来源的情境概念重叠有限，图像独有细粒度氛围信息，评论独有用餐类型、时间粒度和关系细节，支持图像情境作为互补信号。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Method"
+      },
+      {
+        "page": 1,
+        "section": "3 Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Recommendation Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Semantic Complementarity of Image and Review Context"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Context Category Ablation Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无情境CF基线（含RGCL的节点判别项）",
+        "城市-日期显式情境特征（29个one-hot特征）",
+        "基于文本评论的情境信号（52个短语映射到9个特征）",
+        "直接CLIP图像嵌入内容信号"
+      ],
+      "datasets": [
+        "TripAdvisor餐厅评论公开数据集，覆盖马德里、巴塞罗那、莫斯科、伊斯坦布尔和希洪五个欧洲城市",
+        "过滤后包含39,956条评论、1,441个用户、1,341个物品；其中22,220条含图片",
+        "按时间划分：2010–2016训练，2017–2019测试"
+      ],
+      "findings_zh": [
+        "图像情境单独使用RMSE为0.910，显著优于无情境基线0.954，但不及城市-日期情境0.903和文本情境0.899，因此作为独立预测信号未超越已有情境信号。",
+        "将图像情境加入城市-日期情境后RMSE从0.903降至0.902（p<0.001）；加入图像嵌入后RMSE从0.908降至0.903（p<0.001）；加入文本情境后从0.899降至0.896但未达统计显著。",
+        "t-SNE语义分析显示图像与评论情境只有少量概念相近（如“两个人”与“两人用餐”），多数概念各自特有：图像独特捕捉自然光、暗光、暖光、户外座位等氛围，评论独特捕捉早午餐、午餐、早餐及丈夫、同事等关系信息。",
+        "情境类别消融中，三类全部启用时门控权重较均衡（物理0.329、社交0.303、模态0.368）且RMSE 0.910最优；两两类别时门控更偏好模态情境，物理权重最小。",
+        "总结果表明图像情境提供与现有情境和内容信号互补的信息，组合使用可提升预测表现。"
+      ],
+      "metrics": [
+        "RMSE（评级预测）",
+        "配对双尾Wilcoxon符号秩检验的显著性"
+      ]
+    },
+    "limitations_zh": [
+      "情境质量仅通过下游预测性能间接评估，缺少情境标注的真值标签。",
+      "可用的结构化情境仅为城市和粗粒度时间特征，无法获得一天中具体时间等更细粒度信号。",
+      "实验仅在单一TripAdvisor餐厅评论数据集、单一推荐算法（RGCL）和餐厅领域上进行，外部推广性有限。",
+      "图像情境单独提升幅度较小，且与文本情境组合时改善未达到统计显著。"
+    ],
+    "method_zh": "ICE-Fuse先针对物理、社交、模态三个情境类别分别设计提示词，使用Gemma 3 12B IT视觉语言模型从每条评论图片生成对应文本描述；再用e5-small-v2编码并用类别专属MLP投影到与用户/物品嵌入相同维度（64维）；随后通过以用户和物品表示为输入的学习门控网络生成softmax权重，加权求和得到融合的图像情境向量。该向量作为RGCL中用户-物品评论边的情境表示，在训练时将情境整合进用户与物品表示，推理时不需要图像，最终由一个轻量全连接网络基于表示预测评分。对比信号包括无情境CF基线、城市-日期情境、文本评论情境和CLIP图像嵌入。",
+    "problem_zh": "现有上下文感知推荐系统（CARS）主要从位置、时间、天气或文本评论中获取情境信息；多模态推荐系统虽然大量使用图像，但仅用于丰富物品或用户表示，而非推断交互发生时的情境。论文提出从体验中拍摄的图像中提取物理、社交与模态三类情境信号，并构建评估流程以检验这类图像情境信号是否以及如何改进推荐预测。",
+    "technical_depth": 0.78
+  },
+  "doi": null,
+  "final_score": 0.865,
+  "id": "arxiv-2610.08407",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-06T14:15:48Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出从图像中提取情境类别并融合到上下文感知推荐系统的ICE-Fuse方法，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Seeing the Context: Enhancing Recommender Systems with Image-Derived Contextual Signals",
+  "url": "https://arxiv.org/abs/2610.08407v1"
+}

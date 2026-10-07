@@ -1,0 +1,125 @@
+{
+  "abstract": "Site-specific fertilizer recommendation systems adapt nutrient advice to location, soil properties, crop type, and production targets, but scientific reuse is constrained when recommendation functions remain accessible mainly through interactive interfaces, outputs are not versioned, and trained approximations cannot be independently loaded or benchmarked. This technical report presents the Turba fertilizer machine learning stack, a three-layer open-source implementation for reproducible site-specific fertilizer recommendation in Morocco. \\texttt{turba-client} provides programmatic access to publicly accessible site profiles, crop-specific target-yield spaces, and N, P$_2$O$_5$, and K$_2$O recommendation workflows; \\texttt{turba-data} distributes analysis-ready snapshots; and \\texttt{turba-models} packages crop-specific machine learning surrogates of recommendation outputs. The architecture links upstream retrieval, versioned analytical snapshots, reproducible cross-model benchmarking, and loadable offline surrogates while preserving the distinction between recommendation-system outputs, observed agricultural data, and model-generated predictions. The first dataset was constructed from 44,096 unique ESA WorldCereal locations. Scenario expansion across supported cereal workflows generated 132,017 crop-location recommendation requests under a medium target-yield setting. The resulting 22-variable dataset spans 10 regions, 66 provinces, and 1,149 communes. Nine regression families were evaluated under a fixed deterministic 80/20 protocol, and the current release packages five best-performing crop-specific models. The machine learning task is recommendation-function emulation rather than prediction of observed crop response. The stack provides a reproducible basis for spatial and temporal validation, uncertainty estimation, field-trial comparison, and future integration with additional data. Site-specific fertilizer recommendation systems adapt nutrient advice to location, soil properties, crop type, and production targets, but scientific reuse is constrained when recommendation functions remain accessible mainly through interactive interfaces, outputs are not versioned, and trained approximations cannot be independently loaded or benchmarked. This technical report presents the Turba fertilizer machine learning stack, a three-layer open-source implementation for reproducible site-specific fertilizer recommendation in Morocco. \\texttt{turba-client} provides programmatic access to publicly accessible site profiles, crop-specific target-yield spaces, and N, P$_2$O$_5$, and K$_2$O recommendation workflows; \\texttt{turba-data} distributes analysis-ready snapshots; and \\texttt{turba-models} packages crop-specific machine learning surrogates of recommendation outputs. The architecture links upstream retrieval, versioned analytical snapshots, reproducible cross-model benchmarking, and loadable offline surrogates while preserving the distinction between recommendation-system outputs, observed agricultural data, and model-generated predictions. The first dataset was constructed from 44,096 unique ESA WorldCereal locations. Scenario expansion across supported cereal workflows generated 132,017 crop-location recommendation requests under a medium target-yield setting. The resulting 22-variable dataset spans 10 regions, 66 provinces, and 1,149 communes. Nine regression families were evaluated under a fixed deterministic 80/20 protocol, and the current release packages five best-performing crop-specific models. The machine learning task is recommendation-function emulation rather than prediction of observed crop response. The stack provides a reproducible basis for spatial and temporal validation, uncertainty estimation, field-trial comparison, and future integration with additional data.",
+  "arxiv_id": "2610.05949",
+  "authors": [
+    "Abdelghani Belgaid",
+    "Zakaria Mahmoud",
+    "Fahd Chibani",
+    "Oumnia Ennaji",
+    "Younes Boudoul",
+    "Dounia Rachid"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "为摩洛哥站点专用肥料推荐提供了可编程访问、版本化数据和离线模型，降低了对交互式界面的依赖，便于自动化实验和二次开发。",
+      "开放源码和 Zenodo DOI 发布模式有利于研究机构、农业技术公司和决策支持系统集成复用。",
+      "明确声明 Turba 与 Fertimap、OCP 集团和摩洛哥农业部无隶属或背书关系，避免将代理模型结果误认为农艺有效性证据。",
+      "未来 Roadmap 涉及地块边界、田间试验、经济与市场数据以及强化学习环境，可能扩展到更广泛的农业决策服务和施肥优化产品。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出三层开源实现：turba-client 提供程序化访问，turba-data 分发版本化 Parquet 分析快照，turba-models 打包作物专用机器学习代理模型。",
+      "明确区分上游推荐系统输出、观测农业数据和模型生成预测三类来源不同的研究对象，强调计算来源的分离与可追溯性。",
+      "构建首个注册数据集 esa_worldcereal_morocco_cereals_medium，包含来自 44,096 个 ESA WorldCereal 唯一地点的 132,017 个作物-地点推荐场景，覆盖 22 个变量、10 个大区、66 个省和 1,149 个市镇。",
+      "在固定确定性 80/20 协议下评估九种回归族，发布五个作物工作流的最佳代理模型及包含 R²、MAE、RMSE 等指标的基准工件，并提供可复现训练工作流。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 System Architecture and Computational Provenance"
+      },
+      {
+        "page": 1,
+        "section": "3 Dataset Construction and Coverage"
+      },
+      {
+        "page": 1,
+        "section": "4 Machine Learning Benchmark and Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "5 Reproducibility and Availability"
+      },
+      {
+        "page": 1,
+        "section": "6 Limitations and Future Directions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Extra Trees",
+        "LightGBM",
+        "CatBoost",
+        "Random Forest",
+        "XGBoost",
+        "Linear Regression",
+        "Ridge Regression",
+        "Elastic Net",
+        "AdaBoost"
+      ],
+      "datasets": [
+        "esa_worldcereal_morocco_cereals_medium 数据集：132,017 个作物-地点推荐场景，由 44,096 个唯一地点扩展而来",
+        "冬粮场景 131,475 个，玉米场景 542 个",
+        "Winter Cereals 地点 43,825 个，Maize 地点 271 个",
+        "每个冬粮工作流建模表含 43,825 个唯一坐标，每个玉米工作流建模表含 271 个唯一坐标",
+        "数据覆盖 22 个变量、10 个大区、66 个省、1,149 个市镇"
+      ],
+      "findings_zh": [
+        "当前打包的冬粮代理模型在固定 80/20 评估中整体 R² 均高于 0.9，MAE 为 0.040–0.069 kg/ha，RMSE 为 0.160–0.210 kg/ha。",
+        "Maize (Grain) 代理模型 R²=0.987，Maize (Silage) 代理模型 R²=0.994；对应 MAE 分别为 0.385 和 0.478 kg/ha。",
+        "推荐目标中零值比例很高：N、P₂O₅、K₂O 的精确零推荐分别占 0.00%、31.05%、78.83%；因此 MAPE 可能极高，而 R² 和绝对误差仍表现良好。",
+        "随机行级划分主要衡量插值能力，不应解读为地理泛化或农学验证；玉米子集仅 271 个地点，统计支持弱于冬粮子集。"
+      ],
+      "metrics": [
+        "R²",
+        "Mean Absolute Error (MAE)",
+        "Median Absolute Error",
+        "Root Mean Squared Error (RMSE)",
+        "Mean Absolute Percentage Error (MAPE)",
+        "Symmetric Mean Absolute Percentage Error (sMAPE)"
+      ]
+    },
+    "limitations_zh": [
+      "turba-client 依赖上游 Fertimap 服务的结构和可用性，未来上游变更后无法保证对新请求的完全复现。",
+      "WorldCereal 类别较宽泛，场景扩展只是生成兼容推荐场景，不能作为田间真实作物或灌溉制度的确认。",
+      "模型仅使用六个静态空间和土壤变量，采用确定性随机划分且无显式不确定性校准。",
+      "随机行级划分主要适合插值评估；因经纬度是显式预测变量且共享坐标，需进一步做空间分块、区域留出和时间验证。",
+      "玉米建模样本量小（271 个地点），强插值结果不应等同于与冬粮模型相同的统计支持。",
+      "所有基准指标只衡量代理对上游推荐函数的复现程度，不代表肥料用量的农学最优性或大田有效性。"
+    ],
+    "method_zh": "以经度、纬度、pH、有机质、速效 P₂O₅ 和速效 K₂O 为模型输入，将外部维护的推荐函数 g(x,c,t) 的输出 N、P₂O₅、K₂O 采样为版本化数据集。数据构建基于 ESA WorldCereal 摩洛哥子集的 Winter Cereals 和 Maize 标签，扩展为五类兼容作物工作流（三种冬粮、两种玉米），统一采用中目标产量水平，形成 132,017 个场景。模型层按作物工作流分别对作物-地点记录做确定性 80/20 划分，以九种回归器直接模拟推荐输出，使用固定库配置和随机种子，最终为五个工作流分别打包 LightGBM 或 XGBoost 代理，并生成模型注册表和基准报告。",
+    "problem_zh": "面向摩洛哥的站点专用肥料推荐系统多通过交互式界面访问，推荐结果缺少版本化快照，训练得到的近似模型无法独立加载和统一基准测试，限制了科学复用与可重复实验。论文提出 Turba 肥料机器学习栈，以开源三层架构围绕 Fertimap 公开推荐流程构建可复现的推荐输出代理、数据集和基准。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.7650000000000001,
+  "id": "arxiv-2610.05949",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-05T08:04:09Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该技术报告介绍摩洛哥地块特异性肥料推荐机器学习栈Turba，属于农业推荐系统工程内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Technical Report on the Turba Fertilizer Machine Learning Stack in Morocco",
+  "url": "https://arxiv.org/abs/2610.05949v1"
+}

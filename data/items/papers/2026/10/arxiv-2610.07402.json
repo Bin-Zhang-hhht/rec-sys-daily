@@ -1,0 +1,116 @@
+{
+  "abstract": "Semantic ID-based generative recommendation represents each item as a sequence of discrete tokens, enabling structured modeling of item semantics. A critical challenge is constructing semantic IDs that are both semantically expressive and computationally efficient. While recent approaches favor complex learned quantization, simple hashing-based methods such as SimHash are widely regarded as fundamentally inferior. In this work, we challenge this consensus by showing that the apparent performance gap does not stem from inherent limitations of hashing, but rather from a structural mismatch with autoregressive decoding, coupled with the inevitable information loss during rigid discretization. Based on this insight, we propose FLASH, a two-stage framework that revitalizes training-free SimHash tokenization through parallel decoding and explicit semantic alignment. Despite its simplicity, FLASH achieves state-of-the-art performance across multiple datasets without requiring any tokenizer training, while exhibiting stronger generalization in cold-start scenarios. Notably, we demonstrate that semantic alignment acts as a universally effective mechanism across diverse paradigms. Our findings suggest that, with compatible decoding and semantic grounding, simple and efficient tokenizers can achieve performance comparable to complex learned counterparts in generative recommendation. Our code is available at https://github.com/KevinC2015/Flash. Semantic ID-based generative recommendation represents each item as a sequence of discrete tokens, enabling structured modeling of item semantics. A critical challenge is constructing semantic IDs that are both semantically expressive and computationally efficient. While recent approaches favor complex learned quantization, simple hashing-based methods such as SimHash are widely regarded as fundamentally inferior. In this work, we challenge this consensus by showing that the apparent performance gap does not stem from inherent limitations of hashing, but rather from a structural mismatch with autoregressive decoding, coupled with the inevitable information loss during rigid discretization. Based on this insight, we propose FLASH, a two-stage framework that revitalizes training-free SimHash tokenization through parallel decoding and explicit semantic alignment. Despite its simplicity, FLASH achieves state-of-the-art performance across multiple datasets without requiring any tokenizer training, while exhibiting stronger generalization in cold-start scenarios. Notably, we demonstrate that semantic alignment acts as a universally effective mechanism across diverse paradigms. Our findings suggest that, with compatible decoding and semantic grounding, simple and efficient tokenizers can achieve performance comparable to complex learned counterparts in generative recommendation. Our code is available at https://github.com/KevinC2015/Flash.",
+  "arxiv_id": "2610.07402",
+  "authors": [
+    "Yuqing Liu",
+    "Huiyuan Chen",
+    "Yibo Wang",
+    "Wooseong Yang",
+    "Philip S. Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "免训练 SimHash 与快速 tokenization（CPU 上 <0.5 秒）能显著降低语义 ID 构建/量化器的训练成本，有利于低成本落地。",
+      "并行解码避免了自回归推理瓶颈，并支持更长语义 ID，适合大规模商品目录的线上候选排序。",
+      "冷启动泛化能力强，有助于电商/内容平台在新品或长尾物品缺少交互数据时仍给出推荐。",
+      "整体框架简单高效，可能使生成式推荐以更低基础设施成本获得与复杂学习式量化相当的效果；但实际收益依赖高质量文本元数据与规模验证。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "重新审视 LSH/SimHash 在生成式推荐中效果差的既有结论，提出两个设计原则：结构兼容性（structural compatibility）与语义接地/语义对齐（semantic grounding）。",
+      "提出 FLASH 两阶段框架：免训练 SimHash tokenization、并行多 token 预测、基于 LLM 文本嵌入的语义对齐损失，无需训练 tokenizer。",
+      "在 Amazon Beauty、Toys、Sports、CDs 四个数据集上取得 SOTA，且相比 TIGER 在冷启动场景表现更强，训练/推理更高效。",
+      "通过实验表明显式语义对齐可作为一种跨不同量化与解码范式的通用有效正则化机制。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Methodology"
+      },
+      {
+        "page": 3,
+        "section": "3 Experiments"
+      },
+      {
+        "page": 5,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "HGN",
+        "BERT4Rec",
+        "SASRec",
+        "S3-Rec",
+        "TIGER",
+        "LETTER",
+        "DIGER",
+        "RecJPQ",
+        "VQ-Rec",
+        "RPG"
+      ],
+      "datasets": [
+        "Beauty",
+        "Toys and Games",
+        "Sports and Outdoors",
+        "CDs and Vinyl"
+      ],
+      "findings_zh": [
+        "FLASH 在四个数据集的所有指标上均取得最好结果，相对最优基线在 N@5 上的提升为 5.51%–14.46%，在 Toys 上相比 RPG 的 R@10/N@10 提升 5.18%/11.02%。",
+        "在统一并行解码和语义对齐下，SimHash 在多数数据集上与 RQ-VAE、RQ-KMeans、OPQ 相当或更优，且 tokenization 在 CPU 上不到 0.5 秒，而学习式量化器需数十到数百秒。",
+        "随机 token assignment 平均比 SimHash 低约 40% 的 N@10，说明仅有结构兼容性不够，语义信息仍关键。",
+        "加入语义对齐损失在 Beauty 上使 SASRec、TIGER、FLASH 的 R@10 分别提升 13.06%、9.57%、7.49%，并在其他数据集一致生效。",
+        "冷启动场景（5% 目标物品完全不出现在训练中）下 FLASH 在全部数据集上优于所有基线，特别是优于采用学习式量化的 TIGER。",
+        "超参数分析显示中等 λ_align（0.1–0.2）最佳；增加码位数 m 可提升表达能力并改善效果，而码本大小 M 的影响相对有限（256 附近最优）。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "Recall@10",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "依赖预计算的 LLM 文本嵌入，文本信息稀疏或噪声大时效果可能退化。",
+      "哈希离散化可能引入语义 ID 碰撞，在更大规模或不同码本设置下可能增加并降低物品区分度。",
+      "实验仅在公共推荐基准上进行，尚需工业级规模验证其可扩展性与稳定性。",
+      "仅使用文本信号，未纳入图像等多模态信息，文本无法完全刻画物品语义时受限。"
+    ],
+    "method_zh": "Stage I 用预训练 LLM（text-embedding-3-large，3072 维）对物品文本元数据生成固定嵌入，对每个码位采样随机高斯超平面做 SimHash，由符号位转成整数并取模得到 1-indexed 语义 ID（M 为 2 的幂）。Stage II 为每个码位维护可学习 codebook embedding，用线性投影聚合各码位嵌入得到物品表示；Transformer 编码交互序列后，采用 m 个并行预测头与多 token 预测（MTP）目标建模 P(c_1..c_m | h)，避免自回归依赖。为补偿哈希离散化信息损失，加入语义对齐损失：最小化输入物品表示与冻结 LLM 文本嵌入（经可学习线性投影）的负余弦相似度，总损失 L = L_rec + λ_align L_align。推理时缓存各码位概率分布，按物品 ID 各 token 对数概率求和打分，复杂度 O(mMd + Nm)。",
+    "problem_zh": "生成式推荐将下一项预测建模为序列生成，借助语义 ID 将物品表示为离散 token 序列。语义 ID 的构建需要在语义表达力和计算效率之间权衡：主流 RQ/PQ 方法依赖学习式量化器，需要额外训练且受自回归解码效率/长度限制；简单、免训练的 SimHash 被认为显著更差。本文论证该差距主要源于 SimHash 码的无序结构与自回归解码不匹配，以及刚性离散化带来的信息损失，而非哈希方法本身。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.906,
+  "id": "arxiv-2610.07402",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-07T23:30:55.972713Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-05T21:15:13Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出FLASH框架，通过并行解码与显式语义对齐改进基于SimHash的生成式推荐语义ID构建，属于生成式推荐研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Rethinking Semantic ID Construction for Generative Recommendation: SimHash with Parallel Decoding and Semantic Alignment",
+  "url": "https://arxiv.org/abs/2610.07402v1"
+}
