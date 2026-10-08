@@ -1,0 +1,113 @@
+{
+  "abstract": "Generative recommenders return a limited candidate set and may omit observed targets before reranking. A training strategy appends these missed targets to reranker training lists, although inference still ranks only original candidates. This operation simultaneously changes retrieved-target weight, adds supervision over appended targets, and makes the two groups compete for probability. An append/no-append comparison therefore cannot explain changes in returned-item rankings. We construct three matched losses that hold retrieved-target weight fixed while introducing appended-target supervision and group competition separately. The intermediate loss trains within both groups but normalizes them separately, preventing training-only targets from competing with inference candidates. Experiments with a released OneRec model and locally trained Amazon generators show that this competition can harm returned-item ranking. In four prespecified Amazon Video Games comparisons, removing it improved full-target normalized discounted cumulative gain (FT-NDCG) by 7.8--22.2\\%; 95\\% intervals over users and three of four intervals over training runs excluded zero. A conservative development-set rule selected appended-target training for two of three generators in one held-out category and rejected it for all three in another, avoiding a 1.7\\% loss. Candidate completion should therefore be evaluated for each generator rather than applied automatically. Generative recommenders return a limited candidate set and may omit observed targets before reranking. A training strategy appends these missed targets to reranker training lists, although inference still ranks only original candidates. This operation simultaneously changes retrieved-target weight, adds supervision over appended targets, and makes the two groups compete for probability. An append/no-append comparison therefore cannot explain changes in returned-item rankings. We construct three matched losses that hold retrieved-target weight fixed while introducing appended-target supervision and group competition separately. The intermediate loss trains within both groups but normalizes them separately, preventing training-only targets from competing with inference candidates. Experiments with a released OneRec model and locally trained Amazon generators show that this competition can harm returned-item ranking. In four prespecified Amazon Video Games comparisons, removing it improved full-target normalized discounted cumulative gain (FT-NDCG) by 7.8--22.2\\%; 95\\% intervals over users and three of four intervals over training runs excluded zero. A conservative development-set rule selected appended-target training for two of three generators in one held-out category and rejected it for all three in another, avoiding a 1.7\\% loss. Candidate completion should therefore be evaluated for each generator rather than applied automatically.",
+  "arxiv_id": "2610.10124",
+  "authors": [
+    "Xuesi Wang",
+    "Yangbin Shi",
+    "Xiaolin Zheng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "候选补全不应被当作默认策略自动应用；企业应针对每个生成器单独评估是否把漏召回目标追加到重排训练中。",
+      "简单的“追加与否”对比会混淆监督收益与概率竞争损失；实际决策应同时比较仅召回训练和追加目标训练，并以开发集下界为正作为切换条件。",
+      "正确应用该规则能在 A-Health 场景避免约 1.7% 的 FT-NDCG 损失，同时允许 A-Cell 的部分生成器从追加目标训练中获益，说明该决策能产生可度量的排序质量差异。",
+      "由于效果在不同生成器、数据和训练时长下不稳定，落地时需要建设开发集验证流程和针对生成器的分轨评估，而非一次性上线全局策略。",
+      "论文的绝对增益较小（千分位 FT-NDCG），但结合重排链路规模可能仍有业务价值；需要结合自身指标（如 CTR、转化）判断是否值得引入额外训练复杂度。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "指出候选补全会改变召回目标权重、增加遗漏目标监督、并引入已召回与训练专用追加目标之间的概率竞争，三者混在一起。",
+      "构造 WN、Cond、Full 三种匹配损失：WN 只保留加权召回组排名；Cond 加入单独归一化的追加目标损失但不允许组间竞争；Full 使用同一个 softmax 引入组间竞争。从而用 WN→Cond→Full 逐项隔离监督和竞争。",
+      "给出实用规则：对每个生成器，用开发集选择最优的仅召回训练损失和最优的追加目标训练损失，仅当校正后的开发集增益下界为正时才切换到追加目标训练。",
+      "实验显示概率竞争可能损害返回候选的排序；在预设的 A-Games 四项比较中移除竞争使 FT-NDCG 提升 7.8–22.2%；开发集规则在 A-Health 上避免了 1.7% 的损失。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "A Reproducibility and Additional Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Native（未加权 L_N）",
+        "WN（加权召回组损失）",
+        "Cond（条件训练，无组间竞争）",
+        "Full（完整追加训练）",
+        "WN+Mass（在 WN 上加入竞争项）",
+        "NP（原生 pairwise 损失）",
+        "Disc（判别式追加目标对照损失）"
+      ],
+      "datasets": [
+        "RecIF-Ads（OneRec-1.7B-Pro）",
+        "RecIF-Product（OneRec-1.7B）",
+        "Amazon Video Games",
+        "Amazon Digital Music",
+        "Amazon Toys and Games",
+        "Amazon Home and Kitchen",
+        "Amazon Cell Phones and Accessories",
+        "Amazon Health and Personal Care"
+      ],
+      "findings_zh": [
+        "在 RecIF-Ads 的 7 次新训练中，60 epoch 时 Cond 比 Full 的 FT-NDCG 高 0.007423 [0.004978, 0.009744]，训练全程平均优势为 +0.01241 [+0.01031, +0.01451]，说明移除组间概率竞争通常有助于召回候选排序。",
+        "在预设的 Amazon Video Games 比较中，移除竞争在 MLP 和 attention 重排器上均提升 FT-NDCG，相对增益为 7.83%–22.23%；四个用户层面的 95% 区间全部排除零，三个训练层面区间排除零。",
+        "对追加分数做统一偏移的实验表明 Full 会随两组概率分配改变而响应，而 Cond 的训练路径与参数在 12 次运行中数值不变，直接支持竞争项是 Full 变化来源的解释。",
+        "RecIF-Ads 上 60 epoch 时 Cond 比 WN 高 +0.001877 [0.000343, 0.003455]，即追加目标监督单独有帮助；但开发集选择 checkpoint 后变为 -0.000887 [-0.002209, +0.001211]，收益不确定。",
+        "开发集规则在 A-Cell 上为 3 个生成器中的 2 个选择追加目标训练，整体增益 +0.000319 [-0.000077, +0.000720]；在 A-Health 上对全部 3 个生成器保留仅召回训练，避免了强制追加会带来的 0.000644 [0.000412, 0.000881]（约 1.7%）损失。",
+        "额外六个 Amazon 生成器-重排器组合中方向不一致，多数经 familywise 调整后的 95% 区间包含零，说明结论依赖生成器和数据。"
+      ],
+      "metrics": [
+        "FT-NDCG@20",
+        "Recall@20",
+        "MRR@20"
+      ]
+    },
+    "limitations_zh": [
+      "竞争项的负面效果依赖训练时长和 checkpoint 选择：RecIF-Ads 在开发集选 checkpoint 时 Cond-Full 区间跨越零，240 epoch 下结果变小且符号不稳定。",
+      "追加目标监督的独立收益在开发集选择 checkpoint 后不确定，不能一概认为追加标签一定有用。",
+      "实验局限于公共 Amazon 数据集和 RecIF-Bench 以及两种本地生成器（Transformer/GRU）、两种重排器（MLP/attention），未覆盖真实生产环境的大规模多路候选融合。",
+      "多个次要比较和附加生成器组合的置信区间包含零，方向和效应量随生成器/数据变化。",
+      "A-Health 的阈值检查属于结果已知后的后验分析，用于观察敏感性而非确认新规则。",
+      "部分数据集最终用户中只有 9.6%–58.1% 能命中返回目标，全用户平均 FT-NDCG 数值较小，业务可感知增益需要结合具体场景判断。"
+    ],
+    "method_zh": "给定用户历史 x，Y_x 为观测目标集合，N(x) 为生成器返回候选，A(x) 为可表示但未被召回的目标。训练时构造 C = N ∪ A，并采用均匀多目标列表交叉熵 L(s,C,Y)。论文将完成列表损失分解为 T_N（召回组内排名损失，加权 α）、T_A（追加组内排名损失，加权 γ）和 T_mass（两组概率竞争项）。Cond 通过给追加组所有分数加同一临时偏移 δ，并对 Full 关于 δ 求最小值，得到 T_N + T_A + H(α,γ)，其中 H 只依赖目标数量、无 scorer 梯度，因此可直接训练 T_N + T_A 而无需存储偏移。三个损失分别为 L_WN=T_N、L_Cond=T_N+T_A、L_Full=T_N+T_A+T_mass，从而 Cond-WN 只改变追加目标监督，Cond-Full 只移除组间竞争。论文还给出 T_mass 的梯度形式 (π_A-γ)(μ_A-μ_N)，说明竞争会通过共享 scorer 参数影响推理时的返回候选排序。",
+    "problem_zh": "生成式推荐系统在服务时只返回有限候选集，可能漏掉已观测目标；常见做法是在重排训练时把这些漏掉的目标追加到训练列表中。但该操作同时改变了已召回目标的权重、增加对追加目标的监督，并让两组目标在概率上竞争，导致简单的追加/不追加对比无法解释对最终可服务排序的影响。论文要分离并度量这些效应的来源。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.893,
+  "id": "arxiv-2610.10124",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-08T23:33:56.877388Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-07T14:07:06Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究生成式推荐系统中补全漏掉目标训练重排器的策略，通过分离监督信号与概率竞争，发现概率竞争可能损害返回物品排序效果。",
+  "targets": [],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Training with Missed Targets in Generative Recommendation: Separating Supervision from Probability Competition",
+  "url": "https://arxiv.org/abs/2610.10124v1"
+}
