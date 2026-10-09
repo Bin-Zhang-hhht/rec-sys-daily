@@ -1,0 +1,119 @@
+{
+  "abstract": "E-commerce search pages are critical touchpoints for millions of online shoppers. While traditional search engines return a ranked list of results, modern E-commerce search pages increasingly incorporate recommender system modules -- for example, secondary stacks that surface alternative product groupings at specific positions. When introduced appropriately, secondary stacks can improve user engagement; however, suboptimal placement may disrupt browsing flow and degrade the primary results. Unlike traditional search ranking, where evaluation techniques such as interleaving are well established, evaluating page-level layout changes e.g., when and where to insert a secondary stack remains challenging without costly online A/B testing. To address this, we study offline methods for evaluating whether a given layout decision -- specifically, the inclusion of a secondary stack at a particular position -- is beneficial to users. We investigate language models as scalable evaluators by comparing direct prompt-based, prompt-derived feature, and representation-based methods. Our results show that representation-based approaches consistently outperform prompt-based judging in predicting user engagement, suggesting they provide a reliable foundation for offline layout evaluation in E-commerce search. E-commerce search pages are critical touchpoints for millions of online shoppers. While traditional search engines return a ranked list of results, modern E-commerce search pages increasingly incorporate recommender system modules -- for example, secondary stacks that surface alternative product groupings at specific positions. When introduced appropriately, secondary stacks can improve user engagement; however, suboptimal placement may disrupt browsing flow and degrade the primary results. Unlike traditional search ranking, where evaluation techniques such as interleaving are well established, evaluating page-level layout changes e.g., when and where to insert a secondary stack remains challenging without costly online A/B testing. To address this, we study offline methods for evaluating whether a given layout decision -- specifically, the inclusion of a secondary stack at a particular position -- is beneficial to users. We investigate language models as scalable evaluators by comparing direct prompt-based, prompt-derived feature, and representation-based methods. Our results show that representation-based approaches consistently outperform prompt-based judging in predicting user engagement, suggesting they provide a reliable foundation for offline layout evaluation in E-commerce search.",
+  "arxiv_id": "2610.10920",
+  "authors": [
+    "Varun Joshi",
+    "Eva C. Song",
+    "ChengXiang Zhai"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可为电商平台提供无需在线实验的离线布局评估信号，在流量受限、新页面或冷启动场景下预筛布局改动，降低 A/B 测试成本与试错风险。",
+      "轻量文本编码器加浅层分类器的表示式方法优于依赖大模型提示推理的方法，且推理成本低，更适合大规模、线上可部署的页面决策支持。",
+      "研究发现‘与主结果重复度’是重要的负向特征，业务上应避免二级堆叠内容与主结果高度重复；意图对齐、产品相关性和中断成本等维度可用于指导堆叠选品与插入位置。",
+      "将页面布局评估从依赖人工经验或昂贵实验转向基于历史行为的数据驱动模型，可作为现有排序优化和商品推荐之外的补充评估信号。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "首次系统研究语言模型用于电商搜索页面级布局决策的离线评估，建立了直接提示判断、提示派生特征分类器和表示学习方法的统一对比基准。",
+      "提出基于 ATC 与自顶向下滚动模型的标签方案，只保留用户确实经过二级堆叠位置的日志样本，降低训练和评估中的标签噪声。",
+      "实验表明表示式方法（ModernBERT 嵌入 + 浅层网络）在 ROC-AUC、AP、Accuracy 和 F1 上显著优于所有提示式方法；消融研究显示提示式处理对结构化页面特征有信息损失，而嵌入已经隐式编码了这些信号。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3 Problem Formulation"
+      },
+      {
+        "page": 2,
+        "section": "3.1 Labeling scheme"
+      },
+      {
+        "page": 3,
+        "section": "4 Experimental Setup"
+      },
+      {
+        "page": 4,
+        "section": "4.4 Data Description"
+      },
+      {
+        "page": 5,
+        "section": "5 Results and Discussion"
+      },
+      {
+        "page": 5,
+        "section": "5.1 Ablation study"
+      },
+      {
+        "page": 6,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DP（Direct Prompting）",
+        "PDJ（Prompting with Decomposed Judgement）",
+        "PFC-Lin",
+        "PFC-Xgb",
+        "PFC-Snn",
+        "REC-Snn"
+      ],
+      "datasets": [
+        "Walmart.com 一周搜索流量中恰好展示一个 secondary stack 的 11,000 个唯一请求（8,800 训练 / 2,200 测试，类别均衡）"
+      ],
+      "findings_zh": [
+        "表示式方法 REC-Snn 在所有指标上全面占优（ROC-AUC 0.853、AP 0.873、Accuracy 0.768、F1 0.765），95% bootstrap 置信区间显示其显著优于所有提示式方法。",
+        "DP 把所有测试样本判为正类，且输出分数只有 0.7 或 0.8；PDJ 通过分解式判断产生 12% 的负类决策且分数分布更广，说明分解式思维链提示有一定帮助。",
+        "PFC-Xgb 和 PFC-Snn 优于 PDJ，说明显式分类器能更合理地组合分解特征；对 PDJ 输出做线性回归发现六维特征等权，且未能体现‘重复度’的负向作用。",
+        "消融实验中，去掉显式页面特征使 PFC 模型的 AUC 下降 0.02–0.05；对 REC-Snn 添加相同显式特征仅带来 +0.002 的 AUC 变化，说明文本嵌入已隐式编码位置、堆叠类型、重复度等信号。",
+        "PFC 与 REC 在相同标签、相同数据划分和相同分类器架构下对比，是一个受控比较，因此性能差异可归因于提示派生特征与预训练嵌入作为输入表示的区别。"
+      ],
+      "metrics": [
+        "ROC-AUC",
+        "Average Precision (AP)",
+        "Accuracy @ 0.5",
+        "F1 @ 0.5"
+      ]
+    },
+    "limitations_zh": [
+      "数据仅来自 Walmart.com 一周流量且只包含恰好展示一个二级堆叠的页面，结论能否推广到其他平台、页面结构、多堆叠或多模态布局尚未验证。",
+      "标签方案依赖自顶向下滚动模型和 ATC 信号，无法覆盖用户看到堆叠但未产生 ATC 却没有实际损失，或 ATC 之外其他正向体验的场景。",
+      "REC 仅使用冻结的 ModernBERT 表示和浅层分类器，未探索更大生成式语言模型的表示能力，结论受限于本研究使用的模型、提示设计和特征集合。",
+      "离线预测的用户参与指标并未与在线 A/B 实验因果性直接对标，预测准确率高不等于线上业务指标一定改善。"
+    ],
+    "method_zh": "将问题形式化为判断‘有二级堆叠的布局 A’优于‘无二级堆叠的布局 B’的二分类任务。使用 Mistral-7B-Instruct-v0.3 作为生成模型：DP 直接输出二元结论与 0-1 分数；PDJ 在系统提示中加入六项分解评分标准（意图对齐、产品相关性、品牌热度、顾客价值对齐、与主结果重复度、浏览流中断成本）。PFC 使用 PDJ 的分解分数并补充显式页面特征（堆叠类型、插入位置、堆叠大小、重复产品数），训练线性、XGB 和浅层网络分类器。REC 将同一页面提示输入 ModernBERT 生成语义嵌入，再接一个 32 神经元的隐藏层形成分类模型。数据来自 Walmart.com 一周内恰好展示一个二级堆叠的搜索请求，共 11,000 个样本，按 ATC 规则打标，80% 训练、20% 测试，类别均衡。",
+    "problem_zh": "电商搜索结果页越来越多地包含推荐模块（如 secondary stack 二级堆叠），是否以及何时在哪个位置插入此类模块是页面级布局决策。与成熟的排序评估不同，这类布局决策缺乏可靠的离线评估方法，通常依赖高成本的在线 A/B 测试；历史行为数据也无法覆盖从未展示过的布局。本文研究如何用语言模型离线评估给定布局决策（在特定位置插入二级堆叠）能否提升用户参与度，以加入购物车（Add-to-Cart, ATC）为行为信号，将任务建模为有监督二分类，并系统对比直接提示式、提示派生特征式和表示式三类方法。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.78,
+  "id": "arxiv-2610.10920",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-09T22:51:34.482459Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-07T21:19:47Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文研究电商搜索页面级别布局决策的离线评估方法，比较基于语言模型的评估方式以预测用户参与度，属于推荐与搜索系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Language Models for Page-Level Layout Decisions in E-commerce Search",
+  "url": "https://arxiv.org/abs/2610.10920v1"
+}

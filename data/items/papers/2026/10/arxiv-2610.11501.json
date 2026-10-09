@@ -1,0 +1,119 @@
+{
+  "abstract": "Despite the adoption of large language models (LLMs) in recommendation systems, prevailing approaches mostly model single-type behaviors (e.g., views or purchases). Even when incorporating multiple behaviors, existing methods flatten heterogeneous actions into homogeneous token sequences, ignoring their distinct decision-making roles. This flattening fails to capture semantic hierarchies and contextual nuances in complex decision-making, such as trade-offs between price and quality. Consequently, performance degrades in critical ``difficult-choice'' scenarios involving highly similar items. To bridge this gap, we propose MARI (Memory-Augmented Recommendation with Interpretability), which grounds predictions in explicit, structured decision evidence. MARI maintains a Decision Memory Bank (DMB) that archives users' past rationales as Structured Decision Memories (SDMs): concise records of goals, constraints, and trade-offs. These SDMs are generated offline via Post-Hoc Decision Distillation from heterogeneous behaviors and user-generated content. By retrieving relevant SDMs to augment LLM reasoning, MARI achieves interpretability and scalability without the prohibitive cost of processing long raw sequences. Extensive experiments show MARI significantly outperforms state-of-the-art baselines on standard next-item prediction and a newly introduced Difficult Choice Prediction task, incurring low latency overhead by decoupling memory construction from online inference. Qualitative analyses reveal actionable, human-readable insights into user decision-making, marking a concrete step toward reasoning-aware recommendation systems. Despite the adoption of large language models (LLMs) in recommendation systems, prevailing approaches mostly model single-type behaviors (e.g., views or purchases). Even when incorporating multiple behaviors, existing methods flatten heterogeneous actions into homogeneous token sequences, ignoring their distinct decision-making roles. This flattening fails to capture semantic hierarchies and contextual nuances in complex decision-making, such as trade-offs between price and quality. Consequently, performance degrades in critical ``difficult-choice'' scenarios involving highly similar items. To bridge this gap, we propose MARI (Memory-Augmented Recommendation with Interpretability), which grounds predictions in explicit, structured decision evidence. MARI maintains a Decision Memory Bank (DMB) that archives users' past rationales as Structured Decision Memories (SDMs): concise records of goals, constraints, and trade-offs. These SDMs are generated offline via Post-Hoc Decision Distillation from heterogeneous behaviors and user-generated content. By retrieving relevant SDMs to augment LLM reasoning, MARI achieves interpretability and scalability without the prohibitive cost of processing long raw sequences. Extensive experiments show MARI significantly outperforms state-of-the-art baselines on standard next-item prediction and a newly introduced Difficult Choice Prediction task, incurring low latency overhead by decoupling memory construction from online inference. Qualitative analyses reveal actionable, human-readable insights into user decision-making, marking a concrete step toward reasoning-aware recommendation systems.",
+  "arxiv_id": "2610.11501",
+  "authors": [
+    "Leikun Liang",
+    "Guoshuai Wang",
+    "Xingsheng He",
+    "Yushan Han",
+    "Yunyi Xuan",
+    "Xiaoxiao Xu",
+    "Lin Qu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "支持以即插即用方式增强现有LLM推荐器，无需修改架构或重新训练，降低生产系统接入成本。",
+      "离线构建DMB与在线推理解耦，检索少量SDM即可增强推理，延迟开销低，适合大规模工业推荐场景。",
+      "输出用户可读的目标、约束与权衡理由，增强推荐可解释性、审计能力和用户信任。",
+      "对同款不同颜色/价格/品牌等SKU级近似商品的“艰难选择”场景增益明显，可应用于电商比价、导购和会员复购场景。",
+      "通过CoT蒸馏用4B级小模型达到大模型效果，可显著降低在线推理的算力与成本。"
+    ],
+    "business_transferability": 0.88,
+    "contributions_zh": [
+      "提出SKU级别的细粒度推荐任务，利用异构行为对近乎相同的商品进行推理，解决标题级方法忽视的属性级困难选择场景。",
+      "提出决策记忆库（DMB）与事后决策蒸馏（PHDD），将用户历史决策蒸馏为可读的结构化决策记忆（SDM），记录目标、约束与权衡。",
+      "设计基于检索增强生成（RAG）的记忆增强推荐架构MARI，将DMB与LLM推理结合，在真实电商离线评测中显著超过SOTA基线，并支持可解释推理与低延迟部署。"
+    ],
+    "evidence_quality": 0.84,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 3,
+        "section": "III. Preliminary"
+      },
+      {
+        "page": 3,
+        "section": "IV. Methodology"
+      },
+      {
+        "page": 5,
+        "section": "V. Experiments Setup"
+      },
+      {
+        "page": 5,
+        "section": "VI. Experimental Results"
+      },
+      {
+        "page": 7,
+        "section": "VII. Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec_MB",
+        "MULE",
+        "COPF",
+        "HGIB",
+        "Qwen3-4B/8B/14B/32B/235B-A22B",
+        "GPT-OSS-20B",
+        "DeepSeek-R1"
+      ],
+      "datasets": [
+        "自建真实电商平台六个月用户日志数据集：包含搜索、浏览、收藏、购买四类行为及丰富商品元数据",
+        "PHDD Dataset：200k训练/10k验证/10k测试",
+        "MBR Dataset：NIP-in、NIP-out、DCP三个任务，共150,000用户，每个任务50k训练/10k验证/10k测试"
+      ],
+      "findings_zh": [
+        "PHDD使Qwen3-4B在SDM闭集指标上接近DeepSeek-R1，并在推理质量和价值抽象上超过R1，说明小模型可蒸馏出高质量决策记忆。",
+        "即插即用式注入SDM在4B到671B等多种规模LLM上普遍提升Hit@1，且在R1、Qwen3-235B等大模型上超过强ID-based基线。",
+        "SDM在NIP-out任务上带来大幅增益（GPT-OSS-20B +165%，Qwen3-32B +128%），但4B/8B小模型在该任务上退化，说明跨类目推理需要最低内在容量。",
+        "带SFT的MARI（Qwen3-4B）取得NIP-in 0.4869、NIP-out 0.5561、DCP 0.8868，显著超过未微调的671B级R1。",
+        "消融实验表明结构化SDM优于对齐的原始行为序列；PHDD蒸馏的高质量记忆优于未蒸馏SDM；SFT中加入SDM优于不带SDM的SFT。",
+        "检索数量K=3或4时性能最佳，NIP-out对K最敏感，NIP-in和DCP对K较稳健。",
+        "错误记忆分析显示：NIP-in错误变体仍优于Base LLM；大模型在NIP-out错误记忆下保持稳健甚至提升；DCP对事实性错误较敏感但仍有竞争力。"
+      ],
+      "metrics": [
+        "Hit@1",
+        "Precision（决策画像标签、决策效率、偏好/回避因素键的闭集预测）",
+        "LLM-as-judge 0-5评分（结构正确性、推理质量、价值抽象）"
+      ]
+    },
+    "limitations_zh": [
+      "论文仅报告离线评测，没有在线部署或用户反馈验证。",
+      "作者在结论中列出未来工作：更先进的SDM检索策略、自适应记忆更新、量化各SDM维度的贡献，说明当前记忆更新与维度归因仍不完善。",
+      "数据来自单一电商平台，未说明是否公开，泛化到其他平台或领域有待验证。"
+    ],
+    "method_zh": "MARI是两阶段框架。离线阶段：对每个用户在商品类目c下的每次购买，抽取购买前该类目行为序列，用DeepSeek-R1作为教师LLM生成结构化决策记忆SDM（包含意图推理、决策画像标签、决策效率、偏好因素、回避因素），并生成CoT；再用Qwen3-4B学生模型通过CoT蒸馏学习生成SDM，用冻结的Qwen3-Embedding-0.6B编码行为序列作为检索向量，构建按类目索引的DMB。在线阶段：对NIP任务，用上下文向量做跨类目相似度TopK检索（默认K=3）；对DCP任务，在已知目标类目下做类目受限的时间近邻检索；将检索到的SDM与近期行为、候选商品组装成prompt，交给LLM推荐器推理。支持即插即用增强模式与CoT蒸馏微调模式。",
+    "problem_zh": "现有基于LLM的推荐系统大多只建模单一行为（如浏览或购买），或把多行为日志展平为同质token序列，丢失了不同行为在决策中的语义层级与角色，尤其难以处理高度相似商品间的“艰难选择”场景；同时直接输入长原始行为序列存在上下文长度限制、噪声多、性能随长度增加反而下降等问题，缺少显式、结构化的决策依据。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9400000000000001,
+  "id": "arxiv-2610.11501",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-09T22:51:34.482459Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-08T08:40:35Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出MARI，通过决策记忆库将用户历史行为提炼为结构化决策记忆以增强LLM推荐推理，属于推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Beyond Sequences: Distilling Structured Decision Memory for LLM Recommendation",
+  "url": "https://arxiv.org/abs/2610.11501v1"
+}

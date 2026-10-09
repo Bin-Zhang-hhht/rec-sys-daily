@@ -1,0 +1,111 @@
+{
+  "abstract": "Multimodal Large Language Models (MLLMs) have demonstrated strong potential for sequential recommendation through their ability to reason over complex multimodal data. However, existing approaches either rely solely on the target user's own interaction history, neglecting collaborative signals from neighboring users, or incur substantial computational overhead through repeated MLLM inference over long interaction histories. To address these challenges, we propose MGRASRec, a multimodal graph retrieval-augmented framework for sequential recommendation. MGRASRec injects collaborative filtering signals conditioned on the candidate item directly into the MLLM prompt by retrieving structured paths from a user-item interaction graph, extended via multimodal similarity to increase coverage beyond exact co-interaction overlap. This retrieval also surfaces the history items most relevant to the candidate at no additional cost, removing the need for recurrent summarization and keeping inference to a single forward pass per candidate. All components are unified into an augmented prompt for parameter-efficient fine-tuning of an MLLM. Extensive evaluations across three publicly available datasets validate the effectiveness of MGRASRec, achieving the best performance on all metrics with particularly strong gains in ranking quality. Multimodal Large Language Models (MLLMs) have demonstrated strong potential for sequential recommendation through their ability to reason over complex multimodal data. However, existing approaches either rely solely on the target user's own interaction history, neglecting collaborative signals from neighboring users, or incur substantial computational overhead through repeated MLLM inference over long interaction histories. To address these challenges, we propose MGRASRec, a multimodal graph retrieval-augmented framework for sequential recommendation. MGRASRec injects collaborative filtering signals conditioned on the candidate item directly into the MLLM prompt by retrieving structured paths from a user-item interaction graph, extended via multimodal similarity to increase coverage beyond exact co-interaction overlap. This retrieval also surfaces the history items most relevant to the candidate at no additional cost, removing the need for recurrent summarization and keeping inference to a single forward pass per candidate. All components are unified into an augmented prompt for parameter-efficient fine-tuning of an MLLM. Extensive evaluations across three publicly available datasets validate the effectiveness of MGRASRec, achieving the best performance on all metrics with particularly strong gains in ranking quality.",
+  "arxiv_id": "2610.11228",
+  "authors": [
+    "Jason Marcell Setiadi",
+    "Xin Cao",
+    "Lina Yao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "通过将图检索和多模态相似性检索放到离线阶段，在线仅需一次MLLM前向推理，避免循环式摘要随历史长度线性增长的推理开销，有助于降低基于MLLM推荐的服务端计算成本。",
+      "在电商和短视频等场景中，注入邻近用户行为证据可显著改善排名指标（HR@5、MRR@5），意味着候选排序和推荐命中率有实际提升空间。",
+      "每个候选仍需单独一次MLLM前向传递，因此候选短列表规模直接决定推理总量；实际部署需要平衡候选集大小、GPU成本与推荐质量。",
+      "路径检索同时产出与候选相关的历史物品，可作为候选级推荐依据的候选材料，有潜力用于解释推荐结果或提升用户对推荐过程的信任。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出MGRASRec，通过图路径检索将候选物品条件化的协同过滤信号直接注入MLLM提示词，解决了提示型MLLM推荐框架难以整合结构化协同信号的问题。",
+      "提出路径引导的历史选择机制：路径检索会以零额外成本找出与候选物品结构上最相关的历史物品，避免循环式摘要，使每个候选物品仅需一次MLLM前向推理。",
+      "在Microlens、Amazon-Games、Amazon-Baby三个公开数据集上的实验表明，MGRASRec在所有指标上均优于基线，消融实验显示协同过滤路径是性能提升的主要来源。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Efficiency Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "MMGCN",
+        "FREEDOM",
+        "TALLRec",
+        "LLaVA",
+        "LLaVA w/ SFT",
+        "MLLM-MSR"
+      ],
+      "datasets": [
+        "Microlens",
+        "Amazon-Games",
+        "Amazon-Baby"
+      ],
+      "findings_zh": [
+        "MGRASRec在三个数据集的所有指标上均取得最优结果，其中HR@5和MRR@5上的排名质量提升尤为显著。",
+        "监督微调对MLLM推荐至关重要：零样本LLaVA明显弱于微调版本；共享相同骨干和微调设置的MLLM-MSR反而低于LLaVA w/ SFT，说明将历史压缩为高层偏好摘要会丢失物品级信号。",
+        "消融实验显示协同过滤信号是各数据集上最关键的组件，但co-interaction与similarity路径的相对贡献因领域而异：Amazon上co-interaction路径更可靠，Microlens上视觉语义相关的similarity路径更重要。",
+        "加入多模态相似路径后，路径覆盖率从仅co-interaction的水平提升到接近全部正样本，解决协同信号稀疏问题。",
+        "效率分析表明MGRASRec的MLLM前向推理次数不随历史长度增长而增长，始终保持单次；MLLM-MSR则随历史长度线性增加额外推理次数。"
+      ],
+      "metrics": [
+        "AUC",
+        "HR@5",
+        "MRR@5"
+      ]
+    },
+    "limitations_zh": [
+      "当前方法将推荐限定为对候选集合的二分类预测，每个候选需要一次独立前向推理，总推理次数等于候选物品数量，因此在线打分整个目录的成本仍然很高。",
+      "对于没有检索到路径的稀疏用户-物品对，提示词会省略协同信号部分，此时缺少候选条件化的协同证据，可能影响稀疏场景表现。",
+      "路径引导的历史选择对准确率的贡献呈数据集依赖，在部分数据集上对部分指标不一致甚至轻微负向，其核心价值主要在零额外推理成本。",
+      "实验只覆盖Microlens、Amazon-Games、Amazon-Baby三个数据集和LLaVA-v1.6-Mistral-7B单一骨干，跨更大范围物品域和不同MLLM骨干的泛化性尚未验证。"
+    ],
+    "method_zh": "给定用户历史序列和候选物品，离线构建用户-物品二分图，并为物品计算CLIP图像与标题融合的多模态嵌入存入FAISS索引。第一阶段通过广度优先搜索检索3跳共现路径（目标用户-桥接物品-桥接用户-候选物品），并利用多模态相似性扩展4跳相似路径，扩大无精确共同交互时的覆盖范围；路径按桥接物品关联的去重桥接用户数排序，保留top-K（K=5）路径并同时把可用路径数量概要保持进提示词。第二阶段从top-K路径的第一跳提取与候选物品最相关的历史物品，无路径或稀疏时用最频繁历史物品填充，并恢复时间顺序。第三阶段将协同路径、路径数量和选中历史组装成增强提示词，对LLaVA-v1.6-Mistral-7B进行LoRA参数高效微调，训练目标为下一词预测；推理时用首个生成词中yes/no概率估计候选为下一交互的可能性，每个候选仅需一次前向传播。",
+    "problem_zh": "现有基于多模态大语言模型（MLLM）的序列推荐存在两个关键挑战：一是仅依赖目标用户自身交互历史，未利用相似用户的协同过滤信号，且基于共同交互的协同信号受数据稀疏限制，覆盖率有限；二是用户交互历史随使用时间不断增长，无法全部放入提示词，常见的截断会丢弃与候选最相关的物品，而循环式摘要虽能保留完整历史但需要多次MLLM推理，计算开销过大，难以实际部署。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9,
+  "id": "arxiv-2610.11228",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-09T22:51:34.482459Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-08T04:27:52Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出MGRASRec，一种多模态图检索增强的序列推荐框架，通过用户-物品交互图中的协同过滤路径增强MLLM提示，属于推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Multimodal Graph Retrieval-Augmented Sequential Recommendation via Collaborative Filtering Paths",
+  "url": "https://arxiv.org/abs/2610.11228v1"
+}
