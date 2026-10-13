@@ -1,0 +1,126 @@
+{
+  "abstract": "Production recommender systems have feature-lifecycle asymmetry: adding new features must produce gains on some metric, while feature removal must not regress any metric. In practice, feature deprecation is hard to prioritize as a feature can fail to be removed if it interacts with other features, its importance changes daily, it cannot be evaluated before production models change or data drift occurs, it is in contention for A/B test space with other launches, it causes regressions in an online A/B test, or it is consumed by multiple models that need to coordinate its deprecation. We present FORTE, a model-agnostic production framework for discovering, validating, and removing features. Its efficient perturbation implementation allows daily feature evaluation. To account for interactions, it evaluates candidate feature sets constructed from all the low-rank features through grouped ablation and its offline results are sufficiently predictive of online A/B tests to allow deprecations to proceed to online testing with confidence. Lineage tracing identifies all downstream consumer models to realize the full savings of removing a feature from the training set. We validate FORTE over 2 large-scale recommender systems and find that it identifies deprecable feature sets which do not cause online regressions, while the impact on efficiency depends on model characteristics. On a search-relevance model, FORTE resulted in 3 nested candidate sets of 32, 48, and 59 features. Online guardrails rejected the largest treatment. The 48-feature set was selected for deprecation, removing 43.3% of the model's features. On a large ranking model, FORTE identified 8 candidates for removal. Retraining and A/B testing confirmed no regression. Its launch reduced the trainable parameters by 29.9%, improved serving throughput by 19.8-25.5%, and reduced annual training costs by hundreds of thousands of dollars. Production recommender systems have feature-lifecycle asymmetry: adding new features must produce gains on some metric, while feature removal must not regress any metric. In practice, feature deprecation is hard to prioritize as a feature can fail to be removed if it interacts with other features, its importance changes daily, it cannot be evaluated before production models change or data drift occurs, it is in contention for A/B test space with other launches, it causes regressions in an online A/B test, or it is consumed by multiple models that need to coordinate its deprecation. We present FORTE, a model-agnostic production framework for discovering, validating, and removing features. Its efficient perturbation implementation allows daily feature evaluation. To account for interactions, it evaluates candidate feature sets constructed from all the low-rank features through grouped ablation and its offline results are sufficiently predictive of online A/B tests to allow deprecations to proceed to online testing with confidence. Lineage tracing identifies all downstream consumer models to realize the full savings of removing a feature from the training set. We validate FORTE over 2 large-scale recommender systems and find that it identifies deprecable feature sets which do not cause online regressions, while the impact on efficiency depends on model characteristics. On a search-relevance model, FORTE resulted in 3 nested candidate sets of 32, 48, and 59 features. Online guardrails rejected the largest treatment. The 48-feature set was selected for deprecation, removing 43.3% of the model's features. On a large ranking model, FORTE identified 8 candidates for removal. Retraining and A/B testing confirmed no regression. Its launch reduced the trainable parameters by 29.9%, improved serving throughput by 19.8-25.5%, and reduced annual training costs by hundreds of thousands of dollars.",
+  "arxiv_id": "2610.13806",
+  "authors": [
+    "Vishnu Arun",
+    "Adam Obeng",
+    "Tianyou Wang",
+    "Zilin Ren",
+    "Mukuntha Narayanan Sundararaman",
+    "Han Wang",
+    "Shivin Thukral",
+    "Zhixiang Wang",
+    "Saurabh Vishwas Joshi",
+    "Darren Reger"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "特征废弃的收益只有在该变更完整走完验证与发布流程后才会体现；FORTE通过低成本离线扰动评估缩减进入昂贵在线A/B测试的候选数量，缓解A/B带宽瓶颈。",
+      "在Pin Ranker案例中，8特征移除带来可训练参数减少29.9%、服务吞吐提升19.8–25.5%、推理成本下降约10%，年度基础设施成本节约数十万美元，并为存储和训练循环带来额外节约。",
+      "在Search Relevance案例中，48特征移除（占111个特征）减少2.3%参数量并提升2%服务吞吐，还带来网络、存储和KV特征商店成本节约；特征废弃完成后可停止相关特征的数据采集。",
+      "特征重要性报告可作为诊断工具，用于验证深度学习架构改动是否达到设计意图（例如降低对历史/参与度偏向信号的过度依赖），帮助团队理解模型行为变化。",
+      "实现线上指标中性的特性移除需要多团队协调（特征生产者、模型团队、数据管道），FORTE的级联血缘追踪使“不再被任何模型引用”的特征可以被形式化废弃并解除数据链路。",
+      "部署时应按实际服务人群的粒度（语言、地理、流量切片）监控，因为聚合中性可能掩盖子群体伤害；仅US与非US两个粗粒度分段不足以覆盖45种以上语言。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "明确了完整特征废弃（feature deprecation）的两个组成部分：识别模型中不重要的特征集合，以及追踪特征的完整血缘并在其被判定不重要后完成废弃。",
+      "提出FORTE，一个端到端生产框架，覆盖特征重要性的发现、验证和移除，整合了时间序列特征重要性、分组扰动、在线A/B验证和特征血缘追踪。",
+      "设计了高效的扰动实现，通过数据集虚拟化（dataset virtualization）与池化推理（pooled execution），使单特征扰动实验可以每日运行，新增实验的边际成本极低。",
+      "在两个大规模生产推荐系统（Search Relevance模型和Pin Ranker模型）上进行了案例验证，并报告了参数减少、吞吐提升和训练成本节约等成果。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 3,
+        "section": "4 System Design and Methodology"
+      },
+      {
+        "page": 6,
+        "section": "6 Evaluation"
+      },
+      {
+        "page": 7,
+        "section": "7.1 Search Relevance"
+      },
+      {
+        "page": 9,
+        "section": "7.2 Pin Ranker"
+      },
+      {
+        "page": 10,
+        "section": "8.1 Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "现有生产模型（incumbent production model/production control）",
+        "旧式逐特征一次一遍（one-pass-per-feature）的扰动实现",
+        "单次排列估计与多种子（R=10以及1.5M×1参考）排列估计的对照"
+      ],
+      "datasets": [
+        "Pinterest生产Search Relevance模型的评估数据（111个特征，多语言流量，按US与非US分段）",
+        "Pinterest生产Pin Ranker模型的评估数据集（多任务L2排序模型，覆盖closeups、clickthroughs、repins、downloads与retention头）",
+        "3M行规模的生产评估表用于扩展性测试（另含30k与300k行规模）",
+        "1.5M匹配评估样本用于分组扰动验证与AUC/PR-AUC特征排序对照"
+      ],
+      "findings_zh": [
+        "在3M行数据集上，300个扰动实验相比逐特征一遍实现获得了54倍耗时缩减；运行时间随实验数以N^0.20–N^0.27亚线性增长，而旧实现为N^1线性增长。",
+        "在3M行规模下，每增加一个实验的边际成本约为41秒，而旧方法单独一遍需要45分钟。",
+        "在1.5M样本的分组扰动验证中，176个非零固定顺序边际中有68个（38.6%）为负，表明单特征通过门控的特征在联合扰动下仍可能暴露模型依赖；分组效应总计3.084%，远小于个体排列效应之和6.554%，且在移除64个候选时达到峰值3.899%。",
+        "单一排列在150k样本量下的特征排序与其余九次排列均值的中位留一秩相关为0.907–0.959，top-20重叠为92–100%，支持在生产规模下单次排列（R=1）用于特征排序。",
+        "Search Relevance模型上生成32、48、59个特征的3个嵌套候选集，离线全部中性；A/B在线护栏拒绝了59特征组，48特征组被选定并发布，移除43.2%的特征（占模型111个特征中的48个），可训练参数减少2.3%，服务吞吐提升2%。",
+        "Pin Ranker模型识别出2特征与8特征两个嵌套候选集，重训练与三周在线A/B均无显著回退；发布8特征移除后，可训练参数减少29.9%，服务吞吐提升19.8–25.5%，推理成本下降约10%，年度基础设施成本节约数十万美元。",
+        "20种随机顺序平均的分组边际贡献总和为3.079%，与固定路径端点3.084%接近，标准误为0.008%，表明组合集效应估计远精确于单个组归因。",
+        "将评估样本量从15k提高到150k（10倍）后，跨两个输出头和两个指标的中位每特征排列标准差降低了2.58–3.16倍。"
+      ],
+      "metrics": [
+        "AUC（Closeup头与Clickthrough头）",
+        "PR-AUC（各输出头）",
+        "5级相关性准确率（Search Relevance teacher/human标注测试集）",
+        "Pairwise accuracy与NDCG@3（Pin Ranker重训练）",
+        "sDCG@25（LLM-as-a-judge在线相关度评测）",
+        "可训练参数数量、服务吞吐量（CUDA Graph benchmark）、推理成本、训练/基础设施年度成本",
+        "运行时/墙钟时间（扩展性实验）、Spearman秩相关与top-20重叠（排列稳定性）"
+      ]
+    },
+    "limitations_zh": [
+      "边际排列（marginal permutation）不等同于条件置换重要性（conditional PFI），相关特征可能获得膨胀或缩水的重要性分数，且可能因外分布输入而失真。",
+      "FORTE主要衡量单个特征或人工配置分组的的一阶重要性，可能遗漏仅通过交互才重要的特征。",
+      "时间特征重要性在分析窗口内保持模型冻结，趋势比较仅限于单一checkpoint；新窗口会刷新到当前生产checkpoint。",
+      "两阶段降采样（two-stage downsample）只是近似洗牌，不等价于均匀洗牌。",
+      "默认对每个批次只应用一次随机排列（R=1）；该选择仅基于一个生产模型的两个输出头测量，不能推广到所有模型或指标。",
+      "分组边际归因按固定添加顺序，且顺序平均仅作为顺序敏感性诊断而非严格Shapley归因；20种顺序无法解析189个组的个体Shapley值。",
+      "效率收益取决于模型架构特征（如Search Relevance的交叉编码器骨干参数占比大，导致移除43.2%的特征仅减少2.3%参数），不可视为与架构无关的结论。"
+    ],
+    "method_zh": "FORTE通过一个分阶段漏斗完成特征废弃：首先对冻结的当前生产模型进行时间序列上的单特征扰动评估，使用带方向的归一化变化分数衡量特征重要性；再对通过时间门控的低重要度特征构建嵌套候选集，进行分组扰动（grouped perturbation）以捕捉特征交互效应；随后对候选集进行重训练与离线评估，并将通过者提升为在线A/B测试的治疗臂；最后通过特征血缘追踪确认没有下游模型引用后，分阶段完成数据加载器、数据集、摄入和日志层的正式废弃。工程实现上，FORTE将原始与扰动特征张量字典同时物化在内存中，使全部实验共享一次数据加载与模型推理，从而实现亚线性的运行时间扩展。",
+    "problem_zh": "生产环境推荐系统存在特征生命周期不对称：新增特征只需在某个指标上带来提升，而移除特征则必须保证不使任何用户指标回退。在实践中，特征移除（deprecation）很难被优先处理，原因包括特征交互、数据漂移、模型版本漂移、在线A/B测试带宽竞争、在线回退风险，以及多模型协调等失败模式。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.8775000000000002,
+  "id": "arxiv-2610.13806",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-13T00:57:10.378163Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-09T16:18:39Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出模型无关的生产环境特征评估与淘汰框架FORTE，在工业推荐系统中识别可安全移除的特征，以不引发线上回退的方式降低训练成本并提升服务吞吐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FORTE: A Production Framework for Feature Evaluation and Deprecation in Industrial Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.13806v1"
+}

@@ -1,0 +1,143 @@
+{
+  "abstract": "Generative recommendation (GR) of social media platforms commonly retrieves items by autoregressively decoding discrete Semantic IDs (SIDs) with finite-width beam search. This work examines how this output interface constrains whether held-out targets enter finite returned lists, while distinguishing catalog-wide scoreability from empirical top-K support. We introduce two continuous-query paradigms: CQG-Single generates one retrieval query in a single pass, and CQG-AR autoregressively generates continuous residual updates, retaining step-wise decoding while removing the SID item-token vocabulary, code lookup, and discrete beam expansion. These designs thereby eliminate the SID-specific reachability constraint induced by finite-beam decoding and avoid the technical challenge of aligning a discrete SID vocabulary with the pretrained backbone's vector space. Both methods make every encoded item directly scoreable through dense or approximate-nearest-neighbor retrieval. Under a unified protocol with valid-prefix constrained decoding, CQG-Single exceeds the TIGER-style baseline in all seven runs while using 55.3% as many trainable parameters. CQG-AR remains comparable on ML-1M and is numerically stronger on Beauty and Sports datasets. A controlled depth ablation further shows that additional continuous refinement does not monotonically improve shallow accuracy. These findings motivate decoupling output representation, autoregressive modeling, and retrieval budget when evaluating generative recommendation systems. Generative recommendation (GR) of social media platforms commonly retrieves items by autoregressively decoding discrete Semantic IDs (SIDs) with finite-width beam search. This work examines how this output interface constrains whether held-out targets enter finite returned lists, while distinguishing catalog-wide scoreability from empirical top-K support. We introduce two continuous-query paradigms: CQG-Single generates one retrieval query in a single pass, and CQG-AR autoregressively generates continuous residual updates, retaining step-wise decoding while removing the SID item-token vocabulary, code lookup, and discrete beam expansion. These designs thereby eliminate the SID-specific reachability constraint induced by finite-beam decoding and avoid the technical challenge of aligning a discrete SID vocabulary with the pretrained backbone's vector space. Both methods make every encoded item directly scoreable through dense or approximate-nearest-neighbor retrieval. Under a unified protocol with valid-prefix constrained decoding, CQG-Single exceeds the TIGER-style baseline in all seven runs while using 55.3% as many trainable parameters. CQG-AR remains comparable on ML-1M and is numerically stronger on Beauty and Sports datasets. A controlled depth ablation further shows that additional continuous refinement does not monotonically improve shallow accuracy. These findings motivate decoupling output representation, autoregressive modeling, and retrieval budget when evaluating generative recommendation systems.",
+  "arxiv_id": "2610.12977",
+  "authors": [
+    "Yu Sun",
+    "Renkai Xiang",
+    "Zuodong Xiang",
+    "Junwei Zhou",
+    "Yike Zhang",
+    "Jianxin Zhang",
+    "Zhihao Zhu",
+    "Xiaoyu Cao",
+    "Hailu Xu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "CQG-Single 可训练参数约 3.2M，低于 TIGER-style baseline 的 5.78M，同时在 ML-1M 上获得更高 R@10 且在 Beauty/Sports 上数值更强，可能带来训练和推理成本优势。",
+      "连续查询输出消除了 item-token 词表、码本查找和离散束展开，支持精确打分或 ANN 检索，且新增物品不改变输出维度，有潜力简化目录更新和检索索引维护。",
+      "有限束 SID 解码的目标支持和目录覆盖率存在流行度偏差，可能损害长尾物品曝光；CQG-Single 在 48 个流行度-深度比较中的 38 个单元数值更高，提示连续检索可能改善部分长尾召回。",
+      "TIGER 返回列表从 100 增至 200 时 TargetInOutput 从 66.7% 升至 76.3%，说明产品上的召回预算/返回列表大小是影响最终覆盖的关键业务权衡。",
+      "业务落地需谨慎：生产级延迟、内存、索引更新和冷物品准确性未测量，且 Sports 上全秩 SASRec 仍最强，说明消除搜索约束不等于自动获得更高排序精度。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "提出有限搜索诊断框架：区分唯一编码分配、目标条件束支持、目录级可打分性和经验 Top-K 并集覆盖，并按物品流行度分层分析。",
+      "发现条件性交叉模式：某些流行度分层和检查点下，SID 解码在浅层 Recall@K 更高，而连续检索可在更深 K 下反超，具体取决于检查点、物品流行度和检索深度。",
+      "提出 CQG-Single：单步连续查询生成器，生成一个连续查询并以余弦相似度直接对全部编码物品打分，消除离散词表和束搜索。",
+      "提出 CQG-AR：保留自回归解码结构，但用连续残差更新替代离散 SID token 预测，从而分离自回归建模与离散 SID 词表的影响。",
+      "在 ML-1M、Amazon Beauty、Amazon Sports 上进行受控实验：CQG-Single 在 ML-1M 全部 7 个训练种子超过 TIGER-style baseline 且使用更少可训练参数，CQG-AR 在 ML-1M 与基线相当，在 Beauty 和 Sports 上数值更强。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "6 Analysis"
+      },
+      {
+        "page": 1,
+        "section": "7 Discussion and Limitations"
+      },
+      {
+        "page": 1,
+        "section": "B Training-Seed Stability"
+      },
+      {
+        "page": 1,
+        "section": "C.5 Evaluation Metrics"
+      },
+      {
+        "page": 1,
+        "section": "E.2 TIGER T5/RQ-VAE Reproduction Recipe"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "TIGER-style SID",
+        "random retrieval",
+        "last-item kNN",
+        "mean-of-5 kNN",
+        "reported TIGER/LETTER/EAGER results where protocol allows contextual comparison"
+      ],
+      "datasets": [
+        "ML-1M",
+        "Amazon Beauty",
+        "Amazon Sports"
+      ],
+      "findings_zh": [
+        "ML-1M seed 42 的 TargetInOutput@100：TIGER 66.7%，CQG-Single 67.3%，CQG-AR 66.4%；在物品平衡的 Q1–Q4 流行度四分位中，CQG-Single 均不低于 TIGER，TargetItemSupport@200 分别为 78.1%、78.9%、78.8%。",
+        "ML-1M 七种子实验：CQG-Single 平均 R@10 为 0.3104±0.0047，TIGER 为 0.2996±0.0072，平均配对增益 0.0107（95% t 区间 [0.0021, 0.0193]，符号翻转 p=0.0156），CQG-Single 在全部七个种子超过 TIGER。",
+        "CQG-AR 在 ML-1M 与 TIGER 相当（R@10 0.2976±0.0032 vs 0.2996±0.0072），在 Beauty 和 Sports 上平均 R@10 更高（Beauty 0.0571 vs 0.0477；Sports 0.0355 vs 0.0236，相对提升 50.4%）。",
+        "Figure 3 的 48 个流行度-深度比较中，CQG-Single 在其中 38 个单元数值更高，Q2–Q3 全部 24 个单元均更高；反转集中在 Q1 稀有物品和部分 Q4 单元，说明优势不是普适的。",
+        "目录覆盖率方面：ML-1M Top-100 覆盖率 TIGER 97.0%，CQG-Single 97.6%，CQG-AR 97.6%；Beauty Top-100 覆盖率 TIGER 96.3%，CQG-Single 99.9%，CQG-AR 99.8%；Sports 上 TIGER Top-100 覆盖率 99.5%，高于 CQG-Single 的 96.9% 和 CQG-AR 的 98.4%。",
+        "CQG-AR 深度消融（L=1 至 L=4，中间损失权重 0.3）显示 R@10 在 0.2909–0.2944 之间波动，无单调提升；R@100 从 L=1 的 0.6550 升至 L=4 的 0.6697，但中间深度非单调。",
+        "训练目标消融：全目录 CE 最高；用 256 个采样负样本替换全目录 CE 后，CQG-AR 平均 R@10 从 0.2982 降至 0.2895。",
+        "T5/RQ-VAE 风格 Beauty 复现诊断中，99.48% 生成序列为合法 SID，但 Top-100 并集仅覆盖 44.0%±13.7% 目录，Q1 稀有物品覆盖率 14.0%，Q4 流行物品覆盖率 88.7%，说明流行度偏差不是单一 SID 构造所特有。",
+        "MSE 训练的连续检索器加 SASRec 重排在三个数据集上达到全秩 SASRec Recall@10 的 97.7%–102%；LLM backbone 诊断中，测试的 Qwen 混合配置均未超过 scratch Transformer。"
+      ],
+      "metrics": [
+        "Recall@K",
+        "NDCG@K",
+        "TargetInOutput@K",
+        "TargetItemSupport@K",
+        "CatalogCoverage@K"
+      ]
+    },
+    "limitations_zh": [
+      "证据仅适用于所评估的模型-搜索-计算配置；更宽的束会显著提高 TIGER 的目标支持，因此有限束可达性不是与架构无关的目录上限。",
+      "论文使用的 hierarchical k-means TIGER-style 基线弱于已发表的 SID 系统；更接近 TIGER 的 T5/RQ-VAE Beauty 复现 R@10 为 0.0408±0.0016，低于参考实现，其绝对覆盖率效果不能推广到完整复现的 TIGER 检查点。",
+      "matched-target 分析是观察性的，不是对流行度的因果干预。",
+      "Sports 处理后的划分（21,519 用户、10,693 物品）不同于常见的 5-core 划分，因此 Sports 数值不能直接与已发表值比较。",
+      "生产级延迟、内存、索引更新成本和冷物品准确性未测量；全目录 CE 每个更新 O(N)，只在报告规模的数据集上评估，十亿级物品训练、ANN 延迟和动态目录准确性仍是开放问题。",
+      "LLM backbone 诊断中，所有测试的 Qwen 配置均未超过 scratch Transformer，且联合训练会造成物品空间坍缩（item-item 余弦 0.9936），说明离散 SID 词表与预训练向量空间对齐的问题并未被解决。"
+    ],
+    "method_zh": "方法基于冻结的 SASRec BPR 预训练 64 维物品嵌入表 E（L2 归一化），该表同时用作历史输入表、目标表/全目录 CE 分类器和检索索引。CQG-Single：四层因果 Transformer 将用户上下文映射为一个连续查询 q_u = f_theta(c_u)，物品得分 score(u,i)=q_u^T e_i，可用精确全目录打分或 ANN 检索，无 item-token 词表、无码本查找、无离散束展开。CQG-AR：保留自回归解码器，但在每一步生成连续残差 Delta_l，并按 q^(l)=norm(q^(l-1)+Delta_l) 累积更新查询，最终查询用于检索；实验中 L=3 以对应三级 SID 解码结构。训练目标包括全目录 CE、采样 CE（256 个负样本）、批内 InfoNCE 和 MSE，主配置使用全目录 CE，温度 tau=0.07；CQG-AR 主配置只对最终查询施加 CE 监督。TIGER-style baseline 使用分层 k-means 构造深度为 3 的 SID，并用有效前缀约束解码（valid-prefix constrained decoding）。",
+    "problem_zh": "论文研究基于 Semantic ID（SID）的生成式推荐：物品被量化成分层离散编码，模型用有限宽束搜索自回归解码这些编码。该输出接口带来有限束可达性（finite-beam reachability）问题：即使物品有合法且近乎唯一的编码，固定模型与有限返回列表也可能不包含留出目标；同时目录覆盖率和目标支持存在流行度偏差。另一个技术挑战是让离散 SID 词表与预训练骨干网络的向量空间对齐。论文用连续查询生成（CQG-Single 与 CQG-AR）替代离散 SID 输出来消除这类解码约束。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8465,
+  "id": "arxiv-2610.12977",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-13T00:57:10.378163Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-09T04:23:08Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出两类连续查询生成范式CQG-Single与CQG-AR，取代离散语义ID和有限波束搜索，使生成式推荐中所有条目可直接进行稠密或近邻检索打分。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Beyond Semantic IDs: Finite-Beam Reachability and Continuous-Query Generation in Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.12977v1"
+}

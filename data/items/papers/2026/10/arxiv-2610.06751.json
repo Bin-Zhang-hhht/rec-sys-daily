@@ -1,0 +1,142 @@
+{
+  "abstract": "Matrix completion underlies problems from tabular imputation to causal inference, yet existing tabular foundation models treat it as entry-by-entry prediction, repeating context for every target and discarding the matrix's two-dimensional structure. We introduce MatrixFormer, a pre-trained matrix-native transformer that predicts a full distribution for every missing entry in a single forward pass. MatrixFormer is trained entirely on synthetic low-rank and latent-factor matrices under diverse missingness patterns. Applied zero-shot and with the same model weights, MatrixFormer achieves competitive performance on causal inference panel-data tasks, language-model benchmark-score completion, tabular imputation, and recommendation systems matrix completion. These results position MatrixFormer as a general-purpose foundation model for matrix completion. Matrix completion underlies problems from tabular imputation to causal inference, yet existing tabular foundation models treat it as entry-by-entry prediction, repeating context for every target and discarding the matrix's two-dimensional structure. We introduce MatrixFormer, a pre-trained matrix-native transformer that predicts a full distribution for every missing entry in a single forward pass. MatrixFormer is trained entirely on synthetic low-rank and latent-factor matrices under diverse missingness patterns. Applied zero-shot and with the same model weights, MatrixFormer achieves competitive performance on causal inference panel-data tasks, language-model benchmark-score completion, tabular imputation, and recommendation systems matrix completion. These results position MatrixFormer as a general-purpose foundation model for matrix completion.",
+  "arxiv_id": "2610.06751",
+  "authors": [
+    "Dwaipayan Saha",
+    "Jacob Feitelberg",
+    "Kyuseong Choi",
+    "Raaz Dwivedi",
+    "Anish Agarwal"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "模型权重固定且仅用合成数据预训练，新数据集上不需要重新训练或调参即可补全用户-物品评分矩阵，可能降低推荐系统部署中的矩阵拟合和迭代成本。",
+      "在 MovieLens 100K 和 Netflix small 上，MatrixFormer 的 RMSE/MAE 低于传统协同过滤基线，说明通用矩阵补全基础模型可作为推荐评分预测的候选方案。",
+      "单次前向传播完成整张矩阵、且比逐条目模型快约 107 倍，有利于大规模或近线推荐场景中的批量补全；但集成版本需要两次专家前向传播。",
+      "模型的解码器输出完整预测分布而不只是点估计，可为推荐系统提供评分不确定性信息，但论文中仅将其作为未来方向，尚未给出具体业务验证。",
+      "合成数据预训练避免直接使用真实用户评分进行预训练，在隐私和数据获取成本上有潜在优势，但跨真实推荐数据集的泛化仍需更多验证。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 MatrixFormer，一个矩阵原生的预训练 transformer，在单次前向传播中为所有缺失条目预测完整分布，而不是逐条目重复推理。",
+      "仅使用合成低秩、谱族和潜因子矩阵预训练，模型权重固定，零样本迁移到因果面板、表格插补、推荐系统评分预测和语言模型基准分数补全。",
+      "将通用专家 MatrixFormer-Impute 与推荐专用专家 MatrixFormer-RecSys 通过观测误差最小化的凸组合集成，一个输入矩阵只拟合一个混合权重。",
+      "采用沿行和列交替的轴向注意力，使每个 cell 能同时利用同一样本的其他变量和同一变量跨样本的结构；在固定宽度矩阵补全任务上比 TabImpute 快约 107 倍。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "3.5 Recommender-system rating prediction"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Inference runtime scaling"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Tabular imputation: MissBench and UCI"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Causal panel data: counterfactual completion"
+      },
+      {
+        "page": 1,
+        "section": "3.6 Benchmark-score completion for language-model evaluation"
+      },
+      {
+        "page": 1,
+        "section": "2 Architecture and Training"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Synthetic pre-training"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SVD",
+        "PMF",
+        "UserKNN",
+        "ItemKNN",
+        "BPR",
+        "TabImpute (legacy)",
+        "SoftImpute",
+        "K-NN",
+        "MICE",
+        "ICE",
+        "MissForest",
+        "GAIN",
+        "MIWAE",
+        "HyperImpute",
+        "Gaussian conditional-mean estimator",
+        "DiD",
+        "SC",
+        "SDiD"
+      ],
+      "datasets": [
+        "MovieLens 100K",
+        "Netflix small",
+        "MissBench (42 OpenML datasets)",
+        "UCI-style suite (12 datasets)",
+        "CPS placebo panels",
+        "Kansas semi-synthetic panels",
+        "California smoking donor pool",
+        "MTEB",
+        "MMLU",
+        "Merged",
+        "BenchPress"
+      ],
+      "findings_zh": [
+        "推荐系统评分预测：MatrixFormer 在 MovieLens 100K 上取得 RMSE/MAE 0.8874/0.7279，在 Netflix small 上取得 0.8617/0.7330，均低于表中展示的 SVD、PMF、UserKNN、ItemKNN、BPR；论文同时说明 Netflix 上相对 SVD 的 RMSE 优势很小，不作显著性声明。",
+        "推理效率：在 NVIDIA H200 上，MatrixFormer 完成 1024×10 合成矩阵的中位耗时为 0.0389s，TabImpute 为 4.167s，约 107 倍加速；MatrixFormer 集成需要两次专家前向传播。",
+        "表格插补：MatrixFormer 在 MissBench 上整体 NRMSE 为 1.580，略优于 TabImpute 的 1.585；在 UCI 式套件上整体 NRMSE 为 0.998，优于 ICE 的 1.172，并在 UCI 的 MCAR、MAR、MNAR 各机制下均最低。",
+        "因果面板：在六个归一化面板比较中，MatrixFormer 在五个面板取得最低分数；仅 Kansas 效应误差上 HyperImpute 更低（0.119 对 0.125）。",
+        "语言模型基准分数补全：在 greedy MI 选择下，MatrixFormer 在 MTEB、Merged、BenchPress 三个矩阵的所有预算 k 上 R^2 高于 Gaussian 基线，在 MMLU 上低于 Gaussian 基线；全部 180 个数据集/选择/预算设置中 MatrixFormer 在 119 个上更好、61 个上更差。"
+      ],
+      "metrics": [
+        "RMSE",
+        "MAE (macro-averaged over test users)",
+        "columnwise normalized RMSE (NRMSE)",
+        "R^2 on held-out targets",
+        "block RMSE",
+        "absolute error of implied ATT |tau_hat - tau|",
+        "median inference runtime"
+      ]
+    },
+    "limitations_zh": [
+      "推荐系统评估使用 80/20 评分条目留出，而不是留出用户，因此没有验证对全新用户或物品的冷启动泛化。",
+      "预训练和尺寸扩展后的矩阵上限约为 2000 行和 1000 列；UCI 推理使用最多 2000×1000 的滑动窗口，且该窗口限制是在查看整矩阵结果后采用的探索性协议。",
+      "模型选择仅使用合成数据，但论文承认下游基准在开发期间被检查过，UCI 上下文选择也是探索性后续而非盲验证。",
+      "MatrixFormer 集成需要两个固定专家模型的前向传播，且混合权重只在观测条目上拟合，属于样本内证据；论文将留出条目上的权重选择列为未来工作。",
+      "作者明确表示 Netflix small 上相对 SVD 的 RMSE 差距小、不作显著性声明，多个基准比较是描述性的或相关设置汇总，而非独立显著性检验。",
+      "预训练数据全部来自合成低秩/潜因子矩阵，真实推荐数据可能包含更复杂的隐式反馈、曝光偏差和动态偏好，这些未被当前实验覆盖。"
+    ],
+    "method_zh": "将部分观测矩阵表示为 R×C 的 cell token 网格：观测值经共享 MLP 嵌入，缺失值使用学习到的 mask token 与显式缺失性 embedding；网格周围加入行 CLS 和列 CLS token。每个 transformer 块内先对每行内的各列做特征注意力，再对每列内的各行做数据点注意力，并使用 RoPE 沿对应轴编码位置。解码器对每个 cell 输出 5000 个固定 bin 的 bar 分布，点预测取分布的均值，所有缺失条目可并行预测。预训练分为基座、主阶段和尺寸扩展阶段，全部使用合成矩阵，损失包括对数似然、向两个冻结教师蒸馏的 Huber 点损失以及 CDF/CRPS 对齐项。MatrixFormer 通过最小化观测条目上的归一化平方误差，在 [0,1] 内确定 MatrixFormer-Impute 和 MatrixFormer-RecSys 两个固定专家对整个矩阵的混合权重。",
+    "problem_zh": "现有矩阵补全和推荐模型常把用户-物品评分矩阵展开为逐条目预测，重复复制上下文并丢弃矩阵的二维结构，难以高效利用行和列之间的共享信息；同时真实推荐场景需要模型对不同规模的稀疏评分矩阵进行零样本或低成本补全。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.899,
+  "id": "arxiv-2610.06751",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-13T00:57:10.378163Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-05T17:28:38Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "MatrixFormer 是面向矩阵补全的预训练基础模型，可在一次前向传播中预测所有缺失条目的分布，并零样本用于推荐系统矩阵补全等任务。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MatrixFormer: A Foundation Model for Matrix Completion",
+  "url": "https://arxiv.org/abs/2610.06751v1"
+}
