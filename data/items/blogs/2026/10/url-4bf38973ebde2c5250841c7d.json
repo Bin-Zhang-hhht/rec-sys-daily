@@ -1,0 +1,150 @@
+{
+  "authors": [],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "2026 代 GEM 采用 LLM 风格架构 Kunlun，替代上一代 Interformer；每层包含 Attention、Summarization Component 和 MoE 风格 Cross Interaction。通过 Block Attention 将序列长度计算复杂度从二次降为线性；通过 Generalized Dot-Product Attention (GDPA) 将 pFFN 重构为注意力运算以统一 GPU kernel；通过 Expert Parallelism 实现可扩展的跨交互建模。序列扩展方面采用 CompSkip 组件跳连和 OneSeq 序列统一。后训练侧使用 LoopFM 结构化表示和 Solaris 投机预计算；训练侧采用 JFA、GDPA、Block-Attention、MXFP8 等定制 kernel 与拓扑感知 5D 并行。",
+    "business_implications_zh": [
+      "广告主获得可量化的转化和 CTR 提升，广告回报更强",
+      "跨 surface 和漏斗的统一优化支持从认知、考虑再到转化的全漏斗投放",
+      "更深的用户理解可改进广告与用户需求匹配，提升广告相关性",
+      "一个中央基础模型支撑数十个 surface 和 objective，减少每个域独立系统的重复建设与维护成本",
+      "后训练和预计算方案使大模型智能在延迟约束下可规模化落地",
+      "未来扩展到有机和广告全平台数据，有望进一步提升广告相关性和受众触达效率"
+    ],
+    "business_transferability": 0.9,
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "heading": "Bending the Scaling Curve, Enabling 2.5x Model Complexity",
+        "section": "Main body"
+      },
+      {
+        "heading": "Efficient Intelligence Transfer From GEM to User-Facing Models",
+        "section": "Main body"
+      },
+      {
+        "heading": "Accelerating the Central Compute Engine With Large-Scale Cross-Surface, Cross-Domain Learning at Meta Ads Scale",
+        "section": "Main body"
+      },
+      {
+        "heading": "Scaling Total Training FLOPs by 4x While Doubling E2E Training Efficiency Across Thousands of GPUs",
+        "section": "Main body"
+      },
+      {
+        "heading": "Scaling Law: Bend Scaling Curve at Frontier Scale with Kunlun",
+        "section": "Main body"
+      },
+      {
+        "heading": "Efficient Architecture for Scaling Recommendations",
+        "section": "Main body"
+      },
+      {
+        "heading": "1. A Standardized and Unified Architecture Framework",
+        "section": "Efficient Architecture for Scaling Recommendations"
+      },
+      {
+        "heading": "2. Introducing Scalable Architecture Through Deep Co-design",
+        "section": "Efficient Architecture for Scaling Recommendations"
+      },
+      {
+        "heading": "3. Innovating Efficient Sequence Scaling",
+        "section": "Efficient Architecture for Scaling Recommendations"
+      },
+      {
+        "heading": "How Ultra-Long Sequences Matter",
+        "section": "Main body"
+      },
+      {
+        "heading": "Post-Training: Knowledge Transfer at Scale",
+        "section": "Main body"
+      },
+      {
+        "heading": "Structure Representation at Scale",
+        "section": "Post-Training: Knowledge Transfer at Scale"
+      },
+      {
+        "heading": "Speculative Precomputation for Fresh Predictions",
+        "section": "Post-Training: Knowledge Transfer at Scale"
+      },
+      {
+        "heading": "Large-Scale Cross-Domain Optimization: Optimize Across Surfaces and Funnels",
+        "section": "Main body"
+      },
+      {
+        "heading": "Training a RecSys Model at LLM-Scale Efficiently",
+        "section": "Main body"
+      },
+      {
+        "heading": "The Future of RecSys Foundation Models",
+        "section": "Main body"
+      }
+    ],
+    "implementation_zh": "实现要点包括：Kunlun 与最新 GPU 硬件深度协同设计以支撑超长用户序列；采用虚拟数据加载实现 cost-free data mixing，不物理合并数据；Domain Expert Framework 由共享专家和各域专家组成，并基于 Kunlun 架构构建；后训练中预计算 GEM 的压缩表示，与历史记忆构造成序列表征，同时共享 soft label 计算以降低额外成本；Solaris 在异步后台任务中预计算用户-广告 embedding，并在 serving hot path 及时交付；训练中使用混合超低精度和 5D 并行策略，包括 2D FSDP + Expert Parallelism 处理稠密参数、Fully Sharded 2D Model Parallelism 处理稀疏参数，并与 Meta 多级网络层次协同减少通信。",
+    "lessons_zh": [
+      "推荐系统可用 LLM 式架构与硬件协同设计弯曲 scaling curve，而非仅靠增加算力",
+      "中央基础模型配合结构化表示和预计算，可在延迟约束下低成本迁移智能到实时垂直模型",
+      "跨域和跨 surface 统一训练可通过 cost-free 数据混合与域专家框架实现",
+      "训练效率是 kernel、精度、并行、网络、内存多层协同设计的结果",
+      "序列长度 scaling 与模型规模 scaling 相互强化，是除算力外的重要扩展方向",
+      "预测质量与序列长度存在可预测的幂律关系，可用于指导扩展决策"
+    ],
+    "limitations_zh": [
+      "实时评估所有候选广告不可行，实时服务该规模模型成本过高且延迟大",
+      "知识蒸馏带宽有限，下游模型只能获得 GEM 智能的压缩视图",
+      "现有数据中心 GPU 和软件栈主要为 LLM 优化，推荐负载难以直接达到高 MFU",
+      "跨 surface 和流量的分布差异、数据动态和新鲜度带来训练稳定性挑战",
+      "Solaris 在精确 user-ad embedding 未命中时只能降级到聚合或相似用户表示",
+      "未来路线（全平台有机与广告数据、更长上下文、推理能力）仍属展望，未提供已落地结果"
+    ],
+    "production_constraints_zh": [
+      "实时服务超大模型成本过高且延迟不可接受，无法在实时广告请求中评估所有候选广告",
+      "数据中心 GPU 和软件栈主要为 LLM 设计，推荐负载特性不同，跨数千 GPU 训练难以达到高利用率",
+      "跨 surface 和 traffic 的数据分布多样，需处理数据动态、新鲜度和领域切换稳定性",
+      "超长序列带来大张量运算和算子碎片化，需最大化 GPU 效率并减少算子碎片",
+      "现有下游模型仍按特定 surface 或 traffic 数据训练，数据混合需贴近实时数据流顺序",
+      "Solaris 需要弹性容量和异步预计算，精确 user-ad embedding 未命中时需分层降级覆盖"
+    ],
+    "results_zh": [
+      "GEM 在 Meta 各广告 surface 和目标上带来 18.9% 转化提升和 12% 广告点击率提升",
+      "过去一年对定向用户在 Facebook、Instagram、站外转化分别贡献 5.8%、4.1%、1.6% 转化增量",
+      "Kunlun 相比上一代 Interformer 在相同计算规模下带来 2x 性能提升，并在最大预训练规模观察到 2.5x 模型复杂度增长的 LLM 式 scaling law",
+      "LoopFM 在无额外计算或延迟成本下使知识迁移效果翻倍，Solaris 实现投机预计算",
+      "CompSkip 减少 43% FLOPS 且质量损失可忽略，GDPA 统一 kernel 带来最高 2x 前向加速",
+      "生产环境长上下文长度扩展 2x，并具备扩展到 25x 的基础设施能力",
+      "预测质量随序列长度呈幂律关系，更大模型从更长序列中获益更多",
+      "E2E 训练效率翻倍至 20-25% MFU，总训练 FLOPs 扩大 4x",
+      "GEM 成为首个跨所有 surface 联合预测 CTR、跨主要优化目标联合预测 CVR 的优化模型"
+    ],
+    "system_context_zh": "Meta 广告生态系统覆盖 Facebook、Instagram、Reels、Stories 等数十个界面和优化目标，日活用户达 36 亿。GEM 是行业最大的推荐系统基础模型，2026 代从各域独立优化转向单一中央基础模型，联合预测点击和转化，作为跨表面、跨漏斗的中央计算引擎，同时需满足实时服务延迟和 LLM 级训练规模约束。",
+    "technical_depth": 0.95,
+    "tradeoffs_zh": [
+      "实时服务大模型不可行，因此通过后训练蒸馏、结构化表示和投机预计算在延迟与模型智能之间折中",
+      "Block Attention 降低序列计算复杂度，但窗口大小需为 block size 的倍数",
+      "CompSkip 以可忽略的质量损失换取 43% FLOPS 下降",
+      "更大模型从更长序列获益更多，序列长度扩展与模型规模扩展相互强化，需权衡算力投资方向",
+      "数据混合比例需在领域切换不稳定和过记忆近期数据之间取得平衡",
+      "训练效率分解为 Local MFU 与 Scaling Ratio，需同时优化单卡算力利用率和跨卡扩展效率",
+      "Solaris 在精确 user-ad embedding 不可用时，用用户近期 embedding 聚合或行为相似用户表示替代，以覆盖换精度"
+    ]
+  },
+  "final_score": 0.9500000000000001,
+  "id": "url-4bf38973ebde2c5250841c7d",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-13T18:46:06.527261Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-13T16:01:00Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "meta_engineering",
+  "summary_zh": "Meta介绍了其大型广告推荐基础模型GEM，采用受大语言模型启发的生成式范式来扩展广告推荐系统的规模与计算能力。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Meta’s Generative Ads Model (GEM): Scaling the Central Model and Compute Engine for Frontier Ads AI",
+  "url": "https://engineering.fb.com/2026/10/13/ml-applications/generative-ads-model-gem-scaling-frontier-ads-ai"
+}

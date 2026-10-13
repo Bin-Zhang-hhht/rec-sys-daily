@@ -1,0 +1,11 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-4bf38973ebde2c5250841c7d",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Meta介绍了其大型广告推荐基础模型GEM，采用受大语言模型启发的生成式范式来扩展广告推荐系统的规模与计算能力。"
+    }
+  ],
+  "date": "2026-10-14",
+  "papers": []
+}
