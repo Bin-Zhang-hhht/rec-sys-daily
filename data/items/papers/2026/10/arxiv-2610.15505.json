@@ -1,0 +1,132 @@
+{
+  "abstract": "Federated Recommendation Systems (FedRSs) learn collaborative scores from interaction histories on device and rank items by them, so a higher score means a higher rank. Item text and images add semantic information that can reorder the list. Existing Federated Multimodal Recommenders (FedMRs) fuse this content into their models, which can obscure how content reorders the list. We therefore propose the SEmantic Residual Adapter (SERA), which keeps content out of an existing FedRS and adds semantic residual scores to its collaborative scores. Content can then lift an item above another only when its semantic residual score exceeds the other's by more than their collaborative score gap. This score grows with the item's content similarity to the user's interaction history and is capped at a residual bound. We prove that for any content, an item can enter the list only if its collaborative score is within twice this bound of the lowest one in the list. A larger bound lets content lift more items, including irrelevant ones, so the bound trades off how far content reaches against accuracy. With a validated bound, SERA improves all three FedRSs on all six datasets without adding personalized parameters. It outperforms FedMRs in most comparisons and lifts some FedRSs above centralized baselines. Federated Recommendation Systems (FedRSs) learn collaborative scores from interaction histories on device and rank items by them, so a higher score means a higher rank. Item text and images add semantic information that can reorder the list. Existing Federated Multimodal Recommenders (FedMRs) fuse this content into their models, which can obscure how content reorders the list. We therefore propose the SEmantic Residual Adapter (SERA), which keeps content out of an existing FedRS and adds semantic residual scores to its collaborative scores. Content can then lift an item above another only when its semantic residual score exceeds the other's by more than their collaborative score gap. This score grows with the item's content similarity to the user's interaction history and is capped at a residual bound. We prove that for any content, an item can enter the list only if its collaborative score is within twice this bound of the lowest one in the list. A larger bound lets content lift more items, including irrelevant ones, so the bound trades off how far content reaches against accuracy. With a validated bound, SERA improves all three FedRSs on all six datasets without adding personalized parameters. It outperforms FedMRs in most comparisons and lifts some FedRSs above centralized baselines.",
+  "arxiv_id": "2610.15505",
+  "authors": [
+    "Zhiwei Li",
+    "Guodong Long",
+    "Chengqi Zhang",
+    "Jing Jiang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SERA 可在不重训现有联邦协同推荐器的情况下接入物品文本和图像内容，降低企业在已有 FedRS 上增加多模态能力的迁移与工程成本。",
+      "残差上界和 reach 条件为推荐产品提供了可解释的内容影响控制机制：通过设置残差预算 κ，可以限定内容对 Top-K 列表的干预范围，减少无关内容被抬升的风险。",
+      "共享内容表示有助于缓解稀疏交互和冷启动问题，因为内容表征可从其他用户交互中学习，并对少交互物品进行排序修正。",
+      "不增加个性化参数可降低客户端个性化存储和训练维护成本；但需权衡 M×d 内容表的通信和存储开销，在物品目录极大的场景中部署成本更明显。",
+      "支持安全聚合、梯度裁剪和加噪，适合对数据本地化和隐私敏感的业务场景；但产品若对外宣称隐私保护，需明确当前核算仅覆盖部分机制而非完整训练流程。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "提出 SERA（语义残差适配器），在分数级将物品文本和图像内容融合到已有 FedRS 的协同分数上，内容不进入协同模型的输入、表征或训练目标，也无需重建或重训原有 FedRS。",
+      "使用协同分数对用户交互历史中的物品加权构造个性化内容查询，并用用户在全物品集上协同分数的标准差自适应缩放残差，所有新增可训练参数均为共享投影器，不增加个性化参数。",
+      "证明任意内容下，协同 Top-K 之外的物品要进入最终 Top-K，其协同分数与第 K 名协同分数的差距必须不超过两倍残差上界；每对物品在残差预算增大时最多改变一次排序。",
+      "在六个数据集上，SERA 使 FedAvg、PFedRec、FedRAP 三种 FedRS 的 Recall@50 与 NDCG@50 全部提升，并在大多数比较中优于 FedVLR、GFMFR 等联邦多模态基线。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "IV. Methodology"
+      },
+      {
+        "page": 1,
+        "section": "V. Algorithm Analysis"
+      },
+      {
+        "page": 1,
+        "section": "VI. Experiments"
+      },
+      {
+        "page": 1,
+        "section": "VI-C Performance Comparison"
+      },
+      {
+        "page": 1,
+        "section": "VI-D Parameter Analysis"
+      },
+      {
+        "page": 1,
+        "section": "VI-I Privacy-Utility Trade-Off"
+      },
+      {
+        "page": 1,
+        "section": "Appendix C Design Component Comparisons"
+      },
+      {
+        "page": 1,
+        "section": "Appendix D Deployment Cost"
+      },
+      {
+        "page": 1,
+        "section": "Appendix G Detailed Proofs"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "集中式多模态推荐：VBPR、BM3、MGCN、FITMM、PGL、MSCA",
+        "ID 联邦推荐骨干：FedAvg、PFedRec、FedRAP",
+        "联邦多模态推荐：FedMMR、AMMFRS、FedVLR、GFMFR"
+      ],
+      "datasets": [
+        "Beauty（Amazon All Beauty）",
+        "Cards（Amazon Gift Cards）",
+        "ML（MovieLens-latest-small）",
+        "Dance（NineRec 短视频）",
+        "Food（NineRec 短视频）",
+        "Movie（NineRec 短视频）"
+      ],
+      "findings_zh": [
+        "SERA 在全部六个数据集上提升 FedAvg、PFedRec、FedRAP 三种骨干的 Recall@50 与 NDCG@50，并缩小与最优集中式方法的差距，部分骨干超过集中式基线。",
+        "在相同骨干下，SERA 优于 GFMFR 全部数据集比较，并在大多数比较中优于 FedVLR；仅在 FedRAP+Beauty 和 PFedRec+Cards 上落后 FedVLR。",
+        "SERA 不增加任何客户端个性化参数；新增可训练参数全部在服务端共享投影器，且共享参数总量少于 FedVLR 与 GFMFR 的新增共享参数。",
+        "内容消融显示图像特征通常比文本特征带来更稳定的准确率收益；打乱物品内容或替换为随机特征通常会降低平均准确率；加入残差分数后改进的用户数多于受损用户数。",
+        "残差预算增大时，准确率先升后平或下降，受损用户比例上升，与理论 reach 条件和 pairwise rank path 一致；线性残差在 Food 上通常优于 tanh 残差。",
+        "对客户端上传残差梯度做裁剪加噪后，NDCG 随目标 SNR 下降而下降并趋于平稳；文中 RDP 核算仅覆盖条件聚合机制，不构成完整训练过程的差分隐私保证。"
+      ],
+      "metrics": [
+        "Recall@50",
+        "NDCG@50"
+      ]
+    },
+    "limitations_zh": [
+      "SERA 并非全面优于所有联邦多模态基线：在 FedRAP+Beauty 和 PFedRec+Cards 上落后 FedVLR。",
+      "残差预算越大，内容可跨越的协同分数差距越大，但也可能把不相关物品抬升进推荐列表；预算过大时准确率下降，最终排序趋近于纯内容相似度排序。",
+      "内容增益依赖骨干和数据集，部分 FedAvg/PFedRec 配置下平均增益接近零甚至为负；协同模型的持续训练有时会削弱内容表示学习的收益。",
+      "为计算用户自适应残差尺度 σ_u，需要对用户在所有物品上的协同分数进行额外计算；同时服务端与客户端需传输和存储 M×d 内容表，通信/存储/内存成本随物品数量增长，且 ML 的长历史造成额外训练开销。",
+      "隐私方面，非零残差梯度行可能泄露历史或小批量物品索引；论文的隐私核算只覆盖条件聚合残差机制，不涵盖协同更新、校准和超参选择，因此不能为完整训练提供差分隐私保证。"
+    ],
+    "method_zh": "SERA 将最终分数定义为 s(u,i)=sg[a(u,i)]+r(u,i)，其中协同分数 a(u,i) 经 stop-gradient 保留数值但阻断梯度，使内容只能通过语义残差 r(u,i) 改变排序。物品的冻结文本/图像特征经共享投影器 h_φ 映射并 L2 归一化为内容表征 z_i；用户查询 q_u 由历史物品表征按协同分数 softmax 权重加权后归一化得到。残差为 r(u,i)=κ·σ_u·tanh(⟨q_u,z_i⟩/τ_r)，其中 σ_u 是用户协同分数在全物品集上的标准差，κ 为全局残差预算，因此 |r(u,i)|≤R_u=κσ_u tanh(1/τ_r)。训练时将基于最终分数的 BPR 风险作为残差目标加入原 FedRS 目标，但只更新投影器；服务端计算并广播内容表，客户端本地更新协同模型并上传残差梯度，服务端聚合后更新投影器。推理时按 s(u,i) 排序。",
+    "problem_zh": "联邦推荐系统仅依靠设备端交互历史学习协同分数并对物品排序，物品文本和图像等语义信息可以缓解稀疏交互带来的排序困难。但现有联邦多模态推荐器通常把内容融合进输入、表征或训练目标，导致内容对最终排序的影响难以解释和控制。本文提出一种分数级适配器 SERA，在不修改已有联邦协同推荐器的情况下，为协同分数添加有界语义残差分数，从而显式控制内容对推荐列表的影响范围。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.9035,
+  "id": "arxiv-2610.15505",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-11T10:13:22Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出语义残差适配器（SERA），在不改变已有联邦推荐系统协同评分的基础上叠加语义残差分数来重排物品列表，从而改善多模态推荐中的排序效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Federated Semantic Residuals for Multimodal Recommendation",
+  "url": "https://arxiv.org/abs/2610.15505v1"
+}

@@ -1,0 +1,127 @@
+{
+  "abstract": "Harnessing rich modality features has recently gained prominence in multi-modal recommendation systems (MRSs). To delineate user modality preferences, existing works focus on modality fusion, which can be achieved via attentive summation or concatenation. In this work, we introduce the modality inhibitance effect - a phenomenon which limits existing MRSs when these models transit from dual-modal to tri-modal configurations resulting in significant performance degradation. In particular, apart from the modal-specific contamination encapsulated in the newly introduced modality, the inclusion of new features results in excessive informational redundancy, thereby severely impeding effective integration within current approaches. To address the modality inhibitance effect, we propose a new multi-scale modality wavelet (MMWave) multi-modal recommender, which aims to fully capitalize on essential modality features and suppress modal-specific noise. This is acheived by employing wavelet decomposition from a multi-scale (time \\& frequency) perspective, ensuring that only essential (non-redundant) features of each modality are extracted. We then account for the latent associations between item modality features by designing a new structure-aware multi-modal graph learning module that captures high-order latent structural information pertaining to items. To modulate the relative contributions of modality features and achieve effective integration, we then propose a new adaptive modality regulator component that employs a new cross-weight integration strategy. Experiments conducted on four real-world datasets validate the efficacy of our proposed model. The source code for this work has been made publicly available at https://github.com/kennethorq/MMWave. Harnessing rich modality features has recently gained prominence in multi-modal recommendation systems (MRSs). To delineate user modality preferences, existing works focus on modality fusion, which can be achieved via attentive summation or concatenation. In this work, we introduce the modality inhibitance effect - a phenomenon which limits existing MRSs when these models transit from dual-modal to tri-modal configurations resulting in significant performance degradation. In particular, apart from the modal-specific contamination encapsulated in the newly introduced modality, the inclusion of new features results in excessive informational redundancy, thereby severely impeding effective integration within current approaches. To address the modality inhibitance effect, we propose a new multi-scale modality wavelet (MMWave) multi-modal recommender, which aims to fully capitalize on essential modality features and suppress modal-specific noise. This is acheived by employing wavelet decomposition from a multi-scale (time \\& frequency) perspective, ensuring that only essential (non-redundant) features of each modality are extracted. We then account for the latent associations between item modality features by designing a new structure-aware multi-modal graph learning module that captures high-order latent structural information pertaining to items. To modulate the relative contributions of modality features and achieve effective integration, we then propose a new adaptive modality regulator component that employs a new cross-weight integration strategy. Experiments conducted on four real-world datasets validate the efficacy of our proposed model. The source code for this work has been made publicly available at https://github.com/kennethorq/MMWave.",
+  "arxiv_id": "2610.16229",
+  "authors": [
+    "Rongqing Kenneth Ong",
+    "Andy W. H. Khong"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商平台，MMWave能更充分利用视觉与文本模态，提升Recall和NDCG，有望改善商品检索与个性化推荐效果。",
+      "对短视频平台，显式建模视觉、文本、音频三种模态并抑制冗余信息有助于提升推荐质量；但文本特征噪声较大，需谨慎设计。",
+      "MMWave的模态图和融合图可预先构建，训练期无需反复学习图结构，适合需要控制在线训练成本的推荐场景。",
+      "相对于性能提升，MMWave只增加适度内存和训练开销，作者认为其在实际部署中具有较好的效果-成本权衡。",
+      "论文公开了源代码，便于工业界复现和二次开发。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "首次提出模态抑制效应（MIE），指出这是当前多模态推荐模型的关键局限，并提出基于小波变换的MMWave模型来缓解该效应。",
+      "设计结构感知的多模态图学习（structure-aware multi-modal graph learning）模块，通过用户-物品与物品-物品视图编码高阶行为与语义结构信号。",
+      "提出自适应模态调节器（adaptive modality regulator），利用单模态与融合表示之间的交叉加权策略以及行为信号注入，实现更精确的自适应模态集成。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "I. INTRODUCTION"
+      },
+      {
+        "page": 1,
+        "section": "III. THE PROPOSED MMWAVE MULTI-MODAL RECOMMENDER"
+      },
+      {
+        "page": 1,
+        "section": "IV. EXPERIMENTS AND RESULTS"
+      },
+      {
+        "page": 1,
+        "section": "IV-A. Effectiveness of MMWave (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "IV-B. Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "IV-D. Practical Efficiency and Scalability (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "IV-E. Impact of Feature Extraction and Integration on Modality Inhibition (RQ5)"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BPR",
+        "LightGCN",
+        "VBPR",
+        "LGCN-M",
+        "MMGCN",
+        "GRCN",
+        "SLMRec",
+        "BM3",
+        "FREEDOM",
+        "LGMRec",
+        "MIG-GT"
+      ],
+      "datasets": [
+        "Baby",
+        "Sports",
+        "Clothing",
+        "Tiktok"
+      ],
+      "findings_zh": [
+        "在四个真实数据集上，MMWave一致优于所有基线和现有SOTA模型，平均提升6.48%，且经配对t检验p<0.01显著。",
+        "表I显示，MMGCN、FREEDOM、LGMRec等融合模型在TikTok三模态配置下的性能低于某些双模态配置，而非融合模型BM3在全模态下最优，说明现有融合方法存在模态抑制效应。",
+        "消融实验表明，移除结构感知多模态图学习模块对性能损害最大；在TikTok上移除小波模态混合器或自适应模态调节器平均造成约7.6%的性能下降。",
+        "模态消融实验中，使用全部模态的配置始终优于单模态和简单融合配置；在电商数据中文本单模态效果较好，而在TikTok中视觉单模态表现更强。",
+        "用小波基函数替换实验显示，MMWave对基函数选择总体稳健；在TikTok上Bior4.4优于Haar，可能因其线性相位特性更适合异构的三模态特征。",
+        "与MLP式去噪变体相比，MMWave的小波特征提取在Baby、Sports和TikTok上均更优，说明性能提升来自小波机制而非参数容量。",
+        "效率分析显示，MMWave内存与训练时间略高于FREEDOM/LGMRec等基线，但评估时间相近；图结构预计算避免了训练期额外开销，整体代价可控。",
+        "在TikTok污染实验中，随着噪声增加，visual+audio配置的表现接近全模态配置，说明短视频场景中视觉和音频更可靠，而文本可能因用户生成标题随意性而可靠性较低。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "Recall@20",
+        "NDCG@5",
+        "NDCG@10",
+        "NDCG@20"
+      ]
+    },
+    "limitations_zh": [
+      "MMWave的内存占用高于大多数基线（如Baby上为2.55GB，而FREEDOM为1.66GB），主要来自自适应模态调节器中的模态专用与融合MLP。",
+      "训练时间高于多数基线（如Sports上为10.41s/epoch，高于LGMRec的8.46s/epoch），效率对比未包含预处理的特征值分解时间。",
+      "三模态完整验证仅在TikTok上展开，Amazon三个数据集均为视觉+文本双模态，跨更多模态场景的泛化证据有限。",
+      "TikTok上过深的小波分解（L=4）会显著损害性能，说明最优分解层数依赖数据本身的语义结构。",
+      "作者指出文本特征在短视频平台可能不可靠，且缺失模态问题、模拟模态等仍是有待探索的方向。"
+    ],
+    "method_zh": "MMWave包含三个核心组件：(1) 小波模态混合器：使用Haar离散小波变换将原始各模态特征分解为近似系数和细节系数，对保留主要信息的低频近似系数施加可训练的点乘衰减，再通过改进的逆小波变换重构去噪后的单模态特征，并经MLP投影到共享空间；随后通过门控机制注入ID行为信息，得到单模态和早期融合表示。(2) 结构感知多模态图学习：基于物品模态特征构造单模态相似图并做top-K稀疏化和归一化；对单模态图做谱分解后，用其他模态的特征值信息加权增强各单模态图，再平均得到融合图；使用类似LightGCN的传播在单模态图、融合图和用户-物品交互图上递归编码高阶表示。(3) 自适应模态调节器：用融合注意力权重重新加权所有单模态特征，用单模态注意力权重平均加权融合特征，并经参数化门函数引入协同偏好，最终得到模态侧表示。优化目标为BPR损失、InfoNCE对比损失和L2正则的联合损失。",
+    "problem_zh": "现有基于融合的多模态推荐系统（MRS）在从双模态扩展到三模态时出现明显的性能下降，本文将其称为模态抑制效应（modality inhibition effect, MIE）。该效应源于新引入模态中的模态特有噪声以及跨模态冗余信息；现有方法不加区分地融合各模态信号，导致信息冗余并抑制推荐性能。作者还给出了MIE的形式化定义：当加入新模态使跨模态冗余增加且推荐性能下降时，MIE发生，并将其与模态不平衡（modality imbalance）问题区分开。",
+    "technical_depth": 0.88
+  },
+  "doi": "10.1109/tkde.2026.3737154",
+  "final_score": 0.916,
+  "id": "arxiv-2610.16229",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-10-12T06:05:47Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文针对多模态推荐系统中的模态抑制效应，提出基于小波分解与结构感知图学习的 MMWave 多模态推荐模型。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Tackling the Modality Inhibitance Effect with Wavelet-based Modality Integration in Multi-modal Recommendation",
+  "url": "https://arxiv.org/abs/2610.16229v1"
+}

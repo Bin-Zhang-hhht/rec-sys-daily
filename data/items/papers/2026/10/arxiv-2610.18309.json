@@ -1,0 +1,111 @@
+{
+  "abstract": "Choosing the right physician is a key challenge for patients seeking medical care. Physician recommendation systems identify relevant doctors, but patients still find it difficult to compare their profiles to make a decision. We formulate slate presentation optimization: given a patient's medical case and a fixed, ranked list of physicians, we generate short, case-specific summaries that make doctors easier to compare, while remaining grounded in the information in their profiles. To optimize physician presentations without relying on real patient interactions, we develop an offline framework that uses persona-conditioned LLMs to simulate patient choices. We generate patient personas from attributes extracted from each medical case and evaluate presentations for factual accuracy, relevance, naturalness and simulated patient choice. We also use a second LLM judge, unseen during optimization, to assess simulator-specific overfitting. We compare automatic prompt-level optimization with GEPA, parameter-level optimization with GRPO, and their combination across two model sizes. GRPO substantially outperforms GEPA in satisfying the full set of constraints, and its gains in simulated conversion persist under the unseen judge. GEPA alone brings smaller improvements, but using its optimized prompt to initialize GRPO speeds up training and achieves the highest simulated conversion. These results show that prompt-level and parameter-level optimization play complementary roles in improving how physician recommendations are presented. Choosing the right physician is a key challenge for patients seeking medical care. Physician recommendation systems identify relevant doctors, but patients still find it difficult to compare their profiles to make a decision. We formulate slate presentation optimization: given a patient's medical case and a fixed, ranked list of physicians, we generate short, case-specific summaries that make doctors easier to compare, while remaining grounded in the information in their profiles. To optimize physician presentations without relying on real patient interactions, we develop an offline framework that uses persona-conditioned LLMs to simulate patient choices. We generate patient personas from attributes extracted from each medical case and evaluate presentations for factual accuracy, relevance, naturalness and simulated patient choice. We also use a second LLM judge, unseen during optimization, to assess simulator-specific overfitting. We compare automatic prompt-level optimization with GEPA, parameter-level optimization with GRPO, and their combination across two model sizes. GRPO substantially outperforms GEPA in satisfying the full set of constraints, and its gains in simulated conversion persist under the unseen judge. GEPA alone brings smaller improvements, but using its optimized prompt to initialize GRPO speeds up training and achieves the highest simulated conversion. These results show that prompt-level and parameter-level optimization play complementary roles in improving how physician recommendations are presented.",
+  "arxiv_id": "2610.18309",
+  "authors": [
+    "Andrei Niculae",
+    "Adrian Cosma",
+    "Emilian Radoi"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在线医疗平台可以在不改变推荐排序的情况下，通过优化医生简介呈现方式提高患者咨询意愿和转化率，这对依赖在线问诊或医生预约的平台具有直接商业价值。",
+      "GRPO训练后4B小模型即可接近12B模型的效果，可降低自托管推理和部署成本，对处理患者隐私数据的平台尤其重要。",
+      "约束评判器（事实性、安全性、禁止夸大或制造紧迫感）有助于降低营销化、误导性医疗文案风险，适合作为医疗推荐产品的内容安全机制。",
+      "离线模拟优化框架允许在无需真实患者在线实验的情况下迭代呈现策略，缩短产品实验周期；但上线前仍需真实患者验证和临床/合规审查。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "将医生名单呈现（slate presentation）形式化为检索后优化问题，并引入明确的事实性、安全性和界面约束。",
+      "提出离线优化协议：使用基于人物属性（persona）的LLM模拟患者选择，并引入优化期间不可见的第二LLM评判器来检验对模拟器的过拟合。",
+      "系统比较提示级优化（GEPA）、参数级优化（GRPO）及其组合，并发现两者有互补作用：GRPO主要学会满足约束，GEPA优化后的提示可作为GRPO的有效初始化。",
+      "实验表明，经过GRPO后4B模型与12B模型表现相近，较小的模型即可承担该任务。"
+    ],
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction and Related Work"
+      },
+      {
+        "page": 1,
+        "section": "2 Method"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Suite of Judge LLMs for Slate Optimization"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "3 Results"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "未优化的固定提示（unoptimized prompt）",
+        "GEPA单独优化",
+        "GRPO单独优化",
+        "GEPA → GRPO组合",
+        "GRPO → GEPA组合"
+      ],
+      "datasets": [
+        "从罗马尼亚医疗论坛患者报告病例和医生数据库构建的10,000个医生名单，按专科分层抽样，划分8,000训练/1,000验证/1,000测试"
+      ],
+      "findings_zh": [
+        "GRPO将两个模型规模下通过全部约束的名单比例从不足2%提高到90%以上，而GEPA单独最多只达到28%。",
+        "GEPA单独主要改善faithfulness和relevance等单项标准，难以同时满足全部约束。",
+        "用GEPA优化后的提示初始化GRPO，达到相同训练奖励所需的步数减少为原来的1.6–1.9倍，并取得最高的模拟转化率。",
+        "GRPO→GEPA方向未能进一步提升总体得分；在4B模型上，GEPA没有任何候选超过GRPO已有的提示。",
+        "GRPO使4B和12B模型表现相近，较大模型在优化前各指标更优，但优化后差异基本消失。",
+        "转化率的提升在未见评判器Claude Haiku 5.5下仍然保持，表明改进并非仅针对训练时的模拟评判器。",
+        "将转化评判纳入奖励函数具有正则化作用：若只用于评估而不参与奖励，优化后的卡片虽满足质量标准但转化率下降。"
+      ],
+      "metrics": [
+        "Pass HARDCHECKS（通过硬性检查且每个陈述都被支持的比例）",
+        "模拟转化率（训练用gemma persona评判器评分4–5的比例）",
+        "未见评判器转化率（Claude Haiku 5.5评分4–5的比例）",
+        "GRPO训练奖励达到相同水平的训练步数",
+        "faithfulness、relevance、style、topic coverage等质量指标"
+      ]
+    },
+    "limitations_zh": [
+      "该框架完全依赖LLM模拟患者选择，未使用真实患者交互数据；LLM模拟器可能与真实患者存在系统性偏差。",
+      "论文明确承认，两个评估评判器都是LLM，可能共享偏差或与真实患者不同。",
+      "更高的模拟转化率不一定意味着患者做出更好的医生选择。",
+      "实验数据为罗马尼亚语医疗论坛病例和医生档案，模型与评判器均在该数据环境下评估，跨语言、跨地区乃至跨平台的泛化性未被验证。",
+      "研究只测试了gemma-3-4b和gemma-3-12b两种骨干模型以及GEPA/GRPO两种优化器，其他模型族和优化方法的效果未知。"
+    ],
+    "method_zh": "给定患者病例c和固定排序的医生名单D=(d1,d2,d3)，SLATEOPTIMIZER生成有序的医生摘要卡片S=(s1,s2,s3)。优化目标由一组LLM评判器组成：HARDCHECKS对格式和禁止模式分配零奖励；FAITHFULNESS-JUDGE检查每个陈述是否可溯源到病例和医生档案；RELEVANCE-JUDGE评估病例相关性并检查是否给出医疗建议；STYLE-JUDGE评估自然度；TOPICJUDGE判断是否上下文性地识别患者问题；确定性trigram重叠惩罚重复。为建模患者异质性，方法按照PatientSim的思路从病例中提取患者属性并生成first-person人物提示，PERSONAJUDGE在人物条件下评估咨询意愿。奖励同时用于GEPA（提示优化）和GRPO（参数优化）。实验还测试两种组合方向：GEPA→GRPO（用GEPA优化后的提示初始化GRPO）和GRPO→GEPA（在GRPO训练模型上再运行GEPA）。",
+    "problem_zh": "患者在选择医生时缺乏足够的医学知识，难以比较推荐系统给出的医生简介并做出决策。已有研究主要关注医生的检索与排序，忽略了向患者呈现固定医生名单（slate）的方式。本文提出“医生名单呈现优化”（slate presentation optimization）：在给定患者病情和固定、已排序的医生列表时，生成简洁且与病例相关的摘要，帮助患者理解与比较医生，同时保持对医生档案的事实依据，并且不改变医生顺序或替患者做决定。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.825,
+  "id": "arxiv-2610.18309",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-13T12:52:47Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究医生推荐场景下基于人格化 LLM 用户模拟器的候选展示优化，并结合提示级与参数级优化，属于推荐系统重排/展示优化内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Prompt or Policy? Optimizing Physician Slate Presentations with LLM User Simulators",
+  "url": "https://arxiv.org/abs/2610.18309v1"
+}

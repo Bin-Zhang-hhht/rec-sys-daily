@@ -1,0 +1,161 @@
+{
+  "abstract": "Multimodal recommender systems effectively alleviate data sparsity and cold-start problems by integrating heterogeneous information, yet complex cross-modal representations and model decision-making processes also introduce new interpretability challenges. Despite the rapid growth of research on the interpretability of multimodal recommendation in recent years, relevant methods and evaluation criteria remain relatively fragmented, lacking a unified conceptual framework. To address this gap, this paper categorizes existing methods into modality explanation and post-hoc explanation based on the timing and manner of explanation generation, and further constructs a progressive system for each category. Building on this foundation, this paper synthesizes four categories of evaluation metrics from both objective quantitative and subjective perceptual perspectives, and reviews relevant datasets along the dimensions of application domain and data source. Through a comprehensive analysis of existing research, we further propose future research directions. This paper aims to establish a unified analytical perspective across multimodal representation, recommendation decision-making, and user preferences, providing a research foundation for building transparent and trustworthy multimodal recommender systems. Multimodal recommender systems effectively alleviate data sparsity and cold-start problems by integrating heterogeneous information, yet complex cross-modal representations and model decision-making processes also introduce new interpretability challenges. Despite the rapid growth of research on the interpretability of multimodal recommendation in recent years, relevant methods and evaluation criteria remain relatively fragmented, lacking a unified conceptual framework. To address this gap, this paper categorizes existing methods into modality explanation and post-hoc explanation based on the timing and manner of explanation generation, and further constructs a progressive system for each category. Building on this foundation, this paper synthesizes four categories of evaluation metrics from both objective quantitative and subjective perceptual perspectives, and reviews relevant datasets along the dimensions of application domain and data source. Through a comprehensive analysis of existing research, we further propose future research directions. This paper aims to establish a unified analytical perspective across multimodal representation, recommendation decision-making, and user preferences, providing a research foundation for building transparent and trustworthy multimodal recommender systems.",
+  "arxiv_id": "2610.15484",
+  "authors": [
+    "Chen Liang",
+    "Jinghui Li",
+    "Xiuze Zhou",
+    "Zongyue Wang",
+    "Yuanguo Lin",
+    "Han Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可解释性可显著提升用户信任和满意度，在对话式推荐等场景中已得到验证，有助于提高推荐系统的用户接受度。",
+      "在医疗、金融等高风险决策场景中，用户对可解释性的需求尤为迫切；面向医疗的可解释跨域推荐可帮助患者理解治疗推荐依据，教育场景中可解释课程推荐可提升学习者的参与度。",
+      "在电商、时尚、短视频、旅游等商业场景中，多模态可解释推荐既可通过图像/文本/音频融合改善用户兴趣建模和推荐精度，也可通过注意力权重、知识图谱路径、视觉高亮等方式向用户说明推荐理由。",
+      "从系统运维角度看，可解释性支持调试和故障定位：如通过梯度归因暴露决策路径、诊断短视频推荐模型，或通过知识图谱推理提供可视化解释。",
+      "从合规角度看，可解释性是合规AI运行的前提：例如差分隐私推荐通过梯度量化特征影响以校准噪声并满足隐私规则，视频推荐需满足负反馈解释要求。",
+      "“解释即证据”、多模态潜在偏好发现和解释驱动学习等方向若落地，可帮助企业将用户对解释的反馈转化为模型优化信号，从而持续改进推荐质量与商业效果。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "首次系统梳理多模态推荐的可解释性技术，填补该交叉领域综述空白。",
+      "基于解释生成的时机和方式建立二维分类框架：将方法划分为“模态解释”（modality explanation）与“事后解释”（post-hoc explanation），并为每一类构造逐级递进体系：模态解释包含模态对齐、模态贡献、模态内解释、模态间解释；事后解释包含特征重要性分析、多模态LLM生成解释、知识图谱推理路径、反事实解释。",
+      "从客观量化与主观感知两个视角综合了四类评估指标：模型透明性/重要性指标、反事实专用指标、生成式解释指标、人工评估指标。",
+      "按应用领域和数据源对常用数据集进行归类与综述，如电商、时尚、媒体内容、地点与本地服务、教育等。",
+      "总结了多模态可解释推荐特有的技术挑战（模态对齐黑箱、融合权重难以个性化、弱监督标注依赖、协同信息建模缺乏统一框架等），并展望了“解释即证据”、多模态潜在偏好发现、交互式解释、演化用户模型、上下文感知推荐、分层偏好推理、解释驱动学习等方向。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "I-A. The Need for Explainability"
+      },
+      {
+        "page": 1,
+        "section": "III. Modality-Level Explainability"
+      },
+      {
+        "page": 1,
+        "section": "IV. Post-Hoc Explanations"
+      },
+      {
+        "page": 1,
+        "section": "V. Evaluation and Resources"
+      },
+      {
+        "page": 1,
+        "section": "VI. Future Research Directions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "不适用：本文为综述，未报告统一基线实验；文中所引各研究通常以经典多模态/可解释推荐模型为对比对象，例如VTJEI、EARec、MDR、MMALFM、GraphFusion-HRL、VECF、MMCT、MKRLN、HKGAT、RICE、CAVIAR等。"
+      ],
+      "datasets": [
+        "Amazon Product Review Datasets",
+        "ESCI",
+        "Amazon-C4",
+        "Pixel-1M",
+        "Polyvore Outfits",
+        "Polyvore-U",
+        "iFashion",
+        "FashionVC",
+        "PolyvoreMaryland",
+        "IQON3000",
+        "ModCloth",
+        "MovieLens",
+        "Microlens",
+        "YouTube-8M",
+        "KKBOX",
+        "KuaiRec",
+        "Gest",
+        "Jalan.net Tourism Data",
+        "ASSISTments",
+        "MMConv",
+        "Documerica"
+      ],
+      "findings_zh": [
+        "2018至2026年间，多模态可解释推荐领域论文数量呈增长趋势，主要原因是多模态融合有助于缓解数据稀疏和冷启动，而实际应用中的可解释性需求日益受到关注。",
+        "现有综述呈“单维覆盖但跨域有空缺”的特征：多模态推荐综述聚焦融合技术和性能优化，可解释性仅作为未来方向略提；单模态可解释推荐综述则未考虑跨模态交互带来的新挑战。",
+        "本文建立的分类框架表明，模态解释的四个层面呈递进关系：模态对齐是贡献解释的前提，贡献解释为模态内分析指明方向，模态内揭示的细粒度属性又构成模态间交互分析的基础。",
+        "事后解释的四类方法在因果推断深度和可读性上存在差异：特征重要性理论扎实但可读性弱；LLM生成的解释可读性强，但与模型真实决策的一致性仍未解决；知识图谱路径逻辑清晰但受图覆盖和搜索效率约束；反事实解释因果能力最强，但高维多模态空间中的样本搜索计算成本高。",
+        "评估指标可分为模型透明性/重要性、反事实专用、生成式解释和人工评估四类，其中既包括Path Score、Integrated Gradients、DeepSHAP等客观量化指标，也包括Persuasiveness、Trust、User Explanation Acceptance Rate等主观指标。",
+        "未来方向包括将解释作为可追溯证据、借助概念瓶颈模型和对比学习发现多模态潜在偏好、通过持续学习/元学习/LLM建模用户偏好演化、结合视觉语言模型和数字孪生实现上下文感知推荐等。"
+      ],
+      "metrics": [
+        "Precision",
+        "Recall",
+        "NDCG",
+        "HR",
+        "MRR",
+        "AUC",
+        "F1",
+        "RMSE",
+        "MAE",
+        "BLEU",
+        "ROUGE",
+        "USR",
+        "FMR",
+        "FCR",
+        "Validity",
+        "Explanation Fidelity",
+        "Explanation Number",
+        "ATE",
+        "ITE",
+        "Path Score",
+        "Integrated Gradients",
+        "DeepSHAP",
+        "Persuasiveness",
+        "Usefulness",
+        "Effectiveness",
+        "Scrutability",
+        "Trust",
+        "Plausibility",
+        "User Explanation Acceptance Rate"
+      ]
+    },
+    "limitations_zh": [
+      "现有方法和评估标准相对碎片化，缺乏统一的概念框架和可解释性类型划分。",
+      "模态对齐过程存在黑箱问题，限制解释的可验证性。",
+      "固定融合权重难以适应个性化偏好，不同用户和场景下模态主导性可能不同。",
+      "模态内解释依赖弱监督标注，扩展性受限；自动可解释因素目前仍以文本属性为主。",
+      "多模态协同信息（如“仅图像”“仅文本”“冗余”“协同”信息）缺乏统一的建模框架。",
+      "LLM生成的解释可能与模型真实决策不一致，早期方法存在“凭空捏造”风险，缺少统一标准验证解释的忠实性。",
+      "反事实解释长期局限于纯协同过滤场景，难以处理多模态信息；视觉扰动需要依赖CLIP等外部模型才能转换为用户可读的语义解释。",
+      "知识图谱构建成本高，在结构化知识稀缺的场景中应用受限；路径搜索效率和图覆盖也是瓶颈。",
+      "用户偏好会随时间、情境和任务变化，静态或固定的用户表示难以区分长期兴趣、短期意图和偶然行为，也难以解释推荐结果变化的原因。",
+      "现有工作较少将用户对解释的接受、质疑或修改反馈真正用于后续模型学习。"
+    ],
+    "method_zh": "本文是综述论文，采用系统性文献调研方法：以“多模态推荐”与“可解释/可解释性”为核心检索词，辅以“多模态融合”“跨模态表示”“反事实解释”“解耦表示推荐”等补充词，通过Google Scholar并扩展至IEEE Xplore、ACM Digital Library、SpringerLink、ScienceDirect等数据库检索；文献类型限定为国际会议和期刊的同行评审高水平论文，并以有影响力的arXiv预印本为补充。作者依据解释生成的时机和方式建立二维分类体系，逐类梳理代表性方法；在模态解释部分从模态对齐、模态贡献、模态内、模态间四个递进层面展开；在事后解释部分覆盖特征重要性、LLM生成解释、知识图谱推理路径、反事实解释。进一步综合评估指标、按应用领域与数据源分类数据集，并基于现有不足提出未来研究方向。",
+    "problem_zh": "多模态推荐系统通过融合图像、文本、音频等异构信息缓解了数据稀疏和冷启动问题，但其复杂的跨模态表示和决策过程形成新的“黑箱”，用户不仅需要知道推荐了什么，还需要理解“为什么被推荐”。现有可解释性方法和评估标准相对碎片化，缺少统一的概念框架，且已有综述要么聚焦多模态融合与性能优化、较少分析可解释性，要么面向单模态可解释推荐、忽略跨模态交互带来的解释挑战。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.7849999999999999,
+  "id": "arxiv-2610.15484",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-11T09:35:37Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该综述系统梳理了多模态推荐系统的可解释性方法、评估指标和数据集，从模态解释与事后解释等角度为透明可信的多模态推荐提供统一分析框架。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Toward Explainability in Multimodal Recommendation",
+  "url": "https://arxiv.org/abs/2610.15484v1"
+}

@@ -1,0 +1,133 @@
+{
+  "abstract": "E-commerce user preferences evolve dynamically within sessions, exhibiting concurrent and multi-centric interest distributions. While existing multimodal sequential recommendation methods leverage global attention to compress historical interactions, they inadequately capture the concurrent nature of multi-interest behaviors and fail to model the underlying multi-centric distribution of user intent. To tackle this issue, we propose OT-FlowRec, an optimal transport-guided multi-bridge flow matching framework that explicitly models multi-interest distributions to facilitate multimodal sequential recommendation. Unlike single-path generative models, OT-FlowRec constructs a mixture of parallel, interest-specific transport flows to model the multi-centric distribution characteristics, where each flow preserves a distinct user interest cluster via an optimal transport plan. Then, a geometric transport mechanism is designed to establish minimum-cost paths from the latent multi-interest distribution to target preference prototypes to provide multi-interest awareness. Moreover, a progressive time-sampling warmup strategy dynamically biases optimization weights toward the final states of the generation process, bridging the gap between continuous global distribution fitting and practical top-$k$ ranking metrics. This approach achieves explicit interest disentanglement, ensuring the preservation of a multi-peaked preference representation instead of collapsing it into a unimodal average. Extensive experiments on three public datasets demonstrate that OT-FlowRec outperforms existing state-of-the-art baselines. E-commerce user preferences evolve dynamically within sessions, exhibiting concurrent and multi-centric interest distributions. While existing multimodal sequential recommendation methods leverage global attention to compress historical interactions, they inadequately capture the concurrent nature of multi-interest behaviors and fail to model the underlying multi-centric distribution of user intent. To tackle this issue, we propose OT-FlowRec, an optimal transport-guided multi-bridge flow matching framework that explicitly models multi-interest distributions to facilitate multimodal sequential recommendation. Unlike single-path generative models, OT-FlowRec constructs a mixture of parallel, interest-specific transport flows to model the multi-centric distribution characteristics, where each flow preserves a distinct user interest cluster via an optimal transport plan. Then, a geometric transport mechanism is designed to establish minimum-cost paths from the latent multi-interest distribution to target preference prototypes to provide multi-interest awareness. Moreover, a progressive time-sampling warmup strategy dynamically biases optimization weights toward the final states of the generation process, bridging the gap between continuous global distribution fitting and practical top-$k$ ranking metrics. This approach achieves explicit interest disentanglement, ensuring the preservation of a multi-peaked preference representation instead of collapsing it into a unimodal average. Extensive experiments on three public datasets demonstrate that OT-FlowRec outperforms existing state-of-the-art baselines.",
+  "arxiv_id": "2610.16038",
+  "authors": [
+    "Miao Sun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商多模态序列推荐可直接提升下一件商品的命中率与排序质量，有助于改善推荐列表的整体相关性。",
+      "通过并行兴趣流建模同一会话中的多种并发兴趣，可避免推荐结果被单一主流兴趣主导，可能提高次要或长尾兴趣商品的曝光机会。",
+      "OT 约束下的确定性流匹配可降低生成轨迹的方向冲突和歧义，相比多步随机扩散采样更具稳定性和可控性，有潜在推理效率优势。",
+      "离线 H/NDCG 增益不能直接等同于线上业务收益，若要落地仍需在真实推荐场景中做 A/B 测试并评估转化、GMV、用户活跃度等指标。"
+    ],
+    "business_transferability": 0.58,
+    "contributions_zh": [
+      "提出 OT-FlowRec 多桥流学习框架，通过并行、兴趣特定的传输流显式建模用户内在的多中心兴趣分布，避免全局注意力机制把并发兴趣压成单一嵌入。",
+      "提出 OT-MBFM 模块，用 Sinkhorn 正则化最优传输建立从潜在多兴趣分布到目标偏好原型的最小代价路径，为生成轨迹提供方向约束；并提出 PTW 策略，动态将优化权重移向生成终态，对齐连续分布拟合与 top-k 排序指标。",
+      "在 Beauty、Video Games、Toys 三个公开 Amazon 数据集上，OT-FlowRec 在 H@10/20 和 N@10/20 上均优于现有三类基线。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Multi-Prototype Guided Source Distribution"
+      },
+      {
+        "page": 1,
+        "section": "2.4 OT-Guided Multi-Bridge Flow Matching"
+      },
+      {
+        "page": 1,
+        "section": "2.5 Progressive Time-sampling Warmup"
+      },
+      {
+        "page": 1,
+        "section": "3.2 RQ1: Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "3.3 RQ2: Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "3.4 RQ3: Qualitative Analysis"
+      },
+      {
+        "page": 1,
+        "section": "C Qualitative Analysis (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "D Additional Implementation Details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "MSSR",
+        "DreamRec",
+        "DiffuRec",
+        "DiffMM",
+        "ADRec",
+        "MoDiCF",
+        "PreferDiff",
+        "FMRec",
+        "FlowCF",
+        "FindRec"
+      ],
+      "datasets": [
+        "Beauty",
+        "Video Games",
+        "Toys"
+      ],
+      "findings_zh": [
+        "OT-FlowRec 在三个数据集、所有 top-k 指标上均超过传统序列模型、扩散模型和流模型三类基线；论文报告平均 H@20 提升 25.08%、N@20 提升 9.15%。",
+        "与传统序列模型最强基线 MSSR 相比，在 Beauty 上 H@20 提升约 32.53%、N@20 提升约 19.86%。",
+        "与扩散模型最强基线 ADRec 相比，在 Video Games 上 H@20 提升 27.69%、N@20 提升 10.63%。",
+        "与流模型最强基线 FlowCF 相比，在 Beauty 上 N@20 提升 9.81%。",
+        "消融实验显示，去掉 MPSD、OT-MBFM 或 PTW 都会造成性能下降；例如 Video Games 的 H@10 从完整模型的 0.1276 分别降至 0.1241、0.1239 和 0.1244。",
+        "定性分析显示，传统随机配对 flow matching 在 t=0.5 时方向一致性降至 0.18、歧义率高达 90.0%，而 OT-FlowRec 在三类时间步上方向一致性保持在 0.95 以上、歧义率低于 1.1%。",
+        "附录结果显示，OT-FlowRec 在三个数据集上的平均传输成本比传统 flow matching 低 24.2%。"
+      ],
+      "metrics": [
+        "H@10",
+        "H@20",
+        "N@10",
+        "N@20"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅在 Beauty、Video Games、Toys 三个 Amazon 公开数据集上进行，且过滤了交互少于 5 的用户和物品、序列截断为 50，对更长序列和更广泛域的外推能力未被验证。",
+      "视觉和文本特征使用预训练 BERT/CLIP 提取并保持冻结，模型性能可能受上游特征质量限制。",
+      "多个关键超参数需按数据集在验证集上搜索，例如原型数、Sinkhorn 正则化、ODE 步数、学习率等，调参成本较高。",
+      "评价以离线 H@10/20、N@10/20 为主，缺少在线业务指标、部署成本或用户侧收益的直接验证；论文也未报告真实生产环境实验。",
+      "附录指出，在兴趣结构较平滑的 Beauty 数据集上，各模块相对完整模型的增益较小，说明 OT 多桥机制的优势更依赖数据中兴趣多样性和语义复杂性。"
+    ],
+    "method_zh": "OT-FlowRec 包含三个核心模块。MPSD 使用 softplus 门控网络融合 ID、视觉和文本特征，构造用户状态，并在可学习兴趣原型空间上计算响应分数，选取 top-k 原型形成并行兴趣分布，避免单峰坍缩。OT-MBFM 以历史序列嵌入为源分布、top-k 原型为目标分布，通过 Sinkhorn 熵正则化求解最优传输耦合，沿最小代价路径进行确定性流匹配，并用原型正交约束保持语义多样性。PTW 在训练时用 Beta(α,1) 分布替代均匀时间采样，并随训练进程增大 α，使采样权重偏向 t→1 的终态，以强化排序相关的末段生成精度。推理时，各兴趣分支从共享初始状态出发，由 v_θ 参数化的 ODE 积分到终态，最后用 max-pooling 聚合各分支与候选物品的匹配分数。",
+    "problem_zh": "现有多模态序列推荐方法主要依赖全局注意力或单峰生成式模型，将用户复杂的多兴趣历史压缩为单一确定性嵌入，导致多中心兴趣分布坍缩；同时多数流匹配推荐模型使用随机配对的直线路径，没有建模历史交互与目标偏好之间的最优传输几何，生成轨迹缺少方向约束；此外，连续分布拟合目标与离散 top-k 排序指标之间存在不一致。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.861,
+  "id": "arxiv-2610.16038",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-12T01:23:07Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "OT-FlowRec利用最优传输引导的多桥流匹配显式建模多中心兴趣分布，用于多模态序列推荐，在多个数据集上优于现有基线。",
+  "targets": [],
+  "tasks": [],
+  "title": "OT-FlowRec: Optimal Transport-Guided Multi-Bridge Flow for Multimodal Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2610.16038v1"
+}

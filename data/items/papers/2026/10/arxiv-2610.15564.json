@@ -1,0 +1,139 @@
+{
+  "abstract": "We introduce UNISON, a unified framework that bridges multiple instance learning and recommendation systems by treating both as instances of learning from scored bag collections of (item, score) pairs. Unlike traditional approaches that address bag-level classification and personalized recommendation as separate problems, UNISON decomposes learning into three interconnected stages: (1) learning universal item representations, (2) modeling bag-specific preference patterns through lightweight personalized parameters, and (3) inferring bag-level characteristics from learned preferences. We justify the architectural choice of linear bag-specific scoring through a first-order analysis: when item embeddings are sufficiently smooth in the score, a linear function approximates the score up to a Taylor remainder controlled by the curvature of the underlying preference function. For cold-start scenarios, we show that the cold-bag fitting problem reduces to ridge-less linear regression with a closed-form solution, and provide convergence guarantees for the iterative variant. Empirically, UNISON matches or outperforms state-of-the-art approaches across diverse domains: entertainment (books, movies), immunology (T cell receptor (TCR) based classification), and microbiome, offering superior computational efficiency and interpretability. A controlled synthetic experiment further confirms that the bag-specific parameters ($w_j, b_j$) recover the latent factors that drive item scores even when the projection $φ$ has no access to the original scoring mechanism (AUC > 0.998). UNISON is available at https://github.com/louzounlab/UNISON. We introduce UNISON, a unified framework that bridges multiple instance learning and recommendation systems by treating both as instances of learning from scored bag collections of (item, score) pairs. Unlike traditional approaches that address bag-level classification and personalized recommendation as separate problems, UNISON decomposes learning into three interconnected stages: (1) learning universal item representations, (2) modeling bag-specific preference patterns through lightweight personalized parameters, and (3) inferring bag-level characteristics from learned preferences. We justify the architectural choice of linear bag-specific scoring through a first-order analysis: when item embeddings are sufficiently smooth in the score, a linear function approximates the score up to a Taylor remainder controlled by the curvature of the underlying preference function. For cold-start scenarios, we show that the cold-bag fitting problem reduces to ridge-less linear regression with a closed-form solution, and provide convergence guarantees for the iterative variant. Empirically, UNISON matches or outperforms state-of-the-art approaches across diverse domains: entertainment (books, movies), immunology (T cell receptor (TCR) based classification), and microbiome, offering superior computational efficiency and interpretability. A controlled synthetic experiment further confirms that the bag-specific parameters ($w_j, b_j$) recover the latent factors that drive item scores even when the projection $φ$ has no access to the original scoring mechanism (AUC > 0.998). UNISON is available at https://github.com/louzounlab/UNISON.",
+  "arxiv_id": "2610.15564",
+  "authors": [
+    "Ofek Kirshenboim",
+    "Or Shkuri",
+    "Shani Finkelshtein",
+    "Yoram Louzoun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "冷启动推荐可显著降低推断成本：只优化低维线性参数(w,b)，支持集上可用闭式/快速回归求解，适合大规模用户实时个性化。",
+      "统一评分预测与用户属性/标签预测，使同一套用户偏好向量(w,b)可用于推荐、用户分群、画像推断等任务，减少重复建模。",
+      "线性包专属打分具备可解释性，有助于理解用户/患者或生物样本的偏好结构，便于业务审计和模型调试。",
+      "框架跨领域通用，在娱乐、免疫学、微生物组等不同数据上仅替换物品编码器即可复用，减少领域定制工程成本。"
+    ],
+    "business_transferability": 0.66,
+    "contributions_zh": [
+      "提出UNISON统一框架，将多示例学习与推荐系统统一为“从带分数的包中学习”，用共享物品嵌入加包专属线性打分同时完成物品评分与包分类。",
+      "给出理论分析：当物品嵌入足够光滑时，线性包专属打分是偏好函数的一阶近似，误差由偏好曲率控制（Theorem 1）；冷启动拟合可转化为无脊线性回归，具有闭式解和几何收敛保证（Proposition 1）。",
+      "提出将包专属参数(w_j,b_j)作为“功能嵌入”用于包级分类，并通过受控合成实验（AUC>0.998）说明这些参数恢复的是潜在包结构而非投影伪影。",
+      "在娱乐、免疫学、微生物组等多个领域的数据集上验证，推断时只需在低维子空间优化(w,b)，相比元学习基线具有明显计算优势。",
+      "通过消融实验表明共享MLP投影φ对性能至关重要，例如Book-Crossing上去掉φ后Spearman相关从0.462降至0.150。"
+    ],
+    "evidence_quality": 0.62,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "3 Methods - The UNISON Framework"
+      },
+      {
+        "page": 1,
+        "section": "4 Theoretical Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "5.2 UNISON application to book scoring"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Simple Inference-Time Learning Is Sufficient"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Framework Generalizes Cross Domain"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Ablation Studies"
+      },
+      {
+        "page": 1,
+        "section": "B.1 Dataset Statistics"
+      },
+      {
+        "page": 1,
+        "section": "D.1 Performance Across All Scenarios"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MeLU",
+        "ColdNAS",
+        "BPR",
+        "NGCF",
+        "LightGCN",
+        "MetaHIN",
+        "TaNP",
+        "PAML",
+        "PNMTA",
+        "TDAS",
+        "GreatMeta",
+        "Shtossel et al. (2023)"
+      ],
+      "datasets": [
+        "Book-Crossing",
+        "MovieLens-1M",
+        "Emerson TCR",
+        "Vaccine TCR cohort",
+        "Microbiome cohort 1 (gastric)",
+        "Microbiome cohort 2 (Parkinson)",
+        "Microbiome cohort 3 (Parkinson)"
+      ],
+      "findings_zh": [
+        "在MovieLens最难的双冷启动CU-CI场景，UNISON的Spearman相关为0.323，高于MeLU的0.291（p<0.01）。",
+        "在Book-Crossing CU-CI场景，UNISON的Spearman相关为0.4736，显著高于MeLU的0.1114（p<0.001）。",
+        "Book-Crossing整体评分预测SCC=0.462（p<1e-3），超过90%用户的个体SCC为正；去掉共享MLP投影后SCC降至0.150。",
+        "微生物组三个队列中，加入MLP投影后Stage 2 AUC约为0.879-0.905，Stage 3 AUC约为0.627-0.722；去掉MLP后两类AUC均显著下降。",
+        "在微生物组相关任务上，UNISON的AUC为0.68，高于Shtossel等报道的0.63。",
+        "TCR/CMV场景CU-CI下，支持集k=3500时Stage 2 Spearman约0.37，Stage 3 AUC约0.64；但TCR Stage 3低于Akerman等专门方法的报道。",
+        "受控合成实验中，使用与训练不同的embedder生成分数，UNISON仍以AUC=0.9989恢复组标签。",
+        "计算开销低：φ训练约50-180秒/单卡，推断时(w,b)在CPU上毫秒级完成，整体较元学习基线约100倍加速。"
+      ],
+      "metrics": [
+        "MAE",
+        "Spearman correlation",
+        "AUC",
+        "MSE/BCE loss"
+      ]
+    },
+    "limitations_zh": [
+      "论文以arXiv预印本形式出现，未标明经过同行评审，实验数据和分析由作者自行报告。",
+      "在MovieLens中，针对CU-CI优化后，在WU-CI和CU-WI上UNISON低于MeLU（分别为0.377 vs 0.476和0.260 vs 0.301），说明冷/热场景间存在权衡。",
+      "TCR阶段3的包分类AUC低于已有专门适配方法；支持集规模需求在不同领域差异大，TCR需约3500个支持项。",
+      "z̃维度存在权衡：高维可提高包分类能力，但需要更大支持集估计w；论文表示该权衡的理论与计算分析留待未来工作。",
+      "包分类依赖“包标签与物品打分共享潜在因素”的假设，作者也指出并非所有包类都满足该条件。",
+      "未在非欧几里得物品空间（如图、序列）上验证，联合训练与顺序训练何时更优的理论理解仍有待研究。"
+    ],
+    "method_zh": "UNISON分三阶段训练与推断：(1) 用领域编码器生成物品嵌入z=f(x)，如Qwen3-8B处理图书/电影元数据、TCR自编码器、微生物组Transformer；(2) 用共享MLP φ将z投影到低维z̃，并为每个包/用户学习线性参数(w_j,b_j)，以s=w_j^T z̃+b_j预测支持集分数；(3) 将(w_j,b_j)拼接后输入MLP分类器预测包级标签。冷启动/新包推断时冻结φ，仅对(w,b)做最小二乘/梯度优化；评分任务用MSE或BCE，包分类用交叉熵，总损失为评分损失与分类损失的加权和。",
+    "problem_zh": "论文研究“带分数的包”（scored bags）学习问题：每个包由一组（物品, 分数）对构成，需要同时完成物品表征学习、包内物品打分/推荐以及包级标签分类。作者认为多示例学习（MIL）与推荐系统中的冷启动问题本质上都是“从带分数的包中学习”，可以统一建模。",
+    "technical_depth": 0.84
+  },
+  "doi": null,
+  "final_score": 0.857,
+  "id": "arxiv-2610.15564",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-11T12:18:17Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "UNISON把多实例学习与推荐系统统一为从带分数的包集合中学习，通过通用物品表示和袋级个性化参数在多个领域取得良好效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "UNISON: A Unified Framework for Learning from Scored Bags",
+  "url": "https://arxiv.org/abs/2610.15564v1"
+}

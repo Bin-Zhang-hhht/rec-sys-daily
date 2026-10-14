@@ -1,0 +1,56 @@
+{
+  "blogs": [],
+  "date": "2026-10-15",
+  "papers": [
+    {
+      "item_id": "arxiv-2610.16229",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文针对多模态推荐系统中的模态抑制效应，提出基于小波分解与结构感知图学习的 MMWave 多模态推荐模型。"
+    },
+    {
+      "item_id": "arxiv-2610.14487",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文研究生成式推荐模型在条件定向投毒攻击下的脆弱性，并提出基于解码对齐前缀的黑盒攻击框架AlignPoison。"
+    },
+    {
+      "item_id": "arxiv-2610.15505",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出语义残差适配器（SERA），在不改变已有联邦推荐系统协同评分的基础上叠加语义残差分数来重排物品列表，从而改善多模态推荐中的排序效果。"
+    },
+    {
+      "item_id": "arxiv-2610.17368",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：HASTE为生成式推荐设计层次化与属性级监督训练框架，通过层次化损失和属性损失提升生成推荐性能与长尾物品表现。"
+    },
+    {
+      "item_id": "arxiv-2610.16132",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：UniSGR-V2在生成式推荐解码中逐步预判目标侧特征并与语义前缀、用户行为序列交叉，同时用于逐级生成和排序。"
+    },
+    {
+      "item_id": "arxiv-2610.17823",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向序列推荐系统的稀疏先验正则化目标 PR-entmax，在训练时融入物品流行度先验以缓解流行度偏差，同时保持或提升推荐相关性。"
+    },
+    {
+      "item_id": "arxiv-2610.15832",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文构建局部引文推荐语料库LCRC，并在不使用图信号的情况下通过检索方法提升引文推荐效果。"
+    },
+    {
+      "item_id": "arxiv-2610.16038",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：OT-FlowRec利用最优传输引导的多桥流匹配显式建模多中心兴趣分布，用于多模态序列推荐，在多个数据集上优于现有基线。"
+    },
+    {
+      "item_id": "arxiv-2610.15564",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：UNISON把多实例学习与推荐系统统一为从带分数的包集合中学习，通过通用物品表示和袋级个性化参数在多个领域取得良好效果。"
+    },
+    {
+      "item_id": "arxiv-2610.18308",
+      "rank": 10,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出基于访谈式画像增强的 LLM 用户模拟器 SimInter，以改进对话推荐系统的评估，属于推荐系统研究内容。"
+    }
+  ]
+}

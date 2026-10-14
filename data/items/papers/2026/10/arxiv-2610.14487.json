@@ -1,0 +1,121 @@
+{
+  "abstract": "Generative recommendation models based on autoregressive decoding have been adopted as alternatives to classical ranking-based systems. While their modeling flexibility has been widely studied, their resilience to data poisoning remains largely unexplored. In this work, we ask: how susceptible are generative recommenders to conditional targeted poisoning? Under a realistic setting where an adversary can inject limited malicious interactions and query a recommendation API as a black box, our empirical study shows that generative recommenders are vulnerable: injecting fewer than 1% synthetic interactions significantly increases the likelihood of promoting malicious targets under the trigger. To characterize this vulnerability, we analyze the synthesis of malicious interactions from two perspectives: (i) decoding alignment and (ii) prefix popularity. We observe that short, context-aligned prefixes that are both common under the model's induced transition dynamics and strongly linked to a frequent trigger consistently amplify targeted promotion. Motivated by this analysis, we develop AlignPoison, a black-box framework that discovers and samples context-aligned prefixes from API outputs. We conduct experiments on benchmarks in unimodal and multimodal generative recommendation settings. Results show that these prefixes outperform competitive baselines, improving ASR lift by up to 16.3 percentage points and highlighting a decoding-dependent, context-sensitive poisoning vulnerability in generative recommendation models. Generative recommendation models based on autoregressive decoding have been adopted as alternatives to classical ranking-based systems. While their modeling flexibility has been widely studied, their resilience to data poisoning remains largely unexplored. In this work, we ask: how susceptible are generative recommenders to conditional targeted poisoning? Under a realistic setting where an adversary can inject limited malicious interactions and query a recommendation API as a black box, our empirical study shows that generative recommenders are vulnerable: injecting fewer than 1% synthetic interactions significantly increases the likelihood of promoting malicious targets under the trigger. To characterize this vulnerability, we analyze the synthesis of malicious interactions from two perspectives: (i) decoding alignment and (ii) prefix popularity. We observe that short, context-aligned prefixes that are both common under the model's induced transition dynamics and strongly linked to a frequent trigger consistently amplify targeted promotion. Motivated by this analysis, we develop AlignPoison, a black-box framework that discovers and samples context-aligned prefixes from API outputs. We conduct experiments on benchmarks in unimodal and multimodal generative recommendation settings. Results show that these prefixes outperform competitive baselines, improving ASR lift by up to 16.3 percentage points and highlighting a decoding-dependent, context-sensitive poisoning vulnerability in generative recommendation models.",
+  "arxiv_id": "2610.14487",
+  "authors": [
+    "Zhuoxuan Zhang",
+    "Jinhao Duan",
+    "Xinyu Zhao",
+    "Jinduo Guo",
+    "Shuai Shao",
+    "Rui Li",
+    "Luke Simon",
+    "Zhun Deng",
+    "Tianlong Chen",
+    "Bo Sun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "生成式推荐正在从学术原型走向大规模工业部署（如OneRec等短视频平台），本文展示的<1%注入即可显著提升目标曝光，意味着平台需要将交互数据投毒纳入上线前的安全评估。",
+      "条件性攻击只在热门触发器出现后激活，可使攻击者以较小全局扰动获取高价值流量，且聚合指标变化较小、更难被检测，对推荐生态的公平性和商业流量分配构成威胁。",
+      "攻击可利用公开可见的热门物品作为触发器，建立“热门物品→目标物品”的关联；恶意商家或内容方可能借此在特定浏览上下文中获得不当曝光。",
+      "研究同时提供防御视角：FAP和表示空间检测对AlignPoison的检出率有限，企业需要研发针对解码对齐前缀和触发上下文的专用鲁棒性手段。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "首次在端到端生成式推荐（语义ID自回归解码）上研究条件性定向投毒，证明注入少于1%的合成交互即可显著提升触发器条件下的目标物品曝光（RQ1）。",
+      "机制分析：识别恶意前缀的两个关键维度——解码对齐（decoding alignment，用触发器在干净模型中的排名度量）和前缀流行度（prefix popularity，用API级曝光代理），并刻画二者对攻击效果的影响（RQ2）。",
+      "提出AlignPoison：仅利用API输出的黑盒前缀发现、优化与自适应采样框架，构造Q∘I_p∘T形式的投毒历史。",
+      "在Amazon Office_Products、Industrial_and_Scientific和MicroLens-100K三个数据集上开展系统评测，并与多种基线和防御检测方法对比。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Warm-up Study: Vulnerability of Generative Recommenders"
+      },
+      {
+        "page": 1,
+        "section": "4 Method: Decoding-Aware Conditional Poisoning"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Detectability of the Proposed Attack"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Appendix H Ablations and Sensitivity"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Random_prefix",
+        "Bandwagon_prefix",
+        "Co-occurrence_prefix",
+        "DDSP_prefix"
+      ],
+      "datasets": [
+        "Industrial_and_Scientific (Industrial)",
+        "Office_Products (Office)",
+        "MicroLens-100K (MicroLens)"
+      ],
+      "findings_zh": [
+        "Warm-up实验：在r=1%时，触发器条件化注入相比无条件随机注入大幅提升ASR@10，Industrial/Office/MicroLens分别提升+43.2、+33.5、+8.5 pp，说明生成式推荐对触发器条件投毒高度脆弱。",
+        "主实验：AlignPoison在三个数据集、两个投毒比下普遍优于所有基线。Industrial在r=0.5%时ASR@10达36.7 pp，比最强基线高14.0 pp；r=1%时ASR@10为52.4 pp。",
+        "Office上，解码对齐和前缀流行度联合打分的ASR@3升幅为16.6 pp，高于仅流行度4.8 pp和仅排名11.2 pp，支持两个信号互补。",
+        "MicroLens r=0.5%上，查询预算B=100时ASR@10为22.5 pp，仅比完整候选池低0.7 pp，前缀发现查询效率较高。",
+        "使用Meta-Llama-3.2-1B-Instruct替换默认Qwen2.5-1.5B-Instruct时，AlignPoison在MicroLens r=0.5%的ASR@10为18.7 pp，超过最强基线Random_prefix（13.6 pp）5.1 pp。",
+        "良性推荐质量基本保持：Office和Industrial的B-HR稳定，MicroLens只有轻微下降。",
+        "可检测性：FAP在1%干净用户FPR下对注入用户的TPR仅0.0%–1.2%；Mahalanobis检测的AUROC在三个数据集上为0.64–0.71，明显低于Bandwagon的0.88–0.94，说明AlignPoison注入历史更难区分。",
+        "Ablation：前缀长度从1到2显著提升（MicroLens ASR@10从17.5到23.2 pp），长度3仅再增0.4 pp；one-to-one触发器-目标配对优于one-to-many（ASR@3为17.8 vs 14.9 pp）。"
+      ],
+      "metrics": [
+        "ASR@K lift (K=3,5,10,20,50; pp)",
+        "Benign HR@K (B-HR@K)",
+        "FAP detection TPR at 1% FPR",
+        "Mahalanobis-distance AUROC"
+      ]
+    },
+    "limitations_zh": [
+      "攻击假设攻击者拥有足够的黑盒API查询预算来进行前缀发现；如果查询受到限制，攻击有效性需要进一步研究。",
+      "论文聚焦攻击设计，未对防御措施进行系统研究。",
+      "攻击面限于交互历史注入，不能修改物品元数据、prompt或系统指令；不同触发器-目标配对和前缀长度等设置可能影响结论的泛化。"
+    ],
+    "method_zh": "AlignPoison分两阶段。第一阶段通过黑盒API构建查询诱导候选图：以目录物品为种子查询推荐API，统计API曝光估计前缀流行度，并查询每个候选前缀Q，记录目标触发器I_p在top-K输出中的排名r(Q)；只保留I_p可被观测到的可行前缀，并用U(Q)=φ(r(Q))^{w_r}·pop_hat_api(Q)^{w_p}打分。第二阶段用熵正则化目标max E[U]+αH(π)导出Gibbs分配π*(Q)∝exp(U(Q)/α)，按此分布采样前缀并在固定预算M下注入Q∘I_p∘T。整个过程不使用模型参数、梯度、tokenizer或真实语料统计。",
+    "problem_zh": "研究黑盒条件下端到端生成式推荐系统对条件性定向投毒（conditional targeted poisoning）的脆弱性：攻击者只能注入少量伪造交互、以黑盒方式查询推荐API并访问物品目录，能否通过在触发器上下文之前构造恶意前缀，显著提高目标物品在触发历史中的曝光？",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.904,
+  "id": "arxiv-2610.14487",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-10T02:36:15Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究生成式推荐模型在条件定向投毒攻击下的脆弱性，并提出基于解码对齐前缀的黑盒攻击框架AlignPoison。",
+  "targets": [],
+  "tasks": [],
+  "title": "AlignPoison: Conditional Targeted Poisoning of Generative Recommenders via Decoding-Aligned Prefixes",
+  "url": "https://arxiv.org/abs/2610.14487v1"
+}

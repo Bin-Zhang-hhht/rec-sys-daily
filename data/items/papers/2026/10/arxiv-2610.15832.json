@@ -1,0 +1,114 @@
+{
+  "abstract": "Resolving correct citations can be a time-consuming task for research writers. We address local citation recommendation (LCR), where the goal is to retrieve appropriate references for a given sentence. Web tools generally depend on the existing citation graph, which may bias results toward citation count or more recent publications. LCR research using full paper texts has been limited by the lack of publicly available data. We present a new dataset, the Local Citation Recommendation Corpus (LCRC), containing 14,735 scientific statements derived from astrophysics review papers, each with one or more citation targets whose full text is accessible via API. Using this dataset we systematically compare retrieval methods and develop a citation recommendation system that avoids citation graph bias while achieving 8.0% improvement in Recall@25 and 6.9% improvement in NDCG@25 over dense retrieval baselines without model fine-tuning. To support reproducibility, we make our code and dataset publicly available. Resolving correct citations can be a time-consuming task for research writers. We address local citation recommendation (LCR), where the goal is to retrieve appropriate references for a given sentence. Web tools generally depend on the existing citation graph, which may bias results toward citation count or more recent publications. LCR research using full paper texts has been limited by the lack of publicly available data. We present a new dataset, the Local Citation Recommendation Corpus (LCRC), containing 14,735 scientific statements derived from astrophysics review papers, each with one or more citation targets whose full text is accessible via API. Using this dataset we systematically compare retrieval methods and develop a citation recommendation system that avoids citation graph bias while achieving 8.0% improvement in Recall@25 and 6.9% improvement in NDCG@25 over dense retrieval baselines without model fine-tuning. To support reproducibility, we make our code and dataset publicly available.",
+  "arxiv_id": "2610.15832",
+  "authors": [
+    "Benjamin Basseri",
+    "Pavlos Protopapas",
+    "Kemeng Zhang",
+    "Alberto Accomazzi",
+    "Stephanie Jarmak",
+    "Anna Kelbert"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可用于学术写作助手和引文推荐产品，帮助作者快速找到合适参考文献，降低人工检索与核查成本。",
+      "混合查询表示与 RRF 融合策略可迁移到企业知识库检索、RAG 问答等推荐系统场景，提升长尾相关内容召回。",
+      "内容优先的检索方式有助于削弱引用计数和流行度偏差，使低被引但语义相关的论文更容易被找到。",
+      "公开的 LCRC 数据集和代码可作为行业评测基准，支持相关产品算法选型与迭代。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "发布 LCRC 数据集：从 354 篇专家撰写的天文学综述论文中构建 14,735 条科学陈述，每条包含一个或多个可解析到 DOI 的引文目标，且引文目标全文可通过 API 获取。",
+      "系统评估了无元数据、无图谱信号的检索式局部引文推荐，提供可复现的基准实验与公开代码。",
+      "提出混合查询表示 ADD-PREV-02，结合原始句和前两句上下文检索，并通过 RRF 融合 BM25 排名，使 Recall@25 相对密集检索基线提升 8.0%、NDCG@25 提升 6.9%，且无需模型微调。",
+      "发现通用嵌入模型 QWEN3-EMBEDDING-8B 显著优于天文学微调模型，且简单分块表示优于 LLM 摘要式贡献表示，为后续引文推荐系统提供实用经验。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Dataset"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments and Results"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Reranking by Reciprocal Rank Fusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "IDENTITY：仅用原始句嵌入检索",
+        "QWEN3-EMBEDDING-0.6B/8B、BGE-LARGE-EN-V1.5、ASTROBERT、ASTROLLAMA、ASTROSAGE-8B、NASA-IBM-ST.38M、SPECTER2 嵌入模型对比",
+        "chunk-based 与 contribution-based 语料表示对比",
+        "ADD-TITLE、ADD-ABSTRACT、ADD-PREV-3/5/7 等查询扩展方式",
+        "NUM_RETRIEVALS、LOG_CITATIONS、RECENCY 重排序/融合基线"
+      ],
+      "datasets": [
+        "LCRC：14,735 条来自 354 篇 ADS 综述论文的带引文语句",
+        "扩展语料：52,618 篇研究论文全文，分块为 460,801 chunks",
+        "贡献摘要语料：DeepSeek-v3.2 生成的 89,860 条（简单 prompt）和 299,286 条（进阶 prompt）语句"
+      ],
+      "findings_zh": [
+        "QWEN3-EMBEDDING-8B 在 Hitrate、Recall、NDCG 上全面优于其他嵌入模型，且通用嵌入模型整体优于天文学微调模型。",
+        "分块式语料表示优于 LLM 提取的贡献摘要，说明引文决策更依赖窄粒度的局部证据而非高层概括。",
+        "ADD-PREV-02 混合查询表示在所有 k 值显著优于 IDENTITY 和单上下文扩展；ADD-PREV-02+RRF 使 Hitrate@25 提升 7.5%、Recall@25 提升 8.0%、NDCG@25 提升 6.9%。",
+        "最优 RRF 为 0.6 权重余弦排名加 0.4 权重 BM25 排名，平滑参数 m=60；NUM_RETRIEVALS 融合无提升。",
+        "将 LOG_CITATIONS 或 RECENCY 作为重排序信号会降低 Hitrate 和 Recall，说明综述论文引用未表现出明显的高被引或新近偏好。"
+      ],
+      "metrics": [
+        "Hitrate@k（@10/@25/@50）",
+        "Recall@k（@10/@25/@50）",
+        "NDCG@k（@10/@25/@50）",
+        "余弦相似度",
+        "BM25（k1=1.5, b=0.75）",
+        "RRF 网格搜索权重"
+      ]
+    },
+    "limitations_zh": [
+      "数据集排除了含大量数学符号的语句，因为数字化文本常无法准确表示原始公式，需要更强 OCR 才能解决。",
+      "只处理需要至少一个引用的 nontrivial 语句，未解决如何区分 trivial 与 nontrivial 语句的问题。",
+      "数据来自 ADS 的天文学、地球科学和行星科学综述论文，结论可能不直接推广到其他学科。",
+      "全文语料来自数字化文献，OCR 噪声和质量限制可能影响下游检索效果。"
+    ],
+    "method_zh": "从 ADS 获取 354 篇综述论文，对正文按句切分；LLM agent 过滤图注、参考文献条目和严重 OCR 错误语句，并提取行内引文为 (Author, Year) 元组，再由确定性代码通过论文参考文献表将元组解析为 DOI，未完整解析的句子被剔除，最终得到 14,735 条查询样本。检索语料包含 52,618 篇论文全文，仅拼接标题、摘要和正文，省略作者、机构、参考文献等元数据以避免偏差，并用标准文本切分得到 460,801 个 chunk；同时用 DeepSeek-v3.2 生成 contribution 摘要作为备选语料表示。检索阶段使用 QWEN3-EMBEDDING-8B 对查询和 chunk 编码并计算余弦相似度；查询表示上比较原句、加标题、加摘要、加前 n 句等策略，并设计 ADD-PREV-02 混合表示：原始句与原始句加前两句分别检索 top-k/2 结果并按排名交替合并；最后用 RRF 融合余弦排名与 BM25 排名。",
+    "problem_zh": "局部引文推荐（LCR）要求为论文中的句子检索应当引用的参考文献。现有搜索工具和多数方法依赖引用图谱、元数据和引用计数，容易产生流行度偏差和马太效应；同时缺乏公开的全文数据集，导致研究难以复现、比较和部署。本文希望在不使用元数据或图谱信号的情况下，仅基于论文全文内容实现有效的引文检索。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.8640000000000001,
+  "id": "arxiv-2610.15832",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-11T18:35:45Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文构建局部引文推荐语料库LCRC，并在不使用图信号的情况下通过检索方法提升引文推荐效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Local Citation Recommendation Without Graph Signals",
+  "url": "https://arxiv.org/abs/2610.15832v1"
+}

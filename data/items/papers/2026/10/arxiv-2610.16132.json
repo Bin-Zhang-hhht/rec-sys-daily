@@ -1,0 +1,132 @@
+{
+  "abstract": "Semantic-ID-based generative recommendation unifies retrieval and ranking through autoregressive decoding but differs structurally from discriminative models, which can directly access rich target-item side features. The attributes are compressed into a finite codebook during quantization, while the target item remains undetermined during decoding and its features cannot be looked up. This target-side feature vacuum weakens generation at each semantic-ID level through high conditional entropy and cascading errors, and final ranking through missing target-side feature crossing. Existing methods interact with candidate representations or generate discrete attribute tokens, but none reconstructs a continuous target-side representation inside decoding to support both stepwise generation and ranking. We propose TacGR (Stepwise Target-Side Feature Anticipation and Crossing for Generative Recommendation). Before decoding each codeword, TacGR anticipates a continuous target-side feature vector and crosses it with the semantic prefix and user behavior sequence inside the decoder. The crossed representation conditions current-level generation and is directly used for ranking. Continuous-vector regression risks a learnable target collapsing with its prediction and prediction noise propagating into generation through attention. TacGR addresses these challenges with a semantic-anchoring auxiliary tower and a unidirectional visibility mask, respectively. For extremely long industrial behavior histories, it introduces gated convolutional denoising to suppress noise and adapts the pyramid memory funnel to reduce inference cost. Offline experiments on a large-scale Lazada dataset show significant gains over OneRec, UniRec, and UniSGR. Online A/B testing improves IPV, Order, and GMV by 0.79%, 5.55%, and 3.09%, respectively. Semantic-ID-based generative recommendation unifies retrieval and ranking through autoregressive decoding but differs structurally from discriminative models, which can directly access rich target-item side features. The attributes are compressed into a finite codebook during quantization, while the target item remains undetermined during decoding and its features cannot be looked up. This target-side feature vacuum weakens generation at each semantic-ID level through high conditional entropy and cascading errors, and final ranking through missing target-side feature crossing. Existing methods interact with candidate representations or generate discrete attribute tokens, but none reconstructs a continuous target-side representation inside decoding to support both stepwise generation and ranking. We propose TacGR (Stepwise Target-Side Feature Anticipation and Crossing for Generative Recommendation). Before decoding each codeword, TacGR anticipates a continuous target-side feature vector and crosses it with the semantic prefix and user behavior sequence inside the decoder. The crossed representation conditions current-level generation and is directly used for ranking. Continuous-vector regression risks a learnable target collapsing with its prediction and prediction noise propagating into generation through attention. TacGR addresses these challenges with a semantic-anchoring auxiliary tower and a unidirectional visibility mask, respectively. For extremely long industrial behavior histories, it introduces gated convolutional denoising to suppress noise and adapts the pyramid memory funnel to reduce inference cost. Offline experiments on a large-scale Lazada dataset show significant gains over OneRec, UniRec, and UniSGR. Online A/B testing improves IPV, Order, and GMV by 0.79%, 5.55%, and 3.09%, respectively.",
+  "arxiv_id": "2610.16132",
+  "authors": [
+    "Jun Yang",
+    "Jiasi Chen",
+    "Jiawei Sun",
+    "Ziyue Guo",
+    "Jianan Yan",
+    "Tao Luo",
+    "Xiaoyi Zeng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "线上A/B显示TacGR可同时提升IPV（+0.79%）、订单量（+5.55%）与GMV（+3.09%），对电商推荐有直接业务价值。",
+      "目标侧特征预测与排序头直接对接，使生成式推荐也能利用类目、店铺、品牌等已有商业特征，无需在排序前额外做ID回查与特征拼接。",
+      "paired forward pass和金字塔记忆漏斗等设计将侧信息预测的前向次数降为与基线相同，有助于在超长行为序列下控制在线延迟。",
+      "语义锚定辅助塔只在训练阶段使用、推理时移除，说明该机制可在不增加在线服务开销的前提下改善离线模型质量。",
+      "品牌等头部集中特征的重建质量较低，提示在品牌/店铺类长尾业务中该方法的排序增益可能不均衡，需要针对高基数属性做额外处理或分阶段应用。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "提出TacGR，在解码每个语义ID层级前级联预测连续的目标侧特征向量（CSA），并在解码器内与语义前缀、用户行为序列做单向交叉，同一表示同时用于当前层生成条件和最终排序。",
+      "提出语义锚定辅助塔（semantic-anchoring auxiliary tower），从形式上刻画可学习回归目标与预测共同坍缩的平凡解风险，并用任务对齐的辅助排序头约束回归标签空间。",
+      "提出单向可见性掩码（UVM），使语义token不能注意预测token、预测token之间互相不可见，隔离预测误差向生成路径的传播与自依赖退化。",
+      "针对超长行为历史分别提出门控卷积去噪（GCD）与金字塔记忆漏斗，并利用paired forward pass将解码前向次数从2L降为L，缓解噪声和推理时延问题。",
+      "在Lazada大规模工业数据及线上A/B测试中验证：离线检索与排序全面优于TIGER、OneRec、UniRec（CoA）、UniSGR等基线，线上IPV、Order、GMV分别提升0.79%、5.55%、3.09%。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Cascaded Sideinfo Anticipation and In-Decoder Crossing"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Semantic Anchoring of the Regression Target"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Unidirectional Visibility Mask"
+      },
+      {
+        "page": 1,
+        "section": "3.8 Two Challenges of Extremely Long Behavior Histories"
+      },
+      {
+        "page": 1,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Side-Information Reconstruction Quality Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Online A/B Test"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "TIGER",
+        "OneRec-V1",
+        "OneRec-V2",
+        "UniRec (CoA)",
+        "UniSGR"
+      ],
+      "datasets": [
+        "Lazada工业推荐日志离线数据集：24.2亿样本、646万用户、753万商品，含PV/CLK/ATC/PAY行为及L1类目、叶子类目、品牌、店铺四类侧特征",
+        "Lazada首页Guess-You-Like线上A/B测试：40天、10%流量，仅将生成召回模型从UniSGR替换为TacGR"
+      ],
+      "findings_zh": [
+        "TacGR在全部离线检索和排序指标上优于所有基线：相较UniSGR，四个检索指标均有提升，最大相对提升3.86%；CLK AUC提升0.53%、PAY AUC提升0.79%、CLK GAUC提升0.63%、PAY GAUC提升0.48%。",
+        "相较在同一骨干上复现的UniRec（CoA），TacGR在四个检索指标上的相对提升为1.50%至3.11%，说明逐步连续目标侧特征预测优于离散属性链。",
+        "消融实验显示，移除CSA与crossing使CLK HR@100下降2.19%、CLK AUC下降0.29%；仅保留末层预测或移除冷启动阶段也会同时损害检索与排序。",
+        "移除语义锚定辅助塔使CLK HR@100下降1.33%、CLK GAUC下降0.30%；移除UVM使CLK HR@100下降1.30%；同时移除二者时多项检索指标退化更明显，说明两者互补。",
+        "侧信息重建质量呈现phi^1 < phi^2 < phi^3的单调递增模式；L1类目从冷启动到完整条件的重建质量提升超过一倍，品牌重建质量绝对水平最低，作者归因于品牌基数大且头部集中（top 5%品牌占83.1%训练样本）。",
+        "移除GCD使CLK HR@100下降2.10%、CLK AUC下降0.16%，说明门控卷积去噪缓解了超长行为历史中的噪声干扰。",
+        "线上A/B测试中，TacGR相比在线UniSGR基线使IPV、Order、GMV分别提升0.79%、5.55%、3.09%，且p<0.05显著。"
+      ],
+      "metrics": [
+        "CLK/PAY HitRate@100",
+        "CLK/PAY HitRate@500",
+        "CLK/PAY AUC",
+        "CLK/PAY GAUC",
+        "IPV",
+        "Order",
+        "GMV"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅基于Lazada单一工业场景且未报告公开数据集、代码或完整复现配置，外部可复现性和跨场景泛化性未知。",
+      "线上A/B测试中仅替换生成召回模型、保持其余配置不变，因此结论主要针对该场景下的生成召回替换，不能推断端到端全链路改造的效果。",
+      "品牌特征重建质量明显低于其他属性，说明对高基数且头部集中的侧特征，连续回归预测的分辨能力有限。",
+      "金字塔记忆漏斗被作者明确称为工程适配而非独立方法创新，其有效性依赖深层交叉注意力集中于近期记忆这一观测。",
+      "UVM的误差隔离分析是在teacher forcing下给出的，自回归推理时预测误差的实际隔离效果未单独实验证明。"
+    ],
+    "method_zh": "TacGR由记忆编码器、MoE解码器、级联侧信息预测器（CSA）、单向可见性掩码（UVM）和多任务PLE排序头组成。行为序列经门控卷积去噪后编码为长期记忆M；在解码每个语义码s^l之前，预测器Pred^(l)基于解码器历史隐藏状态和最新语义码的embedding e(s^(l-1))回归连续目标侧特征向量phi^(l)，冷启动层l=1使用用户行为历史中点击商品的侧特征均值作为先验。预测向量投影后作为token插入解码序列，在UVM约束下与语义前缀和记忆M交叉，得到交叉表示tilde_phi^(l)；该表示既作为生成s^l的软条件，也经残差投影后与解码器隐状态拼接送入排序头。为避免可学习回归标签与预测共同坍缩，训练时增加只消费真实侧特征phi(v)的辅助排序塔（L_anchor）；UVM规定除BOS和自身外只能回看语义token，从而切断预测误差在注意力图中的传播。总目标是生成损失、排序损失、特征回归损失与锚定损失的加权和。推理时采用paired forward pass，将s^(l-1)与新预测token合成一次前向，总前向次数与无侧信息预测的基线相同。",
+    "problem_zh": "语义ID生成式推荐存在目标侧特征真空：在逐token解码过程中，目标商品尚未确定，模型无法像判别式模型那样直接获取目标商品的类目、店铺、品牌等侧特征；这导致每一级语义ID生成都缺少目标侧条件（高条件熵+级联错误），也使最终排序缺少目标侧特征交叉。",
+    "technical_depth": 0.84
+  },
+  "doi": null,
+  "final_score": 0.892,
+  "id": "arxiv-2610.16132",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-12T03:48:56Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "UniSGR-V2在生成式推荐解码中逐步预判目标侧特征并与语义前缀、用户行为序列交叉，同时用于逐级生成和排序。",
+  "targets": [],
+  "tasks": [],
+  "title": "UniSGR-V2: Stepwise Target-Side Feature Anticipation and Crossing for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.16132v1"
+}

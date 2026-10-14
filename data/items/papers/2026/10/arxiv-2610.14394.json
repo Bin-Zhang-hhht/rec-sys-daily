@@ -1,0 +1,123 @@
+{
+  "abstract": "Training large-scale recommender systems on dynamic industrial platforms, such as Short-Form Video (SFV) services with billions of daily interactions, faces critical stability challenges. Rapid distribution shifts in user data and increasing model complexity frequently trigger a divergence cascade, typically initiating with gradient explosion, propagating to weight explosion, and culminating in loss explosion. This G-W-L cascade severely impedes model convergence and performance. This paper provides a systematic analysis of this G-W-L cascade within an industrial SFV recommender context. We then propose and evaluate a structured mitigation framework where interventions are explicitly mapped to counteract specific stages of the cascade: gradient (G) control, weight/activation (W) stabilization, and loss (L) shaping. Our contribution provides a structured framework for understanding and tackling training divergence, offering practical insights for deploying robust, continuously updated recommenders in large-scale, non-stationary settings. We empirically validate the effectiveness of these strategies on a major industrial SFV recommendation system. Training large-scale recommender systems on dynamic industrial platforms, such as Short-Form Video (SFV) services with billions of daily interactions, faces critical stability challenges. Rapid distribution shifts in user data and increasing model complexity frequently trigger a divergence cascade, typically initiating with gradient explosion, propagating to weight explosion, and culminating in loss explosion. This G-W-L cascade severely impedes model convergence and performance. This paper provides a systematic analysis of this G-W-L cascade within an industrial SFV recommender context. We then propose and evaluate a structured mitigation framework where interventions are explicitly mapped to counteract specific stages of the cascade: gradient (G) control, weight/activation (W) stabilization, and loss (L) shaping. Our contribution provides a structured framework for understanding and tackling training divergence, offering practical insights for deploying robust, continuously updated recommenders in large-scale, non-stationary settings. We empirically validate the effectiveness of these strategies on a major industrial SFV recommendation system.",
+  "arxiv_id": "2610.14394",
+  "authors": [
+    "Yuening Li",
+    "Zeyu Wang",
+    "Zhen Zhang",
+    "Jiayi Liu",
+    "Zhimeng Jiang",
+    "Yuji Roh",
+    "Weikai Xu",
+    "Mingyan Gao",
+    "Onkar Dalal",
+    "Chuan He",
+    "Liang Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "大型短视频/推荐系统可在数据分布持续漂移的环境下，通过梯度、权重、损失三阶段结构化干预显著降低训练发散风险，减少因模型训练失败造成的工程成本和上线延迟。",
+      "G+W+L 综合策略在 5 倍学习率或不稳定架构等压力场景下仍能完成训练，可作为动态工业环境中持续更新关键推荐模型的稳定性保障。",
+      "端任务指标显示综合策略可提升 AUC 并略微降低 RMSE，可能带来更好的推荐质量和用户体验，同时 12 个 A/A 实验确认策略在离线/在线结果上是中性的，适合大规模部署。",
+      "企业可采用内置裁剪活动等代理指标监控训练健康度，并在发散前实施多环节干预，避免代价高昂的训练失败。",
+      "需注意单一损失整形干预可能改善分类但损害某些回归任务，业务应用时应按任务选择或组合干预措施。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "系统分析工业级短视频推荐模型中训练发散的条件与链式反应，将发散过程形式化为 Gradient→Weight→Loss（G-W-L）级联，并识别数据分布漂移与激进的模型缩放等常见触发因素。",
+      "提出结构化缓解框架，将稳定性技术映射到 G-W-L 级联的具体阶段：梯度控制（G）、权重/激活稳定（W）和损失整形（L）。",
+      "在真实工业级短视频推荐模型上进行大规模对比评估，比较多种优化与架构改动，并验证 G+W+L 综合策略能同时提升训练稳定性和最终性能。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "2.2 The G-W-L Divergence Cascade"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Results and Discussion"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Robust Divergence Prevention via a Holistic G+W+L Strategy"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Baseline control setup using Adam optimizer and basic learning rate schedule, without specialized stability interventions"
+      ],
+      "datasets": [
+        "Industrial short-form video (SFV) recommender system dataset/model (proprietary, not public)"
+      ],
+      "findings_zh": [
+        "针对 G-W-L 某环节的干预会显著影响其他环节：例如损失干预（L）使原始梯度 g_t 下降 66.7%，梯度干预（G）也影响权重与损失，说明 G-W-L 是紧密耦合的级联而非孤立失效点。",
+        "G 干预（SmeLU、RMSNorm、全局梯度裁剪）使 g_t 相对基线下降 63.7%，l_t 下降 3.6%；BC T1/T2 AUC 分别提升 0.05%/0.19%，Reg T1 RMSE 下降 0.13%。",
+        "W 干预（稠密线性层激活值裁剪）使 g_t 下降 19.6%、l_t 下降 7.2%、权重范数下降 11.6%；BC T1/T2 AUC 分别提升 0.03%/0.06%，Reg T1 RMSE 下降 0.09%。",
+        "L 干预（Huber 损失替代 MSE）使 g_t 下降 66.7%、l_t 下降 62.5%；BC T1/T2 AUC 分别提升 0.21%/0.38%，但 Reg T1 RMSE 上升 0.16%。",
+        "G+W+L 综合策略效果最好：g_t 下降 83.6%，l_t 下降 64.8%；BC T1/T2 AUC 分别提升 0.25%/0.38%，Reg T1 RMSE 下降 0.03%。",
+        "压力测试中，当学习率提高五倍或架构本身不稳定时，基线模型发散，而 G+W+L 策略仍能完成训练；其内部裁剪活动相对邻近发散的基线降低 20 倍至 70 倍以上。",
+        "通过 12 个 A/A 实验臂验证，G+W+L 策略在标准条件下使关键裁剪指标较发散训练器下降超过 28,000 倍，且不损害端任务性能。"
+      ],
+      "metrics": [
+        "BC T1 AUC",
+        "BC T2 AUC",
+        "Reg T1 RMSE",
+        "Gradient norm g_t",
+        "Total training loss l_t",
+        "Internal clipping activity / stress-test divergence indicators"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确指出，聚合快照数据无法对每次发散事件进行 g_t↑→w_{t+1}↑→l_{t+1}↑ 的细粒度时序验证（RQ1 受限）。",
+      "直接的事前发散风险评估具有挑战性，稳定性只能通过内部裁剪活动、极端条件压力测试等代理指标间接评估。",
+      "实验基于未公开的工业级 SFV 模型和专有数据，缺少可复现的公开基准；相对变化结果也未详细披露基线绝对数值。",
+      "部分单一干预可能有副作用，例如 Huber 损失（L）在提升 AUC 的同时使回归任务 RMSE 相对上升 0.16%。"
+    ],
+    "method_zh": "将模型发散定义为训练中梯度范数 g_t、权重范数 w_t 与损失 l_t 的爆炸过程；外部扰动（数据分布偏移 ΔD_t 或激进缩放）先触发梯度爆炸，经参数更新导致权重爆炸，再导致网络输出和损失爆炸，形成 G-W-L 级联。缓解框架按环节设计：梯度控制用 f(·) 改造原始梯度，例如 SmeLU 激活、RMSNorm、全局梯度裁剪、Lion 优化器；权重稳定用投影/约束 P(·) 限制更新后的参数，例如激活值裁剪与归一化；损失整形用更稳健的损失函数，例如 Huber 损失替代 MSE。实验在工业 SFV 推荐模型上对比 Baseline、G、W、L 和 G+W+L 五种配置，并跟踪 AUC、RMSE、梯度范数、总损失及内部裁剪活动。",
+    "problem_zh": "大规模推荐系统在动态工业平台（如每天数十亿交互的短视频服务平台）上面临严峻的训练不稳定问题：数据分布快速漂移和模型规模增大常触发梯度爆炸→权重爆炸→损失爆炸的 G-W-L 级联，最终导致模型发散、预测不可靠，而现有通用修复手段（梯度裁剪、自适应优化器、学习率调度等）在非平稳环境下效果不稳定。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.825,
+  "id": "arxiv-2610.14394",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-09T23:37:02Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文系统分析并缓解大规模短视频推荐系统训练中的梯度-权重-损失发散级联，属于推荐系统工程内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Understanding and Mitigating Training Instability in Large-Scale Recommender Systems: A Cascade Perspective",
+  "url": "https://arxiv.org/abs/2610.14394v1"
+}

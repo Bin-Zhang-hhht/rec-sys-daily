@@ -1,0 +1,128 @@
+{
+  "abstract": "Popularity bias is a well-known challenge in recommender systems, often leading to the over-exposure of popular items and reduced catalog coverage. In this work, we propose PR-entmax, a sparse prior-regularized objective that makes popularity correction context-dependent. We derive our method from a generalized variational principle in which an item popularity prior is incorporated directly into a sparse probability mapping, yielding a popularity-aware active support: the set of items receiving non-zero probabilities and hence non-zero gradients is determined jointly by contextual relevance and item popularity. As a result, the prior affects not only item probabilities, but also which items participate in gradient updates during training. The method requires no architectural changes and can be integrated into existing training pipelines by modifying only the loss function. At inference time, the prior term is removed, and items are ranked by the learned contextual relevance alone. Experiments across multiple benchmark datasets and sequential recommendation architectures show that PR-entmax consistently reduces popularity bias while preserving or improving recommendation relevance, advancing the relevance-debiasing trade-off. Popularity bias is a well-known challenge in recommender systems, often leading to the over-exposure of popular items and reduced catalog coverage. In this work, we propose PR-entmax, a sparse prior-regularized objective that makes popularity correction context-dependent. We derive our method from a generalized variational principle in which an item popularity prior is incorporated directly into a sparse probability mapping, yielding a popularity-aware active support: the set of items receiving non-zero probabilities and hence non-zero gradients is determined jointly by contextual relevance and item popularity. As a result, the prior affects not only item probabilities, but also which items participate in gradient updates during training. The method requires no architectural changes and can be integrated into existing training pipelines by modifying only the loss function. At inference time, the prior term is removed, and items are ranked by the learned contextual relevance alone. Experiments across multiple benchmark datasets and sequential recommendation architectures show that PR-entmax consistently reduces popularity bias while preserving or improving recommendation relevance, advancing the relevance-debiasing trade-off.",
+  "arxiv_id": "2610.17823",
+  "authors": [
+    "Anton Pembek",
+    "Anton Klenitskiy",
+    "Alexander Savchenko",
+    "Alexey Vasilev"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "PR-entmax 只修改损失函数，不改变模型架构，可较容易地集成到已有序列推荐训练流水线中，降低落地成本。",
+      "该方法可提升目录覆盖率和推荐新颖性，减少头部物品垄断，有助于改善长尾物品曝光和偏好小众内容的用户体验。",
+      "实验显示去偏不以牺牲相关性为代价，甚至能提升 NDCG，对同时追求商业指标和生态多样性的推荐系统具有直接价值。",
+      "推理时移除先验项、只用上下文相关性排序，避免在线上服务中引入热门物品的额外偏置。",
+      "落地时需考虑大数据集上约 20% 的训练耗时增加，以及 α、γ、θ 等超参数调优成本。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 PR-entmax，一种稀疏先验正则化目标，使流行度修正变得依赖于上下文：物品流行度不仅影响概率值，还通过稀疏支撑集影响哪些物品在训练中获得非零梯度。",
+      "从广义变分原理推导 PR-entmax，得到闭式概率映射和对应的 Fenchel-Young 损失；该方法无需修改模型架构，只需替换训练损失函数。",
+      "在 5 个数据集和 SASRec、GRU4Rec 两种序列推荐架构上验证，结果显示该方法在不降低甚至提升推荐相关性的同时，一致降低流行度偏置，并改善 relevance-debiasing 的帕累托前沿。",
+      "通过消融实验和超参数分析，说明稀疏性和先验修正各自的作用，以及 sparsity 参数 α 对相关性和去偏指标的影响。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3.2 Sparse Probability Mapping"
+      },
+      {
+        "page": 3,
+        "section": "4 Sparse Prior-Regularized Objective"
+      },
+      {
+        "page": 4,
+        "section": "5.2 Overall Performance"
+      },
+      {
+        "page": 5,
+        "section": "5.3 Ablation Study"
+      },
+      {
+        "page": 6,
+        "section": "5.4 Relevance-Debiasing Trade-off"
+      },
+      {
+        "page": 7,
+        "section": "5.6 Sensitivity to the Sparsity Parameter"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Cross-Entropy",
+        "IPW",
+        "PD",
+        "Pop Sampling",
+        "Logit Adjustment",
+        "Entmax"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "Tmall",
+        "Yambda-50M",
+        "Yoochoose",
+        "Zvuk"
+      ],
+      "findings_zh": [
+        "PR-entmax 在全部数据集和两种骨干模型上，Coverage@10、Coverage@100 和 Novelty@100 均优于标准交叉熵基线，且多数情况取得最佳结果，同时保持或提升 NDCG。",
+        "例如在 SASRec 的 ML-1M 上，PR-entmax 的 NDCG@10 为 0.058，而交叉熵为 0.047；Coverage@10 从 0.463 提升到 0.600。",
+        "在 GRU4Rec 上，PR-entmax 对 NDCG 的提升尤为明显，除 Yoochoose 外均显著改善排名质量，同时在 Yambda-50M 和 Zvuk 上大幅提升 Novelty 和 Coverage。",
+        "消融实验显示，仅用 Entmax 引入稀疏性会一致提升 NDCG，但对去偏指标的影响因数据集而异；仅用 Logit Adjustment 能提升 Novelty 和 Coverage，但通常以 NDCG 下降为代价；PR-entmax 同时获得两者的优势。",
+        "在 NDCG@10 与 Novelty@10 的权衡分析中，PR-entmax 将帕累托前沿整体上移，可在提升新颖性的同时保持或提升相关性，优于 IPW、PD、Pop Sampling 和 Logit Adjustment。",
+        "在 α 敏感性实验中，α 在约 1.2 至 1.6 区间内，PR-entmax 能同时提升 NDCG@10 并保持较强去偏效果；论文采用 α=1.5。",
+        "运行开销方面，PR-entmax 与 Entmax 耗时完全相同；在 Zvuk 等大数据集上，entmax 类训练比 softmax CE 慢约 20%，其余数据集各方法耗时相近。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "NDCG@100",
+        "Novelty@10",
+        "Novelty@100",
+        "Coverage@10",
+        "Coverage@100"
+      ]
+    },
+    "limitations_zh": [
+      "论文仅在 SASRec 和 GRU4Rec 两种序列推荐架构及 5 个数据集上验证，对其他推荐模型和设置的可推广性尚未证明。",
+      "PR-entmax 需要调节 sparsity 参数 α、temperature θ 和先验强度 γ；在过高稀疏度区域会显著降低 NDCG，存在需要避开的超参数区间。",
+      "在大型数据集上，entmax 类训练因迭代计算稀疏支撑集阈值而比 softmax CE 慢约 20%，PR-entmax 继承了该开销。",
+      "先验 q 来自训练集物品流行度，对冷启动或分布漂移下的物品流行度变化未做专门讨论。"
+    ],
+    "method_zh": "PR-entmax 在变分目标中加入相对于流行度先验 q 的交叉熵正则项，得到闭式映射 p_i* = [(α-1)((z_i + γ log q_i) / θ - τ)]_+^{1/(α-1)}。训练时使用校正得分 z_i + γ log q_i 经稀疏映射后计算 Fenchel-Young 损失；先验通过阈值 τ 影响稀疏支撑集，使参与梯度更新的负样本同时具备上下文相关性和流行度感知。推理时移除先验项，仅用模型原始 logits z_i 排序。该方法可看作 CE、entmax 和 logit adjustment 的统一推广。",
+    "problem_zh": "序列推荐模型常用 softmax 交叉熵训练，容易导致流行度偏置：热门物品被过度曝光，长尾物品覆盖率低，并形成曝光反馈循环。现有缓解方法往往以牺牲推荐相关性为代价，存在 relevance-debiasing 权衡。本文针对这一权衡提出一种稀疏先验正则化训练目标。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.881,
+  "id": "arxiv-2610.17823",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-13T06:43:57Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向序列推荐系统的稀疏先验正则化目标 PR-entmax，在训练时融入物品流行度先验以缓解流行度偏差，同时保持或提升推荐相关性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Mitigating Popularity Bias in Sequential Recommendations with Sparse Prior-Regularized Objective",
+  "url": "https://arxiv.org/abs/2610.17823v1"
+}

@@ -1,0 +1,109 @@
+{
+  "abstract": "Social media have expanded opportunities for communication and political participation, but today's dominant platforms are optimized primarily for engagement and advertising revenue, contributing to concerns about polarization, misinformation, social isolation, and loss of civility. We explore how social media might instead be deliberately designed to support democratic discourse, collective deliberation, and collective intelligence. Drawing on literature across computer science, psychology, political science, and related fields, we present a modular collection of mechanisms that could be implemented individually or in combination. These include user-controlled and open recommender systems, tools for exposure to diverse perspectives, new forms of cognitive and epistemic feedback, collaborative and AI-assisted fact-checking, privacy and visibility controls, mechanisms for improving civility and evidentiary integrity, and reputation systems that reward high-quality participation. The proposals are intended both as a practical menu of design possibilities and as a starting point for broader interdisciplinary discussion about digital public spaces designed around democratic values rather than engagement alone. Social media have expanded opportunities for communication and political participation, but today's dominant platforms are optimized primarily for engagement and advertising revenue, contributing to concerns about polarization, misinformation, social isolation, and loss of civility. We explore how social media might instead be deliberately designed to support democratic discourse, collective deliberation, and collective intelligence. Drawing on literature across computer science, psychology, political science, and related fields, we present a modular collection of mechanisms that could be implemented individually or in combination. These include user-controlled and open recommender systems, tools for exposure to diverse perspectives, new forms of cognitive and epistemic feedback, collaborative and AI-assisted fact-checking, privacy and visibility controls, mechanisms for improving civility and evidentiary integrity, and reputation systems that reward high-quality participation. The proposals are intended both as a practical menu of design possibilities and as a starting point for broader interdisciplinary discussion about digital public spaces designed around democratic values rather than engagement alone.",
+  "arxiv_id": "2610.10816",
+  "authors": [
+    "Fan Cheng",
+    "Amirhossein Farzmahdi",
+    "Pinyuan Feng",
+    "Kedar Garzón Gupta",
+    "Trenton Jerde",
+    "Nikolaus Kriegeskorte",
+    "Zi Qi Liow",
+    "Akihito Maruya",
+    "Savannah Smith",
+    "Patrick Stinson",
+    "JohnMark Taylor"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "当前广告收入/参与度最大化模式与民主话语目标存在结构性矛盾，减少广告曝光的改动难以持续。",
+      "论文提出五类替代商业模式：公共服务/公共资助、非营利捐赠、订阅/会员、合作社/成员所有、协议加服务层。",
+      "平台若能以亲社会、促进民主参与为设计目标，可能换取更可持续的长期参与、用户信任和满意度。",
+      "机制可作为可落地的产品功能进入平台路线图（如无数字 feed、AI 文明工具包、事实核查 API 等），但需权衡成本和用户接受度。",
+      "开源可 fork 推荐器和 stream networks 等机制可能催生中间件/协议层，把商业变现从平台转移至服务层。",
+      "透明度和数据共享（如内容参与摘要、算法审计）会带来新的数据治理、合规和平台责任问题。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出一整套模块化机制菜单，将社交媒体的设计目标从情绪化参与转向认知价值（如 Cognicons、概率评级、无数字 feed、话语评分、高质量参与里程碑徽章）。",
+      "提出增强个人与社区控制、透明度和参与感的机制：自然语言 feed 算法调优、开源可 fork 推荐器、每日算法投票、社区 feed 策展、内容参与摘要与 feed 重校准、流网络。",
+      "提出让用户接触多元视角、跨差异对话的机制：立场搜索、魔鬼代言人按钮、地理虚拟旅行、跨语言桥接层、实时舆论地图、对话图、争议议题时间线、跨意识形态匹配等。",
+      "提出准确性与文明性基础设施：协作事实核查、AI 事实核查、AI 文明工具包、人身攻击检测、crowd 媒体拼贴合成器、选择性不可变流账本、算法操纵检测、代表性 feed 与匿名评价。",
+      "将提议整理成一页一张表的格式，写明 promise、challenges、关联机制和参考文献，并附跨学科文献，作为公众讨论和后续技术/政策工作的入口。",
+      "提出替代性商业模式选项（公共服务、非营利捐赠、订阅/会员、合作社、协议+服务），说明设计需由民主价值而非广告收入驱动。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Executive summary"
+      },
+      {
+        "page": 5,
+        "section": "Introduction"
+      },
+      {
+        "page": 8,
+        "section": "Feed discovery & customization"
+      },
+      {
+        "page": 17,
+        "section": "Content contextualization & understanding"
+      },
+      {
+        "page": 24,
+        "section": "Engaging & reacting"
+      },
+      {
+        "page": 30,
+        "section": "Accuracy & civility"
+      },
+      {
+        "page": 41,
+        "section": "Reputation & community rewards"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "该论文未报告原创实验或基准测试；其论证以机制设计提案和对既有文献的引用为主。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "所有机制均为概念性设计，缺少原型、用户研究和大规模实证验证。",
+      "部分机制依赖难以量化的分类（如意识形态多样性、立场、政治观点空间），容易误标或过度简化用户。",
+      "话语评分等单维指标可能过于狭窄，且会因 Goodhart 定律被博弈、产生算法偏见和未预期的居中化后果。",
+      "用户可能不愿切换算法、参与投票或使用界面复杂的功能；低参与度和界面过载是落地障碍。",
+      "存在被操纵风险：虚假账户/机器人、刷票、错误翻译、截图转发、有限可见性帖子被恶意利用等。",
+      "单纯暴露对立观点可能适得其反，加剧极化（论文引用 Bail et al. 2018），因此需谨慎设计平衡和用户控制。",
+      "位置标注、隐私与数据安全存在局限：geotagging 不普遍且偏向城市，VPN 可伪造位置，草稿和位置数据有隐私顾虑。"
+    ],
+    "method_zh": "论文采用规范性、概念性的设计研究/白皮书方法：先基于对现有平台激励机制的批判和文献证据建立问题框架，再从民主价值（多元主义、自由表达、平等参与、公共证成、透明度、集体自治、人类认证）出发提出机制；每个机制以标准化表格给出描述、前景、挑战、关联机制与文献，未开展系统实验或基准测试。",
+    "problem_zh": "论文指出，主流社交媒体以广告收入为驱动力，把用户参与度（engagement）作为核心优化目标，导致或加剧政治极化、错误/虚假信息、社会孤立和文明失序；这些危害并非人性或连接技术的必然，而是平台设计选择与激励机制的产物。因此需要按民主话语价值重新设计社交媒体的信号、激励、用户控制与完整性工具。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.5800000000000001,
+  "id": "arxiv-2610.10816",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-07T19:20:32Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文探讨如何将社交媒体中的推荐系统重新设计为促进民主话语、集体审议与集体智慧的模块化机制。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Improving social media for democratic discourse",
+  "url": "https://arxiv.org/abs/2610.10816v1"
+}

@@ -1,0 +1,134 @@
+{
+  "abstract": "Conversational Recommender Systems (CRSs) require reliable user simulators for cost-effective evaluation. LLM-based simulators have made realistic simulation possible but typically condition on profiles derived from explicit ratings, demographics, and static sources capturing surface preferences while omitting implicit behavioral characteristics such as decision-making style, aspect-level preferences, and domain expertise. We propose SimInter, a pipeline that elicits these attributes via synthetic interviews between two LLM agents, grounded in the user's statistical profile and historical conversational evidence. Before profile enrichment, an audit agent explicitly flags potential fabrication and stereotyping at the turn level. We instantiate and evaluate SimInter on movie recommendation. We simulate 300 ReDial users and, on a matched subset of 100 users, compare SimInter with a statistics-only baseline: SimInter significantly increases the diversity of expressed preference aspects (filtered aspect entropy: 1.619 vs. 0.859; paired d = 0.96, Holm-adjusted p < 0.001). This gain persists when the simulator converses with two trained recommenders, KBRD and UniCRS, under two independent evaluation judges (+0.28 to +0.56 nats; all p < 0.001). Human evaluation finds 94.3% of enriched-attribute claims supported or partially supported, while human judgments agree with 95.2% of the auditor's binary filtering decisions on a stratified sample. Conversational Recommender Systems (CRSs) require reliable user simulators for cost-effective evaluation. LLM-based simulators have made realistic simulation possible but typically condition on profiles derived from explicit ratings, demographics, and static sources capturing surface preferences while omitting implicit behavioral characteristics such as decision-making style, aspect-level preferences, and domain expertise. We propose SimInter, a pipeline that elicits these attributes via synthetic interviews between two LLM agents, grounded in the user's statistical profile and historical conversational evidence. Before profile enrichment, an audit agent explicitly flags potential fabrication and stereotyping at the turn level. We instantiate and evaluate SimInter on movie recommendation. We simulate 300 ReDial users and, on a matched subset of 100 users, compare SimInter with a statistics-only baseline: SimInter significantly increases the diversity of expressed preference aspects (filtered aspect entropy: 1.619 vs. 0.859; paired d = 0.96, Holm-adjusted p < 0.001). This gain persists when the simulator converses with two trained recommenders, KBRD and UniCRS, under two independent evaluation judges (+0.28 to +0.56 nats; all p < 0.001). Human evaluation finds 94.3% of enriched-attribute claims supported or partially supported, while human judgments agree with 95.2% of the auditor's binary filtering decisions on a stratified sample.",
+  "arxiv_id": "2610.18308",
+  "authors": [
+    "Erfan Shahabi",
+    "Amirhossein Roshandel",
+    "Mohammad Sadegh Sadeghi",
+    "Azadeh Shakery"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SimInter可降低对话式推荐系统对真人评估的依赖，提供低成本、可重复、可控的模拟用户，适合推荐产品迭代、离线评估和故障诊断。",
+      "证据链接的画像丰富和逐轮审计可减少用户模拟中的刻板印象与捏造内容，对个性化推荐、用户建模和可信AI实践有直接价值。",
+      "丰富化会降低项多样性和词汇多样性，业务团队需按评估目标选择指标，避免单一追求多样性而忽略偏好表达的具体性。",
+      "当前仅验证英语电影推荐场景，迁移到商品、内容或电商推荐时需要重新验证；实施成本包括LLM API调用和人工审计校准。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "指出LLM用户模拟中的画像瓶颈：基于显式评分和静态源的画像遗漏了决策风格、方面级偏好、领域 expertise 等隐含行为特征，直接由静态画像推断容易产生刻板化推断。",
+      "提出SimInter流水线：统计画像锚定 + 非对称访谈（访谈者无画像信息）+ 逐轮审计（捏造、刻板/虚构合理化、历史矛盾）+ 证据链接的画像丰富，并定义审计标记分类法。",
+      "在ReDial的300个用户、1200个模拟对话上进行评估，并在匹配的100用户子集上与仅统计画像和CSHI基线比较；T3过滤方面熵显著提升（d=0.96，Holm校正p<0.001）。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4 Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Results"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Auditor Behavior"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Human Evaluation of Audit Decisions"
+      },
+      {
+        "page": 1,
+        "section": "4.6 Human Evaluation of Enriched Attributes"
+      },
+      {
+        "page": 1,
+        "section": "4.7 Cross-CRS Robustness"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "STATISTICALONLY",
+        "CSHI",
+        "KBRD",
+        "UniCRS"
+      ],
+      "datasets": [
+        "ReDial",
+        "MovieLens-25M"
+      ],
+      "findings_zh": [
+        "匹配100用户子集上，FULL的过滤方面熵为1.619，显著高于STATISTICALONLY的0.859（Δ=+0.760，dz=0.955，Holm校正p<0.001）；81/100用户更高，零方面熵用户占比从41%降至5%。",
+        "T1项熵FULL为2.034，低于STATISTICALONLY的2.409（Δ=-0.375，显著），JSD vs ReDial略高（0.681 vs 0.676），说明丰富化使电影提及更集中。",
+        "300用户池化T2流行度相关为Pearson r=0.347（n=275部电影）；匹配子集上FULL r=0.171、STATISTICALONLY r=0.133，仅作描述性报告。",
+        "T4上SBERT语义多样性FULL略高（0.532 vs 0.500）但不显著（p_adj=0.11）；语料TTR更低（0.674 vs 0.728）、n-gram单调性更高（0.028 vs 0.019），反映画像词汇复用。",
+        "与CSHI相比，FULL方面熵1.619 vs 0.194、项熵2.034 vs 1.454、SBERT多样性0.532 vs 0.345、n-gram单调性0.028 vs 0.300，均p_adj<0.001，JSD无显著差异。",
+        "审计代理处理300个访谈：ACCEPT 209个（70%）、PARTIAL 91个（30%）、REGENERATE 0个；共676个标记（372个刻板/虚构合理化、173个历史矛盾、131个捏造），196个访谈者轮次被排除出丰富过程。",
+        "人工审计评估：三分类准确率86.7%（91/105），二元过滤准确率95.2%（100/105）；注释者一致率66.7%（Fleiss κ=0.664）。",
+        "丰富属性人工评估：94.3%的主张获得支持或部分支持（41.0%严格支持），5.7%不支持或矛盾；注释层面矛盾率1.3%；pickiness支持率97.0%，决策风格不支持率最高（21.4%）。",
+        "跨CRS鲁棒性实验中，KBRD的T3方面熵增益为+0.265和+0.280，UniCRS为+0.330和+0.369（分别由GPT-4o-mini和DeepSeek-chat评估，均p<0.001）；全对话敏感性分析增益为+0.275至+0.560。"
+      ],
+      "metrics": [
+        "T1项多样性：Shannon熵、与ReDial提及分布的JSD",
+        "T2流行度对齐：模拟偏好与MovieLens-25M均分的Pearson/Spearman相关",
+        "T3方面丰富度：过滤后方面熵",
+        "T4语言表层多样性：TTR、n-gram单调性、SBERT语义多样性",
+        "人工评估：丰富属性支持率、审计三分类/二元过滤准确率"
+      ]
+    },
+    "limitations_zh": [
+      "未对真实用户行为进行独立验证；人工评估衡量的是证据支持而非直接行为保真度。",
+      "审计决策存在不确定性，尤其在区分无根据的合理化与合理的偏好阐述时；自动检索的证据和注释者判断差异进一步限制结论。",
+      "消融实验未包含无访谈的LLM直接属性推断，因此访谈环节的独立贡献尚未解决。",
+      "稀疏且不平衡的偏好证据限制了个体级偏好对齐评估；丰富化在方面丰富度、项多样性和词汇多样性之间存在权衡。",
+      "跨CRS实验依赖自动评估，未建立与真实用户对推荐系统评估的一致性；泛化到英语电影推荐之外的场景尚未验证。",
+      "人工评估注释者为共同作者，未进行校准轮；采样为分层平衡样本，报告准确率不是全量审计轮次的无偏估计。"
+    ],
+    "method_zh": "SimInter包含6个阶段：(1) 从ReDial历史交互构建基础用户画像；(2) 用基于规则的方法提取行为统计（接受/拒绝率、引用风格、类型和年代分布、探索率、流行度等）；(3) 由两个LLM代理进行10轮合成访谈：受访者锚定统计画像和一条历史ReDial对话，访谈者不访问画像或历史，只能根据对话动态追问；(4) 审计代理逐轮检查捏造、刻板/虚构合理化和历史矛盾，按严重度决定ACCEPT/PARTIAL/REGENERATE，高/中危轮次从丰富输入中移除；(5) 基于审计后的访谈提取6类隐含属性（方面级偏好、挑剔度、决策风格、观影动机、新颖性偏好、领域专业度），每个属性附带证据引用，并形成丰富画像；(6) 用丰富画像条件化Gemini 2.5 Flash模拟用户与GPT-4o-mini驱动的CRS对话，并由终止判断器决定对话结束。主要组件包括Gemini 2.5 Flash、Claude Haiku 4.5、Tencent Hy3和GPT-4o-mini。",
+    "problem_zh": "现有基于LLM的对话式推荐系统用户模拟器通常依赖评分、人口统计和静态来源构建画像，缺少决策风格、方面级偏好、领域知识等隐含行为特征，导致模拟行为趋于平均化、重复且易产生刻板或捏造内容。本文提出SimInter，通过基于统计画像和历史对话证据的合成访谈来挖掘隐含属性，并在画像丰富前进行逐轮审计，以缓解这一画像瓶颈。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.851,
+  "id": "arxiv-2610.18308",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-13T12:52:35Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于访谈式画像增强的 LLM 用户模拟器 SimInter，以改进对话推荐系统的评估，属于推荐系统研究内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SimInter: Evidence-Grounded User Simulation with Interview-Based Profile Enrichment for Conversational Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.18308v1"
+}

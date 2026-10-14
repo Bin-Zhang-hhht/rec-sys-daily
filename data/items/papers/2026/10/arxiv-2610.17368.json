@@ -1,0 +1,133 @@
+{
+  "abstract": "Generative recommendation models have shown promising results by representing items as semantic IDs and generating these IDs autoregressively. We introduce an approach showing that explicitly incorporating hierarchical and attribute-level supervision into generative recommendation can simultaneously improve training efficiency and long-tail recommendation performance. Existing approaches typically optimize semantic ID prediction with a standard causal cross-entropy objective, which does not explicitly exploit the hierarchical structure of semantic IDs and can require substantial training to learn effective item representations. Moreover, data-sparse tail items often suffer from poor representations due to limited supervision, resulting in weaker long-tail recommendation performance. We address these challenges with HASTE (Hierarchical and Attribute-aware Supervision for generaTive rEcommendation), a unified training framework that introduces hierarchical and attribute-specific supervision. HASTE's Hierarchical Loss explicitly exploits the multi-level structure of semantic IDs, providing supervision at each level of the item hierarchy and substantially accelerating training convergence. Its Attribute-Specific Losses encourage the model to preserve fine-grained item attributes, leveraging the language model's inherent semantic knowledge to improve representations and recommendations for tail items. We extensively evaluate HASTE on a fashion recommendation benchmark and across multiple domains of the Amazon dataset. HASTE improves recommendation performance across datasets and item-frequency regimes. Notably, the Hierarchical Loss achieves approximately 2x faster convergence than the standard causal cross-entropy objective, substantially improving training efficiency while maintaining strong recommendation quality. Generative recommendation models have shown promising results by representing items as semantic IDs and generating these IDs autoregressively. We introduce an approach showing that explicitly incorporating hierarchical and attribute-level supervision into generative recommendation can simultaneously improve training efficiency and long-tail recommendation performance. Existing approaches typically optimize semantic ID prediction with a standard causal cross-entropy objective, which does not explicitly exploit the hierarchical structure of semantic IDs and can require substantial training to learn effective item representations. Moreover, data-sparse tail items often suffer from poor representations due to limited supervision, resulting in weaker long-tail recommendation performance. We address these challenges with HASTE (Hierarchical and Attribute-aware Supervision for generaTive rEcommendation), a unified training framework that introduces hierarchical and attribute-specific supervision. HASTE's Hierarchical Loss explicitly exploits the multi-level structure of semantic IDs, providing supervision at each level of the item hierarchy and substantially accelerating training convergence. Its Attribute-Specific Losses encourage the model to preserve fine-grained item attributes, leveraging the language model's inherent semantic knowledge to improve representations and recommendations for tail items. We extensively evaluate HASTE on a fashion recommendation benchmark and across multiple domains of the Amazon dataset. HASTE improves recommendation performance across datasets and item-frequency regimes. Notably, the Hierarchical Loss achieves approximately 2x faster convergence than the standard causal cross-entropy objective, substantially improving training efficiency while maintaining strong recommendation quality.",
+  "arxiv_id": "2610.17368",
+  "authors": [
+    "Tripti Shukla",
+    "Shwetha Somasundaram",
+    "Akshat Gupta",
+    "Rohit Garg",
+    "Paul Duff",
+    "Ian Anderson"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "约2倍收敛加速可显著降低基于大语言模型的生成式推荐训练算力与时间成本，具备工程部署价值。",
+      "长尾推荐改进显著，可帮助电商/时尚平台提升低频、长尾商品的曝光与可推荐性，而不依赖额外交互数据。",
+      "属性监督仅利用目录中已有的颜色/材料等元数据，无需额外任务数据或提示工程，适合产品目录信息丰富的场景。",
+      "已在163,724个商品的生产级内部时尚数据集上验证，说明框架可扩展到工业规模目录。",
+      "商业价值取决于目录属性完整度与语义ID质量；属性稀疏的品类收益可能受限。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出层级损失（Hierarchical Loss）：按SID层级加权（4:3:2:1），并用上游码的detached置信度对下游层级做门控，同时引入静态权重到条件权重的退火过渡和计划采样（scheduled sampling），比标准因果CE约快2倍收敛且推荐质量不降。",
+      "提出属性特定损失（Attribute-Specific Losses）：在用于预测细粒度SID码的隐藏状态上附加轻量MLP回归头，利用目录中的CIELAB颜色和材料组成等属性目标，对交互稀疏的长尾商品提供补充监督。",
+      "在Amazon Beauty、Sports、Toys、Fashion-140k及内部生产级时尚数据集上验证，HASTE在不同数据集和商品频次区间都带来提升，且长尾商品收益最大。",
+      "分析表明层级损失比扁平CE更好地保留残差量化继承的结构：L0-L1余弦耦合从0.36提升到0.50，且嵌入漂移减少2-4倍。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Motivation"
+      },
+      {
+        "page": 1,
+        "section": "5 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "6 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "8 Ethical Considerations"
+      },
+      {
+        "page": 1,
+        "section": "9.1 Dataset Details"
+      },
+      {
+        "page": 1,
+        "section": "9.2 Implementation Details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "BERT4Rec",
+        "TIGER",
+        "HSTU",
+        "IDGenRec",
+        "OneRec-Think",
+        "标准因果CE目标"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Sports & Outdoors",
+        "Amazon Toys & Games",
+        "Fashion-140k",
+        "Internal-fashion（生产级内部时尚数据集）"
+      ],
+      "findings_zh": [
+        "层级损失在Beauty、Sports、Toys上相对最强基线将Recall@10分别提升4.0%、12.4%、15.5%；NDCG@10在Beauty和Sports上提升6.8%和16.7%。",
+        "层级损失平均达到与CE相同验证损失水平的步数减少为1.99倍：Toys 2.19×、Sports 1.89×、Beauty 1.93×，显著提升训练效率。",
+        "层级损失比标准CE更好地保留SID结构：L0-L1输出嵌入余弦相似度在微调后为0.50，而CE降至0.36；且嵌入漂移少2-4倍。",
+        "颜色属性监督主要改善数据稀疏商品：tail颜色top-1误差从54.5降至50.2，torso从33.5降至29.0，而head颜色基本不变（12.5→12.6）。",
+        "在HL基础上加入颜色损失，tail Recall@10在Fashion-140k提升24.2%、在internal-fashion提升17.8%，并在internal-fashion取得最佳整体和tail性能。",
+        "Toys数据集消融显示，完整层级损失（静态加权+置信门控+计划采样）相对CE将Recall@10提升44.3%、NDCG@10提升50.0%；置信门控是单项增益最大的组件；逐步增加监督的SID层级使NDCG@10从0.0355升至0.0492。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "收敛所需训练步数",
+        "平均top-1颜色误差（ΔE）",
+        "SID层级余弦耦合与嵌入漂移"
+      ]
+    },
+    "limitations_zh": [
+      "论文指出方法依赖底层语义ID层级质量以及可靠的属性信息可用性；属性监督在属性覆盖不足时受限。",
+      "评估主要基于离线指标，可能无法完全反映真实用户满意度和长期参与度。",
+      "论文伦理讨论指出推荐系统可能放大流行度偏差，减少对长尾商品的曝光；HASTE虽改善长尾表示，但不能保证跨商品或用户群的公平性。",
+      "使用目录与行为数据可能带来隐私问题，需结合匿名化、访问控制和隐私保护实践。"
+    ],
+    "method_zh": "HASTE的总体目标为 L_HASTE = L_hier + λ_attr·L_attr。层级损失将4层SID码按(4,3,2,1)设置基础权重；对第l层，利用模型对前面各层ground-truth码的detached置信度p_k构造门控 g_l（g1=1，g2=p1，g3=p1p2，g4=p1p2p3），有效权重为 w_l[α+(1-α)g_l]，α从1线性退火到0；并引入计划采样，以概率用模型采样码替换ground-truth的L1码，缓解teacher-forcing与自回归解码的差异。属性损失在L2 SID预测位置的最后一层隐藏状态h_L2上附加MLP头 Linear(4096,64)-GELU-Linear(64,d_out)；颜色目标使用归一化CIELAB的Huber损失（δ=0.1）并按商品频次加权，材料目标使用15维L1归一化成分向量的Huber损失。模型为Qwen3-8B，两阶段训练：先扩展SID词表并做embedding warm-up，再进行全参数SFT。",
+    "problem_zh": "生成式推荐中，基于语义ID（Semantic ID）的模型通常只用扁平因果交叉熵（flat causal CE）训练，未能利用语义ID由残差量化产生的层级结构，导致训练收敛慢、层级语义结构被削弱；同时，长尾商品交互样本稀疏，其表示缺乏监督，而颜色、材质等细粒度属性信息虽隐式存在但未被显式组织，难以支撑长尾与属性相关推荐。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.902,
+  "id": "arxiv-2610.17368",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-12T20:25:50Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "HASTE为生成式推荐设计层次化与属性级监督训练框架，通过层次化损失和属性损失提升生成推荐性能与长尾物品表现。",
+  "targets": [],
+  "tasks": [],
+  "title": "HASTE: Hierarchical and Attribute-aware Supervision for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.17368v1"
+}
