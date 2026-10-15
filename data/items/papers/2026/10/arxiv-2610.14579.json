@@ -7,25 +7,22 @@
   "deep_reading": {
     "analysis_basis": "mineru_full_text",
     "business_implications_zh": [
-      "微调策略本身是HR嵌入模型可干预的偏见杠杆：若以降低偏见为目标，当前证据不支持使用知识蒸馏微调，而二分类微调未见统计可检测的偏见变化。",
-      "嵌入级偏见是排名偏见的输入端，系统化审计应在模型上线前完成；相关监管（欧盟AI法案将招聘列为高风险、纽约市AEDT法）要求对雇佣决策算法进行严格审计。",
-      "实务中不应只比较点估计或“最不偏模型”宣传，而应采用带置信区间与显著性检验的审计，避免因非独立样本造成虚假结论。",
-      "由于跨模型族的余弦相似度绝对值受各向异性影响，跨族绝对分数只能作描述性参考，模型选型应基于同基座内配对比较与多基准收敛证据。"
+      "对构建HR推荐嵌入的从业者而言，微调策略本身是可操作的偏见管理杠杆：在本文研究的模型家族和任务中，知识蒸馏微调有可复现的证据表明会增加性别与职业刻板印象偏见，而二分类微调未显示统计可检测的偏见变化。",
+      "嵌入空间偏见是上游输入，会在任何排序或业务逻辑之前影响职位推荐、候选人搜索和简历匹配，因此模型选择与微调方式直接影响招聘系统的公平风险。",
+      "欧盟AI法案将招聘和候选人筛选系统列为高风险，纽约Local Law 144要求对自动化就业决策工具进行审计；本文强调统计有效的审计方法，对满足监管审查和避免虚假的“最低偏见模型”声明具有实践意义。",
+      "企业不应仅依赖单一基准或未经验证的点估计来宣称模型无偏见；需要结合自然主义长文本基准和模板化句子基准，并报告置信区间、样本量和功效限制。",
+      "虽然嵌入级关联偏见是下游排名偏见的必要前提，但本文未直接证明排名结果偏差，业务团队仍需进行端到端检索审计才能确认实际推荐结果的影响。"
     ],
-    "business_transferability": 0.65,
+    "business_transferability": 0.68,
     "contributions_zh": [
-      "调研了现有嵌入偏见基准，并从HR/职位匹配场景出发论证选择 Bias-in-Bios 与 StereoSet 作为互补评测工具。",
-      "审计了跨 LaBSE 和 E5 两个模型家族、二分类与知识蒸馏两种微调策略的六个嵌入模型。",
-      "识别并修正了朴素显著性检验中的非独立性错误（将海量两两相似度当作独立样本），改为职业层面的配对 Wilcoxon 检验、个体重采样 bootstrap 置信区间和置换检验。",
-      "报告知识蒸馏微调显著增加 Bias-in-Bios 上的测量偏见（Δ=-0.177 至 -0.191, p<1e-8），并在 StereoSet 部分类别得到方向一致的 pro-stereotype 佐证；二分类微调相对基座模型无统计显著变化（p=0.218）。",
-      "明确披露未能进入显著性检验的领域适配模型、无预训练 E5-Large 基线、统计功效不足的类别等证据边界。"
+      "调研了公开的嵌入偏见基准，并从HR/职位匹配场景出发论证选择Bias-in-Bios与StereoSet作为互补评估工具的理由。",
+      "对六个跨越LaBSE和E5两个模型家族、两种微调策略（二分类、知识蒸馏）的嵌入模型在两个基准上进行了偏见审计。",
+      "识别并纠正了常见统计有效性错误：将非独立的成对余弦相似度池化导致微小差异被误报为p≈0，改用职业级配对Wilcoxon符号秩检验、个体级bootstrap置信区间和置换检验。",
+      "报告了带置信区间和显著性检验的结果：知识蒸馏微调显著增加Bias-in-Bios测量到的偏见，并在StereoSet部分类别中呈现亲刻板印象模式；二分类微调相对同一基础模型未产生统计可检测的变化。",
+      "明确说明了证据未覆盖的模型和基准类别，包括因软件访问限制未能纳入显著性检验的两个领域适配模型。"
     ],
-    "evidence_quality": 0.75,
+    "evidence_quality": 0.72,
     "evidence_refs": [
-      {
-        "page": 1,
-        "section": "Abstract"
-      },
       {
         "page": 1,
         "section": "4.3 Statistical Methodology"
@@ -44,15 +41,7 @@
       },
       {
         "page": 1,
-        "section": "5.4 Convergent Evidence Across Benchmarks"
-      },
-      {
-        "page": 1,
         "section": "7 Limitations"
-      },
-      {
-        "page": 1,
-        "section": "8 Conclusion and Future Work"
       }
     ],
     "experiments": {
@@ -65,51 +54,53 @@
         "E5-Large-KD"
       ],
       "datasets": [
-        "Bias-in-Bios (test split: 99,000 biographies, 28 professions, binary gender)",
-        "StereoSet (intrasentence validation split: 2,106 instances; profession n=810, race n=962, gender n=255, religion n=79)"
+        "Bias-in-Bios",
+        "StereoSet"
       ],
       "findings_zh": [
-        "Bias-in-Bios 总体分：E5-Base 0.7759，E5-Base-Binary 0.7637，E5-Base-KD 0.5994；E5-Base-KD 相对 E5-Base 的配对差 Δ=-0.1765（95% CI [-0.1872,-0.1673]，p=7.45e-9），E5-Large-KD Δ=-0.1911（p=7.45e-9），全部28个职业同向移动。",
-        "E5-Base-Binary 相对 E5-Base 的 Δ=-0.0122（95% CI [-0.0281,0.0024]，p=0.218），不能拒绝无变化原假设；E5-Large-Binary Δ=-0.0568（p=6.32e-5），但该行与 E5-Base 比较混淆了微调与大模型规模效应。",
-        "StereoSet：E5-Base-KD 在职业类偏见分 +0.0129（p=0.0004）、性别类 +0.0132（p<0.05）；E5-Large-KD 职业 +0.0066（p=0.016）、种族 +0.0073（p<0.05）；基座 E5-Base 种族 +0.0094（p<0.05）；宗教类任何模型均不显著。",
-        "KD-vs-base 的 Bias-in-Bios 差异在均值中心化或移除主成分后不稳定甚至反向，因此作者不把原始 KD 位移单独视为几何无关的偏见证据，而是与 StereoSet 的互补结果共同解读。",
-        "跨基准收敛结论：知识蒸馏微调与更高测量偏见一致相关（Bias-in-Bios + StereoSet 职业类），二分类微调未显示统计可检测的偏见变化，这是最可操作的发现。"
+        "知识蒸馏微调显著降低Bias-in-Bios偏见分数（即显著增加性别偏见）：E5-Base-KD Δ=-0.1765，95% CI [-0.1872, -0.1673]，p=7.45×10^-9；E5-Large-KD Δ=-0.1911，95% CI [-0.2016, -0.1812]，p=7.45×10^-9。",
+        "E5-Base-Binary相对E5-Base的Bias-in-Bios变化不显著（Δ=-0.0122，95% CI [-0.0281, 0.0024]，p=0.218），置信区间包含零。",
+        "E5-Large-Binary相对E5-Base显著下降（Δ=-0.0568，p=6.32×10^-5），但该比较混合了微调与模型规模效应，不能单独归因于微调策略。",
+        "StereoSet职业类别中，两个KD变体均显示显著亲刻板印象偏见：E5-Base-KD +0.0129，p=0.0004；E5-Large-KD +0.0066，p=0.016，与Bias-in-Bios方向一致。",
+        "StereoSet宗教类别（n=79）没有任何模型呈现显著偏见分数；性别类别（n=255）仅E5-Base-KD显著（+0.0132，p<0.05），作者认为这反映统计功效不足而非不存在偏见。",
+        "将非独立成对相似度池化的朴素检验会把0.0046的均值差异错误地报告为p≈0；纠正后的职业级配对检验改变了哪些发现可被辩护。"
       ],
       "metrics": [
-        "Bias-in-Bios profession-level mean cosine similarity between male/female biographies (higher = less bias)",
-        "StereoSet category bias score = mean(sim_stereotype) - mean(sim_anti-stereotype)",
-        "Paired Wilcoxon signed-rank test p-value (n=28 professions)",
-        "Bootstrap 95% confidence interval",
-        "Permutation test p-value (5,000 permutations)"
+        "Bias-in-Bios职业级平均余弦相似度（越高偏见越低）",
+        "StereoSet刻板印象减反刻板印象平均相似度偏见分数",
+        "配对Wilcoxon符号秩检验p值",
+        "bootstrap 95%置信区间",
+        "StereoSet置换检验p值"
       ]
     },
     "limitations_zh": [
-      "两个基于 ESCO 的职业领域适配 LaBSE 模型因未解决的软件访问/流水线限制未能进入显著性检验；一次未修正方法学的探索性结果显示其可能在 StereoSet 最好、Bias-in-Bios 最差，但作者明确不作为已验证结果。",
-      "缺少预训练 E5-Large 基线，E5-Large-Binary/E5-Large-KD 相对 E5-Base 的 Δ 混入了规模效应，不能单独解释为微调策略效应。",
-      "未测量下游推荐/排序结果；嵌入空间关联偏见是必要条件但不等于最终排名偏见。",
-      "两个基准仅使用二元性别标签，未覆盖非二元性别。",
-      "StereoSet 宗教(n=79)和性别(n=255)样本量小，不显著应解读为功效不足而非无偏见。",
-      "StereoSet 24个模型×类别检验未做多重比较校正；跨模型、跨基准的一致性比单个显著格子更可信。"
+      "两个基于ESCO职业分类数据微调的LaBSE领域适配模型因软件访问约束未能纳入修正后的显著性检验，因此统计支持的结论仅适用于通用多语言嵌入模型。",
+      "缺少预训练的E5-Large基线，E5-Large-Binary和E5-Large-KD的Δ是与E5-Base比较，混入了基础模型规模效应。",
+      "研究测量的是嵌入空间本身的关联与刻板印象偏好，未测量下游检索或排序结果中的实际排名偏差。",
+      "两个基准均只使用二元性别标签，结果不涉及非二元性别身份的表征。",
+      "StereoSet中宗教（n=79）和性别（n=255）类别样本量较小，非显著结果应解读为功效不足而非无偏见。",
+      "StereoSet表5中24个模型-类别比较未做多重比较校正，单个显著格可能受多重比较噪声影响。",
+      "跨模型家族的绝对余弦相似度比较受嵌入各向异性混淆，只能做描述性解读，不能做因果性显著性论断。"
     ],
-    "method_zh": "使用六个句子嵌入模型（LaBSE base、E5-Base、E5-Base-Binary、E5-Base-KD、E5-Large-Binary、E5-Large-KD）。Bias-in-Bios：对每职业所有男性/女性传记编码并L2归一化，计算组均值向量点积作为该职业偏见分数，更高=更少性别偏见；模型间比较以28个职业为配对单位做 Wilcoxon 符号秩检验，并用按个体重采样的 bootstrap 计算95%置信区间。StereoSet：对上下文与刻板/反刻板候选句计算余弦相似度，偏见分数=平均(刻板)-平均(反刻板)，用5000次置换检验判断是否显著；报告类别样本量并强调多重比较风险。",
-    "problem_zh": "HR推荐系统依赖嵌入模型进行简历/职位匹配，嵌入空间中的性别与刻板印象偏见会直接传导为排名偏差；同时业界常见的偏差审计只报告点估计、忽略统计显著性，甚至因非独立性错误产生虚假显著结果。本文聚焦于在HR推荐相关嵌入模型上，以统计严谨的方式审计微调策略（知识蒸馏 vs 二分类）是否显著改变性别与刻板印象偏见。",
+    "method_zh": "评估六个句子嵌入模型：LaBSE-base、E5-Base、E5-Base-Binary、E5-Large-Binary、E5-Base-KD、E5-Large-KD。Bias-in-Bios使用测试集99,000篇传记、28个职业和二元性别标签，对每个职业计算男性和女性传记嵌入之间的平均余弦相似度，越高表示性别偏见越低；跨模型比较以职业为观测单元，使用配对Wilcoxon符号秩检验和bootstrap 95%置信区间。StereoSet使用intrasentence验证集2,106条实例，按职业、种族、性别、宗教类别计算刻板印象候选与反刻板印象候选相对上下文的平均余弦相似度之差，并用置换检验判断是否显著异于零。同时通过均值中心化和去除主成分检验原始余弦相似度对全局几何的敏感性。",
+    "problem_zh": "HR推荐系统依赖嵌入模型进行简历、职位描述和候选人的向量化匹配，嵌入空间中的性别与刻板印象偏见会直接输入到排序决策中。现有偏见审计常只报告均值余弦相似度等点估计，缺乏统计有效性检验；本文指出并纠正了将非独立的成对相似度当作独立样本导致的显著性检验错误，并对六种嵌入模型的偏见进行严格统计审计。",
     "technical_depth": 0.85
   },
   "doi": null,
-  "final_score": 0.7285,
+  "final_score": 0.881,
   "id": "arxiv-2610.14579",
   "kind": "paper",
   "llm": {
     "degraded": false,
-    "generated_at": "2026-10-14T19:10:58.344412Z",
+    "generated_at": "2026-10-15T18:52:47.297611Z",
     "model": "deepseek-v4-flash"
   },
   "methods": [],
   "published_at": "2026-10-10T04:57:38Z",
-  "relevance_score": 0.72,
+  "relevance_score": 1.0,
   "scenarios": [],
   "source": "arxiv",
-  "summary_zh": "该研究对多种多语言句向量模型进行职业性别与刻板印象偏见审计，发现知识蒸馏微调会显著增加HR推荐系统中的测量偏差，属于推荐系统公平性分析。",
+  "summary_zh": "该论文对HR推荐系统所用多语言嵌入模型进行了统计严谨的性别与刻板印象偏见审计，属于推荐系统研究。",
   "targets": [
     "content"
   ],

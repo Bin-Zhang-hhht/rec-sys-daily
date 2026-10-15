@@ -1,0 +1,107 @@
+{
+  "abstract": "Graph Collaborative Filtering models have achieved remarkable success in recommendation systems. However, they inherently suffer from a catastrophic representation collapse in strict cold-start scenarios due to the topological isolation of unobserved items. While integrating multi-modal semantic features offers a potential remedy, directly mapping isolated semantic attributes into a globally topology-driven collaborative space frequently precipitates representation degradation and optimization conflicts. To bridge this fundamental structural divide, we propose DualGCN, an innovative Dual-Branch Graph Knowledge Distillation Framework. Operating under a decoupled two-stage training paradigm, DualGCN first constructs a robust collaborative teacher network where item representations are anchored by a topology-smoothed semantic prior, effectively reshaping the latent manifold. Subsequently, a semantic student branch employs a residual mapping mechanism and a magnitude-agnostic cosine distillation objective to achieve high-fidelity cross-modal alignment without disrupting established collaborative signals. Furthermore, we introduce a dynamic norm reconstruction mechanism to rigorously calibrate the physical scales of novel and warm items during global retrieval. Extensive experiments across three real-world benchmark datasets demonstrate that DualGCN significantly outperforms state-of-the-art baselines in strict cold-start scenarios while comprehensively preserving recommendation accuracy for highly active items. Graph Collaborative Filtering models have achieved remarkable success in recommendation systems. However, they inherently suffer from a catastrophic representation collapse in strict cold-start scenarios due to the topological isolation of unobserved items. While integrating multi-modal semantic features offers a potential remedy, directly mapping isolated semantic attributes into a globally topology-driven collaborative space frequently precipitates representation degradation and optimization conflicts. To bridge this fundamental structural divide, we propose DualGCN, an innovative Dual-Branch Graph Knowledge Distillation Framework. Operating under a decoupled two-stage training paradigm, DualGCN first constructs a robust collaborative teacher network where item representations are anchored by a topology-smoothed semantic prior, effectively reshaping the latent manifold. Subsequently, a semantic student branch employs a residual mapping mechanism and a magnitude-agnostic cosine distillation objective to achieve high-fidelity cross-modal alignment without disrupting established collaborative signals. Furthermore, we introduce a dynamic norm reconstruction mechanism to rigorously calibrate the physical scales of novel and warm items during global retrieval. Extensive experiments across three real-world benchmark datasets demonstrate that DualGCN significantly outperforms state-of-the-art baselines in strict cold-start scenarios while comprehensively preserving recommendation accuracy for highly active items.",
+  "arxiv_id": "2610.19578",
+  "authors": [
+    "Yuanfeng Qiu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对电商/内容平台，新上架物品无交互时可用文本与类目元数据完成零样本召回，有助于缓解新品冷启动问题。",
+      "轻量双分支与线性复杂度使其适合大规模候选召回阶段，在线推理主要使用轻量学生分支，成本可控。",
+      "在改善严格冷启动的同时不牺牲活跃物品推荐精度，有助于兼顾新品曝光与成熟物品的推荐质量。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出DualGCN，一种不对称双分支图知识蒸馏框架，用轻量教师-学生结构替代传统重融合模块，降低在线推理成本。",
+      "设计两阶段解耦优化范式：第一阶段用拓扑平滑语义先验构建协同教师网络，第二阶段冻结教师并用余弦蒸馏对齐语义学生分支，避免多任务图训练中的梯度冲突。",
+      "提出动态范数重建机制，在全局检索时按物品实时度路由并校准冷/热物品表示的物理尺度。",
+      "在三个真实数据集上的实验表明，DualGCN在严格冷启动场景显著优于已有基线，同时基本保持活跃物品的推荐精度。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Preliminaries"
+      },
+      {
+        "page": 1,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "5 Experimental Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MF",
+        "NGCF",
+        "LightGCN",
+        "DeepMusic",
+        "DropoutNet",
+        "MetaEmbedding"
+      ],
+      "datasets": [
+        "Amazon-Books",
+        "Amazon-Electronics",
+        "Amazon-Sports"
+      ],
+      "findings_zh": [
+        "在 Warm-Start 场景下，第一阶段 DualGCN 在三个数据集上均匹配或超过 LightGCN、NGCF 等纯ID基线；相比 LightGCN，Amazon-Electronics 和 Amazon-Sports 的 Recall@20 分别提升约 39.7% 和 23.3%，Amazon-Books 上也保持领先。",
+        "严格冷启动下，MF、NGCF、LightGCN 等纯ID模型指标接近零，而第二阶段 DualGCN 显著更优，例如 Amazon-Sports 的 Recall@20=0.1119，比次优模型 DropoutNet 提升 20.8%；Amazon-Books 上所有指标均保持优势。",
+        "消融实验显示：冻结语义先验优于对语义向量微调；余弦蒸馏损失优于 MSE 和 InfoNCE（Books 的 Recall@20 分别为 0.1007 vs 0.0951/0.0972，Electronics 为 0.0248 vs 0.0236/0.0143）；语义残差连接带来稳定冷启动提升（Books Recall@20 0.1007 vs 0.0905，Sports 0.1119 vs 0.1010）。",
+        "DualGCN 保持线性复杂度：每轮训练时间复杂度为 O(K|E|d)，空间复杂度为 O(|V|d+|E|)。"
+      ],
+      "metrics": [
+        "Recall@20",
+        "Recall@50",
+        "NDCG@20",
+        "NDCG@50"
+      ]
+    },
+    "limitations_zh": [
+      "方法依赖物品的文本描述和类别作为唯一语义输入，实验中只使用 all-mpnet-base-v2 加 PCA，未验证图像等更丰富的多模态特征。",
+      "两阶段训练需要先预训练教师网络 600 轮，再进行 200 轮知识蒸馏，训练成本高于单阶段 LightGCN。",
+      "冷启动评测将候选池严格限制为纯冷启动物品集，未与热门物品混合做全局排序，实际检索中的流行度偏差可能未被完全评估。"
+    ],
+    "method_zh": "DualGCN 包含协同教师分支与语义学生分支。教师分支对物品文本（标题+类别）用 all-mpnet-base-v2 编码，经 PCA 降到64维得到冻结语义先验 s_i，L2归一化后用可学习标量 gamma 与随机ID嵌入相加作为第0层表示 e_i^(0)=e_i+gamma*s̄_i；随后在用户-物品二部图上执行 K 层对称归一化消息传递（类似 LightGCN），并用层组合得到教师表示。第一阶段冻结学生网络参数，仅训练 ID 嵌入和 gamma，用 BPR 损失优化。第二阶段冻结教师参数，训练学生 MLP，输入语义方向 s̄_i，使用残差结构 e_S = W2*σ(LN(W1*s̄_i+b1))+b2+gamma*s̄_i，并以余弦蒸馏损失对齐教师表示。推理时，动态范数重建机制计算 warm 物品教师表示的平均 L2 范数 μ_norm；对度小于阈值 τ 的物品，用学生输出的单位方向向量乘以 μ_norm 作为最终表示，对活跃物品直接用教师表示，从而统一检索空间。",
+    "problem_zh": "严格冷启动（OOV）场景下，基于ID的图协同过滤模型（如LightGCN）存在双重结构失效：新物品没有预训练的ID嵌入，且在交互图中度为零，消息传递/邻域聚合机制失效，导致表示崩塌。论文还指出，直接引入多模态语义特征可以缓解冷启动，但语义空间与全局拓扑驱动的协同空间存在异质分布差异，直接映射会造成表示退化与优化冲突。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.905,
+  "id": "arxiv-2610.19578",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-15T18:52:47.297611Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-10-14T04:43:38Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "DualGCN通过双分支图知识蒸馏与拓扑平滑的语义先验缓解严格冷启动推荐的表示坍缩，在冷启动场景中优于现有基线并保持热物品推荐精度。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Bridging the Topological Divide: Dual-Branch Graph Distillation with Semantic Priors for Robust Cold-Start Recommendation",
+  "url": "https://arxiv.org/abs/2610.19578v1"
+}

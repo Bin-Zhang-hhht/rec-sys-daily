@@ -1,0 +1,95 @@
+{
+  "abstract": "Recommendation systems, systems that predict a user's preference for items in order to curate that user's feed, are a ubiquitous and central feature in online social networks. While they are a central piece of our modern digital infrastructure, many modern approaches are opaque black boxes, making them difficult to audit, understand, and assess the trustworthiness of. In this paper we present an exact, graph-based approach for generating explanations for decisions made by recommendation systems. We argue that in the risk-sensitive sociotechnical context of user-facing AI such as recommendation systems, explainability is a key pillar for establishing the trustworthiness of models and validating their effectiveness. We propose a technique built on LightGCN like architectures, an influential and popular class of recommendation models. We describe our approach and argue that it provides an appropriate assurance mechanism for these AI systems leading to specific advantages, including interpretable explanations and a theoretically guaranteed measure of explanation fidelity. We conclude by discussing limitations and directions for future research. Recommendation systems, systems that predict a user's preference for items in order to curate that user's feed, are a ubiquitous and central feature in online social networks. While they are a central piece of our modern digital infrastructure, many modern approaches are opaque black boxes, making them difficult to audit, understand, and assess the trustworthiness of. In this paper we present an exact, graph-based approach for generating explanations for decisions made by recommendation systems. We argue that in the risk-sensitive sociotechnical context of user-facing AI such as recommendation systems, explainability is a key pillar for establishing the trustworthiness of models and validating their effectiveness. We propose a technique built on LightGCN like architectures, an influential and popular class of recommendation models. We describe our approach and argue that it provides an appropriate assurance mechanism for these AI systems leading to specific advantages, including interpretable explanations and a theoretically guaranteed measure of explanation fidelity. We conclude by discussing limitations and directions for future research.",
+  "arxiv_id": "2610.19446",
+  "authors": [
+    "Calder Johnson",
+    "Robin Cohen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "推荐系统广泛决定用户看到的产品、帖子和广告,可解释性可用于审计和评估AI系统可信度,降低误推荐风险。",
+      "暴露决策背后的证据可帮助开发者和审计者发现潜在问题依赖,如回声室、身份偏见推荐和广告定向错误。",
+      "xLightGCN提供的高效保真度量化可作为线上推荐系统可信度评估与审计的辅助手段,但缺少真实业务部署与经济效益证据。"
+    ],
+    "business_transferability": 0.4,
+    "contributions_zh": [
+      "提出xLightGCN,一种针对LightGCN线性结构的模型特定解释框架,通过节点贡献分解精确定位对单个推荐影响最大的同伴节点。",
+      "构造由选定高贡献节点及其代表路径组成的紧凑解释子图,复杂度为O(Lm + nD + n log k + kL),避免代理模型或逐实例优化。",
+      "定义解释保真度F(u,i)=1-|R(u,i)|/(|s(u,i)|+ε),用未解释残差定量度量解释对原始预测的覆盖程度。",
+      "在Gowalla数据集上实验表明,少数高影响节点即可解释大部分预测,保真度随k增大呈边际递减。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Methods"
+      },
+      {
+        "page": 1,
+        "section": "Experiments"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "Gowalla"
+      ],
+      "findings_zh": [
+        "在Gowalla数据集上,对100个随机用户-物品对,k从0到100变化时,保真度随k增大而提高,但出现边际递减。",
+        "图1示例中k=15时子图保真度约0.69,模型分数1.9147,子图分数1.3250,残差0.5897。",
+        "较大子图解释更多预测但更难解释,存在可解释性与保真度之间的权衡。",
+        "实验未与其他推荐解释方法进行定量基线对比。"
+      ],
+      "metrics": [
+        "保真度F(u,i)",
+        "解释子图大小k",
+        "原模型分数/子图分数/残差",
+        "达到保真度阈值所需的子图大小"
+      ]
+    },
+    "limitations_zh": [
+      "解释本身并不意味着系统可信或准确,只是提供调查这些性质的工具。",
+      "xLightGCN依赖LightGCN的线性传播结构,不能直接用于任意GCN或推荐架构。",
+      "解释子图规模越大越密集,可解释性下降,实际需要平衡k与保真度。"
+    ],
+    "method_zh": "利用LightGCN传播的线性性,将用户和物品的最终嵌入表示为L跳接收域内初始嵌入的线性组合;通过L次标量消息传递得到各节点系数c。对用户侧节点计算p_{u,v}=(e_v^(0))^T e_i,对物品侧节点计算p_{i,v}=(e_v^(0))^T e_u,再乘以对应系数得到推荐级贡献a;分别从两个接收域选取绝对值最大的k个贡献节点,保留连接端点的代表路径并取并集形成解释子图。用选中节点构造截断嵌入得到解释分数,原分数减解释分数为残差,并按F=1-|R|/(|s|+ε)计算保真度。",
+    "problem_zh": "推荐系统是现代在线平台的核心,但许多现代方法是不透明黑盒,难以审计、理解和评估可信度。现有GNN解释方法(如GNNExplainer、SubgraphX)通常需要近似或昂贵的逐实例优化/搜索,缺乏直接基于模型实际计算的高效精确解释。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.7799999999999999,
+  "id": "arxiv-2610.19446",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-15T18:52:47.297611Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "graph_neural_network"
+  ],
+  "published_at": "2026-10-14T02:34:47Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于LightGCN的精确图解释方法，利用最有影响力的邻居为推荐系统决策生成可解释且具有保真度保证的解释。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "xLightGCN: Explainable Graph Neural Network Based Recommendation Systems with Most Influential Peers",
+  "url": "https://arxiv.org/abs/2610.19446v1"
+}

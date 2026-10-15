@@ -1,0 +1,92 @@
+{
+  "authors": [
+    "Netflix Technology Blog"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "基础模型为 transformer 风格模型，训练目标类似 next-token prediction，token 是不同的用户交互。Embedding 集成方式取最后一个用户事件的 hidden state 作为 profile embedding，取 item tower 的权重作为 item embedding，并发布到 Embedding Store。Subgraph 集成方式将基础模型的 decoder stack 作为下游应用模型图的一部分，由基础模型子图处理原始用户交互序列并输出表示，再输入下游模型图。Fine-tuning 集成方式在基础模型之上针对产品特定数据和目标进行微调，可选择全参数微调或冻结部分层，也可添加不同输出头和目标，直接用微调后的模型支撑产品。",
+    "business_implications_zh": [
+      "集中式基础模型可减少维护多个专门个性化模型所需的时间和资源，并通过统一偏好学习提升整体效率。",
+      "Embedding 方式低门槛、成本相对低，适合大多数应用快速接入基础模型能力。",
+      "Subgraph 方式适合高影响场景，以更高计算和工程复杂度换取更深集成和潜在更优效果。",
+      "Fine-tuning 方式可加速新应用上线，避免从零搭建模型栈和长时间特征工程。",
+      "投资 embedding 基础设施和近实时 embedding 能力有助于缓解陈旧性问题，提升推荐新鲜度和用户实时体验。"
+    ],
+    "business_transferability": 0.65,
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "heading": "Embeddings from Foundation model",
+        "section": "Integrating Netflix’s Foundation Model into Personalization applications"
+      },
+      {
+        "heading": "Foundation Model as a Subgraph",
+        "section": "Integrating Netflix’s Foundation Model into Personalization applications"
+      },
+      {
+        "heading": "Fine-tuning Foundation Model and use directly",
+        "section": "Integrating Netflix’s Foundation Model into Personalization applications"
+      },
+      {
+        "heading": "Conclusion",
+        "section": "Integrating Netflix’s Foundation Model into Personalization applications"
+      }
+    ],
+    "implementation_zh": "基础模型每月从头预训练一次，之后每天基于最新数据对月度预训练模型进行微调，并在每日微调中扩展实体 id 空间以纳入新上线内容。每日微调完成后，通过批量推理刷新 profile 和 item embeddings，并发布到 Embedding Store。为保证不同训练轮次和每日微调产生的 embedding 位于同一语义空间，使用了 embedding stabilization 技术。Embedding Store 负责 embedding 的版本化、时间戳以及离线和在线访问接口。Subgraph 集成需要应用模型在特征生成阶段生成子图所需全部特征，团队提供了可复用代码和更高效的 feature generation 作业，并将子图拆分，保证每个请求每个 profile 只运行一次、由该请求的所有 item 共享。团队还构建了 fine-tuning 框架，便于应用团队开发自己的定制微调版本。",
+    "lessons_zh": [
+      "Embedding 是低成本、高杠杆的集成起点，只要 embedding 的新鲜度和稳定性满足应用需求，就适合作为默认接入方式。",
+      "稳健的 embedding 生成框架和 Embedding Store 对每日更新和服务 embedding 至关重要。",
+      "Subgraph 集成能实现更深层集成并发挥基础模型全部能力，但应保留给高影响用例。",
+      "Fine-tuning 集成可为新模型和应用提供事实基线，新应用无需从零构建模型栈和花费数月做特征工程。",
+      "团队正在通过近实时 embedding 推理、更小的蒸馏版基础模型和标准化 API 持续改进三种集成方式。"
+    ],
+    "limitations_zh": [
+      "博客未给出各集成方式的量化对比，如指标提升、计算成本或延迟数据。",
+      "Embedding 方式存在时间差，可能影响推荐新鲜度；近实时 embedding 框架不适用于非常大的模型。",
+      "Subgraph 方式会增加应用训练代码复杂度，需要权衡指标提升、计算成本和耗时。",
+      "Fine-tuning 方式会增加组织内模型和管线的维护数量。",
+      "文中未说明基础模型的具体参数量、训练数据规模或每日微调成本等细节。"
+    ],
+    "production_constraints_zh": [
+      "不同应用团队有不同的延迟要求、技术栈约束和使用基础模型全部能力的意愿。",
+      "Embedding 方式存在 embedding 计算与下游模型推理之间的时间差，可能导致推荐新鲜度不足，尤其不适合需要实时适应性的场景。",
+      "Embedding 方式依赖每日更新和 embedding store 基础设施；近实时 embedding 生成框架不能用于非常大的模型。",
+      "Subgraph 方式要求应用模型在特征生成中额外生成子图所需特征，增加时间、计算和复杂度，并增大应用模型规模和推理时间。",
+      "Fine-tuning 方式会导致组织中需要维护更多模型和管线，且必须针对具体应用仔细优化延迟和服务水平协议（SLA）。"
+    ],
+    "results_zh": [
+      "三种集成方式均已在 Netflix 生产环境中用于不同用例。",
+      "Embedding 方式被认为是低成本、高杠杆地使用基础模型的方式。",
+      "团队因 embedding 基础设施的价值而加大投入，构建了近实时 embedding 生成框架，可根据会话内用户行为更新 embedding，使下游模型更具适应性。",
+      "博客未提供各集成方式具体的离线或在线指标提升数字。"
+    ],
+    "system_context_zh": "Netflix 首页个性化由多个专门模型驱动，维护和持续创新需要大量时间与资源。为集中成员偏好学习，Netflix 构建了一个基于大规模用户交互历史和内容数据的 Foundation Model，并将其学习能力分发到下游个性化应用。本文聚焦如何将该基础模型集成到现有生产系统，介绍了三种已在生产中使用的集成方式：Embeddings、Subgraph 和 Fine-tuning。",
+    "technical_depth": 0.7,
+    "tradeoffs_zh": [
+      "Embedding 集成是最直接、低门槛的方式，对训练和推理成本影响相对较小，但可能无法充分利用基础模型的全部能力，且存在 embedding 陈旧性问题。",
+      "Subgraph 集成没有基础模型推理与应用模型推理之间的时间差，能使用最新学习结果和基础模型特定层，但会增加应用训练代码复杂度、计算成本和推理时间。",
+      "Fine-tuning 集成能针对应用特定数据和目标优化，并可作为新应用的事实基线，但会增加模型和管线维护负担，并需要优化延迟和 SLA。",
+      "团队建议将 Subgraph 方式保留给高影响用例，只有在指标收益能抵消成本和复杂度时才采用。"
+    ]
+  },
+  "final_score": 0.8575,
+  "id": "url-f69a57c8fec3e131561ddaba",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-15T18:52:47.297611Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-14T20:02:22Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "netflix_techblog",
+  "summary_zh": "本文介绍Netflix将基础模型通过嵌入、子图和微调三种方式集成到个性化推荐应用中，服务于候选生成与内容推荐。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Integrating Netflix’s Foundation Model into Personalization applications",
+  "url": "https://netflixtechblog.com/integrating-netflixs-foundation-model-into-personalization-applications-cf176b5860eb?source=rss----2615bd06b42e---4"
+}

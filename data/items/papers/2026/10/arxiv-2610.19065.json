@@ -1,0 +1,117 @@
+{
+  "abstract": "Generative retrieval (GR) has emerged as a strong candidate generator for sequential recommendation as language models and semantic-item identifiers have improved. However, GR is not a uniformly stronger replacement of dense retrieval (DR) in online retail candidate generation. We examine their differences on two Amazon Toys datasets under different metrics. GR leads on best relevant item value among users both methods cover, while DR leads on exact-target recall and relevant value across the ranked list. With deep analysis, we find that popularity contributes the most to GR's measured value lead. Adding the same static item value to DR in one reranking step reverses this lead and keeps recall above GR. Finally, on an industrial-scale internal e-commerce dataset with LLM-judged relevance, we show that a 14B SID-LLM still underperforms a $47\\times$ smaller dense encoder. Generative retrieval (GR) has emerged as a strong candidate generator for sequential recommendation as language models and semantic-item identifiers have improved. However, GR is not a uniformly stronger replacement of dense retrieval (DR) in online retail candidate generation. We examine their differences on two Amazon Toys datasets under different metrics. GR leads on best relevant item value among users both methods cover, while DR leads on exact-target recall and relevant value across the ranked list. With deep analysis, we find that popularity contributes the most to GR's measured value lead. Adding the same static item value to DR in one reranking step reverses this lead and keeps recall above GR. Finally, on an industrial-scale internal e-commerce dataset with LLM-judged relevance, we show that a 14B SID-LLM still underperforms a $47\\times$ smaller dense encoder.",
+  "arxiv_id": "2610.19065",
+  "authors": [
+    "Renbo Tu",
+    "Yang Liu",
+    "Shuying Sun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "电商候选生成中选择评测指标会直接影响方法选型结论：若只优化最佳相关商品价值，GR看似更优；若关心精确目标召回和整列价值，DR更优。",
+      "GR的价值优势很大程度上来自流行度静态先验，说明无需昂贵解码即可通过给DR重排加入相同先验来获得价值提升，且服务时成本更低。",
+      "在工业规模数据上，一个约300M参数的稠密编码器加静态先验可以超过14B生成式模型，对算力预算和线上延迟敏感的推荐系统有实际部署意义。",
+      "流行度偏差既可能是GR测量优势的来源，也会带来长尾商品曝光与公平性问题；静态先验的可迁移性提示平台应谨慎对待看似来自用户历史的收益。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "为电商序列推荐定义互补评测指标（条件最佳商品价值BV与整列价值加权vNDCG），并展示指标选择会反转GR与DR的胜负关系。",
+      "将GR相对DR的价值优势分解为流行度、评分和品牌三个静态成分，发现流行度是最大贡献项（2014年占49.8%，2023年占65.4%）。",
+      "提出无需训练的静态价值先验：对DR的检索结果做一次重排即可反转GR在BV上的领先，同时保持DR在Recall@50上高于GR。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Controlled Comparison Setup"
+      },
+      {
+        "page": 1,
+        "section": "Evaluation Metrics"
+      },
+      {
+        "page": 1,
+        "section": "From Metric Dependency to a Static Prior"
+      },
+      {
+        "page": 1,
+        "section": "Robustness Beyond Exact-Match Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GR（TIGER/LIGER生成式检索）",
+        "DR（稠密检索）",
+        "DR+prior（静态价值先验重排）"
+      ],
+      "datasets": [
+        "Amazon Toys 2014",
+        "Amazon Toys 2023",
+        "工业内部电商数据集（LLM判定相关性）"
+      ],
+      "findings_zh": [
+        "在两个公开Amazon Toys数据集上，原始DR在Recall@50、NDCG@50和vNDCG@50上高于GR，而GR在BV@50上领先；指标选择会改变结论。",
+        "GR的BV价值领先中，流行度贡献最大：2014年占49.8%，2023年占65.4%；流行度得分与训练中出现频率相关（2014年Spearman rho=0.582）。",
+        "加入静态价值先验后，DR的BV@50差距由落后0.020（2014）和0.016（2023）反转为领先0.023和0.006，且vNDCG@50最高（0.240和0.175），Recall@50仍高于GR。",
+        "冷启动目标上，DR和DR+prior比GR找到更多冷目标：2014年DR找到47个、DR+prior找到36个、GR找到0个；2023年分别为27、21、5。",
+        "共购替代品信用下DR的Recall优势转为GR领先，但等量随机信用也向GR方向移动，因此不能证明GR检索到更好的替代品；分级NDCG下DR仍领先。",
+        "工业数据上，GR的LLM判定NDCG@50为0.453，低于DR的0.474，DR+prior最高为0.530；约300M参数DR优于14B SID-LLM（约47倍参数差距）。"
+      ],
+      "metrics": [
+        "Recall@50",
+        "NDCG@50",
+        "BV@50（条件最佳相关商品价值）",
+        "vNDCG@50（价值加权整列NDCG）",
+        "冷启动目标命中数",
+        "替代品信用（co-purchase credit）",
+        "工业LLM分级相关性NDCG@50"
+      ]
+    },
+    "limitations_zh": [
+      "精确目标评测存在替代品盲区：完全漏掉目标时无法区分检索到替代品与检索到无关商品；叶子类别重叠和共购链接只是替代关系的近似证据，不一定成立。",
+      "静态商品价值分数v_i是透明代理，不是推荐效用的普遍度量；不同方法池之间的绝对vNDCG分数不应直接比较。",
+      "工业评测中GR与DR使用不同骨干网络和参数规模，无法隔离检索架构本身的影响；该对比grounded于LIGER，GR扩展困难与DR容量限制相关的研究结论仅约束而非决定本文结论。",
+      "离线推荐评测整体受缺失反馈、候选采样和时间切分等决策影响，本文结论建立在受控对比设置之上。"
+    ],
+    "method_zh": "基于TIGER/LIGER框架进行受控GR-DR比较：两分支使用相同交互数据、商品目录和联合训练的T5编码器-解码器；GR通过前缀约束束搜索解码语义ID，DR使用编码器表示按余弦相似度排序。定义静态商品价值v_i(w)=w_p*pop_i+w_r*rate_i+w_b*brand_i，默认权重(0.25,0.25,0.50)。DR+prior将DR的top-200候选相似度归一化到[0,1]，再与商品价值按alpha=0.5加权融合后重排。",
+    "problem_zh": "电商候选生成场景中，生成式检索（GR）与稠密检索（DR）的优劣取决于评测指标：GR在最佳相关商品价值（BV）上领先，而DR在精确目标召回、NDCG和整列相关价值上领先。论文试图解释这一指标冲突，并检验GR的价值优势是否来自可被静态商品属性替代的流行度偏差。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.915,
+  "id": "arxiv-2610.19065",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-15T18:52:47.297611Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-13T19:02:30Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文在顺序推荐候选生成场景中对比生成式检索与稠密检索，发现生成式检索的领先主要来自流行度偏差，加入静态物品价值重排后稠密检索反而反超且召回更高。",
+  "targets": [],
+  "tasks": [
+    "retrieval",
+    "reranking"
+  ],
+  "title": "Revisiting Generative vs. Dense Retrieval: A Static Value Prior Reverses the Gap",
+  "url": "https://arxiv.org/abs/2610.19065v1"
+}
