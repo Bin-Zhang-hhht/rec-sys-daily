@@ -1,0 +1,119 @@
+{
+  "abstract": "We use quantum machine learning techniques to develop a content-based media recommender system and evaluate its performance on TV programmes using textual descriptions from one week of BBC iPlayer data. Grounded in the Quantum Natural Language Processing framework (QNLP), programme synopses are mapped to variational quantum circuits using their semantic structure. The parameters of these circuits are trained via a supervised pairwise similarity learning task. We benchmark the quantum recommender against a classical BiLSTM baseline trained on the same dataset and objective. While both models achieve comparable performance on the similarity learning task, the quantum model requires significantly fewer parameters (47k vs. 17.8M). When the BiLSTM is constrained to a matching parameter budget, its performance degrades substantially (by 3.63 percentage points in Mean Average Precision (MAP)), indicating that the structured quantum representation provides a highly parameter-efficient alternative in this setting. We demonstrate the feasibility of executing the trained models on quantum hardware by deploying the circuits on Quantinuum's System Model H2 (and accompanying emulator) using a SWAP-test-based protocol. The results confirm that the similarity signal is preserved under realistic, noisy conditions. Taken together, these findings highlight the potential of variational quantum circuits for recommendation tasks and represent a practical step toward their real-world deployment. We use quantum machine learning techniques to develop a content-based media recommender system and evaluate its performance on TV programmes using textual descriptions from one week of BBC iPlayer data. Grounded in the Quantum Natural Language Processing framework (QNLP), programme synopses are mapped to variational quantum circuits using their semantic structure. The parameters of these circuits are trained via a supervised pairwise similarity learning task. We benchmark the quantum recommender against a classical BiLSTM baseline trained on the same dataset and objective. While both models achieve comparable performance on the similarity learning task, the quantum model requires significantly fewer parameters (47k vs. 17.8M). When the BiLSTM is constrained to a matching parameter budget, its performance degrades substantially (by 3.63 percentage points in Mean Average Precision (MAP)), indicating that the structured quantum representation provides a highly parameter-efficient alternative in this setting. We demonstrate the feasibility of executing the trained models on quantum hardware by deploying the circuits on Quantinuum's System Model H2 (and accompanying emulator) using a SWAP-test-based protocol. The results confirm that the similarity signal is preserved under realistic, noisy conditions. Taken together, these findings highlight the potential of variational quantum circuits for recommendation tasks and represent a practical step toward their real-world deployment.",
+  "arxiv_id": "2610.21562",
+  "authors": [
+    "Mina Abbaszadeh",
+    "Ouissal Moumou",
+    "Anna Pearson",
+    "Bob Coecke",
+    "Rob Cooper",
+    "Alessandro Piscopo",
+    "Mehrnoosh Sadrzadeh"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "量子 QNLP 模型以约 47K 参数达到与 17.8M 参数 BiLSTM 相当的内容推荐效果，展示出大幅降低内容语义模型训练和存储成本的潜力。",
+      "在冷启动场景下，仅依赖节目梗概文本即可取得接近协同过滤的推荐质量，对缺少用户交互历史的新内容推荐具有实际价值。",
+      "QNLP 与经典 NTM-R 内容模型的混合可将 MAP 提升至 13.80%，且缩小与协同过滤（16.00%）的差距，说明量子模型可补充而非替代现有经典推荐管线。",
+      "H2 硬件上的 SWAP 测试可行性结果表明，近期含噪量子硬件已能执行小规模真实推荐推理，为广播和视频点播平台探索量子推荐服务提供了初步依据。",
+      "当前实验规模、专有数据依赖和硬件预算限制意味着商业落地仍处于早期可行性验证阶段，而非可直接部署的生产方案。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出一种基于 QNLP 的内容推荐方法：将 BBC iPlayer 节目梗概按语义结构解析为 DisCoCirc 图，并映射为变分量子电路（VQC），通过量子态重叠学习节目对相似度。",
+      "在节目对相似度学习任务上，QNLP 模型仅用 47.4K 参数达到与 17.8M 参数 BiLSTM 相当甚至更优的性能（QNLP post-selection MAP 13.33% vs BiLSTM@17.8M 13.03%），而参数匹配的 BiLSTM@47K 仅 9.40%。",
+      "验证语义结构的重要性：忽略句子结构的 Q-BOW 量子基线 MAP 仅 9.30%，明显低于两个 QNLP 模型，说明量子电路能建模文本结构并带来推荐性能提升。",
+      "在 Quantinuum H2-2 硬件上用破坏性 SWAP 测试验证训练后的电路可恢复相似度信号：相似/不相似节目对的硬件重叠间隔为 0.257，Cohen's d = 5.11，与训练保真度相关性 r = 0.963。",
+      "混合模型 QNLP:post-selection + NTM-R 取得 MAP 13.80%，优于所有单一内容模型，并缩小了与协同过滤基线（16.00%）的差距。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "4 Evaluation and Results on Pairwise Similarity"
+      },
+      {
+        "page": 1,
+        "section": "5 Recommendation Generation and Results"
+      },
+      {
+        "page": 1,
+        "section": "6.6 H2 Hardware Results"
+      },
+      {
+        "page": 1,
+        "section": "7 Summary and Next Steps"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BiLSTM@17.8M（全量经典基线）",
+        "BiLSTM@47K（参数匹配 QNLP 的经典基线）",
+        "Q-BOW（量子词袋基线，不建模文本结构）",
+        "NTM-R（经典神经主题模型内容基线）",
+        "协同过滤模型（BBC 黄金标准）",
+        "QNLP 与 BiLSTM/NTM-R 的多种混合模型"
+      ],
+      "datasets": [
+        "BBC iPlayer 一周电视节目梗概数据，含 985 个节目对作为相似度训练/测试集，145 个节目目录，10,000 用户评估集",
+        "NTM-R 神经主题模型生成的 pairwise 二值相似度标签（每节目最相似/最不相似各 20 个）",
+        "Quantinuum H2 模拟器（99 对验证节目对）和 H2-2 硬件（20 对代表性电路对）"
+      ],
+      "findings_zh": [
+        "QNLP:post-selection 在节目对相似度预测中训练/验证/测试准确率约 96.69%/87.87%/88.88%，QNLP:discard 约 98.34%/89.00%/90.90%，均远高于参数匹配的 BiLSTM@47K（约 53%）。",
+        "推荐评估中，QNLP:post-selection MAP 13.33%，QNLP:discard MAP 12.93%，略高于或接近 BiLSTM@17.8M（13.03%），显著高于 BiLSTM@47K（9.40%）和 Q-BOW（9.30%）。",
+        "混合模型 QNLP:post-selection + NTM-R 达到 MAP 13.80%，为最佳内容模型组合；QNLP:discard + NTM-R 为 13.39%，均优于各自单独模型。",
+        "H2 模拟器无噪声/含噪声 SWAP 测试结果与训练 Uhlmann fidelity 相关性分别为 r=0.910 和 r=0.875，映射阈值下分类准确率 91.9%/88.9%。",
+        "H2-2 硬件 20 对电路结果中，不相似对平均重叠 0.157 ± 0.042，相似对 0.414 ± 0.058；硬件与噪声模拟器结果相关性 r=0.952，硬件与训练保真度相关性 r=0.963。",
+        "随着电路深度增加（大于约 100 层时）两类节目对的 SWAP 重叠向最大混合态基线 0.25 压缩，但硬件上 150 层深度内仍保持可分离性。"
+      ],
+      "metrics": [
+        "MAP",
+        "NDCG",
+        "Intra-List Diversity (ILD)",
+        "Surprisal",
+        "Coverage",
+        "Pairwise classification accuracy",
+        "Pearson correlation r",
+        "Cohen's d"
+      ]
+    },
+    "limitations_zh": [
+      "数据集规模较小且限定为 BBC iPlayer 一周数据；交叉验证评估的是未见节目对而非完全未见的新梗概，对新节目的泛化未单独验证。",
+      "下游推荐评估依赖 BBC 专有基础设施和用户行为数据，该部分无法公开复现；公开代码仅覆盖相似度学习组件。",
+      "硬件实验因预算限制只在 H2-2 上运行了 20 对代表性电路，且电路规模较小（9–23 量子比特，编译后双量子门深度 44–150）。",
+      "当前模型使用单一 merge box 聚合文本中所有词，对更长或更宽文本可能不最优，论文指出可用阶梯式二元 merge box 解决但留待未来工作。",
+      "SWAP 测试测量的是 Tr(ρ_A ρ_B) 而非训练用的 Uhlmann fidelity，且由于混合态纯度较低（平均约 0.36），重叠值范围被压缩，需要阈值映射才能在硬件上分类。",
+      "完整 5 折交叉验证需要约 70–80 小时 CPU 时间，训练成本较高，限制了大规模实验。"
+    ],
+    "method_zh": "使用 QNLP 框架中的 DisCoCirc/QDisCoCirc 将节目梗概解析为语义图，再结构保持地映射为参数化量子电路：名词短语对应量子态制备，谓词关系对应参数化量子门，输出通过合并盒变为两比特约化密度矩阵。训练目标为基于 NTM-R 标签的 margin contrastive loss，相似度用 Uhlmann fidelity 计算；实际硬件上改用破坏性 SWAP 测试估计 Tr(ρ_A ρ_B)。训练后的相似度分数输入基于 item-based KNN 的 BBC 推荐系统，对用户观看历史生成 top-K 推荐。此外，训练了 post-selection 与 discard 两种电路变体，并在 H2 模拟器及 H2-2 硬件上执行 SWAP 测试验证噪声下的可靠性。",
+    "problem_zh": "视频点播内容推荐面临冷启动和高维稀疏元数据问题，传统深度学习内容推荐模型（如 BiLSTM）需要大量参数才能学习节目梗概的语义相似度，且文本语义结构未被充分利用。论文提出用量子机器学习，特别是量子自然语言处理（QNLP），将节目梗概映射为变分量子电路，以参数高效的方式学习内容相似度并生成推荐。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.8645,
+  "id": "arxiv-2610.21562",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-17T18:42:49.722764Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-15T09:18:48Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该工作基于量子机器学习构建内容型媒体推荐系统，在BBC iPlayer数据上以较少参数实现与BiLSTM相当的节目相似度学习效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "A Quantum Machine Learning Approach to Content-Based Media Recommendation",
+  "url": "https://arxiv.org/abs/2610.21562v1"
+}

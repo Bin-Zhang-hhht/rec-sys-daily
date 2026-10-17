@@ -1,0 +1,32 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-7f39afacfc6e94aab98988e6",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：Spotify工程团队与NVIDIA合作，利用TensorRT LLM推进生成式推荐推理的性能优化。"
+    }
+  ],
+  "date": "2026-10-18",
+  "papers": [
+    {
+      "item_id": "arxiv-2610.20913",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向工业推荐系统的序列转导框架TransX，将序列编码、行为记忆和候选条件融合分离扩展，并在点击率、转化率及检索排序任务上获得显著提升。"
+    },
+    {
+      "item_id": "arxiv-2610.21220",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：RecSoup提出一种基于模型合并的可控多目标推荐方法，通过目标感知剪枝与可学习偏好映射实现推理时动态权衡，并提升帕累托前沿质量与推理效率。"
+    },
+    {
+      "item_id": "arxiv-2610.21562",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该工作基于量子机器学习构建内容型媒体推荐系统，在BBC iPlayer数据上以较少参数实现与BiLSTM相当的节目相似度学习效果。"
+    },
+    {
+      "item_id": "arxiv-2610.21713",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该研究揭示推荐系统中物品语言嵌入可通过余弦相似度攻击泄露物品身份，并可能进一步传播到用户重识别。"
+    }
+  ]
+}

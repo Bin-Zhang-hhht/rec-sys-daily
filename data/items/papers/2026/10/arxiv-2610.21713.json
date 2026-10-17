@@ -1,0 +1,102 @@
+{
+  "abstract": "Language embeddings are increasingly used in recommenders to represent item content, but their privacy risks remain poorly understood. We study whether item embeddings can reveal item identities when an adversary has access to auxiliary item text from external sources. We show that a simple cosine-similarity attack can recover item identities with high mean reciprocal rank across language models and candidate-set settings on two real-world datasets. Leakage is strongest when the adversary's partial information overlaps with the victim representation, but it also persists through semantic alignment between independently sourced descriptions. We further show that item leakage can propagate to user re-identification from sparse ratings. Finally, we evaluate obfuscated descriptions as a mitigation and find a clear leakage-utility tradeoff. Language embeddings are increasingly used in recommenders to represent item content, but their privacy risks remain poorly understood. We study whether item embeddings can reveal item identities when an adversary has access to auxiliary item text from external sources. We show that a simple cosine-similarity attack can recover item identities with high mean reciprocal rank across language models and candidate-set settings on two real-world datasets. Leakage is strongest when the adversary's partial information overlaps with the victim representation, but it also persists through semantic alignment between independently sourced descriptions. We further show that item leakage can propagate to user re-identification from sparse ratings. Finally, we evaluate obfuscated descriptions as a mitigation and find a clear leakage-utility tradeoff.",
+  "arxiv_id": "2610.21713",
+  "authors": [
+    "Linda Beková",
+    "Rodrigo Alves"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "高维语言嵌入并不天然具有隐私保护性；若推荐系统将物品嵌入共享给第三方服务商，攻击者可能借此识别具体物品身份。",
+      "攻击者可利用公开目录（如 IMDb、TMDb、GoodReads）甚至 AI 生成的描述构建辅助语料，无需访问受害平台内部文本，使得威胁更具现实可行性。",
+      "物品身份泄漏会传播到用户级风险：攻击者从少量已知评分即可在评分矩阵中定位目标用户，进而可能恢复其完整交互历史。",
+      "企业若采用混淆描述作为隐私缓解手段，需要在降低身份泄漏与保持推荐质量之间做明确权衡，因为混淆会恶化评分预测并降低排序一致性。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "形式化了推荐系统中基于语言嵌入的物品身份推断问题，将物品身份视为可从嵌入中推断的离散敏感属性。",
+      "在 MovieLens 32M 与 GoodReads 两个数据集、闭集与开集候选设置、六种嵌入模型下，证明简单的余弦相似度攻击即可造成显著的物品身份泄漏。",
+      "研究基于 LLM 生成的混淆描述作为缓解手段，并揭示隐私泄漏与推荐效用之间存在清晰权衡。",
+      "证明物品级身份泄漏可以传播到用户级隐私风险：从少量评分即可实现用户重识别。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2 Method"
+      },
+      {
+        "page": 1,
+        "section": "3 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "4 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "原始非混淆物品文本（T+D/D）与混淆描述（~D）的对照",
+        "标题辅助信息与描述辅助信息的对照",
+        "闭集与开集候选设置及不同候选规模的对照"
+      ],
+      "datasets": [
+        "MovieLens 32M",
+        "GoodReads"
+      ],
+      "findings_zh": [
+        "在 MovieLens 与 GoodReads 上，简单余弦相似度攻击即可在全部六种嵌入模型和多种候选集设置下取得较高 MRR，物品身份泄漏显著。",
+        "当受害者语料包含标题+描述（T+D）时泄漏最强；即使受害者嵌入仅由描述（D）生成，攻击仍然有效，说明泄漏可以来自语义对齐而非仅显式文本重复。",
+        "候选集规模增大时 MRR 仅小幅下降，说明身份泄漏不限于小型目录。",
+        "混淆描述能大幅降低泄漏，特别是在标题辅助攻击下 MovieLens MRR 降至约 0.06–0.17；但当攻击者使用辅助描述时，MRR 仍约为 0.32–0.51，泄漏无法被消除。",
+        "混淆在降低 MRR 的同时提高了 RMSE 并降低 Spearman 相关，表明隐私收益伴随推荐效用损失。",
+        "用户重识别 MRR 随观察到的评分数量 k 增加而快速上升，说明物品级泄漏可传播到用户级隐私风险；即使物品表示被混淆，使用描述辅助信息的攻击者仍可有效重识别用户。"
+      ],
+      "metrics": [
+        "MRR",
+        "RMSE",
+        "Spearman 相关",
+        "用户重识别 MRR"
+      ]
+    },
+    "limitations_zh": [
+      "作者明确假设攻击者知道并可调用与受害者相同的嵌入函数 phi；文中仅用初步自编码器实验从候选编码器中识别受害编码器，并说明该结果不覆盖任意模型或经过变换的嵌入。",
+      "攻击使用非参数化的余弦相似度评分，没有引入学习式攻击的容量，因此可能低估实际泄漏；作者也将更强攻击模型列为未来工作。",
+      "实验仅覆盖电影和图书两个领域、两个数据集，物品取 Top 10K，候选集最大约 5000，向更广领域和更大目录外推时需谨慎。",
+      "混淆缓解仅使用 gpt-oss-20b 为 5000 部电影生成描述，且只能降低而无法消除泄漏，同时带来明显的推荐效用损失。"
+    ],
+    "method_zh": "作者将物品身份推断建模为候选集排序问题：假设攻击者知道嵌入函数 phi，并拥有辅助标注数据集。攻击者用同一 phi 嵌入辅助物品文本，以余弦相似度作为评分函数对候选物品排序，取最高分候选的身份作为推断结果。实验区分闭集候选（受害者物品集等于辅助物品集）和开集候选（辅助目录包含干扰项）。受害者语料包括描述 D 或标题+描述 T+D，辅助语料包括标题 T 或由 gpt-oss-20b 生成的描述；评估六种句子 Transformer 编码器，以 MRR 衡量身份识别效果。为评估缓解，作者用 gpt-oss-20b 生成去除显式标识符的混淆描述，并采用归纳矩阵分解 R≈MH，用 RMSE 和 Spearman 相关衡量推荐效用。用户重识别部分则利用物品嵌入相似度矩阵与少量已知评分计算候选用户匹配分数，报告用户级 MRR。",
+    "problem_zh": "论文研究推荐系统中语言模型生成的物品嵌入是否会在被暴露时泄露物品身份。具体而言，攻击者拥有外部辅助文本（如公开的电影简介、书名）时，能否仅凭物品嵌入识别出对应的物品标题；以及这种物品级泄漏是否会进一步导致用户重识别。论文指出高维嵌入常被认为具有隐私保护性，但在推荐系统场景中这一假设可能很脆弱。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.8350000000000001,
+  "id": "arxiv-2610.21713",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-17T18:42:49.722764Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-15T11:32:41Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该研究揭示推荐系统中物品语言嵌入可通过余弦相似度攻击泄露物品身份，并可能进一步传播到用户重识别。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Encoded but Exposed: Language Embeddings can Reveal More Than They Should in Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.21713v1"
+}

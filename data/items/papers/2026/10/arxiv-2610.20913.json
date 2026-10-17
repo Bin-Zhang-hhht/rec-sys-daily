@@ -1,0 +1,140 @@
+{
+  "abstract": "We present TransX, a sequence-transduction framework and co-designed infrastructure for scaling industrial recommendation with explicit control over model-compute allocation and execution amortization. TransX separates sequence encoding, behavior memory, and candidate-conditioned fusion into independently scalable components. Training amortizes causal trajectory computation across behavioral prefixes and fans out memory states to candidates; serving disaggregates bulk prefill, nearline refresh, and online prediction through compact behavior-memory KV. We observe anisotropic scaling returns: encoder scaling may saturate beyond moderate depth at fixed memory resolution and fusion capacity; increasing supervision shifts the allocation frontier toward candidate-conditioned fusion; and the memory resolution needed to preserve quality remains roughly stable as model capacity grows. We train TransX on click and conversion, post-train its shared behavioral interface for retrieval and preference ranking, and explore generative recommendation offline. In separate production A/B experiments, the core TransX model improves CTR by 6.02% and conversion by 4.45%, while post-trained retrieval and preference-ranking variants improve CTR by 2.96% and conversion by 1.33%, respectively, over corresponding production baselines. Under matched training conditions, the training infrastructure increases supervised-target throughput by 84%. In serving, disaggregation reduces TransX's total serving cost by nearly 80% versus colocated serving at matched traffic and SLO, enabling approximately 5X the per-request model FLOPs of the HSTU-style production baseline at the same total serving cost. At matched per-request model FLOPs, TransX delivers approximately 4X higher request throughput per H200. These results show that online serving cost need not grow proportionally with recommendation model capacity. We present TransX, a sequence-transduction framework and co-designed infrastructure for scaling industrial recommendation with explicit control over model-compute allocation and execution amortization. TransX separates sequence encoding, behavior memory, and candidate-conditioned fusion into independently scalable components. Training amortizes causal trajectory computation across behavioral prefixes and fans out memory states to candidates; serving disaggregates bulk prefill, nearline refresh, and online prediction through compact behavior-memory KV. We observe anisotropic scaling returns: encoder scaling may saturate beyond moderate depth at fixed memory resolution and fusion capacity; increasing supervision shifts the allocation frontier toward candidate-conditioned fusion; and the memory resolution needed to preserve quality remains roughly stable as model capacity grows. We train TransX on click and conversion, post-train its shared behavioral interface for retrieval and preference ranking, and explore generative recommendation offline. In separate production A/B experiments, the core TransX model improves CTR by 6.02% and conversion by 4.45%, while post-trained retrieval and preference-ranking variants improve CTR by 2.96% and conversion by 1.33%, respectively, over corresponding production baselines. Under matched training conditions, the training infrastructure increases supervised-target throughput by 84%. In serving, disaggregation reduces TransX's total serving cost by nearly 80% versus colocated serving at matched traffic and SLO, enabling approximately 5X the per-request model FLOPs of the HSTU-style production baseline at the same total serving cost. At matched per-request model FLOPs, TransX delivers approximately 4X higher request throughput per H200. These results show that online serving cost need not grow proportionally with recommendation model capacity.",
+  "arxiv_id": "2610.20913",
+  "authors": [
+    "Da Xu",
+    "Liyan Fang",
+    "Divya Venugopalan",
+    "Sunny Hsu",
+    "Xukai Wang",
+    "Rishav Roy Chowdhury",
+    "Cindy Liang",
+    "Nishant Satya Lakshmikanth"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "核心 TransX-Base 在真实生产 A/B 中带来 CTR +6.02%、转化 +4.45%，且在所有历史长度分层一致为正、rich-history 用户收益最大，说明投资长历史行为建模可以直接改善核心业务指标。",
+      "分离式 serving 使质量提升不必等比例增加在线计算成本：在相同总 serving 成本下可支撑约 5× 模型 FLOPs/request，为企业扩展模型容量提供了降低边际成本的经济路径。",
+      "训练与 prefill 优化支持每日重训和 20 小时端到端刷新，使持续模型更新在工业规模下可行，有助于保持长期线上收益。",
+      "后训练专业化让一个行为骨干同时服务响应预测、检索和偏好排序，在线 A/B 显示各变体相对各自生产基线均有正提升，可减少为每个任务分别训练和部署独立模型的开销。",
+      "新鲜度实验表明状态刷新从秒级放宽到分钟级会造成可测量的 CTR 损失（尤其 in-session CTR），业务需要在近线维护成本与新鲜度 SLO 之间做显式权衡。",
+      "生成式检索/排序仍处离线探索，质量与稳定性受语义 ID 构造、偏好监督和自回归解码影响较大，建议在达到生产验证前谨慎用于关键业务流量。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出将推荐建模为 request-conditioned sequence transduction，并将模型分为三个可独立扩展的计算角色：因果行为编码、有界行为记忆、候选条件融合，从而显式定义跨请求和跨候选扇出的摊销边界。",
+      "提出模型-基础设施协同设计：通过 packed training unit、multi-prefix 序列到序列训练、batched local gather/global prefix scan、sequence-fanout 并行、分离式 serving 和层级化 KV 存储，使历史侧计算可在训练和服务中被复用并移出在线关键路径。",
+      "通过受控缩放实验刻画行为编码、行为记忆分辨率、候选条件融合三者的不等边际收益：编码器深度超过约4层后收益饱和；监督预算增加使验证集最优分配向候选条件融合移动；模型规模增大不系统性要求更细的行为记忆分辨率或成比例增长的 KV 状态。",
+      "在共享行为记忆接口上进行能力后训练专业化，覆盖检索（InfoNCE）、偏好排序（Bradley-Terry）和生成式推荐（DPO/自回归），并在生产中验证核心、检索和排序变体。",
+      "在真实大规模社交推荐系统中验证了质量和效率：生产 A/B 显示核心模型 CTR +6.02%、转化 +4.45%；训练吞吐提升 84%；分离式 serving 使总 serving 成本约为共置方案的 22%。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 4,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 8,
+        "section": "2.3 Memory Fanout and the Amortization Boundary"
+      },
+      {
+        "page": 13,
+        "section": "3.4 Fanout and Iterative Query Fusion"
+      },
+      {
+        "page": 15,
+        "section": "4.2 Multi-Prefix Seq-to-Seq Training"
+      },
+      {
+        "page": 22,
+        "section": "5.3 Disaggregated Serving"
+      },
+      {
+        "page": 30,
+        "section": "6.2 Scaling Returns and Compute Allocation"
+      },
+      {
+        "page": 40,
+        "section": "8.3 Online Deployment Results"
+      },
+      {
+        "page": 42,
+        "section": "8.4 System Efficiency and Robustness"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "生产 HSTU 风格顺序推荐模型（180 天行为回看，512 token 上限，在线路径做历史编码和候选打分）",
+        "生产顺序 embedding-based retrieval（EBR）双塔模型（用户塔 1024 token 上限，128 维共享嵌入空间，ANN top-200）",
+        "生产 DLRM learning-to-rank（LtR DLRM）排序模型",
+        "straightforward FSDP 训练基线（固定相同模型、数据、批次、优化器等）",
+        "Colocated serving 基线（在线路径同步处理历史并打分）"
+      ],
+      "datasets": [
+        "LinkedIn 大规模社交推荐应用生产数据：约 20K requests/s，每请求约 0.5K–1.2K 候选，日处理数亿用户交互",
+        "离线数据集：最多一年用户历史行为 + 180 天事件级反馈，行为序列上限 8192 token，按时间顺序切分训练/验证/测试",
+        "缩放实验数据集：sparse/medium/rich 历史长度队列（约 64–252、253–996、997–4096），监督预算 η∈{0.20, 0.25, 0.30}，单遍训练 200M/250M/300M 有效目标"
+      ],
+      "findings_zh": [
+        "在三个独立生产 A/B 实验中，TransX-Base 相对 HSTU 风格生产基线将 CTR 提高 6.02%、转化提高 4.45%（报告 p<10^-4）；历史分层显示 rich-history 用户收益最大（CTR +6.2%、转化 +4.8%），但 sparse/medium 用户也一致为正。",
+        "TransX-Retrieval 相对顺序 EBR 基线 CTR +2.96%，TransX-Ranking 相对 LtR DLRM 基线转化 +1.33%（p<10^-4）；检索的 Candidate CTR 和 Top-20 unique contribution 在所有历史分层均为正，排序的 RankingUtility@K 在 rich/medium/sparse 分层分别为 +5.66%/+4.01%/+4.32%。",
+        "在相同模型、数据、批次、优化器等设定下，优化训练管线将 supervised-candidate throughput 提高 84%，全管线训练 MFU 从约 11% 提升到 18%，达到收敛的 wall-clock 时间从约 25 小时降至 13 小时。",
+        "分离式 serving 相对共置 serving 将在线 GPU 消耗从 5.8 降至 1.1 GPU-hours/百万请求（-81.2%），归一化总 serving 成本为 22%；在匹配每请求模型 FLOPs 时，TransX 每 H200 请求吞吐约为 HSTU 风格基线的 4 倍，且离线点击 AUC 相差在 1×10^-3 以内。",
+        "缩放实验显示：固定记忆分辨率和融合容量时，编码器超过约 4 层后收益明显饱和；监督预算增大时验证集最优分配向候选条件融合移动（fusion share α_F 增大）；且增大模型能力不系统性要求更细行为记忆分辨率，绝对预测面 KV footprint 不随模型计算等价增长。",
+        "后训练实验显示，从 TransX-Base 初始化的检索和偏好排序后训练在匹配 GPU 预算下持续优于随机初始化，说明核心响应预测学到的行为表示可迁移到不同匹配/排序读取几何。",
+        "在线新鲜度消融中，p90 行为记忆 KV 新鲜度滞后从 1.8s 增至 1.2 分钟时总体 CTR -0.21%、in-session CTR -0.37%；继续增大滞后到约 22 小时时额外 CTR 损失小于 0.01%。",
+        "KV 量化将行为记忆 KV 中位数从约 28 KiB/user（BF16）降至 8.5 KiB/user（4-bit 平均方向载荷），绝对测试 AUC 变化在 2×10^-3 以内。",
+        "故障注入实验显示，continuation-owner 丢失、KV 缓存逐出、快照存储不可用、发布冲突和 nearline 发布停滞主要造成新鲜度下降或 fallback 流量增加，在线请求失败率保持在 0.01% 以下。"
+      ],
+      "metrics": [
+        "CTR",
+        "Conversion（7 天归因）",
+        "DAU",
+        "Home Feed Update Views",
+        "AUC / gAUC",
+        "Recall@K / NDCG@K / ILD@K",
+        "Pairwise accuracy / Kendall's tau",
+        "RankingUtility@K",
+        "p99 端到端打分延迟",
+        "requests/s/H200、candidates/s/H200",
+        "supervised-target throughput、MFU",
+        "p90 行为记忆 KV 新鲜度滞后",
+        "在线 GPU-hours/百万请求、归一化总 serving 成本"
+      ]
+    },
+    "limitations_zh": [
+      "文章明确表示缩放规律是经验性的，受限于所研究的数据、监督区间、架构族和部署环境，不是普适缩放定律，也不能唯一识别背后的机制。",
+      "物化的 encoder continuation state 和行为记忆 KV 引入了新鲜度、存储、版本兼容、恢复和状态维护成本；分离式 serving 并非免费，只是把成本移出在线路径。",
+      "共享行为记忆接口和冻结骨干并非对所有任务最优；联合训练、部分骨干适配和跨任务蒸馏仍是值得探索的替代方案。",
+      "生成式检索（TransX-GenRet）和生成式排序（TransX-GenRank）仅做离线探索，质量对语义 ID 构造、偏好监督覆盖和自回归误差传播敏感，尚未达到生产验证状态。",
+      "系统评估中的部分部署细节和绝对成本因披露政策被省略，结果应在声明的测量范围内理解，不构成完整生命周期成本分析。",
+      "生产结果来自 LinkedIn 单一社交推荐产品面，测试流量约各 20%、至少 7 天；跨平台、跨流量分布和更长周期下的外推需要额外验证。"
+    ],
+    "method_zh": "TransX 由三个耦合组件组成：因果行为编码器将行为轨迹编码为共享表示；全局-局部行为记忆将历史支持长度与暴露给预测的状态数分离，本地窗口保留高分辨率近期状态，全局分支通过可结合的 attention pooling 压缩更早历史；候选查询复用共享 tokenizer/embedding 接口，通过 grouped-query cross-attention 对行为记忆进行候选条件融合，可堆叠多个 reader block 做迭代读取，最后并行输出逐候选响应预测。训练阶段以 packed trajectory 为训练单元，一次因果编码同时服务多个 serving-event cutoff，并用 batched masked gather 和 blocked prefix scan 构造不同截止点的记忆，避免重复物化重叠前缀；稠密参数和行稀疏 embedding 分别使用 AdamW 与 row-wise Adagrad。训练系统采用 sequence-fanout 并行，事件级投影 KV 作为通信边界，候选扇出不复制历史编码。服务端拆分为 offline bulk prefill、nearline incremental refresh 和 online prediction：前两者维护可变的 encoder continuation state，发布不可变的、量化压缩的行为记忆 KV 快照；在线路径只解析和 pin 一个兼容快照，执行候选条件融合与预测，不再做历史编码。缩放实验在三个历史支持队列（sparse/medium/rich）和三个监督预算（η=0.20/0.25/0.30）下分别扫描编码器深度、记忆分辨率、融合宽度/深度，用等价计算轴比较边际收益。核心训练先学点击/转化，再冻结行为骨干，为检索、偏好排序、生成式检索和生成式排序训练任务专用 reader/head。",
+    "problem_zh": "长行为历史为推荐系统提供个性化证据，但单纯扩展序列处理能力会把大量计算放到在线请求路径上，使服务成本随预测需求线性增长。核心问题是：哪些计算组件应该扩展才能推进推荐质量前沿，以及推进质量前沿是否必然导致在线服务成本成比例上升。TransX 通过显式的计算-状态分解和可摊销/分离式执行来回答这一模型-基础设施协同设计问题。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.9155000000000001,
+  "id": "arxiv-2610.20913",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-17T18:42:49.722764Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-14T20:43:40Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向工业推荐系统的序列转导框架TransX，将序列编码、行为记忆和候选条件融合分离扩展，并在点击率、转化率及检索排序任务上获得显著提升。",
+  "targets": [],
+  "tasks": [],
+  "title": "TransX Technical Report: Scaling Sequence Transduction for Recommendation",
+  "url": "https://arxiv.org/abs/2610.20913v1"
+}

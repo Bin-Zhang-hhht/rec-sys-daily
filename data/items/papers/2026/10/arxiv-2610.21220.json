@@ -1,0 +1,137 @@
+{
+  "abstract": "Recommender systems often need to balance multiple conflicting objectives. Controllable Multi-Objective Recommendation (CMOR) enables dynamic adjustment of objective trade-offs at inference time without retraining, adapting to shifting user or system requirements. Existing CMOR approaches typically rely on output-level reranking or parameter-generating modules, which either limit the scope of feasible trade-offs or incur substantial training and inference cost. Model merging provides a promising alternative by reusing multiple objective-specific models via parameter combination. However, its direct application to recommender systems is challenging due to the lack of a shared linear regime and cross-objective interference. To address these issues, we propose RecSoup, a lightweight two-stage approach for effective CMOR via specialized model merging. RecSoup first mitigates parameter interference across objectives through a pruning strategy that jointly considers objective-specific importance and cross-objective relevance. It then performs adaptive parameter merging via a learnable preference-to-coefficient mapping, allowing dynamic trade-off control at inference time without joint retraining or additional generative modules. Theoretically, we prove that RecSoup outperforms the parameter generation paradigm in effectiveness and efficiency, as it can fully navigate the Pareto front without smoothness constraints. Extensive experiments on multiple benchmarks demonstrate that RecSoup achieves improved Pareto front quality and effective controllability while delivers 165--228x faster inference-time latency than parameter generation approaches. Code is available at https://github.com/35798642/RECSOUP.git. Recommender systems often need to balance multiple conflicting objectives. Controllable Multi-Objective Recommendation (CMOR) enables dynamic adjustment of objective trade-offs at inference time without retraining, adapting to shifting user or system requirements. Existing CMOR approaches typically rely on output-level reranking or parameter-generating modules, which either limit the scope of feasible trade-offs or incur substantial training and inference cost. Model merging provides a promising alternative by reusing multiple objective-specific models via parameter combination. However, its direct application to recommender systems is challenging due to the lack of a shared linear regime and cross-objective interference. To address these issues, we propose RecSoup, a lightweight two-stage approach for effective CMOR via specialized model merging. RecSoup first mitigates parameter interference across objectives through a pruning strategy that jointly considers objective-specific importance and cross-objective relevance. It then performs adaptive parameter merging via a learnable preference-to-coefficient mapping, allowing dynamic trade-off control at inference time without joint retraining or additional generative modules. Theoretically, we prove that RecSoup outperforms the parameter generation paradigm in effectiveness and efficiency, as it can fully navigate the Pareto front without smoothness constraints. Extensive experiments on multiple benchmarks demonstrate that RecSoup achieves improved Pareto front quality and effective controllability while delivers 165--228x faster inference-time latency than parameter generation approaches. Code is available at https://github.com/35798642/RECSOUP.git.",
+  "arxiv_id": "2610.21220",
+  "authors": [
+    "Zidong Jia",
+    "Guofu Xie",
+    "Xiao Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "RecSoup通过复用已有目标专化模型并只训练轻量门控网络，避免了联合多目标重训和额外生成模块，可能降低可控多目标推荐在训练与推理上的计算开销。",
+      "相比参数生成方法，实验中实现165–228×推理加速，使频繁切换准确率/多样性/公平性偏好的实时推荐场景更具可行性。",
+      "允许在推理时按用户或系统需求动态调整多个目标的权衡，为线上推荐提供更灵活的目标组合选择，并能在准确率、多样性、公平性之间生成更长的Pareto前沿。",
+      "当前证据来自离线数据集；实际业务部署仍需验证在大型物品嵌入、工业级流水线和真实用户偏好漂移下的效果。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出RecSoup，首次将模型融合（model merging）引入可控多目标推荐，直接在参数空间调整目标权衡。",
+      "提出联合考虑目标特异性重要性和跨目标相关性的剪枝策略，缓解任务向量间的参数干扰，并与动态融合机制兼容。",
+      "给出理论分析（Theorem 5.1），说明模型融合相比参数生成在可控多目标推荐中可更完整地覆盖Pareto前沿且更高效。",
+      "在多个骨干网络和数据集上验证RecSoup获得更高超体积（Hypervolume）并保持可比的控制性，同时推理时延比参数生成方法快165–228×。"
+    ],
+    "evidence_quality": 0.7,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Problem Formulation and Analyses"
+      },
+      {
+        "page": 5,
+        "section": "4 RecSoup: The Proposed Approach"
+      },
+      {
+        "page": 7,
+        "section": "5 Discussion"
+      },
+      {
+        "page": 8,
+        "section": "6.1 Experimental Settings"
+      },
+      {
+        "page": 9,
+        "section": "6.2 Experiment Results"
+      },
+      {
+        "page": 10,
+        "section": "6.3.2 RQ2: Impact of Cross-Objective Relevance Score"
+      },
+      {
+        "page": 10,
+        "section": "6.3.3 RQ3: Inference-Time Efficiency of Parameter Generation and RecSoup"
+      },
+      {
+        "page": 10,
+        "section": "6.3.4 RQ4: How does RecSoup scale to additional objectives such as fairness?"
+      },
+      {
+        "page": 11,
+        "section": "7 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MMR",
+        "Paragon",
+        "CMR",
+        "Soup",
+        "TATR",
+        "TIES",
+        "DARE",
+        "CABS",
+        "LwPTV",
+        "Retrain (oracle)"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "Amazon Review (Grocery and Gourmet Food)",
+        "Amazon Review (Toys and Games)"
+      ],
+      "findings_zh": [
+        "在SASRec、GRU4Rec、TiSASRec三个骨干和三个数据集上，RecSoup相比Soup、TATR等模型融合基线普遍获得更高HV；在MovieLens-1M上，相对Soup/TATR的HV提升最高达8.5%（SASRec）和7.3%（TiSASRec），且Controllability接近1.0。",
+        "在Amazon（Food/Games）等更稀疏、噪声更强的场景，RecSoup相比CMR、Paragon等参数生成方法多数情况下HV高约20–50%，Controllability保持在0.89以上；参数生成方法在这些场景出现明显HV退化。",
+        "消融实验显示，去掉自适应系数学习器（w/o MLP）会降低HV，说明偏好到系数的非线性映射必要；剪枝（w/o Prune对比）在任务向量干扰较强时提升鲁棒性，但在部分兼容设置下剪枝并非总是有益。",
+        "与仅按目标特异性重要性剪枝的TIES相比，RecSoup因加入跨目标相关性评分，在MovieLens-1M上相对HV提升为SASRec +4.95%、GRU4Rec +2.71%、TiSASRec +1.78%。",
+        "推理时延方面，RecSoup在ML-1M、Amazon Food、Amazon Games上分别比hypernetwork参数生成快165.9×、228.8×、212.7×；基于diffusion的生成（10,000步）平均每个偏好约87.79秒，远慢于RecSoup。",
+        "扩展到Accuracy-Fairness及Accuracy-Diversity-Fairness（ML-1M/SASRec），RecSoup取得最高HV（两目标0.4270，三目标0.6148），并保持较强整体可控性。"
+      ],
+      "metrics": [
+        "Hypervolume (HV)",
+        "Length of Pareto Front (LF)",
+        "Controllability (Contro.)"
+      ]
+    },
+    "limitations_zh": [
+      "剪枝并非在所有设置下都带来增益：当任务向量本身兼容或剪枝删除了有用的目标专化更新时，w/o Prune可能达到类似或更好HV（例如ML-1M/SASRec上w/o Prune HV=0.7228，RecSoup=0.7090）。",
+      "RecSoup的Controllability并非全面最优：在ML-1M/SASRec为0.9091（低于Paragon的1.0000和CMR的0.9818），在Amazon Food/SASRec为0.8910（低于Soup/TATR的0.9818/0.9636）。",
+      "全参数融合在物品数量远大于隐藏维度平方（|I|>>d^2）时，效率优势会被物品嵌入规模主导。",
+      "理论证明依赖凸Pareto集（P=conv({θ1,θ2})）、参数生成端点对齐（g(1)=θ1, g(0)=θ2）及Lipschitz平滑等假设，实际模型中可能不完全满足。",
+      "论文结论基于离线benchmark和指标，未报告真实线上部署或用户实验。"
+    ],
+    "method_zh": "RecSoup采用两阶段框架。第一阶段为冲突缓解剪枝：对每个目标任务向量计算目标特异性重要性T_self = T_ij^2 / ||T_i||_2^2和跨目标相关性T_align = |T_ij * (1/(N-1))Σ_{k≠i}T_kj|，组合为S_ij = βT_self + (1-β)T_align；按范数保留比例ρ选择top-k参数并mask，得到稀疏任务向量。第二阶段为自适应模型融合：轻量门控网络f_phi将用户偏好向量μ映射为融合系数λ，合并参数为θ_merged = θ_base + Σ_i λ_i \\~T_i；训练时仅更新门控网络参数，优化偏好加权多目标损失，推理时单次前向生成系数即可实现动态控制。",
+    "problem_zh": "可控多目标推荐（CMOR）需要在推理时动态调整准确率、多样性、公平性等可能相互冲突的目标权重，且不重新训练模型。现有后处理重排方法受固定候选集限制，可实现的权衡范围窄；参数生成方法（如hypernetwork、diffusion）虽效果较好，但训练成本高、推理时延大且优化不稳定。另一方面，直接套用LLM中的模型融合方法到推荐系统面临任务向量不满足共享线性区域假设、跨目标参数干扰严重的问题。RecSoup旨在通过剪枝缓解参数冲突、并通过轻量自适应参数融合实现高效可控的多目标推荐。",
+    "technical_depth": 0.85
+  },
+  "doi": "10.1145/3799682.3840938",
+  "final_score": 0.865,
+  "id": "arxiv-2610.21220",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-17T18:42:49.722764Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-15T04:08:22Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "RecSoup提出一种基于模型合并的可控多目标推荐方法，通过目标感知剪枝与可学习偏好映射实现推理时动态权衡，并提升帕累托前沿质量与推理效率。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "multi_objective_optimization"
+  ],
+  "title": "RecSoup: Efficient Model Merging Approach for Controllable Multi-Objective Recommendation",
+  "url": "https://arxiv.org/abs/2610.21220v1"
+}
