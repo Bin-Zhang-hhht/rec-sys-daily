@@ -1,0 +1,100 @@
+{
+  "authors": [
+    "Pinterest Engineering"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "ModuleLens 由三个核心组件构成：ModuleTracer 负责捕获运行时数据（输入输出张量、模型参数权重、初始化参数等）；ModuleRepo 基于 Weights & Biases (WandB) Registry 提供集中存储与查询能力，按 hash(model_name, module_name) 建立集合索引，每个捕获模块保存 JSON 元数据文件和 torch.save 序列化的二进制状态数据；Consumption Layer 面向人类工程师提供 Jupyter 扩展和 IPython CLI，面向 AI 代理提供 Agent Skills，使代理能够自主发现、重建、基准测试和分析模块。",
+    "business_implications_zh": [
+      "减少工程师在分布式训练环境中的调试和测试时间，可能降低多 GPU 计算资源消耗",
+      "Agent Skills 使 AI 编码代理（如 Claude Code、Cursor）能自主优化代码，可能提升 ML 工程效率",
+      "Scaling Law ROI 工具帮助团队评估模型扩展的基础设施成本与收益，辅助基础设施投入决策",
+      "已用于 Ads ranking 和 HomeFeed 等业务的测试、采用与推广，对推荐系统团队具有直接相关性"
+    ],
+    "business_transferability": 0.45,
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "heading": "Introduction",
+        "section": "Introduction"
+      },
+      {
+        "heading": "Architecture",
+        "section": "Architecture"
+      },
+      {
+        "heading": "ModuleTracer",
+        "section": "Architecture"
+      },
+      {
+        "heading": "ModuleRepo",
+        "section": "Architecture"
+      },
+      {
+        "heading": "Consume Layer",
+        "section": "Architecture"
+      },
+      {
+        "heading": "Use Cases",
+        "section": "Use Cases"
+      },
+      {
+        "heading": "Looking Ahead",
+        "section": "Looking Ahead"
+      }
+    ],
+    "implementation_zh": "ModuleTracer 使用非侵入式 PyTorch forward hooks 记录参数、输入输出张量和执行元数据；通过检查导入类并打补丁 Python 的 __import__ 来动态追踪 __init__ 参数；注册 early_stop_func 和 post_train_step_func 回调，在模型预热后捕获单个训练步的数据并提前终止；支持 shape-only tracing（log_shapes）以仅记录张量维度，并在共享张量跨多个模块时只保留一份副本，其余使用引用链接。存储层按模型名和模块名的 MD5 哈希组织集合，并支持基于属性和标签的搜索过滤。",
+    "lessons_zh": [
+      "将模型级调试范式转向模块级隔离框架，可以避免多 GPU 初始化和完整流水线执行，从而显著加快工程师迭代",
+      "模块级捕获和可重放执行环境为 AI 代理自主分析、重构和优化 PyTorch 代码提供了基础",
+      "模块级执行环境可作为模型自动研究和递归自我改进（RSI）的执行基座，支持实验、修改、基准测试和保留改进的闭环"
+    ],
+    "limitations_zh": [
+      "文章未提供量化性能提升数据或独立评估，仅有定性描述",
+      "依赖 WandB Registry 作为集中式后端，可能带来外部服务依赖",
+      "shape-only tracing 使用合成输入，无法保留原始输入张量的精确取值",
+      "捕获依赖模型预热和单个训练步，可能无法覆盖完整训练动态",
+      "作者明确表示当前重点是稳定核心系统和推动采用，说明系统仍处于早期阶段"
+    ],
+    "production_constraints_zh": [
+      "生产模型要求多 GPU 环境，单 GPU 工作站无法本地初始化完整模型",
+      "获取下游模块的真实输入数据通常需要初始化整个多 GPU 流水线并执行所有前置模块，时间和计算资源开销巨大",
+      "每次代码修改都需要重新执行或重新初始化重型分布式训练器，导致迭代反馈周期过长",
+      "需要优化大张量的记录和存储，避免 GPU 计算和存储开销过高"
+    ],
+    "results_zh": [
+      "ModuleLens 已部署在 Ads 和 Core 模型上，并被内部工具采用",
+      "Training Analyzer 以层次化可视化的延迟、FLOPs 和内存使用情况帮助工程师快速识别训练瓶颈",
+      "KernelAgent 使用捕获的 ModuleLens 数据对生成的 GPU kernel 进行基准测试、性能分析和正确性验证",
+      "Scaling Law ROI 工具利用 ModuleLens 跟踪 FLOPs、激活和参数内存、执行吞吐量，评估模型扩展的基础设施成本与收益"
+    ],
+    "system_context_zh": "Pinterest 工程团队构建 ModuleLens，用于解决现代推荐系统（如广告排序和内容发现）中因模型规模和多 GPU 分布式训练（DMP）带来的调试、测试和迭代瓶颈。",
+    "technical_depth": 0.7,
+    "tradeoffs_zh": [
+      "传统 Model-First 范式需要完整模型初始化，而 Module-First 范式允许隔离模块并在本地秒级重建和性能分析",
+      "shape-only tracing 降低了大张量的记录和存储开销，但恢复时只能重建合成输入，而非原始精确张量",
+      "共享张量去重可减少存储，但需要用引用链接维护多模块间关系",
+      "通过预热后单步捕获并提前终止来减少 GPU 开销，但捕获内容局限于单个训练步"
+    ]
+  },
+  "final_score": 0.7425,
+  "id": "url-24649ddef7734ae67c86b3bc",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-19T18:44:49.309215Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-19T15:01:04Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "pinterest_engineering",
+  "summary_zh": "介绍Pinterest面向生产级推荐和广告排序模型调试的模块优先工程框架ModuleLens，通过模块追踪、仓库存储与消费层支持本地重建、性能剖析和智能体开发。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Introducing ModuleLens: Zooming into PyTorch Modules for Human and Agentic Engineering",
+  "url": "https://medium.com/pinterest-engineering/introducing-modulelens-zooming-into-pytorch-modules-for-human-and-agentic-engineering-b7e9be9d29f8?source=rss----4c5a5f6279b6---4"
+}

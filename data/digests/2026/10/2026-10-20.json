@@ -1,0 +1,17 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-24649ddef7734ae67c86b3bc",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：介绍Pinterest面向生产级推荐和广告排序模型调试的模块优先工程框架ModuleLens，通过模块追踪、仓库存储与消费层支持本地重建、性能剖析和智能体开发。"
+    }
+  ],
+  "date": "2026-10-20",
+  "papers": [
+    {
+      "item_id": "arxiv-2610.23510",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出LSNR新闻推荐方法，将每篇文章独立编码并通过注意力加权聚合和用户级稠密投影构建稀疏用户向量，缓解长文本拼接与截断问题。"
+    }
+  ]
+}

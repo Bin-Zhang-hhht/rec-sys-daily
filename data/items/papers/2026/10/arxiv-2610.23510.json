@@ -1,0 +1,129 @@
+{
+  "abstract": "Current learned sparse approaches for recommender systems, such as STAR, represent a user by concatenating their interaction history into a single query string. For news, this creates two bottlenecks: concatenation collapses a user's distinct reading interests into one flat query, and, because news articles are long-form text, concatenating several news articles quickly overruns the context window of the language model used as backbone and forces quality-degrading truncation. To address both bottlenecks, we introduce learned sparse news recommendations (LSNR). LSNR encodes each article independently and constructs a sparse user vector by combining learned, attention-based weighting of the per-article sparse representations with a dense-projected expansion at the user level. Experiments on the MIND and EBNeRD datasets show that LSNR significantly outperforms STAR, with these gains holding even in short-history settings where truncation is not a factor. Compared to state-of-the-art dense recommenders, LSNR is competitive in standard settings and it outperforms them when the user history is short. An ablation of the user encoder confirms that learned attention-based aggregation outperforms simpler pooling alternatives. Beyond effectiveness, an additional advantage of LSNR is that it serves from an index an order of magnitude smaller than an uncompressed dense baseline. Current learned sparse approaches for recommender systems, such as STAR, represent a user by concatenating their interaction history into a single query string. For news, this creates two bottlenecks: concatenation collapses a user's distinct reading interests into one flat query, and, because news articles are long-form text, concatenating several news articles quickly overruns the context window of the language model used as backbone and forces quality-degrading truncation. To address both bottlenecks, we introduce learned sparse news recommendations (LSNR). LSNR encodes each article independently and constructs a sparse user vector by combining learned, attention-based weighting of the per-article sparse representations with a dense-projected expansion at the user level. Experiments on the MIND and EBNeRD datasets show that LSNR significantly outperforms STAR, with these gains holding even in short-history settings where truncation is not a factor. Compared to state-of-the-art dense recommenders, LSNR is competitive in standard settings and it outperforms them when the user history is short. An ablation of the user encoder confirms that learned attention-based aggregation outperforms simpler pooling alternatives. Beyond effectiveness, an additional advantage of LSNR is that it serves from an index an order of magnitude smaller than an uncompressed dense baseline.",
+  "arxiv_id": "2610.23510",
+  "authors": [
+    "David Vos",
+    "Andrew Yates",
+    "Maarten de Rijke"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "新闻平台的新用户、低频用户和稀疏跟踪用户比例很高，LSNR 在短历史场景超过稠密模型，直接契合新闻推荐的冷启动与稀疏交互场景。",
+      "稀疏倒排索引比未压缩稠密索引小一个数量级（MIND 约 18 倍、EBNeRD 约 13 倍），可降低在线服务存储与带宽成本。",
+      "文章表示可离线预计算，在线只需做用户侧聚合，LSNR 用户编码比 STAR 快约 7 倍（MIND），端到端延迟比 STAR 快 2.3–10 倍。",
+      "用户向量每个维度对应词表项，支持词项级检查与编辑用户兴趣，可用于可解释推荐或用户兴趣调控。",
+      "在标准全历史设置下与 NRMS/NAML 精度相当且索引更小，可作为稠密模型的低成本替代或混合部署方案。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出 LSNR，首个面向新闻领域的 learned sparse 推荐器，将用户建模从历史拼接改为独立文章编码加上基于注意力机制的用户编码器。",
+      "在 MIND 和 EBNeRD 上显著优于 STAR 和 BM25，且在无截断的短历史（N=1）设置下优势依然保持，证明收益来自逐文章建模而非仅靠避免截断。",
+      "与当前最强稠密推荐器对比：全历史设置下与 NRMS/NAML 相当，短历史设置下超过所有稠密基线。",
+      "消融实验证明基于注意力的聚合优于均值、最大、时间衰减等池化策略，且词法路径与语义路径互补。",
+      "发布代码、预处理流程、训练评估脚本和配置文件以促进可复现性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 4,
+        "section": "4 Experimental setup"
+      },
+      {
+        "page": 5,
+        "section": "5.1 Benchmarking LSNR against sparse baselines"
+      },
+      {
+        "page": 5,
+        "section": "5.2 LSNR in short-history settings"
+      },
+      {
+        "page": 6,
+        "section": "5.3 Comparing LSNR with dense baselines"
+      },
+      {
+        "page": 6,
+        "section": "5.4 Efficiency analysis"
+      },
+      {
+        "page": 8,
+        "section": "5.5 Pathway ablation"
+      },
+      {
+        "page": 8,
+        "section": "5.6 User aggregation methods"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BM25",
+        "STAR",
+        "NRMS",
+        "NAML",
+        "LSTUR"
+      ],
+      "datasets": [
+        "MIND",
+        "EBNeRD"
+      ],
+      "findings_zh": [
+        "LSNR 在 MIND 上 NDCG@10 为 0.4234，比 STAR（0.3815) 高约 11%；在 EBNeRD 上为 0.5200，比 STAR（0.4704）高约 10%，均达到显著。",
+        "短历史 N=1 时 LSNR 仍显著优于 STAR：MIND NDCG@10 提高 3.6%，EBNeRD 提高超过 7%，说明优势不依赖避免截断。",
+        "全历史设置下 LSNR 与最强稠密模型相当：MIND 上距离 NRMS/NAML 不到 0.5 个百分点；EBNeRD 上落后 NRMS/NAML 约 2–3%，但明显优于 LSTUR。",
+        "短历史 N=1 设置下 LSNR 超过所有稠密基线：MIND 上比最强稠密基线 NRMS 高 2.5%，EBNeRD 上比最强稠密基线 NAML 高 2.7%。",
+        "索引体积比未压缩稠密 NRMS 索引小一个数量级：MIND 为 11.33 vs 208.06 MB，EBNeRD 为 2.41 vs 31.84 MB；EBNeRD 上比 STAR 索引小约 14 倍。",
+        "消融显示双路径混合优于任何单一路径，且加性注意力优于带位置编码、均值池化、最大池化和时间衰减池化。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "NDCG@5",
+        "MRR",
+        "NNZ sparsity",
+        "Index size (MB)",
+        "Latency (ms)"
+      ]
+    },
+    "limitations_zh": [
+      "相对稠密模型的优势主要集中在短历史设置；全历史设置下在 EBNeRD 上仍落后最强稠密模型 2–3%。",
+      "在召回-延迟前沿上，调好的稠密 HNSW 索引以更低延迟达到相当或更好精度，LSNR 的效率优势主要体现在紧凑索引而非检索速度。",
+      "实验只覆盖两个基准、两种语言，且使用的是 small 版本数据集，向更大语料和其他领域的泛化尚未验证。",
+      "MIND 上 STAR 使用检索预训练 SPLADE 检查点初始化，而 LSNR 从 vanilla BERT 初始化，这种不平衡有利于 STAR，使对比并非完全受控。"
+    ],
+    "method_zh": "LSNR 使用共享新闻编码器独立编码每篇文章，得到 SPLADE 稀疏向量 s 和用于指导聚合的稠密向量 d。用户编码器先将历史文章的稠密表示经一层 Transformer 做上下文化，再用加性注意力计算权重 alpha_i；最终稀疏用户向量 u 是两条路径之和：词法路径 u_lex 按注意力权重对逐文章稀疏向量加权求和，语义路径 u_sem 将注意力加权的稠密用户表示经同一 W_vocab 投影并施加 log-saturation 激活。候选文章通过稀疏内积 u^T s_c 打分，文章表示可离线预计算并索引，训练时使用 L_FLOPS 正则化。",
+    "problem_zh": "现有 learned sparse 推荐方法（如 STAR）将用户交互历史拼接成单个查询串，在新闻推荐中造成两个瓶颈：一是把用户不同的阅读兴趣压平成单一表示，无法按文章区分重要性；二是新闻长文本会迅速超出语言模型上下文窗口，被迫截断并损害推荐质量。需要一种能克服这两个瓶颈、适用于新闻领域的 learned sparse 推荐方法。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.918,
+  "id": "arxiv-2610.23510",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-19T18:44:49.309215Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-16T14:19:13Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出LSNR新闻推荐方法，将每篇文章独立编码并通过注意力加权聚合和用户级稠密投影构建稀疏用户向量，缓解长文本拼接与截断问题。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "LSNR: Learned Sparse News Recommendations with Attentive User Modeling",
+  "url": "https://arxiv.org/abs/2610.23510v1"
+}
