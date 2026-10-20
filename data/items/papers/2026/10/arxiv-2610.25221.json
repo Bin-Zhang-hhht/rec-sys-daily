@@ -1,0 +1,115 @@
+{
+  "abstract": "Cross-domain sequential recommendation (CDSR) alleviates data sparsity by transferring user behaviors across domains. Recent advances increasingly leverage large language models (LLMs) to bridge domains through global item semantics. However, this paradigm is inherently limited by two issues: I. semantic domain isolation, where item semantics remain domain-specific and hinder transferable modeling, and II. semantic-behavior inconsistency, where local semantic relations are more consistent with behavioral transitions, whereas such consistency often breaks down globally across domains. To this end, we propose PerCDR, an LLM-enhanced CDSR framework that shifts the focus from global semantic bridging to persona-guided behavioral modeling. Specifically, PerCDR leverages LLM-inferred personas to globally guide transferable cross-domain behavioral patterns, while exploiting local semantic relations to enhance intra-domain behavioral modeling, followed by domain preference adaptation for recommendation refinement. Extensive experiments demonstrate the superiority of PerCDR and validate its effectiveness. Cross-domain sequential recommendation (CDSR) alleviates data sparsity by transferring user behaviors across domains. Recent advances increasingly leverage large language models (LLMs) to bridge domains through global item semantics. However, this paradigm is inherently limited by two issues: I. semantic domain isolation, where item semantics remain domain-specific and hinder transferable modeling, and II. semantic-behavior inconsistency, where local semantic relations are more consistent with behavioral transitions, whereas such consistency often breaks down globally across domains. To this end, we propose PerCDR, an LLM-enhanced CDSR framework that shifts the focus from global semantic bridging to persona-guided behavioral modeling. Specifically, PerCDR leverages LLM-inferred personas to globally guide transferable cross-domain behavioral patterns, while exploiting local semantic relations to enhance intra-domain behavioral modeling, followed by domain preference adaptation for recommendation refinement. Extensive experiments demonstrate the superiority of PerCDR and validate its effectiveness.",
+  "arxiv_id": "2610.25221",
+  "authors": [
+    "Jundong Chen",
+    "Honglei Zhang",
+    "Shuai An",
+    "Enneng Yang",
+    "Han Yu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "跨域推荐可缓解目标域数据稀疏问题；PerCDR 在 Food、Kitchen 等相对稀疏的 Amazon 域上较最强基线获得 2.04%–15.40% 的 HR@10/NDCG@10 相对提升，说明在多品类电商场景中有助于提升推荐命中率与排序质量。",
+      "以用户 persona 而非物品语义作为跨域桥梁，更适合 Food–Kitchen 这类语义差异较大的品类组合，为多品类电商平台的用户行为迁移提供了新思路。",
+      "LLM 相关表示在训练前离线构建并冻结，训练和推理阶段不引入额外 LLM 调用，有利于控制在线推荐系统的推理成本。",
+      "域偏好适应通过门控系数动态融合共享跨域行为与域特定语义偏好，有助于在统一推荐框架下保留用户在不同品类的个性化偏好。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 PerCDR，一个超越传统语义桥接范式的 persona 引导 CDSR 框架，包含联合行为建模与域偏好适应两个阶段。",
+      "在联合行为建模阶段，利用 LLM 推理出的用户 persona 提供全局指导，同时利用局部语义关联增强域内行为建模，从而学习可跨域迁移的统一行为模式。",
+      "在域偏好适应阶段，用域特定预测对联合预测进行自适应细化，以更好地适配各域偏好并提升推荐精度。",
+      "在 CD–Movie、Food–Kitchen、Cloth–Sport 三个跨域数据集上的大量实验表明 PerCDR 一致优于 SOTA 方法，并通过消融与分析验证了各组件有效性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "Methodology"
+      },
+      {
+        "page": 1,
+        "section": "Experiments"
+      },
+      {
+        "page": 1,
+        "section": "Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "Appendix D Additional Experiment Results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "BERT4Rec",
+        "SASRec",
+        "CD-SASRec",
+        "C2DSR",
+        "Tri-CDR",
+        "UniSRec",
+        "CTT",
+        "LLM4CDSR",
+        "SemaCDR"
+      ],
+      "datasets": [
+        "CD–Movie",
+        "Food–Kitchen",
+        "Cloth–Sport"
+      ],
+      "findings_zh": [
+        "PerCDR 在全部六个目标域和四项指标上均取得最佳结果；例如 CD 域 HR@10 为 0.4861（较最强基线提升 8.53%），Movie 域 NDCG@10 为 0.3672（提升 15.40%）。",
+        "与 SDSR 方法相比，CDSR 方法通过显式建模可迁移的跨域用户行为获得更稳定提升；与经典 CDSR 相比，语义增强 CDSR 方法进一步受益于物品语义和 LLM 推理。",
+        "消融实验显示移除 JBM 造成最大性能下降（如 CD 域 HR@10 从 0.4861 降至 0.3264），移除 LSA、GPG 或 DPA 也均造成一致下降，说明各组件互补且不可或缺。",
+        "超参数分析表明 LSA 邻域大小 K 取中等值（约 10）最优，过大的邻域会重新引入语义域隔离；GPG 温度 tau 约 0.01 最优；损失权重 eta/lambda 约 0.5 时表现较好，Cloth–Sport 上约 1.0 更优。",
+        "案例研究显示语义桥接方法倾向于推荐集中在单一域的语义相似物品，而 persona 引导方法能推荐跨越两个域且符合用户历史兴趣的物品。"
+      ],
+      "metrics": [
+        "HR@5",
+        "NDCG@5",
+        "HR@10",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文仅在 Amazon 构建的三对跨域数据集（CD–Movie、Food–Kitchen、Cloth–Sport）上验证，未覆盖其他平台或领域组合，结论的一般性需要更多证据。",
+      "Persona 推理与语义嵌入依赖 Qwen3 系列 LLM，不同 LLM 能力或物品文本元数据质量可能影响表示质量，论文未讨论这类失败模式或鲁棒性边界。",
+      "模型对邻域大小 K、温度 tau 以及 eta/lambda 等超参数较为敏感，实际部署需要基于验证集进行额外调参。"
+    ],
+    "method_zh": "PerCDR 分为三阶段：(I) LLM 驱动表示构建：使用 Qwen3-Embedding-0.6B 基于物品标题、类别、描述生成语义嵌入 x_i，使用 Qwen3-4B 从混合域交互历史推断用户 persona P_u 并编码为 persona anchor p_u。(II) 联合行为建模：在混合域交互序列上使用共享序列编码器学习随机初始化的可训练行为嵌入 E^A、E^B；Local Semantic Association（LSA）用 Top-K 语义邻居约束域内行为相似度，Global Persona Guidance（GPG）用 persona-aware attention 加权对比学习把混合域隐藏表示向用户 persona 对齐，从而自然形成跨域可迁移行为关系。(III) 域偏好适应：用独立的域专属序列编码器在冻结语义嵌入上建模域特定偏好，并通过门控网络生成系数 alpha 对共享行为评分与域特定评分进行自适应融合；总损失为 L = L_rec + eta*L_lsa + lambda*L_gpg。",
+    "problem_zh": "现有 LLM 增强的跨域序列推荐（CDSR）普遍采用以物品为中心的全局语义桥接范式，但该范式存在两个关键问题：I. 语义域孤立，不同域的物品语义描述方式不同，难以进行可迁移的全局对齐；II. 语义-行为不一致，局部语义关系更符合域内行为转移，而全局跨域语义关系经常与用户行为不一致。因此需要转向以用户为中心、由用户 persona 引导的跨域行为建模。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.91,
+  "id": "arxiv-2610.25221",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-18T12:28:23Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出PerCDR，利用大语言模型推断的用户画像增强跨域序列推荐，属于推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "When Semantics Fall Short: Persona-Guided Cross-Domain Sequential Recommendation with Large Language Models",
+  "url": "https://arxiv.org/abs/2610.25221v1"
+}

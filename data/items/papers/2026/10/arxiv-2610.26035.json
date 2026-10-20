@@ -1,0 +1,137 @@
+{
+  "abstract": "Decision models, such as the commercial Jev, are language models that return one probability for each option of a question instead of generating text. We present Decision4Rec, an open and modular framework that makes decision models useful for recommendation. A knowledge graph writes the logs of each recommendation scenario as short statements on a defined scale, such as \"sold: top 10%\". A pool of agents, proposes candidates, and a residual ranker keeps the best 30. A decision model, trained once on real choices of three scenarios, reads them through one interface of typed questions, and a fusion step combines its answers with the score of the ranker. Any model with this interface can be used, and we run the commercial Jev, the released open Kev and Kev models trained by us on recommendation requests. The framework with a trained 4B decision model is 25 to 36% above the best trained baseline in NDCG@10 in three sparse Amazon catalogues, one of them never used to train the decision model, and almost tie with baselines on the dense Steam dataset. Most of the gain comes from the pool, and with a trained recommender it comes from what the agents know about its candidates rather than from new candidates. The 27B decision model adds to the pool 5 to 6% above the 0.8B model in three of four domains. A trained 0.8B open model beats the released Jev in eleven of fifteen settings and is never worse. On MovieLens-1M, a dense domain never seen in training, the gain is 5 to 7%. Code, configurations and trained models are available at https://github.com/marcopoli/decision4rec and https://huggingface.co/m-polignano. Decision models, such as the commercial Jev, are language models that return one probability for each option of a question instead of generating text. We present Decision4Rec, an open and modular framework that makes decision models useful for recommendation. A knowledge graph writes the logs of each recommendation scenario as short statements on a defined scale, such as \"sold: top 10%\". A pool of agents, proposes candidates, and a residual ranker keeps the best 30. A decision model, trained once on real choices of three scenarios, reads them through one interface of typed questions, and a fusion step combines its answers with the score of the ranker. Any model with this interface can be used, and we run the commercial Jev, the released open Kev and Kev models trained by us on recommendation requests. The framework with a trained 4B decision model is 25 to 36% above the best trained baseline in NDCG@10 in three sparse Amazon catalogues, one of them never used to train the decision model, and almost tie with baselines on the dense Steam dataset. Most of the gain comes from the pool, and with a trained recommender it comes from what the agents know about its candidates rather than from new candidates. The 27B decision model adds to the pool 5 to 6% above the 0.8B model in three of four domains. A trained 0.8B open model beats the released Jev in eleven of fifteen settings and is never worse. On MovieLens-1M, a dense domain never seen in training, the gain is 5 to 7%. Code, configurations and trained models are available at https://github.com/marcopoli/decision4rec and https://huggingface.co/m-polignano.",
+  "arxiv_id": "2610.26035",
+  "authors": [
+    "Marco Polignano",
+    "Het Darshan Mehta",
+    "Pasquale Lops",
+    "Ernesto William De Luca",
+    "Giovanni Semeraro"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对稀疏商品目录（如Amazon小品类）的推荐服务，可以先部署无训练的知识图谱候选+residual ranker获得大部分收益，因为pool的增益最大且运行时不依赖语言模型。",
+      "开放权重的决策模型可一次训练、跨域复用：0.8B/4B模型在单张24GB GPU上每用户157–167ms/565ms，无按请求的API费用，适合成本敏感或数据不能出域的商家。",
+      "模块化typed-question接口使决策模型可替换：可使用hosted Jev快速起步，再平滑切换到开放或自训练模型，降低被单一closed model锁定、版本停用和结果不可复现的商业风险。",
+      "对拥有自有日志和训练能力的企业，训练小模型（如0.8B Kev）即可在大多数设置中超过商业Jev，提示大模型API并非推荐决策模型的必要条件。",
+      "新开目录或冷启动场景（catalogue only/logs only）可用DECISION4REC-KG达到接近或超过域内训练SASRecF的水平（约112%–114% of SASRecF），但该差异不显著，建议作为低成本起点而非确定性替代。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出开放、模块化的DECISION4REC框架，决策模型通过统一的typed-question接口可替换，代码、配置、训练模型和数据集重建脚本全部公开。",
+      "提供证据表明：未训练的发布版决策模型对已训练推荐器的帮助与随机顺序相当；加入场景行为语句并在真实选择上训练后才变得有用。",
+      "构建永不训练的知识图谱，将日志写成场景刻度上的语句（top 1%/top 10%/top half等），决策模型只在三个场景上训练一次，可在第四个场景中不做任何微调地复用。",
+      "设计多agent候选池：保留场景已训练推荐器的列表，由小型residual ranker只纠正其顺序；没有已训练推荐器时，知识图谱候选本身可达到已训练序列模型NDCG@10的81%–92%。",
+      "提出生成reranker训练记录的三条规则（统计量不得包含target、不得补target、first-stage不得见过target），每条规则都有代码测试。",
+      "在五个域、相同请求下系统比较商业Jev、发布版Kev和自训练Kev，证明训练比价格或模型尺寸更重要。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "7.1 RQ1: domains whose records trained the decision model"
+      },
+      {
+        "page": 1,
+        "section": "7.2 RQ2: domains never used to train the decision model"
+      },
+      {
+        "page": 1,
+        "section": "7.3 RQ3: which part brings the gain"
+      },
+      {
+        "page": 1,
+        "section": "7.4 RQ4: trust and cost"
+      },
+      {
+        "page": 1,
+        "section": "8 Jev Through Its Paid API, and Why We Train Kev"
+      },
+      {
+        "page": 1,
+        "section": "9.1 Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "popularity",
+        "item kNN",
+        "sequential rules",
+        "content kNN",
+        "transitions and text",
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "SASRecF",
+        "PrepRec",
+        "released Jev",
+        "released Kev (0.8B/4B/27B)",
+        "LlamaRec-style 0.8B"
+      ],
+      "datasets": [
+        "Amazon Video Games",
+        "Amazon Musical Instruments",
+        "Steam",
+        "Amazon Industrial and Scientific",
+        "MovieLens-1M (plain and enriched with plots/Wikidata)"
+      ],
+      "findings_zh": [
+        "在源域的稀疏Amazon目录上，DECISION4REC-Full（4B）融合后的NDCG@10比最强trained baseline SASRecF高25%（Video Games）和36%（Musical Instruments），p<0.001；在密集域Steam上仅比SASRec高1%–2%，不显著。",
+        "大部分增益来自multi-agent pool和residual ranker：不做任何决策模型时，pool本身在Video Games、Musical Instruments和Industrial and Scientific上分别比SASRecF高17%、26%和25%；在pool之上，0.8B决策模型只加0–2%，4B模型在Video Games和Musical Instruments各加7%和8%。",
+        "在从未用于训练决策模型的Industrial and Scientific上，DECISION4REC-Full（4B）达到该域SASRecF的131%（+31%，p<0.001）；仅用logs、无本域已训练推荐器的DECISION4REC-KG也可达SASRecF的112%–114%，但与SASRecF差异不显著。",
+        "在MovieLens-1M enriched版本上，DECISION4REC-Full（4B）比最强baseline GRU4Rec高7%（p=0.007）；plain版本上仅高1%–3%，不显著。",
+        "训练决策模型远比模型尺寸或价格重要：trained Kev-0.8B在15个设置中11个优于released Jev且从不更差；released决策模型（如Kev-4B）对已训练推荐器的帮助与随机顺序相当。",
+        "当场景有已训练推荐器时，pool的增益来自其他agent关于候选的信息，而非新候选本身：用等量SASRecF最优候选训练同一ranker，NDCG@10与用agent池时相差仅-2.8%到+2.4%。",
+        "决策模型概率经过校准但偏平坦：校准误差0.015–0.031，next-item的NLL（3.07–3.20）仅略低于均匀猜测（3.40）；90%覆盖的conformal集合平均需要23–25/30个候选。",
+        "训练记录的三条规则可移除训练专属cue；无语句时训练的0.8B模型在多个稀疏域比带语句的模型读alone低13%–19%。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "HR@10",
+        "MRR@30",
+        "recall@30",
+        "expected calibration error (ECE)",
+        "NLL of next item",
+        "conformal set coverage and size",
+        "time and tokens per user"
+      ]
+    },
+    "limitations_zh": [
+      "在密集域（Steam、plain MovieLens-1M）上，DECISION4REC-Full与最强trained baseline无显著差异，DECISION4REC-KG低于域内训练模型；只有enriched MovieLens-1M获得5%–7%的显著提升。",
+      "决策模型与residual ranker信息高度重叠：0.8B模型在pool之上几乎不增加NDCG，ranker的输入特征可解释其排序方差的80%–89%。",
+      "两阶段recall ceiling明显：决策模型只重排30个候选，而target在这些候选中的用户仅约9%–25%（取决于域），读50个候选也未显著突破该上限。",
+      "评估协议按每用户最后一项留出，而非全局时间线，模型可能学到测试项之后的交互；作者指出绝对数值在全局时间切分下可能不同。",
+      "实验域和训练规模有限：3个源域、2个held-out域、四种模型尺寸且多为单一训练run；0.8B模型换seed可使fused NDCG@10变化最多3%，fresh-user上的确认实验仍在进行中。",
+      "Jev作为closed hosted模型答案不可重复（同一请求约0.3%–0.7%完全相同），且用户不能训练它；其输出也无法用于训练更便宜的模型。"
+    ],
+    "method_zh": "DECISION4REC包含四个固定契约的模块：1）永不训练的知识图谱把日志写成场景刻度上的短语句（总体流行度、近期流行度、follow-up、co-purchase、文本相似度），候选分数也由其计算；2）多agent池（含场景自训练的SASRecF作为agent之一）产出候选，residual ranker用z标准化后的SASRecF分数加线性修正项保留30个候选，且不读取已训练分数；3）决策模型（Jev或Kev，支持typed questions，训练于三个源域的真实next-choice记录）对30个候选+文本+语句+found-by行做choice question，每个用户用同一请求的两个随机顺序问两次；4）融合模块用Luce/Plackett-Luce模型把决策模型答案转成每个item的worth，再与residual ranker分数标准化后加权融合（score_u(i)=z(theta_i)+γ z(r_u(i))）。",
+    "problem_zh": "现有LLM推荐系统多采用生成式方法，存在候选顺序敏感、输出无概率、多次采样不一致和成本随文本长度增长等问题；直接用决策模型（如Jev/Kev）对候选重排时，由于缺少场景行为证据、候选质量不足，且未在真实选择上训练，其效果仅相当于随机重排。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.875,
+  "id": "arxiv-2610.26035",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-19T08:56:56Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出Decision4Rec框架，利用决策语言模型进行商品推荐排序，在多个推荐数据集上超越基线。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Decision4Rec: A Jev-Inspired Framework of Decision Models on Knowledge and Active Graphs for Multi-Agent Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.26035v1"
+}

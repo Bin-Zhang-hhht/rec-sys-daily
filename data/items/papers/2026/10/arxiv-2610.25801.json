@@ -1,0 +1,126 @@
+{
+  "abstract": "Next point-of-interest (POI) recommendation uses visit histories and POI content, but text and images are often missing. Large language model agents have been applied to recommender systems for preference modeling and evidence acquisition. The challenge is to select agents that can jointly analyze the available evidence for each request. We propose \\textsc{CATH} (\\emph{Complementary Agents via Task Hypergraphs}), which learns to select agent groups for tasks such as comparing candidates or analyzing a POI with missing content. Agents with distinct processing roles are the task hypergraph nodes; each hyperedge connects the selected group and records its analysis goal and target POIs. The policy selects members conditioned on the request, task, and agents already selected. During execution, members share candidate-linked results that guide their subsequent operations. Completed tasks update candidate states and agent memories within the request. A shared ranking head converts candidate states into corrections to a fixed base ranking. Supervised ranking trains the executor, followed by policy optimization that accounts for computation cost. Experiments under natural missingness on Gowalla-CA, Foursquare-NYC, and Foursquare-TKY show 8.4--9.1\\% relative NDCG@20 gains over HyperAgent4POI, the strongest prior baseline evaluated. Additional analyses compare group-selection and execution designs, test ranking under additional masking, and characterize quality--cost tradeoffs. Next point-of-interest (POI) recommendation uses visit histories and POI content, but text and images are often missing. Large language model agents have been applied to recommender systems for preference modeling and evidence acquisition. The challenge is to select agents that can jointly analyze the available evidence for each request. We propose \\textsc{CATH} (\\emph{Complementary Agents via Task Hypergraphs}), which learns to select agent groups for tasks such as comparing candidates or analyzing a POI with missing content. Agents with distinct processing roles are the task hypergraph nodes; each hyperedge connects the selected group and records its analysis goal and target POIs. The policy selects members conditioned on the request, task, and agents already selected. During execution, members share candidate-linked results that guide their subsequent operations. Completed tasks update candidate states and agent memories within the request. A shared ranking head converts candidate states into corrections to a fixed base ranking. Supervised ranking trains the executor, followed by policy optimization that accounts for computation cost. Experiments under natural missingness on Gowalla-CA, Foursquare-NYC, and Foursquare-TKY show 8.4--9.1\\% relative NDCG@20 gains over HyperAgent4POI, the strongest prior baseline evaluated. Additional analyses compare group-selection and execution designs, test ranking under additional masking, and characterize quality--cost tradeoffs.",
+  "arxiv_id": "2610.25801",
+  "authors": [
+    "Jinze Wang",
+    "Yuze Liu",
+    "Liang Yuan",
+    "Gaoyuan Du",
+    "Xiaohang Xu",
+    "Yong Xiang",
+    "Jiong Jin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对POI平台与基于位置的推荐服务，CATH可在文本/图像等模态缺失时仍提升重排序质量（NDCG@20相对提升8.4%–9.1%），有助于改善推荐点击与用户留存。",
+      "系统显式刻画排名质量与归一化计算成本、延迟、token和调用次数之间的权衡，业务方可根据在线预算选择工作点，兼顾效果与推理成本。",
+      "采用LLM智能体在线分析会带来比缓存式基线更高的延迟和成本，部署时需评估是否值得为更高的个性化排序支付额外算力。",
+      "对内容覆盖不完整的长尾POI，可用文本、历史轨迹和协同检索等互补证据补偿缺失模态，减少因内容缺失导致的候选排序劣化。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出CATH，将多模态下一POI重排序建模为任务级智能体小组选择：每个任务连接分析目标、目标候选与被选成员，并在预算内根据请求和现有证据选择小组。",
+      "设计候选对齐的共享证据机制：成员间共享与候选相关的结果并影响后续操作，任务局部状态组织联合执行，智能体记忆在请求内跨任务传递，最终由一个共享排名头统一转化为对基础排名的修正。",
+      "在Gowalla-CA、Foursquare-NYC和Foursquare-TKY三个基准上，在自然缺失和人为缺失条件下评估系统，并比较不同小组选择与执行设计以及排名质量与计算成本之间的权衡。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 CATH: Agent Groups on Task Hypergraphs"
+      },
+      {
+        "page": 1,
+        "section": "5 Learning from Recommendation Feedback"
+      },
+      {
+        "page": 1,
+        "section": "6 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Frozen base (SASRec)",
+        "Flashback",
+        "STAN",
+        "GETNext",
+        "LRMM",
+        "HMoRec",
+        "MAGNET",
+        "HyperAgent4POI",
+        "MMA-Auto",
+        "Agent4POI",
+        "Independent scoring",
+        "Direct group",
+        "Single controller"
+      ],
+      "datasets": [
+        "Gowalla-CA",
+        "Foursquare-NYC",
+        "Foursquare-TKY"
+      ],
+      "findings_zh": [
+        "在自然缺失条件下，CATH相对最强基线HyperAgent4POI在Gowalla-CA、Foursquare-NYC和Foursquare-TKY上分别提升NDCG@20约2.5、2.0和2.1个百分点，相对增益为8.4%–9.1%；Recall@20提升3.0–3.7pp，MRR提升1.6–1.9pp。",
+        "在Gowalla-CA联合50%人工遮蔽下，CATH NDCG@20为.274，仍比HyperAgent4POI（.248）高2.6pp；仅依赖交互ID的Frozen base对内容遮蔽不变（.192），说明增益来自对缺失内容的处理。",
+        "小组选择消融中，集合条件化选择（CATH set-conditioned）在Gowalla-CA上比独立评分高+1.4pp、比直接选择高+1.2pp，验证了请求条件化动态组队的作用。",
+        "执行消融中，共享结果交换比无交换+融合高+1.7pp、比单控制器高+0.9pp NDCG@20；约73%的多轮执行会在收到同伴结果后改变检索目标或比较集合。",
+        "历史分层分析显示同一遮蔽条件下不同历史类型的请求对应的最优智能体小组不同，单个小组的NDCG@20差异最大可达3.3pp。",
+        "质量-成本分析表明CATH在更高预算下获得更高NDCG@20，但也带来更高延迟、token与调用成本；例如NYC上CATH归一化成本0.61、NDCG@20 .257，高于单控制器/独立评分的.249/.242。"
+      ],
+      "metrics": [
+        "Recall@20",
+        "NDCG@20",
+        "MRR",
+        "Coverage",
+        "normalized cost",
+        "p50 latency",
+        "p95 latency",
+        "processed tokens",
+        "tool/LLM calls"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅考察六个固定处理角色的智能体，且评测使用固定候选池；若真实下一POI未被检索器召回，重排序无法改善指标。",
+      "无时间戳的内容被当作静态侧信息处理；时间戳缺失或流式内容更新场景未验证。",
+      "在线成本数字反映作者所用硬件、缓存和并发配置，HyperAgent4POI等基线采用离线缓存服务，直接对比时需注意成本口径。",
+      "策略训练依赖训练请求中检索到的下一访问标签，推理时仍不得访问该标签；训练与推理的分布差异可能影响实际部署效果。"
+    ],
+    "method_zh": "CATH为每个请求构建任务超图：六个固定角色的智能体作为节点，每个任务实例（类型+目标候选集合）连同所选成员构成一条超边；策略先选择任务与目标，再以当前已选成员集合的置换不变表示和请求状态为条件依次邀请成员，直到选择EXECUTE。任务开始后成员从同一轮开始快照选择操作，执行结果通过置换不变消息编码和GRU更新候选级共享结果，再广播给成员用于下一轮操作选择；任务结束后用门控GRU更新候选状态、请求状态和参与智能体的请求级记忆。一个共享排名头读取更新后的状态，对基础排名产生标量修正，使初始修正为零。训练分为两阶段：先用监督排名损失训练执行与排序参数，再固定执行器用PPO优化任务、成员、操作和停止策略，奖励为排名效用变化减去归一化计算成本，并用预算上限约束单请求开销。",
+    "problem_zh": "下一地点（POI）推荐依赖用户访问历史与多模态POI内容（文本、图像等），但在实际数据中文本和图像经常缺失。大语言模型智能体可用于偏好建模与证据获取，难点在于每个请求需要从多种可选智能体中挑选出能够联合分析当前可用证据的互补智能体小组，以完成候选比较、内容缺失POI分析等任务。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.885,
+  "id": "arxiv-2610.25801",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-19T05:12:53Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出CATH，通过任务超图选择互补的LLM智能体组，应用于缺失模态下的下一个POI推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Learning Complementary Agent Groups via Task Hypergraphs for Next-POI Recommendation with Missing Modalities",
+  "url": "https://arxiv.org/abs/2610.25801v1"
+}

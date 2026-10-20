@@ -1,5 +1,5 @@
 {
-  "last_success_at": "2026-10-19T18:44:49.309215Z",
+  "last_success_at": "2026-10-20T18:56:23.065363Z",
   "recommended_item_ids": [
     "arxiv-2608.09440",
     "arxiv-2608.16274",
@@ -224,7 +224,16 @@
     "arxiv-2610.21713",
     "url-7f39afacfc6e94aab98988e6",
     "arxiv-2610.23510",
-    "url-24649ddef7734ae67c86b3bc"
+    "url-24649ddef7734ae67c86b3bc",
+    "arxiv-2610.26831",
+    "arxiv-2610.26105",
+    "arxiv-2610.25093",
+    "arxiv-2610.25221",
+    "arxiv-2610.26143",
+    "arxiv-2610.25801",
+    "arxiv-2610.26035",
+    "arxiv-2610.26024",
+    "arxiv-2610.24200"
   ],
   "schema_version": "1",
   "sources": {
@@ -232,62 +241,62 @@
       "cursor": null,
       "etag": "W/\"9623a87e5b55840ddee95e5d7397b6b6\"",
       "last_modified": "Wed, 14 Oct 2026 17:07:32 GMT",
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "arxiv": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "discord_engineering": {
       "cursor": null,
       "etag": null,
-      "last_modified": "Thu, 15 Oct 2026 07:12:11 GMT",
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_modified": "Mon, 19 Oct 2026 22:00:09 GMT",
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "etsy_codeascraft": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "google_research": {
       "cursor": null,
       "etag": null,
       "last_modified": "Fri, 16 Oct 2026 18:11:34 GMT",
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "meta_engineering": {
       "cursor": null,
-      "etag": "W/\"df4a7e5135d3cf708a407a5c9426c2a9\"",
-      "last_modified": "Fri, 16 Oct 2026 23:28:04 GMT",
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "etag": "W/\"2cd10328659d47ca7195b74f557f322d\"",
+      "last_modified": "Tue, 20 Oct 2026 18:04:30 GMT",
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "netflix_techblog": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "nvidia_developer": {
       "cursor": null,
-      "etag": "\"f485b166543e3f7b73de115596a07ca3\"",
-      "last_modified": "Mon, 19 Oct 2026 18:25:57 GMT",
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "etag": "\"63949ca2d2bbab424aa0cf177b6d08ae\"",
+      "last_modified": "Tue, 20 Oct 2026 17:11:37 GMT",
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "pinterest_engineering": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     },
     "spotify_engineering": {
       "cursor": null,
       "etag": null,
       "last_modified": null,
-      "last_success_at": "2026-10-19T18:38:57.233807Z"
+      "last_success_at": "2026-10-20T18:36:44.005325Z"
     }
   },
-  "updated_at": "2026-10-19T18:44:49.309215Z"
+  "updated_at": "2026-10-20T18:56:23.065363Z"
 }

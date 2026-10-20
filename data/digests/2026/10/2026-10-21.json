@@ -1,0 +1,51 @@
+{
+  "blogs": [],
+  "date": "2026-10-21",
+  "papers": [
+    {
+      "item_id": "arxiv-2610.26831",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出智能体生成式检索AGR，将SID生成与按需特征获取结合，应用于大规模搜索与推荐系统并验证了有效性。"
+    },
+    {
+      "item_id": "arxiv-2610.26105",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文研究动态电商搜索中生成式检索SID映射更新的影响，提出保持拓扑的更新原则并在线上A/B测试中提升指标。"
+    },
+    {
+      "item_id": "arxiv-2610.25093",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出结构对齐历史学习（SAHL）与子空间结构语义ID用于生成式推荐，属于物品推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2610.25221",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出PerCDR，利用大语言模型推断的用户画像增强跨域序列推荐，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2610.26143",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出FLMNet，通过自集成蒸馏提升单塔点击率预测精度，直接服务于推荐系统与在线广告排序。"
+    },
+    {
+      "item_id": "arxiv-2610.25801",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出CATH，通过任务超图选择互补的LLM智能体组，应用于缺失模态下的下一个POI推荐。"
+    },
+    {
+      "item_id": "arxiv-2610.26035",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出Decision4Rec框架，利用决策语言模型进行商品推荐排序，在多个推荐数据集上超越基线。"
+    },
+    {
+      "item_id": "arxiv-2610.26024",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出MOSS多模态解耦框架，通过语义与结构塑造改善推荐系统的准确率与多样性平衡。"
+    },
+    {
+      "item_id": "arxiv-2610.24200",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文研究候选依赖残差路由在序列推荐中的影响，发现它牺牲榜单头部精度换取召回，属于推荐排序研究。"
+    }
+  ]
+}

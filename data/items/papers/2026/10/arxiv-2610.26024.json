@@ -1,0 +1,120 @@
+{
+  "abstract": "Recommender systems often suffer from over-concentrated results when optimized for accuracy, limiting recommendation diversity. While diversity has become an important objective, existing methods still face fundamental limitations from both semantic and structural perspectives. On the one hand, multimodal recommender systems provide rich semantic signals, yet are often treated as auxiliary to ID embeddings, leading to ineffective semantic utilization for diversity. On the other hand, the accuracy--diversity trade-off persists during training, where accuracy gains often come at the cost of diversity. We show that this phenomenon is fundamentally governed by both the structural properties of learned representations and the dynamics of optimization. To address these challenges, we propose MOSS, a unified framework for multimodal decoupling through semantic and structural shaping. Specifically, we first introduce an MLLM-based Decoupled Feature Extraction module to disentangle multimodal content into informative representations. To enhance semantic utilization, we design a Category-aware Embedding Selection module that extracts compact, category-aware semantic features. To address structural limitations, we propose two complementary modules: Alternating Dual-Graph Propagation, which alleviates representation collapse by integrating collaborative and multimodal propagation, and Entropy-based Diversity Regularization, which mitigates optimization bias by promoting balanced category exposure. Extensive experiments on real-world datasets demonstrate that MOSS consistently achieves a superior accuracy--diversity trade-off over strong baselines. Recommender systems often suffer from over-concentrated results when optimized for accuracy, limiting recommendation diversity. While diversity has become an important objective, existing methods still face fundamental limitations from both semantic and structural perspectives. On the one hand, multimodal recommender systems provide rich semantic signals, yet are often treated as auxiliary to ID embeddings, leading to ineffective semantic utilization for diversity. On the other hand, the accuracy--diversity trade-off persists during training, where accuracy gains often come at the cost of diversity. We show that this phenomenon is fundamentally governed by both the structural properties of learned representations and the dynamics of optimization. To address these challenges, we propose MOSS, a unified framework for multimodal decoupling through semantic and structural shaping. Specifically, we first introduce an MLLM-based Decoupled Feature Extraction module to disentangle multimodal content into informative representations. To enhance semantic utilization, we design a Category-aware Embedding Selection module that extracts compact, category-aware semantic features. To address structural limitations, we propose two complementary modules: Alternating Dual-Graph Propagation, which alleviates representation collapse by integrating collaborative and multimodal propagation, and Entropy-based Diversity Regularization, which mitigates optimization bias by promoting balanced category exposure. Extensive experiments on real-world datasets demonstrate that MOSS consistently achieves a superior accuracy--diversity trade-off over strong baselines.",
+  "arxiv_id": "2610.26024",
+  "authors": [
+    "Changran He",
+    "Jiaming Wei",
+    "Jianghong Ma",
+    "Tianjun Wei",
+    "Haijun Zhang",
+    "Xiaofeng Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在动漫、游戏、数字内容等平台，提升推荐多样性可增加长尾物品和冷门品类曝光，缓解信息茧房和结果同质化，改善长期用户体验。",
+      "MOSS通过GM@10等平衡指标兼顾准确率与覆盖率，有助于平台在不明显牺牲效果的前提下拓展内容分发范围。",
+      "MOSS在偏向准确率的设置下也能达到最优准确率，说明多样性机制不必然与商业点击/转化目标冲突，可按业务目标调节超参数。",
+      "模型依赖72B参数MLLM进行解耦特征提取，可能带来较高推理和预处理成本，实际部署需要评估资源开销。",
+      "类别级多样性正则化可帮助多品类电商或娱乐平台校准推荐列表的品类分布，支持品类运营和供给均衡目标。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出MOSS，据作者所述是首个从语义与结构两个互补视角统一多模态推荐和多样性建模的框架。",
+      "语义层面：识别多模态语义在多样性推荐中的利用不足，提出类别感知嵌入选择（CAES），从全局方差和类别响应平衡两个维度打分并保留信息性强、类别感知的维度，作为下游图传播的语义锚点。",
+      "结构层面：提出交替双图传播（ADGP），通过用户-物品协作传播与模态物品图传播交替进行来缓解维度坍缩，并给出理论分析说明该机制能弱化协作传播中能量向少数主方向集中的坍缩倾向。",
+      "提出基于熵的多样性正则化（EBDR），通过促进高排名物品的类别分布更均衡，缓解准确率导向目标带来的优化偏差。",
+      "在Anime和Game两个真实数据集上的实验表明，MOSS相比强基线取得更优的准确率-多样性权衡。"
+    ],
+    "evidence_quality": 0.68,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Semantic Limitation: Ineffective Utilization of Multimodal Semantics"
+      },
+      {
+        "page": 1,
+        "section": "3 Methods"
+      },
+      {
+        "page": 1,
+        "section": "3.6 Entropy-based Diversity Regularization"
+      },
+      {
+        "page": 1,
+        "section": "4 Theoretical Analysis of the Mitigation of Dimensional Collapse"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "LightGCN",
+        "SimGCL",
+        "Freedom",
+        "DGCN",
+        "DGRec",
+        "DRGame",
+        "DivGCL"
+      ],
+      "datasets": [
+        "Anime",
+        "Game"
+      ],
+      "findings_zh": [
+        "MOSS在两个数据集上取得最佳多样性：相对最强多样性基线，Anime的Coverage@10/Entropy@10分别提升13.2%/12.8%，Game的提升为30.3%/19.2%。",
+        "在更偏向准确率的超参数设置下，MOSS_acc在Anime和Game上均取得最优准确率，说明ADGP和CAES不仅利于多样性，也能改善准确率。",
+        "MOSS在两个数据集上的GM@10分别提升5.7%（Anime）和21.1%（Game），取得更优的准确率-多样性平衡。",
+        "消融实验显示：移除EBDR主要降低多样性；移除ADGP或CAES会同时损害准确率和多样性，表明这些模块各有贡献。",
+        "理论分析比较Q_2UI与Q_UI+II的归一化奇异值曲线，发现引入物品-物品传播后非主成分保留更强，表明交替双图传播可缓解维度坍缩倾向。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "NDCG@10",
+        "Coverage@10",
+        "Entropy@10",
+        "GM@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文指出面向多样性的MOSS版本并不总是最准确的，因为它显式偏好更广的类别覆盖，会牺牲部分准确率。",
+      "熵正则化中的soft分布在实际中为效率使用top-20物品近似，可能无法完全刻画完整排名的类别分布。",
+      "理论分析采用静态top-10物品-物品图，未包含完整模型中的动态邻居采样策略，属于简化分析。",
+      "实验仅在Anime和Game两个数据集上验证，泛化性仍需更多场景检验。"
+    ],
+    "method_zh": "MOSS包含四个模块：(1) MLLM-based Decoupled Feature Extraction：使用Qwen2.5-VL-72B将物品内容分解为共享、视觉特有、文本特有描述，并用Sentence-BERT编码得到h_s、h_v、h_t；(2) Category-aware Embedding Selection：对共享嵌入按全局方差和类别响应归一化熵加权打分，保留top-d维度作为图传播初始物品嵌入X；(3) Alternating Dual-Graph Propagation：文本和视觉两个分支交替进行用户-物品图协作传播（偶数层）和类别调制的物品-物品图传播（奇数层），最后对两分支表示做拼接；(4) Entropy-based Diversity Regularization：基于预测分数的softmax权重构建用户级类别分布，最小化其负熵，与BPR损失和L2正则联合训练。",
+    "problem_zh": "推荐系统仅优化准确率时容易产生过度集中的推荐结果，相似物品反复曝光、长尾品类无法被充分探索。论文指出现有方法存在两个层面的局限：语义层面，多模态推荐中的多模态信号常被当作ID嵌入的辅助信息，未能有效组织和利用为面向多样性的语义信号；结构层面，准确率与多样性的权衡受表示维度坍缩和准确率导向优化偏差的共同影响，导致训练过程中多样性持续下降。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.8505,
+  "id": "arxiv-2610.26024",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-19T08:46:34Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出MOSS多模态解耦框架，通过语义与结构塑造改善推荐系统的准确率与多样性平衡。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Multimodal Decoupling for Diversified Recommendation through Semantic and Structural Shaping",
+  "url": "https://arxiv.org/abs/2610.26024v1"
+}

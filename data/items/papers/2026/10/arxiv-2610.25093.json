@@ -1,0 +1,170 @@
+{
+  "abstract": "Generative recommendation constructs semantic IDs for catalog items and predicts the next ID from user interaction histories. However, existing methods face limitations in both stages. First, conventional quantizers may produce imbalanced code assignments and lack coherent intermediate semantic units between individual tokens and complete items, limiting history reconstruction. Second, recommendation models remain dominated by next-item prediction, treating historical interactions mainly as conditioning context and providing limited supervision for recovering persistent preferences across the historical path, particularly when relevant preference signals are distributed over distant interactions. To address these limitations, Structure-Aligned History Learning (SAHL) reconnects the two stages by using the structure created during quantization directly for history reconstruction. Its Semantic Residual Balanced Quantization (SRBQ) forms a balanced token-subspace-item hierarchy, and SAHL reconstructs history at these same granularities. Predictive entropy prioritizes uncertain transitions, while curriculum optimization progressively shifts training to inference-aligned next-item prediction. On four Amazon Review categories, SAHL improves NDCG@10 by 18.6%-30.0% over RPG and 2.7%-6.0% over strong method MHL. Controlled analyses verify balanced code use, the benefit of following quantizer-defined groups during reconstruction, and dependence on user history. The relevant code is available at https://github.com/CQU-MM-Intelligent-Lab/SAHL. Generative recommendation constructs semantic IDs for catalog items and predicts the next ID from user interaction histories. However, existing methods face limitations in both stages. First, conventional quantizers may produce imbalanced code assignments and lack coherent intermediate semantic units between individual tokens and complete items, limiting history reconstruction. Second, recommendation models remain dominated by next-item prediction, treating historical interactions mainly as conditioning context and providing limited supervision for recovering persistent preferences across the historical path, particularly when relevant preference signals are distributed over distant interactions. To address these limitations, Structure-Aligned History Learning (SAHL) reconnects the two stages by using the structure created during quantization directly for history reconstruction. Its Semantic Residual Balanced Quantization (SRBQ) forms a balanced token-subspace-item hierarchy, and SAHL reconstructs history at these same granularities. Predictive entropy prioritizes uncertain transitions, while curriculum optimization progressively shifts training to inference-aligned next-item prediction. On four Amazon Review categories, SAHL improves NDCG@10 by 18.6%-30.0% over RPG and 2.7%-6.0% over strong method MHL. Controlled analyses verify balanced code use, the benefit of following quantizer-defined groups during reconstruction, and dependence on user history. The relevant code is available at https://github.com/CQU-MM-Intelligent-Lab/SAHL.",
+  "arxiv_id": "2610.25093",
+  "authors": [
+    "Kaiwen Wei",
+    "Kejun He",
+    "Jie Zhang",
+    "Xiaomian Kang",
+    "Yuming Yang",
+    "Aijia Zhou",
+    "Xie Zhou",
+    "Yining Wang",
+    "Nayu Liu",
+    "Li Jin",
+    "Zhenyang Li",
+    "Jiang Zhong",
+    "He Bai",
+    "Jingxuan Wei",
+    "Junnan Zhu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可直接用于电商/内容平台推荐排序：在相同GPT-2生成式推荐骨干下，SAHL通过历史重建监督提升Recall和NDCG，意味着用户更可能在Top-10中看到下一个真实购买/交互物品。",
+      "对低频/冷启动物品尤其有价值：训练频率≤5的目标物品NDCG@10相对RPG提升100.0%–205.6%，有助于改善长尾商品的曝光与推荐质量。",
+      "SRBQ构造是离线、可摊销的，推理时保持与RPG相同的解码器、beam大小和图传播，不增加在线推理阶段成本，便于工程落地。",
+      "实践部署需权衡训练成本：历史重建训练显著增加步骤/墙钟时间与显存，但推理阶段无额外成本。",
+      "生成式推荐与语义ID结构结合具备跨场景迁移潜力：文本token任务上的提升表明该历史学习机制不依赖具体量化器。",
+      "对购物路径中存在噪音品类（如美妆序列中夹杂面部护理/防晒用品）的用户，SAHL能更好保持细粒度品牌/颜色偏好等持久兴趣，支持更精准的个性化推荐。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出结构对齐历史学习（SAHL），将语义ID构造与历史学习视为耦合设计，复用量化器定义的token–subspace–item层级来组织历史监督。",
+      "提出语义残差均衡量化（SRBQ），通过子空间分解、子空间内残差量化与占用均衡分配，构造均衡的token⊂subspace⊂item语义ID层级。",
+      "将掩码目标与SRBQ层级对齐，利用预测熵优先选择不确定的历史重建目标，并通过课程学习从随机掩码热身、熵引导重建逐步过渡到与推理一致的next-item生成。",
+      "在四个Amazon Review类别上验证SAHL相对RPG、Tlow、MHL的NDCG@10提升，并通过平衡编码、量化器分组复用和历史依赖等对照实验分离各组件贡献。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Structure-Aligned History Learning"
+      },
+      {
+        "page": 1,
+        "section": "5 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "6 Experimental Results"
+      },
+      {
+        "page": 1,
+        "section": "6.1 Overall Performance Comparison"
+      },
+      {
+        "page": 1,
+        "section": "6.3 SRBQ Configuration and Codebook Quality"
+      },
+      {
+        "page": 1,
+        "section": "6.4 SRBQ Component Ablation"
+      },
+      {
+        "page": 1,
+        "section": "6.9 Structure-Alignment Ablation"
+      },
+      {
+        "page": 1,
+        "section": "6.10 History-Dependence Diagnostic"
+      },
+      {
+        "page": 1,
+        "section": "6.11 Further Analysis"
+      },
+      {
+        "page": 1,
+        "section": "6.11.2 Computational Efficiency"
+      },
+      {
+        "page": 1,
+        "section": "6.11.4 Low-Frequency (Cold-Item) Recommendation"
+      },
+      {
+        "page": 1,
+        "section": "6.11.5 Effectiveness Across History Lengths"
+      },
+      {
+        "page": 1,
+        "section": "A.2 SRBQ Parameter Sensitivity"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "HGN",
+        "SASRec",
+        "BERT4Rec",
+        "FDSA",
+        "S3-Rec",
+        "RecJPQ",
+        "VQ-Rec",
+        "TIGER",
+        "HSTU",
+        "RPG",
+        "Tlow",
+        "MHL"
+      ],
+      "datasets": [
+        "Beauty",
+        "Toys and Games",
+        "Sports and Outdoors",
+        "CDs and Vinyl"
+      ],
+      "findings_zh": [
+        "SAHL在四个数据集的R@5/N@5/R@10/N@10上全面领先；NDCG@10相对RPG提升18.6%–30.0%，相对MHL提升2.7%–6.0%，相对Tlow提升3.4%–24.1%。",
+        "SRBQ将平均/最差峰值码字负载分别降低28.8%–32.4%/37.3%–41.3%，同时唯一ID比例保持99.68%–99.97%，说明提升来自码字重分配而非丢弃码或合并ID。",
+        "组件消融显示去除残差量化、子空间分解或均衡分配均会降低NDCG@10；残差量化在三个数据集上影响最大，去子空间在CDs and Vinyl上影响最大。",
+        "结构对齐消融表明，使用SRBQ量化器定义的真实分组比等大小伪子空间或随机置换分组效果更好，说明收益来自量化结构复用而非任意token分块。",
+        "历史依赖诊断显示，保持当前物品线索不变时打乱历史会降低token准确率、提高token负对数似然并降低精确匹配，证明子空间重建利用了用户特定的历史上下文。",
+        "将历史学习机制迁移到无码本的title文本token预测仍带来NDCG@10提升8.8%–16.7%，表明重建、熵引导和课程优化是可迁移的历史学习机制。",
+        "按目标物品训练频率分组，频率≤5的物品NDCG@10相对RPG提升100.0%–205.6%，说明SAHL对低频/冷物品推荐尤其有利。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "Recall@10",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "最佳重建粒度因数据集而异：Entropy-Subspace在Beauty和Toys and Games最好，Entropy-Tri-Mixed在Sports and Outdoors和CDs and Vinyl最好，因此最佳掩码策略依赖目录特性。",
+      "SRBQ参数搜索是顺序调节的，曲线呈现条件敏感性而非穷举联合敏感性。",
+      "SRBQ语义ID构造在384维时为OPQ的3.02倍（238.7秒 vs 79.0秒），属于离线、可摊销的开销。",
+      "历史学习训练开销较大：MHL相对RPG步骤时间增加86.4%、墙钟时间增加118.5%、内存增加9.5%。",
+      "案例研究仅用于示例说明，不构成因果证据。",
+      "在最长历史分桶上，Sports and Outdoors在>50分桶出现轻微倒挂，Toys and Games的NDCG@10也接近基线，说明长历史可部分弥补弱监督。",
+      "评估仅基于Amazon Reviews 2014的四个产品类别，未覆盖其他领域或平台数据。"
+    ],
+    "method_zh": "SAHL包含耦合的两阶段设计：SRBQ对Sentence-T5物品嵌入做白化PCA并划分为G个子空间，每个子空间用D级残差量化形成码本，再通过容量上限约束码字占用，得到token⊂subspace⊂item的层级语义ID；历史学习阶段使用与该层级对齐的token/子空间/物品级掩码重建目标，采用预测熵对候选目标排序以优先重建不确定的历史过渡，并使用课程学习从随机掩码热身、熵引导重建逐步过渡到无掩码的next-item推理对齐训练。",
+    "problem_zh": "生成式推荐通常先用量化器为目录物品构造语义ID，再基于用户交互序列预测下一个ID；但现有方法在两个阶段均有局限：常规量化器（如OPQ）可能产生不均衡的码字分配，且缺乏介于单个token与完整item之间的连贯中间语义单元，限制了历史重建；同时推荐模型仍以next-item预测为主，把历史交互主要当作条件上下文，难以监督分散在早期交互中的持久偏好。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.918,
+  "id": "arxiv-2610.25093",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-18T07:58:35Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出结构对齐历史学习（SAHL）与子空间结构语义ID用于生成式推荐，属于物品推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Structure-Aligned History Learning with Subspace-Structured Semantic IDs for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.25093v1"
+}

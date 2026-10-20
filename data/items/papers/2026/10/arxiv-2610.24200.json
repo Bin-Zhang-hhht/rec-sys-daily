@@ -1,0 +1,130 @@
+{
+  "abstract": "Candidate-dependent routing lets a sequential recommender weight a user's past behaviors differently for each item it scores. We test whether this flexibility helps by adding a small residual routing module to a self-attentive baseline, in two versions that differ only in what sets the routing weights: the user's history representation or the candidate item's embedding. Across five paired seeds on the REES46 cosmetics-shop dataset, with matched training for all three models, candidate-dependent routing leaves the primary metric, normalized discounted cumulative gain at cutoff ten (NDCG@10), essentially unchanged (mean relative change +0.003%). Secondary and exploratory analyses show that this flat average hides two effects that cancel. The candidate-dependent model places more relevant items in its top ten (recall +1.81%) but ranks the first one lower (mean reciprocal rank -1.09%), and most of its new hits land at positions six to ten. Its gains come from queries with at least one target among the user's last 50 events, while queries whose targets all lie outside that window get worse. In this form, candidate-dependent routing trades accuracy at the top of the list for recall further down. Candidate-dependent routing lets a sequential recommender weight a user's past behaviors differently for each item it scores. We test whether this flexibility helps by adding a small residual routing module to a self-attentive baseline, in two versions that differ only in what sets the routing weights: the user's history representation or the candidate item's embedding. Across five paired seeds on the REES46 cosmetics-shop dataset, with matched training for all three models, candidate-dependent routing leaves the primary metric, normalized discounted cumulative gain at cutoff ten (NDCG@10), essentially unchanged (mean relative change +0.003%). Secondary and exploratory analyses show that this flat average hides two effects that cancel. The candidate-dependent model places more relevant items in its top ten (recall +1.81%) but ranks the first one lower (mean reciprocal rank -1.09%), and most of its new hits land at positions six to ten. Its gains come from queries with at least one target among the user's last 50 events, while queries whose targets all lie outside that window get worse. In this form, candidate-dependent routing trades accuracy at the top of the list for recall further down.",
+  "arxiv_id": "2610.24200",
+  "authors": [
+    "Han Chen",
+    "Yingrui Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "若业务目标是在短列表中放入更多相关物品（例如召回/粗排阶段），候选依赖路由在含近期交互的查询上可提升 Recall 和 Hit rate，但不会改善 NDCG@10。",
+      "候选依赖路由会降低 MRR 和 top-1 准确性，因此不适合对首位精度敏感的推荐位或广告场景。",
+      "增益集中在重复/混合查询，适合复购为主的电商场景；若流量以全新物品探索为主，候选依赖路由反而会变差。",
+      "路由模块仅增加约 27,649 个参数且保持训练流程不变，部署成本低，但需在明确短列表目标下用新时间段验证后才能采用。"
+    ],
+    "business_transferability": 0.42,
+    "contributions_zh": [
+      "在 SASRec 风格基线上加入极小残差路由模块，通过仅改变路由向量来源（用户历史表示 U vs 候选物品嵌入 C）隔离候选依赖路由的作用。",
+      "在 REES46 上用五颗配对种子、固定 12 epoch 训练和全目录评估，得到 C 相对 B 的 NDCG@10 平均变化 +0.003%，单侧 95% 上界 +0.49%，低于预设 +1% 阈值。",
+      "发现并分解了平坦平均值下互相抵消的两个效应：Recall@10 +1.81%、Hit rate@10 +1.70%，但 MRR@10 -1.09%，且新命中大多落在第 6-10 位。",
+      "按查询是否含近期历史目标分层，展示增益来自 all-repeat（+0.764%）和 mixed（+11.514%）查询，all-novel 查询下降 -7.186%。",
+      "对早前 routed Transformer 模型做了探索性回顾，给出候选依赖路由在三个数据集上不一致且受选择过程影响的效应估计。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Data and prediction task"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Baseline and residual routing module"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Evaluation queries and metrics"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Candidate-dependent routing barely changes NDCG@10"
+      },
+      {
+        "page": 1,
+        "section": "4.2 More relevant items reach the top ten, but the first one ranks lower"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Repeat queries improve and novel queries get worse"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Checks on tie handling and history items"
+      },
+      {
+        "page": 1,
+        "section": "4.5 Earlier Transformer models show dataset-dependent effects"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Limitations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec 风格自注意力基线 B",
+        "用户依赖残差路由模型 U（作为 C 的对照）"
+      ],
+      "datasets": [
+        "REES46 cosmetics-shop（2019 年 10 月事件）",
+        "RetailRocket",
+        "KuaiSAR-small"
+      ],
+      "findings_zh": [
+        "配对实验中候选依赖模型 C 相对基线 B 的 NDCG@10 平均变化为 +0.003%，单侧 95% 上界 +0.49%，低于预设 +1% 阈值；双侧 95% 区间为 [-0.63%, +0.64%]。",
+        "C 在 cutoff 10 的 Recall 提高 +1.81%、Hit rate 提高 +1.70%，但 MRR 下降 -1.09%，五个种子方向一致。",
+        "C 的 NDCG@10 收益主要来自排名 2 和 3：位置贡献分解显示 rank 1 损失 -0.009761，rank 2 增益 +0.005186，rank 3 增益 +0.003489，rank 4-10 增益 +0.001092，净差 +0.000006。",
+        "按查询分层，all-repeat 查询 NDCG@10 +0.764%，mixed 查询 +11.514%，all-novel 查询 -7.186%，且每个方向在所有五颗种子中一致。",
+        "将历史物品移出候选集后，C 对新颖目标仍无优势：Recall@10 -0.26%、NDCG@10 -3.14%，五颗种子的 NDCG@10 均低于 B。",
+        "CPU 重评诊断中所有测试的精确并列打破规则在 cutoff 10 上给出完全相同的指标；CPU 上 C/B 的 NDCG@10 变化为 +0.0086%，单侧 95% 上界 +0.5267%。",
+        "用户依赖路由 U 相对 B 的 NDCG@10 平均提高 +0.28%，而 C 相对 U 下降 -0.27%。",
+        "早前 Transformer 模型的探索性回顾中，候选依赖路由相对用户依赖路由的点估计为 KuaiSAR-small +37.92%、REES46 +26.48%、RetailRocket +6.66%，但区间宽且受 checkpoint 选择/重训影响。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "NDCG@1/2/3/5/20/50/100",
+        "Recall@10",
+        "Recall@20",
+        "Hit rate@10",
+        "Hit rate@20",
+        "MRR@10",
+        "MRR@20"
+      ]
+    },
+    "limitations_zh": [
+      "配对实验只使用 REES46 一个数据集、一种基线实现、一种路由架构、一种训练配置和五颗种子。",
+      "置信界只反映固定评估查询集上的训练种子波动，不包含查询、用户或时间抽样不确定性；评估查询来自先前用过的测试分区。",
+      "训练 loss 在第 12 epoch 仍在下降，更长训练或不同 checkpoint 选择可能改变结论。",
+      "Recall–MRR 权衡与 repeat/novel 分层结果均为探索性分析，需要新数据确认。",
+      "回溯 Transformer 分析仅覆盖 12 个计划比较中的 6 个，checkpoint 用有缺陷的评估器选择，REES46 两个模型为重训模型，bootstrap 区间不提供一般性覆盖保证。"
+    ],
+    "method_zh": "以 SASRec 风格自注意力编码器为基线 B，其分数为候选嵌入与层归一化历史表示的点积除以 sqrt(d) 再加物品偏置。路由模块将用户历史按行为流（浏览；加购+购买；移除购物车）分别求物品嵌入均值 m_s，用无偏置投影 Q、K、V，以 softmax 得到每个可用行为流的权重 a_cs，并给基线分数加上 α * sum_s a_cs * (e_c^T V m_s / sqrt(d)) 的残差项；α 为可学习标量、初值为 0。两个路由版本只改变路由向量 z_c：U 用历史表示 h，C 用候选物品嵌入 e_c，二者参数数相同。配对实验中，REES46 按用户时间戳组 70/15/15 划分，训练时每查询取 1 个正样本和 100 个均匀负样本做单标签交叉熵；5 颗种子、固定 12 epoch；评估时对全部 40,749 个目录物品在 float32 单次打分并按目录索引打破精确并列，分层加权计算 NDCG@10、Recall、Hit rate、MRR，并用五颗种子配对相对效应和 t 分布单侧 95% 上界检验 +1% 阈值。",
+    "problem_zh": "序列推荐系统需要决定：为用户打分时，是生成一个固定的历史表示，还是让每个候选物品（candidate）自己决定用户历史中哪些行为流更重要。作者要检验这种候选依赖路由（candidate-dependent residual routing）的灵活性能否提升 NDCG 等排序指标。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.8390000000000001,
+  "id": "arxiv-2610.24200",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-16T20:20:03Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文研究候选依赖残差路由在序列推荐中的影响，发现它牺牲榜单头部精度换取召回，属于推荐排序研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Candidate-dependent residual routing trades top-of-list accuracy for recall in sequential recommendation",
+  "url": "https://arxiv.org/abs/2610.24200v1"
+}

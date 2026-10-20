@@ -1,0 +1,146 @@
+{
+  "abstract": "Large-scale search and recommendation systems derive much of their retrieval quality from rich, heterogeneous features, yet existing generative retrieval (GR) methods struggle to exploit such feature ecosystems efficiently. Static feature injection either encodes all available signals or places them according to predetermined schemes, increasing serving cost and introducing irrelevant or conflicting evidence. More fundamentally, existing methods cannot adaptively determine when a feature is needed, which feature to select, or where it should influence hierarchical Semantic ID (SID) generation. We propose Agentic Generative Retrieval (AGR), a tool-augmented paradigm that interleaves SID generation with on-demand feature acquisition. Conditioned on the request and decoded SID prefix, AGR decides whether to invoke a tool, which feature to acquire, and where its observation should influence subsequent decoding, thereby steering generation toward feature-consistent SID branches. To supervise this behavior, we construct tool-augmented trajectories based on feature applicability and information gain along the SID hierarchy, and train the model through SID pretraining followed by tool-augmented fine-tuning. Experiments on an industrial dataset and three public benchmarks, together with an online A/B test, consistently demonstrate the effectiveness of AGR. Large-scale search and recommendation systems derive much of their retrieval quality from rich, heterogeneous features, yet existing generative retrieval (GR) methods struggle to exploit such feature ecosystems efficiently. Static feature injection either encodes all available signals or places them according to predetermined schemes, increasing serving cost and introducing irrelevant or conflicting evidence. More fundamentally, existing methods cannot adaptively determine when a feature is needed, which feature to select, or where it should influence hierarchical Semantic ID (SID) generation. We propose Agentic Generative Retrieval (AGR), a tool-augmented paradigm that interleaves SID generation with on-demand feature acquisition. Conditioned on the request and decoded SID prefix, AGR decides whether to invoke a tool, which feature to acquire, and where its observation should influence subsequent decoding, thereby steering generation toward feature-consistent SID branches. To supervise this behavior, we construct tool-augmented trajectories based on feature applicability and information gain along the SID hierarchy, and train the model through SID pretraining followed by tool-augmented fine-tuning. Experiments on an industrial dataset and three public benchmarks, together with an online A/B test, consistently demonstrate the effectiveness of AGR.",
+  "arxiv_id": "2610.26831",
+  "authors": [
+    "Ming Yang",
+    "Yaqi Yin",
+    "Zhibo Wang",
+    "Xiaoze Jiang",
+    "Jingwei Zhuo",
+    "Chao Zhang",
+    "Quanzhi Zhu",
+    "Weiguo Zheng",
+    "Liang Zeng",
+    "Yunfeng Zhao",
+    "Jiaqiang Liu",
+    "Kefeng Wang",
+    "Yupeng Huang",
+    "Kaiqiao Zhan",
+    "Xuanping Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "成本效益显著：相比把长序列特征直接编码进模型，AGR按需获取特征可在召回几乎持平（GSU场景0.3237 vs 0.3241）的情况下，将训练时间降低81.8%、serving GPU成本降低42.9%（表4），对拥有海量特征生态的工业搜索/推荐系统具有直接的降本增效价值。",
+      "检索质量与用户体验改善：离线Recall相对TIGER最高+14.04%、MRR最高+19.7%；线上Relevance提升+0.205%、Query Reformulation Rate下降-0.690%、Search Penetration Rate提升+0.060%，说明更好的单次检索体验可转化为更高的用户满意度和搜索使用意愿。",
+      "部署友好：AGR只要求自回归解码接口（BART、Qwen均可），平均服务延迟35ms满足在线预算；且增益在0.6B至4B不同规模骨干上稳定出现，企业可结合算力成本灵活选择模型规模。",
+      "可迁移性强：覆盖结构化特征（意图、地域、新鲜度、性别、年龄、设备平台等）与序列行为特征两类主流工业信号，已在快手搜索与Qilin、JDSearch、KuaiSAR等搜索/推荐数据集上验证，可作为搜索系统特征利用模块的通用升级方案。",
+      "提供可解释的个性化依据：案例显示AGR能通过不同工具分别响应个性化（GSU）、时效性（Freshness）与意图消歧（Intent）需求，帮助企业理解检索结果变化原因、诊断特征体系并指导后续特征建设。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "基于工业界利用丰富异构特征生态的需求，系统性地揭示并量化了生成式检索中静态特征注入的两大基本局限：既不是请求自适应的（何时注入），也不是层级自适应的（何处注入）；并论证特征应当按需获取、注入到正确的SID深度。",
+      "提出Agentic Generative Retrieval（AGR），将特征注入封装为工具调用，从而把自适应特征选择与动态位置放置统一到单一解码过程中，为在真实检索系统中利用丰富特征开辟了新途径。",
+      "推导了选择调用哪个工具以及该工具在SID层级中最具信息量的注入位置的原则性准则（基于特征适用性与沿SID层级的信息增益），并在SID预训练加工具增强微调的两阶段流程中完成实例化。",
+      "在快手搜索系统及三个广泛使用的公开基准上评估AGR：相对基线Recall最高提升+14.04%，并获得一致的线上A/B增益；大量实验分析进一步解释了AGR的收益来源。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Limitations of Static Feature Injection"
+      },
+      {
+        "page": 4,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 5,
+        "section": "5.2 Main Results"
+      },
+      {
+        "page": 6,
+        "section": "5.3 Ablation Study"
+      },
+      {
+        "page": 6,
+        "section": "5.4 Experimental Analysis"
+      },
+      {
+        "page": 7,
+        "section": "5.5 Online A/B Test"
+      },
+      {
+        "page": 8,
+        "section": "6 Limitations and Future Work"
+      },
+      {
+        "page": 12,
+        "section": "C Further Ablation Study and Analysis"
+      },
+      {
+        "page": 13,
+        "section": "E Case Study"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "TIGER",
+        "TIGER Distill Teacher",
+        "UniSearch",
+        "GLASS",
+        "GEMs"
+      ],
+      "datasets": [
+        "Industry（快手搜索，约3亿条行为记录/天，使用6月14-20日/21-22日/23日分别作为阶段一、阶段二与测试）",
+        "Qilin（多模态检索基准，小红书app会话）",
+        "JDSearch（个性化商品搜索基准）",
+        "KuaiSAR (large)（统一搜索与推荐基准）"
+      ],
+      "findings_zh": [
+        "主结果（表2）：AGR在四个数据集的所有Recall/MRR截断上一致优于全部基线；相对TIGER，Recall提升6.4%~14.04%（Industry Recall@32为+14.04%、Recall@50为+14.01%），MRR提升5.2%~19.7%；所有报告增益在p<0.05（配对bootstrap）下显著。",
+        "特征交互策略消融（表3，Industry）：静态特征注入Recall@50=0.3159，查询引导门控=0.3161，固定位置工具注入=0.3174，AGR自适应注入=0.3264，验证按解码状态自适应注入的有效性。",
+        "效率对比（表4）：直接编码50/100/400个相关GSU token将Recall@50从0.2863提升至0.3195/0.3202/0.3241，但训练时间从1.163秒/步升至2.413/3.671/10.794秒/步、服务成本从2.38升至2.70/3.03/8.33 GPUs/1K请求；AGR仅用GSU工具即达0.3237，训练时间和服务成本相对400-token方案分别降低81.8%和42.9%。",
+        "CARE分析（表5）：相对无工具基线，Recovery（仅AGR命中）占14.1%，Error（仅基线命中）占7.9%，Recall@50净提升+6.2pp；工具调用集中于Recovery（工具调用率44.8% vs 整体平均20.6%）；最自信top-10 beams中，带工具调用的beam命中率15.1%，远高于无工具beam的3.7%（约4.1×）。",
+        "特征定位分析（图5和表）：AGR在特征对齐（Fea.）子集上的召回增益是对照（Comp.）子集的两倍以上；AGR在两个子集上均取得负ΔPPL（优于无特征基线），而静态注入在Comp.上抬高PPL；AGR在最优注入位置i*处的golden-token概率比显著高于其他位置（Location 1.116 vs 1.012，Freshness 1.218 vs 1.063），静态注入则无明显差异。",
+        "线上A/B测试（表6）：在快手生产搜索系统部署，平均服务延迟35ms；7天A/B中Relevance提升+0.205%（95%CI [+0.12%, +0.28%]）、Query Reformulation Rate下降-0.690%（[-1.13%, -0.20%]）、Search Penetration Rate提升+0.060%（[+0.03%, +0.14%]）。",
+        "附加消融：将每个观测token替换为单一共享token后Recall@50仅0.2901（说明额外解码步骤有部分收益，但观测token携带真实特征信息）；结构化特征工具AGR为0.3137，优于直接静态编码全部结构化特征的0.3013；GSU融合方式中Mean=0.3167、Vote=0.3237、Attn=0.3313（Attn最准但Vote性价比高，为默认）；AGR在BART与Qwen3（0.6B/1.7B/4B）骨干上均一致优于UniSearch（如Qwen3-4B下Recall@50为0.3444 vs 0.3369）。"
+      ],
+      "metrics": [
+        "Recall@K (K ∈ {32, 50, 64})",
+        "MRR@K (K ∈ {32, 50, 64})",
+        "PPL / ΔPPL",
+        "golden-token probability ratio r_i",
+        "训练时间 (sec/step) 与 Serving Cost (GPUs/1K requests)",
+        "线上指标：Relevance、Query Reformulation Rate、Search Penetration Rate"
+      ]
+    },
+    "limitations_zh": [
+      "AGR的训练数据使用预定义规则而非学习到的策略构造，未来可应用agentic强化学习在搜索推荐常见的稀疏奖励下优化工具使用。",
+      "当前工具生态有限，需要扩展到更多工具类型和更多检索域。",
+      "训练轨迹沿黄金SID前缀、基于目标侧一致性构造，与自由运行的推理存在差距；在模型生成前缀下优化和评估工具决策仍是重要的未来方向。"
+    ],
+    "method_zh": "AGR将异构特征封装为工具，每个工具用唯一工具token标识；模型在SID自回归解码过程中，基于请求和已解码的SID前缀，决定是否发出工具token以及调用哪个工具，工具返回的观测token以独立的可学习嵌入注入解码器（使用区别于SID的位置编码），从而重塑后续SID token的概率分布，把生成导向特征一致的SID分支；工具token仅作为决策触发信号，不进入自回归上下文。工具分两类：结构化特征工具（返回离散类别值，如意图、地域、新鲜度）与序列特征工具（返回用户行为序列GSU，用参数无关的Vote（前缀匹配+多数投票）或基于注意力的Attn聚合为单一观测token）。训练数据构造回答两个问题：“何时”可用（结构化工具要求请求侧提取的特征与正样本一致且未显式出现在模型输入中；序列工具要求从行为序列投票得到的下一SID等于黄金SID，并保持命中率τ以加入错误样本增强鲁棒性），“何处”插入（选择使特征判别力ρ变化最陡峭的位置，即argmax[ρ_{i+1}-ρ_i]；对序列特征等价于argmin ρ_i）。训练采用两阶段：第一阶段用纯SID数据学习SID生成，第二阶段用工具增强数据学习工具调用；为缓解工具token与SID token损失量级失衡，使用按训练步自适应的工具token损失缩放系数α_k，最终目标为带缩放的最小化负对数似然。",
+    "problem_zh": "大规模搜索与推荐系统的检索质量高度依赖丰富、异构的特征，但现有生成式检索（GR）方法难以高效利用这类特征生态：静态特征注入要么无条件编码全部信号、要么按预定方案放置，既抬高服务成本，又引入与请求无关甚至冲突的证据；更根本地，现有方法无法自适应地决定何时需要某个特征、选择哪个特征、以及特征应在分层Semantic ID（SID）生成的哪个层级起作用。论文将问题归纳为静态注入的两个缺陷：不具备请求自适应性（when to inject）和不具备层级自适应性（where to inject），并提出特征应按需获取、注入到正确的SID深度。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.93,
+  "id": "arxiv-2610.26831",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-19T17:56:04Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出智能体生成式检索AGR，将SID生成与按需特征获取结合，应用于大规模搜索与推荐系统并验证了有效性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "AGR: Agentic Generative Retrieval with Tool-Augmented Search",
+  "url": "https://arxiv.org/abs/2610.26831v1"
+}

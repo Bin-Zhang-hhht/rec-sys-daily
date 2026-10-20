@@ -1,0 +1,141 @@
+{
+  "abstract": "Click-through rate (CTR) prediction underpins recommender systems and online advertising, where high-dimensional categorical features interact in combinatorially many ways. Several recent CTR models, such as FinalNet and QNN, report higher accuracy when a network also learns from its own averaged predictions, for example by running the same network under different dropout patterns and training each run toward the average. Why this self-distillation helps, and whether its random sampling is needed, remains unclear. This work shows that as the number of dropout patterns grows without bound, the objective reduces exactly to the label loss of the logit-averaged prediction plus a penalty on how much the dropout copies of the network disagree. When dropout does not affect how a network gates its features, this penalty can be approximated in closed form, and FLMNet is designed on this principle and trains without sampling. Networks trained from different seeds disagree in the same form, and distilling several of them into one network recovers part of their ensemble gain. On five benchmarks against seventeen baselines, the resulting models take the top two places in accuracy with a single network at inference, and the gains of the penalty and of distillation, where measurable, largely add up. Click-through rate (CTR) prediction underpins recommender systems and online advertising, where high-dimensional categorical features interact in combinatorially many ways. Several recent CTR models, such as FinalNet and QNN, report higher accuracy when a network also learns from its own averaged predictions, for example by running the same network under different dropout patterns and training each run toward the average. Why this self-distillation helps, and whether its random sampling is needed, remains unclear. This work shows that as the number of dropout patterns grows without bound, the objective reduces exactly to the label loss of the logit-averaged prediction plus a penalty on how much the dropout copies of the network disagree. When dropout does not affect how a network gates its features, this penalty can be approximated in closed form, and FLMNet is designed on this principle and trains without sampling. Networks trained from different seeds disagree in the same form, and distilling several of them into one network recovers part of their ensemble gain. On five benchmarks against seventeen baselines, the resulting models take the top two places in accuracy with a single network at inference, and the gains of the penalty and of distillation, where measurable, largely add up.",
+  "arxiv_id": "2610.26143",
+  "authors": [
+    "Yifan Wang",
+    "Yifei Du"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "生产系统每天需进行数十亿次CTR预测且要求单次前向服务；FLMNet-CF与FLMNet-KD推理时都是单塔单次前向，精度提升不增加在线服务延迟。",
+      "FLMNet-CF每一步只需一次确定性前向传播，避免S次mask采样，训练step时间与QNN-α接近，适合在推荐和在线广告平台落地。",
+      "两个模型同时改善AUC与Logloss，既提升排序质量也改善概率校准；收益在多个大规模稀疏CTR数据集上跨seed一致。",
+      "跨seed蒸馏需要K+1次训练run，但教师logit可预先计算，适合离线算力充足、在线延迟受限的部署场景。",
+      "条件(C1)–(C3)可作为设计可闭式自集成CTR塔结构的具体准则，帮助后续模型在保持单塔推理的同时获得自集成收益。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "从理论上推导了logit空间池化的自集成蒸馏在mask数趋于无穷时的极限：目标精确收敛到均值logit的标签损失加上softplus Jensen gap的倍数，普通dropout训练是倍数为1的特例，并给出该gap受logit方差上下界约束。",
+      "隔离出三个条件——gate读取未mask输入、线性读出、逐坐标rescaling——使得logit在mask上的均值与方差有闭式解，并据此设计FLMNet单塔；用高斯surrogate和Gauss-Hermite求积在单次确定性前向传播中训练该极限，无需采样mask。",
+      "在五个公开基准上对比十七个基线，FLMNet-CF与FLMNet-KD在AUC和Logloss上均占据前两名；闭式惩罚与跨seed蒸馏的收益在可测量时大体相加。",
+      "将跨seed集成收益通过蒸馏移入单塔，训练成本为K+1次训练run，推理仍为单塔单次前向传播。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Self-Ensemble Distillation at the Infinite-Masking Limit"
+      },
+      {
+        "page": 1,
+        "section": "4 Single-Tower Architecture for Closed-Form Moment Computation"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Predictive Performance"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Why a New Tower"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Suppressing Mask Noise at the Infinite-Masking Limit"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Suppressing Seed Noise by Cross-Seed Distillation"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Consistency Across Seeds, Cost, and Summary"
+      },
+      {
+        "page": 1,
+        "section": "7 Discussion and Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "B.5 Reproduction Gaps"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "LR",
+        "FM",
+        "DNN",
+        "IPNN",
+        "DeepFM",
+        "xDeepFM",
+        "AutoInt+",
+        "AFN+",
+        "DCNv2",
+        "EDCN",
+        "MaskNet",
+        "FinalMLP",
+        "EulerNet",
+        "FinalNet (2B)",
+        "QNN-α (one head)",
+        "QNN-α (two heads)",
+        "ECN"
+      ],
+      "datasets": [
+        "Criteo",
+        "Avazu",
+        "KKBox",
+        "Frappe",
+        "ML-1M"
+      ],
+      "findings_zh": [
+        "五个基准上FLMNet-CF和FLMNet-KD在AUC与Logloss均占前两名；跨基准平均RelaImpr为1.36%（CF）和1.62%（KD），最强基线QNN-α（two heads）为0.66%；FLMNet-KD的RelaImpr在每个基准上是最强基线收益的1.4–3.8倍。",
+        "QNN-α不满足(C1)：其gate读取上一层的masked输出，闭式均值在76%（κ=0）和81%（κ=2）的validation行上偏离采样均值超过3个标准误；令gate改读输入embedding虽使闭式形式精确，但AUC下降10.5×10⁻⁴；FLMNet在不加惩罚时恢复到与原始QNN-α仅差0.9×10⁻⁴。",
+        "闭式惩罚优于采样正则化：同一塔上FLMNet-CF在12个benchmark-method组合的均值AUC全部更高，36个seed配对中34个领先；在Criteo与KKBox上按剂量匹配dropout后仍平均领先6.5×10⁻⁴与23.9×10⁻⁴；开关实验显示惩罚主要减慢过拟合，epoch 4开启时保留收益最高。",
+        "跨seed蒸馏：Criteo上多教师学生比成员均值提高validation AUC 0.80×10⁻³，教师集成提高1.44×10⁻³；单教师学生仅提高0.10×10⁻³；教师收益随K按约1−1/K增长，学生保留约0.6倍；标签继续训练无法获得该收益。",
+        "闭式惩罚与跨seed蒸馏的收益大体叠加：在Criteo和KKBox上同时使用保留二者AUC收益之和的87%与80%，在Avazu和Frappe上组间差异低于seed阈值。",
+        "FLMNet-CF训练step时间46.7ms，接近QNN-α的45.4/47.0ms，峰值内存高约50%；推理均为单次前向，latency约5.8ms；按事先固定的评估规则，FLMNet-CF在每个基准上超过阈值1.9–8.7倍并在几乎所有seed配对中领先。",
+        "闭式方差截断V̂与精确方差在训练检查点上的中位比值为0.99965（1st–99th百分位0.99808–1.00014），而仅在u_l上一阶截断的V_lin中位比值仅0.91955，说明训练所用的截断很接近精确方差。"
+      ],
+      "metrics": [
+        "AUC",
+        "Logloss",
+        "RelaImpr"
+      ]
+    },
+    "limitations_zh": [
+      "闭式结果只在满足(C1)–(C3)的塔上成立；训练用高斯surrogate替代精确Jensen gap，属于近似而非精确等价。",
+      "seed gap无闭式形式，蒸馏能恢复多少只能靠测量获得；Avazu和Frappe上部分收益差异低于seed阈值。",
+      "惩罚与蒸馏两种收益分别收集：惩罚在一次训练run内完成，跨seed蒸馏需要K+1次训练run，论文未在单次训练中同时获得两者。",
+      "部分baseline复现与公开值存在差距，如Criteo上FinalNet和FinalMLP低于BARS单次报告值、Frappe上FinalNet等低于公布值，且部分差距原因未完全查明。",
+      "其他架构或数据视图带来的多样性是否能在seed蒸馏之上继续提高AUC仍属开放问题，论文未回答。"
+    ],
+    "method_zh": "FLMNet为单塔结构：每个field的gate unit只读未mask的输入embedding，经learned mixer将影响散布到其他field，再以“1+gate”逐坐标乘性更新carrier；其构造满足条件(C1) gate输入未mask、(C2) 线性读出、(C3)逐层逐坐标rescale，使mask logit成为mask坐标的多线性多项式。于是均值logit等于无mask前向传播的logit，方差用经精确全阶式核对的可训练截断V̂递推计算。训练目标为CE(y,σ(μ)) + κ[Σ_i λ_i ς(μ+ξ_i√V̂)−ς(μ)]，用3点Gauss-Hermite求积实现，不采样mask。FLMNet-KD从一个FLMNet-CF塔出发，以K个塔logit的均值μ̄_K为教师，最小化(μ−μ̄_K)²，学生不再看到标签或闭式惩罚。",
+    "problem_zh": "点击率（CTR）预测是推荐系统和在线广告的核心任务，输入为高维类别特征，特征组合数远超训练覆盖。近年FinalNet、QNN等模型通过让网络同时学习自身平均预测（自集成蒸馏）提升了精度，但其添加项究竟正则化了什么、随机mask采样是否必要、能否不经采样获得同样收益仍不清楚。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8975000000000001,
+  "id": "arxiv-2610.26143",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-19T10:27:04Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出FLMNet，通过自集成蒸馏提升单塔点击率预测精度，直接服务于推荐系统与在线广告排序。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FLMNet: Self-Ensemble Distillation from Masks to Seeds for Single-Tower CTR Prediction",
+  "url": "https://arxiv.org/abs/2610.26143v1"
+}

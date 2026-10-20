@@ -1,0 +1,119 @@
+{
+  "abstract": "Generative retrieval assigns each item a discrete semantic identifier (SID) and retrieves items by autoregressively generating SID sequences. In dynamic environments such as e-commerce, new items arrive continuously, requiring periodic updates to the SID-to-Item mapping and model to maintain retrieval timeliness. Each update, however, can invalidate search paths already learned by the retriever, and the quantitative relationship between mapping change and retrieval quality has not been systematically characterized. We study this problem with extensive controlled experiments over 67 days of large-scale e-commerce search logs and obtain three core findings. (1) SID semantic drift causes severe retrieval degradation that may be masked by large beam sizes: mapping updates reduce HitRate by 41.78-62.05% at beam size 1 but only 8.33-10.85% at beam size 1000, as redundant candidate generation conceals the true severity of drift. (2) The fraction of changed SIDs is strictly monotonically related to retrieval quality: as the remapped fraction increases from 0% to 72.75%, HitRate decreases monotonically, dropping up to 42.66% at beam size 1. Full remapping remains substantially worse than the preservation policy under warm-start training, indicating that short-budget continued training alone cannot repair topology disruption. (3) The SID topology-preserving principle makes even the simplest warm-start strategy highly effective: fixing old-item SIDs, inserting new-items, and warm-starting from the previous model improves old-item HitRate by 10% and new-item HitRate by 109%, validated across two non-overlapping update cycles. These findings distill into a concise deployment principle: insert new-items, freeze old-items; warm-start when possible, otherwise freeze; never change SIDs the model has already learned. A three-week online A/B test on TmallAPP shows UCTCVR +0.29% and GMV +1.16%. Generative retrieval assigns each item a discrete semantic identifier (SID) and retrieves items by autoregressively generating SID sequences. In dynamic environments such as e-commerce, new items arrive continuously, requiring periodic updates to the SID-to-Item mapping and model to maintain retrieval timeliness. Each update, however, can invalidate search paths already learned by the retriever, and the quantitative relationship between mapping change and retrieval quality has not been systematically characterized. We study this problem with extensive controlled experiments over 67 days of large-scale e-commerce search logs and obtain three core findings. (1) SID semantic drift causes severe retrieval degradation that may be masked by large beam sizes: mapping updates reduce HitRate by 41.78-62.05% at beam size 1 but only 8.33-10.85% at beam size 1000, as redundant candidate generation conceals the true severity of drift. (2) The fraction of changed SIDs is strictly monotonically related to retrieval quality: as the remapped fraction increases from 0% to 72.75%, HitRate decreases monotonically, dropping up to 42.66% at beam size 1. Full remapping remains substantially worse than the preservation policy under warm-start training, indicating that short-budget continued training alone cannot repair topology disruption. (3) The SID topology-preserving principle makes even the simplest warm-start strategy highly effective: fixing old-item SIDs, inserting new-items, and warm-starting from the previous model improves old-item HitRate by 10% and new-item HitRate by 109%, validated across two non-overlapping update cycles. These findings distill into a concise deployment principle: insert new-items, freeze old-items; warm-start when possible, otherwise freeze; never change SIDs the model has already learned. A three-week online A/B test on TmallAPP shows UCTCVR +0.29% and GMV +1.16%.",
+  "arxiv_id": "2610.26105",
+  "authors": [
+    "Jianbo Zhu",
+    "Xing Fang",
+    "Xiaopeng Chu",
+    "Mingmin Jin",
+    "Jing Wang",
+    "Bokang Wang",
+    "Jiaqi Ye",
+    "Xiang Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "生产更新应遵循“插入新物品、冻结旧物品；能热启动则热启动，否则冻结模型；永远不要改变模型已学习的SID”，可直接减少全量重建和重训练成本。",
+      "评估映射更新时不能只依赖宽beam（如beam 1000）的离线指标，应按线上实际延迟对应的beam范围评估，否则会低估语义漂移风险。",
+      "简单的增量热启动比model soup和复杂持续学习方案更有效，且更易调试和上线；在线A/B验证表明该方法在电商搜索中可带来UCTCVR +0.29%、GMV +1.16%的业务增长。",
+      "在业务价值信号（点击/加购/购买）驱动的SID设计中，不建议为追赶价值排名变化而重排已有物品的SID；价值变化可通过仅对新增物品按价值插入来处理。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "量化了SID语义漂移的损害，并揭示宽beam会掩盖真实严重程度：更新映射在beam size 1下使HitRate下降41.78%-62.05%，在beam size 1000下仅下降8.33%-10.85%。",
+      "发现旧物品SID重映射比例γ与检索质量严格单调负相关（γ从0%到72.75%时HR@1最多下降42.66%）；相同热启动预算下完全重映射仍明显劣于冻结策略，说明模型已内化SID空间拓扑且短期继续训练无法修复。",
+      "提出并验证拓扑保持更新原则：冻结旧物品SID、插入新物品、从上一checkpoint热启动；两次非重叠更新周期中旧物品HitRate约提升10%、新物品约提升109%，线上A/B测试UCTCVR +0.29%、GMV +1.16%。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 5,
+        "section": "4.3 Wide Beams Mask Mapping Drift"
+      },
+      {
+        "page": 5,
+        "section": "4.4 Remapping Rate Predicts Degradation"
+      },
+      {
+        "page": 6,
+        "section": "4.5 Warm-Start Does Not Repair Remapping"
+      },
+      {
+        "page": 6,
+        "section": "4.6 No Benefit from Weight Mixing"
+      },
+      {
+        "page": 7,
+        "section": "4.7 Online A/B Test"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "FS全稀疏唯一标识 vs HC混合碰撞标识",
+        "Full-Re全量重映射",
+        "阈值重映射t=10/100/500",
+        "Frozen映射不重训基线",
+        "Full-Re热启动",
+        "Frozen热启动",
+        "模型权重混合/model soup（α=0/0.1/0.5/0.9/1.0）"
+      ],
+      "datasets": [
+        "67天大促电商搜索平台query-item交互日志，其中前30天训练初始模型，随后30天为第一个更新与评估周期，最后7天为第二个非重叠更新周期"
+      ],
+      "findings_zh": [
+        "HC在Day-1各beam上均优于FS，HR@1为0.0589（+0.86%）、MRR为0.1199（+1.52%），说明生产规模下可控碰撞不是检索瓶颈。",
+        "只刷新Serving Map、冻结输入Feat比同时刷新两者更差（HC HR@1 0.0226 vs 0.0340），表明漂移的主要代价是已学习解码路径被重新指向，而非价值信号本身过时。",
+        "宽beam掩盖漂移：beam size 1下降41.78%-62.05%，beam size 1000仅下降8.33%-10.85%，MRR降幅39.35%-55.41%居中。",
+        "重映射比例γ从72.75%降到0%时，HR/MRR在所有beam上单调改善；Full-Re使HR@1下降42.66%、MRR下降40.34%、HR@1000仅降8.35%。",
+        "阈值重映射未提供有用折中：即便t=10，HR@1仍比完全冻结低12.4%。",
+        "相同热启动下Frozen在旧物品HR@1比Full-Re高36.70%、新物品HR@1高13.94%；Full-Re热启动后的旧物品HR@1000=0.6923仍低于不重训Frozen基线0.7043，MRR也低于，说明热启动无法修复拓扑破坏。",
+        "Frozen+热启动提升旧物品HR@1000从0.7043到0.7272、MRR从0.1160到0.1276，新物品HR@1000从0.5127到0.6200、HR@1相对不重训提升108.9%。",
+        "权重混合没有额外收益，纯新checkpoint（α=0）在所有beam和MRR上最优或接近最优；短周期下α=0.1对少数旧物品指标有微弱改善但不改变结论。"
+      ],
+      "metrics": [
+        "HR@1",
+        "HR@10",
+        "HR@100",
+        "HR@1000",
+        "MRR@1000",
+        "UCTCVR",
+        "GMV"
+      ]
+    },
+    "limitations_zh": [
+      "论文的实验证据主要来自第三层业务价值token刷新这一漂移源；作者指出机制可推广到codebook重训等场景，但后者并未被同等程度地直接实验验证。",
+      "作者明确限定：不声称拓扑变化本质上不可逆，更鲁棒的持续学习方法可能部分恢复性能；本结论针对工业界简单可靠的warm-start设置。",
+      "线上A/B为期三周、在TmallAPP单个平台的20%流量上运行，长周期稳定性和跨品类/跨平台迁移性尚未验证。",
+      "阈值重映射只是在全量重映射与完全冻结之间做简单插值，未验证更复杂的alignment、selective tokenization等修复算法的相对效果。"
+    ],
+    "method_zh": "采用RQ-VAE在CQ-SID查询-物品对比学习框架下构造三层SID（前两层为语义前缀，第三层为业务价值排序token），并使用混合碰撞感知分配（HC）在受限词表中处理长尾。将更新策略拆成两个正交维度：映射策略（全量重映射Full-Re、冻结Frozen、阈值t重映射）与训练策略（不重训/从上一checkpoint热启动），在67天电商搜索日志上做受控实验，以HR@1/10/100/1000和MRR@1000评估，并在TmallAPP上做三周线上A/B测试。",
+    "problem_zh": "在动态电商搜索场景中，物品持续新增、商业价值信号不断变化，生成式检索依赖的SID（语义标识）到物品映射需要周期性更新；但重写SID会破坏模型已学习的自回归解码路径（语义漂移），导致检索质量下降。论文针对该问题系统刻画了映射变化程度与检索质量损失之间的定量关系，并检验热启动训练能否修复重映射造成的拓扑破坏。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.925,
+  "id": "arxiv-2610.26105",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-20T18:56:23.065363Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-19T10:01:25Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究动态电商搜索中生成式检索SID映射更新的影响，提出保持拓扑的更新原则并在线上A/B测试中提升指标。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Don't Rewrite the SID Map: Topology Preservation for Generative Retrieval in Dynamic E-Commerce Search",
+  "url": "https://arxiv.org/abs/2610.26105v1"
+}
