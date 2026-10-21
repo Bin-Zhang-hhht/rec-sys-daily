@@ -1,0 +1,164 @@
+{
+  "abstract": "Recommender Systems (RSs) can be evaluated for many aspects, two of them being recommendation relevance and fairness. These two aspects can be evaluated either in isolation, using a measure for each aspect; or jointly with a single`relevance-aware' fairness measure that quantifies fairness with respect to relevance. Yet, neither approach provides a simultaneous evaluation of both relevance and fairness: the first approach may result in two different rankings of models, each corresponding to an evaluation aspect; the second approach often provides an imbalanced evaluation of the two aspects. To address this gap, we propose Distance to Pareto Frontier (DPFR), a new approach to jointly evaluate RS fairness and relevance. DPFR is based on a Pareto frontier of relevance and fairness scores from existing measures. The frontier is generated from user-item interaction data and represents various Pareto-optimal trade-offs between the two aspects. Thus, the distance from a point in the frontier provides a joint score of fairness and relevance. As DPFR can be used with existing measures, it is modular and intuitive. Our experiments with 4 recommenders and 3 fairness-aware re-rankers on 6 real-world datasets reveal inconsistent associations between existing measures and DPFR, showing that they are not reliable proxies for evaluations based on Pareto optimality. We further examine the robustness of DPFR as a joint evaluation approach for fairness and relevance by conducting experiments with artificial recommendations and with various fairness-relevance trade-offs, as well as by analysing DPFR's agreement to simple measures of fairness and relevance. These analyses show that DPFR is more robust than existing joint evaluation approaches. Finally, we provide guidelines for evaluating fairness and relevance jointly with DPFR. Our code: https://github.com/theresiavr/robustness-DPFR-recsys-evaluation. Recommender Systems (RSs) can be evaluated for many aspects, two of them being recommendation relevance and fairness. These two aspects can be evaluated either in isolation, using a measure for each aspect; or jointly with a single`relevance-aware' fairness measure that quantifies fairness with respect to relevance. Yet, neither approach provides a simultaneous evaluation of both relevance and fairness: the first approach may result in two different rankings of models, each corresponding to an evaluation aspect; the second approach often provides an imbalanced evaluation of the two aspects. To address this gap, we propose Distance to Pareto Frontier (DPFR), a new approach to jointly evaluate RS fairness and relevance. DPFR is based on a Pareto frontier of relevance and fairness scores from existing measures. The frontier is generated from user-item interaction data and represents various Pareto-optimal trade-offs between the two aspects. Thus, the distance from a point in the frontier provides a joint score of fairness and relevance. As DPFR can be used with existing measures, it is modular and intuitive. Our experiments with 4 recommenders and 3 fairness-aware re-rankers on 6 real-world datasets reveal inconsistent associations between existing measures and DPFR, showing that they are not reliable proxies for evaluations based on Pareto optimality. We further examine the robustness of DPFR as a joint evaluation approach for fairness and relevance by conducting experiments with artificial recommendations and with various fairness-relevance trade-offs, as well as by analysing DPFR's agreement to simple measures of fairness and relevance. These analyses show that DPFR is more robust than existing joint evaluation approaches. Finally, we provide guidelines for evaluating fairness and relevance jointly with DPFR. Our code: https://github.com/theresiavr/robustness-DPFR-recsys-evaluation.",
+  "arxiv_id": "2610.27850",
+  "authors": [
+    "Theresia Veronika Rampisela",
+    "Maria Maistro",
+    "Tuukka Ruotsalo",
+    "Christina Lioma"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "DPFR 提供可调的 α 参数，使平台能够按业务目标选择公平性与相关性之间的权衡，避免只优化相关性导致长尾内容/供给方曝光不均。",
+      "相比简单平均和现有 JOINT 指标，DPFR 更不容易被单一评估方面误导，可作为推荐系统上线或迭代时更稳健的模型选择依据。",
+      "对于电商、内容平台等依赖供给方生态的业务，个体项目公平评估有助于改善长尾商品和内容创作者的曝光，从而可能提升平台生态健康度。",
+      "Efficient DPFR 用少量 PF 点即可保持等效排序，降低了实际业务中部署该评估方法的计算成本，但仍需测试集标签且比多数简单指标更昂贵。",
+      "由于 DPFR 依赖可实现的 Pareto 最优权衡而不是人为目标分布，业务上可以基于真实数据判断公平性提升是否必然牺牲相关性，避免设定不可达成的公平目标。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 DPFR（Distance to Pareto Frontier of Fairness and Relevance），一种基于 Pareto 前沿的联合评估方法，可与现有相关性度量与公平性度量组合使用，具有模块化、可解释、可调公平-相关性权重的优点。",
+      "提出 ORACLE2FAIR 算法，基于测试集 ground truth 生成 Pareto 前沿：先以 Oracle 生成最大相关性推荐，再迭代替换高曝光项以提升个体项目公平性，从而得到一组实际可达到的 Pareto 最优权衡点。",
+      "通过 4 个推荐器、3 个重排序器、6 个真实数据集以及人工推荐实验，系统性地证明 DPFR 比现有联合评估方法更稳健，现有 JOINT 指标不能作为 DPFR 的可靠代理。",
+      "研究了距离度量、公平-相关性权重 α、与简单度量的相关性，并提出 Efficient DPFR：只用 3–12 个均匀采样点估计 PF 即可保持与完整 PF 等效的模型排序。",
+      "给出使用 DPFR 的实践指南，包括如何选择 REL-FAIR 度量对、如何选择参考点/α，以及何时不宜使用简单平均或 JOINT 指标作为代理。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Distance to Pareto Frontier (DPFR)"
+      },
+      {
+        "page": 1,
+        "section": "4 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Measure Compatibility with DPFR"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Comparison to True PF (RQ1)"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Agreement between Measures (RQ2)"
+      },
+      {
+        "page": 1,
+        "section": "5.6 Sensitivity to Distance Measures (RQ3)"
+      },
+      {
+        "page": 1,
+        "section": "5.7 Varying Weight of Fairness and Relevance (RQ4)"
+      },
+      {
+        "page": 1,
+        "section": "5.8 Correlation with Simple Measures (RQ5)"
+      },
+      {
+        "page": 1,
+        "section": "5.9 Efficient DPFR (RQ6)"
+      },
+      {
+        "page": 1,
+        "section": "6 Guidelines for Evaluation with DPFR"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "ItemKNN",
+        "BPR",
+        "MultiVAE",
+        "NCL",
+        "Borda Count (BC) 重排序",
+        "COMBMNZ (CM) 重排序",
+        "Greedy Substitution (GS) 重排序",
+        "JOINT 指标：IBO、MME、IAA、II-F、AI-F",
+        "REL 与 FAIR 的算术平均 avg",
+        "加权平均 weighted-avg",
+        "Manhattan 距离版 DPFR",
+        "3/6/12 点估计 PF 的 Efficient DPFR"
+      ],
+      "datasets": [
+        "Lastfm",
+        "Amazon-lb",
+        "QK-video",
+        "Jester",
+        "ML-10M",
+        "ML-20M"
+      ],
+      "findings_zh": [
+        "ORACLE2FAIR 生成的 PF 与暴力枚举得到的真实 PF 非常接近：6 个数据集上平均 GD 最高不超过 0.003，且至少 93% 的采样样本上生成 PF 与真实 PF 完全一致（GD=0）。",
+        "现有 REL、FAIR 和 JOINT 指标与 DPFR 给出的模型排名普遍不一致；JOINT 指标在 73.3% 的情况下与 FAIR 或 REL 指标的最佳模型相同，说明它们偏向单一评估方面，不能作为 DPFR 的可靠代理。",
+        "简单平均 avg 与 DPFR 在最佳模型选择上存在较大不一致：groundwork 实验最高达 58.33%，人工生成运行上平均达 73.61%，且 rank-based REL 指标（MAP、NDCG）比 set-based REL 指标更明显。",
+        "DPFR 对距离度量选择敏感：Manhattan 距离版 DPFR 与简单平均 avg 排序等价；Chebyshev 距离会退化为单方面评估；cosine 距离会产生反直觉结果；因此默认使用欧氏距离。",
+        "改变 α 对 DPFR 的影响取决于 PF 长度和单方面分数方差；短 PF 或低方差时一个方面会主导评估，α 影响很小；建议选择 REL 和 FAIR 指标与 DPFR 相关性最接近的 α 以平衡两方面。",
+        "Efficient DPFR 用 6 或 12 个估计点即可得到与完整 PF 等效的模型排序（τ≥0.9），3 个估计点时也有较高一致性（τ∈[0.75,1]，仅 5 个组合低于 0.9），同时大幅降低计算时间。",
+        "与简单有效度量（#relevant items）和简单公平度量（#unique recommended items）的相关性分析显示，DPFR 比 avg/weighted-avg 更平衡、更稳定，不易被单一评估方面主导。"
+      ],
+      "metrics": [
+        "Hit Rate (HR)",
+        "MRR",
+        "Precision@10",
+        "Recall@10",
+        "MAP@10",
+        "NDCG@10",
+        "Jain Index",
+        "Qualification Fairness (QF)",
+        "Gini Index",
+        "Fraction of Satisfied Items (FSat)",
+        "Entropy (Ent)",
+        "IBO",
+        "MME",
+        "IAA",
+        "II-F",
+        "AI-F",
+        "Kendall's tau",
+        "Generational Distance (GD)"
+      ]
+    },
+    "limitations_zh": [
+      "生成完整 Pareto 前沿的计算成本很高，例如 Jester 数据集的完整 PF 约需 847 分钟，因此需要依赖 Efficient DPFR 近似。",
+      "并非所有 REL 与 FAIR 度量对都适合 DPFR：HR 和 MRR 按设计不适用；QF 和 FSat 在部分数据集上 PF 梯度为零或未定义，无法形成有意义的公平-相关性权衡。",
+      "ORACLE2FAIR 是贪心算法，在少数采样样本上生成的 PF 与真实 PF 存在偏差（样本上的最大 GD 为 0.122），说明贪心替换可能产生次优解。",
+      "DPFR 目前只针对个体项目公平性和单个推荐轮次，尚未扩展到组公平、用户公平、随机排名策略或其他评估方面。",
+      "DPFR 的距离度量选择需要谨慎：Manhattan 距离与 avg 排序等价，Chebyshev 和 cosine 距离会破坏联合评估的意义或产生反直觉结果。",
+      "简单平均在某些低分数方差或短 PF 场景下可能近似 DPFR，但这种条件难以事先判断，因此文中不建议将其作为 DPFR 的通用代理。"
+    ],
+    "method_zh": "DPFR 的计算分为三步：(1) 给定一对 REL 和 FAIR 度量，用 ORACLE2FAIR 算法从测试集用户-项目交互数据生成 Pareto 前沿；算法采用词序优化，先最大化相关性再逐步替换推荐项以提高公平性，并在每次替换后计算 REL 和 FAIR 分数，保留 Pareto 最优的分数对。(2) 用可调参数 α∈[0,1] 沿 PF 弧长选择参考点，α=0 最重相关性，α=1 最重公平性，默认 α=0.5 时取 PF 中点。(3) 用支持二维向量的距离度量（默认欧氏距离）计算模型 (REL, FAIR) 分数到参考点的距离，距离越小表示模型在公平性与相关性上的联合表现越好。另提出高效版本：按替换次数均匀选取 p 个点估计 PF，以减少计算成本。",
+    "problem_zh": "推荐系统评估需要同时考虑推荐相关性和公平性，但单独评估会得到不一致的模型排名，而现有的相关性感知公平性联合度量往往在两方面之间权重失衡；直接对两类分数取平均又面临分布/尺度不可比、无法解释距离理想公平-相关性权衡有多远等问题。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.91,
+  "id": "arxiv-2610.27850",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-21T18:54:14.876384Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-20T08:31:48Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出基于帕累托前沿距离的推荐系统公平性与相关性联合评估方法DPFR，并分析其鲁棒性。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Robustness Analysis of Pareto-based Joint Evaluation of Fairness and Relevance in Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.27850v1"
+}

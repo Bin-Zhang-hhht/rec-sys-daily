@@ -1,0 +1,126 @@
+{
+  "abstract": "Detecting semantic failures in production recommendation and search systems is hard: behavioral metrics lag by days, manual review does not scale, and most LLM evaluation frameworks are designed for offline, fixed datasets rather than continuous operational monitoring. We present Model Sanity Service (MOSS), a production framework that addresses this operational gap by embedding LLM-based relevance scoring into a recurring monitoring loop with targeted sampling, strategy-aware prompting, structured alerting, and diagnostic follow-up prompting that categorizes failures into actionable root causes. MOSS has been running in production at a large U.S. retailer for over six months across recommendation, search, and offer surfaces, and has surfaced two confirmed serving defects. For one of these, a backfill blending defect, MOSS quantified the impact of the proposed fix offline as a 76.4\\% relative reduction in alert rate. On a 498-pair human-annotated recommendation benchmark, frontier LLM judges achieve higher F1 and AUC point estimates than non-LLM baselines (internal production embeddings and SBERT), with the largest gains on strategy-dependent tasks requiring intent-level relational reasoning. The same judge, score scale, and threshold transfer to a 466-pair search benchmark spanning 21 queries with only a surface-specific prompt adaptation, achieving strong F1 and AUC without retuning. These results show that a single LLM monitoring framework can provide useful, actionable quality signals across multiple product discovery surfaces in a large-scale e-commerce setting. Detecting semantic failures in production recommendation and search systems is hard: behavioral metrics lag by days, manual review does not scale, and most LLM evaluation frameworks are designed for offline, fixed datasets rather than continuous operational monitoring. We present Model Sanity Service (MOSS), a production framework that addresses this operational gap by embedding LLM-based relevance scoring into a recurring monitoring loop with targeted sampling, strategy-aware prompting, structured alerting, and diagnostic follow-up prompting that categorizes failures into actionable root causes. MOSS has been running in production at a large U.S. retailer for over six months across recommendation, search, and offer surfaces, and has surfaced two confirmed serving defects. For one of these, a backfill blending defect, MOSS quantified the impact of the proposed fix offline as a 76.4\\% relative reduction in alert rate. On a 498-pair human-annotated recommendation benchmark, frontier LLM judges achieve higher F1 and AUC point estimates than non-LLM baselines (internal production embeddings and SBERT), with the largest gains on strategy-dependent tasks requiring intent-level relational reasoning. The same judge, score scale, and threshold transfer to a 466-pair search benchmark spanning 21 queries with only a surface-specific prompt adaptation, achieving strong F1 and AUC without retuning. These results show that a single LLM monitoring framework can provide useful, actionable quality signals across multiple product discovery surfaces in a large-scale e-commerce setting.",
+  "arxiv_id": "2610.26902",
+  "authors": [
+    "Alina Nesen",
+    "Prathyusha Kanmanth Reddy",
+    "David Relyea",
+    "Rohit Avinash Mujumdar",
+    "Samaneh Karimi",
+    "Bo Shen",
+    "Jordan Hashemi"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "MOSS已在大型美国零售商生产环境运行超过六个月，覆盖推荐、搜索与优惠券面，并发现两个被聚合行为指标可能漏掉的确证服务缺陷。",
+      "在回填混配缺陷中，MOSS不仅能定性定位问题，还能通过离线受控对比量化修复收益（告警率相对降幅76.4%），支持部署前的数据驱动优先级决策。",
+      "同一个judge、分数刻度和告警阈值只需修改表面特定提示即可从推荐迁移到搜索（F1=0.831，AUC=0.884），显著降低扩展到新监控面的搭建成本。",
+      "两阶段告警加人工分诊可缓解告警疲劳：116个告警中84.5%被专家确认可操作，校准提示在最高流量策略Related上降低FPR并减少告警量。",
+      "MOSS将评分输出转成可交互分析面，支持跨技术背景用户对低分模式、离群策略和根因进行诊断，提升推荐系统透明度与可解释性。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出MOSS，一个将采样、任务感知的LLM评分、结构化告警与日志分析结合的持续语义质量监控生产框架。",
+      "提出两阶段评估设计：先进行相关性打分，再通过诊断提示将低分案例归类为类别不匹配、意图不匹配、属性不一致等失败模式，支持系统性根因分析。",
+      "在498对人工标注推荐基准、113对优惠券相关性研究和466对搜索基准上评估，表明同一judge、同一分数刻度和同一告警阈值可支持跨产品发现面监控。",
+      "增加轻量级按策略漂移检测模块，维护分数与pair级告警率历史，独立标记judge或上游生产系统的突变与渐变漂移。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "IV. ANALYSIS AND EVALUATION"
+      },
+      {
+        "page": 1,
+        "section": "V. DRIFT DETECTION FOR THE MONITORING LOOP"
+      },
+      {
+        "page": 1,
+        "section": "VI. SURFACE EVALUATIONS AND PRODUCTION USE CASES"
+      },
+      {
+        "page": 1,
+        "section": "VII. LIMITATIONS, ETHICS, AND PRIVACY"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "内部生产embedding（基于行为共现与目录taxonomy）",
+        "SBERT（all-mpnet-base-v2，使用富文本物品描述）",
+        "Mixtral 8×7B（LLM基线，覆盖397对）",
+        "搜索评估中的alert-all参考基线"
+      ],
+      "datasets": [
+        "498对人工标注推荐基准（Related/Bundles/Substitutes各166对）",
+        "421对生产embedding覆盖匹配子集",
+        "466对、21个匿名查询的搜索人工标注基准",
+        "113对告警富集的优惠券评审集",
+        "1,773对校准o3生产监控运行",
+        "99个共享种子的新旧捆绑位配对实验"
+      ],
+      "findings_zh": [
+        "在421对匹配子集上，原始提示o3取得最高F1=0.652（95% CI 0.561-0.726）和AUC=0.871（95% CI 0.827-0.911）；所有原始提示前沿LLM judge的AUC点估计均高于两类embedding基线，但bootstrap区间部分重叠，作者未宣称正式统计显著性。",
+        "LLM优势集中在Bundles与Substitutes等需要意图级关系推理的策略上；在Related上生产embedding仍有竞争力。",
+        "留一策略外（LOSO）阈值泛化分析中，o3/GPT-5/Gemini的LOSO选择阈值与全集最优阈值完全一致，宏平均F1与全集F1差距不超过0.01，说明阈值未过拟合策略构成。",
+        "校准o3提示（生产部署版）以降低召回换取更低FPR（0.126→0.117）和更低告警量（24.1%→20.3%），同时F1从0.652降至0.556、AUC从0.871降至0.829；校准提升了Related的precision与FPR（FPR 0.163→0.098），但使Substitutes的AUC从0.912降至0.778，且该校准不迁移到GPT-5与Gemini。",
+        "专家对116个第二阶段告警的分诊显示98个可操作（84.5%，Wilson 95% CI 76.8-90.0%），其中Substitutes 100%、Related 84.9%、Bundles 78.3%。",
+        "受告警驱动的离线受控实验显示，切换到富化捆绑算法后pair级告警率从41.6%（95% CI 35.5-48.4）降至9.8%（95% CI 5.4-14.8），相对降幅76.4%，绝对降幅31.8个百分点。",
+        "搜索面迁移测试中，沿用推荐面选择的o3阈值T≤3取得F1=0.831（95% CI 0.791-0.868）、AUC=0.884（95% CI 0.852-0.911）、PR-AUC=0.742，距搜索最优阈值T=5的F1=0.836仅0.005；优惠券面告警确认率为83.2%（94/113，Wilson 95% CI 75.2-89.0%）。",
+        "1,773对校准o3生产运行中总体告警率28.4%，Related 32.8%、Substitutes 13.0%、Bundles 38.5%，说明各策略分数分布不同，告警率需结合任务意图解读。"
+      ],
+      "metrics": [
+        "F1",
+        "AUC-ROC",
+        "PR-AUC",
+        "precision",
+        "recall",
+        "false positive rate (FPR)",
+        "macro-F1",
+        "alert rate",
+        "Cohen's kappa / PABAK",
+        "Wilson 95% CI",
+        "bootstrap 95% CI"
+      ]
+    },
+    "limitations_zh": [
+      "MOSS是监控与分诊层而非自动质量裁判，分数用于优先排查，生成的解释仅作为评审辅助而非权威结论。",
+      "推荐、优惠券、搜索三个面采用不同的评估设计（完整人工标签、告警富集确认、单独搜索基准），限制跨面直接比较。",
+      "校准提示结果与运行阈值为回顾性估计；冻结提示的前瞻性测试留待未来工作。",
+      "bootstrap置信区间为边际而非配对区间，因此只报告点估计比较，不进行正式显著性检验。",
+      "部署评分提示只用物品标题，而标注者使用完整元数据，标题模糊时可能产生元数据感知提示可避免的假告警。",
+      "生产embedding仅覆盖498对中的421对，相关比较局限于该子集。",
+      "告警阈值与漂移检测阈值是运维启发的初始启发式，未做前瞻性的检测延迟与假告警率评估。",
+      "尚未测量下游业务影响的在线实验，也未进行prompt注入过滤、查询级PII检测和系统性公平性审计。"
+    ],
+    "method_zh": "MOSS以每四小时一次的频率运行：先加权采样种子物品及其排名结果，权重与流量成正比并保留长尾覆盖；然后使用带策略上下文（如相关、捆绑、替代）的提示让LLM对物品标题对输出1-10整数分与推理；低分触发第二阶段诊断提示，将失败分类为类别不匹配、属性不匹配、意图不匹配、策略问题、数据质量或评估模型局限性并返回结构化JSON；解析后的分数聚合成均值、中位数、告警率等指标用于告警。生产部署采用o3模型、temperature 0.3与校准提示；另有日志接地调查Agent支持微观和宏观分析，以及基于7天/30天窗口的突变与渐变漂移检测。",
+    "problem_zh": "生产环境中的推荐与搜索系统难以检测语义性失效：点击率、转化率等行为指标滞后数天，人工评审无法规模化，而大多数LLM评估框架面向离线固定数据集，不适用于持续运营监控。现有方案难以覆盖采样、阈值化告警、失败诊断与运维分诊等在线监控需求。",
+    "technical_depth": 0.72
+  },
+  "doi": null,
+  "final_score": 0.892,
+  "id": "arxiv-2610.26902",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-21T18:54:14.876384Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-16T21:26:06Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文介绍在生产环境的搜索与推荐系统中嵌入基于大语言模型的语义失败监控与诊断框架，属于推荐系统工程内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MOSS: A Production Framework for Monitoring and Diagnosing Semantic Failures in Search and Recommendation Systems",
+  "url": "https://arxiv.org/abs/2610.26902v1"
+}

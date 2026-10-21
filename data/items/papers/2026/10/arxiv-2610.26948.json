@@ -1,0 +1,131 @@
+{
+  "abstract": "Conversational recommender systems have recently adopted vision-language models to match user dialogue intents with multimodal product information. However, extending these methods to many product domains faces a dilemma: deploying a separately adapted VLM per domain scales cost linearly with the number of domains and requires routing each dialogue to the right model, while naively merging all domains into a single VLM degrades accuracy because product characteristics vary widely across categories. We propose LightCRS, a lightweight, query-conditioned framework for unified multi-domain multimodal conversational recommendation. LightCRS precomputes multimodal product representations once offline with frozen encoders. Online, a compact 5.3M-parameter module fuses this evidence for each dialogue via query-conditioned cross-attention, whose parameters are shared across all domains, and compares candidates jointly with an inter-candidate Transformer. To enable rigorous evaluation, we construct MM-R2A-25, a 25-domain benchmark pairing natural Reddit recommendation-seeking conversations with Amazon product listings. LightCRS achieves state-of-the-art average HR@1, NDCG@5, and MRR, improving HR@1 by 35.4\\% over the strongest baseline while reducing per-query latency by 266 times. Joint multi-domain training itself improves HR@1 by 15.2\\% over separately trained single-domain models. Conversational recommender systems have recently adopted vision-language models to match user dialogue intents with multimodal product information. However, extending these methods to many product domains faces a dilemma: deploying a separately adapted VLM per domain scales cost linearly with the number of domains and requires routing each dialogue to the right model, while naively merging all domains into a single VLM degrades accuracy because product characteristics vary widely across categories. We propose LightCRS, a lightweight, query-conditioned framework for unified multi-domain multimodal conversational recommendation. LightCRS precomputes multimodal product representations once offline with frozen encoders. Online, a compact 5.3M-parameter module fuses this evidence for each dialogue via query-conditioned cross-attention, whose parameters are shared across all domains, and compares candidates jointly with an inter-candidate Transformer. To enable rigorous evaluation, we construct MM-R2A-25, a 25-domain benchmark pairing natural Reddit recommendation-seeking conversations with Amazon product listings. LightCRS achieves state-of-the-art average HR@1, NDCG@5, and MRR, improving HR@1 by 35.4\\% over the strongest baseline while reducing per-query latency by 266 times. Joint multi-domain training itself improves HR@1 by 15.2\\% over separately trained single-domain models.",
+  "arxiv_id": "2610.26948",
+  "authors": [
+    "He Ma",
+    "Lan You",
+    "Qiyang Wu",
+    "Chen Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "多品类电商平台可用一个统一共享模型替代按品类独立部署的VLM，显著降低训练、存储、推理和模型路由成本。",
+      "离线预计算加紧凑在线模块使每查询延迟、峰值显存和FLOPs大幅下降，适合实时对话推荐/重排服务。",
+      "查询条件交叉注意力使同一模型能根据对话意图在不同品类中自适应侧重文本或视觉证据，便于统一覆盖文本主导和视觉主导的商品类目。",
+      "采用该方法需预先投入一次性VLM离线标注/特征提取与缓存存储（约593 GPU-hours的caption生成和数GB的表示缓存），适合目录相对稳定的大规模电商场景。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出LightCRS，一个轻量、查询条件化的统一多领域多模态对话推荐框架，将离线商品表示与在线打分解耦：用冻结编码器预计算五种商品视图，在线仅用一个约5.3M参数的可训练模块。",
+      "设计查询条件交叉注意力，让一组跨25个领域共享的参数按每个对话动态融合标题、特征、描述、图像描述和视觉token等证据，从而避免逐领域复制模型和路由问题。",
+      "增加候选间Transformer（Inter-Candidate Transformer），使候选被联合比较而非独立打分。",
+      "构建MM-R2A-25，一个25领域的多模态CRS基准，将自然Reddit推荐对话与Amazon商品列表配对。",
+      "在HR@1、NDCG@5和MRR上取得平均水平SOTA，HR@1较最强基线提升35.4%，每查询延迟降低266倍；联合多领域训练相比单领域训练HR@1提升15.2%，并展现适度的未见品类泛化能力。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Proposed Framework"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "5 Further Analysis"
+      },
+      {
+        "page": 1,
+        "section": "F Offline Preprocessing Cost and Storage Footprint"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BM25",
+        "SBERT",
+        "RoBERTa_large",
+        "SimCSE_large",
+        "Vicuna-v1.5",
+        "LLaVA-v1.5",
+        "LLaVA-v1.6",
+        "LLaVA-v1.6+title/image",
+        "MiniMax-M2.7",
+        "MiniMax-M3",
+        "RTA",
+        "NBCRS",
+        "LaViC",
+        "MSCRS",
+        "PRIME"
+      ],
+      "datasets": [
+        "MM-R2A-25"
+      ],
+      "findings_zh": [
+        "LightCRS在MM-R2A-25上平均HR@1为0.2618、NDCG@5为0.4540、MRR为0.4367；相比最强任务专用基线PRIME（HR@1 0.1934、NDCG@5 0.3798、MRR 0.3680），HR@1提升35.4%、NDCG@5提升19.5%、MRR提升18.7%。",
+        "在25个领域中，LightCRS在24个领域取得HR@1最优；对所有检索类基线，它在全部25个领域的NDCG@5和MRR均最高。",
+        "效率上LightCRS仅需5.3M可训练参数、0.1B总参数、0.3GB模型大小、0.3GB峰值GPU显存、97K MFLOPs/query、9.8ms延迟和101.6 queries/s吞吐；相比PRIME，可训练参数少1.7倍、总参数少22倍、模型大小小15倍、峰值显存低30倍、FLOPs低153倍、延迟低266倍、吞吐高254倍。",
+        "多领域联合训练相比25个单领域模型分别提升HR@1 15.2%、NDCG@5 5.5%、MRR 6.2%，说明跨领域知识共享有效。",
+        "组件消融显示候选间比较对top-1最关键（去除后HR@1降至0.1432），去除交叉注意力或视觉token影响最大（HR@1分别降至0.0998和0.0987），标题是最有价值的文本视图。",
+        "5折留出领域测试中，LightCRS在未见领域平均HR@1为0.1236，略超过最强生成基线MiniMax-M3的0.1085，但绝对性能仍明显低于有监督同领域结果，说明未见领域推荐仍有挑战。"
+      ],
+      "metrics": [
+        "HR@1",
+        "NDCG@5",
+        "MRR",
+        "trainable parameters",
+        "total parameters",
+        "model size",
+        "peak GPU memory",
+        "per-query MFLOPs",
+        "latency",
+        "throughput",
+        "Recall@10"
+      ]
+    },
+    "limitations_zh": [
+      "方法遵循基于候选的重排流水线，整体性能受第一阶段检索器质量限制，改进候选检索可能带来进一步收益。",
+      "未见领域推荐仍然困难：LightCRS在未见领域的表现低于其有监督同领域版本，即使是强专有模型在未见领域也只有有限表现。",
+      "当前模型只优化推荐准确率，未支持对话生成，扩展对话生成是未来方向。",
+      "离线预处理存在一次性成本：LLaVA-v1.6为全部商品图像生成描述约需593.46 GPU-hours，且视觉token缓存约占用4.11GB（FP32，全目录），需要相应的离线计算和存储投入。"
+    ],
+    "method_zh": "离线阶段使用冻结的GTE-base编码title、features和description，使用LLaVA-v1.6生成图像描述并用GTE-base编码，同时从LLaVA-v1.6视觉塔提取每张代表图5个空间裁剪的视觉token，全部表示离线缓存。在线阶段用冻结GTE-base编码对话query，经注意力池化压缩为向量；每个候选的五类视图经线性投影拼接后，查询向量通过L层交叉注意力按对话自适应融合各视图；随后K个融合表示进入候选间Transformer进行联合比较；最后由两层MLP输出每个候选的logit，并以K-way交叉熵作为目标端到端训练。整个在线可训练模块约5.3M参数，跨25个领域共享。",
+    "problem_zh": "多领域多模态对话式推荐面临两难：为每个品类单独适配和部署VLM的成本随领域数线性增长，且需要将对话路由到正确模型；而将全部领域强行合并进单个VLM又会因不同品类在商品属性、视觉特征和推荐标准上差异巨大而降低精度。通用大模型通过零样本提示做对话推荐的效果也较差。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9325,
+  "id": "arxiv-2610.26948",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-21T18:54:14.876384Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-18T07:11:04Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向多领域多模态对话式推荐的LightCRS框架，用查询条件交叉注意力融合商品表征并对候选进行排序。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "LightCRS: Lightweight Multi-Domain Conversational Recommendation System",
+  "url": "https://arxiv.org/abs/2610.26948v1"
+}

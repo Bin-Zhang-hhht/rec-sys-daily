@@ -1,0 +1,141 @@
+{
+  "abstract": "Modern industrial ranking systems increasingly adopt generative recommendation (GR) paradigms, in which user behavior sequences and non-sequential (NS) features are tokenized and jointly modeled by Transformer-style backbones. This unified formulation provides a scalable interface for modeling long histories and heterogeneous features. However, sequence and NS representations often carry asymmetric semantics: historical representations may combine environment context with observed-action semantics, whereas candidate-side NS representations contain no observed action but incorporate richer supplementary context, such as user-item interaction features and recent behavior lists. Direct interaction between such representations can make query-key dot products compare different semantic objects, limiting meaningful cross-token interaction. To fill this gap, we propose EASformer, an Environment-Action-State disentangled architecture for industrial app ranking. EASformer constructs an explicitly aligned context environment space shared by historical and non-sequence tokens, while disentangling user actions from historical token and candidate-specific context form non-sequence tokens. Based on this aligned space, EASformer enables complementary historical action retrieval and state-conditioned action prediction. Furthermore, the disentangled design supports a Cloze-style self-supervised objective by masking historical actions and reusing the candidate prediction pathway. On an offline benchmark from a real-world industrial app marketplace, EASformer achieves an AUC of 0.89411, yielding a 0.88% relative improvement over the deployed baseline. Online A/B tests further support this advantage, with relative eCPM lifts of 1.26% and 3.94% across two real-world ranking scenarios. Modern industrial ranking systems increasingly adopt generative recommendation (GR) paradigms, in which user behavior sequences and non-sequential (NS) features are tokenized and jointly modeled by Transformer-style backbones. This unified formulation provides a scalable interface for modeling long histories and heterogeneous features. However, sequence and NS representations often carry asymmetric semantics: historical representations may combine environment context with observed-action semantics, whereas candidate-side NS representations contain no observed action but incorporate richer supplementary context, such as user-item interaction features and recent behavior lists. Direct interaction between such representations can make query-key dot products compare different semantic objects, limiting meaningful cross-token interaction. To fill this gap, we propose EASformer, an Environment-Action-State disentangled architecture for industrial app ranking. EASformer constructs an explicitly aligned context environment space shared by historical and non-sequence tokens, while disentangling user actions from historical token and candidate-specific context form non-sequence tokens. Based on this aligned space, EASformer enables complementary historical action retrieval and state-conditioned action prediction. Furthermore, the disentangled design supports a Cloze-style self-supervised objective by masking historical actions and reusing the candidate prediction pathway. On an offline benchmark from a real-world industrial app marketplace, EASformer achieves an AUC of 0.89411, yielding a 0.88% relative improvement over the deployed baseline. Online A/B tests further support this advantage, with relative eCPM lifts of 1.26% and 3.94% across two real-world ranking scenarios.",
+  "arxiv_id": "2610.27691",
+  "authors": [
+    "Bohao Li",
+    "Dinglun Cao",
+    "Pengcheng Huang",
+    "Yingda Tang",
+    "Zhiting Zhao",
+    "Yi Cao",
+    "Jilei Fu",
+    "Miao Yan",
+    "Tianying Liu",
+    "Heng Chang",
+    "Bowen Du"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "轻量版 EASformer^- 满足在线延迟要求（平均 27.71ms），在两个真实 App 排序场景分别带来 eCPM 相对提升 1.26% 和 3.94%，有直接变现收益。",
+      "D 从 512 降到 128 仅损失约 0.12% AUC，却降低约 29.7% 延迟，适合对延迟和算力成本敏感的工业推荐系统部署。",
+      "掩码动作自监督只使用已记录的用户行为数据，不依赖额外标注，可低成本利用历史环境-动作关系提升排序质量。",
+      "对齐环境空间使历史检索更聚焦于候选同类别历史证据（注意力分析支持），可在不增加特征的前提下改善历史行为利用效率。",
+      "该方法的“对齐+解耦”原则可迁移到电商、广告、信息流等其他同时包含序列行为与候选侧特征的排序场景，但需重新定义对齐字段。",
+      "在线收益以 eCPM 衡量，说明改进可直接贡献于广告/商品分发变现；但未披露对用户体验或长期留存等指标的影响。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "指出现有工业 GR 排序中序列表示与 NS 表示之间的语义错位问题，并提出“对齐环境建模”作为二者交互的设计原则。",
+      "提出 EASformer，一种 Environment-Action-State 解耦架构：从历史和候选侧语义匹配的字段构造共享对齐环境空间，同时把用户动作、候选补充上下文分离。",
+      "结合 Temporal Retrieval（环境引导的历史动作检索）与 Spatial Mapping（状态条件下上下文到动作的映射）两个互补视角，并通过门控融合得到候选动作表示。",
+      "引入 Cloze 式掩码动作自监督目标，复用候选预测通路，利用历史环境-动作关系作为额外监督。",
+      "在真实工业 App 排序场景验证：离线 AUC 0.89411，相对部署基线提升 0.88%；轻量版在两个线上场景获得 eCPM 相对提升 1.26% 和 3.94%。"
+    ],
+    "evidence_quality": 0.74,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3.1 Aligned and Disentangled Tokenization"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Dual-View EASformer Block"
+      },
+      {
+        "page": 4,
+        "section": "3.4 Masked-Action Self-Supervision"
+      },
+      {
+        "page": 5,
+        "section": "4.1 Experimental Setup"
+      },
+      {
+        "page": 5,
+        "section": "4.2 Main Results"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Ablation Study"
+      },
+      {
+        "page": 7,
+        "section": "4.6 Efficiency Analysis"
+      },
+      {
+        "page": 7,
+        "section": "4.7 Online Evaluation"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DCNv2",
+        "RankMixer",
+        "Wukong",
+        "SASRec",
+        "LONGER",
+        "OneTrans",
+        "HyFormer",
+        "UniMixer",
+        "MixFormer",
+        "MTGR"
+      ],
+      "datasets": [
+        "真实工业 App 市场的大规模匿名化用户级排序数据集，按天划分，超过 150 个天级 partition；离线实验使用 25 天训练、紧邻下一天评估",
+        "两个真实工业 App 排序场景的生产环境在线 A/B 测试（场景名称和绝对值因商业保密匿名化）"
+      ],
+      "findings_zh": [
+        "EASformer 离线 AUC 达 0.89411，较部署基线 HyFormer 相对提升 0.88%，并超过最强两阶段基线 LONGER+RankMixer（相对 +0.58%）和最强统一架构 MTGR（相对 +0.65%）。",
+        "消融实验显示：移除对齐与解耦建模（w/o EAS）降幅最大（相对 -0.65%）；仅保留 Temporal Retrieval 或 Spatial Mapping 都会变差，其中去掉 Temporal Retrieval 的降幅（-0.37%）大于去掉 Spatial Mapping（-0.17%），说明两路互补。",
+        "去掉掩码动作自监督使 AUC 下降 0.30%（0.89146），说明历史环境-动作对作为辅助监督有效。",
+        "轻量版 EASformer^- 使用 128 维 E/A/S 表示仍达 AUC 0.89301（相对 +0.76%），比全模型 512 维仅低 0.12%，且推理延迟 27.71ms，较全模型 39.40ms 降低约 29.7%，说明增益主要来自对齐与解耦策略而非更大宽度。",
+        "在线 A/B 测试中，轻量版 EASformer^- 在两个真实场景较 HyFormer 获得 eCPM 相对提升 1.26% 和 3.94%。",
+        "参数敏感性分析显示掩码比例 ρ=0.20 与自监督损失权重 λ_s=1 最优；缩短历史长度可降低延迟但会损失 AUC。",
+        "UMAP 与注意力分析显示，对齐后的 EASformer 中历史与候选表示距离更小，候选对自身类别历史交互的归一化注意力更高，支持语义对齐设计。"
+      ],
+      "metrics": [
+        "AUC",
+        "ΔAUC（相对 AUC 变化百分比）",
+        "eCPM 相对提升",
+        "模型推理延迟（ms）",
+        "掩码比例 ρ 与自监督损失权重 λ_s 敏感性"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅基于一个真实工业 App 市场数据集，未在公开数据集或多个行业场景验证，外部泛化性不确定。",
+      "由于商业保密，字段定义、场景名称、绝对 eCPM 值及部分实现细节被省略，且论文未提供可复现代码与模型权重，结果难以独立复现。",
+      "在线测试仅对比 HyFormer 一个生产基线，且只报告相对 eCPM 提升，未提供统计显著性、用户满意度或长期业务指标。",
+      "EASformer 依赖人工定义对齐环境字段集合 F_E，字段划分需要领域知识，缺少对不同字段划分方案的敏感性分析。",
+      "超参数敏感性只覆盖掩码比例和自监督损失权重，层数、注意力头数、NS token 数量等架构超参未系统评估。",
+      "效率-效果分析仅报告模型推理延迟，未包含端到端服务延迟、内存占用或训练成本。"
+    ],
+    "method_zh": "EASformer 首先进行对齐与解耦的 tokenization：从历史交互和候选侧提取语义匹配的上下文环境字段，经共享编码器 f_E 生成环境 token 序列 E^0=[E_1,...,E_T,E_c]；历史动作用可学习 embedding 编码为 A_t，候选动作初始化为可学习占位符 h_unk；用静态用户特征初始化状态序列 S；完整 NS 特征映射为 K 个静态 NS token。每个 EASformer block 包含四个部分：(1) Temporal Retrieval：仅由环境序列计算共享注意力图 P^ℓ，并把该注意力图同时用于更新环境流和动作流，候选槽 H_c 输出检索到的历史动作证据；(2) Spatial Mapping：将环境-动作对编码进状态序列，经 Transformer 上下文化得到最新状态 S_T，再由映射函数从 [E_c; S_T] 生成状态条件动作表示 H_m；(3) Dual-View Fusion：将 H_c 与 H_m 线性投影到 NS token 空间后，用向量级门控 γ 自适应融合；(4) Heterogeneous Token Interaction：用 TokenMixer 让动态 NS token 与融合后的候选表示、静态 NS token 交互。最后拼接融合表示与动态 NS token，经残差 MLP 预测点击。训练目标为 BCE 排序损失加上掩码动作自监督损失：随机掩码部分历史动作并用 h_unk 替换，经同一双路通路重建动作，再复用主预测头计算 BCE 辅助损失。",
+    "problem_zh": "工业生成式推荐/排序（GR）中，序列化历史交互与候选侧非序列（NS）特征存在语义不对称：历史表示同时包含环境上下文与已观测动作，而候选侧 NS 表示没有观测动作但包含更丰富的候选特定补充上下文。若直接对这两类表示做 query-key 点积，会在不同语义对象之间比较相似度，限制 Transformer 跨 token 交互的有效性。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.908,
+  "id": "arxiv-2610.27691",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-21T18:54:14.876384Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-20T06:08:07Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出EASformer，一种面向工业应用排序的生成式推荐环境-动作-状态解耦架构，以改进排序效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "EASformer: Environment-Action-State Alignment for Industrial Generative Ranking",
+  "url": "https://arxiv.org/abs/2610.27691v1"
+}

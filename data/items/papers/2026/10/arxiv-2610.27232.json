@@ -1,0 +1,125 @@
+{
+  "abstract": "Generative recommendation predicts items by autoregressively generating semantic identifiers (SIDs), whose tokens are shared across semantically related items. With this paradigm gaining adoption, the question of how to support unlearning in it has become pressing. If training interactions must later be removed, such as injected spam or interactions with items a user no longer wants, this sharing lets an unlearning update unintentionally affect the predictions for the interactions' neighbors. We show that this effect is locally structured and hidden by global metrics: unlearning can leave recommendation utility on the whole test set nearly unchanged while substantially degrading it on neighborhoods of the forgotten interactions' SIDs. We propose Neighborhood-Aware Unlearning (NAU), which augments interaction-level unlearning with explicit control over the probability mass assigned to the forgotten items' neighborhoods. Across three datasets and four SID tokenizers, NAU restores spam-induced exposure toward the retrained reference while retaining more than 95% of retrained utility, and recovers the neighborhood utility that forget-and-repair unlearning loses at no global cost. We identify local probability redistribution as an important failure mode of unlearning in SID-based generative recommenders and show that explicitly controlling this redistribution can mitigate its effects. Generative recommendation predicts items by autoregressively generating semantic identifiers (SIDs), whose tokens are shared across semantically related items. With this paradigm gaining adoption, the question of how to support unlearning in it has become pressing. If training interactions must later be removed, such as injected spam or interactions with items a user no longer wants, this sharing lets an unlearning update unintentionally affect the predictions for the interactions' neighbors. We show that this effect is locally structured and hidden by global metrics: unlearning can leave recommendation utility on the whole test set nearly unchanged while substantially degrading it on neighborhoods of the forgotten interactions' SIDs. We propose Neighborhood-Aware Unlearning (NAU), which augments interaction-level unlearning with explicit control over the probability mass assigned to the forgotten items' neighborhoods. Across three datasets and four SID tokenizers, NAU restores spam-induced exposure toward the retrained reference while retaining more than 95% of retrained utility, and recovers the neighborhood utility that forget-and-repair unlearning loses at no global cost. We identify local probability redistribution as an important failure mode of unlearning in SID-based generative recommenders and show that explicitly controlling this redistribution can mitigate its effects.",
+  "arxiv_id": "2610.27232",
+  "authors": [
+    "Pierre Lubitzsch",
+    "Yubao Tang",
+    "Maarten de Rijke",
+    "Sebastian Schelter"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对采用SID生成式推荐的平台，NAU可以在不完整重训练的情况下处理删除请求，显著降低合规成本：每请求约数秒，而重训练需数千秒。",
+      "NAU能将垃圾注入带来的物品曝光恢复到接近重训练水平，同时保持推荐效用，有助于削弱刷单/托攻击的实际收益。",
+      "通过显式控制邻域概率质量，NAU避免遗忘操作悄然损害与目标物品语义相关的推荐质量，这对用户信任和推荐生态健康很重要。",
+      "在不想要的物品移除场景中，NAU能同时抑制敏感或不想要类别对请求用户的曝光，并可扩展到其邻域，支持隐私与安全类需求。",
+      "全局指标不足以反映遗忘的局部影响；企业在部署未学习系统时应增加邻域级效用监控，避免整体指标掩盖局部退化。",
+      "热门目标可能被过度抑制，说明实际应用需要针对目标流行度和业务规则校准遗忘/分离权重，避免误伤仍然合法的物品。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "形式化了GenRec中两种实际删除场景：垃圾/注入交互移除（spam removal）和用户不想要的物品移除（unwanted item removal）。",
+      "识别并分析了SID导致的遗忘溢出：遗忘效应集中在目标物品的SID邻居上，全局效用指标无法反映该局部退化，因而需要显式的邻域级控制。",
+      "提出邻域感知遗忘（NAU），结合SID感知的物品级遗忘目标、遗忘/保留优化和邻域质量（probability mass）控制。",
+      "在三个Amazon数据集和四种SID/tokenizer设置下，系统评估了多种通用与推荐专用unlearning基线，显示NAU能接近重训练的移除效果，同时保留95%以上的重训练效用，并大幅低于重训练成本。"
+    ],
+    "evidence_quality": 0.86,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 INTRODUCTION"
+      },
+      {
+        "page": 1,
+        "section": "2 PRELIMINARIES AND PROBLEM DEFINITION"
+      },
+      {
+        "page": 1,
+        "section": "3 METHODOLOGY"
+      },
+      {
+        "page": 1,
+        "section": "4 EXPERIMENTAL SETUP"
+      },
+      {
+        "page": 1,
+        "section": "5 EXPERIMENTAL RESULTS"
+      },
+      {
+        "page": 1,
+        "section": "7 CONCLUSION AND LIMITATIONS"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Finetune（仅保留集微调）",
+        "Forget only（遗忘集梯度上升）",
+        "Forget+Repair",
+        "SCIF",
+        "SEIF",
+        "Kookmin",
+        "Fanchuan",
+        "TRACER",
+        "参考模型：Poisoned、Original、Retrained"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Sports",
+        "Amazon Toys",
+        "SID/tokenization settings: RQ-KMeans (main), RQ-VAE, LETTER, TRACER-compatible",
+        "Backbone: TIGER"
+      ],
+      "findings_zh": [
+        "垃圾移除主结果：在保持至少95%重训练NDCG@10的方法中，NAU在Beauty和Toys上取得最小Δ_SH^retr（0.081%和0.074%），在Sports上与最优值仅差0.001个百分点（0.138%对0.137%），同时保留96.2%–101.8%的重训练效用。",
+        "基线失败模式：Finetune、SCIF、TRACER保留效用但远离重训练曝光；Forget only、Fanchuan、SEIF、Kookmin只在严重损失效用时降低曝光；Forget+Repair是最强基线，但在Beauty和Toys上仍比NAU更远离重训练。",
+        "消融结果：L_ret保留效用但几乎不移除垃圾曝光；加入L_for带来主要移除效果，将整体Δ_SH^retr从0.692%降至0.021%；L_sep将目标曝光压至近零；L_nbr(λ_n=0.01)将邻域效用提升至109.3%，完整NAU在97.0%整体效用下达到108.1%邻域效用。",
+        "强分离项(λ_s=0.1)会把邻域效用降至72.7%，而邻域项可将其恢复至95.7%，显示λ_s在严格移除与邻域保留之间存在权衡。",
+        "不想要的物品移除：NAU与Forget only达到最低UHF@10（9.419%，删除前为14.850%）；相同UHF下NAU使其余用户更接近重训练（Δ_UHR^retr 0.666对1.111），保留95.5%效用。",
+        "负邻域权重在Sports上对每个seed都降低UHF@10（RQ-KMeans: 27.6%→11.1%；LETTER: 22.0%→12.1%），且几乎不损失效用。",
+        "邻域溢出：各目标在整体测试集上效用相差不超过0.2个百分点，但在SID邻域上相差超过35个百分点；NAU在相同整体效用下相对Forget+Repair在邻域上获得21.0个百分点，且在九个设置中的八个上增益为正。",
+        "效率：在Beauty上NAU每请求约3.9秒，而重训练约15,586秒，节省超过99.97%的重训练成本。"
+      ],
+      "metrics": [
+        "SH@10 与 Δ_SH^retr（被推广物品曝光相对重训练模型的距离）",
+        "NDCG@10",
+        "τ_P（NDCG@10相对于重训练模型的百分比效用）",
+        "UHF@10（请求删除用户的不想要物品命中率）",
+        "UHR@10（其余用户的不想要物品命中率）",
+        "Δ_UHR^retr（其余用户相对重训练参考的移动距离）",
+        "效率 E（每个请求在单张H200 GPU上的中位墙钟时间）与 τ_E（相对重训练节省成本比例）",
+        "SID邻域效用及配对bootstrap区间"
+      ]
+    },
+    "limitations_zh": [
+      "论文只覆盖代表性删除场景，真实系统可能面临更多样、重复的删除请求。",
+      "邻域构造被视为可配置设计选择；未来需要研究依赖于tokenizer、物品表示空间和删除目标的自适应邻域。",
+      "邻域效用估计的测试样本量小（例如Beauty只有523个相关测试用例），配对bootstrap区间较宽；在该样本量下无法可靠地对比未学习方法与重训练模型本身。",
+      "对热门目标，NAU（尤其强分离项）可能把重训练模型仍会推荐的物品压制到几乎为零，从而比最优基线更远离重训练参考，说明需要按目标调节λ_s。"
+    ],
+    "method_zh": "NAU在SID层面定义物品级损失，即完整目标SID的负对数似然，并组合四项：保留集修复L_ret、遗忘交互的梯度上升L_for、对比分离项L_sep（降低遗忘目标在保留历史中的排名）、邻域质量控制L_nbr（对目标邻居总生成概率取负对数）。总目标L=L_ret+λ_fL_for+λ_sL_sep+λ_nL_nbr；λ_n的符号决定邻域处理方向：正权重在垃圾移除时保留合法邻居，负权重在不想要的物品移除时抑制附近语义相关项。该方法不改变模型架构与SID，不需要二阶信息。训练邻域取预量化嵌入空间中top-8余弦邻居；评估时则用与目标共享首个SID token的测试用例定义SID邻域。",
+    "problem_zh": "生成式推荐（GenRec）通过自回归生成语义标识符（SID）预测下一个物品，语义相近的物品会共享SID token。当需要删除训练交互（如注入的垃圾交互或用户不再想要的物品）时，针对目标物品的遗忘更新会经共享token影响其邻居物品，且这种局部影响被全局指标掩盖：整体测试集效用几乎不变，但遗忘交互SID邻域的效用显著下降。因此，需要在基于SID的GenRec中实现交互级遗忘，并显式控制遗忘对目标物品邻域概率质量的再分配。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.914,
+  "id": "arxiv-2610.27232",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-21T18:54:14.876384Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-19T20:00:39Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向生成式推荐语义标识符模型的邻域感知遗忘方法，以显式控制被遗忘物品邻域的概率重分配并缓解遗忘更新对相关推荐预测的损害。",
+  "targets": [],
+  "tasks": [],
+  "title": "Neighborhood-Aware Unlearning for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.27232v1"
+}

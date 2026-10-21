@@ -1,0 +1,145 @@
+{
+  "abstract": "A feed ranker scores candidates with a value model, a weighted sum of engagement predictions. Each prediction conflates a baseline, what this viewer, item or request would produce anyway, with the incremental amount by which this candidate exceeds it. The literature mostly removes the baseline. We argue that a multi-signal value model should keep the raw prediction and add the incremental part as a separately weighted term. On Instagram Feed, three debiasing families deployed independently, for viewer habit, item popularity and request context, are one parameterised operator, and a design procedure picks a point in it. Media-type (format) bias goes instead to a debiased label chosen by the same procedure. In a controlled four-arm ablation of deployed Feed terms (neither term, each alone, both), the two-term arm beats both single-term arms at production weights on point estimates in 11 of 13 judged (term, metric) pairs. Of the 26 direct contrasts, 17 are significantly for it and only 1 against it, on impressions. The ablation also suggests that the offline diagnostic should screen signals, not rank them. Such terms have served Instagram Feed production for most of a year. Beyond Feed, Meta, whose apps serve billions of people, has adopted the operator across surfaces, apps and both ranking stages. Its launches there drive sessions and daily active users, the core visitation and retention metrics. A feed ranker scores candidates with a value model, a weighted sum of engagement predictions. Each prediction conflates a baseline, what this viewer, item or request would produce anyway, with the incremental amount by which this candidate exceeds it. The literature mostly removes the baseline. We argue that a multi-signal value model should keep the raw prediction and add the incremental part as a separately weighted term. On Instagram Feed, three debiasing families deployed independently, for viewer habit, item popularity and request context, are one parameterised operator, and a design procedure picks a point in it. Media-type (format) bias goes instead to a debiased label chosen by the same procedure. In a controlled four-arm ablation of deployed Feed terms (neither term, each alone, both), the two-term arm beats both single-term arms at production weights on point estimates in 11 of 13 judged (term, metric) pairs. Of the 26 direct contrasts, 17 are significantly for it and only 1 against it, on impressions. The ablation also suggests that the offline diagnostic should screen signals, not rank them. Such terms have served Instagram Feed production for most of a year. Beyond Feed, Meta, whose apps serve billions of people, has adopted the operator across surfaces, apps and both ranking stages. Its launches there drive sessions and daily active users, the core visitation and retention metrics.",
+  "arxiv_id": "2610.27423",
+  "authors": [
+    "Hsin-Chiang Chen",
+    "Hao Wang",
+    "Gedi Zhou",
+    "Mingze Gao",
+    "Abhishek Kumar",
+    "Yiben Yang",
+    "Haoyu Wang",
+    "Hongjing Xia",
+    "Bo Chen",
+    "Zhengyu Su",
+    "Xian Sun",
+    "Chang Xu",
+    "Kevin Han",
+    "Weiwei Li",
+    "Zhongchang Sun",
+    "Yao Zhang",
+    "Qifei Wang",
+    "Peggy Yang",
+    "Yihan Wu",
+    "Haoran Liu",
+    "Siyang Sun",
+    "Xingyu Pan",
+    "Shannon Phu",
+    "Haoming Chen",
+    "Kevin Zhao",
+    "Chen Liang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "该双项算子已被 Meta 在排序面、App 和 retrieval/early/late 两个排序阶段推广；Reels 的 7 项 launch 均报告正向 sessions/DAU（如 +0.083% sessions、+0.042% DAU 等），驱动核心访问与留存指标。",
+      "Instagram Feed 生产环境已服务近一年，6 个 term 全部 live；新增 term 是价值模型公式的配置变更，数小时内可上线、同样快回滚，实验和迭代成本远低于建模改动。",
+      "打分时干预不增加模型推理：viewer/item 基线是预计算特征、request 基线是每请求 O(N) 均值或 O(N log N) 分位数，实测延迟成本仅数毫秒，适合大规模平台低成本试错。",
+      "Threads 已在 late-stage ranking 上线去偏信号，Facebook 正在实验中去偏 term；设计流程把廉价离线诊断作为高召回筛选器，可帮助平台在实验流量稀缺时决定哪些信号值得上线。",
+      "去偏和权重调优可解耦：双项形式让调参器在纯 raw 与纯 incremental 端点之间自由选择，避免为去偏牺牲原始信号，并显式暴露时长与曝光结构之间的业务目标权衡。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出双项形式：s(c)=∑(w^r·p_j(c)+w^i·Δ_j(c))，基线不是缺陷而是需要独立权重的第二信号；一个系数无法同时权衡原始水平与增量，正确权衡因信号而异且先验未知。",
+      "将三种已部署的去偏族（viewer、item、request 基线）统一为一个算子 Δ=m(p,b)[σ(k·d(p,b))−shift]，四个设计自由度（基线 b、比较尺度 d、幅度 m、陡度/中心 k/shift），已发表方法位于该算子的不同轴上。",
+      "给出系统化设计流程：先用计算代价低的离线诊断决定信号是否需要拆分、选哪种基线与函数形式、在打分时还是标签时干预、以及服务成本；再上线测试一个点。",
+      "在 Instagram Feed 上做了四臂在线消融（NONE/RAW/INCREMENTAL/BOTH），证明生产权重下原始项与增量项互不冗余；该算子已被 Meta 多个排序面、App 和排序阶段采用。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 One Operator, Three Baselines"
+      },
+      {
+        "page": 1,
+        "section": "4 The Design Procedure"
+      },
+      {
+        "page": 1,
+        "section": "5 Deployment"
+      },
+      {
+        "page": 1,
+        "section": "6 The Ablation"
+      },
+      {
+        "page": 1,
+        "section": "7 Lessons from Deployment"
+      },
+      {
+        "page": 1,
+        "section": "8 More Deployment at Meta"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "NONE (0,0)",
+        "RAW (prod,0)",
+        "INCREMENTAL (0,prod)",
+        "BOTH (prod,prod)"
+      ],
+      "datasets": [
+        "Instagram Feed 生产环境候选级排序日志（1 周、1% block-level 样本，viewer 轴诊断约 2.9M/2.67M/1.56M 样本）",
+        "Instagram Feed 生产流量四臂在线消融（6 个已部署 term，每个实验独立 universe，每臂 3% 流量，每个实验运行 12–17 天）",
+        "Instagram Reels tab 上的 Meta 跨面部署记录（7 项 launch）"
+      ],
+      "findings_zh": [
+        "13 个被判定 (term, metric) 对中 11 个满足联合占优（BOTH 点估计同时高于 RAW 和 INCREMENTAL）；6 个 term 各自至少在 1 个指标上联合占优，4/6 在所有被判定指标上联合占优。",
+        "26 个 BOTH−RAW 与 BOTH−INCREMENTAL 直接对比中有 17 个显著为正、仅 1 个显著为负；显著为正的例子包括 external share +21.05% 和 feed time spent +0.359%。",
+        "唯一显著负对比是 logTS-MR·item 在 impressions 上 BOTH−INCREMENTAL=−0.132%*：raw 项单独为负（−0.103%*），incremental 项单独给出全表最大 impression 增益（+0.773%*），说明这是“时长 vs 曝光结构”的真实目标权衡，双项形式能暴露它而单一系数会掩盖它。",
+        "p10s·req 与 seeMore·req 等 request 轴 term 在其机制指标上显著，seeMore 只在机制指标上联合占优、session 对比不显著；logTS-TR·item 的 session 效果在八周 VM 重调后饱和，但 feed time spent 上增量项仍强（BOTH−RAW +0.218%*）。",
+        "离线诊断作为高召回筛选是有效的：不会筛掉表 5 中任何已测试的 viewer/item 轴 term（其中一个在其轴上读数为第 9/10），但不应作为信号的排序器使用；离线到线上的定量关系仍开放。",
+        "Meta 跨面部署显示 Reels 上 7 项 launch 均带来正的 sessions/DAU（如 LSR debiased p_like +0.083%* sessions、+0.042%* DAU），覆盖 early/late-stage ranking 和三类轴。"
+      ],
+      "metrics": [
+        "foreground sessions",
+        "feed time spent",
+        "impressions",
+        "external share",
+        "unconnected post interested ratio",
+        "DAU"
+      ]
+    },
+    "limitations_zh": [
+      "Instagram Feed 是案例研究，6 个被消融 term 是病例序列而非随机样本，因此不能跨 term 推断相关或排序。",
+      "RAW 与 INCREMENTAL 单臂都没有重新调权，设计偏向 BOTH；实验检验的是“在已部署点某一项是否冗余”，而非重新调参后的单 term 模型能否追平。",
+      "session 指标半宽约 ±0.020%，而多数直接 session 对比约 0.05%，因此 session 判定常依赖不显著的对比：10 个 session 对比中仅 5 个显著，5 个联合占优的 session 判定中有 4 个包含非显著对比。",
+      "离线诊断的两个前提（可解析性、头room/饱和度）必须事先检查：稀疏基线特征上的弱 r 是“未解析”而非“真弱”；高 r 只说明存在基线成分，不代表 VM 仍有空间利用它。",
+      "logTS-TR·item 显示 VM 会围绕 term 饱和：上线时复制出的 +0.066% session 增益在该测量窗口消失，机制指标仍强但不再转化为 session。",
+      "量化离线到在线关系仍无定论，6 个 term 不足以确定；launch 效应还可能受 winner's curse 选择偏差影响。"
+    ],
+    "method_zh": "固定一个信号预测 p 和基线 b，增量项写作 Δ=m(p,b)[σ(k·d(p,b))−shift]。概率信号用 logit 差作比较尺度，回归信号用原始单位差；幅度 m 可取 p、e=p−b 或常数；shift=0.5 时基线处为零，shift=0 时为单侧提升；线性 hinge w·max(0,e) 与 sigmoid gate 是同族算子的不同坐标。设计流程（Algorithm 1）分五步：Step 1 用分位 Pearson r 和 Var% 判断拆分是否必要；Step 2 估计 viewer/item 基线（历史比率或格式-大小桶）；Step 3 对 request 轴测量批内分布形状，右偏信号促销用 p75+线性 hinge、降级用 sigmoid gate，近对称信号用线性 hinge；Step 4 对 item 轴区分流行度偏差（用 VM 项）与媒体类型偏差（用去偏标签）；Step 5 检查延迟成本后只上线一个点。验证采用线上四臂实验：NONE=(0,0)、RAW=(prod,0)、INCREMENTAL=(0,prod)、BOTH=(prod,prod)，每个实验独立随机、每臂 3% 流量，对比用直接臂间差而非对 NONE 的差值差。",
+    "problem_zh": "Instagram Feed 的排序价值模型（value model）是多个互动预测的加权和，每个预测都把“基线”（viewer、item 或 request 本来的水平）与“增量”（该候选超出基线的部分）混在一起；现有文献大多默认移除基线。本文论证：在 Feed 多信号价值模型中，移除基线并非正确默认，应保留原始预测，并让增量部分拥有独立权重，同时把三类去偏（viewer 习惯、item 流行度/媒体类型、request 上下文）统一为同一个参数化算子。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.905,
+  "id": "arxiv-2610.27423",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-21T18:54:14.876384Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-20T00:20:04Z",
+  "relevance_score": 1.0,
+  "scenarios": [
+    "text_feed"
+  ],
+  "source": "arxiv",
+  "summary_zh": "该论文提出在Instagram Feed排序中保留原始预测并叠加增量项的基线加增量去偏方法，属于推荐排序工程内容。",
+  "targets": [],
+  "tasks": [],
+  "title": "Baseline and Incremental: User, Item, and Request Debiasing in Instagram Feed Ranking",
+  "url": "https://arxiv.org/abs/2610.27423v1"
+}

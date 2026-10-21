@@ -1,0 +1,119 @@
+{
+  "abstract": "Semantic ID (SID)-based generative recommendation retrieves items through successive token-level decisions, making personalization at each decoding step essential. However, existing methods insufficiently account for prefix-dependent user evidence and imbalanced historical interaction loads among candidate branches. This can cause irreversible branch-selection errors and favor popular paths. We propose SPAR, a generative recommendation framework that jointly improves stepwise personalization and SID construction. Its PATH Decoder retrieves prefix-relevant evidence from compressed long-term user memories and combines it with recent behavior, user profiles, and event context to guide each token decision. Its RQ-PIB module balances historical interaction loads among sibling branches under each parent prefix while preserving semantic structure. Experiments on large-scale Youku production data show an average relative HitRate improvement of 2.66% over the strongest baseline. SPAR also increases target-prefix retention by 5.79 percentage points and reduces the traffic-weighted largest child-branch share by 32.84% across SID levels. In a 7-day online A/B test, SPAR serves 10% of Youku's production traffic and improves average watch time per user by 3.95% and play conversion rate by 3.38%. These results demonstrate more reliable hierarchical decoding, balanced SID branches, and improved user engagement in industrial recommendation. Semantic ID (SID)-based generative recommendation retrieves items through successive token-level decisions, making personalization at each decoding step essential. However, existing methods insufficiently account for prefix-dependent user evidence and imbalanced historical interaction loads among candidate branches. This can cause irreversible branch-selection errors and favor popular paths. We propose SPAR, a generative recommendation framework that jointly improves stepwise personalization and SID construction. Its PATH Decoder retrieves prefix-relevant evidence from compressed long-term user memories and combines it with recent behavior, user profiles, and event context to guide each token decision. Its RQ-PIB module balances historical interaction loads among sibling branches under each parent prefix while preserving semantic structure. Experiments on large-scale Youku production data show an average relative HitRate improvement of 2.66% over the strongest baseline. SPAR also increases target-prefix retention by 5.79 percentage points and reduces the traffic-weighted largest child-branch share by 32.84% across SID levels. In a 7-day online A/B test, SPAR serves 10% of Youku's production traffic and improves average watch time per user by 3.95% and play conversion rate by 3.38%. These results demonstrate more reliable hierarchical decoding, balanced SID branches, and improved user engagement in industrial recommendation.",
+  "arxiv_id": "2610.27898",
+  "authors": [
+    "Chunrui Zhang",
+    "Gaoyun Lin",
+    "Chang Zhou",
+    "Zheng Hu",
+    "Qiran Song",
+    "Shimin Cai",
+    "Tao Zhou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "SPAR在优酷生产环境10%流量上的7天A/B测试中带来人均观看时长+3.95%、播放转化率+3.38%、总观看时长+3.98%，说明生成式检索可以直接改善视频平台的核心用户engagement指标。",
+      "该方案通过改善层级解码可靠性和缓解热门路径主导，可降低头部内容马太效应，可能对内容生态多样性和长尾分发产生商业价值。",
+      "由于使用了通用SID构建和可插拔的偏好对齐，该方法有潜力迁移到电商、短视频、信息流等大规模内容推荐场景，但需要相应的长期用户行为和语义ID基础设施。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出PATH Decoder，支持逐步个性化的解码：利用粗到细的长期历史视图压缩为紧凑记忆，并通过前缀条件交叉注意力在每个解码步动态检索与当前前缀相关的长期证据，再融合近期行为、用户画像和事件上下文。",
+      "提出RQ-PIB前缀均衡语义ID构建方法：在残差量化基础上，按父前缀调节兄弟分支间的历史交互负载，并通过最小语义失真的物品重分配缓解局部热门分支主导问题。",
+      "在优酷大规模工业数据和在线A/B测试中验证了SPAR的有效性：离线HR平均相对提升2.66%，在线人均观看时长提升3.95%、播放转化率提升3.38%。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "3.2 PATH Decoder: Personalized Adaptive Tree-aware Hybrid Decoder"
+      },
+      {
+        "page": 1,
+        "section": "3.3 RQ-PIB: Prefix-Balanced Semantic ID Construction"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Offline Experiments"
+      },
+      {
+        "page": 1,
+        "section": "3.6 Online A/B Tests"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "TIGER",
+        "OneRec",
+        "RQ-KMeans（无负载约束）",
+        "Global Capacity-Constrained RQ-KMeans",
+        "生产Base模型（在线对照）"
+      ],
+      "datasets": [
+        "优酷（Youku）首页推荐场景的大规模生产日志",
+        "训练/验证/测试用户按90:5:5划分",
+        "优酷10%生产流量的7天在线A/B测试"
+      ],
+      "findings_zh": [
+        "SPAR在HR@10/20/50/100均优于所有基线；相较最强基线OneRec，HR@10从0.4648提升到0.4831，HR@50从0.5828提升到0.5947，四个指标平均相对提升2.66%。",
+        "SPAR在三个SID层级上降低了held-out token NLL：第一层相对降低21.21%，第二层相对降低30.08%，第三层相对降低32.00%。",
+        "SPAR将目标前缀保留率平均提升5.79个百分点；Base的目标前缀保留率从第一层的74.23%下降到第三层的56.24%。",
+        "RQ-PIB将流量加权最大子分支占比从Level 1的9.8%降至6.4%、Level 2的36.4%降至23.2%、Level 3的65.7%降至47.6%，平均降低32.84%。",
+        "消融实验显示，Event Token、Long-term SID Memories、User Token分别带来+1.34、+0.62、+0.67 pp的平均绝对提升；逐步记忆读取优于首步复用；RQ-PIB优于普通RQ-KMeans和全局容量约束版本。",
+        "DPO偏好对齐在HR@1/5/10/20上分别带来4.27%、1.28%、2.46%、1.01%的相对提升，平均绝对提升0.78个百分点。",
+        "在线A/B测试中，SPAR相比生产Base实现播放转化率+3.38%、人均观看时长+3.95%、总观看时长+3.98%。"
+      ],
+      "metrics": [
+        "HR@10",
+        "HR@20",
+        "HR@50",
+        "HR@100",
+        "HR@128",
+        "HR@1/5/20（消融）",
+        "held-out token NLL",
+        "beam-search target-prefix retention",
+        "traffic-weighted largest child-branch share",
+        "Play Conversion Rate",
+        "Time Spent per User",
+        "Total Time Spent"
+      ]
+    },
+    "limitations_zh": [
+      "RQ-PIB的贪心重分配过程不保证全局最优，也不保证精确的分支负载相等。",
+      "RQ-PIB不消除物品固有的流行度差异，也不保证未来的曝光公平性。",
+      "离线实验和在线A/B测试均集中在优酷单一视频平台场景，外部数据集和更长时间窗口的泛化效果尚未验证。",
+      "模型规模实验显示从1.7B到4B的收益小于从0.6B到1.7B，存在收益递减现象。"
+    ],
+    "method_zh": "SPAR包含三个阶段：(1) RQ-PIB离线构建前缀均衡的语义ID：先对物品embedding做残差K-Means得到共享码本与分配，再按每个父前缀独立计算分支负载上界B_p，贪心地将过载分支中失真增量最小的物品移动到可行目标分支，直到分支负载满足上界；(2) PATH Decoder：将长期历史按SID前缀深度构造一层、两层、三层三种视图，分别用Q-Former压缩为记忆库；decoder-only骨干建模近期交互的SID序列，并用当前生成前缀对应的状态通过交叉注意力读取长期记忆，同时引入由用户画像投影得到的User Token和事件特征嵌入得到的Event Token，融合后预测下一层SID token；(3) 偏好对齐：用冻结的排序模型对束搜索候选打分，构建DPO偏好对，并与SFT目标联合优化。",
+    "problem_zh": "基于语义ID的生成式推荐将物品选择分解为逐token决策，每个生成前缀都对应不同的候选分支集合。现有方法没有充分建模前缀相关的用户证据，也没有解决同一父前缀下兄弟分支之间历史交互负载不均衡的问题，导致不可逆的目标前缀剪枝风险，并强化热门路径在自回归解码中的主导地位。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9225,
+  "id": "arxiv-2610.27898",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-21T18:54:14.876384Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-20T09:17:14Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出SPAR生成式推荐框架，通过逐步个性化解码和前缀平衡语义ID提升视频推荐效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "SPAR: Stepwise Personalized Autoregressive Recommendation with Prefix-Balanced Semantic IDs",
+  "url": "https://arxiv.org/abs/2610.27898v1"
+}

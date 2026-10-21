@@ -1,0 +1,41 @@
+{
+  "blogs": [],
+  "date": "2026-10-22",
+  "papers": [
+    {
+      "item_id": "arxiv-2610.26948",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向多领域多模态对话式推荐的LightCRS框架，用查询条件交叉注意力融合商品表征并对候选进行排序。"
+    },
+    {
+      "item_id": "arxiv-2610.27898",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出SPAR生成式推荐框架，通过逐步个性化解码和前缀平衡语义ID提升视频推荐效果。"
+    },
+    {
+      "item_id": "arxiv-2610.27232",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向生成式推荐语义标识符模型的邻域感知遗忘方法，以显式控制被遗忘物品邻域的概率重分配并缓解遗忘更新对相关推荐预测的损害。"
+    },
+    {
+      "item_id": "arxiv-2610.27850",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出基于帕累托前沿距离的推荐系统公平性与相关性联合评估方法DPFR，并分析其鲁棒性。"
+    },
+    {
+      "item_id": "arxiv-2610.27691",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出EASformer，一种面向工业应用排序的生成式推荐环境-动作-状态解耦架构，以改进排序效果。"
+    },
+    {
+      "item_id": "arxiv-2610.27423",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出在Instagram Feed排序中保留原始预测并叠加增量项的基线加增量去偏方法，属于推荐排序工程内容。"
+    },
+    {
+      "item_id": "arxiv-2610.26902",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文介绍在生产环境的搜索与推荐系统中嵌入基于大语言模型的语义失败监控与诊断框架，属于推荐系统工程内容。"
+    }
+  ]
+}
