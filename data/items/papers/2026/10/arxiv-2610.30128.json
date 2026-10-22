@@ -1,0 +1,145 @@
+{
+  "abstract": "Existing sequential recommenders usually allocate a fixed computational budget to every item in a user's interaction history, regardless of the item's contribution to the final prediction. We challenge this de facto design with two diagnostic findings. (1) Non-uniform computational need: items within the same sequence vary drastically in how much computation they require. Most converge after shallow processing while a critical minority only stabilizes at full depth. (2) Suboptimality of fixed allocation: given oracle access to the target item, a non-uniform depth assignment consistently outranks the fixed one, indicating that existing uniform computation both wastes capacity on already-converged items and sacrifices overall recommendation quality. These observations motivate a shift from fixed-depth computation to item-level adaptive reasoning. To this end, we propose LoopRec. LoopRec recursively applies a single weight-shared block and introduces a lightweight gate at each recursion boundary that makes a binary exit-or-continue decision for every item independently. Items whose representations have sufficiently matured exit early, while those requiring deeper reasoning continue to subsequent recursions. This design converts the fixed global depth into a learned, per-item property without auxiliary depth labels, and is readily adaptable to diverse backbone architectures. Extensive experiments on public benchmarks with four backbone families demonstrate that LoopRec consistently outperforms matched fixed-depth counterparts. Further analysis reveals that LoopRec's learned allocation exhibits interpretable patterns aligned with our post-hoc oracle analysis: lower-frequency items and more recent interactions naturally receive deeper computation. Our code is available at https://github.com/Elpmis117/LoopRec. Existing sequential recommenders usually allocate a fixed computational budget to every item in a user's interaction history, regardless of the item's contribution to the final prediction. We challenge this de facto design with two diagnostic findings. (1) Non-uniform computational need: items within the same sequence vary drastically in how much computation they require. Most converge after shallow processing while a critical minority only stabilizes at full depth. (2) Suboptimality of fixed allocation: given oracle access to the target item, a non-uniform depth assignment consistently outranks the fixed one, indicating that existing uniform computation both wastes capacity on already-converged items and sacrifices overall recommendation quality. These observations motivate a shift from fixed-depth computation to item-level adaptive reasoning. To this end, we propose LoopRec. LoopRec recursively applies a single weight-shared block and introduces a lightweight gate at each recursion boundary that makes a binary exit-or-continue decision for every item independently. Items whose representations have sufficiently matured exit early, while those requiring deeper reasoning continue to subsequent recursions. This design converts the fixed global depth into a learned, per-item property without auxiliary depth labels, and is readily adaptable to diverse backbone architectures. Extensive experiments on public benchmarks with four backbone families demonstrate that LoopRec consistently outperforms matched fixed-depth counterparts. Further analysis reveals that LoopRec's learned allocation exhibits interpretable patterns aligned with our post-hoc oracle analysis: lower-frequency items and more recent interactions naturally receive deeper computation. Our code is available at https://github.com/Elpmis117/LoopRec.",
+  "arxiv_id": "2610.30128",
+  "authors": [
+    "Zhanshuo Cao",
+    "Jiakai Tang",
+    "Yuqi Zhou",
+    "Sunhao Dai",
+    "Jun Xu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "真实交互历史中常规重复购买与探索性购买混杂，固定深度计算既浪费算力又可能损失推荐质量；逐物品自适应深度可在不改变推荐目标的前提下提升排序效果。",
+      "实验显示稀疏、大词表、短历史的场景（如Patio）获益最大，提示冷启动或交互稀疏的业务域采用自适应深度可能更有价值。",
+      "LoopRec在部分配置下将编码器计算量降至固定深度参照的0.407-0.755倍，且仍带来一致的排序提升，有望降低线上推理计算成本，尽管实际延迟收益因配置而异。",
+      "学习到的路由具有可解释性：近期交互和低频物品获得更深计算，与业务直觉一致，便于运营和系统调试时理解计算资源分配。"
+    ],
+    "business_transferability": 0.58,
+    "contributions_zh": [
+      "提出两个互补的诊断实验，揭示序列推荐中物品级计算需求异质性：76.14%的物品在单层后已饱和，6.72%的物品直到全三层才稳定；受限oracle在95.4%的序列中通过灵活深度分配获得更优排序，HR@20相对提升8.8%。",
+      "提出LoopRec框架，以共享权重的递归块作为可复用计算单元，并在每次递归边界设置轻量级二值门控，对每个物品独立做出退出或继续的决策，从而将固定全局深度转化为可学习的逐物品属性，无需额外深度标签。",
+      "在3个Amazon数据集和4种骨干网络上验证了LoopRec的效果，均一致优于匹配的固定深度基线；进一步分析显示其学习到的深度分配与事后饱和深度探针一致，对近期和低频物品分配更深计算。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "2 Diagnostic Analysis"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Probe 1: Item-Level Saturation Depth"
+      },
+      {
+        "page": 1,
+        "section": "2.2 Probe 2: Item-Level Depth Allocation"
+      },
+      {
+        "page": 1,
+        "section": "3.2 LoopRec Architecture"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Training Objective"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "4.3 What Shapes LoopRec's Learned Depth?"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Further Analysis"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 1,
+        "section": "A.2 Backbone-Specific Implementation"
+      },
+      {
+        "page": 1,
+        "section": "A.3 Fixed-Depth Diagnostic Details"
+      },
+      {
+        "page": 1,
+        "section": "A.6 Comparison with Heuristic Routing"
+      },
+      {
+        "page": 1,
+        "section": "A.7 Runtime and Latency Measurements"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec (VANILLA)",
+        "BSARec (VANILLA)",
+        "NextItNet (VANILLA)",
+        "LRURec (VANILLA)",
+        "Seq-level Loop",
+        "Position heuristic",
+        "Frequency heuristic"
+      ],
+      "datasets": [
+        "Amazon Reviews 2023 Software",
+        "Amazon Reviews 2023 Office Products",
+        "Amazon Reviews 2023 Patio, Lawn & Garden"
+      ],
+      "findings_zh": [
+        "在所有48个骨干-数据集-指标对比中，LoopRec均取得正向提升，其中44个对比统计显著，相对增益范围为0.69%至49.07%。",
+        "增益可迁移到不同骨干：SASRec的NDCG@20提升2.19%-5.68%，BSARec提升0.97%-3.48%，LRURec提升1.85%-4.51%，NextItNet在Office和Patio上分别提升13.18%和37.02%。",
+        "最稀疏数据集Patio上的增益最大：按骨干平均的NDCG@20提升从Software的3.92%和Office的4.55%增至Patio的11.14%，说明稀疏场景下自适应深度更有价值。",
+        "LoopRec学到的深度呈现可解释模式：相对更新的历史位置和训练频率更低的物品平均获得更深递归，启发式路由比较中LoopRec优于基于位置或频率的固定规则。",
+        "消融实验表明路由预热、负载均衡正则和z-loss均对结果有贡献；同时移除两个正则项使MRR@20平均降低5.36%、NDCG@20平均降低4.25%。",
+        "在测量配置中，LoopRec将选中计算量降至固定深度参照的0.407-0.755倍，编码器延迟为0.869-0.995倍，计算节省只能部分转化为墙钟加速。"
+      ],
+      "metrics": [
+        "MRR@10",
+        "MRR@20",
+        "NDCG@10",
+        "NDCG@20",
+        "HR@20"
+      ]
+    },
+    "limitations_zh": [
+      "作者指出，自适应深度带来的计算节省只部分转化为实际延迟收益，例如L2R2配置下延迟几乎不变，说明动态执行在GPU上的映射仍有优化空间。",
+      "目前最大递归预算R是在训练前固定设置的超参数，论文将其列为未来工作，未实现自动学习最大递归深度。",
+      "未来还需开发面向稀疏性的内核来进一步发挥自适应深度的效率优势。"
+    ],
+    "method_zh": "LoopRec采用共享骨干块B，配置文件记为LxRy，即每轮递归使用x层共享块、最多递归y轮。给定输入X，先通过初始上下文编码H^(1)=B(X)获得全序列状态；随后在每轮递归边界r，路由头g基于当前状态和递归位置嵌入计算退出概率q_i,exit=1-sigmoid(g(h_i^(r)+rho_r))，概率不低于0.5的物品停止更新，其余物品仅对继续集合A重新应用共享块，直到全部停止或达到最大递归数。最终表示由输入token与所选深度状态的残差组合z_i=x_i+omega_i*h_i^(d_i)得到，其中omega_i保持对路由概率的可微性。训练目标为标准下一物品交叉熵损失，加上负载均衡正则L_bal和路由z-loss L_z，并采用路由预热策略：前W_router轮强制全部物品走最大深度，启用路由后再优化完整目标。",
+    "problem_zh": "现有序列推荐模型通常对用户交互历史中的每个物品分配相同的固定计算深度，忽略了不同物品对最终预测的贡献差异。论文通过两类诊断实验发现：同一序列内物品的计算需求高度不均，大部分物品浅层处理即可收敛，少数关键物品需要完整深度；固定深度分配在绝大多数序列中并非最优，甚至浪费计算并损害推荐质量。因此需要将计算深度从全局固定值改为逐物品学习的自适应分配。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.869,
+  "id": "arxiv-2610.30128",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-22T18:42:48.640646Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-21T17:58:06Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出LoopRec，通过逐物品自适应递归为序列推荐按需分配计算量，属于序列建模的推荐系统研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Think Harder Where It Matters: Item-Level Adaptive Recursion for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2610.30128v1"
+}

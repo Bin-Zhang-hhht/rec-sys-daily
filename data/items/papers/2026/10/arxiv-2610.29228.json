@@ -1,0 +1,119 @@
+{
+  "abstract": "Recent generative medication recommendation systems ultimately produce sets of drugs, but drug--drug interaction (DDI) constraints depend on the set as a whole. A natural post-hoc approach is to first predict medications and then locally repair interacting pairs by removing one drug at a time. We ask whether this local repair step itself introduces avoidable error. Using fixed medication scores from FLAME's frozen classifier on MIMIC-III, we compare increasingly strong local repair strategies with an exact global decoder while holding the scores, output size, and DDI constraint fixed. The global decoder jointly selects the highest-scoring feasible medication set using mixed-integer linear programming. Across validation and test splits, global decoding consistently achieves higher Jaccard similarity than greedy repair, degree-aware repair, and degree-aware repair strengthened with exhaustive 1-swap local search. Its advantage is small under loose DDI constraints and becomes larger as the constraint tightens; on the test split it reaches +0.0064 Jaccard over the strongest local baseline at the strict DDI operating point. The finding also holds across a fine accuracy--DDI sweep at matched realized DDI exposure and under three score representations. At the strict setting, global decoding retains more true-positive medications while removing more false positives. These results show that medication recommendation is not only a representation-learning problem: even with a frozen clinical model, how its scores are converted into a constrained medication set can materially affect the final prediction. Recent generative medication recommendation systems ultimately produce sets of drugs, but drug--drug interaction (DDI) constraints depend on the set as a whole. A natural post-hoc approach is to first predict medications and then locally repair interacting pairs by removing one drug at a time. We ask whether this local repair step itself introduces avoidable error. Using fixed medication scores from FLAME's frozen classifier on MIMIC-III, we compare increasingly strong local repair strategies with an exact global decoder while holding the scores, output size, and DDI constraint fixed. The global decoder jointly selects the highest-scoring feasible medication set using mixed-integer linear programming. Across validation and test splits, global decoding consistently achieves higher Jaccard similarity than greedy repair, degree-aware repair, and degree-aware repair strengthened with exhaustive 1-swap local search. Its advantage is small under loose DDI constraints and becomes larger as the constraint tightens; on the test split it reaches +0.0064 Jaccard over the strongest local baseline at the strict DDI operating point. The finding also holds across a fine accuracy--DDI sweep at matched realized DDI exposure and under three score representations. At the strict setting, global decoding retains more true-positive medications while removing more false positives. These results show that medication recommendation is not only a representation-learning problem: even with a frozen clinical model, how its scores are converted into a constrained medication set can materially affect the final prediction.",
+  "arxiv_id": "2610.29228",
+  "authors": [
+    "Animesh Agarwal",
+    "Meysam Ghaffari",
+    "Nina Fatehi",
+    "Anushka Swarup",
+    "Carlos Morato"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "研究表明，在不重新训练或改变底层模型评分的情况下，仅将评分到约束药物集合的转换从局部修复换成精确全局解码，就能在相同DDI暴露下提升Jaccard，因此可作为现有药物推荐系统的模块化推理层。",
+      "该解码层可叠加在任何提供患者-药物评分、目标基数和冲突图的模型之上，具有较低集成成本，适合作为已有临床决策支持系统的后处理组件。",
+      "在严格DDI约束下，全局解码在保留更多真阳性药物的同时移除更多假阳性，可能有助于在控制相互作用暴露的同时改善推荐集合质量。",
+      "由于MILP需要求解混合整数规划，实际业务部署需评估在更大药物词表、更复杂约束和实时场景中的运行时间与可扩展性。",
+      "论文明确限定其DDI约束为基准安全信号，不声称推荐集合的绝对临床安全或临床效用，因此面向临床业务落地仍需严格的前瞻性临床验证和医生监督。"
+    ],
+    "business_transferability": 0.35,
+    "contributions_zh": [
+      "提出解码层面的视角：固定患者-药物评分器、输出基数和DDI预算，单独隔离最终的集合选择问题。",
+      "对局部解码与全局解码进行受控比较：将精确MILP解码与贪心修复、度感知修复、度感知+穷举1-swap局部搜索进行对比。",
+      "在验证集和测试集、多个DDI运行点、三种评分表征下提供一致且可区分的证据，证明全局解码的Jaccard优势。",
+      "给出机制性解释：在严格DDI约束下，全局解码保留更多真阳性药物，同时移除更多假阳性药物，而非简单地用一种错误类型换取另一种。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Exact DDI-constrained decoding"
+      },
+      {
+        "page": 1,
+        "section": "6 Experimental setup"
+      },
+      {
+        "page": 1,
+        "section": "7 Results"
+      },
+      {
+        "page": 1,
+        "section": "8 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "9 Limitations"
+      },
+      {
+        "page": 1,
+        "section": "B Additional robustness and mechanism details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Greedy + refill",
+        "Degree-aware greedy + refill",
+        "Degree-aware + 1-swap local search"
+      ],
+      "datasets": [
+        "MIMIC-III Clinical Database v1.4",
+        "TWOSIDES-derived DDI graph（151种药物、1,425条无向边，来自FLAME预处理）"
+      ],
+      "findings_zh": [
+        "在测试集三个DDI目标（0.136、0.100、0.080）下，Jaccard排序均为Global MILP > Degree-aware + 1-swap > Degree-aware > Greedy，例如严格目标下分别为0.4027、0.3963、0.3937、0.3790。",
+        "全局解码相对degree-aware + 1-swap在测试集上的优势从宽松目标的+0.0021扩大到严格目标的+0.0064，患者聚类bootstrap 95%置信区间均不包含0。",
+        "在验证集上同样观察到一致现象：相对1-swap基线，严格目标下优势为+0.0061（95% CI [0.0047, 0.0076]）。",
+        "在匹配的实现DDI率（而非仅名义目标）下，全局解码在细粒度DDI扫描的每个检查点（0.12、0.10、0.08、0.06）都高于最强的局部基线。",
+        "在三种评分表征（原始log-margin、sigmoid概率、秩归一化）下，全局解码在全部9个评分-预算组合中均优于degree-aware + 1-swap。",
+        "在严格DDI预算下，全局解码相比局部基线保留更多真阳性（13.858 vs 13.790/13.717/13.175），同时移除更多假阳性（2.049 vs 1.458/1.385/1.829）。"
+      ],
+      "metrics": [
+        "Visit-level Jaccard",
+        "实现DDI率（achieved DDI rate）",
+        "目标DDI率下的实际DDI边数",
+        "真阳性保留/移除、假阳性移除、真阳性替换、得分和（机制分析）"
+      ]
+    },
+    "limitations_zh": [
+      "结论限定于单一EHR基准（MIMIC-III）、单一冻结评分器（FLAME）和二元TWOSIDES派生DDI图，不构成对临床安全或临床效用的验证。",
+      "固定基数设计隔离了解码器选择，但没有优化治疗方案大小，且MILP继承底层评分的任何系统性偏差。",
+      "DDI约束是基准安全信号而非完整临床规则，因为它不包含严重程度、剂量、时间、适应症、过敏史、器官功能或结局数据。",
+      "论文未在大词汇量或更丰富约束下评估运行时间和扩展性，也未与更强的多swap或beam-search基线比较。",
+      "论文明确声明不建立推荐药物集合的临床安全性或临床应用性，临床部署前需要更广泛的数据集、评分器、患者群体和更丰富的临床约束验证。"
+    ],
+    "method_zh": "将DDI约束解码建模为混合整数线性规划（MILP）：每个药物有二元选择变量x_i，每个DDI边有辅助变量y_ij表示两端是否同时被选中；目标为在固定基数K_q和DDI边预算B_q约束下最大化冻结评分器得分之和。使用scipy.optimize.milp的HiGHS后端精确求解。局部基线包括：贪心修复+回填、度感知贪心修复+回填、度感知+穷举1-swap局部搜索。评分来自FLAME冻结的药物级分类器，基数确定用的校准阈值只在训练集上拟合，验证集用于确认，测试集只评估一次。",
+    "problem_zh": "在药物推荐中，给定冻结的患者-药物评分、固定的输出药物数量和药物-药物相互作用（DDI）预算，如何将模型评分转换为满足DDI约束的联合药物集合才是最后的推断问题。论文提出，常见的局部修复（如每次移除冲突药物中的一个）会因短视决策引入可避免的准确率损失，因此需要研究精确的全局约束解码是否优于强局部修复基线。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.8435,
+  "id": "arxiv-2610.29228",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-22T18:42:48.640646Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-21T05:38:08Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究药物推荐中在药物相互作用约束下的全局安全解码，属于明确采用推荐系统流程的研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "From Scores to Safe Sets: Exact Safety--Constrained Decoding for Medication Recommendation",
+  "url": "https://arxiv.org/abs/2610.29228v1"
+}
