@@ -1,0 +1,116 @@
+{
+  "abstract": "Fairness-aware recommender systems often encode one fairness objective during training or apply a fixed re-ranking rule after scoring. In deployment, however, the appropriate fairness action can vary across requests because the candidate pool, item metadata, exposure debt, user preference history, and utility budget all change at runtime. We propose FAIRGate, a model-agnostic delivery controller that places an agentic policy-selection layer between a base ranker and the final top-K list. The agent does not define fairness objectives from scratch. It chooses from a predefined policy library covering long-tail exposure, item-group exposure balance, concentration control, calibration protection, and abstention. A deterministic executor then applies the selected policy through constrained repair, and a validator accepts the result only when relevance, feasibility, metadata, calibration, and audit constraints are satisfied. The final language-model component receives only the verified audit trace and produces evidence-linked narration after the ranking decision is fixed. This design gives the agent runtime responsibility while keeping fairness enforcement measurable, bounded, and replayable. Fairness-aware recommender systems often encode one fairness objective during training or apply a fixed re-ranking rule after scoring. In deployment, however, the appropriate fairness action can vary across requests because the candidate pool, item metadata, exposure debt, user preference history, and utility budget all change at runtime. We propose FAIRGate, a model-agnostic delivery controller that places an agentic policy-selection layer between a base ranker and the final top-K list. The agent does not define fairness objectives from scratch. It chooses from a predefined policy library covering long-tail exposure, item-group exposure balance, concentration control, calibration protection, and abstention. A deterministic executor then applies the selected policy through constrained repair, and a validator accepts the result only when relevance, feasibility, metadata, calibration, and audit constraints are satisfied. The final language-model component receives only the verified audit trace and produces evidence-linked narration after the ranking decision is fixed. This design gives the agent runtime responsibility while keeping fairness enforcement measurable, bounded, and replayable.",
+  "arxiv_id": "2610.30359",
+  "authors": [
+    "Navkar Jain",
+    "Enock Ayiku",
+    "Kenneth Fletcher"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可帮助平台在推荐分发时动态选择公平策略，提高长尾内容和低曝光项目组的可见性，改善目录覆盖与内容生态。",
+      "通过确定性验证器在效用预算内控制修复，降低因过度公平干预导致推荐效用大幅下降的风险。",
+      "审计轨迹契约使策略选择、修复动作和验证结果可追溯、可回放，有助于满足可审计性与合规要求。",
+      "证据关联的叙事显著减少无支持的公平性声明，可降低敏感属性泄漏等信誉与合规风险。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "形式化了一种有界的代理式公平性控制框架FAIRGate：代理在预定义的曝光与校准策略库中选择策略，而不是在推理时自行发明公平性标准。",
+      "引入一个经过验证的修复循环：只有当确定性相关性、可行性、元数据、校准和审计检查全部满足时，才执行代理选择的策略。",
+      "定义了一个审计轨迹契约，将策略选择、修复动作、验证器结果和弃权决策转换为类型化证据键，用于声明级解释验证。"
+    ],
+    "evidence_quality": 0.65,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "I. Introduction"
+      },
+      {
+        "page": 1,
+        "section": "III. FAIRGate"
+      },
+      {
+        "page": 1,
+        "section": "IV. RQ-Driven Evaluation Design"
+      },
+      {
+        "page": 1,
+        "section": "V. Experimental Results"
+      },
+      {
+        "page": 1,
+        "section": "VI. Limitations and Future Work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Base BPR-MF",
+        "Static re-rank",
+        "Fixed-order FAIRGate",
+        "Agentic FAIRGate",
+        "No validator",
+        "No calibration guard",
+        "No abstention",
+        "Direct LLM explanation"
+      ],
+      "datasets": [
+        "MovieLens 1M"
+      ],
+      "findings_zh": [
+        "与基础BPR-MF相比，Agentic FAIRGate将LT-Cov@10从0.1055提升到0.1282，相对增益21.52%，且NDCG@10为0.0233，高于基础排序器和静态重排，接近固定阶门控。",
+        "Agentic FAIRGate的策略通过率为0.6070，而固定阶FAIRGate仅为0.0910；但在Group Gini上固定阶门控更低（0.6581对比0.6672），论文明确不声称在所有公平性指标上占优。",
+        "完整代理门控的验证器通过率为0.9230，拒绝率为0.0170；固定策略顺序在RQ2/RQ3消融中通过率为0.0000，NDCG损失为0.0373，约为完整代理门控损失0.0190的两倍。",
+        "策略选择具有多样性：主要策略P_G在601/1000次请求中被选择，P_C为310/1000，P_Cal为88/1000，P_T为1/1000，经验选择熵为1.2838比特。",
+        "审计轨迹驱动的叙事将无证据支持的公平性声明率从直接LLM解释的1.0000降到0.0959，证据覆盖率提升到0.9129，忠实率达到0.5760，敏感属性泄漏率在本轮为0.0000。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "Recall@10",
+        "LT-Cov@10",
+        "Group Gini",
+        "JSD-Calib",
+        "Policy Pass",
+        "Validator Pass",
+        "NDCG Loss",
+        "Reject",
+        "Oracle Agree",
+        "Unsupported claim rate",
+        "Evidence coverage",
+        "Sensitive-attribute leakage rate",
+        "Audit-faithfulness rate"
+      ]
+    },
+    "limitations_zh": [
+      "当前评估仅基于MovieLens 1M，结果是受控电影推荐场景中的证据，而非跨领域的普适结论；该数据集缺少丰富的提供方侧市场结构。",
+      "策略库是预定义的，FAIRGate不会在运行时创造新的公平性目标，缺失的策略必须由系统设计者在部署前添加。",
+      "阈值和效用预算在验证集上选择，不同域可能需要不同的策略定义、元数据标准和升级规则。",
+      "叙事评估依赖声明解析与审计键匹配，可能低估了部分支持的自然语言声明；未来需要更强的声明分解、人工审查和领域特定审计键。",
+      "尚未研究候选池构成与流行度动态变化下的分布漂移场景。"
+    ],
+    "method_zh": "FAIRGate将代理式策略选择层放在基础排序器与最终Top-K列表之间。系统先计算运行时状态（效用、曝光、元数据、校准指标），由上下文代理输出结构化风险画像，策略选择代理从固定策略库（长尾曝光P_T、项目组曝光平衡P_G、集中度上限P_C、校准保护P_Cal、弃权P_A）中选取策略子集并引用指标触发条件，修复规划代理提出有界交换计划，确定性执行器基于评分函数S(i,u)=αs_u(i)+βd_T(i)+γd_G(i)-λΔCal(i,u)进行受约束修复，验证器检查效用损失不超过ε、校准JSD不超过τ_C、元数据覆盖和可追溯性，全部通过才交付；叙事代理只接收验证后的审计轨迹并生成证据关联的解释。",
+    "problem_zh": "推荐系统在部署时，单一固定的公平性干预（如训练目标或固定重排规则）不能适应不同请求的运行时上下文，因为候选池、项目元数据、曝光债务、用户偏好历史和效用预算都在变化。因此需要把公平性视为一个运行时分发控制问题：系统必须决定当前请求适用哪个公平策略、哪种修复可行、修复后的列表是否可交付，并避免完全无约束的LLM代理做出不稳定或缺乏支持的公平性判断。",
+    "technical_depth": 0.72
+  },
+  "doi": null,
+  "final_score": 0.8195,
+  "id": "arxiv-2610.30359",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-25T18:44:57.121352Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-21T19:23:57Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出推荐分发阶段的公平性运行时策略选择与验证修复框架FAIRGate，属于推荐系统重排工程研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FAIRGate: Agentic Runtime Policy Selection and Verified Repair for Fairer Recommendation Delivery",
+  "url": "https://arxiv.org/abs/2610.30359v1"
+}

@@ -1,0 +1,126 @@
+{
+  "abstract": "Cross-domain sequential recommendation aims to alleviate data sparsity and cold-start problems by transferring useful preference knowledge across domains. However, users exhibit varying degrees of preference consistency across domains, while existing methods often rely on global alignment objectives or coarse-grained transfer strategies. Such approaches may introduce irrelevant information and provide limited flexibility in adapting semantic representations to individual user preferences. To address these challenges, we propose BGAFlow, a personalized framework that combines state-adaptive semantic evolution with user-specific transfer control. BGAFlow first establishes a shared semantic space through unified dual-domain pretraining with user profiles inferred by a large language model (LLM). Based on latent interest overlap, it then estimates a personalized horizon to determine the appropriate transfer extent for each user. To enable semantic adaptation, BGAFlow constructs a conditional Bezier curve as a geometric reference and learns a residual flow that progressively refines the trajectory based on intermediate preference states. The learned flow incorporates dynamic preference feedback to adjust transfer directions, while recommendation supervision and trajectory regularization encourage effective and smooth adaptation. Extensive experiments on real-world datasets demonstrate that BGAFlow consistently outperforms state-of-the-art baselines, validating the benefits of personalized transfer control and state-adaptive semantic evolution. Cross-domain sequential recommendation aims to alleviate data sparsity and cold-start problems by transferring useful preference knowledge across domains. However, users exhibit varying degrees of preference consistency across domains, while existing methods often rely on global alignment objectives or coarse-grained transfer strategies. Such approaches may introduce irrelevant information and provide limited flexibility in adapting semantic representations to individual user preferences. To address these challenges, we propose BGAFlow, a personalized framework that combines state-adaptive semantic evolution with user-specific transfer control. BGAFlow first establishes a shared semantic space through unified dual-domain pretraining with user profiles inferred by a large language model (LLM). Based on latent interest overlap, it then estimates a personalized horizon to determine the appropriate transfer extent for each user. To enable semantic adaptation, BGAFlow constructs a conditional Bezier curve as a geometric reference and learns a residual flow that progressively refines the trajectory based on intermediate preference states. The learned flow incorporates dynamic preference feedback to adjust transfer directions, while recommendation supervision and trajectory regularization encourage effective and smooth adaptation. Extensive experiments on real-world datasets demonstrate that BGAFlow consistently outperforms state-of-the-art baselines, validating the benefits of personalized transfer control and state-adaptive semantic evolution.",
+  "arxiv_id": "2610.30825",
+  "authors": [
+    "Ziang Lu",
+    "Yu Zhang",
+    "Xinzhe Jiang",
+    "Lei Sang",
+    "Yiwen Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "BGAFlow 通过跨域知识迁移缓解数据稀疏和冷启动，可帮助拥有多品类或多业务线账号体系的企业在用户行为稀疏的域中提升推荐命中率和排序质量，潜在提高用户参与度和转化率。",
+      "用户级迁移控制能避免全局对齐带来的不相关信息，降低负迁移风险，这对高 heterogeneous 用户群体的推荐系统具有实际价值。",
+      "方法依赖 LLM 画像推断和文本嵌入，部署时需要 LLM 推理服务、文本元数据质量和相应算力/API 成本；跨域用户历史交互数据也是前提条件。",
+      "框架对域对和物品种类不设特定行业假设，结构上可迁移至电商、媒体、娱乐等多域场景，但落地收益需结合文本覆盖率和 LLM 推理成本评估。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 BGAFlow，一个面向跨域序列推荐的个性化框架，将用户级迁移控制与状态自适应语义演化相结合。",
+      "设计基于贝塞尔曲线的残差流：以条件化几何路径为参考，通过动态偏好反馈和任务引导的速度监督逐步细化迁移轨迹，并用 smoothstep 积分和轨迹平滑正则化促进稳定适配。",
+      "在真实跨域推荐数据集 Movie-Book 与 Sport-Cloth 上，BGAFlow 相对最强基线在 HR/NDCG 上取得 3.91%–16.62% 的改进，并通过消融实验验证各关键组件的有效性。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Experimental Settings"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Performance Comparisons"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Further Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "FEARec",
+        "UniSRec",
+        "π-Net",
+        "C2DSR",
+        "Tri-CDR",
+        "RecGURU",
+        "SyNCRec",
+        "ABXI",
+        "DiffuRec",
+        "DiffCDR",
+        "CD-CDR",
+        "D2TCDR",
+        "LLM-ESR",
+        "LeCDSR",
+        "LLM4CDSR"
+      ],
+      "datasets": [
+        "Movie-Book",
+        "Sport-Cloth"
+      ],
+      "findings_zh": [
+        "BGAFlow 在 Movie-Book 和 Sport-Cloth 的所有域和评估指标上均取得最佳结果，相对最强基线的提升范围为 3.91%–16.62%，且报告统计显著性 p<0.001。",
+        "BGAFlow 一致优于单域方法、传统跨域方法、扩散式方法和 LLM 式基线，说明个性化迁移控制与状态自适应语义细化能有效利用跨域语义信息。",
+        "消融实验显示，去掉统一双域预训练、将贝塞尔参考替换为线性路径、去掉动态偏好反馈、去掉任务引导流匹配或去掉平滑正则化，均会在大多数指标上造成性能下降；BGAFlow 在 8 个指标中 7 个最好。",
+        "基于原型偏好重叠和条件几何相似度的个性化 horizon 估计优于直接使用 profile 余弦相似度、语义表示余弦相似度和基于语义表示的预测器。",
+        "与固定全局迁移范围 T∈{0,0.3,0.5,0.7,1.0} 相比，个性化自适应 horizon 在所有域和指标上一致更优，且最优固定 T 随域和指标变化。",
+        "与 Closed-form Bézier、Matched MLP、Bézier Flow 三种替代迁移机制相比，BGAFlow 在 HR@10 和 NDCG@10 上均一致更好；案例研究中，状态自适应残差修正将目标项排名从 13 提升到 8。"
+      ],
+      "metrics": [
+        "HR@5",
+        "HR@10",
+        "NDCG@5",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "论文未显式单列局限性；从内容可支持的边界包括：方法依赖 LLM 推断用户画像和物品文本元数据，预处理时删除了无文本信息的物品，因此对缺失文本元数据的场景适用性受限。",
+      "实验仅在 Amazon Review 构建的 Movie-Book 与 Sport-Cloth 两个域对上进行，未展示对其他域组合、非重叠用户或更多平台的泛化证据。",
+      "轨迹平滑正则化并非在所有指标上都一致有益，例如 Book NDCG@10 在去掉平滑项时略有提升。",
+      "增加残差积分步数 K 或原型数量 n_p 并不总能带来收益，且会引入额外计算开销。",
+      "理论分析给出的界依赖于残差速度有界等条件，且论文明确指出这些界本身不保证避免负迁移。"
+    ],
+    "method_zh": "BGAFlow 先进行统一双域预训练：用 LLM 从两个域的历史交互推断用户画像，采用 ID-文本双塔编码器（ID 塔域特定、文本塔共享），通过用户画像对齐、物品语义对齐和 CORAL 正则化建立可比较的共享语义空间，同时保留域特定协同表示。迁移阶段构造条件二次贝塞尔曲线作为几何参考，通过原型级偏好重叠估计用户特定迁移范围 T_i；学习状态自适应残差速度场，残差网络接收当前状态、进度、条件特征和动态检索的偏好原型，使用 cubic smoothstep 调度逐步施加修正。训练时以参考表示上推荐损失的负梯度作为任务引导的教师方向来监督残差速度，推理时仅用学习到的速度网络做 K 步离散积分；最终将适配后的语义表示与协同表示结合用于下一项推荐，反向域同理。",
+    "problem_zh": "跨域序列推荐旨在通过迁移另一域中的偏好知识来缓解数据稀疏和冷启动问题，但现有方法大多采用全局对齐目标或粗粒度迁移策略，难以适应不同用户在不同域之间差异很大的偏好一致性；用户需要的迁移程度不同且语义偏好迁移应是渐进调整而非一次融合，因此需要用户特定的迁移强度控制和状态自适应的语义演化机制。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.915,
+  "id": "arxiv-2610.30825",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-25T18:44:57.121352Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-22T06:53:57Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出跨域序列推荐框架BGAFlow，结合LLM用户画像与个性化迁移控制，属于序列推荐与LLM增强推荐研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Bezier-Guided Adaptive Flow for Cross-domain Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2610.30825v1"
+}

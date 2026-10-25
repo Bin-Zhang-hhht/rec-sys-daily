@@ -1,0 +1,147 @@
+{
+  "abstract": "Recommender systems typically serve one user at a time. However, in households, members share a finite pantry and follow different dietary rules, making independent recommendations prone to resource conflicts and dietary violations. We formulate household food recommendation as constrained fair division and present FairFRESH, a neuro-symbolic framework that learns per-member utilities, allocates foods under explicit welfare objectives, enforces dietary rules through a deterministic filter, and explains recommendations using Shapley and Banzhaf attributions. Theoretically, we show that no finite penalty guarantees compliance near a dietary-rule threshold, establish approximation guarantees for greedy allocation under utilitarian and smoothed Nash objectives in the stock-free model before filtering, and characterize the scale invariance of Nash welfare. We also use the minimax theorem to analyze rotating shared meals. On NHANES-derived data, the learned utility model achieves Recall@20 of 0.293, outperforming five learned recommenders (at most 0.244) but not a previous-day repetition heuristic (0.321). On held-out four-person households, Nash allocation reduces Gini disparity by 42% relative to conflict resolution while improving Recall@20 from 0.180 to 0.197. It comes within 2% of an upper bound on the smoothed Nash optimum, and rescaling one member's utilities changes at most 1.5% of assignments. All recommendations satisfy the encoded dietary rules, while attribution scores correlate with utility loss upon component removal (r = 0.76). In simulation, shared meals reduce pantry use by about one-third, and weekly rotation increases the worst-off member's utility by 38% over the best fixed meal. Recommender systems typically serve one user at a time. However, in households, members share a finite pantry and follow different dietary rules, making independent recommendations prone to resource conflicts and dietary violations. We formulate household food recommendation as constrained fair division and present FairFRESH, a neuro-symbolic framework that learns per-member utilities, allocates foods under explicit welfare objectives, enforces dietary rules through a deterministic filter, and explains recommendations using Shapley and Banzhaf attributions. Theoretically, we show that no finite penalty guarantees compliance near a dietary-rule threshold, establish approximation guarantees for greedy allocation under utilitarian and smoothed Nash objectives in the stock-free model before filtering, and characterize the scale invariance of Nash welfare. We also use the minimax theorem to analyze rotating shared meals. On NHANES-derived data, the learned utility model achieves Recall@20 of 0.293, outperforming five learned recommenders (at most 0.244) but not a previous-day repetition heuristic (0.321). On held-out four-person households, Nash allocation reduces Gini disparity by 42% relative to conflict resolution while improving Recall@20 from 0.180 to 0.197. It comes within 2% of an upper bound on the smoothed Nash optimum, and rescaling one member's utilities changes at most 1.5% of assignments. All recommendations satisfy the encoded dietary rules, while attribution scores correlate with utility loss upon component removal (r = 0.76). In simulation, shared meals reduce pantry use by about one-third, and weekly rotation increases the worst-off member's utility by 38% over the best fixed meal.",
+  "arxiv_id": "2610.31506",
+  "authors": [
+    "Kodur Sai Vinay Sathvik",
+    "Kakoli Bora",
+    "Tejaswini R. M"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "家庭/多成员场景的食品推荐存在明确需求缺口：现有单用户推荐会造成共享食物冲突和膳食违例，FairFRESH 以公平分配为核心可显著提高家庭层面的合规率与公平性。",
+      "Nash 分配在降低成员效用不平等的同时提升 Recall@20（0.180→0.197），可用于家庭膳食规划应用、健康饮食订阅服务或企业食堂场景，改善多用户共享资源下的体验。",
+      "共享餐策略可减少约三分之一 pantry 用量，对餐饮规划、食材采购和减少食物浪费具有直接商业价值。",
+      "Shapley/Banzhaf 可解释性支持生成基于证据的自然语言解释，适合需要用户信任的健康/营养推荐产品，但解释仍需人工与临床验证。",
+      "当前结果依赖问卷数据与代理库存，且饮食规则未经临床审查，因此产品化前需要接入真实家庭库存、真实群体画像和专业营养审核。"
+    ],
+    "business_transferability": 0.52,
+    "contributions_zh": [
+      "提出 FairFRESH，一个神经符号框架，将家庭食品推荐建模为共享有限 pantry 的公平分配：学习每成员-食物效用，用显式福利目标（utilitarian、max-min 或 Nash）分配食物，用确定性符号过滤器强制饮食规则，并用 Shapley 与 Banzhaf 归因解释家庭层面的分配。",
+      "理论贡献：证明任何有限惩罚权重都无法在规则阈值附近保证安全（Proposition 1）；在过滤前无库存限制的模型下，为 greedy allocation 在 utilitarian 与 smoothed Nash 目标上建立近似保证（Proposition 2）；证明 Nash 规则是唯一对成员效用尺度不变的规则（Proposition 3）；证明在最优状态下于安全集内分配不差于先分配后过滤（Proposition 4）。",
+      "扩展共享家庭餐：将共享菜品的轮换建模为矩阵博弈，用 minimax 定理证明轮换只会帮助最差成员，且最优轮换可由线性规划精确计算，其支撑集中至多需要 n 个共享餐（Proposition 5）。",
+      "经验贡献：在 NHANES 构建的 2-6 人家庭上，效用模型 Recall@20=0.293，超过五个 learned baselines（最高 0.244），但低于 Repeat-D1（0.321）；Nash 分配相对冲突消解将 Gini 降低 42%，同时提升 Recall@20（0.180→0.197），并处于 smoothed Nash 最优上界的 2% 以内；重标一个成员效用最多改变 1.5% 的分配；共享餐节省约三分之一 pantry，周轮换使最差成员效用比最佳固定餐提高 38%。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Preliminaries and Problem Definition"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Allocation Rules and Greedy Allocation"
+      },
+      {
+        "page": 1,
+        "section": "4 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "5 Results"
+      },
+      {
+        "page": 1,
+        "section": "6 Extension: Shared Household Meals"
+      },
+      {
+        "page": 1,
+        "section": "7 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "A Derivations and Proofs"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "BPRMF",
+        "NeuMF",
+        "LightGCN",
+        "GRU4Rec",
+        "SASRec",
+        "Popularity",
+        "Repeat-D1",
+        "A) Independent top-K lists",
+        "B) Conflict resolution",
+        "C) Utilitarian",
+        "D) Egalitarian (Max-Min)",
+        "E) Nash",
+        "Round robin over safe foods（EF1 基准）"
+      ],
+      "datasets": [
+        "NHANES pooled releases 2003–2023：8,704 个食品代码，1,000 个训练用户，60,814 个可用受访者，400 个测试用户，按 n=2–6 各构建 100 个 held-out 家庭；分配实验用户与训练用户不相交",
+        "RecipeNLG Indian recipes：3,597 个印度食谱（911 个谷物/面包、510 个豆类/dal、2,176 个配菜/咖喱），用于共享餐扩展的模拟效用实验"
+      ],
+      "findings_zh": [
+        "RQ-A：可用性信号非常强。在 400 个测试用户上，将 trained utility model 的 availability 输入置零会使 Recall@20 从 0.293 降至 0.083、NDCG@20 从 0.311 降至 0.091；随机替换为等大小集合时仅 0.045/0.027；真实输入下 top-20 中有 96.6% 是前一天吃过的食物。",
+        "RQ-A 个体准确率：Repeat-D1 最高（Recall@20=0.321），FairFRESH 效用模型第二（0.293），超过五个 learned baselines（LightGCN 0.244、BPRMF 0.220、GRU4Rec 0.207、NeuMF 0.111、SASRec 0.012）以及 Popularity（0.235）。",
+        "RQ-B：在 100 个 held-out 四人家庭上，Nash 分配相对冲突消解将 Gini 从 0.192 降至 0.112（下降 42%），NSW 从 8.54 升至 10.98，Recall@20 从 0.180 升至 0.197；策略 C、D、E 在每个家庭都是 EF1，冲突消解在 92–99% 家庭 EF1，独立 top-K 因重复分配而虚高（0.266）。",
+        "RQ-B 尺度稳健性：将随机一名成员效用乘以 0.5 或 2 时，utilitarian 改变 35% 分配、egalitarian 改变 41% 分配；greedy Nash 在 a=0.5 改变 1.5%、a=2 改变 0.2%，固定首轮选择顺序后不再改变；精确 Nash 规则对效用重标不变。",
+        "RQ-B 家庭规模：随 n=2 到 6，冲突消解最小效用下降 61%、Gini 翻倍以上；Nash 最小效用仅下降 33%，并在每个规模取得最高 NSW；公平分配的优势随家庭规模增大而扩大。",
+        "RQ-C 覆盖：retrieval-augmented constraint encoder 单独即可对糖尿病和高血压达到 100% CSR，对 CKD 达 96%、对 CVD 达 98%；证据相关性分别为 0.95、0.94、0.88、0.91。",
+        "组件消融：去掉 Pantry encoder 使 Recall@20 从 0.197 降至 0.064、NSW 从 10.98 降至 5.58；去掉医疗约束使 14.4% 推荐违例、CSR 降至 0.856；用 utilitarian 替代 fairness optimizer 使 Gini 从 0.112 升至 0.146；去掉 RAG encoder 后 CSR 仍为 1.000，但对解释证据有贡献。",
+        "RQ-D 可解释性：Shapley 归因与实际移除效用损失的相关性 r=0.763，Banzhaf 为 r=0.597；Shapley 归因总和 0.616，Pantry 最高（Shapley 0.246，Banzhaf 0.192），Taste 0.121/0.071，RAG 0.103/0.066，Popularity 0.082/0.042，Fairness 0.064/0.007；Fairness 是唯一不满足 ψ_k ≥ (5/16)φ_k 的组件。生成的 1,000 条解释通过自动检查：文本忠实度 98.7%、证据引用准确率 100%、完整性 99.8%、归因一致性 99.1%。",
+        "共享餐扩展：共享餐与个人份相比在 Indian recipes 设置少用 32% pantry、在 NHANES 设置少用 31% pantry，且 100% 成员获得完整餐，而 unstructured 分配仅有 28.6% 和 0.6% 成员同时拿到谷物和豆类；若不用全员安全约束，模拟效用下有 11.8% 成员会被分到违反自身规则的共享菜。",
+        "轮换：在 Indian recipes 的七日计划中，rounded optimal rotation 将最差成员共享餐平均效用从 1.329 提高到 1.365，并在 88.6% 家庭优于固定餐对；有库存约束时整数规划得到 1.334，而最佳可连续七天烹制的固定餐仅有 0.978（提高 38%），且每个家庭都有可行轮换；NHANES 500 个家庭中仅 150 个存在可整周烹制的固定餐，整数轮换在其中平均改善 43%。"
+      ],
+      "metrics": [
+        "Recall@20",
+        "NDCG@20",
+        "Pantry utilization rate (PUR)",
+        "Gini coefficient",
+        "Minimum utility (Min Util.)",
+        "Nash social welfare (NSW)",
+        "Constraint satisfaction rate (CSR)",
+        "Faithfulness correlation (Bhatt et al.)",
+        "Text faithfulness",
+        "Evidence-citation accuracy",
+        "Completeness",
+        "Attribution consistency",
+        "Full Meal",
+        "Pantry Used",
+        "Greedy vs exact optimum ratios"
+      ]
+    },
+    "limitations_zh": [
+      "家庭是从 NHANES 个体受访者随机分组构建的，而非真实家庭；可用性用前一天消费作为代理，库存用食物描述词作为配料代理。",
+      "效用模型没有使用验证集，baselines 未调参；公平性指标基于预测效用而非真实消费效用。",
+      "共享餐扩展中 pantry 数量是近似值，Indian recipes 的效用是模拟的，Stage 2 没有近似保证。",
+      "主治验分配实验只覆盖糖尿病和高血压两种条件，CKD 与 CVD 的覆盖率为 96% 和 98%，未达到 100%；饮食规则未经临床审查，覆盖评估是检索/证据层面而非临床有效性。",
+      "主实验采用先分配后过滤，被删食物不会被替换，因此验证后的 bundle 可能少于 K 项；Proposition 4 偏好的安全集内分配仅在共享餐扩展中评估。",
+      "greedy egalitarian 规则没有近似保证；解释指标是自动检查而非人类评估。"
+    ],
+    "method_zh": "FairFRESH 是一个四阶段流水线：第一阶段是效用模型，由 taste encoder、retrieval-augmented constraint encoder 和 pantry availability encoder 提取表征，经 multi-head attention 融合，并结合 popularity、recency 特征与 soft constraint penalty 输出每个成员-食物对的效用 U_i(f)；第二阶段是分配层，在可行性约束（每个食物最多分配给一个成员、每个成员最多 K 个物品，对应两个 partition matroid 的交集）下，用 Algorithm 1 的 greedy adaptive picking sequence 实现 utilitarian、max-min 和 Nash 三种福利规则；第三阶段是确定性符号安全过滤器，删除任何违反成员饮食规则的食物（A_i = A_i ∩ S_i），保证最终推荐全部合规；第四阶段是事后可解释模块，用 Shapley 与 Banzhaf 归因解释家庭分配而不反哺决策。共享家庭餐扩展（Algorithm 2）先枚举对所有成员安全且在库存内的 grain-dal 对，选择使最差成员效用最大的共享餐，再用 Nash 规则填充其余个人 slots；轮换问题通过 minimax 定理和线性规划求解最优混合策略。",
+    "problem_zh": "现有推荐系统通常一次只为一个用户服务，但家庭成员共享一个有限 pantry 并遵循不同的饮食规则；独立地为每个成员生成推荐会导致稀缺食物被重复分配、资源冲突以及膳食规则违例。因此家庭食品推荐不应是每个成员各做一次的排序问题，而应被建模为带每成员饮食规则的不可分物品公平分配问题：每个食物最多分配给一个成员，且每个成员最多获得 K 个物品。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.862,
+  "id": "arxiv-2610.31506",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-25T18:44:57.121352Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-22T16:23:04Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出面向家庭食品推荐的可解释公平分配框架FairFRESH，属于物品推荐方向的推荐系统研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "FairFRESH: A Neuro-Symbolic Framework for Fair and Explainable Household Food Recommendation",
+  "url": "https://arxiv.org/abs/2610.31506v1"
+}

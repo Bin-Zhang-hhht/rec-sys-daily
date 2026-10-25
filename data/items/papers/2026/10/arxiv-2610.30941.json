@@ -1,0 +1,153 @@
+{
+  "abstract": "General-purpose embeddings trained on profile similarity often misrank candidates in professional networks, where relevance is inherently complementary rather than symmetric. For example, job seekers usually engage with recruiters rather than peers with similar credentials. Current user recommendation systems are often built on profile similarity or social signals such as shared connections, which are effective in friend-oriented social networks where users tend to connect with similar people or within existing social circles. However, this does not hold in professional platforms like LinkedIn, where interactions are often goal-driven and cross-role interactions, requiring matching based on complementary intents rather than similarity or social proximity. In this paper, we propose Preference-Aligned Intent Retrieval, a retrieval framework that is designed to model user intent preference instead of profile similarity. Our approach is inspired by the preference-learning perspective of Direct Preference Optimization, but instantiates preference learning as an exposure-conditioned multi-negative contrastive objective over embeddings. This formulation simplifies training and scales efficiently to large candidate sets without requiring an explicit reference model. Furthermore, we incorporate user interaction history by aggregating click histories with positional encoding to capture temporal order, which enables constant-cost updates of user representations over a fixed history window, allowing new interactions to be incorporated without re-encoding history. As a result, personalization can be updated efficiently using lightweight CPU operations without repeated LLM inference during serving. We evaluate PAIR on LinkedIn's Premium retrieval task. A 0.6B parameter model achieves a MAR@100 of 0.45. General-purpose embeddings trained on profile similarity often misrank candidates in professional networks, where relevance is inherently complementary rather than symmetric. For example, job seekers usually engage with recruiters rather than peers with similar credentials. Current user recommendation systems are often built on profile similarity or social signals such as shared connections, which are effective in friend-oriented social networks where users tend to connect with similar people or within existing social circles. However, this does not hold in professional platforms like LinkedIn, where interactions are often goal-driven and cross-role interactions, requiring matching based on complementary intents rather than similarity or social proximity. In this paper, we propose Preference-Aligned Intent Retrieval, a retrieval framework that is designed to model user intent preference instead of profile similarity. Our approach is inspired by the preference-learning perspective of Direct Preference Optimization, but instantiates preference learning as an exposure-conditioned multi-negative contrastive objective over embeddings. This formulation simplifies training and scales efficiently to large candidate sets without requiring an explicit reference model. Furthermore, we incorporate user interaction history by aggregating click histories with positional encoding to capture temporal order, which enables constant-cost updates of user representations over a fixed history window, allowing new interactions to be incorporated without re-encoding history. As a result, personalization can be updated efficiently using lightweight CPU operations without repeated LLM inference during serving. We evaluate PAIR on LinkedIn's Premium retrieval task. A 0.6B parameter model achieves a MAR@100 of 0.45.",
+  "arxiv_id": "2610.30941",
+  "authors": [
+    "Zhongkai Shangguan",
+    "Yanbin Kang",
+    "Yihan Cao",
+    "Ruijie Jiang",
+    "Qiannan Yin",
+    "Chang Yue",
+    "Zijian Zhou",
+    "Girish Kathalagiri",
+    "Changshuai Wei",
+    "Zhengming Xing"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对求职、招聘、商务拓展等目标驱动型专业平台，用偏好对齐embedding替换通用相似度embedding可直接改善召回候选质量，并转化为点击率与订阅留存等业务指标提升。",
+      "由于召回阶段决定下游排序的候选空间，在召回层纠正意图错配可放大下游排序收益，避免意图对齐候选在早期阶段被截断且无法恢复。",
+      "动态意图更新只需O(Kd)轻量向量运算且无在线LLM推理，适合大规模生产系统以小时级或近实时频率刷新用户兴趣，显著降低GPU推理成本。",
+      "Matryoshka单模型多维度输出可降低多推荐面部署与维护成本，根据存储/延迟预算灵活选择200/256/512/1024维，工程落地价值明显。",
+      "在线结果显示替换召回embedding可带来CTR +7.5%与Premium留存 +2.1%且无显著延迟回归，对订阅制专业社交产品的人脉发现体验与商业留存均有正面影响。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "将Premium人脉检索形式化为exposure-conditioned preference learning：以线上曝光日志中曝光未点击的候选作为条件负样本、点击候选作为正样本，将优化目标从资料相似度匹配转向专业意图对齐。",
+      "提出PAIR三塔架构：查询画像塔与文档塔共享编码器，历史塔用带可学习位置编码的query-agnostic attention聚合近期点击的profile embedding，并通过归一化加法融合，使动态意图更新只需O(Kd)向量操作，无需在线LLM重推理。",
+      "采用Matryoshka loss联合优化200/256/512/1024维前缀，使单一模型可截断服务于不同延迟与存储预算的推荐面，避免为各维度分别训练模型。",
+      "在LinkedIn Premium Browsemaps完成部署验证：0.6B模型MAR@100达0.450，较生产Holistic-171相对提升56%，较off-the-shelf 0.6B encoder提升2.3倍；在线A/B测试CTR +7.5%、Premium留存 +2.1%，且无可测延迟回归。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Retrieval Problem in Professional Discovery"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Preference-Aligned Intent Retrieval"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Triple-Tower Intent Architecture"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Additive History with Positional Attention"
+      },
+      {
+        "page": 1,
+        "section": "4.4 Dimension-Flexible Embedding Training"
+      },
+      {
+        "page": 1,
+        "section": "5.1 Experimental Setup"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Main Offline Results"
+      },
+      {
+        "page": 1,
+        "section": "5.3 History Augmentation Analysis"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Dimension and Serving Tradeoff"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Online A/B Test"
+      },
+      {
+        "page": 1,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Holistic-171：LinkedIn生产通用member embedding，171维",
+        "Off-the-shelf 0.6B embedding encoder：无任务微调",
+        "PAIR two-tower：无history增强",
+        "PAIR + Max/Mean/GeM/Attention history聚合变体",
+        "PAIR + P-ATT history（最终部署版本）"
+      ],
+      "datasets": [
+        "时间切分的训练集：209K query级训练实例，涉及4.4M唯一member profiles",
+        "测试集：11.8K query级实例，涉及93K唯一member profiles",
+        "每个训练实例包含1个点击正样本与3个负样本（曝光未点击 + 随机采样）",
+        "MAR@k在固定100候选池上评测，所有模型共用相同候选池",
+        "在线A/B测试在LinkedIn Premium Browsemaps进行，用户级分流，按订阅等级与活跃度分层，对照组与实验组使用相同下游ranker"
+      ],
+      "findings_zh": [
+        "加P-ATT history的PAIR模型MAR@100=0.450，较Holistic-171（0.288）相对提升56%，较off-the-shelf 0.6B embedding（0.192）约2.3倍。",
+        "Preference fine-tuning是主要增益来源：不带history的two-tower PAIR MAR@100=0.436，已较生产Holistic-171相对提升51%。",
+        "History增强增益中等但部署高效：P-ATT将MAR@100从0.436提升至0.450（相对+3.2%）；GeM pooling为0.447；Max、Mean、Attention pooling（0.430、0.430、0.431）低于无history基线，说明历史信号需谨慎加入。",
+        "Matryoshka维度裁剪保持大部分质量：256维MAR@100=0.432、存储为1024维的25%，仍优于171维生产embedding；200/512/1024维分别为0.421/0.444/0.450。",
+        "在线A/B测试中，PAIR 1024维+P-ATT history使CTR相对提升7.5%（统计显著），Premium留存率相对提升2.1%（统计显著），页面加载延迟+0.1%，推荐覆盖-0.2%，无显著serving回归。",
+        "ACC接近饱和：所有PAIR变体ACC均高于0.96，因此论文以MAR@k作为主要离线对比指标。"
+      ],
+      "metrics": [
+        "ACC：4候选（1正3负）中点击候选得分最高的比例，随机基线0.25",
+        "MAR@25",
+        "MAR@100",
+        "Click-through rate (CTR)",
+        "Premium retention rate",
+        "Page load latency",
+        "Recommendation coverage"
+      ]
+    },
+    "limitations_zh": [
+      "A/B测试在固定下游ranker下进行，retrieval与ranking的联合优化可能带来额外收益，但论文未对此验证。",
+      "实验主要衡量观察窗口内的短期engagement与retention，长期订阅影响需要更长的观察期。",
+      "训练基于生产曝光日志，偏好只在被曝光候选集内观测，继承了历史检索策略的选择偏差；random-only、impression-only与ANN mined hard negatives的更完整对比留作未来工作。",
+      "在线验证仅在Premium Browsemaps进行，对email推荐、职位匹配等其他member推荐面的泛化性尚未验证。",
+      "历史attention设计为query-agnostic，降低了序列建模表达能力，以换取O(Kd)的低成本线上更新。",
+      "用户profile字段不完整的user会被过滤出候选池。"
+    ],
+    "method_zh": "PAIR使用三塔结构：查询画像塔和文档塔共享同一个Qwen3-Embedding-0.6B编码器，分别编码查询用户与候选profile文本；历史塔对最近K=10次点击的预计算profile embedding做带learned positional encoding的query-agnostic attention加权求和，得到动态意图向量。最终查询表示采用L2归一化后的静态画像embedding与历史embedding的加法融合：e_q_final = L2Norm(norm(e_q) + gamma * norm(e_H))，gamma为可学习标量。训练目标是multi-negative softmax对比损失：s(q,d)=cos(e_q_final,e_d)/tau，tau=0.02；正样本为点击候选，负样本由同session曝光未点击的hard negatives与随机采样的easy negatives按1:3比例构成。模型还以Matryoshka loss同时对200、256、512、1024维前缀计算PAIR损失，使一个模型支持多种服务维度。训练采用DeepSpeed bf16混合精度（fp16在DeepSpeed下出现梯度溢出）、cosine学习率调度与梯度累积。",
+    "problem_zh": "在专业人脉推荐中，相关性常是互补型而非对称的（如求职者需对接招聘者，而非相似背景同行），而通用embedding按资料相似度排序会选错候选；在Premium Browsemaps的两阶段retrieval-ranking系统中，retrieval决定了下游ranker的候选空间，未对齐意图的候选一旦在检索阶段被排除，就无法在排序阶段找回。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.9075,
+  "id": "arxiv-2610.30941",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-25T18:44:57.121352Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-22T08:57:58Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出面向LinkedIn高端人群推荐的偏好对齐意图检索框架，将用户推荐建模为召回任务，属于推荐系统研究。",
+  "targets": [
+    "user"
+  ],
+  "tasks": [],
+  "title": "PAIR: Preference-Aligned Intent Retrieval for Premium People Recommendation at LinkedIn",
+  "url": "https://arxiv.org/abs/2610.30941v1"
+}

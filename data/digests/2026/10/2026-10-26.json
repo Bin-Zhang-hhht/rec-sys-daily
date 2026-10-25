@@ -1,0 +1,26 @@
+{
+  "blogs": [],
+  "date": "2026-10-26",
+  "papers": [
+    {
+      "item_id": "arxiv-2610.30825",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出跨域序列推荐框架BGAFlow，结合LLM用户画像与个性化迁移控制，属于序列推荐与LLM增强推荐研究。"
+    },
+    {
+      "item_id": "arxiv-2610.30941",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出面向LinkedIn高端人群推荐的偏好对齐意图检索框架，将用户推荐建模为召回任务，属于推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2610.31506",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出面向家庭食品推荐的可解释公平分配框架FairFRESH，属于物品推荐方向的推荐系统研究。"
+    },
+    {
+      "item_id": "arxiv-2610.30359",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：本文提出推荐分发阶段的公平性运行时策略选择与验证修复框架FAIRGate，属于推荐系统重排工程研究。"
+    }
+  ]
+}
