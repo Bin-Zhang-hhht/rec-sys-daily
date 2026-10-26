@@ -1,0 +1,123 @@
+{
+  "abstract": "Large language models (LLMs) increasingly operate in multi-agent systems where they collaborate by responding to others' choices, creating endogenous feedback loops with vulnerability to social influence, herding behavior and runaway cascades. Following the design of the classic Music Lab experiment, we tested this vulnerability in large populations of LLM agents that recommended unfamiliar songs, with or without exposure to cumulative recommendation counts. Exposure led to runaway cascades that generated extreme and unpredictable collective recommendations increasingly divergent from a song's intrinsic appeal. Compared to humans, LLM populations were generally far more susceptible to herding behavior, and unlike humans, LLM cascades were less able to self-correct. This vulnerability has implications for multi-agent collaboration in recommender systems, automated evaluation, complex problem-solving, and unauthorized conspiracies. Large language models (LLMs) increasingly operate in multi-agent systems where they collaborate by responding to others' choices, creating endogenous feedback loops with vulnerability to social influence, herding behavior and runaway cascades. Following the design of the classic Music Lab experiment, we tested this vulnerability in large populations of LLM agents that recommended unfamiliar songs, with or without exposure to cumulative recommendation counts. Exposure led to runaway cascades that generated extreme and unpredictable collective recommendations increasingly divergent from a song's intrinsic appeal. Compared to humans, LLM populations were generally far more susceptible to herding behavior, and unlike humans, LLM cascades were less able to self-correct. This vulnerability has implications for multi-agent collaboration in recommender systems, automated evaluation, complex problem-solving, and unauthorized conspiracies.",
+  "arxiv_id": "2610.30769",
+  "authors": [
+    "Farnoosh Hashemi",
+    "Shiyu Ji",
+    "Joice Chen",
+    "Michael W. Macy"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "推荐系统若在LLM多智能体流程中暴露累计热度或按热度排序，可能形成自增强反馈，使初始微小优势变成不可预测的“文化赢家”，导致结果偏离真实质量并降低多样性。",
+      "自动评估、LLM-as-judge和检索增强生成中的候选选择/排序环节存在类似级联风险；上游选择的热门偏差会被放大到下游评估，企业应在流程中保留独立基线或匿名化/扰动聚合信号。",
+      "只用更强或更聪明的模型不足以解决该问题：高智能/推理模型较不易羊群化，但也不会稳定自我纠正，因此在产品设计中应减少流行度可见性和位置偏差，而不是仅升级模型。",
+      "商业上可通过监控KL偏离、世界间不可预测性、前30个早期推荐与后续推荐的相关性来检测多智能体推荐/评审流程是否进入失控级联。",
+      "现有推荐系统研究也表明反馈会降低消费多样性、同质化选择并放大流行度偏差，本文的发现为这类商业风险提供了LLM多智能体场景下的实证支持。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "设计了类Music Lab的多平行世界实验：13个LLM群体、48首新生成歌曲、独立世界与弱/强社会影响世界，内生累积推荐计数作为反馈信号。",
+      "发现LLM群体比人类基准更易受羊群效应影响：弱影响下平均KL散度约为人类基准的9倍，强影响下约为4倍；非推理模型的偏离是推理模型的2.4倍和3.2倍。",
+      "发现LLM级联普遍缺乏人类那样的自我纠正：人类在16个影响力世界中的15个出现向内在吸引力回归，而LLM在强影响下平均接近零。",
+      "发现模型智能指数与KL散度（强影响rho=-0.851）和相对不可预测性（rho约-0.73）负相关，推理/更高智能模型较不易受羊群影响。",
+      "证明社会影响放大了推荐结果的不平等与不可预测性，早期行动者（前30个智能体）的推荐比内在吸引力更能预测后来的流行度。",
+      "指出该脆弱性对推荐系统、自动评估、多智能体协作和未经授权的共谋场景有直接风险。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "2 Methods"
+      },
+      {
+        "page": 1,
+        "section": "3.1 LLM susceptibility to herding"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Social feedback can turn herding behavior into a stampede"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Susceptibility to herding and cascades decreased with model intelligence scores"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Human cascades self-corrected; LLM cascades generally did not"
+      },
+      {
+        "page": 1,
+        "section": "4 Discussion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无推荐计数的独立世界（每模型1,440名智能体）",
+        "人类Music Lab独立/社会影响世界",
+        "非推理模型temperature=1.0 vs 0.7",
+        "选择预算4首歌 vs 12首歌"
+      ],
+      "datasets": [
+        "48首Suno v4.5新生成歌曲（标题+歌词）",
+        "原始Music Lab数据（人类基准，下载数代替推荐数）",
+        "Artificial Analysis Intelligence Index v4.1.1（模型智能评分）"
+      ],
+      "findings_zh": [
+        "所有13个模型在弱/强影响下都显著偏离独立判断（p<0.001），平均KL散度约为人类基准的9倍（弱）和4倍（强）。",
+        "社会影响显著提高不可预测性：非推理模型约为人类的2倍以上，弱影响下所有13个模型的不可预测性都超过人类基准；强影响使13个模型中12个的不可预测性增加（Wilcoxon p<0.001）。",
+        "强影响还使12/13模型KL散度增加（p<0.01）；弱/强影响下GPT-5 nano是最易受影响的推理模型，Gemma 3 4B偏离最大。",
+        "人类级联在16个影响力世界中的15个出现自我纠正（弱影响rho从0.633升至0.773，强影响从0.575升至0.660），LLM的变化方向不一并在强影响下平均接近零。",
+        "智能指数与强影响KL散度Spearman rho=-0.851（p<0.001）、弱影响rho=-0.551；与相对不可预测性rho=-0.733和-0.719，说明更高智能模型较不易羊群化。",
+        "前30名早期智能体的市场份额在弱影响下12/13模型、强影响下13/13模型中比内在吸引力更能预测后来流行度；非推理模型在强影响下该差距最大（如Gemma 3 4B：r=0.998 vs r=0.118）。",
+        "社会影响提高了市场份额Gini不平等：强影响下13/13模型、弱影响下12/13模型超过独立基线；非推理模型相对增幅大于人类。",
+        "鲁棒性检查：将非推理模型温度从1.0降到0.7未减弱影响（KL从1.62到1.75）；将可选歌曲从4增至12降低散度和不可预测性，但保留模型间主要排序。"
+      ],
+      "metrics": [
+        "KL散度（Jeffreys平滑后的市场份额分布与独立基线比较）",
+        "不可预测性U（跨8个世界28对组合的平均市场份额绝对差）",
+        "自我纠正指标（两半时间段与独立世界计数间的Spearman相关变化）",
+        "Gini系数（市场份额不平等）",
+        "Pearson相关（影响力世界 vs 独立世界；前30名早期行动者 vs 后来者）",
+        "相对不可预测性 U_inf/U_ind"
+      ]
+    },
+    "limitations_zh": [
+      "LLM版本把音频换成歌词、下载换成推荐、固定4首选择预算、列表代替网格，与Music Lab任务/呈现不同，限制将人机差异归因于群体类型；需要用匹配的人类复制实验排除设计差异。",
+      "每个群体是单一模型的同质群体，智能体间无显式交流和共享对话历史，也没有从众或准确性的激励，因此不能推广到混合能力团队、复杂任务、多模态系统或言语影响场景。",
+      "人类基准是定性参照而非受控估计，因为刺激、响应任务和呈现方式不同。",
+      "强影响条件的流行度排序可能与位置偏差混淆；虽然独立条件显示多数LLM位置偏差较小，仍不能完全排除位置偏差的替代解释。",
+      "AAII与结果的关系是描述性相关而非智能的因果效应，未控制推理类别、规模、架构、训练等因素。",
+      "结果不能证明更长序列中永远不会出现自我纠正，且只观察了推荐任务而非真实商业推荐系统。"
+    ],
+    "method_zh": "采用Music Lab平行世界范式：每模型构建1个独立世界（1440个智能体）、8个弱影响世界和8个强影响世界（各720个智能体，共13模型、168,480个智能体）。智能体按顺序行动，先看48首歌的标题选择4首，再阅读歌词逐一给出yes/no推荐；推荐会更新该歌的累积计数供后续智能体看到。弱影响显示计数但随机化标题顺序，强影响按累积计数降序排列标题。用KL散度衡量影响力世界与独立推荐分布的偏离，用跨8个世界的两两市场份额差均值衡量不可预测性，用两半时间段的Spearman相关变化衡量自我纠正，并以原始Music Lab数据作为人类定性基准。",
+    "problem_zh": "大型语言模型越来越多地以多智能体系统协作，一个模型的输出会成为其他模型的输入，形成内生反馈回路；现有评估多关注单模型行为，对群体层面羊群效应、失控级联以及无法自我纠正的风险认识不足。本文针对推荐/评估场景，研究LLM群体在暴露于累积推荐计数时是否会出现从独立判断偏离的级联、是否对初始选择敏感、是否无法自我纠正，以及更聪明的模型是否更不易受影响。",
+    "technical_depth": 0.85
+  },
+  "doi": null,
+  "final_score": 0.907,
+  "id": "arxiv-2610.30769",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-26T18:58:03.024529Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-22T05:42:55Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文通过模拟经典Music Lab实验发现LLM多智能体在歌曲推荐任务中极易受到羊群效应影响并产生失控级联，对推荐系统中的多智能体协作构成隐患。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "LLM Multi-Agent Systems Are Vulnerable to Herding and Runaway Cascades",
+  "url": "https://arxiv.org/abs/2610.30769v1"
+}

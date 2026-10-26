@@ -1,0 +1,147 @@
+{
+  "abstract": "Generative recommenders using semantic identifiers predict items through successive token decisions, but beam search may irreversibly prune promising item paths. This limitation is particularly consequential when a few recent interactions signal an emerging interest while earlier behavior favors established preferences. Yet an independently trained discriminative recommender may rank the same items highly from the same interaction history. Such complementary scores are available at test time, offering a way to adapt a frozen generator without retraining either model. The challenge is to use these scores before pruning: combining completed recommendation lists cannot alter earlier beam decisions, while scores over complete items cannot directly inform choices among semantic prefixes shared by multiple items. We propose \\textbf{T}est-Time \\textbf{C}ollaborative \\textbf{B}eam \\textbf{S}earch \\textbf{A}daptation (\\textbf{TCBSA}), a training-free method that incorporates collaborative information into semantic decoding. TCBSA transforms discriminative score margins into potentials over shared semantic edges and uses a confidence gate to regulate their contributions to cumulative path scores before beam selection. We establish a sufficient condition for target prefix survival under global beam competition and bound score perturbations under low discriminative confidence. Full-catalog experiments show consistent improvements over strong baselines across datasets and different generative and discriminative recommenders. Analyses of emerging interests and decoding behavior demonstrate gains in recommendation accuracy and target path survival, while targeted interventions support the contribution of shared prefix corrections. TCBSA also offers a favorable balance between recommendation accuracy and inference latency compared with simply widening the native beam. Generative recommenders using semantic identifiers predict items through successive token decisions, but beam search may irreversibly prune promising item paths. This limitation is particularly consequential when a few recent interactions signal an emerging interest while earlier behavior favors established preferences. Yet an independently trained discriminative recommender may rank the same items highly from the same interaction history. Such complementary scores are available at test time, offering a way to adapt a frozen generator without retraining either model. The challenge is to use these scores before pruning: combining completed recommendation lists cannot alter earlier beam decisions, while scores over complete items cannot directly inform choices among semantic prefixes shared by multiple items. We propose \\textbf{T}est-Time \\textbf{C}ollaborative \\textbf{B}eam \\textbf{S}earch \\textbf{A}daptation (\\textbf{TCBSA}), a training-free method that incorporates collaborative information into semantic decoding. TCBSA transforms discriminative score margins into potentials over shared semantic edges and uses a confidence gate to regulate their contributions to cumulative path scores before beam selection. We establish a sufficient condition for target prefix survival under global beam competition and bound score perturbations under low discriminative confidence. Full-catalog experiments show consistent improvements over strong baselines across datasets and different generative and discriminative recommenders. Analyses of emerging interests and decoding behavior demonstrate gains in recommendation accuracy and target path survival, while targeted interventions support the contribution of shared prefix corrections. TCBSA also offers a favorable balance between recommendation accuracy and inference latency compared with simply widening the native beam.",
+  "arxiv_id": "2610.32098",
+  "authors": [
+    "Xiongfeng Shan",
+    "Xing Tang",
+    "Hanchong Chen",
+    "Fuyuan Lyu",
+    "Lingjie Li",
+    "Jingyan Jiang",
+    "Duguang Liu",
+    "Xiuqiang He"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "TCBSA提供了一种无需重训练或更新参数即可利用现成判别式推荐器提升生成式推荐精度的方法，适合已有冻结模型需要快速改进线上推荐的场景。",
+      "在相同beam宽度下，使用协作分数适应解码可以带来明显准确率提升；且B=20的TCBSA能以更低延迟达到优于B=50原生beam的NDCG@10，说明有限推理预算可以更有效地用于改善推荐质量。",
+      "方法在四个不同领域数据集和多个生成式/判别式模型组合上均有效，说明其可迁移性较强，但实际商业部署还需考虑中等程度的延迟增加以及检索宽度R带来的额外全目录打分成本。",
+      "由于离线只需构造物品到路径查找表，测试时仅需一次判别式打分和稀疏势能更新，工程接入上不需要修改现有模型权重，具有一定部署友好性。"
+    ],
+    "business_transferability": 0.73,
+    "contributions_zh": [
+      "提出TCBSA，一种训练无关的测试时适应方法，将独立训练的判别式推荐器的协作分数引入冻结生成式推荐器的beam决策，将物品分数边际投影到共享语义边上，在剪枝前干预解码。",
+      "将TCBSA刻画为对生成式路径分数的历史特定变换，推导了全局beam竞争下目标前缀存活的充分条件，并给出低判别置信度下分数扰动的界以及推理复杂度分析。",
+      "在四个数据集和多个生成式-判别式模型组合上进行全目录实验，并结合新兴兴趣、解码行为、共享前缀归因和beam宽度分析验证了有效性和准确率-延迟权衡。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "Introduction"
+      },
+      {
+        "page": 3,
+        "section": "Methodology"
+      },
+      {
+        "page": 5,
+        "section": "Experiments"
+      },
+      {
+        "page": 6,
+        "section": "Overall Effectiveness and Generality (RQ1)"
+      },
+      {
+        "page": 6,
+        "section": "Adaptation to Emerging Interests (RQ2)"
+      },
+      {
+        "page": 7,
+        "section": "Analysis of Decoding Behavior (RQ3)"
+      },
+      {
+        "page": 8,
+        "section": "Ablation and Attribution Analysis (RQ4)"
+      },
+      {
+        "page": 8,
+        "section": "Accuracy-Latency Trade-offs (RQ5)"
+      },
+      {
+        "page": 10,
+        "section": "Theoretical Analysis and Complexity"
+      },
+      {
+        "page": 11,
+        "section": "Additional Experimental Analyses"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "TIGER",
+        "MiniOneRec",
+        "HSTU",
+        "HumanPrior",
+        "APAO-Pairwise",
+        "MemGen-Fixed",
+        "MemGen-Adaptive"
+      ],
+      "datasets": [
+        "Amazon Reviews 2023: Industrial and Scientific (Science)",
+        "Amazon Reviews 2023: Musical Instruments (Music)",
+        "Amazon Reviews 2023: Office Products (Office)",
+        "Yelp (Kaggle)"
+      ],
+      "findings_zh": [
+        "TCBSA在全部16个数据集-指标组合上取得最优结果，并在14个比较中对最强基线有显著提升。",
+        "默认TIGER-SASRec组合下，TCBSA在所有数据集和指标上超过APAO-Pairwise、Human-Prior以及两种事后融合基线。",
+        "在1-touch和2-touch新兴兴趣子集上，TCBSA一致提升冻结TIGER的Recall@10和NDCG@10；Science上NDCG@10相对提升16.29%和31.95%，Yelp上相对提升76.31%和103.29%。",
+        "Yelp上B=20时，目标前缀最终深度存活率从原生TIGER的6.72%提升到TCBSA的8.37%（+24.44%）。",
+        "原生TIGER首次剪枝目标前缀的28,385个实例中，TCBSA在同一深度救回2,163个（7.62%），其中985个保留完整目标路径，632个进入最终Top-10。",
+        "正确推荐可以超出判别式Top-R集合：R=500时，Science、Office、Music、Yelp上分别有5.16%、4.72%、0.89%、0.86%的TCBSA Top-10正确命中落在SASRec Top-R之外。",
+        "去除置信度门控使NDCG@10下降1.88%-9.08%，且去除目标路径共享前缀修正会使Office和Science的retrieval外命中分别损失29.89%和28.46%，而匹配对照几乎无损失。",
+        "在全部20个数据集-beam配置上TCBSA优于原生TIGER；B=20的TCBSA比B=50的原生TIGER NDCG@10高3.64%-26.94%，同时延迟降低22.95%-32.27%。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "Recall@10",
+        "NDCG@10",
+        "Hit@10",
+        "目标前缀存活率",
+        "平均同步推理时间(ms/user)"
+      ]
+    },
+    "limitations_zh": [
+      "相同beam宽度下TCBSA增加推理成本：默认B=20时延迟是原生TIGER的1.43倍-1.63倍。",
+      "在Music和Yelp的B=10设置下，TCBSA略逊于更强的融合基线。",
+      "Yelp上1-touch子集中TCBSA仍弱于独立SASRec；2-touch样本量有限，且不同cohort不构成用户内对照，限制了结论的解读。",
+      "离线复杂度分析中的渐近界并不保证实际延迟开销可忽略。",
+      "部分超出Top-R集的正确命中依赖于共享前缀修正，但丢失命中也可能来自重排而非beam剪枝，并非所有丢失都由剪枝导致。",
+      "检索宽度和超参数主要在TIGER-SASRec上验证选择，并复用到其他模型组合，可能掩盖配对特定的最优配置。"
+    ],
+    "method_zh": "TCBSA包含离线准备和两个测试时阶段。离线阶段用固定语义ID构建物品到路径的查找表。测试时，冻结的判别式推荐器D先对全目录打分，TCBSA计算相对Top-R截断的分数边际，并按物品语义路径将边际聚合到共享前缀token边上，形成协作势能；随后用基于判别分数最大softmax置信度的门控sigmoid调节干预强度η。冻结生成器G进行单次解码，在每步beam剪枝前，将置信度调制的协作势能加入累积路径分数：S̃(p⊕t)=S̃(p)+logπ0(t|p,x)+η A(p,t)，再按全局分数保留Top-B扩展，直到生成L个token后映射为物品排序。",
+    "problem_zh": "语义ID生成式推荐在解码时使用beam search，但早期剪枝不可逆，可能丢弃与新兴兴趣相关的语义前缀；而独立训练的判别式推荐器可在测试时为完整物品打分，但物品级分数无法直接用于生成器的前缀级token决策。TCBSA要解决的核心问题是：在不更新生成器或判别器的情况下，如何将物品级协作信号在剪枝发生前融入冻结生成器的beam搜索决策。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.9315000000000001,
+  "id": "arxiv-2610.32098",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-26T18:58:03.024529Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-23T03:01:12Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "TCBSA提出一种免训练的测试时协同波束搜索适应方法，在语义解码过程中利用判别式推荐器的分数修正生成式推荐的波束剪枝，从而提升推荐准确率。",
+  "targets": [],
+  "tasks": [],
+  "title": "From Item Scores to Semantic Tokens: Test-Time Collaborative Adaptation for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.32098v1"
+}

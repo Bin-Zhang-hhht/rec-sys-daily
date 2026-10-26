@@ -1,0 +1,160 @@
+{
+  "abstract": "Generative recommendation with semantic IDs represents each item as a sequence of discrete codes derived from its semantic representation and predicts these codes to generate recommendations. Existing semantic-ID recommenders are typically trained with hard labels for the observed next item. Although such supervision identifies the target, it provides no explicit distributional information about alternative items conditioned on the same user history. Sequential recommenders can supply this item-level predictive knowledge, but transferring it to semantic-ID generation is challenging because the teacher and student operate in item and code spaces, respectively. We propose two complementary knowledge-distillation objectives for parallel semantic-ID recommenders, which predict all code positions simultaneously without autoregressive prefix conditioning. Item Distribution Matching (IDM) reconstructs a catalogue-level item distribution from the student's parallel code predictions and aligns it with the teacher's item distribution. Code Marginal Matching (CMM) projects the teacher's item probabilities onto each code position using fixed item-to-code assignments, then matches the resulting code marginals to the corresponding student heads. Both objectives transfer the teacher's soft distributional knowledge while preserving the student's parallel prediction structure. Experiments on benchmark datasets show that both methods consistently outperform existing state-of-the-art approaches. On average, IDM improves Recall@10 by 15.39%, while CMM improves NDCG@10 by 8.28%. These results demonstrate that distillation in either reconstructed item space or code-marginal space can substantially strengthen hard-label supervision for parallel generative recommendation. Generative recommendation with semantic IDs represents each item as a sequence of discrete codes derived from its semantic representation and predicts these codes to generate recommendations. Existing semantic-ID recommenders are typically trained with hard labels for the observed next item. Although such supervision identifies the target, it provides no explicit distributional information about alternative items conditioned on the same user history. Sequential recommenders can supply this item-level predictive knowledge, but transferring it to semantic-ID generation is challenging because the teacher and student operate in item and code spaces, respectively. We propose two complementary knowledge-distillation objectives for parallel semantic-ID recommenders, which predict all code positions simultaneously without autoregressive prefix conditioning. Item Distribution Matching (IDM) reconstructs a catalogue-level item distribution from the student's parallel code predictions and aligns it with the teacher's item distribution. Code Marginal Matching (CMM) projects the teacher's item probabilities onto each code position using fixed item-to-code assignments, then matches the resulting code marginals to the corresponding student heads. Both objectives transfer the teacher's soft distributional knowledge while preserving the student's parallel prediction structure. Experiments on benchmark datasets show that both methods consistently outperform existing state-of-the-art approaches. On average, IDM improves Recall@10 by 15.39%, while CMM improves NDCG@10 by 8.28%. These results demonstrate that distillation in either reconstructed item space or code-marginal space can substantially strengthen hard-label supervision for parallel generative recommendation.",
+  "arxiv_id": "2610.32943",
+  "authors": [
+    "Yixuan Xu",
+    "Hailin Liu",
+    "Linxiang Peng",
+    "Can Yang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "通过软分布蒸馏可以让生成式推荐器在保持并行推理速度的同时获得更丰富的条目级排序知识，有助于在不增加在线推理成本的前提下提升Top-K推荐的Recall和NDCG。",
+      "IDM/Recall与CMM/NDCG的互补性允许业务按需求选择：需要更广候选覆盖时用IDM，需要更精确的头部排序时用CMM，或将二者分数融合以同时提升覆盖与排序质量。",
+      "方法依赖预训练顺序推荐器（如SASRec）作为教师，企业若已有生产级顺序推荐模型，可将其条目级预测知识迁移到新一代并行SID推荐器中，复用既有模型资产。",
+      "教师数据量增加可进一步提升蒸馏效果，说明在业务中投资高质量、更充分的历史交互数据来训练教师会直接转化为推荐质量的提升。",
+      "由于蒸馏目标不改变并行推理结构，该方法适合部署在对在线延迟敏感的大型目录推荐场景，用离线训练成本换取在线排序精度。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "提出两种互补的跨空间知识蒸馏目标：Item Distribution Matching (IDM) 和 Code Marginal Matching (CMM)，分别从重构的条目空间和代码边际空间将教师的软分布知识传输给并行语义ID推荐器。",
+      "形式化分析两种目标的差异：两者共享由教师边际驱动的线性打分项，但IDM对目录条目进行归一化，CMM在每个代码头内独立归一化；并推导出损失与梯度的精确关系（Proposition 3.1和3.2）。",
+      "在三个Amazon基准数据集上的实验表明，两种目标均稳定优于现有最先进方法；IDM平均提升Recall@10 15.39%，CMM平均提升NDCG@10 8.28%。",
+      "通过消融、敏感性和组合实验证明：完整软目标优于top-1或均匀平滑目标；更广的代码头覆盖提升Recall；教师训练数据增加和未缩放温度（τ_T=1）均有正向作用；相同种子的分数融合可进一步提升多数据集上的NDCG。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Item Distribution Matching"
+      },
+      {
+        "page": 4,
+        "section": "3.3 Code Marginal Matching"
+      },
+      {
+        "page": 4,
+        "section": "3.4 Relationship between Matching Objectives"
+      },
+      {
+        "page": 5,
+        "section": "4.2 Overall Performance (RQ1)"
+      },
+      {
+        "page": 5,
+        "section": "4.3 Ablation Study (RQ2)"
+      },
+      {
+        "page": 6,
+        "section": "4.4 Sensitivity Analysis (RQ3)"
+      },
+      {
+        "page": 6,
+        "section": "4.5 Joint Training and Prediction Fusion (RQ4)"
+      },
+      {
+        "page": 7,
+        "section": "5 Conclusion"
+      },
+      {
+        "page": 8,
+        "section": "A.3 Gradient Calibration and Hyperparameter Selection"
+      },
+      {
+        "page": 8,
+        "section": "B Additional Ablation Results"
+      },
+      {
+        "page": 8,
+        "section": "C Additional Sensitivity Results"
+      },
+      {
+        "page": 9,
+        "section": "D Joint Training and Score Fusion"
+      },
+      {
+        "page": 9,
+        "section": "E Mathematical Details of Item-Code Matching"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "GRU4Rec",
+        "HGN",
+        "BERT4Rec",
+        "SASRec",
+        "FDSA",
+        "S3-Rec",
+        "RecJPQ",
+        "VQ-Rec",
+        "TIGER",
+        "HSTU",
+        "RPG",
+        "AsymRec"
+      ],
+      "datasets": [
+        "Beauty",
+        "Toys and Games (Toys)",
+        "Sports and Outdoors (Sports)"
+      ],
+      "findings_zh": [
+        "在Beauty、Toys和Sports三个数据集上，IDM和CMM在R@5/R@10/N@5/N@10所有指标上的平均分数均高于所有对比基线，并且一致优于最强基线AsymRec。",
+        "相对于硬标签AsymRec，IDM平均提升Recall@10 15.39%，CMM平均提升NDCG@10 8.28%；IDM偏好Recall，CMM偏好NDCG，在所有数据集上呈现互补的检索与排序行为。",
+        "消融实验显示，完整教师分布蒸馏优于Top-1目标或熵匹配的均匀平滑目标；代码头覆盖率从16头扩展到48头时Recall@10单调提升，说明细粒度残差级别对候选检索有用。",
+        "教师训练数据从25%到100%持续提升IDM和CMM的R@10与N@10；未缩放教师温度τ_T=1优于0.5、2、4；所有正的蒸馏强度均提升R@10，但NDCG对过强蒸馏更敏感。",
+        "相同种子的IDM和CMM分数融合（Fusion）在三个数据集上取得最高的平均NDCG@10，并在Toys和Sports上取得最高平均R@10，优于联合训练Joint和任一单独模型。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅限于三个Amazon Reviews 2014类目数据集（Beauty、Toys、Sports），跨域普适性尚未验证。",
+      "蒸馏依赖预训练的SASRec教师和固定的SID分配；未探索与可学习的条目tokenizer联合蒸馏。",
+      "融合方法需要分别训练IDM和CMM两个学生模型，训练成本高于单一蒸馏目标。",
+      "论文未考察面对完全冷启动项、新目录项动态增长或大规模工业目录时的蒸馏行为。",
+      "联合训练Joint在多数指标上低于等权重分数融合，如何在同一学生内融合两种归一化信号仍待改进。"
+    ],
+    "method_zh": "学生模型采用AsymRec式并行SID预测架构（16个量化子空间×3个残差级别=48个代码头，每头256类），固定SID分配矩阵M_h连接条目空间与代码空间。IDM将学生各代码头的并行预测按条目的SID组合成目录级条目分数，经softmax得到q_item并与教师SASRec的条目分布p_T做软交叉熵对齐；CMM利用M_h^T将教师条目概率投影到每个代码位置的边际分布b_h，再用KL散度匹配学生各头的分类分布。训练目标为硬标签损失加经过梯度校准和线性ramp引入的辅助蒸馏损失，λ通过校准阶段硬标签与辅助梯度L2范数比的中位数确定。",
+    "problem_zh": "并行语义ID（SID）生成式推荐器通常仅使用观测到的下一交互项对应的硬编码序列作为监督标签（hard labels）。这种目标只指明目标项，没有提供在同一用户历史条件下替代项的概率分布信息。预训练的顺序推荐器（如SASRec）能够提供基于历史的条目级预测分布，但由于教师工作在条目空间、学生工作在代码空间，且学生并行预测所有代码位而不进行自回归前缀条件化，如何将条目级预测知识转移到并行的SID推荐器中成为核心挑战。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8715,
+  "id": "arxiv-2610.32943",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-26T18:58:03.024529Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-23T17:37:55Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出两种面向并行生成式推荐的知识蒸馏目标（IDM和CMM），将教师模型的软分布知识迁移到学生的物品或编码空间中，显著提升召回率和NDCG指标。",
+  "targets": [],
+  "tasks": [],
+  "title": "Knowledge Distillation across Item and Code Spaces for Parallel Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.32943v1"
+}

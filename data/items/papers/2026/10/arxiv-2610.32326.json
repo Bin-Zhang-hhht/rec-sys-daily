@@ -1,0 +1,137 @@
+{
+  "abstract": "Large Language Model (LLM) agents have enabled automated code evolution for algorithm discovery. However, current recursive self-improvement (RSI) research for sequential recommendation faces a dilemma: general-purpose frameworks lack domain-specific feedback, while recommender-specific frameworks rely on linear evolution. Crucially, naively integrating them fails when applied to Generative Recommendation (GR). Unlike end-to-end models, GR relies on a module-cascaded pipeline (tokenization, pre-training, and alignment). In this paradigm, existing evolution methods suffer from: i) cost blindness, squandering budgets by ignoring stage-asymmetric retraining overheads; and ii) short-sighted evaluation, discarding promising upstream innovations that temporarily regress metrics before downstream adaptation. To bridge these gaps, we propose TGR-EvoDAG, a multi-agent code evolution framework tailored for GR. TGR-EvoDAG models code evolution as a Directed Acyclic Graph (DAG) to maintain multiple evolution branches and merge complementary innovations, unifying advanced search with rich GR diagnostic feedback. We further introduce stage-aware cost planning to optimize GPU-hour budgets, and active downstream co-adaptation to navigate temporary regressions and unlock cross-stage gains. On public Amazon datasets, TGR-EvoDAG enables the first autonomous evolution of a complete GR pipeline, improving offline metrics by up to 37.4% and Agent4Rec simulated user satisfaction by 19.7% over the strongest baseline. Furthermore, in industrial deployment on Tencent's large-scale commercial media platform, the evolved GR achieves a 12.16% relative improvement in offline Hit@1 and a statistically significant 0.40% increase in online click-through rate (CTR). Large Language Model (LLM) agents have enabled automated code evolution for algorithm discovery. However, current recursive self-improvement (RSI) research for sequential recommendation faces a dilemma: general-purpose frameworks lack domain-specific feedback, while recommender-specific frameworks rely on linear evolution. Crucially, naively integrating them fails when applied to Generative Recommendation (GR). Unlike end-to-end models, GR relies on a module-cascaded pipeline (tokenization, pre-training, and alignment). In this paradigm, existing evolution methods suffer from: i) cost blindness, squandering budgets by ignoring stage-asymmetric retraining overheads; and ii) short-sighted evaluation, discarding promising upstream innovations that temporarily regress metrics before downstream adaptation. To bridge these gaps, we propose TGR-EvoDAG, a multi-agent code evolution framework tailored for GR. TGR-EvoDAG models code evolution as a Directed Acyclic Graph (DAG) to maintain multiple evolution branches and merge complementary innovations, unifying advanced search with rich GR diagnostic feedback. We further introduce stage-aware cost planning to optimize GPU-hour budgets, and active downstream co-adaptation to navigate temporary regressions and unlock cross-stage gains. On public Amazon datasets, TGR-EvoDAG enables the first autonomous evolution of a complete GR pipeline, improving offline metrics by up to 37.4% and Agent4Rec simulated user satisfaction by 19.7% over the strongest baseline. Furthermore, in industrial deployment on Tencent's large-scale commercial media platform, the evolved GR achieves a 12.16% relative improvement in offline Hit@1 and a statistically significant 0.40% increase in online click-through rate (CTR).",
+  "arxiv_id": "2610.32326",
+  "authors": [
+    "Junlin He",
+    "Junzhang Zhu",
+    "Yudong Li",
+    "Yihong Tang",
+    "Xuefeng Jiang",
+    "Wei Ma",
+    "Chengxiang Zhuo",
+    "Zang Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "进化出的GR架构已在腾讯大型商业媒体平台作为新增检索通道上线，14天A/B测试取得统计显著的+0.40%在线CTR提升（p=0.019），具有可量化的实际商业价值。",
+      "新检索通道贡献超过10%的独特曝光，且通道CTR比系统平均高约13%，说明其能补充现有检索通道遗漏的相关物品。",
+      "TGR-EvoDAG已集成进腾讯内部Uppimo平台作为实现骨干，将递归自改进工作流产品化，并计划未来开放公共试用，可能降低推荐团队的人工实验迭代成本。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "识别并形式化了现有代码进化框架与级联GR管线之间的结构性错配，指出成本盲视和短视评估导致计算预算被系统性错配、有前景的跨阶段创新被丢弃。",
+      "提出TGR-EvoDAG，用Code DAG组织进化历史，通过五阶段七智能体工作流把多分支搜索机制与GR领域诊断反馈相结合。",
+      "引入阶段感知成本规划（Stage-Aware Cost Planning），基于实际GPU小时开销权衡候选编辑的预期收益，避免预算浪费在昂贵的上游探索上。",
+      "设计主动下游共适配（Active Downstream Co-Adaptation），保留暂时回退的上游分支并主动调度下游阶段改编，从而解锁被贪心框架丢弃的延迟收益。",
+      "构建了标准化GR进化平台，在Amazon数据集上首次实现完整GR训练管线的自主进化，并将进化出的架构迁移到腾讯工业场景，集成进Uppimo平台。"
+    ],
+    "evidence_quality": 0.9,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 TGR-EvoDAG"
+      },
+      {
+        "page": 1,
+        "section": "5 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "A.2 Datasets"
+      },
+      {
+        "page": 1,
+        "section": "A.3 GR Codebase"
+      },
+      {
+        "page": 1,
+        "section": "A.4 Evolution Baselines"
+      },
+      {
+        "page": 1,
+        "section": "A.5 Multi-Dimension Diagnostics"
+      },
+      {
+        "page": 1,
+        "section": "A.6 Metrics"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "TIGER (Pre-train)",
+        "SDPO",
+        "SPRec",
+        "ReReGRPO",
+        "APAO",
+        "AlphaEvolve",
+        "DeepEvolve",
+        "CORAL",
+        "Arbor",
+        "CORAL + Diag.",
+        "Arbor + Diag.",
+        "EvoRec",
+        "Self-EvolveRec"
+      ],
+      "datasets": [
+        "Amazon Office Products公开数据集",
+        "腾讯大规模商业媒体平台工业数据集（10天日志、超1000万交互、超30万物品，日活超1000万用户）"
+      ],
+      "findings_zh": [
+        "在Amazon Office Products上，TGR-EvoDAG相对最强非进化基线APAO在Hit@10/@20提升+24.7%/+28.5%，NDCG@10/@20提升+37.4%/+37.2%。",
+        "相对最强推荐专用基线Self-EvolveRec，Hit@10提升+21.0%，NDCG@10提升+32.8%；相对加入诊断的Arbor+Diag，Hit@10提升+6.8%，NDCG@10提升+16.9%，说明仅增加反馈丰富度不能替代DAG搜索能力。",
+        "相对APAO，Agent4Rec模拟环境的View提升+31.3%，用户满意度提升+19.7%，Depth提升+25.4%。",
+        "39轮进化轨迹显示五个阶段：先建立稳健基线，再打开正交分支，随后成对合并分支，延迟并修复上游PSRQ分词器，最后合并后经历暂时回退并主动下游共适配，达到最终Hit@10 0.0869。",
+        "搜索机制消融（A贪心、B多精英不合并、C无成本规划）显示性能从A到完整TGR-EvoDAG单调上升，验证了多分支合并和阶段感知成本规划的必要性。",
+        "工业离线场景中，进化后的GR相对APAO在Hit@1提升+12.16%，Hit@5提升+4.83%，Hit@50提升+0.25%；14天A/B测试中在线整体CTR显著提升+0.40%（p=0.019），新通道贡献超过10%的独特曝光，通道CTR比系统平均高约13%。",
+        "诊断信号对搜索有因果作用：用户诊断促使注入指数式近期偏差，数学探针定位“同粗错细”错误模式并驱动设计粗粒度内难负样本对比损失，分布探针发现PSRQ分词器导致语义ID碰撞率升至65.7%并指导RMS归一化修复降至1.0%。"
+      ],
+      "metrics": [
+        "Hit@10",
+        "Hit@20",
+        "NDCG@10",
+        "NDCG@20",
+        "Agent4Rec View",
+        "Agent4Rec Satisfaction",
+        "Agent4Rec Depth",
+        "工业离线Hit@1/Hit@5/Hit@50",
+        "在线CTR"
+      ]
+    },
+    "limitations_zh": [
+      "公开数据集的进化实验仅在Amazon Office Products单一类别上进行，作者说明选择该紧凑语料是为了保证单轮训练/验证低于1 GPU小时，以配合24 GPU小时的统一预算。",
+      "工业数据集的具体用户数、物品数和绝对CTR值因保密要求未披露。",
+      "论文没有独立的局限性章节；将框架扩展到多阶段LLM训练管线仅作为未来展望提出，尚未给出实验验证。",
+      "模型选择仅使用离线验证指标，Agent4Rec和在线指标只在最终检查点上评测，且工业在线验证仅报告了一个平台的一次14天A/B测试。"
+    ],
+    "method_zh": "TGR-EvoDAG把搜索空间表示为严格有向无环图（Code DAG），每个节点记录来源（父节点、算子、假设、分支状态）、产物（代码delta、可执行代码库快照、关联artifact）和经验执行（验证反馈、蒸馏经验、GPU成本）。三个搜索算子为EXPLORE（单亲开辟新方向）、MUTATE（单亲局部精化）和MERGE（多亲合并互补改进，以对最低公共祖先的diff传递上下文）。每轮由七/五个阶段智能体执行：Operator Selector根据阶段感知成本计划选择算子和父节点并预估GPU成本；Architect-Critic迭代形成结构化假设蓝图；Coder-Reviewer在隔离工作区实现并修复代码；环境返回离线指标、确定性数学探针和模拟用户诊断三类反馈；Distiller把反馈蒸馏成机制级经验；Pruner把不可恢复节点标记为[Pruned]，把上游编辑导致的指标回退标记为[Needs-Downstream-Adaptation]，强制后续节点冻结上游并改编下游。预算按环境实测的GPU小时扣减，LLM token消耗单独记录。",
+    "problem_zh": "现有的代码进化框架应用于生成式推荐（GR）时存在结构性不匹配：GR采用分词器-预训练-对齐的级联训练管线，而通用进化框架对上游编辑所需的全管线重训开销缺乏感知（成本盲视），并且按即时指标评价会丢弃那些暂时回退但经过下游适配后能兑现收益的上游创新（短视评估）；推荐专用框架虽有领域反馈但依赖线性或贪心搜索，无法维护和合并跨阶段分支。论文还指出，简单地把通用搜索机制与领域反馈组合仍不足以解决这些问题。",
+    "technical_depth": 0.95
+  },
+  "doi": null,
+  "final_score": 0.9450000000000001,
+  "id": "arxiv-2610.32326",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-26T18:58:03.024529Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-23T08:23:42Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "TGR-EvoDAG提出了一种基于有向无环图的多智能体代码进化框架，专门用于生成式推荐系统，通过阶段感知成本规划和主动下游协同适应提升推荐性能，并在腾讯平台成功部署。",
+  "targets": [],
+  "tasks": [],
+  "title": "TGR-EvoDAG: A DAG-based Multi-Agent Code Evolution Framework for Generative Recommendation on Tencent",
+  "url": "https://arxiv.org/abs/2610.32326v1"
+}

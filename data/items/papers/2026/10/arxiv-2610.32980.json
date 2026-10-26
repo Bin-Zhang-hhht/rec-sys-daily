@@ -1,0 +1,180 @@
+{
+  "abstract": "Generative recommenders retrieve items by writing their semantic IDs (SIDs) code by code under trie-constrained beam search, an approach now deployed on large web platforms. Standard autoregressive interfaces pay for the SID length K twice: a history of T items enters the backbone as TK code tokens, and every beam-search step runs through the backbone, so returning B candidates costs O(BK) backbone decode tokens per user. The second cost often dominates, and it grows with the backbone, the SID depth and the candidate budget. We introduce Deco (decoding from concepts), which separates reading the history from writing the identifier. The backbone reads each history item as one fused token and condenses the history once into a compact next-item concept; a light KV-cached decoder conditioned on the concept and the generated prefix runs the entire beam search, while the identifiers, the trie and the autoregressive factorization stay unchanged. The decoder approaches full-backbone accuracy with cross-entropy alone, and distillation improves it further. On seven datasets from e-commerce, movies and music streaming, Deco achieves comparable or better accuracy than both a standard generative recommender and the full-backbone teacher with fused inputs, while delivering 3.2--8.6$\\times$ their throughput under a 50 ms p95 latency budget in a production-style serving pipeline. Delegating beam search makes larger candidate pools and models practical: Deco generates 1000 candidates faster than its teacher generates 100, and with a 1.5B-parameter LLM backbone, it matches the 69M-parameter teacher's throughput while achieving higher accuracy. Generative recommenders retrieve items by writing their semantic IDs (SIDs) code by code under trie-constrained beam search, an approach now deployed on large web platforms. Standard autoregressive interfaces pay for the SID length K twice: a history of T items enters the backbone as TK code tokens, and every beam-search step runs through the backbone, so returning B candidates costs O(BK) backbone decode tokens per user. The second cost often dominates, and it grows with the backbone, the SID depth and the candidate budget. We introduce Deco (decoding from concepts), which separates reading the history from writing the identifier. The backbone reads each history item as one fused token and condenses the history once into a compact next-item concept; a light KV-cached decoder conditioned on the concept and the generated prefix runs the entire beam search, while the identifiers, the trie and the autoregressive factorization stay unchanged. The decoder approaches full-backbone accuracy with cross-entropy alone, and distillation improves it further. On seven datasets from e-commerce, movies and music streaming, Deco achieves comparable or better accuracy than both a standard generative recommender and the full-backbone teacher with fused inputs, while delivering 3.2--8.6$\\times$ their throughput under a 50 ms p95 latency budget in a production-style serving pipeline. Delegating beam search makes larger candidate pools and models practical: Deco generates 1000 candidates faster than its teacher generates 100, and with a 1.5B-parameter LLM backbone, it matches the 69M-parameter teacher's throughput while achieving higher accuracy.",
+  "arxiv_id": "2610.32980",
+  "authors": [
+    "Danil Gusak",
+    "Anna Volodkevich",
+    "Ivan Oseledets",
+    "Evgeny Frolov"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "生成式推荐可在大规模流量下以更低延迟服务更多用户：在50ms p95预算下Deco比FusedGR多服务3.2–7.3倍用户，比FlatGR多6.5–8.6倍，可直接降低单次推荐请求的GPU算力成本或支撑更大的在线流量。",
+      "使更大候选池（如1000个）变得实用：Deco生成1000个候选比教师生成100个还快且召回翻三倍，这为粗排/重排前提供更丰富的候选集、提升整体推荐质量创造条件。",
+      "骨干网络规模不再成比例地推高在线候选生成成本：1.5B LLM骨干的Deco在吞吐上匹配69M教师并准确率更高，3B骨干相对FusedGR有16倍加速，使工业界可选用更大预训练模型而不牺牲服务容量。",
+      "压缩到约1KiB的每用户概念可提前计算并在历史变化时刷新，使在线阶段仅运行轻量解码器，适合对延迟敏感且历史更新频繁的推荐场景（如音乐流媒体、电商、视频）。",
+      "重复消费场景（如音乐）中拷贝指针以很小的额外成本大幅提升重复项召回（NDCG@10从0.079提升至0.171），为流媒体等重听业务提供明确的精确复购/回听能力。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "指出SID生成式检索中'拼写标识符'的时间常超过'阅读历史'的时间：束搜索解码在FlatGR和FusedGR中都主导预填充；融合历史仅降低预填充成本，束搜索仍需每用户O(BK)次全骨干解码词元。",
+      "提出Deco（Decoding from concepts），将融合历史表示与委派解码结合：骨干网络仅读取历史一次并产出紧凑的下一项概念，轻量解码器在该概念与已生成前缀条件下运行完整的trie约束束搜索，SID码、trie和自回归分解保持不变。",
+      "在七个数据集上，概念解码在准确率上匹配或超过对应的全骨干基线（flat与fused历史），在生产线式服务管线中，批大小128下吞吐达FusedGR的2.8–5.1倍，在50ms p95延迟预算下达3.2–7.3倍。",
+      "速度提升随候选预算、SID深度和骨干规模增大而增长：Deco生成1000个候选比其教师模型生成100个更快；在1.5B参数LLM骨干下匹配69M参数教师的吞吐并取得更高准确率；扩展到3B模型相对FusedGR达16倍加速。"
+    ],
+    "evidence_quality": 0.92,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Method"
+      },
+      {
+        "page": 3,
+        "section": "3.1 Semantic-ID Generation and Its Cost"
+      },
+      {
+        "page": 4,
+        "section": "3.2 Fused History"
+      },
+      {
+        "page": 4,
+        "section": "3.3 Decoding from Concepts"
+      },
+      {
+        "page": 5,
+        "section": "3.4 Training the Light Decoder"
+      },
+      {
+        "page": 5,
+        "section": "3.5 Copying from the History"
+      },
+      {
+        "page": 6,
+        "section": "4.1 Experimental Setup"
+      },
+      {
+        "page": 7,
+        "section": "4.2.1 RQ1: Recommendation Quality"
+      },
+      {
+        "page": 7,
+        "section": "4.2.2 RQ2: Serving Efficiency"
+      },
+      {
+        "page": 8,
+        "section": "4.2.3 RQ3: Scaling the Generation Cost Factors"
+      },
+      {
+        "page": 9,
+        "section": "4.2.4 RQ4: Is a Compact Concept Enough?"
+      },
+      {
+        "page": 10,
+        "section": "4.2.5 RQ5: Sizing and Training the Light Decoder"
+      },
+      {
+        "page": 11,
+        "section": "A Additional Results"
+      },
+      {
+        "page": 12,
+        "section": "C Further Implementation Details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "FlatGR",
+        "FlatGR-match",
+        "FusedGR",
+        "Deco-flat",
+        "Deco-CE",
+        "TIGER (KV cache)",
+        "LLaDA-Rec",
+        "RPG (graph and full-catalog scoring)",
+        "NEZHA",
+        "SASRec^+",
+        "LC-Rec",
+        "LETTER",
+        "ETEGRec",
+        "DIGER",
+        "FusedGR + KD"
+      ],
+      "datasets": [
+        "Toys",
+        "Beauty",
+        "Sports",
+        "BPC-23",
+        "Books-23",
+        "MovieLens",
+        "Yambda"
+      ],
+      "findings_zh": [
+        "在七个数据集上，Deco在NDCG@10上超过FusedGR：Amazon-2014数据提高5–19%，四个较大数据集提高0.5–2.3%；Deco-flat在每个数据集上匹配或超过FlatGR；蒸馏版Deco在除Books-23外的所有数据集上同时超过其教师和FlatGR。",
+        "仅交叉熵的Deco-CE与FusedGR在NDCG@10差距在10%以内、Recall@100差距8%以内，且在Sports和BPC-23的recall上超过FusedGR，表明紧凑接口无需教师监督也能支撑准确检索。",
+        "服务效率：在BPC-23批大小128下，融合将预填充从FlatGR的4.4ms降至FusedGR的1.5ms，但束搜索仍占生成时间的91%；Deco将搜索从14.9ms降至2.1ms（7倍减少）。50ms p95预算下，Deco在BPC-23、MovieLens、Yambda上分别比FusedGR多服务7.1倍、3.9倍、3.2倍用户（比FlatGR多6.5–8.6倍）。",
+        "候选预算：束宽从10增至100，Deco吞吐损失34%，FusedGR损失73%、FlatGR损失61%；在k=1000时，Deco仍超过FusedGR在k=100时的吞吐，召回率为其三倍（0.267对0.088）；多数目标在前两个SID层级就被剪枝（k=100时第一层仅38%、第二层仅13%存活）。",
+        "SID深度：从K=2到8，Deco减速2.9倍，FusedGR 7.3倍、FlatGR 7.9倍，Deco相对教师的加速从2.7倍增至6.8倍；Deco在每个深度上准确率最高，概念不必随标识符长度增长。",
+        "骨干规模：从S到3B，FusedGR减速258倍（73k→281 users/s），Deco仅减速12倍（52k→4.5k）；解码部分跨骨干保持在58–59k users/s；相对FusedGR的加速从L的4.8倍增至0.5B的9.7倍、1.5B的14倍、3B的16倍；1.5B《Deco在速度上与69M FusedGR相当且NDCG@10高11%。",
+        "紧凑概念充分性：将概念替换为全部物品状态前缀或跨注意力后，NDCG@10变化小于5%（多数下降）、Recall@100最多约3%提升，但延迟最多增20%，每用户状态从O(1)增至O(T)或O(TK)；在低重复数据集上，解码器不可见历史既更便宜又足够准确。",
+        "重复消费：无指针时融合模型在Yambda重复目标上大幅落后FlatGR（FusedGR NDCG@10 0.093、Deco 0.079对0.153）；加入指针后所有模型在重复目标上达到约0.90 Recall@100和0.48–0.50 NDCG@10；门控均值0.27接近重复目标占比0.29，重复目标前均值0.63、新目标前0.12（AUC 0.90），重复目标86%的概率质量来自指针，Deco NDCG@10从0.079翻倍至0.171。",
+        "解码器规模与训练：1–4层宽128–512的解码器（3.5M–21.6M参数）在NDCG@10和Recall@100上保持在默认配置约3%以内，单层可将延迟降低20–28%；蒸馏在每个数据集上提升N@10（小数据集16–23%，大数据集4–11%），并稳定训练、防止过拟合；教师初始化可加速训练但非必需。",
+        "外部基线比较：在Sports和BPC-23上，Deco的NDCG@10均最高（0.0191和0.0132），Recall@100在BPC-23最高（0.0905），Sports上仅SASRec^+略高（0.1332 vs 0.1301）；SASRec^+和RPGfull每用户吞吐更高（RPGfull在Sports上但NDCG@10低15%）。",
+        "留一法基准：Beauty leave-one-out下Deco NDCG@10=0.0481、Recall@10=0.0839，超过文献中TIGER（0.0384/0.0648）、LC-Rec、LETTER、ETEGRec、DIGER和RPG（0.0464/0.0809）。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "NDCG@50",
+        "NDCG@100",
+        "Recall@10",
+        "Recall@50",
+        "Recall@100",
+        "Recall@300",
+        "Recall@1000",
+        "users/s at batch 128",
+        "peak throughput",
+        "p95 latency",
+        "generation time breakdown"
+      ]
+    },
+    "limitations_zh": [
+      "更丰富的历史访问（全部物品状态作为前缀或跨注意力）在低重复数据集上无一致增益，说明紧凑概念主要适用于偏好类任务；在重复消费场景，若不加拷贝指针，压缩表示会显著丢失精确历史项身份信息。",
+      "长历史下预填充成为Deco的主要剩余成本，相对教师的加速从T=20时的4.7–5.1倍降至T=100时的2.8–3.3倍；概念缓存被强调为长历史下特别有价值，但默认计时中仍为每个请求重新计算概念。",
+      "在极小的骨干（S，两层宽128）上Deco比其教师更慢，因为骨干比解码器还轻；仅在骨干超过一定规模后委派解码才带来加速。",
+      "蒸馏需要冻结的全骨干教师模型，即训练期额外成本；Deco-CE虽免教师但准确率略低，且KD的增益在小数据集上更明显。",
+      "候选择优局限：束宽超过目标k仅带来微小增益（Recall@100约3–4%），且所有模型在不同SID层级以相近比例丢失目标，概念并不能改善早期剪枝造成的不可避免损失。"
+    ],
+    "method_zh": "Deco将用户偏好建模与SID生成分离。骨干网络f_θ读取融合后的每项一个词元的历史序列，通过线性映射W_z将最后隐状态h_T转为M×d的紧凑下一项概念z；概念不承诺单个物品，而是条件化一个分布，由轻量因果Transformer解码器g_φ逐码枚举。解码器通过MLP适配器ψ(z)读取概念，使用层级专属嵌入和层级头W_k在trie约束下评分有效子码；束搜索完全在解码器内部以其自有KV缓存运行，解码器不关注历史、不保留骨干缓存。解码器可与骨干、融合器联合密集训练，仅用交叉熵（Deco-CE）即可接近全骨干准确率；也可通过冻结的全骨干教师（FusedGR/FlatGR）在金子前缀处做知识蒸馏，等价于教师信息感知的标签平滑。对重复消费场景，增加基于历史注意力权重的拷贝指针，混合分布在SID trie上精确分解，束搜索不变。离线时概念u（任何骨干均为约1KiB）可作为完整每用户生成状态提前计算。",
+    "problem_zh": "生成式推荐系统（GR）使用语义ID（SID）进行候选取回，但在标准自回归接口下，SID的编码长度K会在两个环节造成高昂的推理成本：历史序列以TK个词元输入骨干网络，且每个束搜索步骤都要经过骨干网络，返回B个候选需要O(BK)次骨干解码词元。束搜索解码往往占总生成时间的大部分（在束宽100时高达91%），并随骨干规模、SID深度和候选预算增长，成为部署延迟与吞吐的瓶颈。",
+    "technical_depth": 0.95
+  },
+  "doi": null,
+  "final_score": 0.9565000000000001,
+  "id": "arxiv-2610.32980",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-26T18:58:03.024529Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-23T17:59:24Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "Deco提出将历史读取与标识符生成分离的解码方法，用轻量KV缓存解码器替代主干模型执行整个波束搜索，在不损失准确率的情况下显著提升生成式推荐的吞吐量。",
+  "targets": [],
+  "tasks": [],
+  "title": "Separating Thinking from Spelling for Efficient Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.32980v1"
+}
