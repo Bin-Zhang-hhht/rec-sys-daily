@@ -1,0 +1,130 @@
+{
+  "abstract": "Generative recommendation formulates item recommendation as autoregressive generation rather than a discriminative scoring problem. Although empirical studies exhibit favorable scaling behavior in recommendation, unleashing the benefits of scaling remains challenging under the strict model size and inference cost constraints of real-world systems. A central challenge is to combine expressive modeling of user-item interaction histories with flexible computational depth without proportionally increasing model size. We introduce LoopGR, a parameter-efficient scaling framework for generative recommendation via recurrent depth. LoopGR employs a tailored hierarchical recurrent depth mechanism that alternates between a shared generative decoder and a lightweight context updater. For efficient inference, we further develop recurrent trajectory self-distillation that distills a low-budget student from a high-budget teacher by aligning both predictive distributions and evolution directions. Extensive experiments show that LoopGR consistently outperforms strong generative recommendation baselines. Compared with a representative encoder-decoder baseline, LoopGR achieves superior performance while reducing model size by up to 52%. These results establish recurrent depth as a new scaling dimension, offering a flexible and resource-efficient scaling path for generative recommendation. Generative recommendation formulates item recommendation as autoregressive generation rather than a discriminative scoring problem. Although empirical studies exhibit favorable scaling behavior in recommendation, unleashing the benefits of scaling remains challenging under the strict model size and inference cost constraints of real-world systems. A central challenge is to combine expressive modeling of user-item interaction histories with flexible computational depth without proportionally increasing model size. We introduce LoopGR, a parameter-efficient scaling framework for generative recommendation via recurrent depth. LoopGR employs a tailored hierarchical recurrent depth mechanism that alternates between a shared generative decoder and a lightweight context updater. For efficient inference, we further develop recurrent trajectory self-distillation that distills a low-budget student from a high-budget teacher by aligning both predictive distributions and evolution directions. Extensive experiments show that LoopGR consistently outperforms strong generative recommendation baselines. Compared with a representative encoder-decoder baseline, LoopGR achieves superior performance while reducing model size by up to 52%. These results establish recurrent depth as a new scaling dimension, offering a flexible and resource-efficient scaling path for generative recommendation.",
+  "arxiv_id": "2610.34157",
+  "authors": [
+    "Huizhe Zhang",
+    "Yudong Li",
+    "Liang Chen",
+    "Chengxiang Zhuo",
+    "Zang Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "LoopGR将计算深度与参数量解耦，在同等或更优精度下最多可减少52%的模型参数，有助于降低推荐系统的存储和部署成本。",
+      "RTSD支持将高预算模型压缩为低预算学生，在8循环和4循环下分别获得约2.0倍和4.2倍的推理加速，适合线上低延迟服务。",
+      "在Tencent工业推荐数据集上，LoopGR相比已有生成式推荐基线显著提升多个召回指标，表明其具备大规模工业推荐场景的落地价值。",
+      "上下文更新器被设计为模型无关、可插拔组件，便于将现有生成式推荐组件集成到LoopGR框架中，降低工程改造和集成成本。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "首次将循环深度架构引入基于SID的生成式推荐，通过共享生成解码器与轻量级上下文更新器交替的层次化循环机制，在目标SID生成过程中动态精炼上下文，并将计算深度与参数量解耦。",
+      "提出循环轨迹自蒸馏（RTSD），同时对齐教师与学生轨迹上的预测分布及演化方向，避免退出选择与轨迹形成的纠缠，将高预算教师蒸馏为低预算学生，支持高效推理。",
+      "在多个公开数据集和工业数据集上系统验证了循环深度、模型大小和计算量扩展，结果表明LoopGR以更少参数超越强基线，相比代表性编码器-解码器基线最多可减少52%的模型尺寸。"
+    ],
+    "evidence_quality": 0.86,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Recurrent Trajectory Self-Distillation"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Overall Performance"
+      },
+      {
+        "page": 1,
+        "section": "5.3 Architecture Comparison"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "A.2 Efficiency under Compressed Recurrent Trajectories"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "FDSA",
+        "S3-REC",
+        "VQ-REC",
+        "TIGER",
+        "HSTU",
+        "ActionPiece",
+        "RPG",
+        "BARGE",
+        "Lazy Decoder-Only"
+      ],
+      "datasets": [
+        "Amazon Reviews 2014: Beauty",
+        "Amazon Reviews 2014: Sports and Outdoors",
+        "Amazon Reviews 2014: CDs and Vinyl",
+        "Tencent工业推荐数据集"
+      ],
+      "findings_zh": [
+        "在三个公开数据集的12个评测设置中，LoopGR和LoopGR-RTSD在8个设置上取得最佳结果；相比最强基线，Beauty上Recall@5提升2.4%、NDCG@5提升2.1%，Sports and Outdoors上Recall@5提升5.4%、NDCG@10提升4.2%。",
+        "在Tencent工业数据集上，LoopGR持续优于Lazy Decoder、TIGER和BARGE，最大相对提升分别为11.47%、7.13%和3.91%，且随检索截断增大优势更明显。",
+        "架构对比显示LoopGR在相似参数量下取得更高NDCG@5；约0.5 GFLOPs时仅用1.3M参数，而Encoder-Decoder需要2.7M参数，并实现更优性能。",
+        "消融实验表明去除低层循环会显著降低性能，而增加高层循环数TH和低层循环数TL通常带来增益，但在较大深度上高层循环收益呈现非单调性。",
+        "RTSD可将16循环教师压缩为8循环和4循环学生，推理延迟从211.08ms分别降至104.01ms和49.82ms（约2.0倍和4.2倍加速），同时保持接近的推荐精度；4循环学生在Sports的四个指标上甚至超过16循环教师。",
+        "更新器替换实验中，Identity更新器平均带来约8%的性能下降，说明增益主要来自动态上下文更新而非特定序列算子；相比每步监督、门控退出和ILSD，RTSD在低预算下的平均性能差距最小，仅为3.2%。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "Recall@10",
+        "NDCG@10",
+        "工业数据集上额外使用 Recall@20、Recall@50、Recall@100"
+      ]
+    },
+    "limitations_zh": [
+      "循环深度增加会引入额外的顺序推理延迟，不能无限制地增加循环步数，需要借助RTSD等压缩策略来满足严格线上预算。",
+      "高层循环数增大时性能增益呈非单调，说明并非循环越深越好。",
+      "RTSD低预算学生在多数公开评测指标上略低于全预算LoopGR，蒸馏会带来一定精度损失。",
+      "工业数据集上的对比为离线性能结果，论文未报告在线部署或在线A/B测试收益。"
+    ],
+    "method_zh": "LoopGR由编码器、共享解码器和轻量级共享上下文更新器组成。编码器将用户历史交互的SID序列编码为初始上下文记忆；高层循环反复执行解码器进行目标SID表示预测，每个高层循环内部嵌套低层循环，由上下文更新器根据当前预测状态对历史上下文进行逐步精炼。解码器在每个自回归生成步骤中以当前上下文产生目标SID表示，上下文更新器利用BOS隐状态和循环索引构造条件与查询信号，通过GRU等轻量序列算子更新上下文并保留初始上下文作为稳定锚点。训练采用两阶段目标：第一阶段以最终监督训练高预算教师；第二阶段从教师初始化低预算学生，最小化任务损失、预测分布KL散度对齐损失和基于一阶差分的方向一致性损失，将高预算循环轨迹压缩到低预算学生。",
+    "problem_zh": "生成式推荐在真实系统严格的模型规模和推理成本约束下难以充分发挥扩展优势；现有架构通常将计算深度与网络层数/参数量耦合，在历史交互建模与目标SID生成之间分配计算存在冲突，缺少能动态组织计算且避免参数比例增长的生成式推荐骨干设计。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.932,
+  "id": "arxiv-2610.34157",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-25T08:40:32Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出基于循环深度的参数高效生成式推荐框架LoopGR，通过重复深度与自蒸馏降低模型规模，属于生成式推荐方法研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "LoopGR: Parameter-Efficient Scaling for Generative Recommendation via Recurrent Depth",
+  "url": "https://arxiv.org/abs/2610.34157v1"
+}

@@ -1,0 +1,138 @@
+{
+  "abstract": "Large language models (LLMs) bring world knowledge to user preference modeling in sequential recommendation, but generation-based recommenders express next-item predictions indirectly as text. Generated outputs may fail to identify a unique candidate item, depend on candidate presentation order in the prompt, and lack explicit confidence in the recommendation. Recent studies explore Jev, a model for fast option selection with explicit confidence. Inspired by Jev, we introduce decision-native recommendation, a new paradigm that jointly models item choice and recommendation confidence using LLM representations. It requires valid candidate selection, consistency under candidate reordering, and confidence that reflects recommendation accuracy. We propose Direct Item Choice Estimation (DICE), which learns a personalized next-item distribution over supplied candidates from user interaction history and recommends the highest-scoring item with calibrated confidence. Tree-structured attention shares history computation across isolated candidate branches for order-consistent candidate scoring in a single forward pass. On three recommendation datasets, DICE achieves higher top-one accuracy than all evaluated baselines. Separate evaluations show unchanged item choices under tested candidate reorderings and end-to-end speedups of up to approximately $6\\times$ over the evaluated generation-based methods. Its confidence estimates support selective recommendation by identifying more reliable predictions and guide additional computation for low-confidence examples in offline routing. Large language models (LLMs) bring world knowledge to user preference modeling in sequential recommendation, but generation-based recommenders express next-item predictions indirectly as text. Generated outputs may fail to identify a unique candidate item, depend on candidate presentation order in the prompt, and lack explicit confidence in the recommendation. Recent studies explore Jev, a model for fast option selection with explicit confidence. Inspired by Jev, we introduce decision-native recommendation, a new paradigm that jointly models item choice and recommendation confidence using LLM representations. It requires valid candidate selection, consistency under candidate reordering, and confidence that reflects recommendation accuracy. We propose Direct Item Choice Estimation (DICE), which learns a personalized next-item distribution over supplied candidates from user interaction history and recommends the highest-scoring item with calibrated confidence. Tree-structured attention shares history computation across isolated candidate branches for order-consistent candidate scoring in a single forward pass. On three recommendation datasets, DICE achieves higher top-one accuracy than all evaluated baselines. Separate evaluations show unchanged item choices under tested candidate reorderings and end-to-end speedups of up to approximately $6\\times$ over the evaluated generation-based methods. Its confidence estimates support selective recommendation by identifying more reliable predictions and guide additional computation for low-confidence examples in offline routing.",
+  "arxiv_id": "2610.34124",
+  "authors": [
+    "Daoxuan Liu",
+    "Jiayi Liao",
+    "Jiancan Wu",
+    "An Zhang",
+    "Xiang Wang",
+    "Xiangnan He"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "决策原生界面可减少生成式 LLM 推荐的无效/歧义输出与候选顺序导致的决策不稳定，从而提升推荐输出的可部署性和可靠性。",
+      "共享历史计算的树结构推理带来最高约 6× 的端到端加速（相对所评估的生成式基线），有潜力降低 LLM 推荐服务的推理成本。",
+      "校准后的决策置信度支持选择性推荐：保留约四分之一样本时可达到 88.82%–94.42% 的准确率，可用于只展示高置信推荐。",
+      "置信度可直接驱动模型路由：在 LastFM 离线实验中用约 47.78% 的升级率保留 4B 模型 99.5% 以上准确率，并降低 24.8% 的估计顺序延迟，无需额外训练路由模型。",
+      "基于文本描述的打分使 DICE 能够给训练中未见的物品打分，对物品冷启动场景有潜在业务价值。",
+      "论文仅提供离线实验和估计成本，缺少在线部署验证，实际业务收益仍需在真实流量和延迟预算下验证。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出决策原生推荐（decision-native recommendation）新范式，将有效候选选择、候选顺序一致性和反映真实准确率的置信度作为联合要求。",
+      "提出 DICE（Direct Item Choice Estimation），用用户-物品编码、类别选择学习、共享用户历史的单次前向打分和校准后的决策置信度实例化该范式。",
+      "在三个推荐数据集上，DICE 的 top-one accuracy 超过所有评估基线；实验还表明其支持冷启动物品选择、顺序一致的推理和高效的前向计算。",
+      "展示决策置信度可用于选择性推荐和模型路由：高置信子集准确率显著提升，低置信样本升级到大模型可保留大部分准确率并降低估计延迟。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Method"
+      },
+      {
+        "page": 1,
+        "section": "4.2 RQ1: Recommendation Quality and Item Cold-Start Performance"
+      },
+      {
+        "page": 1,
+        "section": "4.3 RQ2: Structural Properties and Inference Efficiency"
+      },
+      {
+        "page": 1,
+        "section": "4.4 RQ3: Decision Confidence and Applications"
+      },
+      {
+        "page": 1,
+        "section": "5 Conclusion and Discussion"
+      },
+      {
+        "page": 1,
+        "section": "A.10 Decision-Confidence Evaluation Protocol"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "Caser",
+        "SASRec",
+        "Base (Qwen3)",
+        "SFT",
+        "S-DPO",
+        "NAPO",
+        "LlamaRec",
+        "InvariRank",
+        "RE^2-SFT+GRPO",
+        "SelfDR-style student"
+      ],
+      "datasets": [
+        "Goodreads",
+        "LastFM",
+        "Amazon Reviews 2023 Industrial_and_Scientific (Amazon Industrial)"
+      ],
+      "findings_zh": [
+        "DICE-I 在 Goodreads、LastFM 和 Amazon Industrial 上取得最高 HR@1，并在 Goodreads/LastFM 上同时取得最高 HR@3 和 NDCG@3；DICE-S 在 Amazon Industrial 上四项指标均领先。",
+        "与最强 HR@1 直接排序基线 LlamaRec 相比，DICE-I 在 Goodreads、LastFM、Amazon Industrial 上的 HR@1 绝对提升分别为 +6.14%、+2.00%、+1.17%。",
+        "主实验使用 Qwen3-0.6B；将 DICE-I 骨干从 0.6B 扩到 4B 后，LastFM HR@1 从 0.6160 提升到 0.7018，Goodreads HR@1 在 1.7B 达到 0.5465 后基本持平，但 HR@3 和 NDCG@5 继续提升。",
+        "物品冷启动实验中，DICE-I 在 LastFM 和 Amazon Industrial 上 HR@1 高于 SFT、S-DPO 和 SASRec，但在 Goodreads 上 SFT 与 S-DPO 的 0.2562 高于 DICE-I 的 0.2397，说明冷启动优势因数据集而异。",
+        "候选打分相比答案生成普遍提升 SFT/S-DPO/NAPO 的 HR@1（Goodreads 绝对提升 2.82–8.81%，LastFM 4.09–6.41%）；单个 SFT 诊断检查点中约 16.11%（Goodreads）和 7.98%（LastFM）的生成答案无法唯一识别候选。",
+        "在测试的候选重排实验中，DICE-I 与 DICE-S 的 FlipRate 均为 0.0000，ValidRatio 为 100%；SFT 的 FlipRate 为 0.3180/0.2984，S-DPO 为 0.4500/0.3125。",
+        "K=20 时 DICE-I 树结构推理在 Goodreads/LastFM 的端到端延迟为 51.27/38.34 ms，相对 SFT 和 S-DPO 的加速比为 6.18–6.26×（Goodreads）和 3.04–3.11×（LastFM）；相对 DICE-I flat 编码的加速比为 4.53×/2.40×。",
+        "温度缩放后，DICE-I 在 Goodreads 和 LastFM 的校准 ECE 最低，分别为 0.0538 和 0.0203，低于 LlamaRec 和 InvariRank。",
+        "基于开发集选定并固定的置信度阈值保留约四分之一测试样本时，DICE-I 的准确率达 88.82%（Goodreads）和 94.42%（LastFM），比全测试集准确率绝对提升 35.50% 和 32.82%。",
+        "在 LastFM 路由实验中，升级 47.78% 的样本达到 HR@1 0.6986，保留 4B-only 模型 0.7018 的 99.5% 以上；估计顺序延迟 105.16 ms，比 4B-only 树推理低 24.8%；相同升级率下比随机路由高 4.16% 绝对 HR@1。"
+      ],
+      "metrics": [
+        "HR@1",
+        "HR@3",
+        "HR@5",
+        "NDCG@3",
+        "NDCG@5",
+        "ValidRatio",
+        "FlipRate",
+        "ECE",
+        "端到端延迟 (ms)",
+        "选择性推荐覆盖率/准确率",
+        "路由升级率与估计顺序延迟"
+      ]
+    },
+    "limitations_zh": [
+      "论文将以下方向列为未来工作：候选检索与物品选择耦合、目标物品不在候选池时的弃权（abstention）、自适应校准，以及动态工作负载和应用特定延迟预算下的在线路由。",
+      "路由评估是离线的，估计顺序延迟由组件耗时与升级率计算得到，并未测量真实在线级联，且明确排除了路由开销。",
+      "冷启动效果不一致：Goodreads 上 SFT 和 S-DPO 的冷目标 HR@1 高于 DICE-I。",
+      "DICE-S 的候选交互收益在不同数据集与候选数量上不稳定，因此论文将其定位为可选扩展。",
+      "Amazon Industrial 上 DICE-I 的 HR@5（0.7808）略低于 GRU4Rec（0.7824）。",
+      "主比较使用 Qwen3 骨干和 K=20 的候选规模，实验结论主要基于该设定下的离线基准。"
+    ],
+    "method_zh": "DICE 将指令和用户按时间顺序排列的历史作为共享前缀，把每个候选物品描述与 EOS 作为独立分支，用冻结的预训练 LLM 编码，取 EOS 位置的隐状态经共享决策头得到 logit；对所有候选 logit 做 softmax 得到选择分布，并用候选级交叉熵训练 LoRA 与决策头。推理时选择最高分候选。DICE-I 使用树结构注意力掩码，在一个前向中共享历史计算、隔离候选分支，并用与独立编码一致的位置索引保证候选顺序不变性。训练后通过保留数据拟合温度缩放校准置信度；置信度还可用于阈值化选择性推荐和级联路由（低置信度时升级到大模型）。DICE-S 增加置换等变的候选交互模块作为可选扩展。",
+    "problem_zh": "大型语言模型用于顺序推荐时通常采用生成式范式，把下一项预测表达为文本生成，导致输出需要映射回物品空间、可能无法唯一识别候选、受候选展示顺序影响、缺少显式置信度，并带来逐 token 解码的推理开销。本文提出“决策原生推荐”范式，要求推荐器直接选择有效候选、在候选重排下保持选择一致，并提供与推荐准确性相符的置信度。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.8585,
+  "id": "arxiv-2610.34124",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-25T07:46:40Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出决策原生推荐范式DICE，用大语言模型表示直接对候选物品打分并给出校准置信度，实现顺序一致的个性化推荐。",
+  "targets": [],
+  "tasks": [],
+  "title": "Decision-Native Recommendation with Large Language Models",
+  "url": "https://arxiv.org/abs/2610.34124v1"
+}

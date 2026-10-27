@@ -1,0 +1,159 @@
+{
+  "abstract": "Cross-domain sequential recommendation aims to improve next-item prediction in a target domain by leveraging user behavior from auxiliary source domains. However, real-world deployment faces two critical challenges: business constraints that isolate interaction data across domains, and user heterogeneity, where many users lack cross-domain activity. This makes existing cross-domain methods difficult to apply. In this paper, we propose a simple and practical framework for cross-domain sequential recommendations that transfers information exclusively through learned user representations, without sharing raw interaction data or item embeddings across domains. We introduce a lightweight adapter that projects the source-domain user representation into the target-domain embedding space and integrates it with the target interaction sequence. Importantly, when source data is unavailable (i.e., the user observed only in the target domain), the model seamlessly defaults to a robust target-only sequential recommender, retaining benefits from joint training across all users. Extensive experiments were conducted under two setups; one targets benchmarking against previous baselines, while the other focuses on realistic and scalable conditions. Both sets of experiments demonstrate consistent performance gains for shared and unshared users. Cross-domain sequential recommendation aims to improve next-item prediction in a target domain by leveraging user behavior from auxiliary source domains. However, real-world deployment faces two critical challenges: business constraints that isolate interaction data across domains, and user heterogeneity, where many users lack cross-domain activity. This makes existing cross-domain methods difficult to apply. In this paper, we propose a simple and practical framework for cross-domain sequential recommendations that transfers information exclusively through learned user representations, without sharing raw interaction data or item embeddings across domains. We introduce a lightweight adapter that projects the source-domain user representation into the target-domain embedding space and integrates it with the target interaction sequence. Importantly, when source data is unavailable (i.e., the user observed only in the target domain), the model seamlessly defaults to a robust target-only sequential recommender, retaining benefits from joint training across all users. Extensive experiments were conducted under two setups; one targets benchmarking against previous baselines, while the other focuses on realistic and scalable conditions. Both sets of experiments demonstrate consistent performance gains for shared and unshared users.",
+  "arxiv_id": "2610.35550",
+  "authors": [
+    "Abdulaziz Samra",
+    "Nikita Sukhorukov",
+    "Alexey Grishanov",
+    "Alexey Vasilev",
+    "Evgeny Frolov"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可在不共享原始交互数据和物品 ID 的前提下实现跨域推荐，适合多业务线、多子公司或纵向联邦学习场景，降低数据合规和跨域数据集中化存储的障碍。",
+      "支持部分用户重叠，并且能提升只出现在目标域的用户推荐质量，有助于在用户缺乏新域历史时改善冷启动表现。",
+      "训练只交换嵌入和梯度，且相对 ABXI 有数倍加速，能扩展到百万级物品目录，具备工业部署潜力。",
+      "大规模实验显示准确率提升伴随大候选集覆盖率下降，业务落地时需要在准确性、多样性和长尾曝光之间进行权衡。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出 FLADRec，一种纯表示级迁移的跨域序列推荐框架：只传递固定维度的用户嵌入，不合并原始交互序列，不共享物品嵌入，可在纵向联邦学习约束下部署。",
+      "设计轻量 Fusing Layer，将源域用户表示通过 LayerNorm 和 MLP 投影到目标域嵌入空间，并逐元素注入目标物品嵌入，在严格数据隔离下实现自适应偏好迁移。",
+      "证明该框架不仅提升共享用户，还能通过联合训练带来的隐式正则提升没有源域历史的仅目标域用户，且推理时无需跨域信号。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.1 Problem Description"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Fusing layer for cross-domain transfer"
+      },
+      {
+        "page": 1,
+        "section": "2.4 Handling missing source-domain histories"
+      },
+      {
+        "page": 1,
+        "section": "2.5 Vertical Federated Learning"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Data and Splitting"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Evaluation and Metrics"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Benchmarking results"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Scalability Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "5 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "7.1 Privacy Analysis"
+      },
+      {
+        "page": 1,
+        "section": "7.2 Toward A Fair, Sustainable CDR Benchmarking Protocol"
+      },
+      {
+        "page": 1,
+        "section": "8 Conclusion and future works"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "BERT4Rec",
+        "CD-SASRec",
+        "FedDCSR",
+        "CD-ASR",
+        "MGCL",
+        "C²DSR",
+        "DREAM",
+        "ABXI"
+      ],
+      "datasets": [
+        "Food-Kitchen (Amazon)",
+        "Beauty-Electronics (Amazon)",
+        "Movie-Book (Amazon)",
+        "TenRec (QK-Article→QK-Video)",
+        "Zvuk&MegaMarket"
+      ],
+      "findings_zh": [
+        "在 Amazon 基准（Food-Kitchen、Beauty-Electronics、Movie-Book）与限制源数据访问的基线比较中，FLADRec 在几乎所有域和指标上取得最好结果，唯一例外是 Book 域的 HR@10 排名第二。",
+        "在与可访问池化数据的更强基线比较中，ABXI 在若干基准上略高，但 FLADRec 在更严格的不共享原始交互数据条件下仍总体有竞争力，并在 Kitchen、Electronics、Book 的部分 NDCG@10 指标上高于 ABXI。",
+        "在 TenRec 大规模数据上，FLADRec 相对 SASRec 的 NDCG 和 HitRate 相对提升约为 19%–24%；在 Zvuk&MegaMarket 上 NDCG 提升 7.4%–9.8%，HR@50 最大提升达 20.4%。",
+        "覆盖率方面，TenRec 的 COV@10 提升 +6.6%，但 COV@50 和 COV@100 出现下降（TenRec 为 -1.2% 和 -5.3%，Zvuk&MM 为 -8.7% 和 -13.8%），说明较大候选集下多样性下降。",
+        "消融实验显示完整迁移（full）优于随机注入（rand）和无迁移（none）；微调源编码器一致优于冻结源编码器；未共享用户也能获得与共享用户相近的相对提升，例如 tuned source 下 unshared NDCG@10 相对提升 +25.8%，shared 为 +26.3%。",
+        "训练效率方面，FLADRec 相对 ABXI 在三个基准域对上的加速比为 3.68×–11.57×。"
+      ],
+      "metrics": [
+        "HR@5",
+        "HR@10",
+        "HR@50",
+        "HR@100",
+        "NDCG@10",
+        "NDCG@50",
+        "NDCG@100",
+        "MRR",
+        "COV@10",
+        "COV@50",
+        "COV@100"
+      ]
+    },
+    "limitations_zh": [
+      "作者说明 FLADRec 没有专门机制防御用户历史重建攻击；更强的隐私保证需要集成形式化差分隐私等机制。",
+      "Amazon 基准不是原生跨域数据、人为保留 100% 用户重叠、采用负采样评估且可能存在时间泄漏，这些都会影响结论的现实可推广性。",
+      "TenRec 缺少时间戳，无法执行严格时间切分，只能采用用户分层切分；Zvuk&MegaMarket 的 50% 用户重叠率仍然偏高。",
+      "在更大 cutoff（COV@50、COV@100）下覆盖率下降，准确率提升与多样性之间存在权衡。",
+      "论文主要评估单向迁移设定，未覆盖多源域、多任务场景。",
+      "如果用户在源域无历史，则推理时没有显式跨域信号，只能依靠联合训练带来的隐式正则提升。",
+      "business_implications_zh"
+    ],
+    "method_zh": "源域编码器将源交互序列编码为固定维度用户表示 e_u^S；Fusing Layer 先做 Layer Normalization，再经 MLP 投影到目标物品嵌入空间得到 e_u^{S,p}，然后将其逐元素加到目标序列的每个物品嵌入上，形成融合后的序列并送入目标编码器，得到最终目标域用户表示用于下一项预测。当用户没有源域历史时跳过融合，模型自然退化为标准单域序列推荐器。训练采用纵向联邦学习协议：仅交换用户嵌入和梯度，源编码器通过目标域损失对 e_u^S 的梯度 g_u 回传微调，使源表示对齐目标任务；含共享用户的批次做联合优化，不含共享用户的批次退化为目标域单独训练。",
+    "problem_zh": "跨域序列推荐旨在利用源域用户行为改进目标域的下一项预测，但实际部署面临两个关键约束：原始交互数据常因存储、所有权或隐私限制不能跨域共享（可形式化为纵向联邦学习），且用户重叠是部分的，许多用户没有源域交互历史。已有方法通常依赖共享物品空间、合并交互数据、全量用户重叠或直接访问原始交互，难以满足真实部署条件。因此需要在仅交换学到的用户表示、不共享原始交互序列和物品嵌入的前提下进行跨域知识迁移，并在源域数据缺失时退化为单域推荐。",
+    "technical_depth": 0.85
+  },
+  "doi": "10.1145/3799682.3841135",
+  "final_score": 0.9175,
+  "id": "arxiv-2610.35550",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-10-26T14:55:24Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出跨域序列推荐中仅通过用户表示迁移的轻量适配框架，以提升目标域的下一项预测，属于序列建模推荐研究。",
+  "targets": [],
+  "tasks": [],
+  "title": "Cross-Domain Sequential Recommendation with Representation-Level User Transfer",
+  "url": "https://arxiv.org/abs/2610.35550v1"
+}

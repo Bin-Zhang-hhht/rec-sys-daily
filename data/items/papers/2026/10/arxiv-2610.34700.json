@@ -1,0 +1,131 @@
+{
+  "abstract": "Generative bundle construction completes a partially observed bundle by generating its missing items from a large product catalog. Compared to autoregressive LLMs, diffusion LLM emerges as a natural fit for this unordered generation task. Their bidirectional attention provides an inductive bias better aligned with unordered bundle construction. Iterative denoising can reveal multiple tokens per step, potentially reducing inference latency. However, directly applying DLMs to this task presents two key challenges: 1 Despite its flexible reveal order, confidence-guided decoding tends to postpone semantic-fork decisions until refinement tokens constrain their choices, reducing bundle diversity. 2 Revealing more tokens per step can compromise recommendation quality, stifling the potential for faster inference. We introduce DPE-Rec, a diffusion framework for diversity preservation and efficient recommendation. DPE-Rec preserves diversity by introducing semantic-fork-aware GRPO, which prioritizes semantic-fork decisions via autoregressive rollouts. It improves efficiency through pseudo-trajectory distillation, which concentrates learning from the vast random corruption space onto the compact trajectory-induced subspace visited by high-quality decoding, unlocking reliable multi-token decoding. Together, these components enable diverse and accurate bundle construction with substantially fewer denoise steps. Experiments on multiple bundle construction benchmarks show that DPE-Rec improves recommendation performance by 63% on average, and its fast variant achieves 25.6$times$ faster inference on average than existing generative recommendation arts, with minimal loss in recommendation quality. Generative bundle construction completes a partially observed bundle by generating its missing items from a large product catalog. Compared to autoregressive LLMs, diffusion LLM emerges as a natural fit for this unordered generation task. Their bidirectional attention provides an inductive bias better aligned with unordered bundle construction. Iterative denoising can reveal multiple tokens per step, potentially reducing inference latency. However, directly applying DLMs to this task presents two key challenges: 1 Despite its flexible reveal order, confidence-guided decoding tends to postpone semantic-fork decisions until refinement tokens constrain their choices, reducing bundle diversity. 2 Revealing more tokens per step can compromise recommendation quality, stifling the potential for faster inference. We introduce DPE-Rec, a diffusion framework for diversity preservation and efficient recommendation. DPE-Rec preserves diversity by introducing semantic-fork-aware GRPO, which prioritizes semantic-fork decisions via autoregressive rollouts. It improves efficiency through pseudo-trajectory distillation, which concentrates learning from the vast random corruption space onto the compact trajectory-induced subspace visited by high-quality decoding, unlocking reliable multi-token decoding. Together, these components enable diverse and accurate bundle construction with substantially fewer denoise steps. Experiments on multiple bundle construction benchmarks show that DPE-Rec improves recommendation performance by 63% on average, and its fast variant achieves 25.6$times$ faster inference on average than existing generative recommendation arts, with minimal loss in recommendation quality.",
+  "arxiv_id": "2610.34700",
+  "authors": [
+    "Pingchuan Ma",
+    "Bohan Jiang",
+    "Chengshuai Zhao",
+    "Dawei Li",
+    "Zhen Tan",
+    "Huan Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "Bundle 构建广泛用于电商和音乐/视频流媒体，改善补全 bundle 的多样性与准确性可直接提升推荐体验。",
+      "快速变体平均 25.6 倍加速且延迟增长对 bundle 规模不敏感，适合在线实时推荐/流式服务。",
+      "推荐多样性提升（低 pairwise cosine similarity、高簇熵）可减少重复/集中推荐，提高用户满意度。",
+      "额外训练成本可在约 1.3K-5.0K 个生成 bundle 后摊销，对高频流量场景有商业可行性。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "识别了扩散 bundle 推荐器的两个基本限制：置信度引导的任意顺序解码优先解码精化 token 而非语义分叉，限制 bundle 多样性；激进的并行解码依赖条件独立性近似，损害推荐质量。",
+      "提出 semantic-fork-aware GRPO：通过自回归 rollout 在语义分叉不确定性尚存时优先面对分叉决策，并配合分层采样温度，无需改变双向去噪器或并行解码能力。",
+      "提出 pseudo-trajectory distillation：将高质量顺序置信度引导轨迹诱导的子空间上的学习集中起来，使学生模型能可靠地每轮解码多个 token，大幅提升推理效率。",
+      "在多个 bundle 构建基准上，DPE-Rec 平均提升推荐性能 63%；快速变体相比现有生成式推荐方法平均加速 25.6 倍，且质量损失很小。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Understanding the Quality and Efficiency Limitations"
+      },
+      {
+        "page": 1,
+        "section": "4 Method"
+      },
+      {
+        "page": 1,
+        "section": "5.2 Main Results"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Ablation Study"
+      },
+      {
+        "page": 1,
+        "section": "8.4 Diversity Analysis"
+      },
+      {
+        "page": 1,
+        "section": "8.6 Training Cost Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "BERT4Rec",
+        "FDSA",
+        "RecJPQ",
+        "HSTU",
+        "UniGRec",
+        "DiffGRM",
+        "DDBC"
+      ],
+      "datasets": [
+        "Spotify（Spotify_30/60/90）",
+        "POG",
+        "IQON3000"
+      ],
+      "findings_zh": [
+        "DPE-Rec 和 DPE-Rec-Fast 在五个评估设置、三个质量指标上相对九个基线平均提升约 63%。",
+        "DPE-Rec-Fast 相对三个生成式基线平均加速 25.6 倍；在 Spotify bundle 规模从 30 增至 90 时，延迟仅从 62.34ms 增至 66.72ms。",
+        "消融显示，加入 fork-aware GRPO 使 F1 提高 28.86%、Jaccard 提高 33.29%、OAS 提高 5.06%；再加入 PTD 后延迟降低 89.52%，F1/Jaccard/OAS 约下降 2.0%-2.6%。",
+        "同一模型下，自回归解码（AR）在 Spotify 各 bundle 规模上 consistently 优于任意顺序解码（AO），原因是 AR 保留语义分叉熵，AO 先解码精化 token 造成熵退化。",
+        "温度扫描显示第一个 SID token（语义分叉）在 0.6 时 F1 最高，其余精化层在 0.2 时最佳。",
+        "DPE-Rec 在 Spotify 上生成的物品对间平均余弦相似度低于 DDBC、DiffGRM、UniGRec，且簇熵最高、目录覆盖率是 DiffGRM/UniGRec 的 2.2-3.4 倍。",
+        "在相同 denoising 预算下，蒸馏学生模型的合法 SID 比例显著高于教师模型。",
+        "GRPO+PTD 额外训练成本在约 1.3K-5.0K 个生成 bundle 后即可摊销。"
+      ],
+      "metrics": [
+        "F1",
+        "Jaccard",
+        "OAS",
+        "Latency (ms)",
+        "Legal SID ratio",
+        "Pairwise cosine similarity",
+        "Catalog coverage",
+        "Cluster entropy"
+      ]
+    },
+    "limitations_zh": [
+      "GRPO 的自回归 rollout 带来额外训练成本，在 Spotify_90 上 GRPO 训练约 10.0 GPU-hours；额外成本需 1.3K-5.0K 个 bundle 的推理节省才能摊销。",
+      "快速变体在获得 89.52% 延迟降低的同时，F1/Jaccard/OAS 约下降 2.0%-2.6%，并非完全无损。",
+      "平均相对提升对基线选择敏感：只与 FDSA、HSTU、UniGRec、DiffGRM、DDBC 五个代表性基线比较时，平均提升约为 26.9%，而非 63%。",
+      "评估采用采样候选项协议（候选集大小为目标 bundle 大小的 100 倍），而非全目录精确匹配，因此全目录下的绝对分数可能很低。"
+    ],
+    "method_zh": "DPE-Rec 基于离散掩码扩散语言模型和四级 SID 物品表示。训练分三阶段：预训练 DLM；语义分叉感知 GRPO 后训练；伪轨迹蒸馏。GRPO 阶段将目标段序列化为固定顺序（先语义分叉后精化 token），从去噪器的 mask 位置 logits 诱导自回归策略，并设置分层采样温度（第一级 0.6，其余 0.2），使用层级集合奖励（两级前缀匹配和完整 SID 匹配）进行组内相对奖励优化。伪轨迹蒸馏阶段以 GRPO 优化后的模型为教师，用置信度引导的逐 token 任意顺序解码产生高质量轨迹，构造轨迹诱导状态（保留前 r(t) 个教师决策，其余 mask），并加入互补视图，训练学生模型从这些状态恢复教师完成序列。推理时学生模型对所有置信度超过阈值的位置并行解码，同时用 Top-q 保证在预算 F 步内完成。最后通过 SID 到物品映射和候选项余弦相似度匹配进行物品合法化。",
+    "problem_zh": "生成式 bundle 构建任务需要从大规模商品/物品目录中补全部分观察到的 bundle。论文指出，直接使用扩散语言模型（DLM）存在两个关键问题：1）置信度引导的解码虽然灵活，却会推迟“语义分叉”（semantic fork）决策，先解码低不确定性的精化 token，导致推荐多样性下降；2）每步解码更多 token 虽可降低推理延迟，但依赖条件独立性近似，可能产生非法 SID，牺牲推荐质量。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.894,
+  "id": "arxiv-2610.34700",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-26T01:45:00Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出DPE-Rec，利用扩散语言模型进行生成式捆绑商品推荐，在保持多样性的同时提升推荐质量与推理效率。",
+  "targets": [],
+  "tasks": [],
+  "title": "DPE-Rec: Diversity-Preserving and Efficient Diffusion Language Model Recommendation for Bundle Construction",
+  "url": "https://arxiv.org/abs/2610.34700v1"
+}

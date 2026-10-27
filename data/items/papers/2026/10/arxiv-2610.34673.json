@@ -1,0 +1,130 @@
+{
+  "abstract": "Large language model (LLM) agents that serve users across many sessions must choose, for every request, the few stored memories that enter a limited context window. This choice largely decides whether the agent answers correctly, and it runs on every request at Web scale. This selection faces three challenges: a large and growing store, a per-request cost budget, and multi-session questions that need all of their evidence. Many memory systems build notes or graphs with hundreds to thousands of LLM calls per history, and each is designed on its own, so it is unclear which component yields the accuracy. These challenges mirror the properties of recommendation, so we formalize agent memory as budgeted slate recommendation, with the request as the user, stored memories as items and the context window as a slate. The formalization places memory systems in one design space of recommender cascades and factorizes accuracy into the completeness that each stage controls. Guided by it, we propose AgentMemRec, which adapts candidate generation, learning to rank and slate construction from recommender systems and selects memories without any LLM call. On multi-session questions of LongMemEval, AgentMemRec outperforms memory and context-selection methods, including A-Mem, HippoRAG 2, DynamicRAG and T-Mem, by 10 to 31 points of accuracy. It matches an LLM reranker that makes 64 calls per query at 3.2 times lower serving cost, and on LoCoMo it outperforms Mem0 and Zep without any LLM call at write time. The factorization attributes the gains to slates that more often hold all of the evidence, so recommender-system design offers an effective and efficient foundation for the long-term memory of LLM agents. Large language model (LLM) agents that serve users across many sessions must choose, for every request, the few stored memories that enter a limited context window. This choice largely decides whether the agent answers correctly, and it runs on every request at Web scale. This selection faces three challenges: a large and growing store, a per-request cost budget, and multi-session questions that need all of their evidence. Many memory systems build notes or graphs with hundreds to thousands of LLM calls per history, and each is designed on its own, so it is unclear which component yields the accuracy. These challenges mirror the properties of recommendation, so we formalize agent memory as budgeted slate recommendation, with the request as the user, stored memories as items and the context window as a slate. The formalization places memory systems in one design space of recommender cascades and factorizes accuracy into the completeness that each stage controls. Guided by it, we propose AgentMemRec, which adapts candidate generation, learning to rank and slate construction from recommender systems and selects memories without any LLM call. On multi-session questions of LongMemEval, AgentMemRec outperforms memory and context-selection methods, including A-Mem, HippoRAG 2, DynamicRAG and T-Mem, by 10 to 31 points of accuracy. It matches an LLM reranker that makes 64 calls per query at 3.2 times lower serving cost, and on LoCoMo it outperforms Mem0 and Zep without any LLM call at write time. The factorization attributes the gains to slates that more often hold all of the evidence, so recommender-system design offers an effective and efficient foundation for the long-term memory of LLM agents.",
+  "arxiv_id": "2610.34673",
+  "authors": [
+    "Xinyu Zhang",
+    "Weiwei Sun"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "每请求无LLM调用的记忆选择可将服务成本降低约3.2倍（$69 vs $220 per million requests），且随记忆库增长每请求成本保持平稳，适合Web规模聊天助手。",
+      "在LoCoMo上零写入LLM调用即超过Mem0/Zep等生产记忆层，与T-Mem复现parity，说明推荐系统式设计可作为生产Agent长期记忆的实用基础。",
+      "形式化给出了记忆系统设计空间和成本-完整性权衡，可指导生产系统把LLM调用花在能提高pool/ranking完整性的环节。",
+      "低延迟（median 277/329 ms vs 924/955 ms）可改善用户体验并降低推理资源占用。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "提出将长期Agent记忆视为预算化slate推荐（budgeted slate recommendation），把记忆系统放进推荐级联（记忆构建、召回、排序、上下文组装）的统一设计空间，并证明三条结果：阶段分解、可约化为逐项排序、填充优于截断。",
+      "提出AGENTMEMREC：选择阶段零LLM调用的记忆选择流水线，用BM25+稠密检索+RRF宽召回池、LightGBM LambdaRank学习排序、预算填充构造slate；在LongMemEval上超过A-Mem、HippoRAG 2、DynamicRAG、T-Mem等，在LoCoMo上超过Mem0、Zep等生产记忆层，并以3.2倍更低成本匹配64次LLM调用的重排器。",
+      "通过实测分解表明增益主要来自slate完整性（0.94 vs 0.50-0.68），并检验逐项排序不再充分的边界（kappa>=3和near-miss filler）。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Agent Memory as Recommendation"
+      },
+      {
+        "page": 1,
+        "section": "4 AgentMemRec"
+      },
+      {
+        "page": 1,
+        "section": "6 Results"
+      },
+      {
+        "page": 1,
+        "section": "7 When Item-Wise Ranking Suffices"
+      },
+      {
+        "page": 1,
+        "section": "Appendix E Results on LongMemEval-M"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Adaptive-k",
+        "DynamicRAG-8B",
+        "HippoRAG 2",
+        "A-Mem",
+        "T-Mem",
+        "LongMemEval memory design",
+        "Ref (Qwen3-8B 64-call LLM reranker)",
+        "Mem0",
+        "Zep",
+        "MemOS",
+        "TiMem",
+        "RecMem",
+        "HyperMem (reproduction)"
+      ],
+      "datasets": [
+        "LongMemEval-S",
+        "LongMemEval-M",
+        "LoCoMo"
+      ],
+      "findings_zh": [
+        "LongMemEval-S（kappa>=2, n=209）上AGENTMEMREC准确率80.7（Qwen）/89.4（DeepSeek），比最强记忆或上下文选择方法高10.4/12.8个点；对Adaptive-k、DynamicRAG、HippoRAG 2、A-Mem、T-Mem的增益为10.4-31.2个点。",
+        "LongMemEval-M（1.5M token历史）上准确率70.0/81.3，超过记忆/选择方法10.6-33.3个点；与64次LLM调用的Ref相比Qwen为parity（+3.3），DeepSeek上超过（+5.1）。",
+        "Slate完整性是主要归因项：AGENTMEMREC的r_slate为0.94，而HippoRAG 2/A-Mem等为0.50-0.68；11个设计的完整性排序与准确率Spearman相关0.95；双方slate都完整时系统间准确率差仅-2.8至+2.2点，均不显著。",
+        "与64-call LLM reranker同等或更好准确率下，选择阶段GPU时间280 vs 891 ms/请求（3.2x），median latency 277 vs 924 ms（LongMemEval-S），成本约$69 vs $220 per million requests；默认流水线写入端也无LLM调用。",
+        "LoCoMo上AGENTMEMREC（含可选记录）77.0，与T-Mem复现77.4为parity，高于Mem0 64.6、Zep 59.2、MemOS 75.8及HyperMem复现72.6。",
+        "LongMemEval-S共享协议下AGENTMEMREC在所有500题上83.2，高于MemOS 77.8、TiMem 76.9、RecMem 69.2、Zep 63.8。",
+        "在kappa>=3（n=49）上AGENTMEMREC为两后端最准确（68.4/77.6），对记忆/选择方法增益扩大到23.0-44.9个点。",
+        "排序完整性从召回序0.783提升到0.959（kappa>=2），从0.420到0.867（kappa>=3）；特征消融显示去掉turn-context特征使r_slate下降13.4（kappa>=2）和31.1个点（kappa>=3）。",
+        "写入端LLM调用对比：HippoRAG 2、A-Mem、T-Mem每history约440-2,270次调用，AGENTMEMREC默认0次；LongMemEval-M上LongMemEval设计/HippoRAG 2分别共251,622和约512,000次写入调用。"
+      ],
+      "metrics": [
+        "Accuracy (judge-labeled answer accuracy by GPT-4o / GPT-4o-mini)",
+        "Slate completeness r_slate",
+        "Pool completeness r_pool",
+        "Ranking completeness r_rank",
+        "LLM calls per query/history",
+        "Mean slate tokens",
+        "Latency / GPU time per request",
+        "Serving cost per million requests"
+      ]
+    },
+    "limitations_zh": [
+      "逐项排序最优性条件在kappa>=3和near-miss filler下失效：把高排序但非证据的near-miss填入slate比仅gold turns低17.7（Qwen）/4.7（DeepSeek）个点，kappa>=3时低39.4/14.1个点；随机filler成本较低，因此slate组成会影响奖励。",
+      "不完整slate上的准确率变化较大（22%-47%）并取决于仍保留的gold比例，因此“奖励只取决于完整性”的假设只是近似成立。",
+      "作者指出集合级目标、用户状态建模和从使用中学习是自然下一步，并提到RMM类需在线反馈的方法未被运行；可选时间标签在LongMemEval-M上对DeepSeek时间推理有-8.2点影响，说明其价值依赖benchmark。",
+      "单次解码不稳定（改变slate低端100-300 token在91/300多会话问题上改变Qwen判断结果），实验采用4个扰动slate平均。"
+    ],
+    "method_zh": "AGENTMEMREC在读取时对原始turns操作，选择阶段无LLM调用：候选生成用BM25与bge-m3稠密相似度的RRF融合取top 128；排序用LambdaRank目标训练的LightGBM，特征为5个廉价相关性信号（bge-m3余弦、全局稠密/BM25排名对数、融合池位置、bge-reranker交叉编码器分数）与5个turn上下文特征（角色、会话内相对位置、年龄对数、长度对数、与问题共享的spaCy key）；slate构建按排序顺序贪心填充2,700 token预算，跳过放不下的turn并按会话分组渲染。可选写入端记录用LLM每会话生成带日期、实体和引用turns的记录，但选择时仍无LLM调用。",
+    "problem_zh": "将LLM智能体的长期记忆选择形式化为有预算的slate推荐问题：每次请求需从海量且持续增长的会话记忆中选出进入有限上下文窗口的少量记忆，受每请求成本预算约束，且跨多会话的问题需要全部证据；现有记忆系统用大量LLM调用构建笔记/图谱等结构，组件贡献不清且常遗漏证据。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.908,
+  "id": "arxiv-2610.34673",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-26T01:05:20Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文将LLM智能体的记忆选择形式化为预算受限的候选集推荐，并借鉴推荐系统的候选生成、学习排序与候选集构造来无LLM调用地选取记忆，属于推荐系统设计研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "retrieval",
+    "ranking"
+  ],
+  "title": "Agent Memory as Recommendation: Recommender-System Design for Long-Term Memory of LLM Agents",
+  "url": "https://arxiv.org/abs/2610.34673v1"
+}

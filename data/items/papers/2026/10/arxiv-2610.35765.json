@@ -1,0 +1,129 @@
+{
+  "abstract": "Item-item similarity is one of the oldest and most foundational signals in recommender systems: two items are assumed to be similar when the same users consume them. Despite the sparsity and scale of interaction data, the implicit assumption across the field is that item co-occurrence reflects genuine shared preference, capturing what users like together. In this paper, we demonstrate that a substantial fraction of observed item-item similarity is an artifact of variance in user activity rather than shared taste. Even if every user consumed items completely independently, differing only in their total consumption volume, standard similarity measures still detect strong associations between items. We term this phenomenon phantom correlation: spurious item association that emerges strictly from heterogeneous user activity in the complete absence of preference structure. Starting from minimal formal assumptions, we show that independent consumption under varying activity is described by a Rasch model, and we derive how the resulting association depends on item popularity for each similarity measure. By comparing our theoretical baseline against real-world benchmark datasets, we reveal the extent to which popular similarity measures reflect phantom correlation, which bears on how item co-occurrence is interpreted and used in collaborative filtering. Item-item similarity is one of the oldest and most foundational signals in recommender systems: two items are assumed to be similar when the same users consume them. Despite the sparsity and scale of interaction data, the implicit assumption across the field is that item co-occurrence reflects genuine shared preference, capturing what users like together. In this paper, we demonstrate that a substantial fraction of observed item-item similarity is an artifact of variance in user activity rather than shared taste. Even if every user consumed items completely independently, differing only in their total consumption volume, standard similarity measures still detect strong associations between items. We term this phenomenon phantom correlation: spurious item association that emerges strictly from heterogeneous user activity in the complete absence of preference structure. Starting from minimal formal assumptions, we show that independent consumption under varying activity is described by a Rasch model, and we derive how the resulting association depends on item popularity for each similarity measure. By comparing our theoretical baseline against real-world benchmark datasets, we reveal the extent to which popular similarity measures reflect phantom correlation, which bears on how item co-occurrence is interpreted and used in collaborative filtering.",
+  "arxiv_id": "2610.35765",
+  "authors": [
+    "Marco Favier",
+    "Noah Daniëls",
+    "Jens Leysen",
+    "Sander Marinus",
+    "Bart Goethals"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "平台若用物品共现相似度做推荐，应认识到相似度混合了真实口味与活动量基线：典型物品对的关联水平可能主要由用户活动量异质性造成，不能直接解读为共同偏好。",
+      "余弦相似度继承随流行度增长的基线，会给热门物品带来与口味无关的额外分数；lift/PMI 则对稀有物品有类似偏置，选择相似度度量时需考虑这种流行度偏差。",
+      "活动基线可用于诊断和修正：从相似度中扣除活动模型给出的基线，可能让剩余信号更接近真实偏好；例如 MovieLens 中口味信息主要体现在基线内的物品对排序，而非绝对关联水平。",
+      "数据集构建方式（如截断历史长度）会改变活动量异质性，从而改变幽灵相关的空间；Last.fm 这类封顶数据与 MovieLens 类数据需要不同的解释和处理。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "从三条消费假设（给定活动量后物品独立消费、活动量单调提升每个物品的消费概率、活动量是用户间唯一差异且消费计数为充分统计量）严格推导出活动模型，证明其等价于 Rasch 模型，即 logit P(X_i=1|theta)=h_i+theta。",
+      "推导活动造成相关的模型无关结论：总协方差恒等式、任意物品对非负相关、可行条件 Var(S)>=sum_i p_i(1-p_i)，以及 lift、cosine、Pearson 相关随物品流行度的精确依赖关系。",
+      "提出用 EM 算法拟合离散活动分布、以 Poisson 偏差和标准化误差度量活动模型解释的关联份额，并在四个真实数据集上量化：MovieLens 上活动模型解释大部分系统性偏差，Amazon Books 上解释约一半，Last.fm 上解释为零。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 The Activity-Driven Model"
+      },
+      {
+        "page": 1,
+        "section": "5 How Activity Creates Correlation"
+      },
+      {
+        "page": 1,
+        "section": "6 Measuring Activity-Induced Association in Data"
+      },
+      {
+        "page": 1,
+        "section": "7 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "7.2 How Much Association Activity Explains"
+      },
+      {
+        "page": 1,
+        "section": "7.3 How Association Depends on Popularity"
+      },
+      {
+        "page": 1,
+        "section": "8 Discussion"
+      },
+      {
+        "page": 1,
+        "section": "Appendix C Other Datasets"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Independence model (p_ij = p_i * p_j)",
+        "EASE (closed-form dense item-item model on expected Gram matrix)"
+      ],
+      "datasets": [
+        "MovieLens-1M",
+        "MovieLens-20M",
+        "Last.fm (HetRec 2011)",
+        "Amazon Books (Amazon Reviews 2023, 5-core)"
+      ],
+      "findings_zh": [
+        "在 MovieLens-1M 和 MovieLens-20M 上，活动模型分别消除独立模型系统误差的 0.81 和 0.73（全部物品对的偏差）；按块比较 lift/cosine/Pearson 的标准化误差时，消除份额为 0.99/0.99/0.99 和 0.98/0.98/0.96，EASE 为 0.79 和 0.75。",
+        "MovieLens-1M 中 81% 的物品对观测共现与活动模型预测相差不超过 2 倍，而独立模型下只有 35%。",
+        "Amazon Books 上活动模型消除全部物品对误差的 0.50，分块消除 lift/cosine/Pearson 对应误差的 0.84/0.84/0.73；但观测 lift 随流行度下降且更依赖流行度不平衡，说明还存在主流性/口味维度。",
+        "Last.fm 的历史长度被截断为 50，总协方差为负，违反模型假设；活动模型解释份额为 0.00，观测关联仍按流行度结构化（流行艺术家之间正相关，流行与冷门之间略负）。",
+        "活动模型正确刻画典型关联水平和多数流行度形状：lift 在稀有物品中最大，cosine 和 Pearson 相关在流行物品中最大；在 MovieLens 上观测 lift 随流行度下降略快于活动模型，且更依赖流行度不平衡。",
+        "在 MovieLens-1M 上，观测 lift 与活动模型 lift 在所有物品对上的 Spearman 相关仅为 0.31，说明活动主要解释典型关联水平，不解释哪些物品对突出；只有真实数据中包含负相关物品对。"
+      ],
+      "metrics": [
+        "Poisson deviance of co-occurrence counts over all item pairs",
+        "Standardized error Z over pooled popularity blocks",
+        "Share of systematic independence-model error removed by activity model",
+        "Popularity surface regression coefficients (a, b, c, d)",
+        "Spearman correlation between observed and model lift over item pairs"
+      ]
+    },
+    "limitations_zh": [
+      "活动模型是单维活动量模型，无法表达“主流程度”等第二维差异；Amazon Books 的重度读者比活动模型预测更偏向冷门书籍，Last.fm 的关联结构也无法由单一活动维产生。",
+      "Last.fm 的构造（每用户最多 50 个艺术家）使活动量方差异常小，违反 Corollary 1；活动模型在该数据上近似独立模型，说明假设不成立时方法不适用。",
+      "作者明确说明这不是统计检验，活动模型不是用于拒绝的假设；它只解释关联水平，不解释哪些物品对突出，也不声称协同过滤信号是假的。",
+      "单个物品对过于稀疏、噪声太大，只能按流行度分块比较；EASE 在 Amazon Books 上因物品-物品矩阵过大无法求逆而未报告。",
+      "稀有电影中超出活动模型解释的关联基于极少数用户，例如 MovieLens-1M 中只有 43 个用户同时评价两部稀有电影，证据很弱。"
+    ],
+    "method_zh": "将用户建模为潜在活动量 theta；给定 theta，各物品独立消费，且消费概率满足 logit P(X_i=1|theta)=h_i+theta（Rasch 模型）。用 EM 算法在固定离散活动水平上拟合物品参数 h_i 和活动分布 P(theta)；模型拟合只使用物品流行度和用户历史长度分布，不使用物品对共现，却能推出共现 p_ij^act。随后比较经验共现与活动模型、独立模型的共现，使用 Poisson 偏差、分块标准化误差和流行度曲面回归，并利用从拟合模型模拟的数据估计噪声下限，计算活动模型消除独立模型系统误差的份额。",
+    "problem_zh": "论文质疑推荐系统中把物品共现直接解读为共享偏好的常见做法，指出用户活动量的异质性会在完全没有偏好结构的数据中制造虚假的“幽灵相关”（phantom correlation），并给出形式化模型与实证方法，量化真实推荐数据中有多少物品相似度只是活动量差异的产物。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.887,
+  "id": "arxiv-2610.35765",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-10-26T17:09:56Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究推荐系统中项目相似度度量会因用户活跃度差异而产生虚假相关（幻影相关），属于协同过滤方法研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Do Similarity Measures Measure Similarity? How User Activity Creates Phantom Correlation in Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.35765v1"
+}

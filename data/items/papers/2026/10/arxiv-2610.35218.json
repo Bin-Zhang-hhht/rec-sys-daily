@@ -1,0 +1,124 @@
+{
+  "abstract": "Generative recommendation with semantic IDs (SIDs) represents each item as a sequence of discrete tokens and autoregressively predicts the next item's SID. Despite strong recommendation performance, repeated decoding over multiple SID positions incurs substantial inference cost. Knowledge distillation transfers knowledge from a powerful generative teacher to a lightweight student, yet conventional objectives do not fully account for multi-token SID generation. We identify two limitations: item-level distribution alignment may not adequately preserve the teacher's ranking of candidate groups sharing SID prefixes, while uniform alignment across SID positions may affect final item ranking differently. We propose MuSID-KD, which combines Hierarchical Candidate Distribution Alignment (HCDA) and Ranking Impact Guided Levelwise Distillation (RIGD). HCDA aggregates item probabilities according to shared SID prefixes and aligns candidate distributions at successive levels, from candidate groups to individual items. RIGD evaluates the reduction in pairwise ranking surrogate loss when one student score contribution is replaced with the teacher's contribution, and allocates supervision accordingly. Experiments on real-world recommendation datasets using three lightweight student architectures demonstrate improved recommendation accuracy and better alignment of prefix marginal distributions and pairwise item rankings, without modifying the student's online inference architecture. Code is available at https://anonymous.4open.science/r/m7k2-review-83f9/. Generative recommendation with semantic IDs (SIDs) represents each item as a sequence of discrete tokens and autoregressively predicts the next item's SID. Despite strong recommendation performance, repeated decoding over multiple SID positions incurs substantial inference cost. Knowledge distillation transfers knowledge from a powerful generative teacher to a lightweight student, yet conventional objectives do not fully account for multi-token SID generation. We identify two limitations: item-level distribution alignment may not adequately preserve the teacher's ranking of candidate groups sharing SID prefixes, while uniform alignment across SID positions may affect final item ranking differently. We propose MuSID-KD, which combines Hierarchical Candidate Distribution Alignment (HCDA) and Ranking Impact Guided Levelwise Distillation (RIGD). HCDA aggregates item probabilities according to shared SID prefixes and aligns candidate distributions at successive levels, from candidate groups to individual items. RIGD evaluates the reduction in pairwise ranking surrogate loss when one student score contribution is replaced with the teacher's contribution, and allocates supervision accordingly. Experiments on real-world recommendation datasets using three lightweight student architectures demonstrate improved recommendation accuracy and better alignment of prefix marginal distributions and pairwise item rankings, without modifying the student's online inference architecture. Code is available at https://anonymous.4open.science/r/m7k2-review-83f9/.",
+  "arxiv_id": "2610.35218",
+  "authors": [
+    "Fengshi Zhang",
+    "Xiyan Ding",
+    "Shuxiao Xie",
+    "Wei Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "Web个性化推荐需要兼顾高排序质量和大目录下的高效服务；MuSID-KD通过离线蒸馏提升轻量学生模型的推荐质量，同时保持在线推理架构不变，有助于降低生成式推荐的服务成本。",
+      "在MLP、GRU、CNN三种轻量架构上均带来一致提升，说明可根据部署约束选择不同推理骨干。",
+      "训练阶段时间约增至1.8倍、GPU内存增加约1.8–2.1GB，但在线吞吐量与Base KD基本持平，适合将额外成本放在离线训练、在线低延迟服务的场景。",
+      "对RQ-VAE和R-KMeans两种SID tokenizer均有效，表明该方法不依赖单一物品编码方案，具有更广的应用潜力。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "指出现有SID蒸馏的两个关键局限：中间SID位置候选组排序监督不足，以及均匀匹配教师在不同SID位置对最终物品排序的影响不同。",
+      "提出MuSID-KD，包含HCDA（层次化候选分布对齐）与RIGD（排序影响指导的分层蒸馏），在训练中对齐多粒度SID候选分布，并按各位置对排序损失的收益分配监督。",
+      "在四个真实数据集和三种轻量学生架构上的实验表明，相比现有KD方法提升了推荐准确率和知识迁移，消融实验、排序诊断和效率分析支持该结论。",
+      "额外计算仅在离线训练中发生，不改变学生模型的在线推理架构。"
+    ],
+    "evidence_quality": 0.8,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "4 Analyzing Supervision in SID Distillation"
+      },
+      {
+        "page": 1,
+        "section": "5 MuSID-KD"
+      },
+      {
+        "page": 1,
+        "section": "6 Experiments"
+      },
+      {
+        "page": 1,
+        "section": "7 Conclusion and Future Work"
+      },
+      {
+        "page": 1,
+        "section": "A Additional Experimental Results"
+      },
+      {
+        "page": 1,
+        "section": "B Implementation and Measurement Details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "TIGER (Teacher)",
+        "RD",
+        "RRD",
+        "RCE-KD",
+        "GKD",
+        "DistiLLM-2",
+        "SID-MLP (Base KD)",
+        "SmartGR"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Toys",
+        "Amazon Video Games",
+        "Steam-100K"
+      ],
+      "findings_zh": [
+        "在Amazon Beauty、Toys、Video Games上，MuSID-KD在所有36个学生方法比较（3数据集×3学生架构×4指标）中取得最高平均结果；NDCG@10相对Base KD平均提升8.31%，相对最强其他学生方法提升1.59%–5.13%。",
+        "在Steam-100K上，NDCG@10相对Base KD平均提升2.15%（跨MLP、GRU、CNN架构）。",
+        "使用R-KMeans SID tokenizer时，MuSID-KD在全部24个设置中排名第一；NDCG@10相对Base KD平均提升5.50%，相对Base KD与SmartGR中较强方法平均提升3.61%，说明不依赖单一SID编码方案。",
+        "消融实验中，HCDA-only和RIGD-only均优于Base KD；完整MuSID-KD相对Leaf+RIGD的NDCG@10平均提升4.21%；完整方法优于HCDA+Uniform、HCDA+AbsRes、HCDA+PosUni等变体；HCDA+Shuffled性能下降，支持正确候选组结构的重要性。",
+        "知识迁移诊断显示，HCDA降低前缀边际分布漂移与Top组不一致率（如Beauty-CNN的HDrift-2从0.0663降至0.0386，TGD-2从31.58%降至25.23%）；完整MuSID-KD在Pair Softplus、POV和Huber误差上优于HCDA+Uniform（如Beauty-MLP Pair Softplus从0.3883降至0.3414）。",
+        "效率方面，Beauty-MLP上200轮训练Base KD约27分钟，MuSID-KD约49分钟；峰值GPU内存从7.4GB增至9.2–9.5GB；在线吞吐量与Base KD基本持平（MLP 2769/3036 req/s，GRU 3445/3423 req/s，CNN 3028/3024 req/s）。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "NDCG@10 为主指标",
+        "训练时间/GPU内存/在线吞吐量（效率分析）"
+      ]
+    },
+    "limitations_zh": [
+      "训练开销明显增加：Beauty-MLP上训练时间从27分钟增至49分钟，峰值GPU内存从7.4GB增至9.2–9.5GB。",
+      "RIGD仅对跨越教师推荐截断K的成对物品和可监督的非最终SID位置施加权重；最终SID位置被排除在RIGD之外，其排序贡献未在该目标中直接优化。",
+      "论文将高效候选采样、排序影响估计和跨SID位置联合修正列为未来工作，说明当前方法在这些方面仍有改进空间。"
+    ],
+    "method_zh": "MuSID-KD的总训练目标为 L = L_CE + λ_H L_HCDA + λ_R L_RIGD。HCDA在教师和学生共享的候选物品集合上，按SID前缀长度d聚合物品概率，得到前缀边际分布π_m^(d)，并用KL散度从粗粒度候选组到细粒度物品逐层对齐。RIGD选取教师排序中跨越推荐截断K的成对物品(i,j)，从首个token不同的位置d*到L-1作为可监督位置；使用softplus排序代理损失计算将学生该位置得分贡献替换为教师值后的非负替换收益A_d，归一化为权重w_d，再用Huber损失加权对齐每个位置的教师-学生成对得分贡献；最终SID位置不参与RIGD。所有替换、权重计算和目标构建仅在离线训练中进行，在线推理仍使用学生历史编码器、前缀条件token头和约束beam search。",
+    "problem_zh": "生成式推荐使用语义ID（SID）将每个物品表示为离散token序列并自回归预测，多位置解码带来较高推理成本。现有知识蒸馏目标未充分考虑多token SID生成：仅对齐物品级分布不能保证学生保留教师对共享SID前缀候选组的排序；均匀地对齐各SID位置可能对最终物品排序产生不同甚至相反的影响。文档报告，仅对齐候选物品分布时，中间SID位置候选组排序错误率平均为53.8%；69.6%–71.7%的被评估物品对在不同SID位置的得分残差符号相反。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.905,
+  "id": "arxiv-2610.35218",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-26T11:09:39Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "本文提出MuSID-KD，通过层级候选分布对齐与排序影响引导的层级蒸馏来提升基于语义ID的生成式推荐效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "MuSID-KD: Multigranularity Knowledge Distillation for Generative Recommendation with Semantic IDs",
+  "url": "https://arxiv.org/abs/2610.35218v1"
+}

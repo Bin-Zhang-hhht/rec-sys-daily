@@ -1,0 +1,121 @@
+{
+  "abstract": "Large-scale industrial ranking models must jointly capture heterogeneous feature interactions, long-term user behaviors, and multi-scenario dependencies under stringent online serving constraints. Existing architectures typically process sequential and non-sequential features with separate modules, limiting bidirectional information exchange. Directly applying homogeneous self-attention to all semantic tokens can also be inefficient when sequential and non-sequential signals exhibit different effective-ranks (eRanks). Meanwhile, shared representations can overlook scenario-specific patterns and induce negative transfer between scenarios. In this paper, we propose HiRank, a unified framework for multi-scenario recommendation that jointly models Heterogeneous feature Interactions via effective-Rank scaling. HiRank integrates gated sequential attention with heterogeneous feature interaction within a unified backbone, enabling bidirectional fusion between sequential and non-sequential representations. HiRank further uses scenario-aware aggregation to compress heterogeneous low-order tokens into a compact representation. Distinct learned projections transform the full compact representation into scenario-aware composite tokens with complementary global feature views and more uniform information density, enabling more effective high-order self-attention. Extensive experiments on industrial-scale datasets demonstrate favorable performance scaling with parameter count and consistent improvements over competitive baselines. Online A/B tests further show a 2.27% increase in orders per user. Large-scale industrial ranking models must jointly capture heterogeneous feature interactions, long-term user behaviors, and multi-scenario dependencies under stringent online serving constraints. Existing architectures typically process sequential and non-sequential features with separate modules, limiting bidirectional information exchange. Directly applying homogeneous self-attention to all semantic tokens can also be inefficient when sequential and non-sequential signals exhibit different effective-ranks (eRanks). Meanwhile, shared representations can overlook scenario-specific patterns and induce negative transfer between scenarios. In this paper, we propose HiRank, a unified framework for multi-scenario recommendation that jointly models Heterogeneous feature Interactions via effective-Rank scaling. HiRank integrates gated sequential attention with heterogeneous feature interaction within a unified backbone, enabling bidirectional fusion between sequential and non-sequential representations. HiRank further uses scenario-aware aggregation to compress heterogeneous low-order tokens into a compact representation. Distinct learned projections transform the full compact representation into scenario-aware composite tokens with complementary global feature views and more uniform information density, enabling more effective high-order self-attention. Extensive experiments on industrial-scale datasets demonstrate favorable performance scaling with parameter count and consistent improvements over competitive baselines. Online A/B tests further show a 2.27% increase in orders per user.",
+  "arxiv_id": "2610.35318",
+  "authors": [
+    "Ao Zhang",
+    "Haochuan Li",
+    "Boya Du",
+    "Jian Yang",
+    "Qihang Fang",
+    "Yulin Xu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "在淘宝首页部署后人均订单量 +2.27%、人均 GMV +2.86%、每日购买用户数 +2.13%，表明统一建模异质特征交互可带来直接的交易增长。",
+      "PV +0.45%、点击用户数 +0.85%、每千次曝光订单数 +1.81%，说明除转化外还改善用户参与和推荐效率。",
+      "HiRank 参数量 299.04M 低于多个统一 Transformer 基线（如 OneTrans 345.40M、Hiformer 392.97M），但前向 GFLOPs 较高，部署时需权衡效果与计算效率。",
+      "场景感知聚合与多任务塔设计适合多流量来源、多转化目标的大型电商排序系统，有助于缓解共享表征的负迁移。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出 HiRank 统一框架，在共享交互主干中同时维护主序列状态、基于查询的长时记忆读取和语义特征 token，实现序列建模与异质特征交互的统一。",
+      "提出主序列引导的长时记忆检索：从主序列生成兴趣查询以保留行为相关变化，并补充候选条件查询；堆叠块中交互输出更新主序列状态和检索查询，使演化中的特征上下文指导后续行为证据提取。",
+      "提出场景感知高秩潜在交互：用场景感知聚合将最终 token bank 压缩为紧凑状态，再由多个独立复合投影生成复合 token，通过多头注意力建模高阶交互，从有效秩角度保持表示方向多样性和更均衡的谱。",
+      "在淘宝生产数据集上进行大规模实验并部署上线，在线 A/B 测试显示人均订单量、人均 GMV、每日购买用户数等指标显著提升。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "3 Methodology"
+      },
+      {
+        "page": 1,
+        "section": "4.2 RQ1: Performance Evaluation"
+      },
+      {
+        "page": 1,
+        "section": "4.3 RQ2: Ablation and Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.4 RQ3: Scaling Validation"
+      },
+      {
+        "page": 1,
+        "section": "4.5 RQ4: Online A/B Tests"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DCNv2 + DIN (Base)",
+        "RankMixer + DIN",
+        "Hiformer + DIN",
+        "MixFormer",
+        "OneTrans",
+        "HyFormer",
+        "Base + PLE",
+        "MDL"
+      ],
+      "datasets": [
+        "淘宝工业级 CVR 数据集（跨主要流量场景，日展示约 24 亿；首页日展示约 4.38 亿）",
+        "Taobao Homepage 在线流量"
+      ],
+      "findings_zh": [
+        "离线评估中 HiRank 在 Homepage 和 Main Search 上的 AUC 与 GAUC 均为最高：Homepage AUC 0.9163、GAUC 0.7801，较最强基线分别提升 +0.0009 和 +0.0186；Main Search 分别提升 +0.0005 和 +0.0009。",
+        "消融实验显示完整 HiRank 取得最佳 AUC/GAUC；同时移除 token interaction 与 High-Rank Attention 时 AUC 和 GAUC 下降最大（0.0020 和 0.0489），说明行为建模与异质特征交互具有互补作用。",
+        "有效秩诊断显示两个 mixing block 后主序列表示的平均 eRank 分别从 96.51 增至 112.80、从 128.36 增至 134.80；用户长时记忆检索输出平均 eRank 从 24.52 升至 54.88；High-Rank Attention 整体平均 eRank 相对下降 1.96%。",
+        "缩放实验显示序列长度 T=96 带来 AUC +0.23pp，T=24 为 -0.51pp；宽度或深度增加最多带来 +0.06pp；High-Rank Attention 中 d_t=1024 和 N_t=96 分别带来 +0.08pp 和 +0.05pp，K=4 带来 +0.06pp。",
+        "在线 A/B 测试（Taobao Homepage）相对生产基线：PV +0.45%，Orders/u +2.27%（p<0.01），GMV/u +2.86%（p<0.05），DAC +2.13%（p<0.01），并观察到点击用户数 +0.85%、每千次曝光订单数 +1.81%。"
+      ],
+      "metrics": [
+        "AUC",
+        "GAUC",
+        "PCOC",
+        "RI",
+        "Params (M)",
+        "GFLOPs",
+        "在线指标：PV、Orders/u、GMV/u、DAC"
+      ]
+    },
+    "limitations_zh": [
+      "论文未报告用户-物品解耦变体的单独实验结果，该变体的收益缺少直接消融证据。",
+      "在线验证仅在淘宝首页场景进行，未报告其他流量场景（如主搜）的在线 A/B 结果，跨场景泛化证据有限。",
+      "训练与评估依赖淘宝私有工业数据，未提供公开基准数据集或可复现代码，外部复现受限。",
+      "HiRank 前向计算成本（1.530 GFLOPs）高于 DCNv2 + DIN（0.428 GFLOPs）等基线，论文未详细报告在线 serving 延迟约束下的具体部署开销。"
+    ],
+    "method_zh": "HiRank 将用户主行为序列投影为事件级主序列状态，多个长时记忆保持只读事件表示，非序列特征与池化行为摘要组织成语义特征 token。每个 HiRank 块对主序列做 HSTU 启发的门控自注意力，候选 token 共享参数通过交叉注意力读取序列 K/V；主序列引导的兴趣查询和候选条件查询分别从相同长时记忆中检索互补证据。随后通过 head-wise token mixing、per-token SwiGLU 和残差连接整合序列、检索、特征和候选表示，更新后的状态作为下一层输入。最后，场景 token 通过交叉注意力将最终 token bank 聚合为紧凑状态，再用三组独立复合投影生成 Q/K/V 并进行多头注意力建模复合 token 间交互，任务特定 MLP 输出多目标预测。另提供可选用户-物品解耦变体，通过方向性掩码实现请求内候选间共享用户侧计算。",
+    "problem_zh": "工业级推荐排序模型需要同时建模异质特征交互、长期用户行为和多场景依赖，并受在线服务延迟约束。现有架构常将序列与非序列特征分模块处理，限制双向信息交换；直接对全部语义 token 使用同质自注意力在序列/非序列信号有效秩不同时效率较低；共享表征可能忽略场景特有模式并造成负迁移。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.9225,
+  "id": "arxiv-2610.35318",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-26T12:17:27Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出面向多场景推荐的统一异构特征交互排序框架HiRank，通过有效秩缩放联合建模序列与非序列特征，属于推荐系统排序研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Unified Heterogeneous Feature Interaction via Effective-Rank Scaling for Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.35318v1"
+}

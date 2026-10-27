@@ -1,0 +1,118 @@
+{
+  "abstract": "Quantifying the similarity between items is fundamental to neighborhood-based collaborative filtering, yet many commonly used similarity measures are heuristics that lack theoretical justification. The use of heuristics forces practitioners to rely on empirical trial-and-error, offering little insight into why certain measures outperform others or how they might be improved. In this paper, we present a principled approach for designing item similarity measures grounded in probabilistic modeling and parameter estimation. By adopting this formal perspective, we derive two previously overlooked similarity measures based on the Bernoulli and multinomial distributions. Through an extensive ablation study we highlight the critical role of bias, probabilistic smoothing, treating the unknowns correctly, and choosing appropriate probability distributions. Finally, we show that the commonly used cosine similarity can be interpreted as the solution to a specific optimization problem, thereby providing a novel perspective on this decades-old heuristic. Quantifying the similarity between items is fundamental to neighborhood-based collaborative filtering, yet many commonly used similarity measures are heuristics that lack theoretical justification. The use of heuristics forces practitioners to rely on empirical trial-and-error, offering little insight into why certain measures outperform others or how they might be improved. In this paper, we present a principled approach for designing item similarity measures grounded in probabilistic modeling and parameter estimation. By adopting this formal perspective, we derive two previously overlooked similarity measures based on the Bernoulli and multinomial distributions. Through an extensive ablation study we highlight the critical role of bias, probabilistic smoothing, treating the unknowns correctly, and choosing appropriate probability distributions. Finally, we show that the commonly used cosine similarity can be interpreted as the solution to a specific optimization problem, thereby providing a novel perspective on this decades-old heuristic.",
+  "arxiv_id": "2610.34402",
+  "authors": [
+    "Noah Daniëls",
+    "Joey De Pauw",
+    "Bart Goethals"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对使用隐式反馈的电商/新闻推荐，NB 相似度在接近 EASE 效果的同时拟合时间低一个数量级，适合对训练延迟敏感的生产环境。",
+      "理论框架可减少相似度选择的试错成本，帮助系统设计者理解偏差、平滑、未知项处理的影响，便于针对业务调优。",
+      "余弦相似度存在流行度偏差，并被解释为特定正则化问题的解；企业在选择相似度时应当评估该偏差对推荐效果的影响。",
+      "模型超参数（偏差、平滑、剪枝）对效果影响显著，需要验证集调优；跨领域迁移时需谨慎。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "提出以概率建模和参数估计为基础的物品相似度设计框架，将相似度视为优化问题的闭式解。",
+      "基于伯努利分布和多项式分布推导出两种此前被忽视的相似度度量。",
+      "通过消融研究阐明偏差、概率平滑、未知项处理、概率分布选择对推荐性能的关键影响。",
+      "将余弦相似度解释为特定正则化优化问题的解，为其提供新理论视角。",
+      "实验显示多项式 NB 优于伯努利 NB，且 NB 方法在部分数据集上大幅优于 kNN，同时比 EASE 快得多。"
+    ],
+    "evidence_quality": 0.75,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "I. INTRODUCTION"
+      },
+      {
+        "page": 1,
+        "section": "III. NAIVE BAYES FOR IMPLICIT FEEDBACK"
+      },
+      {
+        "page": 1,
+        "section": "IV. PARAMETER ESTIMATION"
+      },
+      {
+        "page": 1,
+        "section": "V. SIMILARITY MEASURES AS OPTIMIZATION"
+      },
+      {
+        "page": 1,
+        "section": "VII. EXPERIMENTS"
+      },
+      {
+        "page": 1,
+        "section": "VIII. CONCLUSION"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "EASE",
+        "kNN (cosine)",
+        "kNN (conditional probability)",
+        "NB (Bernoulli)",
+        "NB (multinomial)"
+      ],
+      "datasets": [
+        "Amazon Books",
+        "MIND",
+        "ML25M"
+      ],
+      "findings_zh": [
+        "EASE 在所有数据集上取得最高性能，但拟合时间显著更长。",
+        "NB 方法在 Amazon Books 和 MIND 上大幅优于 kNN，在 ML25M 上提升很小或没有。",
+        "多项式 NB 始终优于伯努利 NB，支持多项式事件模型更适合隐式反馈的论断。",
+        "在 Amazon Books 和 MIND 上，正确处理负特征可提升伯努利模型性能；ML25M 上忽略负特征的朴素方法经验上更好。",
+        "平滑对 NB 相似度性能至关重要；最优平滑类型依数据集和事件模型而异。",
+        "偏差项在无平滑时可提升评分，但在使用平滑后收益消失；kNN 的启发式相似度已有流行度偏差，因此偏差无益。",
+        "剪枝会大幅降低 NB 相似度性能；居中或平移处理只能部分缓解，且依数据集而异。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "NDCG@10",
+        "Recall@25",
+        "NDCG@25",
+        "Recall@50",
+        "NDCG@50",
+        "Relative Fit Time"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确表示目标不是声称 SOTA，未纳入其他近期推荐方法，仅与余弦、条件概率和 EASE 比较。",
+      "仅针对二值隐式反馈数据，未考虑显式反馈或真实负例信息的场景。",
+      "在 ML25M 上，理论上更正确的负特征处理反而不如朴素方法；偏差在平滑后收益消失，表明结论存在数据集依赖性。",
+      "剪枝会大幅降低 NB 相似度性能，居中/平移修复并非在所有数据集有效，尤其 ML25M。",
+      "实验基于 3 个数据集，且超参数通过验证集选择，泛化性仍受限于这些设置。"
+    ],
+    "method_zh": "将物品相似度建模为概率分类问题，使用朴素贝叶斯（伯努利与多项事件模型）和最大似然/MAP 参数估计推导闭式相似度；考虑偏差项、平滑先验、负特征权重，并把余弦相似度和条件概率重新表述为带正则化的优化问题的解。",
+    "problem_zh": "基于邻域的协同过滤常用相似度度量（如余弦相似度、条件概率）多为启发式，缺少理论依据，导致从业者依赖试错且难以系统改进；隐式反馈中零值含义（不喜欢 vs 未知）的模糊性也给建模带来挑战。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.89,
+  "id": "arxiv-2610.34402",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-10-27T18:55:53.104781Z",
+    "model": "deepseek-v4-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-10-25T16:04:41Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文从概率建模与参数估计出发，为基于项目的协同过滤设计理论上有依据的相似度度量，属于推荐系统方法研究。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Theoretically Sound Item Similarity Measures for Recommender Systems",
+  "url": "https://arxiv.org/abs/2610.34402v1"
+}
