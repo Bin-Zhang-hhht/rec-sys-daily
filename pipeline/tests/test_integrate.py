@@ -477,6 +477,22 @@ def test_structured_analysis_accepts_exact_fifty_percent(tmp_path: Path, kind: s
     assert not published_ids.intersection(item["id"] for item in failed)
 
 
+def test_integration_accepts_chinese_deep_reading_between_32_and_64_kib(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    source = stages.paper / "paper-deep-readings.json"
+    document = json.loads(source.read_text(encoding="utf-8"))
+    method = "方法分析。" * 3_000
+    document["items"][0]["deep_reading"]["method_zh"] = method
+    source.write_text(json.dumps(document, ensure_ascii=False), encoding="utf-8")
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+
+    path = bundle.path / "pending-data/items/papers/2026/08/paper-0.json"
+    assert 32_768 < path.stat().st_size <= 65_536
+    assert json.loads(path.read_text(encoding="utf-8"))["deep_reading"]["method_zh"] == method
+    assert sorted(entry.name for entry in bundle.path.iterdir()) == ["manifest.json", "pending-data", "taxonomy.json"]
+
+
 def test_item_size_limit_is_enforced_before_publish(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
     blob_path = stages.stage1 / "papers.jsonl"

@@ -53,7 +53,7 @@ similarity:
   score_decimals: 6
 storage:
   target_item_bytes: 16384
-  max_item_bytes: 32768
+  max_item_bytes: 65536
   max_blog_excerpt_chars: 4000
   warn_repository_data_mb: 500
   warn_pages_artifact_mb: 500

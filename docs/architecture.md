@@ -252,6 +252,11 @@ rank、推荐理由和 `item_id`，不复制内容。State 只保存上次成功
 验证时按完全相同的字符串去重，保留首次出现顺序和所有不同值，再写入深读 artifact 与
 canonical item，保证站点的列表唯一性校验一致；不做语义合并、截断或跳过 Schema 校验。
 
+`storage.target_item_bytes` 仍为 16 KiB，结构化 canonical item 的 UTF-8 序列化硬上限
+`storage.max_item_bytes` 为 64 KiB，以容纳超过 32 KiB 的中文深读条目；该上限由整合阶段
+写入 build config snapshot，随发布包传给站点。超过 64 KiB 仍阻断整个发布包，并清理临时输出，
+不截断分析、不跳过条目，也不推进正式 state。此调整不允许存入源全文或原始模型响应。
+
 关于页的筛选漏斗使用 publish bundle manifest 指向的最新 `RunReport`，包括该次运行的候选、
 预筛、深读和入选计数；当该次运行论文与博客入选均为零时，页面另行标注最近一份有内容的
 历史 Digest，不能将历史 Digest 的条目数混入本次运行漏斗。

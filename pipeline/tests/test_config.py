@@ -138,6 +138,8 @@ def test_config_uses_mineru_and_has_no_fetch_attempt_caps() -> None:
     limits = config.settings.limits
     assert config.settings.daily_target == 10
     assert config.settings.structured_analysis_min_success_rate == 0.50
+    assert config.settings.storage.target_item_bytes == 16_384
+    assert config.settings.storage.max_item_bytes == 65_536
     assert not hasattr(limits, "rss_requests_per_run_per_source")
     assert not hasattr(limits, "max_pdf_downloads_per_run")
     assert not hasattr(limits, "max_blog_fulltext_fetches_per_run")
