@@ -36,7 +36,7 @@ def _write_config(root: Path) -> None:
         "minimum_final_score": 0.5,
         "minimum_metadata_relevance_score": 0.65,
         "request_user_agent": "RecSysDaily/1.0",
-        "structured_analysis_min_success_rate": .80,
+        "structured_analysis_min_success_rate": .50,
         "metadata_weights": {"topic_relevance": .30, "scenario_relevance": .25, "source_quality": .15, "novelty": .15, "practical_value": .10, "recency": .05},
         "final_weights": {"metadata_score": .55, "evidence_quality": .20, "business_transferability": .15, "technical_depth": .10},
         "limits": {"http_concurrency": 2, "arxiv_min_interval_seconds": 3, "arxiv_retry_attempts": 6, "arxiv_retry_backoff_seconds": 60, "arxiv_retry_max_delay_seconds": 600, "request_timeout_seconds": 45, "retry_attempts": 3, "retry_backoff_seconds": 1, "retry_max_delay_seconds": 30, "max_papers_per_run": 100, "max_blogs_per_run": 50, "deep_reading_candidates_per_type": 20, "pdf_download_concurrency": 1, "blog_download_concurrency_per_domain": 1, "blog_min_interval_seconds_per_domain": 2, "max_blog_html_bytes": 5_242_880},
@@ -137,6 +137,7 @@ def test_config_uses_mineru_and_has_no_fetch_attempt_caps() -> None:
     config = load_config(Path(__file__).parents[2])
     limits = config.settings.limits
     assert config.settings.daily_target == 10
+    assert config.settings.structured_analysis_min_success_rate == 0.50
     assert not hasattr(limits, "rss_requests_per_run_per_source")
     assert not hasattr(limits, "max_pdf_downloads_per_run")
     assert not hasattr(limits, "max_blog_fulltext_fetches_per_run")

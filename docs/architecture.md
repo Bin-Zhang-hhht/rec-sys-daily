@@ -47,7 +47,7 @@ canonical data，不属于数据阶段，也不参与发布事务。
 | 阶段 | 输入 | 输出 | 失败后果 |
 | --- | --- | --- | --- |
 | `collect-filter` | 来源、配置、有效 `state.json` | 论文/博客各最多 20 条 shortlist、脱敏报告 | 不启动后续阶段 |
-| `deep-read` | Stage 1 shortlist | 结构化 reading 或稳定错误码 | 按 80% 成功率门槛阻断整合 |
+| `deep-read` | Stage 1 shortlist | 结构化 reading 或稳定错误码 | 按 50% 成功率门槛阻断整合 |
 | `similarity` | 当前成功项 + 历史 canonical items | 短期有界边列表 | 缺失或校验失败阻断整合 |
 | `rank-integrate` | 三类 artifact、只读历史 `data/` | 完整 `pending-data/` | 不生成可消费 bundle |
 | `build-deploy` | bundle + 同 run similarity | Astro/Pagefind/图谱 Pages artifact | 不提升 `state.json` |
@@ -211,12 +211,13 @@ Stage 1 只传 metadata shortlist、来源游标/validators 和计数；博客 e
 }
 ```
 
-失败只记录稳定短错误码，不写异常链、URL、请求头或源内容。论文和博客深读成功率分别达到
-`0.80` 才能整合；无候选时视为成功。
+失败只记录稳定短错误码，不写异常链、URL、请求头或源内容。
+`settings.yaml` 的 `structured_analysis_min_success_rate` 为 `0.50`；元数据分析、论文深读和
+博客深读成功率分别达到该门槛才能整合，不跨类型平均；深读无候选时视为成功。
 
 DeepSeek SDK 请求在既有有界重试结束后，由文本 wrapper 转为不含服务端响应的
 `ModelRequestError`。深读将其计入当前条目的 `deep_read_failed` 并继续处理其他条目，
-最终仍由整合阶段执行 `0.80` 门槛；不让 SDK 异常绕过单条失败隔离。
+最终仍由整合阶段执行 `0.50` 门槛；不让 SDK 异常绕过单条失败隔离。
 
 ### 3.4 Canonical data
 
@@ -335,8 +336,8 @@ stateDiagram-v2
     [*] --> Collecting
     Collecting --> Reading: shortlist valid
     Collecting --> Failed: source/schema/model error
-    Reading --> Similarity: success rate >= 80%
-    Reading --> Failed: success rate < 80%
+    Reading --> Similarity: success rate >= 50%
+    Reading --> Failed: success rate < 50%
     Similarity --> Integrating: artifact valid
     Similarity --> Failed: timeout/model/schema error
     Integrating --> Building: pending tree valid

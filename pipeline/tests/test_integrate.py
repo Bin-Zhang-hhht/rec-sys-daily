@@ -433,34 +433,48 @@ def test_unknown_deep_read_candidate_id_is_rejected(tmp_path: Path) -> None:
         integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
 
-def test_structured_analysis_success_rate_is_enforced(tmp_path: Path) -> None:
+@pytest.mark.parametrize("kind", ["paper", "blog"])
+def test_structured_analysis_success_rate_is_enforced(tmp_path: Path, kind: str) -> None:
     stages = fixture_stages(tmp_path)
-    paper_path = stages.paper / "paper-deep-readings.json"
-    # Seven of ten Stage 1 paper candidates is below the configured 0.80 gate.
-    paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
-    failed = paper_document["items"][7:]
-    paper_document["items"] = paper_document["items"][:7]
-    paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
-    paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
-    _refresh_similarity_for_current_results(stages, paper_count=7)
+    source = getattr(stages, kind) / f"{kind}-deep-readings.json"
+    # Four of ten candidates fails even when the other kind succeeds completely.
+    document = json.loads(source.read_text(encoding="utf-8"))
+    failed = document["items"][4:]
+    document["items"] = document["items"][:4]
+    document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
+    source.write_text(json.dumps(document), encoding="utf-8")
+    _refresh_similarity_for_current_results(stages, paper_count=10)
+    data = tmp_path / "data"
+    data.mkdir()
+    state_path = data / "state.json"
+    previous = State(last_success_at=PUBLISHED_AT)
+    state_before = previous.model_dump_json().encode("utf-8")
+    state_path.write_bytes(state_before)
 
     with pytest.raises(ValueError, match="structured analysis success rate"):
-        integrate(stages, tmp_path / "bundle", CONFIG, state=None)
+        integrate(stages, tmp_path / "bundle", CONFIG, state=previous, repository_data=data)
+
+    assert not (tmp_path / "bundle").exists()
+    assert state_path.read_bytes() == state_before
 
 
-def test_structured_analysis_accepts_exact_eighty_percent(tmp_path: Path) -> None:
+@pytest.mark.parametrize("kind", ["paper", "blog"])
+def test_structured_analysis_accepts_exact_fifty_percent(tmp_path: Path, kind: str) -> None:
     stages = fixture_stages(tmp_path)
-    paper_path = stages.paper / "paper-deep-readings.json"
-    paper_document = json.loads(paper_path.read_text(encoding="utf-8"))
-    failed = paper_document["items"][8:]
-    paper_document["items"] = paper_document["items"][:8]
-    paper_document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
-    paper_path.write_text(json.dumps(paper_document), encoding="utf-8")
-    _refresh_similarity_for_current_results(stages, paper_count=8)
+    source = getattr(stages, kind) / f"{kind}-deep-readings.json"
+    document = json.loads(source.read_text(encoding="utf-8"))
+    failed = document["items"][5:]
+    document["items"] = document["items"][:5]
+    document["failures"] = [{"id": item["id"], "code": "deep_read_failed"} for item in failed]
+    source.write_text(json.dumps(document), encoding="utf-8")
+    _refresh_similarity_for_current_results(stages, paper_count=10)
 
     bundle = integrate(stages, tmp_path / "bundle", CONFIG, state=None)
 
-    assert bundle.path.exists()
+    report = json.loads(next((bundle.path / "pending-data/runs").rglob("*.json")).read_text(encoding="utf-8"))
+    assert report["structured_analysis_success_rate"] == 0.50
+    published_ids = {path.stem for path in (bundle.path / "pending-data/items").rglob("*.json")}
+    assert not published_ids.intersection(item["id"] for item in failed)
 
 
 def test_item_size_limit_is_enforced_before_publish(tmp_path: Path) -> None:
@@ -695,11 +709,18 @@ def test_integrate_rejects_unsupported_repository_data_transactionally(tmp_path:
     assert not (tmp_path / "bundle").exists()
 
 
-def test_integrate_rejects_low_stage_metadata_success_rate(tmp_path: Path) -> None:
+@pytest.mark.parametrize("rate", [0.49, 0.50])
+def test_integrate_enforces_stage_metadata_success_rate(tmp_path: Path, rate: float) -> None:
     stages = fixture_stages(tmp_path)
     (stages.stage1 / "stage-report.json").write_text(
-        json.dumps(StageReport(metadata_llm_success_rate=0.5).model_dump(mode="json")),
+        json.dumps(StageReport(metadata_llm_success_rate=rate).model_dump(mode="json")),
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match="metadata analysis success rate"):
-        integrate(stages, tmp_path / "bundle", CONFIG)
+    if rate < 0.50:
+        with pytest.raises(ValueError, match="metadata analysis success rate"):
+            integrate(stages, tmp_path / "bundle", CONFIG)
+        assert not (tmp_path / "bundle").exists()
+    else:
+        bundle = integrate(stages, tmp_path / "bundle", CONFIG)
+        report = json.loads(next((bundle.path / "pending-data/runs").rglob("*.json")).read_text(encoding="utf-8"))
+        assert report["structured_analysis_success_rate"] == rate
