@@ -11,7 +11,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
-from openai import APIConnectionError, OpenAI
+from openai import APIConnectionError, APIError, OpenAI
 
 from .config import ModelConfig
 from .rate_limit import request_with_retries
@@ -19,6 +19,10 @@ from .rate_limit import request_with_retries
 
 class ModelOutputError(ValueError):
     """A retryable malformed response without retaining provider output."""
+
+
+class ModelRequestError(RuntimeError):
+    """A bounded SDK request failure without retaining provider details."""
 
 
 def _json_content(content: Any) -> dict[str, Any]:
@@ -182,9 +186,12 @@ class TextClient:
                 raise ModelOutputError("model response does not match the requested schema") from exc
             return value
 
-        return request_with_retries(
-            operation,
-            sleeper=self._sleeper,
-            max_attempts=self.retries,
-            retry_on_exceptions=(APIConnectionError, ModelOutputError),
-        )
+        try:
+            return request_with_retries(
+                operation,
+                sleeper=self._sleeper,
+                max_attempts=self.retries,
+                retry_on_exceptions=(APIConnectionError, ModelOutputError),
+            )
+        except APIError:
+            raise ModelRequestError("text model request failed") from None

@@ -214,6 +214,10 @@ Stage 1 只传 metadata shortlist、来源游标/validators 和计数；博客 e
 失败只记录稳定短错误码，不写异常链、URL、请求头或源内容。论文和博客深读成功率分别达到
 `0.80` 才能整合；无候选时视为成功。
 
+DeepSeek SDK 请求在既有有界重试结束后，由文本 wrapper 转为不含服务端响应的
+`ModelRequestError`。深读将其计入当前条目的 `deep_read_failed` 并继续处理其他条目，
+最终仍由整合阶段执行 `0.80` 门槛；不让 SDK 异常绕过单条失败隔离。
+
 ### 3.4 Canonical data
 
 ```text
@@ -229,6 +233,10 @@ Canonical item 保存公开元数据、中文 summary、四类 taxonomy ID、评
 Paper 额外包含 `abstract`、`arxiv_id` 和可空 `doi`；Blog 不含 excerpt。Digest 只保存日期、
 rank、推荐理由和 `item_id`，不复制内容。State 只保存上次成功时间、来源游标/validators、实际
 进入 digest 的 `recommended_item_ids` 和更新时间，不记录未发布候选。
+
+深读中的字符串列表（如 datasets、baselines、metrics 和中文分析要点）在 Python Schema
+验证时按完全相同的字符串去重，保留首次出现顺序和所有不同值，再写入深读 artifact 与
+canonical item，保证站点的列表唯一性校验一致；不做语义合并、截断或跳过 Schema 校验。
 
 关于页的筛选漏斗使用 publish bundle manifest 指向的最新 `RunReport`，包括该次运行的候选、
 预筛、深读和入选计数；当该次运行论文与博客入选均为零时，页面另行标注最近一份有内容的

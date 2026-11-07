@@ -3,12 +3,15 @@ from __future__ import annotations
 from datetime import UTC, datetime
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+from openai import RateLimitError
 
 from recsys_daily.collect import Candidate
 from recsys_daily.content import BlogFeedCache
 from recsys_daily.deep_read import DeepReadServices, deep_read, deep_read_blog, deep_read_paper
+from recsys_daily.llm import TextClient
 from recsys_daily.mineru import MinerUError
 
 
@@ -276,6 +279,50 @@ def test_deep_read_isolates_item_failure_without_persisting_error_text(tmp_path:
     assert len(payload["items"]) == 1
     assert payload["failures"] == [{"id": payload["failures"][0]["id"], "code": "deep_read_failed"}]
     assert "private details" not in json.dumps(payload)
+
+
+def test_deep_read_continues_after_sdk_rate_limit_retries_are_exhausted(tmp_path: Path) -> None:
+    response = SimpleNamespace(status_code=429, headers={}, request=SimpleNamespace())
+    error = RateLimitError("private provider response", response=response, body=None)
+    outputs = [error, error, error, SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content=json.dumps(_blog_analysis())))],
+    )]
+
+    def create(**_kwargs):
+        value = outputs.pop(0)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    client = TextClient(
+        base_url="https://example.test/v1", api_key="key", model="model", retries=3,
+        sleeper=lambda _delay: None,
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))),
+    )
+    services = _services(
+        tmp_path / "temporary", FakeContent(tmp_path),
+        text=lambda *_args: client.complete_json([], {"type": "object"}),
+    )
+    input_dir = tmp_path / "input"
+    input_dir.mkdir()
+    (input_dir / "blog-candidates.json").write_text(json.dumps([
+        {
+            "kind": "blog", "source_id": "example", "title": f"Feed Ranking {index}",
+            "url": f"https://engineering.example.com/posts/{index}",
+            "published_at": "2026-08-10T00:00:00Z", "authors": [], "excerpt": "Short excerpt",
+        }
+        for index in range(2)
+    ]), encoding="utf-8")
+
+    destination = deep_read("blog", input_dir, tmp_path / "output", services=services)
+
+    document = json.loads(destination.read_text(encoding="utf-8"))
+    assert len(document["items"]) == len(document["failures"]) == 1
+    assert document["failures"][0]["code"] == "deep_read_failed"
+    assert document["items"][0]["id"] != document["failures"][0]["id"]
+    assert "private provider response" not in destination.read_text(encoding="utf-8")
+    assert not (tmp_path / "temporary").exists()
+    assert outputs == []
 
 
 def test_blog_deep_read_fetches_each_source_feed_once_and_reuses_content(tmp_path: Path) -> None:

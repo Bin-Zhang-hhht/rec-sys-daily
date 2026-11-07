@@ -4,6 +4,7 @@ import json
 from types import SimpleNamespace
 
 import pytest
+from openai import AuthenticationError, InternalServerError, RateLimitError
 
 from recsys_daily.config import load_config
 from recsys_daily.llm import ModelOutputError, TextClient, TokenBudget
@@ -201,6 +202,34 @@ def test_text_client_retries_transient_errors() -> None:
     )
     assert client.complete_json([{"role": "user", "content": "hello"}], SCHEMA) == {"score": 3}
     assert sleeps == [1.0]
+
+
+@pytest.mark.parametrize(
+    ("error_type", "status", "attempts"),
+    [(RateLimitError, 429, 3), (InternalServerError, 503, 3), (AuthenticationError, 401, 1)],
+)
+def test_text_client_isolates_exhausted_sdk_errors_without_provider_details(error_type, status, attempts) -> None:
+    response = SimpleNamespace(
+        status_code=status,
+        headers={"Retry-After": "7"},
+        request=SimpleNamespace(),
+    )
+    error = error_type("private provider response", response=response, body=None)
+    completions = FakeChatCompletions({}, [error] * attempts)
+    sleeps: list[float] = []
+    client = TextClient(
+        base_url="https://example.test/v1", api_key="key", model="model", retries=3,
+        sleeper=sleeps.append,
+        client=SimpleNamespace(chat=SimpleNamespace(completions=completions)),
+    )
+
+    with pytest.raises(RuntimeError, match="text model request failed") as exc_info:
+        client.complete_json([{"role": "user", "content": "hello"}], SCHEMA)
+
+    assert sleeps == [7.0] * (attempts - 1)
+    assert completions.outputs == []
+    assert "private provider response" not in str(exc_info.value)
+    assert exc_info.value.__suppress_context__
 
 
 def test_text_client_uses_model_common_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:

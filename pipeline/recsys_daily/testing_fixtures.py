@@ -129,7 +129,7 @@ def _fixture_services(work: Path, *, exercise_blog_fallbacks: bool = False) -> D
                 "problem_zh": "研究推荐系统中的候选召回问题。",
                 "contributions_zh": ["提出有界的双塔候选召回方案。"],
                 "method_zh": "采用双塔模型执行候选召回。",
-                "experiments": {"datasets": ["RuntimeFixtureSet"], "metrics": ["Recall@20"]},
+                "experiments": {"datasets": ["RuntimeFixtureSet"], "metrics": ["Recall@20", "Recall@20"]},
                 "evidence_refs": [{"section": "Method", "page": 1}],
             }
         return {

@@ -14,6 +14,7 @@ from recsys_daily.schemas import (
     LLMMetadata,
     Manifest,
     PaperItem,
+    PaperExperiments,
     PaperReading,
     RunReport,
     SourceState,
@@ -186,6 +187,19 @@ def test_post_schema_quality_validation_rejects_empty_semantic_alternatives() ->
         validate_reading_quality(paper)
     with pytest.raises(ValueError, match="architecture, implementation, lesson, or evidence"):
         validate_reading_quality(blog)
+
+
+@pytest.mark.parametrize("model", [PaperExperiments, PaperReading, BlogReading])
+def test_reading_string_lists_deduplicate_without_reordering_or_dropping_distinct_values(model) -> None:
+    fields = [name for name, field in model.model_fields.items() if field.annotation == list[str]]
+    values = {name: ["Recall@20", "NDCG@10", "Recall@20"] for name in fields}
+    if model is not PaperExperiments:
+        values["analysis_basis"] = "abstract_fallback" if model is PaperReading else "excerpt_fallback"
+
+    reading = model.model_validate(values)
+
+    for name in fields:
+        assert getattr(reading, name) == ["Recall@20", "NDCG@10"]
 
 
 def test_manifest_serialization_is_stage_minimal() -> None:

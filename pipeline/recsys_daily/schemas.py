@@ -49,11 +49,19 @@ class BlogEvidenceRef(ArtifactModel):
         return self
 
 
+def _unique_reading_strings(values: list[str]) -> list[str]:
+    """Keep the first occurrence of each exact value in display order."""
+    return list(dict.fromkeys(values))
+
+
+ReadingStrings = Annotated[list[str], AfterValidator(_unique_reading_strings)]
+
+
 class PaperExperiments(ArtifactModel):
-    datasets: list[str] = Field(default_factory=list)
-    baselines: list[str] = Field(default_factory=list)
-    metrics: list[str] = Field(default_factory=list)
-    findings_zh: list[str] = Field(default_factory=list)
+    datasets: ReadingStrings = Field(default_factory=list)
+    baselines: ReadingStrings = Field(default_factory=list)
+    metrics: ReadingStrings = Field(default_factory=list)
+    findings_zh: ReadingStrings = Field(default_factory=list)
 
 
 class PaperReading(ArtifactModel):
@@ -62,11 +70,11 @@ class PaperReading(ArtifactModel):
     business_transferability: float | None = Field(default=None, ge=0, le=1)
     technical_depth: float | None = Field(default=None, ge=0, le=1)
     problem_zh: str | None = None
-    contributions_zh: list[str] = Field(default_factory=list)
+    contributions_zh: ReadingStrings = Field(default_factory=list)
     method_zh: str | None = None
     experiments: PaperExperiments = Field(default_factory=PaperExperiments)
-    limitations_zh: list[str] = Field(default_factory=list)
-    business_implications_zh: list[str] = Field(default_factory=list)
+    limitations_zh: ReadingStrings = Field(default_factory=list)
+    business_implications_zh: ReadingStrings = Field(default_factory=list)
     evidence_refs: list[PaperEvidenceRef] = Field(default_factory=list)
 
 
@@ -78,12 +86,12 @@ class BlogReading(ArtifactModel):
     system_context_zh: str | None = None
     architecture_zh: str | None = None
     implementation_zh: str | None = None
-    production_constraints_zh: list[str] = Field(default_factory=list)
-    tradeoffs_zh: list[str] = Field(default_factory=list)
-    results_zh: list[str] = Field(default_factory=list)
-    lessons_zh: list[str] = Field(default_factory=list)
-    limitations_zh: list[str] = Field(default_factory=list)
-    business_implications_zh: list[str] = Field(default_factory=list)
+    production_constraints_zh: ReadingStrings = Field(default_factory=list)
+    tradeoffs_zh: ReadingStrings = Field(default_factory=list)
+    results_zh: ReadingStrings = Field(default_factory=list)
+    lessons_zh: ReadingStrings = Field(default_factory=list)
+    limitations_zh: ReadingStrings = Field(default_factory=list)
+    business_implications_zh: ReadingStrings = Field(default_factory=list)
     evidence_refs: list[BlogEvidenceRef] = Field(default_factory=list)
 
 

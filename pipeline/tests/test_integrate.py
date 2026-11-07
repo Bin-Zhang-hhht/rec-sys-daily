@@ -184,6 +184,21 @@ def test_publish_bundle_allowlist(tmp_path: Path) -> None:
     assert sorted(path.name for path in bundle.path.iterdir()) == ["manifest.json", "pending-data", "taxonomy.json"]
 
 
+def test_integrate_normalizes_repeated_model_metrics_before_publication(tmp_path: Path) -> None:
+    stages = fixture_stages(tmp_path)
+    source = stages.paper / "paper-deep-readings.json"
+    document = json.loads(source.read_text(encoding="utf-8"))
+    document["items"][0]["deep_reading"]["experiments"] = {
+        "metrics": ["Recall@20", "NDCG@10", "Recall@20"],
+    }
+    source.write_text(json.dumps(document), encoding="utf-8")
+
+    bundle = integrate(stages, tmp_path / "bundle", CONFIG)
+
+    item = json.loads((bundle.path / "pending-data/items/papers/2026/08/paper-0.json").read_text(encoding="utf-8"))
+    assert item["deep_reading"]["experiments"]["metrics"] == ["Recall@20", "NDCG@10"]
+
+
 def test_integrate_rejects_stage_one_candidate_overflow(tmp_path: Path) -> None:
     stages = fixture_stages(tmp_path)
     papers_path = stages.stage1 / "papers.jsonl"
