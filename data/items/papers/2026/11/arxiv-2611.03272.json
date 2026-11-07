@@ -1,0 +1,133 @@
+{
+  "abstract": "Generative recommendation generates the semantic ID (SID) of the next item from a user's interaction history. Existing training objectives mainly supervise target SID tokens, while on-policy distillation (OPD) provides denser supervision through a teacher's probability distribution over all tokens for more effective and efficient training. However, OPD can aggravate popularity bias: teacher feedback favors popular-item tokens, transferring this preference to the student, while student rollout favors popular items, leaving unpopular-item SID paths rarely generated and supervised. These two sources of bias reinforce each other and reduce recommendation diversity. We propose HERO, a diversity-aware OPD framework. Heterogeneous teacher distillation trains two teachers specializing in popular and unpopular items and routes each training sample to the teacher matching the popularity group of its ground-truth item. The student learns from the routed teacher's probability distribution along its own generated SIDs. Diversity-aware item rollout incorporates ground-truth SIDs of unpopular items into training, covering SID paths that the student rarely generates. Only the student is used for inference. Offline experiments on an industrial dataset and three public datasets further demonstrate its effectiveness, diversity, and robustness. Moreover, we deploy HERO in the \"Guess What You Like\" module on the 1688 homepage, where a 15-day online A/B test shows a 3.412% increase in gross merchandise value (GMV). Generative recommendation generates the semantic ID (SID) of the next item from a user's interaction history. Existing training objectives mainly supervise target SID tokens, while on-policy distillation (OPD) provides denser supervision through a teacher's probability distribution over all tokens for more effective and efficient training. However, OPD can aggravate popularity bias: teacher feedback favors popular-item tokens, transferring this preference to the student, while student rollout favors popular items, leaving unpopular-item SID paths rarely generated and supervised. These two sources of bias reinforce each other and reduce recommendation diversity. We propose HERO, a diversity-aware OPD framework. Heterogeneous teacher distillation trains two teachers specializing in popular and unpopular items and routes each training sample to the teacher matching the popularity group of its ground-truth item. The student learns from the routed teacher's probability distribution along its own generated SIDs. Diversity-aware item rollout incorporates ground-truth SIDs of unpopular items into training, covering SID paths that the student rarely generates. Only the student is used for inference. Offline experiments on an industrial dataset and three public datasets further demonstrate its effectiveness, diversity, and robustness. Moreover, we deploy HERO in the \"Guess What You Like\" module on the 1688 homepage, where a 15-day online A/B test shows a 3.412% increase in gross merchandise value (GMV).",
+  "arxiv_id": "2611.03272",
+  "authors": [
+    "Zhipeng Yi",
+    "Xinyu Lin",
+    "Minxuan Shan",
+    "Zipeng Chen",
+    "Yujiao Zhao",
+    "Chuanyu Xu",
+    "Wenjie Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对已有SFT生成式推荐系统的平台，HERO提供了一种不改动线上推理架构的增量后训练方案：线上仍只部署学生模型，适合以离线算力换取GMV和长尾供给改善。",
+      "对存在头部集中、冷门供给曝光不足的业务，按流行度路由双教师并加入尾部ground-truth路径监督，有望同时提升尾部曝光、点击效率和需求-曝光对齐（DTR更接近1）。",
+      "在线A/B中GMV提升3.412%且响应时间无实质变化，说明该方法具备直接落地价值；但业务复现时应结合自身流量规模、品类结构和A/B周期验证收益。",
+      "头部/尾部阈值需要按业务交互频率校准；双教师训练带来额外离线成本，适合离线训练资源可扩展、且生成式推荐已上线的场景。",
+      "论文显示单纯对尾部样本重加权SFT不如HERO，提示业务方若只做损失重加权可能无法同时改善整体与尾部指标，需要同时优化教师信号来源和rollout覆盖。"
+    ],
+    "business_transferability": 0.84,
+    "contributions_zh": [
+      "识别出OPD在生成式推荐中的偏差加剧问题：学生会继承教师对热门物品的偏好，并在逐轮rollout中放大该偏好。",
+      "提出多样性感知的OPD范式，包含两个原则：异构教师（为不同流行度组提供互补监督）和多样化物品（覆盖学生很少生成的冷门物品SID路径）。",
+      "实现HERO框架：通过异构教师蒸馏和多样性感知物品rollout落实上述原则，并且推理阶段只使用学生模型。",
+      "在1688工业数据集和三个公开数据集上验证有效性、多样性与鲁棒性；在1688首页“Guess What You Like”模块进行15天在线A/B测试，相比现有生成式推荐器实现3.412%的GMV提升。"
+    ],
+    "evidence_quality": 0.92,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 4,
+        "section": "3 Method（3.1–3.3）"
+      },
+      {
+        "page": 6,
+        "section": "4.2 Overall Performance（RQ1）"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Component Contributions（RQ2）"
+      },
+      {
+        "page": 7,
+        "section": "4.4 Mechanism Analysis（RQ3）"
+      },
+      {
+        "page": 8,
+        "section": "4.5 Online A/B Test"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "TIGER",
+        "SFT",
+        "SFT++",
+        "GT-KD",
+        "Off-policy KD",
+        "GKD",
+        "MOPD",
+        "SID-GRPO",
+        "Ghost-AUO",
+        "BEAR"
+      ],
+      "datasets": [
+        "1688工业数据集",
+        "Amazon Beauty and Personal Care（Beauty）",
+        "Amazon Pet Supplies（Pet）",
+        "MovieLens-1M"
+      ],
+      "findings_zh": [
+        "HERO在1688、Beauty、Pet和MovieLens-1M上均取得最高的整体与尾部准确率；在四个数据集上DTR最接近1，并且相较SFT和标准OPD（GKD）降低ORR-Top5。",
+        "1688组件消融显示：移除rollout KL造成损失消融中最大的尾部准确率下降；仅用头部教师、仅用尾部教师或固定50/50教师混合均不如按目标流行度路由；移除GT-CE或tail-path GT-KL也会降低性能。",
+        "仅对SFT中的尾部目标做CE重加权无法达到HERO的效果；单教师OPD变体通常在头部与尾部之间权衡，而目标感知路由加tail-path GT-KL能同时改善头部和尾部准确率。",
+        "机制分析表明：增加教师反馈候选数会提高学生生成头部物品的份额，而整体准确率变化很小；HERO在同等全词表反馈下降低头部生成份额；HERO在自由rollout的较后SID位置提高正确尾部前缀覆盖率；三个公开数据集上尾部目标的相对Hit@20提升最大。",
+        "15天在线A/B测试中，HERO相比现有生成式推荐器提升GMV 3.412%（p=0.0104，95% CI [0.759%, 6.065%]），相比传统非生成式推荐器提升25.3%（95% CI [21.63%, 28.982%]，p=1.84×10^-50）；尾部曝光/UV、尾部点击/UV和尾部CTR均提升，在线推理只用学生且响应时间无实质变化。"
+      ],
+      "metrics": [
+        "Click Hit@240",
+        "Pay Hit@240",
+        "Tail Click Hit@240",
+        "DTR*（|DTR-1|）",
+        "ORR-Top5",
+        "Hit@20",
+        "Tail Hit@20"
+      ]
+    },
+    "limitations_zh": [
+      "在线验证仅覆盖1688首页一个推荐模块和15天A/B测试，跨平台、跨品类和更长周期上的外部有效性仍需进一步验证。",
+      "方法需要从零训练两个教师并在蒸馏中冻结，增加了离线训练与存储开销；论文仅说明在线推理只用学生且响应时间无实质变化，未量化双教师训练成本。",
+      "头部/尾部划分依赖数据集特定阈值（1688至少4096次训练交互，Beauty/Pet/MovieLens-1M分别为33/44/783次），阈值敏感性和跨业务迁移尚未系统分析。",
+      "公开数据集采用下一物品单目标预测，1688为多点击/购买目标；方法在其他推荐任务（如多目标、更长序列或不同SID构造）上的泛化仍需验证。",
+      "评估主要围绕准确率和流行度偏差，未系统覆盖其他公平性维度或更广泛的生态影响。"
+    ],
+    "method_zh": "HERO将SFT训练集按目标物品在训练交互中的频率划分为头部集和尾部集，并训练两个教师：头部教师q_h在头部全集加尾部随机ρ比例样本上训练，尾部教师q_t在尾部全集加头部随机ρ比例样本上训练，两个教师均从零训练并在蒸馏中冻结。训练学生时，每个样本根据其ground-truth目标的流行度组路由到q_h或q_t；学生用trie约束beam search生成多条SID轨迹，并在自己生成的前缀上最小化路由教师与学生的forward KL（rollout KL）。所有样本同时保留ground-truth SID的token级交叉熵（GT-CE）；对尾部目标额外在ground-truth尾部路径前缀上加入尾部教师与学生的KL（tail-GT-KL），以监督学生很少生成的正确尾部路径。三项损失联合更新学生，教师保持冻结，推理时仅使用学生。",
+    "problem_zh": "生成式推荐通过自回归生成物品的语义ID（SID）来完成下一物品推荐。现有SFT、DPO和RL目标主要监督目标SID的token，监督信号较稀疏；on-policy distillation（OPD）虽然利用教师模型在全词表上的概率分布提供更密集的token级监督，却会加剧流行度偏差：教师反馈偏向热门物品token，学生rollout也偏向热门物品，导致冷门物品的SID路径很少被生成和监督，两个偏差来源相互强化，最终降低推荐多样性。",
+    "technical_depth": 0.91
+  },
+  "doi": null,
+  "final_score": 0.9235,
+  "id": "arxiv-2611.03272",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-02T15:14:16Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向生成式推荐的多样性感知在线策略蒸馏框架HERO，通过异质教师与多样性物品rollout缓解流行度偏差。",
+  "targets": [],
+  "tasks": [],
+  "title": "Diverse-Teacher On-Policy Distillation for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.03272v1"
+}

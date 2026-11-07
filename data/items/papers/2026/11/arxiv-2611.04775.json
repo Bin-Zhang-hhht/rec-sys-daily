@@ -1,0 +1,155 @@
+{
+  "abstract": "Recommender systems are ubiquitous on the Web, making understandable explanations essential for users. Although large language models (LLMs) increasingly generate natural-language justifications, evaluating their factual grounding and personalized relevance remains challenging. Statement-level ranking offers an alternative by selecting concise, review-derived explanations, enabling fine-grained and reproducible evaluation using established ranking metrics. However, existing statement ranking methods largely rely on collaborative representations, while semantic enhancements often fail to outperform simple user-history popularity baselines. Moreover, directly adapting language models for personalized statement ranking remains largely unexplored. In this work, we introduce LMStaR (Language Models for Statement Ranking), a fully text-based framework that formulates personalized explanation ranking as dense retrieval. A query encoder represents the user's interaction history and target-item metadata, while a statement encoder maps candidate explanations into a shared embedding space. Both encoders are jointly adapted through multi-positive contrastive learning to learn personalized relevance. Experiments on Amazon Beauty, Amazon Toys, and Yelp show that LMStaR achieves the highest NDCG@1 across all three domains, outperforming CLER by 1.06--8.25 points (+11.8--65.9%). It also leads top-five ranking on both Amazon datasets, although CLER remains stronger on Yelp. Task-specific adaptation improves all five evaluated backbones and transfers across domains without target-domain fine-tuning. Counterfactual analyses further reveal the importance of user-specific histories. These findings highlight the potential of task-adapted language models for personalized explanation ranking. Recommender systems are ubiquitous on the Web, making understandable explanations essential for users. Although large language models (LLMs) increasingly generate natural-language justifications, evaluating their factual grounding and personalized relevance remains challenging. Statement-level ranking offers an alternative by selecting concise, review-derived explanations, enabling fine-grained and reproducible evaluation using established ranking metrics. However, existing statement ranking methods largely rely on collaborative representations, while semantic enhancements often fail to outperform simple user-history popularity baselines. Moreover, directly adapting language models for personalized statement ranking remains largely unexplored. In this work, we introduce LMStaR (Language Models for Statement Ranking), a fully text-based framework that formulates personalized explanation ranking as dense retrieval. A query encoder represents the user's interaction history and target-item metadata, while a statement encoder maps candidate explanations into a shared embedding space. Both encoders are jointly adapted through multi-positive contrastive learning to learn personalized relevance. Experiments on Amazon Beauty, Amazon Toys, and Yelp show that LMStaR achieves the highest NDCG@1 across all three domains, outperforming CLER by 1.06--8.25 points (+11.8--65.9%). It also leads top-five ranking on both Amazon datasets, although CLER remains stronger on Yelp. Task-specific adaptation improves all five evaluated backbones and transfers across domains without target-domain fine-tuning. Counterfactual analyses further reveal the importance of user-specific histories. These findings highlight the potential of task-adapted language models for personalized explanation ranking.",
+  "arxiv_id": "2611.04775",
+  "authors": [
+    "Ben Kabongo",
+    "Vincent Guigue"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对需要可审计解释的推荐/电商场景，用句子级排序替代自由生成可获得可复现的排序指标（NDCG/Recall/Precision）评估，并便于 A/B 与回归测试。",
+      "部署上可用双塔结构预计算候选句子向量，在线仅编码用户历史与目标物品查询，检索成本低、可扩展到大规模候选池。",
+      "参数高效适配（LoRA）不仅效果优于全量微调，也显著降低训练与显存成本，适合在自有领域数据上快速定制检索式解释模块。",
+      "较小模型经任务适配后可超过更大的零样本模型，利于在成本/延迟受限的环境中落地。",
+      "跨域迁移可在缺乏目标域标注数据时先行上线解释排序，但仍建议在目标域做少量适配以获取最佳效果。",
+      "反事实分析提示：个性化收益主要来自用户自身行为历史，因此产品侧应优先保证历史序列与物品元数据的高质量采集与隐私合规使用；物品元数据缺失的影响相对较小。",
+      "方法论可迁移到其他“从候选文本中选取证据”的场景（如评论摘要、卖点选择、检索式问答证据排序），但需注意 Yelp 类场景下 top-5 覆盖度可能不足，或需混合协同信号或多向量表示。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 LMSTAR，一个完全基于文本的双编码器框架，把个性化解释句子排序形式化为稠密检索：查询编码器编码用户交互历史与目标物品元数据，句子编码器独立编码候选解释，二者共享嵌入空间并用余弦相似度打分。",
+      "采用多正例对比学习（multi-positive InfoNCE）联合适配两个编码器，对每个正例句子分别与物品级负例对比，避免排序好的正例掩盖排序差的正例。",
+      "在三个领域（Amazon Beauty、Amazon Toys、Yelp）上系统评测：与流行度、邻域协同、因子分解、语义增强、对比协同（CLER）和零样本检索基线比较，并考察五种预训练骨干、LoRA 与全量微调、跨域迁移。",
+      "系统分析用户历史的作用：历史数量、历史选择策略（新近性 vs 类目/语义）、不同历史长度分组的性能，以及反事实查询扰动（清空历史、替换为他人历史、替换目标物品等）。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Related Work"
+      },
+      {
+        "page": 3,
+        "section": "3 Method (3.2 LMSTAR, 3.3 Model Training)"
+      },
+      {
+        "page": 3,
+        "section": "4.1 Experimental Setup"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Main Results / Table 1"
+      },
+      {
+        "page": 5,
+        "section": "4.2.2 Backbone Robustness and Task-Specific Adaptation / Table 2"
+      },
+      {
+        "page": 5,
+        "section": "4.2.4 Cross-Domain Transferability / Table 3"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Detailed Analysis (4.3.1–4.3.4, Table 4)"
+      },
+      {
+        "page": 7,
+        "section": "5 Conclusion / 6 Discussion"
+      },
+      {
+        "page": 8,
+        "section": "Appendix A Datasets / Table 5, Table 6"
+      },
+      {
+        "page": 9,
+        "section": "Appendix C Evaluation Metrics / Appendix D Implementation Details"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "ITEMPOP",
+        "GLOBALPOP",
+        "USERPOP",
+        "RUCF",
+        "RICF",
+        "CD",
+        "PITF",
+        "BPER",
+        "BPER-LARGE",
+        "BPER+",
+        "SE-BPER",
+        "SE-BPER+",
+        "CLER",
+        "QWEN3-EMBEDDING-8B（零样本）"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Toys",
+        "Yelp"
+      ],
+      "findings_zh": [
+        "LMSTAR（Qwen3-Embedding-8B 骨干）在三个数据集上 NDCG@1 均为最高，相对 CLER 分别提升 3.50（+31.2%）、8.25（+65.9%）、1.06（+11.8）个百分点；k=5 时在 Beauty 与 Toys 上 NDCG@5 分别提升 2.66（+13.4%）与 7.79（+34.2%）个百分点，但在 Yelp 上落后 CLER 1.10 个百分点（NDCG@5）、2.75（Recall@5）、1.15（Precision@5）。",
+        "12 个数据集-指标组合中 LMSTAR 取得 9 个最佳、其余 3 个第二。",
+        "零样本 Qwen3-Embedding-8B 已优于所有邻域、因子分解及语义增强基线；同一骨干经 LMSTAR 适配后 NDCG@1 在 Beauty/Toys/Yelp 分别提升 4.62、10.10、4.24 个百分点。",
+        "语义增强收益有限：BPER 在 NDCG@5、Recall@5、Precision@5 上优于其语义增强变体，且所有邻域/因子分解方法（含语义增强）在三个数据集的 NDCG@1 与 NDCG@5 上均未超过 USERPOP，说明用户历史频率信号在 item-level 排序中很有竞争力。",
+        "五种骨干（EmbeddingGemma-300M、Qwen3-0.6B、Qwen3-Embedding 0.6B/4B/8B）经适配后全部在 Beauty 与 Toys 上同时超过 CLER 的 NDCG@1 与 NDCG@5；即便是 EmbeddingGemma-300M 也在 NDCG@5 上超过 CLER 0.85（Beauty）与 6.21（Toys）个百分点。Yelp 上三个 Qwen3-Embedding 适配模型 NDCG@1 超过 CLER，但无一在 NDCG@5 上超过。",
+        "任务适配在全部 30 个比较（5 骨干×3 数据集×2 指标）中均带来提升，且每个适配骨干都优于每个零样本骨干；例如 Toys 上适配的 0.6B 模型比零样本 8B 的 NDCG@1 高 8.04 个百分点。",
+        "LoRA 优于全量微调：两个骨干、三个领域共 6 个配置中 LoRA 均领先 0.84–2.66 个 NDCG@5 百分点。",
+        "跨域迁移：不做目标域微调时，6 个迁移配置在 12 个 NDCG 比较中全部超过零样本骨干，也超过目标域上的流行度/邻域/因子分解基线；Beauty→Toys 迁移在 NDCG@1 与 NDCG@5 上分别超过目标域训练的 CLER 6.01 与 4.30 个百分点，但域内适配仍最好。",
+        "历史数量：从 k=1 到 all，NDCG@5 在 Beauty 由 19.5 升到 22.4、Toys 由 25.1 升到 30.6、Yelp 由 12.0 升到 15.4；仅用一条历史交互时 LMSTAR 已在两指标上超过 USERPOP（三数据集）并在 Toys 上超过 CLER。",
+        "历史选择：类目优先与语义相似度选择均不能稳定优于新近性策略；仅在预算为 1 条时语义选择带来约 1.4（Beauty）与 1.1（Toys）个 NDCG@1 点提升。",
+        "反事实扰动：用另一用户历史替换后 NDCG@5 下降 6.73/13.20/5.65 个百分点（Beauty/Toys/Yelp），清空历史下降 6.09/12.30/4.84；而替换目标物品（同类目或随机）仅下降 0.06–0.97 个百分点，说明 item-level 设定下模型主要依赖用户特定历史。",
+        "历史长度分组分析：Beauty 与 Toys 上 LMSTAR 在四个分组（4–7、8–15、16–31、≥32）中 NDCG@1 与 NDCG@5 均高于 CLER；Yelp 上 CLER 的 NDCG@5 优势主要集中在占测试用户 49.2% 的 4–7 组。"
+      ],
+      "metrics": [
+        "NDCG@1（N@1）",
+        "NDCG@5（N@5）",
+        "Recall@5（R@5）",
+        "Precision@5（P@5）"
+      ]
+    },
+    "limitations_zh": [
+      "相关性标签为二元且来自自动抽取与聚类的评论句子，未观测到的句子可能仍相关；排序指标不能反映用户感知的有用性或忠实性。",
+      "数据集构建依赖 Qwen 系列模型（Qwen3.8-27B 抽取、Qwen3-Embedding-0.6B 表示、Qwen3-Reranker-0.6B 校验），可能引入共享偏差；不过 EmbeddingGemma 上的增益表明适配并不局限于 Qwen 骨干。",
+      "item-level 排序的候选池可能包含推荐时不可得的留出评论中的句子；测试物品被限制为训练中出现过的物品，规避了冷启动。",
+      "Yelp 上 k=5 的表现落后于 CLER，作者推测单一查询向量难以表示多个解释方面，协同信号可能提供互补证据，但该机制未被实验确立。",
+      "历史选择策略与历史长度分组的比较属于观察性或有限干预，分组之间除历史长度外还有其他差异，且可用交互可能超出查询 token 预算内实际保留的数量。",
+      "仅对两个骨干做了 LoRA 与全量微调的对比；跨域迁移仅用 Qwen3-Embedding-8B 评估。"
+    ],
+    "method_zh": "LMSTAR 将个性化解释排序视为稠密检索。查询编码器 E_θ^Q 的输入由任务指令（检索与用户偏好匹配的目标物品解释句）、用户按时间顺序的交互历史（含每次交互的物品元数据与对应句子，从最近到最旧）以及目标物品元数据构成；取最后一层最后一个非 padding token 的隐状态并做 ℓ2 归一化得到 q_ui。句子编码器 E_φ^S 对每个候选句子独立编码，采用相同的池化与归一化策略得到 s。相关性打分为二者点积（等价于余弦相似度）。训练数据按时间构造：对 t=2..T_u 的交互，仅用此前交互作为上下文，该交互的真实解释句集合为正例 P_ui，目标物品其余句子构成负例池 N_ui 并采样 32 个负例。损失为多正例 InfoNCE：每个正例分别与负例对比后取平均，温度 τ=0.1；整体目标为交互级损失的平均。默认用 LoRA（rank 16、α 32、作用于注意力 q/k/v/o）适配两个编码器，AdamW、学习率 1e-4、有效 batch 256、bf16，按验证集 NDCG@5 选检查点。",
+    "problem_zh": "推荐系统需要在用户-物品交互层面给出可理解的解释。LLM 生成式解释难以验证事实性与个性化相关性，句子级（statement-level）排序可用标准排序指标做细粒度、可复现评估，但现有排序方法多依赖 ID 型协同表示，语义增强方法往往打不过简单的用户历史流行度基线（USERPOP），且直接将语言模型适配到个性化句子排序上基本未被探索。论文聚焦 item-level 排序设定：候选解释被限制在目标物品的句子集合内，核心难点是判断哪些解释方面最匹配特定用户。",
+    "technical_depth": 0.78
+  },
+  "doi": null,
+  "final_score": 0.798,
+  "id": "arxiv-2611.04775",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-03T12:15:07Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 LMStaR，将个性化推荐理由排序建模为基于稠密检索的文本匹配任务，通过多正例对比学习联合适配查询与理由编码器，在多个数据集上取得最优 NDCG@1。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "ranking"
+  ],
+  "title": "Learning to Rank Explanations for Recommendation with Language Models",
+  "url": "https://arxiv.org/abs/2611.04775v1"
+}

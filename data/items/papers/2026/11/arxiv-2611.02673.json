@@ -1,0 +1,171 @@
+{
+  "abstract": "Shilling detectors for recommender systems are almost always evaluated by one number, detection AUROC, with no account of when it can be trusted. We audit representation-space detection with VEIL (Variational Evaluation via Inverse-reinforcement Learning), a pairwise (Bradley-Terry) Bayesian reward-inference framework over frozen encoder embeddings, following the Bayesian auditing paradigm for LLM alignment [1]: (A) a base posterior; (B) a hierarchical ARD extension with learned confidence; and (C) a label-routed organic/attacker mixture used as an evidence-accumulation check.We prove (Proposition 1) that no detector built on a representation invariant to a transformation of user profiles can outperform chance against an attack that is indistinguishable from organic profiles under that invariance.Detection is near-perfect against synthetic-structure attacks (AUROC 0.936-1.000) but collapses under donor-mimicry, which clones a real user's item set and splices in 1-3 target items. Performance falls to chance on MovieLens-1M (0.48-0.51), partially degrades on Amazon Musical Instruments, and degrades least on CiaoDVD.Donor-mimicry is not undetectable: a non-learned baseline, based on each profile's maximum raw item-set Jaccard similarity to any other profile, reaches AUROC 0.92-0.97 (average precision 0.50-0.57) on all four donor-mimicry configurations, including ML-1M, where every embedding-based score is at chance.The signal is present in the raw profiles, but LightGCN's representation discards it, placing injected profiles closer to their true donor than its zero-propagation MF reduction does (distance 1.98 vs. 3.09). Severity varies by dataset, encoder, and detection method, with no single axis predicting the others. The limit lies in the representation, not the attack, and raw-similarity checks are a necessary complement to any learned detector. Shilling detectors for recommender systems are almost always evaluated by one number, detection AUROC, with no account of when it can be trusted. We audit representation-space detection with VEIL (Variational Evaluation via Inverse-reinforcement Learning), a pairwise (Bradley-Terry) Bayesian reward-inference framework over frozen encoder embeddings, following the Bayesian auditing paradigm for LLM alignment [1]: (A) a base posterior; (B) a hierarchical ARD extension with learned confidence; and (C) a label-routed organic/attacker mixture used as an evidence-accumulation check.We prove (Proposition 1) that no detector built on a representation invariant to a transformation of user profiles can outperform chance against an attack that is indistinguishable from organic profiles under that invariance.Detection is near-perfect against synthetic-structure attacks (AUROC 0.936-1.000) but collapses under donor-mimicry, which clones a real user's item set and splices in 1-3 target items. Performance falls to chance on MovieLens-1M (0.48-0.51), partially degrades on Amazon Musical Instruments, and degrades least on CiaoDVD.Donor-mimicry is not undetectable: a non-learned baseline, based on each profile's maximum raw item-set Jaccard similarity to any other profile, reaches AUROC 0.92-0.97 (average precision 0.50-0.57) on all four donor-mimicry configurations, including ML-1M, where every embedding-based score is at chance.The signal is present in the raw profiles, but LightGCN's representation discards it, placing injected profiles closer to their true donor than its zero-propagation MF reduction does (distance 1.98 vs. 3.09). Severity varies by dataset, encoder, and detection method, with no single axis predicting the others. The limit lies in the representation, not the attack, and raw-similarity checks are a necessary complement to any learned detector.",
+  "arxiv_id": "2611.02673",
+  "authors": [
+    "Shivam Swarup",
+    "Divya Prakash Shrivastava",
+    "Rakesh Thakur"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "上线前不能只报告检测 AUROC；应同时报告校准指标（ECE、Brier、NLL）和可靠性图，否则无法区分“准确但不可信”与“在难攻击上自信地错误”的检测器。",
+      "对基于嵌入的学习型 shilling 检测器，应把原始 profile 相似度检查（如 item-set Jaccard）作为必要补充，尤其针对复制真实用户 item-set 的 donor-mimicry；论文显示嵌入方法接近随机时，原始相似度仍可达到 AUROC 0.92–0.97。",
+      "模型风险评估必须跨数据集、编码器架构和检测方法分别验证；不能假设某一数据集或某一架构上的 ranking 会迁移到另一轴，MF 与 LightGCN 在 ML-1M 和 CiaoDVD 上的反转就是直接例证。",
+      "不要把“某数据集上稳健”直接解读为部署稳健：CiaoDVD 的较低坍缩部分来自经典攻击基线本身可分性弱、headroom 小，业务上应区分真实鲁棒性与评估基线不足。",
+      "生产监控应关注校准概率是否退化为接近 base rate、ECE 是否升高、置信度是否与攻击难度脱节；这些信号可提示表示空间信号已丢失，需要切换到原始特征、规则或补充检测器。",
+      "Component C 的标签路由只能作为离线审计和证据积累验证，不能当作线上无监督检测器；无监督路由目前只与真实攻击弱相关（ARI 0.05），部署前需要额外验证。",
+      "应把 donor-mimicry 视为现实威胁模型纳入红队测试：攻击者只需复制真实用户 profile 并拼接少量目标 item，就可能让依赖 item-ID 结构而忽略评分值的 GNN 检测器失效。",
+      "业务选型不应追求单一“最强架构”；论文显示检测方法、架构、数据集交互作用明显，合理做法是组合原始相似度规则、校准后的学习型检测器和多轴离线审计，并持续监控线上分布变化。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "提出 VEIL 三阶段审计框架：Component A 用固定置信度的 pairwise Bradley–Terry 贝叶斯奖励后验量化歧义；Component B 加入分层 ARD 先验和可学习的 α 作为校准不确定性审计信号；Component C 用标签路由的 organic/attacker 双分支混合模型检查攻击者分支后验是否随证据积累而收缩。",
+      "证明 Proposition 1：若表示 φ 对结构签名 π 不变，且攻击使 π(X)|Y=1 与 π(X)|Y=0 在攻击支撑集上同分布，则任何基于 φ(X) 的可测检测器 D 的 AUROC 精确为 0.5；该上界与检测器复杂度、是否贝叶斯、是否校准或集成无关。",
+      "构建并实证攻击难度阶梯：随机/平均/bandwagon、AUSH、AUSH+异质化等合成/结构化攻击的 AUROC 为 0.936–1.000；donor-mimicry 在 MovieLens-1M 上使检测坍缩到 0.48–0.51，8-seed 均值为 A 0.494±0.061、B 0.488±0.062、C 0.481±0.058。",
+      "给出 LightGCN 在 donor-mimicry 下失明的机制解释：邻接构建把 (user,item) 去重为无权重边、BPR 损失只读 item ID 不读评分值，因此表示只依赖“评了哪些 item”而非“怎么评”；传播平滑使注入 profile 更靠近真实 donor（LightGCN 距离 1.98 vs. MF 3.09）。",
+      "显示原始 profile 信号仍可检测：不依赖嵌入的 item-set Jaccard 在四个 donor-mimicry 配置上达到 AUROC 0.92–0.97、AP 0.50–0.57，包括 ML-1M 上所有嵌入方法都接近随机的情形；因此限制在表示而非攻击本身，原始相似度检查是学习型检测器的必要补充。",
+      "跨数据集、编码器架构和检测方法审计表明坍缩严重程度不可由单一轴预测：ML-1M 最严重、Musical Instruments 部分、CiaoDVD 最轻；MF 在 ML-1M donor 点优于 LightGCN，但在 CiaoDVD 两点反转；VEIL 在 CiaoDVD 优于经典 RDMA/WDMA 基线，在 ML-1M 与之一同坍缩。",
+      "校准分析显示 ECE 与 AUROC 同步恶化：AUROC≥0.94 的配置 ECE≤0.09，AUROC<0.88 的配置 ECE 为 0.18–0.37；Component B 的 α 随攻击难度呈非单调倒 U 形；Component C 的攻击者分支后验在注入证据增加时单调收缩。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "§1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "§4 VEIL - Components A/B/C as Stages 1-3"
+      },
+      {
+        "page": 3,
+        "section": "§6.1 Full attack-difficulty ladder; Table 1"
+      },
+      {
+        "page": 4,
+        "section": "§6.2 Calibration tracks the collapse; Table 2"
+      },
+      {
+        "page": 4,
+        "section": "§6.3 Component B learned confidence α"
+      },
+      {
+        "page": 5,
+        "section": "§6.5 Why LightGCN goes blind under donor-mimicry"
+      },
+      {
+        "page": 5,
+        "section": "§6.6 Proposition 1 (Representation-invariance undetectability)"
+      },
+      {
+        "page": 6,
+        "section": "§6.7 Cross-dataset generalization; Table 3"
+      },
+      {
+        "page": 6,
+        "section": "§6.8 Architecture and detection-method comparisons; Table 4"
+      },
+      {
+        "page": 7,
+        "section": "§7 Limitations"
+      },
+      {
+        "page": 10,
+        "section": "Appendix B: Label-free detectability; Tables 5–8"
+      },
+      {
+        "page": 12,
+        "section": "Appendix G: MF full results and donor-distance check; Tables 15–16"
+      },
+      {
+        "page": 13,
+        "section": "Appendix H: Classical baseline A2; Table 17"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Sup-GNN：用注入标签训练的监督阳性对照编码器",
+        "LightGCN：仅 BPR 排序损失、标签无关的诚实基线编码器",
+        "MF：LightGCN 设置 n_layers=0 的精确 BPR 矩阵分解退化",
+        "SASRec：因果自注意力序列编码器",
+        "mean-pool：去掉因果掩码和位置信息的顺序无关控制编码器",
+        "A2 经典基线：RDMA/WDMA/LengthVar 评分统计特征 + logistic regression",
+        "无标签异常分数：kNN 距离、LOF、k-means 距离、径向统计",
+        "原始 item-set Jaccard 最大相似度（无嵌入）"
+      ],
+      "datasets": [
+        "MovieLens-1M（5-core 过滤，注入前采样 30% 用户，999,611 条交互）",
+        "Amazon Musical Instruments（5-core 后 53,246 用户 / 27,637 item / 472,422 条评论，采样 30% 用户）",
+        "CiaoDVD（1,822 用户 / 2,069 item / 28,374 条评论，因规模较小不再下采样）"
+      ],
+      "findings_zh": [
+        "结构化/合成攻击（random+average+bandwagon、AUSH、AUSH+异质化）在 Components A/B/C 上 AUROC 为 0.936–1.000；其中最难的异质化配置最低为 0.936（Component C, lightgcn_aush_het）。",
+        "donor-mimicry 在 ML-1M 上使检测坍缩到随机：seed 42 时 Component A AUROC 0.500、AP 0.051；8-seed 扫掠 AUROC 为 A 0.494±0.061、B 0.488±0.062、C 0.481±0.058。",
+        "校准误差随坍缩恶化：AUROC≥0.94 的配置 ECE≤0.09；AUROC<0.88 的配置 ECE 为 0.18–0.37，说明检测器不仅在难攻击上错误，而且常以高置信度错误。",
+        "Component B 的可学习 α 在 LightGCN 阶梯上呈非单调倒 U：最容易两点为 0.386±0.006 和 0.329±0.021，最难但尚未坍缩的 lightgcn_aush_het 为 0.688±0.022，完全坍缩后回落到 0.551±0.030。",
+        "Component C 的攻击者分支后验在注入证据从 20 增至 191 时单调收缩：log|Σ| 从 78.49 降到 15.95，mean σ 从 1.858 降到 1.139，α 从 0.183 升到 0.297，而分支检测 AUROC 保持 0.999–1.000。",
+        "原始 item-set Jaccard 在四个 donor-mimicry 配置上 AUROC 0.924–0.974、AP 0.50–0.57；若用标签排除被克隆的 organic donor，AUROC 升至 0.9997–1.0000、AP 0.994–1.000，说明 donor 对称性会压低原始 AP。",
+        "跨数据集结果不均匀：ML-1M matched 配置从 0.999–1.000 降到 0.530–0.536；Musical Instruments 从 0.991–0.992 降到 0.805–0.808；CiaoDVD 从 0.877–0.879 降到 0.846–0.848，坍缩程度依数据集而变。",
+        "架构排名依数据集/配置而反转：ML-1M donor-mimicry 点 MF AUROC 0.632 优于 LightGCN 0.481–0.494；CiaoDVD 两点 LightGCN（classic 0.877–0.879，donor 0.846–0.848）优于 MF（0.814，0.764）。Musical Instruments 的顺序为 MF > SASRec > mean-pool > LightGCN。",
+        "检测方法排名也不统一：ML-1M 上 A2 从 0.982 降到 0.584，VEIL 从 1.00 降到 0.53；CiaoDVD 上 A2 从 0.840 降到 0.617，VEIL 从 0.878 降到 0.847。",
+        "机制证据：LightGCN 把注入 profile 放得比 MF 更靠近其真实 donor（平均欧氏距离 1.98 vs. 3.09；配对差 1.11，n=81），且两者到随机 organic 用户的控制距离几乎相同（10.91 vs. 11.03），排除嵌入尺度差异。",
+        "无监督 Component C 路由只能弱相关：在 CiaoDVD classic 配置上，标签无关路由的 post-hoc AUROC 约 0.61，但与真实标签的 ARI 仅 0.049；因此标签路由的 Component C 是审计实验，不是可部署检测器。"
+      ],
+      "metrics": [
+        "AUROC",
+        "Average Precision (AP)",
+        "Accuracy",
+        "F1 / precision / recall",
+        "Brier score",
+        "Expected Calibration Error (ECE)",
+        "Negative Log-Likelihood (NLL)",
+        "ELBO",
+        "后验协方差 log-determinant",
+        "mean posterior σ",
+        "ARI（无监督路由一致性）",
+        "silhouette",
+        "paired t-test / bootstrap 置信区间"
+      ]
+    },
+    "limitations_zh": [
+      "仅覆盖三个数据集，且新数据集只跑了经典 easy 和 donor-mimicry hard 两个阶梯点；ML-1M easy 和 Musical Instruments easy 的部分 AUROC 是单次运行，虽然 8-seed 扫掠与之一致到 0.001。",
+      "数据集间坍缩差异的驱动因素未解决：catalog size 和 rating density 都不能解释 ML-1M、Musical Instruments、CiaoDVD 的排序；CiaoDVD 的“稳健”很大程度上是经典攻击基线可分性本来较弱造成的天花板效应。",
+      "没有真实在线或人类用户研究；所有攻击和 organic profile 都来自静态已收集数据集。",
+      "方法采用静态 pairwise BIRL，不是序列 MDP-IRL，无法建模 profile 随时间累积评分的过程。",
+      "编码器和基线覆盖仍窄：Sup-GNN 与 LightGCN 同属 GNN 家族；现代学习型 shilling detector 基线未纳入，唯一经典基线是 RDMA/WDMA 分类器；SASRec/mean-pool 只在 Musical Instruments 的一个配置、一个嵌入维度和早停训练下测试。",
+      "Component C 的路由使用真实标签，是审计实验而非可部署检测器；唯一无监督尝试只得到弱攻击相关划分（ARI 0.05）。",
+      "Component B 的 α 8-seed 方差只覆盖配对采样、切分和 VI 初始化，未覆盖编码器重训练方差；倒 U 形解释是事后解读。",
+      "部分证据是单配置或相关性的：donor-distance 结果仅 ML-1M 一个配置，支持传播平滑机制但不是隔离传播深度的受控消融；Musical Instruments 上 MF/SASRec/mean-pool 的次级排序被报告为实测但未解释。",
+      "无监督路由和无标签异常分数存在方向符号歧义，需要标签知识选择方向；密度类分数在不同邻域尺度下强度和符号都会变化。"
+    ],
+    "method_zh": "在冻结的推荐模型嵌入 φ(x) 上，把 organic/injected profile 配对为 (x+,x-)，用 Bradley–Terry 似然 P(x+≻x-|θ)=σ(α·θ^T(φ(x+)-φ(x-))) 定义线性奖励 rθ(x)=θ^Tφ(x)，从而把“该用户是否在操纵系统”建模为贝叶斯奖励推断而非直接标签预测。Stage 0 从 Sup-GNN（用注入标签训练的循环阳性对照）或 LightGCN（仅 BPR、标签无关的诚实基线）提取并标准化嵌入。Component A 用 mean-field 高斯后验和重参数化 ELBO 拟合固定 α=1 的 pairwise 贝叶斯逻辑回归；Component B 在 A 基础上加入 Gamma 先验的可学习 α 与每维 ARD 精度，联合优化扩展 ELBO，并把学到的 α 作为校准不确定性审计信号；Component C 用真实标签把 profile 路由到 organic/attacker 两个 B 式分支，以 r_att(x)-r_org(x) 打分并用一维 logistic 校准为 P(injected)，作为证据积累验证而非无监督检测器。实验还比较 LightGCN 的 n_layers=0 精确退化为 BPR 矩阵分解、SASRec 与 mean-pool 序列/非序列编码器、经典 RDMA/WDMA 基线，以及 kNN、LOF、k-means 距离、径向统计和原始 item-set Jaccard 等无标签分数。",
+    "problem_zh": "推荐系统 shilling 检测器通常只用检测 AUROC 一个数字评估，无法说明该数字何时可信、置信度是否随攻击难度正确下降，也无法预警更现实的攻击是否会让检测器在无人察觉时跌到随机水平。论文要审计表示空间欺诈检测本身：在冻结编码器嵌入上建立贝叶斯奖励推断框架，量化后验不确定性、校准置信度，并检验表示不变性导致的可检测性上限。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.722,
+  "id": "arxiv-2611.02673",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-02T07:27:52Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文用贝叶斯逆强化学习框架审计推荐系统中的托攻击检测表示，证明对表示不变攻击的检测存在上限，并揭示原始画像相似度信号在嵌入表示中被丢弃的问题。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Auditing Representation-Space Fraud Detection: A Bayesian IRL Framework for Calibrated Uncertainty and Its Limits",
+  "url": "https://arxiv.org/abs/2611.02673v1"
+}

@@ -1,0 +1,172 @@
+{
+  "abstract": "Recommender systems usually learn what people want from what they have done. Platforms could also ask people directly, but asking is costly: 98.8% of the prompts in our data went unanswered. Theories of statistical prediction imply that a person's own forecast adds little to a recommender algorithm built from many people's behavior. Theories of dispersed knowledge imply that people hold information about their own taste that the data lack. We test the two with the MovieLens Beliefs dataset. In 2023-2024, a homepage prompt asked members how they expected to rate movies they said they had not seen. Of 26,020 such expectations, 551 from 277 members were followed by a rating at least a day later. We compare each expectation with four benchmarks: the platform's own predicted rating, two collaborative-filtering models (matrix factorization and an item neighborhood), and a stack trained on other members' outcomes. The trained models use each member's latest ratings. People predict their own ratings more accurately than all four benchmarks (correlation 0.69, against 0.34 for MovieLens and 0.54 to 0.59 for the trained recommenders). Added to all the machine forecasts and features, the expectation lowers out-of-sample mean squared error by 26%. The gain holds when models are trained on earlier expectations and tested on later ones. A member's earlier expectations about other movies do not replace the current one. In ordering a member's own movies, the trained recommenders are statistically indistinguishable from the person. On old, heavily rated movies, the machines do as well or better. The results reconcile the two theories: the crowd's data suffice where they are rich, and the person adds information about the specific item. We derive four design principles for preference elicitation and recommender evaluation. Recommender systems usually learn what people want from what they have done. Platforms could also ask people directly, but asking is costly: 98.8% of the prompts in our data went unanswered. Theories of statistical prediction imply that a person's own forecast adds little to a recommender algorithm built from many people's behavior. Theories of dispersed knowledge imply that people hold information about their own taste that the data lack. We test the two with the MovieLens Beliefs dataset. In 2023-2024, a homepage prompt asked members how they expected to rate movies they said they had not seen. Of 26,020 such expectations, 551 from 277 members were followed by a rating at least a day later. We compare each expectation with four benchmarks: the platform's own predicted rating, two collaborative-filtering models (matrix factorization and an item neighborhood), and a stack trained on other members' outcomes. The trained models use each member's latest ratings. People predict their own ratings more accurately than all four benchmarks (correlation 0.69, against 0.34 for MovieLens and 0.54 to 0.59 for the trained recommenders). Added to all the machine forecasts and features, the expectation lowers out-of-sample mean squared error by 26%. The gain holds when models are trained on earlier expectations and tested on later ones. A member's earlier expectations about other movies do not replace the current one. In ordering a member's own movies, the trained recommenders are statistically indistinguishable from the person. On old, heavily rated movies, the machines do as well or better. The results reconcile the two theories: the crowd's data suffice where they are rich, and the person adds information about the specific item. We derive four design principles for preference elicitation and recommender evaluation.",
+  "arxiv_id": "2611.06696",
+  "authors": [
+    "Zihan Chen",
+    "Lei Nico Zheng",
+    "Di Zhu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "平台应优先询问用户对“具体物品”的预期评分，而不是只收集泛化偏好：一个预期评分在全部机器信息之上仍显著降低样本外误差，而确定性问题的增量很小，可作为可选项。",
+      "不要假设一次询问可以长期复用：用户对其他电影的早期预期概括没有可检测增量；应在候选物品正被排序或决策时，针对这些候选询问。",
+      "推荐器评估应报告“再排序候选内”的用户内排序准确率，而不仅是全量物品上的误差；论文中生产系统在自己 top 候选内排序仅56%，远低于个人70%。",
+      "与人对标时，基准必须折叠用户最新评分和平台在预测时刻已知的信息；漏掉最新评分会把机器低估（矩阵分解相关从0.54降到0.42），并夸大个人优势。",
+      "询问设计要解决回答率：提示成本高且绝大多数未回答；应降低摩擦、在决策时刻询问，并可用平台已有信息预测哪些物品的询问收益更高，但论文的收益预测相关性仅0.08，需谨慎。",
+      "对冷门电影、用户不熟悉类型和新用户，个人预期相对机器更有价值；对老片、高评分量电影，机器可匹配甚至超过个人，平台可按数据丰富程度决定询问优先级。",
+      "高确定性不等于更可信：确定性更多标记极端预期，且最确定的用户略偏乐观；平台不应简单用确定性替代预期评分或大幅调整权重。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "据作者所知，首次在同一批物品和后续真实评分上，将用户对自身未看特定电影的预期评分，与生产推荐系统及两类主流协同过滤训练模型进行实地比较。",
+      "发现当目标是“自己对该特定电影的评分”时，个人预测比所有机器基准更准确；但在对同一用户自己的电影做排序时，使用最新评分的训练推荐器与个人在统计上不可区分，从而调和“群体观点”和“分散知识”观点。",
+      "提出一套比较自我预测与机器预测的实地数据设计检查：对齐事件日志时钟、区分答案纠正与已知早期观看、固定随访窗口、使用预测前已评分电影检验因果方向、对进入评分的选择进行加权，并强调基准必须纳入平台在预测时已知的最新用户评分。",
+      "将发现转化为四项偏好 elicitation 与推荐评估设计原则：询问特定物品的预期评分；询问正在被决策的物品而非复用早期概括；在推荐器实际再排序的候选中评估；让基准模型知道平台已知的最新信息。",
+      "方法学上说明，月度快照若漏掉用户最新评分，会低估训练推荐器并夸大个人在排序上的领先幅度。",
+      "理论上把“平台通常信息更充分”的推荐场景，反转为“对特定物品评分，用户知道平台不知道的信息”，并区分评分准确性、排序能力与增量信息三类问题。"
+    ],
+    "evidence_quality": 0.72,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Theoretical Background"
+      },
+      {
+        "page": 3,
+        "section": "3 Competing Predictions"
+      },
+      {
+        "page": 4,
+        "section": "4 Setting and Data"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Sample"
+      },
+      {
+        "page": 5,
+        "section": "5 People Forecast Their Own Ratings Better Than the Machines"
+      },
+      {
+        "page": 6,
+        "section": "6 How Robust Is the Comparison?"
+      },
+      {
+        "page": 6,
+        "section": "6.2 Movies members had rated before"
+      },
+      {
+        "page": 7,
+        "section": "7 Where Do People Know More?"
+      },
+      {
+        "page": 8,
+        "section": "8 What Does the Guess Add to a Recommender?"
+      },
+      {
+        "page": 8,
+        "section": "8.2 The held-out gain from asking"
+      },
+      {
+        "page": 10,
+        "section": "9.2 Practical implications: design principles"
+      },
+      {
+        "page": 10,
+        "section": "9.3 Limitations and future work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "MovieLens生产推荐系统预测",
+        "矩阵分解（带偏置的64因子隐因子模型）",
+        "物品邻域协同过滤（20个最相似已评分电影，相似度收缩）",
+        "堆叠机器：线性回归组合所有机器预测、电影与用户特征、提示来源和推荐列表",
+        "用户+电影基线",
+        "电影平均评分",
+        "用户平均评分",
+        "梯度提升模型（相同特征与折）",
+        "仅使用早期猜测概括的模型",
+        "月度快照、未折叠最新评分的机器模型"
+      ],
+      "datasets": [
+        "MovieLens Beliefs数据集：2023-03-13至2024-05-01的首页信念提示、用户预期评分、确定性和推荐器预测",
+        "MovieLens发布版用户完整评分历史",
+        "公开MovieLens 32M评分数据（截至2023年10月）",
+        "主分析样本：551个用户—电影对，277名用户，389部电影",
+        "预测前30天以上已评分的238个“曾评分”对，用于检验预测不能影响结果",
+        "1,444对重复评分，用于衡量同一用户对同一电影两次评分的一致性",
+        "约33.0百万条训练评分"
+      ],
+      "findings_zh": [
+        "主样本中，用户自身预期与后续评分的相关性为0.69；MovieLens生产预测为0.34，矩阵分解0.54、物品邻域0.56、堆叠模型0.59。个人预测的平均绝对误差为0.61星，所有机器至少0.72星。",
+        "个人优势不止来自知道电影平均好坏或自己打分宽松：扣除用户+电影基线后，个人预期与剩余部分的相关为0.63，机器最高0.47；个人对后续评分的平均偏差仅-0.02星，而MovieLens高估0.51星。",
+        "用户内排序上，个人预期排序正确率71.6%，MovieLens 56.1%，矩阵分解63.8%、物品邻域66.9%、堆叠模型66.2%；个人显著优于MovieLens，但与训练推荐器的差异区间包含零，统计上不可区分。",
+        "把预期加入全部机器信息后，样本外相关性从0.59升至0.72，R²从0.34升至0.51，MSE从0.921降至0.685，降低0.236（约26%）；用2023年8月17日前数据训练、之后数据测试，MSE从1.000降至0.677。",
+        "确定性在预期之外只带来0.022的MSE下降，区间包含零；让确定性改变预期权重的交互项也无 detectable 增益。高确定性预测更极端且略有过度乐观：固定预期时，确定性五比一的后续评分低0.40星。",
+        "用户早期对其他电影的猜测概括（粗粒度或按相似度加权）加入机器信息后没有可检测增益；当前电影的预期在它们之上仍降低MSE 0.183，说明不能用一个用户的早期预期替代对当前物品的询问。",
+        "在预测前30天以上已评分的238对中，个人预期与旧评分相关0.67，说明预期并非只靠影响后续评分；但在这些老片、高评分量电影上，机器达到0.69至0.73，排序上也等于或优于个人。",
+        "个人优势在机器数据稀薄处更大：电影已有评分量越多优势越小（系数-0.29），用户对该类型越熟悉优势越小（-0.30），用户历史越短优势略大（-0.36但不显著）；新片没有可检测的更大优势。",
+        "未发现用户抄袭推荐器数字：预期与MovieLens预测四舍五入到半星相同的比例为14.9%，随机匹配为13.1%；48%的预期与预测相差一星以上。",
+        "对评分选择加权到有现实评分机会的电影后，个人相关0.75，矩阵分解0.53、物品邻域0.54、MovieLens 0.44，个人优势仍存在。",
+        "重复评分参考：同一用户两次评分中位间隔3.0年，相关0.86、完全一致49%、排序一致86%，说明评分本身有噪声，个人与机器都低于该参考。"
+      ],
+      "metrics": [
+        "与后续评分的Pearson相关系数",
+        "用户内成对排序准确率（同分计半对）",
+        "平均绝对误差（原始与最小二乘重标定后）",
+        "均方误差MSE与R²",
+        "相对机器信息基线的MSE下降幅度及95%区间",
+        "校准曲线：按预测星级分箱的后续平均评分",
+        "按用户重采样的bootstrap置信区间",
+        "选择加权后的相关性与有效样本量",
+        "重复评分的一致性：相关、完全一致率和排序一致率"
+      ]
+    },
+    "limitations_zh": [
+      "主样本仅包含被后续评分跟随的猜测：551对、277名用户，约占全部猜测的2.1%；观看与评分均为用户自选，存在选择进入评分的问题。",
+      "选择加权依赖“给定观测变量后，是否记录评分与评分本身无关”的假设，并且只能较好覆盖有现实评分机会的电影；对极冷门电影权重无法平衡。",
+      "数据来自单一平台MovieLens，用户是高频评分、愿意回答提示的影迷，外部效度有限；提示回答率极低（98.8%未回答），询问成本与回答偏差突出。",
+      "发布数据记录评分录入时间而非实际观看时间；无法完全排除用户从站内其他位置看到预测、提示本身引起注意、或预测影响后续评分等机制。",
+      "生产推荐系统是黑盒；自建模型是标准矩阵分解、物品邻域和堆叠模型，未测试序列模型、深度模型或语言模型推荐器。",
+      "论文是离线比较，不是随机化“是否询问”和“是否使用答案”的实地实验，无法直接测量询问是否改善用户实际采纳的推荐。",
+      "对早期猜测的概括只测试了粗粒度和相似度加权形式，更丰富的可复用表示仍可能提取部分用户知识。",
+      "排序指标依赖少量有至少两部不同评分电影的用户（77人），长间隔窗口下样本迅速缩小，部分估计不确定性较大。"
+    ],
+    "method_zh": "论文使用MovieLens Beliefs数据集做实地比较。2023年3月至2024年5月，MovieLens首页向用户展示电影并询问是否看过；回答“未看过”的用户给出自己预期会打多少星（半星刻度）及五级确定性。研究保留至少一天后出现首次评分的“用户—电影”对，排除预测前已评分或已报告看过的物品，得到551对、277名用户、389部电影的主样本，后续评分中位在预测后58天。每个预测与四类基准在同一批对上比较：MovieLens生产推荐器预测、矩阵分解、物品邻域协同过滤、以及用其他用户结果训练的堆叠模型；另有用户+电影基线、电影均值、用户均值等。训练数据合并发布版评分历史与MovieLens 32M，约3300万条评分；模型按猜测所在月份之前的数据训练，并把该用户在猜测前录入的最新评分折叠进用户侧估计。评估包括与后续评分的相关性、用户内成对排序准确率、平均绝对误差、MSE/R²、校准、按用户重采样的置信区间，以及选择加权和多种稳健性检验。",
+    "problem_zh": "推荐系统通常从用户历史行为中推断偏好，但平台也可以直接询问用户对特定未看物品的预期评分；直接询问成本高，且论文数据显示98.8%的提示未被回答。理论上存在冲突：统计预测与“群体观点”认为，基于大量用户行为的推荐器应优于个人自我预测，个人预测至多冗余；而“分散知识”观点认为，用户掌握平台数据未记录的局部信息，能对特定物品的匹配程度提供增量信息。论文要回答：用户对未看电影的预期评分是否比生产推荐系统和强协同过滤模型更准确；这种优势是否超越用户与电影均值；该预期是否为推荐器带来可泛化的增量信息；早期预期、确定性和数据丰富程度如何调节这种优势。",
+    "technical_depth": 0.63
+  },
+  "doi": null,
+  "final_score": 0.7124999999999999,
+  "id": "arxiv-2611.06696",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-11-04T16:00:47Z",
+  "relevance_score": 0.75,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文基于 MovieLens 用户自评预期数据发现，用户对自身评分的预测优于平台与协同过滤模型，并能显著降低机器预测的样本外误差，据此提出偏好获取与推荐评估的设计原则。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "You Know What You Will Like: People Predict Their Own Ratings Better Than Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.06696v1"
+}

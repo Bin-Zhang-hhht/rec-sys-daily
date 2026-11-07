@@ -1,0 +1,199 @@
+{
+  "abstract": "Recommendation models consume increasingly long, attribute-rich user histories, making small continuous updates and repeated large reads a central storage asymmetry. We present USDB, ByteDance's unified sequence storage practice for streaming and batch workloads. CascadeLSM time-based compaction stages materialize application-specific histories; differentiated replicas share persistent files; partial dumps reconstruct inference inputs from captured recent state and versioned history; and a hybrid columnar format accelerates projected reads. These designs reuse maintenance results across ingestion, inference, and training. Production migration records show 85.8% lower mean write latency, while normalized deployment accounting shows 42.1% lower infrastructure cost. Controlled comparisons with an Optimized RocksDB sequence baseline show faster long-history reads across projections and client loads. Aggregation pushdown sustains 8.5x the throughput of ordinary reads under a constrained receive budget. Production reconstruction and direct-file training results demonstrate how shared sequence maintenance supports fresh serving and repeated historical access. Recommendation models consume increasingly long, attribute-rich user histories, making small continuous updates and repeated large reads a central storage asymmetry. We present USDB, ByteDance's unified sequence storage practice for streaming and batch workloads. CascadeLSM time-based compaction stages materialize application-specific histories; differentiated replicas share persistent files; partial dumps reconstruct inference inputs from captured recent state and versioned history; and a hybrid columnar format accelerates projected reads. These designs reuse maintenance results across ingestion, inference, and training. Production migration records show 85.8% lower mean write latency, while normalized deployment accounting shows 42.1% lower infrastructure cost. Controlled comparisons with an Optimized RocksDB sequence baseline show faster long-history reads across projections and client loads. Aggregation pushdown sustains 8.5x the throughput of ordinary reads under a constrained receive budget. Production reconstruction and direct-file training results demonstrate how shared sequence maintenance supports fresh serving and repeated historical access.",
+  "arxiv_id": "2611.02618",
+  "authors": [
+    "Xiaoran Zhu",
+    "Jieming Cai",
+    "Weiping Yu",
+    "Xi Chen",
+    "Shu Cai",
+    "Jiahao Li",
+    "Yifan Xiao",
+    "Yan Deng",
+    "Yisha Zhou",
+    "Yu Lin",
+    "Shiru Ren",
+    "Siqiang Luo",
+    "Peng Xu",
+    "Junjun Chai"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "存储架构升级可直接量化降本：归一化总成本 4.66→2.70（42.1%），计算成本 2.73→1.00，同样 100 万读/s 下 CPU 核数减少 27%、内存减少 85%，对大模型推荐场景的基础设施预算影响显著。",
+      "写路径效率决定整体资源压力：该工作负载中写请求贡献了主要资源压力（读请求约为写量的 10–20%，单次写仅一条动作而单次推理读约 1K 动作），因此 85.8% 的写延迟下降与 72.6% 的 CPU 下降可转化为集群规模与能耗收益。",
+      "存算分离 + 差异化副本简化扩容与容量规划：以 Kafka 分区为粒度装卸、复用 HDFS 上的历史大文件，避免旧架构“拷全部分片数据到新节点”的迁移开销与服务中断风险，对快速增长的数据量更友好。",
+      "部分 dump + LSN 版本化把训练-推理一致性变成可运营指标：一致率从 16–25% 提升到 97–100%，捕获长度比仅 6.6%、捕获样本比例 10–20%，可在不牺牲模型效果的前提下大幅削减样本快照存储与重复字节。",
+      "带索引的列式格式与聚合下推让训练与推理共享一份数据：直接读文件使训练吞吐 +5.1%、缓存命中率 92%→96%；带宽受限场景下推吞吐达普通读的 8.5×，意味着在相同网络预算下可支撑更高查询并发。",
+      "落地路径可复用其分层策略：先做时间窗口化的后台聚合物化替代前台读-改-写，再做副本角色化与共享文件，最后引入部分 dump 与列式编码；每一层都能独立产生收益并被生产轨迹度量。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "架构贡献：围绕共享序列生命周期组织流式摄入、历史物化、推理与训练，使应用特定聚合产生可复用历史，差异化副本发布并复用其持久化文件，记录的可见性把推理输入与后续训练读取连接起来，统一的带索引列式格式同时服务两类消费者。",
+      "提出 CASCADELSM：单一时间分层 LSM 结构，用处理时间窗口（生产常用按天）把上层增量/明细与下层聚合分层，通过容量触发的前台 flush 和窗口关闭时由外部 CompactionService 执行的 PartitionKeyMergeOp 用户/物品聚合压缩，消除读-改-写，把聚合从在线写路径移到后台压缩路径。",
+      "设计基于 HDFS 存算分离的差异化多副本架构：read-write 副本负责摄入与压缩并发布不可变 SST，read-heavy 副本用 staging 区 + OpenAsFollower 共享区、以 LSN 过滤的 MergeRead 提供新鲜读，read-only 副本零压缩直接读快照；并通过分区级装卸实现简化扩容。",
+      "提出基于 LSN 的 MVCC 版本化重放 + 部分 dump：推理只捕获最近片段与时间戳/LSN 边界，训练侧用版本边界过滤乱序晚到事件并复用历史前缀，从而在控制存储成本的同时维持训练-推理一致性。",
+      "设计混合列式编码：PAX/Parquet 风格的自描述格式（RootLayout/ZoneLayout/ChunkLayout/FlatLayout、zone map、BloomFilter、TableScheme），配合基于决策树的自适应编码选择（字典、FOR、bit-packing、RLE），并支持聚合下推。",
+      "生产验证：自 2024 年在抖音、TikTok 及其直播平台部署，平均写延迟下降 85.8%、平均 CPU 利用率下降 72.6%、归一化基础设施成本下降 42.1%，并通过 374 次受控运行与 Optimized RocksDB 对比。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2.1 Long User Histories"
+      },
+      {
+        "page": 3,
+        "section": "2.4 Storage Formats and Encoding"
+      },
+      {
+        "page": 3,
+        "section": "3.1 Streaming Ingestion"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Resource Imbalance"
+      },
+      {
+        "page": 4,
+        "section": "3.3 Training-Inference Consistency"
+      },
+      {
+        "page": 4,
+        "section": "3.4 Storage Efficiency"
+      },
+      {
+        "page": 5,
+        "section": "4.2 CASCADELSM: Adaptive Compaction"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Differentiated Replicas"
+      },
+      {
+        "page": 7,
+        "section": "4.4 Partial Dump with MVCC"
+      },
+      {
+        "page": 8,
+        "section": "4.5 Hybrid Columnar Encoding"
+      },
+      {
+        "page": 9,
+        "section": "5.1 Read Performance"
+      },
+      {
+        "page": 10,
+        "section": "5.2 Aggregation Pushdown"
+      },
+      {
+        "page": 11,
+        "section": "5.3 Replica Provisioning and Cost"
+      },
+      {
+        "page": 11,
+        "section": "5.4 Reconstruction Consistency"
+      },
+      {
+        "page": 12,
+        "section": "5.5 Compression Performance"
+      },
+      {
+        "page": 13,
+        "section": "5.6 Direct-File Training Access"
+      },
+      {
+        "page": 13,
+        "section": "5.7 Production at Scale"
+      },
+      {
+        "page": 14,
+        "section": "6 Related Work"
+      },
+      {
+        "page": 15,
+        "section": "7 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Optimized RocksDB 序列服务（已部署、带生产索引与列选择）",
+        "legacy Lambda 式读-改-写序列服务（流式/批量分库、本地磁盘）",
+        "USDB read+count 路径（聚合下推对比）",
+        "ZSTD 与 LZ4 编解码器（512/1024/2048/4096 行每组及参考布局）"
+      ],
+      "datasets": [
+        "生产环境真实工作负载采样（抖音/TikTok 及其直播平台，含 15 个公共定宽列，相同 UID 采样规则）",
+        "生产历史样本用于物理布局与编解码基准（含 key 列与 value 列分组）",
+        "24 小时全量生产运维记录与迁移前后对照数据（legacy 部署：256 节点×32 核、100 Gbps，约 20 TB 流式 + 600 TB 批量含副本）",
+        "固定工作量读作业（1K/10K/100K 请求长度，150K/50K/30K 请求预算）与 30 分钟持续读、工作集/热点集扫描",
+        "序列重建研究：2 小时观测对比有/无 MVCC，24 小时 2K 序列、9 种 dump 窗口策略",
+        "直接读文件训练研究：2000 个 data-reader worker、16 个训练节点"
+      ],
+      "findings_zh": [
+        "长历史读：8 客户端下 10K/100K 动作请求吞吐为 1307.0±15.7 对 728.0±23.6 QPS（1.79×）与 257.7±2.6 对 146.8±0.3（1.75×），20K 为 903.7 对 473.3（1.91×）；100K 平均延迟 31.13 对 54.47 ms，两者每次非空结果约返回 90K 行；1K 短读基本持平（2554.3 对 2578.0 QPS）。",
+        "客户端负载交叉：30 客户端时 USDB 达 4255/714.5 QPS（10K/100K），基线 2805/456.5（1.52×/1.57×）；1 客户端时比值升至 1.91×/2.06×。但 30 客户端 1K 短读基线更高（11622.5 对 9102.5 QPS）。",
+        "投影裁剪：100K、8 客户端下 1 列对 15 列使 USDB 吞吐从 250.5 升到 598 QPS，基线从 139.5 到 210.5，p99 由 51.11 降到 26.08 ms 与由 91.20 降到 63.51 ms；30 客户端 2/8/15 列为 1715/1102/714.5 对 780/570/456.5（2.20×/1.93×/1.57×），说明单列并非简单的宽度倒数加速。",
+        "固定工作量作业：100K 历史、2/4/8/15 列完成时间 55.82/65.85/80.78/120.81 秒 对 130.74/166.01/170.64/195.69 秒（2.34×/2.52×/2.11×/1.62×）；10K 对应 1.82×/2.13×/1.70×/1.61×；1K 长短作业差异很小（51.61/60.83 对 50.82/56.03 秒）。",
+        "持续与局部性：30 分钟 8 客户端 100K/15 列零错误零空结果，QPS 中位数 263/150，累计平均延迟 30.69/53.09 ms、p99 51.24/74.81 ms；扩大工作集 USDB 262–265.5 对基线 151–155.5 QPS；回看窗口上 1h/6h 全空，1 天非空平均约 90 行、7 天 2359/2819 行，基线在短窗口平均延迟更低，USDB 在 3 天/7 天平均与 1 天/7 天 p99 更低。",
+        "聚合下推：192 并发查询时原生 count 达 6.23K QPS，对 USDB 读后计数 5.37K、对 Optimized RocksDB 5.16K（1.16×/1.21×）；接收带宽约束 1 Gbit/s 时下推维持 6.22K QPS，而两条扫描路径约 0.73K（8.52×/8.54×），5 Gbit/s 时增益 1.63×；80 例正确性抽查中 77 例完全一致，其余偏差不超过 2 行。",
+        "副本与成本：按 100 万读/s、50% CPU 利用率归一化，计算成本从 2.73 降到 1.00、存储从 1.93 降到 1.70、总成本从 4.66 降到 2.70（42.1%）；CPU 从 6284 核降到 4562 核，内存从 62840 GiB 降到 9124 GiB，核内存比由 1:10 变为 1:2，单核吞吐由 0.32 升到 0.44 K/s。",
+        "重建一致性：2 小时 61 个观测中，有 MVCC 的完整序列一致率为 97–100%，无 MVCC 仅 16–25%，27 个 MVCC 观测达到 100%；生产策略捕获最近一天，捕获样本比例为 10–20%；按 195.7/2950 的平均捕获/原始长度，捕获长度比 6.6%。",
+        "编码与布局：USDB 解码速度为 ZSTD 的 4.6–5.5×，编码后体积多 27.9–42.2%，编码吞吐更低；256K 组时解码 14.88 GB/s，对 LZ4 6.88、ZSTD 3.21；4K 行每组 LZ4 为 9957.65 μs 与 2.1G、ZSTD 1.9G/14045.65 μs、512 行为 26269.50 μs 与 6.6G（参考布局 9994.45 μs 与 1.9G）。",
+        "直接读文件训练：训练吞吐由 175K 升至 184K 实例/s（+5.1%），加权训练作业 CPU 利用率约 32% 不变，缓存命中率由 92% 升至 96%，未缓存序列获取平均延迟 3.3/3.4 ms。",
+        "生产迁移（24 小时全量记录）：平均写延迟由 123.94 降到 17.56 μs（85.8%），平均 CPU 利用率由 29.04% 降到 7.95%（72.6%），平均读延迟基本不变（409.71→406.15 μs），CPU 峰值由 64.3% 降到 14.7%；长读 100K 平均延迟 45.5/77.5 ms、p99 68.8/98.5 ms，5K 时 7.28/2.71 ms；单分片实验中内存 merge-on-read 12K 读/s 时 CPU 48.8% 对 legacy 69%，写延迟 20 对 86 μs，读 p99 1.437 对 1.474 ms；引擎写放大 legacy 55、USDB 配置 66；生产 24 小时请求成功率 99.894–99.986%。"
+      ],
+      "metrics": [
+        "吞吐 QPS（5 秒活跃区间中位数）",
+        "平均延迟与 p99 延迟（ms/μs）",
+        "平均写延迟、平均 CPU 利用率与 CPU 峰值",
+        "归一化计算/存储/总成本",
+        "编码后/原始大小比、编码 MB/s、解码 GB/s",
+        "完整序列重建一致率（%）与 item-时间戳一致率",
+        "缓存命中率、未命中序列读取延迟、训练实例吞吐",
+        "请求成功率、错误率与空结果率"
+      ]
+    },
+    "limitations_zh": [
+      "读延迟收益并非普遍：迁移记录中平均读延迟基本持平（409.71→406.15 μs），短窗口（1h/6h/1d）基线平均延迟反而低于 USDB；30 客户端下的 1K 短读基线吞吐更高（11622.5 对 9102.5 QPS），优势主要体现在长历史与选择性读。",
+      "客户端并发存在平台期：超过 96 个客户端后 100K 读吞吐基本不再提升而 p99 上升（128 客户端两列 p99 322.62 对 253.48 ms），客户端 worker 数的增益也有限（4/100/200 worker 下 719.5/731.5/721 QPS）。",
+      "列式编码是吞吐换体积：USDB 编码后体积比 ZSTD 多 27.9–42.2%，编码吞吐显著低于 LZ4/ZSTD（如 1K 组 154.5 对 1950.1/637.6 MB/s），依赖后台构建被重复读取摊销；row group 大小需与访问模式匹配，512 行时元数据开销导致延迟与体积明显恶化。",
+      "引擎层写放大未降低（legacy 55，USDB 配置 66），收益来自把应用级序列重写移出前台，而非引擎本身写放大更优；磁盘路径加选择性缓存在 11.5K 读/s 时仍达 89% CPU 与 15.617 ms p99，物化与读缓存需联合配置。",
+      "MVCC 重建依赖额外保留的明细/版本兼容物化与源分区、版本域元数据，存储与元数据开销不可忽略；部分 dump 的捕获窗口需要按流水线延迟手工权衡（窗口越大直接存越多推理态，越小越依赖历史复用）。",
+      "聚合下推当前仅实现近似 count，并在 80 例抽查中有 3 例偏差（最多 2 行），尚未覆盖更多聚合类型；未来工作计划才扩展到更多选择历史的聚合与历史预取与模型计算重叠。",
+      "评估主要基于 ByteDance 内部生产工作负载与自建对比系统，未提供公开数据集或复现工件，外部可验证性受限；部分阶段数据标注为“代表性内部估计”。"
+    ],
+    "method_zh": "USDB 是 ByteDance 统一的用户行为序列存储后端，由四个协同机制组成：存储引擎层的 CASCADELSM（按数据新旧划分逻辑层，L0 为当前处理窗口的增量 delta、L1 为当前窗口累计 base、L2 及更深层为旧窗口聚合数据；上层按容量阈值触发压缩以保留明细供实时推理，窗口关闭时触发聚合压缩，以 uid 为分区键、在同 uid+gid 内做应用自定义聚合如取最大观看时长、动作标志按位或；另维护并行的明细备份 LSM 树以支持需要细粒度历史的场景；维护成本模型 W(m)=λ_w·C(m)/m+λ_r·R(m)）；系统层的差异化副本（read-write 承担摄入与压缩并向 HDFS 发布不可变 SST，read-heavy 以本地 staging memtable 加共享只读 RocksDB 实例、用共享区 LSN 过滤合并读取并可在写入方滞后时回退持久化，read-only 零压缩读 HDFS 快照；扩容按 Kafka 分区逐个装卸、复用既有大文件）；跨在线与离线层的部分 dump + MVCC（每条动作同时携带事件时间与表示到达顺序的 LSN，dump 记录时间范围与 LSN 范围，训练时按 LSN 边界过滤晚到事件，并按版本选择兼容的保留基或原始明细）；以及混合列式文件格式（数据区按 row group 列式存放并细分到 Chunk/Flat 块以便细粒度 I/O 与谓词下推，索引区含 zone map、范围索引、BloomFilter 与 schema，footer 存 FileVersion 与 IndexOffset；自适应编码选择器按列类型与基数等统计级联轻量编码；并支持在数据附近执行聚合、只回传紧凑结果的下推）。",
+    "problem_zh": "大模型时代的推荐系统（LRM）消费的用户行为序列急剧变长：ByteDance 的序列长度从 2023 到 2025 增长约 2000 倍（50→100,000），2026 年 9 月代表性保留历史达 80 万条动作，特征列从几十增至数百。这带来流式小写入与批量大读取的存储不对称，传统 Lambda 架构（内存/SSD 分离的流式库 + 批量库）暴露四个挑战：(1) 读-改-写式的序列聚合在数据溢出到 SSD 后把每次小写入放大为 I/O 瓶颈（§3.1）；(2) LSM 压缩耗 CPU 而批量存储耗磁盘，二者耦合在同一节点造成资源失衡与扩容困难（§3.2）；(3) 乱序到达与延迟反馈使推理时观测到的序列与训练序列不一致，LRM 对训练-服务偏差高度敏感，而全量样本 dump 成本不可承受（§3.3）；(4) 行式 SST 在训练只扫描部分特征列时被迫读取整条记录，浪费 I/O 且压缩率次优（§3.4）。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.7645,
+  "id": "arxiv-2611.02618",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-02T06:45:03Z",
+  "relevance_score": 0.75,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文介绍字节跳动面向推荐系统流式与批处理负载的统一序列存储USDB，并报告写入延迟与成本优化效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "USDB: Scaling Storage for Next-Generation Recommender Systems at ByteDance",
+  "url": "https://arxiv.org/abs/2611.02618v1"
+}

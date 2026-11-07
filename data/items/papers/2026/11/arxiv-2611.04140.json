@@ -1,0 +1,123 @@
+{
+  "abstract": "Traditional recommender systems rely on arbitrary integer IDs to identify items, which carry no semantic information and force models to learn representations from interaction data. While leveraging content information can partially mitigate cold-start, this paradigm inherently suffers from exploding embedding tables and scenario-specific architectures. Recent years have seen the emergence of semantic IDs, which encode semantic information directly into the item identity, reflecting content, hierarchy, and relationships. This framework addresses the above limitations by offering a principled way to encode large-scale semantic information into item identity, benefiting both generative and discriminative applications and unlocking more native unification across modalities, domains, and tasks. This tutorial traces the evolution from raw IDs to semantic IDs as a scalable means of information utilization, offering a comprehensive review of their development and applications across multi-modality, cold-start, and cross-domain recommendation. Hands-on exercises guide attendees through building and evaluating semantic IDs, training models, and exploring cross-domain transfer. We conclude by discussing open challenges, including dynamic semantic IDs and multi-stakeholder utility. All materials of the tutorial could be found at the official website https://semantic-id-tutorial.github.io. Traditional recommender systems rely on arbitrary integer IDs to identify items, which carry no semantic information and force models to learn representations from interaction data. While leveraging content information can partially mitigate cold-start, this paradigm inherently suffers from exploding embedding tables and scenario-specific architectures. Recent years have seen the emergence of semantic IDs, which encode semantic information directly into the item identity, reflecting content, hierarchy, and relationships. This framework addresses the above limitations by offering a principled way to encode large-scale semantic information into item identity, benefiting both generative and discriminative applications and unlocking more native unification across modalities, domains, and tasks. This tutorial traces the evolution from raw IDs to semantic IDs as a scalable means of information utilization, offering a comprehensive review of their development and applications across multi-modality, cold-start, and cross-domain recommendation. Hands-on exercises guide attendees through building and evaluating semantic IDs, training models, and exploring cross-domain transfer. We conclude by discussing open challenges, including dynamic semantic IDs and multi-stakeholder utility. All materials of the tutorial could be found at the official website https://semantic-id-tutorial.github.io.",
+  "arxiv_id": "2611.04140",
+  "authors": [
+    "Roger Zhe Li",
+    "Aghiles Salah",
+    "Mete Sertkan",
+    "Changhong Jin",
+    "Yingjie Niu",
+    "Ruihai Dong",
+    "Barry Smyth"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "语义ID把内容、层级和关系编码进物品身份，有望降低对超大嵌入表的依赖，并支持对冷启动物品的身份级泛化。",
+      "语义ID同时适用于生成式推荐和判别式排序；文中引用Google、快手、Meta的部署，说明其具备进入生产推荐/排序管线的潜力。",
+      "跨域共享的语义结构可减少显式源-目标对齐的复杂度，为多域、多任务扩展提供更可复用的身份接口。",
+      "落地时需重点设计多模态融合与协同信号注入，并在语义可解释性、推荐效果、嵌入稳定性和系统复杂度之间权衡。",
+      "教程材料开源且可在免费Colab资源上运行，便于企业团队培训、原型验证和内部技术扩散。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "以语义ID为核心，组织从原始ID、辅助信息到语义ID的推荐系统信息利用演进脉络。",
+      "系统回顾语义ID构建方法（如RQ-VAE、RQ-KMeans）及关键设计选择，包括量化什么信息、如何组织token词表、如何平衡紧凑性、稳定性、语义一致性和下游可用性。",
+      "覆盖语义ID在生成式推荐（如TIGER）和判别式排序（如YouTube排序模型）中的应用，并提及Google、快手、Meta的部署案例。",
+      "讨论多模态信息的早融合/晚融合，以及将协同信号注入语义ID的路径，包括协同嵌入量化、内容模型/嵌入微调和协同数据对比训练。",
+      "提供动手教程：构建和评估语义ID、训练模型、探索跨域迁移，并总结动态语义ID、多利益相关方效用、ID稳定性等开放挑战。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 2,
+        "section": "2.1 Raw IDs"
+      },
+      {
+        "page": 2,
+        "section": "2.2 Auxiliary Information"
+      },
+      {
+        "page": 2,
+        "section": "2.3 Semantic IDs"
+      },
+      {
+        "page": 2,
+        "section": "2.4 Semantic IDs in Recommender Systems"
+      },
+      {
+        "page": 3,
+        "section": "2.5 Multimodality and Collaborative Signals"
+      },
+      {
+        "page": 3,
+        "section": "2.6 Cross-Domain Transfer"
+      },
+      {
+        "page": 3,
+        "section": "2.7 Future Directions & Open Challenges"
+      },
+      {
+        "page": 3,
+        "section": "2.8 Hands-on Sessions"
+      },
+      {
+        "page": 4,
+        "section": "3 Outline & Equipment Requirements"
+      },
+      {
+        "page": 4,
+        "section": "4 Related Tutorials"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "原始ID基线（raw ID-based baseline）"
+      ],
+      "datasets": [
+        "Amazon Reviews"
+      ],
+      "findings_zh": [
+        "文档为教程提案，未报告定量实验结果或具体性能数值。",
+        "第一个动手环节计划训练RQ-KMeans生成语义ID、检查token结构，并与原始ID基线在生成式推荐任务上比较。",
+        "第二个动手环节计划使用文献[10]的多域架构，评估语义ID在多域设置中的跨域迁移能力。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "作为教程提案，文档未提供系统实验或定量证据来验证语义ID的优势。",
+      "语义ID在目录动态变化下的ID稳定性仍是开放挑战。",
+      "评估需要超越hit-rate等指标，多利益相关方效用尚未解决。",
+      "多模态融合可能存在冗余，语义ID还需在反映内容语义与捕捉推荐协同信号之间取得平衡。",
+      "文中关于工业部署的陈述引用已有工作，未提供本教程的新实证结果。"
+    ],
+    "method_zh": "该文档是半天教程提案，而非提出单一新模型的完整研究论文。教学路径从推荐系统基础、原始ID和辅助内容讲起，进入语义ID的概念、构建方法和推荐应用，再扩展到多模态与协同信号、冷启动和跨域迁移，最后讨论未来方向。动手环节使用RQ-KMeans生成语义ID，检查token结构，并在生成式推荐任务上与原始ID基线比较；第二环节使用文献[10]的多域架构评估跨域迁移。实践使用Amazon Reviews数据集，基于Cornac的生成式推荐模型实现，并提供可在Google Colab等免费资源上运行的Jupyter notebooks。",
+    "problem_zh": "传统推荐系统依赖任意整数ID标识物品，这类ID不携带语义信息，模型必须从交互数据中学习表示；辅助内容虽能部分缓解冷启动，但仍外在于物品身份，并带来嵌入表膨胀、场景特定架构复杂化、模态特定设计限制等问题。教程旨在梳理从原始ID到语义ID的演进，说明如何把内容、层级和关系编码进物品身份，以支持生成式与判别式推荐、多模态、冷启动和跨域迁移。",
+    "technical_depth": 0.55
+  },
+  "doi": "10.1145/3799682.3839274",
+  "final_score": 0.7555,
+  "id": "arxiv-2611.04140",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-03T01:33:07Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该教程系统梳理从原始ID到语义ID的推荐系统身份表示演进，并覆盖多模态、冷启动与跨域推荐应用。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "IDs That Mean Something: A Hands-On Tutorial on Semantic IDs for Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.04140v1"
+}

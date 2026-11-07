@@ -1,0 +1,152 @@
+{
+  "abstract": "Generative recommendation has been widely adopted in large-scale industrial recommendation systems, where multimodal item embeddings are quantized into offline semantic identifiers (SIDs) and items are retrieved by autoregressively generating their SIDs. However, conventional SID construction often underrepresents item utility reflected in post-exposure behaviors such as shares, long views, and video completion, making semantically similar items with different utility insufficiently distinguishable while struggling to accommodate rapidly changing utility signals. Moreover, generation likelihood may be misaligned with downstream utility, causing high-utility candidates to be prematurely pruned during beam search before post-generation reranking or training-time reward alignment can effectively compensate. To address these limitations, we propose UAGR, which aligns both SID construction and decoding with downstream multi-objective utility. Our Utility-Enriched Semantic Codes preserve the original semantic information while incorporating item-level utility without increasing SID length or vocabulary size, supporting incremental utility updates with no additional tokenization or sequence-decoding cost. Meanwhile, our Utility-Guided Decoding estimates candidate utility by combining predictions of multiple post-exposure outcomes and incorporates these estimates into beam scoring, reducing the risk of prematurely pruning high-utility paths while enabling flexible utility control without interfering with generative backbone training. Extensive offline experiments and online A/B tests under real-world traffic demonstrate the effectiveness and deployability of UAGR, which has been fully deployed on Kuaishou and increases video watch time by 0.206\\% online. Generative recommendation has been widely adopted in large-scale industrial recommendation systems, where multimodal item embeddings are quantized into offline semantic identifiers (SIDs) and items are retrieved by autoregressively generating their SIDs. However, conventional SID construction often underrepresents item utility reflected in post-exposure behaviors such as shares, long views, and video completion, making semantically similar items with different utility insufficiently distinguishable while struggling to accommodate rapidly changing utility signals. Moreover, generation likelihood may be misaligned with downstream utility, causing high-utility candidates to be prematurely pruned during beam search before post-generation reranking or training-time reward alignment can effectively compensate. To address these limitations, we propose UAGR, which aligns both SID construction and decoding with downstream multi-objective utility. Our Utility-Enriched Semantic Codes preserve the original semantic information while incorporating item-level utility without increasing SID length or vocabulary size, supporting incremental utility updates with no additional tokenization or sequence-decoding cost. Meanwhile, our Utility-Guided Decoding estimates candidate utility by combining predictions of multiple post-exposure outcomes and incorporates these estimates into beam scoring, reducing the risk of prematurely pruning high-utility paths while enabling flexible utility control without interfering with generative backbone training. Extensive offline experiments and online A/B tests under real-world traffic demonstrate the effectiveness and deployability of UAGR, which has been fully deployed on Kuaishou and increases video watch time by 0.206\\% online.",
+  "arxiv_id": "2611.02981",
+  "authors": [
+    "Yang Hu",
+    "Duo Wang",
+    "Ning Li",
+    "Kang Li",
+    "Junda She",
+    "Chengcheng Guo",
+    "Kuo Cai",
+    "Bin Liu",
+    "Youhua Liu",
+    "Xiaoshuang Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "效用感知的 SID 位分配可在不增加 SID 长度和词表大小的前提下，把区分度较弱的语义位替换为效用位，适合已有生成式推荐系统的低成本升级。",
+      "UGD 复用解码隐状态并仅增加轻量行为头，在线 A/B 中 QPS 仅下降 0.03%，说明其具备工业部署的低延迟可行性。",
+      "行为特定预测头和可配置权重 w_m、λ 使业务方可灵活调节多目标效用，而无需干扰生成主干训练。",
+      "每小时刷新效用码、每周校准桶边界的两时间尺度策略，为动态效用信号提供新鲜度与稳定性的运维折中。",
+      "在线 watch time +0.206%、views +0.164% 的显著收益表明，将效用信息同时注入表示与解码阶段可能比仅做后置重排或训练期奖励对齐更有效。",
+      "UE-SID 的在线编码只依赖固定模型推理、行为特征查询、分桶和位拼接，适合新物品低延迟入仓和周期性效用更新。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "提出 UAGR，将 SID 构建与自回归解码同时对齐到下游多目标效用。",
+      "提出 UE-SID：在最终量化层引入 lookup-free quantization（LFQ），并掩码区分度较弱的语义位，将释放出的位容量用于离散化物品级效用，不增加 SID 长度或词表大小，并支持不重训语义量化器的增量效用更新。",
+      "提出 UGD：复用生成主干解码隐状态，通过 stop-gradient 隔离效用梯度，使用多行为预测头估计曝光后结果，并将归一化效用分数与累积生成对数似然结合到 beam 评分中。",
+      "在 KuaiRand 离线实验和 Kuaishou 在线 A/B 测试中验证有效性，并报告 UAGR 已在 Kuaishou 全量部署。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3.3 Utility-Guided Decoding (UGD)"
+      },
+      {
+        "page": 4,
+        "section": "3.4 Utility-Enriched Semantic Codes (UE-SID)"
+      },
+      {
+        "page": 5,
+        "section": "4 Experiments"
+      },
+      {
+        "page": 7,
+        "section": "4.6 Online A/B Test Results (RQ5)"
+      },
+      {
+        "page": 8,
+        "section": "B.2 Implementation Details"
+      },
+      {
+        "page": 9,
+        "section": "C Detailed Ablation Studies on UE-SID"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Caser",
+        "SASRec",
+        "BERT4Rec",
+        "S3-Rec",
+        "HSTU",
+        "LIGER",
+        "TIGER",
+        "RecForest",
+        "EAGER",
+        "OneRec-1.7B",
+        "RQ-KMeans",
+        "OPQ",
+        "RQ-OPQ",
+        "UIST-RQ",
+        "LCRec",
+        "FORGE",
+        "LETTER",
+        "GRPO",
+        "post-generation reranking"
+      ],
+      "datasets": [
+        "KuaiRand-27K"
+      ],
+      "findings_zh": [
+        "在 KuaiRand 上，UAGR 在 Recall@3、NDCG@3、Recall@5、NDCG@5 上均优于所有对比方法，相比最强基线在 Recall@3 提升 7.74%、NDCG@3 提升 16.52%。",
+        "UE-SID 在 SID 构建质量上取得高 ICR、最低 Gini 和最高 code entropy，并在下游推荐指标上优于 RQ-KMeans、OPQ、RQ-OPQ、UIST-RQ、LCRec、FORGE、LETTER 等 SID 方法。",
+        "消融显示单独加入 LFQ、UE-SID 或 UGD 都能提升下游推荐表现；其中 UGD 作为单独组件带来最大推荐性能提升，说明仅依赖 next-item likelihood 不足以对齐下游目标。",
+        "UGD 在相同 beam 宽度下保留更多高效用候选前缀，尤其在第二解码层提升最大，支持其减少高效用候选过早剪枝的机制。",
+        "UAGR 优于 GRPO 训练期奖励对齐和后生成重排；后者只能重排已保留候选，无法恢复已被剪枝的高效用物品。",
+        "在线一周 A/B 测试中，UAGR 使 App Usage Time 提升 0.074%、Video Watch Time 提升 0.206%、Video Views 提升 0.164%，QPS 仅下降 0.03%，结果在双侧 t 检验 p<0.05 下显著。"
+      ],
+      "metrics": [
+        "Recall@3",
+        "NDCG@3",
+        "Recall@5",
+        "NDCG@5",
+        "Independent Coding Rate (ICR)",
+        "Gini coefficient",
+        "code entropy",
+        "SID collision rate",
+        "App Usage Time",
+        "Video Watch Time",
+        "Video Views",
+        "QPS"
+      ]
+    },
+    "limitations_zh": [
+      "离线实验仅使用 KuaiRand-27K，在线验证仅覆盖 Kuaishou 短视频推荐场景，未报告跨平台、跨业务或多领域泛化结果。",
+      "UE-SID 在实验中以物品经验 CTR 作为效用统计 a_i，UGD 使用 watch time、long view、like、share 四个行为信号；其他效用定义或行为组合的效果未在正文中系统验证。",
+      "UE-SID 的效用桶每小时更新、桶边界每周校准，更新频率和桶数量对新鲜度与稳定性的影响未给出独立消融。",
+      "即使采用 LFQ、掩码和效用位，UE-SID 仍报告约 0.9801% 的 SID 碰撞率，尚未完全消除碰撞。",
+      "UGD 通过 stop-gradient 阻止效用梯度更新生成主干，虽保护生成能力，但也意味着主干不会直接从效用监督中学习。",
+      "效用监督依赖训练阶段曝光日志中的曝光后反馈，存在行为标签噪声、异质性和时效性风险；论文主要报告在线收益，未量化这些风险。",
+      "论文未提供公开代码或复现实验包，离线结果的可复现性主要依赖文中配置描述。"
+    ],
+    "method_zh": "UAGR 包含两个核心组件。UE-SID 保留前 L-1 级 residual K-means 语义量化不变，将最终级替换为 LFQ：把残差投影为 B 维表示并二值化，使用 straight-through estimator 和熵正则训练；通过穷举三位组合选择对 SID 碰撞率影响最小的 B_u 个弱区分位进行掩码，保留 B_s 个语义位，并将物品效用统计 a_i 分桶为 2^{B_u} 个效用桶，将语义码与效用码拼接为最终级 token。在线编码时对新物品执行固定模型推理、行为特征查询、分桶和位拼接；效用分量每小时刷新，桶边界每周按分布校准。UGD 在 SID 位置 l 复用生成主干隐状态 h^(l)，经 stop-gradient 和 MLP 投影为共享效用表示 g^(l)，再为每个行为 m 设置 token-wise 头计算 q_{m,v}^{(l)}；beam 评分为累积生成对数似然加上 λ 乘以各行为归一化效用估计的加权和，且效用分数只在当前解码位置使用、不跨位置累积。训练损失为 next-token prediction 损失与 β 倍多行为、多位置效用损失之和。",
+    "problem_zh": "传统生成式推荐将多模态物品嵌入量化为离线语义标识（SID），并以自回归方式生成 SID 进行检索；但常规 SID 构建主要保留语义相似性，未充分表达分享、长观看、完播等曝光后效用，导致语义相似但效用不同的物品难以区分，且协同信号易随时间过期。同时，生成似然与下游效用可能不一致，有限宽度 beam search 会在中间解码步骤过早剪枝高效用候选，后置重排或训练期奖励对齐难以恢复已被剪枝的路径。",
+    "technical_depth": 0.84
+  },
+  "doi": null,
+  "final_score": 0.933,
+  "id": "arxiv-2611.02981",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-02T11:48:34Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文针对生成式推荐中语义 ID 构建与解码未对齐下游效用的问题，提出融合效用信息的语义码与效用引导解码，并在快手全量部署后提升了视频观看时长。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Utility-Aware Generative Recommendation: Utility-Enriched Semantic Codes and Utility-Guided Decoding",
+  "url": "https://arxiv.org/abs/2611.02981v1"
+}

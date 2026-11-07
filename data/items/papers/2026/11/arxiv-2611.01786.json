@@ -1,0 +1,131 @@
+{
+  "abstract": "In modern recommender systems, users are often presented with products whose outcomes are random. The values of such products depend on their entire outcome distributions and on users' attitudes toward risk, making them difficult to evaluate using traditional product-level recommendation methods. We propose \\textsc{IncVNM}, an interactive recommender system that incrementally learns a user-specific von Neumann--Morgenstern (VNM) utility function from ordinal click feedback generated during ordinary webpage browsing. At each interaction, \\textsc{IncVNM} converts the click order within a displayed product list into pairwise comparisons between outcome distributions and updates the nominal utility by minimizing its deviation from the previous estimate while incorporating the newly observed pairwise comparisons. To close the interaction loop, an entropy-regularized sampling policy balances exploitation of the learned utility against exploration for additional preference information. We evaluate \\textsc{IncVNM} in a rolling-window experiment with different response-error probabilities and show that it substantially outperforms the expected-return, mean--variance, discounted-UCB, and distribution-aware BPR baselines. In modern recommender systems, users are often presented with products whose outcomes are random. The values of such products depend on their entire outcome distributions and on users' attitudes toward risk, making them difficult to evaluate using traditional product-level recommendation methods. We propose \\textsc{IncVNM}, an interactive recommender system that incrementally learns a user-specific von Neumann--Morgenstern (VNM) utility function from ordinal click feedback generated during ordinary webpage browsing. At each interaction, \\textsc{IncVNM} converts the click order within a displayed product list into pairwise comparisons between outcome distributions and updates the nominal utility by minimizing its deviation from the previous estimate while incorporating the newly observed pairwise comparisons. To close the interaction loop, an entropy-regularized sampling policy balances exploitation of the learned utility against exploration for additional preference information. We evaluate \\textsc{IncVNM} in a rolling-window experiment with different response-error probabilities and show that it substantially outperforms the expected-return, mean--variance, discounted-UCB, and distribution-aware BPR baselines.",
+  "arxiv_id": "2611.01786",
+  "authors": [
+    "Jiaxin Wei",
+    "Jia Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对金融产品、保险、机票等结果不确定的商品，平台可利用普通浏览中的点击顺序隐式学习用户风险态度，降低对问卷式偏好 elicitation 的依赖。",
+      "用结果分布表示产品并对VNM效用打分，可对新上市产品或结果分布漂移的产品直接评价，减少冷启动和按商品重训的成本。",
+      "每用户只需存储分段线性效用函数，更新维度不随商品目录增长；适合流式在线环境，但业务落地需具备结果分布估计、精度截断和求解器基础设施。",
+      "熵正则化采样提供了可调的探索-利用旋钮：业务方可通过λ在短期推荐转化与长期偏好学习之间做权衡。",
+      "上线前应进行A/B测试和真实用户验证，并用置信度加权松弛处理误点击、漏点等噪声反馈。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "将随机结果产品推荐形式化为从点击序列学习用户特定VNM期望效用函数，使系统能够基于结果分布而非固定商品特征评价产品，并支持新产品和时变结果分布。",
+      "提出IncVNM增量学习框架：每轮在保持与上一轮名义效用偏差最小（Kantorovich距离）的同时加入新观测到的成对比较约束；通过分段线性近似和SOCP求解，使每次更新规模与商品目录大小无关且在交互历史上有界。",
+      "构建统一的学习-推荐交互闭环：用熵正则化softmax采样平衡利用与探索，引入动态断点细化和有限精度表示控制断点增长，并在模拟股票推荐实验中优于ER、MV、DUCB和DistBPR基线。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3.1 Pairwise comparisons from click sequences"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Preference elicitation model"
+      },
+      {
+        "page": 4,
+        "section": "4.1 Product-list generation with entropy regularization"
+      },
+      {
+        "page": 5,
+        "section": "4.2 Dynamic refinement of the breakpoint set"
+      },
+      {
+        "page": 5,
+        "section": "4.3 Catalog-independent scalability through finite-precision utility representation"
+      },
+      {
+        "page": 6,
+        "section": "5.3 Results with response errors"
+      },
+      {
+        "page": 7,
+        "section": "5.4 Scalability analysis"
+      },
+      {
+        "page": 8,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 9,
+        "section": "Appendix F Results under error-free responses"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Expected Return (ER)",
+        "Mean-Variance (MV)",
+        "Discounted UCB (DUCB)",
+        "Distribution-aware Bayesian Personalized Ranking (DistBPR)"
+      ],
+      "datasets": [
+        "S&P 500成分股中463只数据完整的股票，2022年1月至2026年4月的月度收益",
+        "24个月滚动窗口：29个窗口、共580次交互，每次展示8只股票",
+        "模拟风险厌恶用户：真实效用u*(x)=1-0.8exp(-6x)，点击当前目录中oracle期望效用高于中位数的股票",
+        "响应误差概率ε_noise∈{0,0.3,0.5}，通过随机交换已点击股票、插入未点击股票或删除已点击股票模拟"
+      ],
+      "findings_zh": [
+        "在ε_noise=0、0.3、0.5三种响应错误概率下，IncVNM在效用学习和推荐指标上均取得最佳且较稳健的表现。",
+        "IncVNM与DistBPR优于DUCB，说明对随机结果产品需要分布级表示；MV优于ER且IncVNM进一步学习风险态度，说明显式风险偏好建模重要。",
+        "响应错误会降低所有反馈驱动方法；IncVNM通过置信度加权松弛限制错误反馈影响，仍保持优势。",
+        "在无响应错误设置下，IncVNM整体最优；探索率λ存在权衡：较大λ通常提供更有信息量的探索并略改善效用学习，较小λ使推荐列表更匹配当前偏好。",
+        "精度ε_prec=0.01与0.001对比：更细精度略好，但断点数由53增至213，CPU时间由42.81s增至462.06s；在ε_prec=0.01实验中断点增长低于Proposition 2给出的上界167。"
+      ],
+      "metrics": [
+        "RD@8（Top-8排序差异，越小越好）",
+        "nHLU@8（Top-8归一化半衰期效用，越大越好）",
+        "RD_pl（实际推荐列表排序差异，越小越好）",
+        "nHLU_pl（实际推荐列表归一化半衰期效用，越大越好）",
+        "断点数量与CPU时间（可扩展性分析）"
+      ]
+    },
+    "limitations_zh": [
+      "实验仅基于模拟用户和S&P 500股票月度收益，未进行真实用户在线实验；作者在结论中明确将真实用户在线实验列为未来工作。",
+      "用户点击由已知oracle效用阈值生成，响应错误仅用交换、插入、删除三类随机操作模拟，可能无法完全代表真实网页浏览中的行为噪声。",
+      "方法依赖产品结果分布可观测或可估计，并需要预设效用函数类、Lipschitz常数、端点归一化、分段线性断点、有限精度、违反惩罚γ和探索率λ等超参数。",
+      "实验设定固定为每次展示8只股票、24个月历史窗口和463只股票目录，向其他商品目录、窗口长度或交互规模外推仍需验证。",
+      "推荐指标会因持续探索而出现波动；探索率需要在效用学习信息量与即时推荐质量之间权衡。",
+      "DistBPR等基线是作者选择的代表性实现，实验未覆盖所有推荐范式或深度序列推荐模型。"
+    ],
+    "method_zh": "IncVNM首先把一次展示列表中的点击序列转换为成对偏好比较：先点击的商品优于后点击的商品，最后点击的商品优于未点击商品；有响应误差时扩展到所有已点击商品对，并用置信度加权违反变量松弛约束。系统维护一个端点归一化、非减、L-Lipschitz的VNM效用函数，用户对商品A的评分为其结果分布下的期望效用。每轮观察到点击后，IncVNM求解以Kantorovich距离最小化为目标、以新成对比较为约束的增量更新问题；用分段线性效用近似将问题转化为二阶锥规划（SOCP）。推荐阶段用熵正则化目标得到softmax采样分布，按概率无放回采样n个商品形成下一轮列表。为控制近似误差和方向错误，算法动态把展示商品的结果加入断点集；再用有限精度舍入把断点限制在固定网格上，使每用户效用表示和更新维度不随商品目录规模增长。",
+    "problem_zh": "针对结果具有随机性的产品（如金融资产、保险合约、机票等），传统推荐系统主要学习用户-商品统计关联或商品级评分，难以表示结果分布和用户风险态度；当结果分布随时间变化或新产品出现时，商品级偏好分数迁移性差。论文要解决的问题是：如何仅利用普通网页浏览中产生的序贯点击反馈，在线增量学习可解释、可迁移的用户VNM效用函数，并在同一交互闭环中同时完成偏好 elicitation 与产品推荐。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8295,
+  "id": "arxiv-2611.01786",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-01T10:46:54Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出IncVNM交互式推荐系统，从网页浏览中的序数点击反馈增量学习用户特定的VNM效用函数，并用熵正则采样策略平衡探索与利用。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "IncVNM: An Interactive Recommender System with Incremental von Neumann-Morgenstern Utility Learning",
+  "url": "https://arxiv.org/abs/2611.01786v1"
+}

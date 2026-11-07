@@ -1,0 +1,158 @@
+{
+  "abstract": "While conversational recommendation systems provide a more natural user interface, they face the challenge of progressively discovering a user's needs before they can recommend an item that satisfies them. To evaluate the ability of AI agents at this elicitation process, we introduce $τ$-Rec-Books, a benchmark that holds each user request fixed while varying only when the user reveals their requirements: all at the start (volunteer), one at the start and the rest when asked (mixed), or some never (hidden). A hidden requirement can be found only by proposing books and inferring it from the user's accept or reject verdicts. We generate 450 tasks over a catalog of 20,000 books from Wikidata, develop a rule-based simulated user to answer the agent, and score recommendations against catalog metadata without an LLM judge. Across four agents and two search interfaces, success rates fall for every agent and interface, on average from 0.975 (volunteer) to 0.756 (mixed) and 0.283 (hidden). Mixed tasks fail mainly because agents do not ask, and when told to ask, every agent reaches at least 0.931. On hidden tasks, most failures come from agents recommending a book they never proposed to the user. When told to propose first, agents only match a simple baseline that proposes popular books, and stay well below one that uses rejection to rule out possible requirements. We release the catalog pipeline, task generator, simulated user, validators, reference agents, and all agent traces at https://github.com/nbharaths/tau-rec/tree/main/data/tracks/books-wikidata-v2. While conversational recommendation systems provide a more natural user interface, they face the challenge of progressively discovering a user's needs before they can recommend an item that satisfies them. To evaluate the ability of AI agents at this elicitation process, we introduce $τ$-Rec-Books, a benchmark that holds each user request fixed while varying only when the user reveals their requirements: all at the start (volunteer), one at the start and the rest when asked (mixed), or some never (hidden). A hidden requirement can be found only by proposing books and inferring it from the user's accept or reject verdicts. We generate 450 tasks over a catalog of 20,000 books from Wikidata, develop a rule-based simulated user to answer the agent, and score recommendations against catalog metadata without an LLM judge. Across four agents and two search interfaces, success rates fall for every agent and interface, on average from 0.975 (volunteer) to 0.756 (mixed) and 0.283 (hidden). Mixed tasks fail mainly because agents do not ask, and when told to ask, every agent reaches at least 0.931. On hidden tasks, most failures come from agents recommending a book they never proposed to the user. When told to propose first, agents only match a simple baseline that proposes popular books, and stay well below one that uses rejection to rule out possible requirements. We release the catalog pipeline, task generator, simulated user, validators, reference agents, and all agent traces at https://github.com/nbharaths/tau-rec/tree/main/data/tracks/books-wikidata-v2.",
+  "arxiv_id": "2611.04459",
+  "authors": [
+    "Bharath Sivaram Narasimhan",
+    "Karthik R. Narasimhan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对话式零售/推荐agent应显式加入elicitation策略：在推荐前用覆盖目录字段的宽泛问题主动询问缺失的hard constraints；论文显示这能显著改善mixed条件下的成功率。",
+      "采用propose-then-verify流程：用稳定catalog ID展示候选，等待用户接受/拒绝，并把拒绝与decline当作约束信号；这能减少hidden需求场景中未测试就推荐的问题。",
+      "当需求可映射到目录字段时，投资schema-aligned metadata与structured filter工具；但收益依赖模型，需配合prompt中的字段清单并按模型分别评估。",
+      "线上评估不应只看排序指标，应报告按披露条件分层的pass^1/pass^4、elicitation rate、hidden success by rejections、NVR abstention和失败结束方式。",
+      "把hidden-requirement与NVR任务作为压力测试；当无法验证存在匹配时要求agent弃权，并在用户拒绝说明时对可能取值做elimination。",
+      "该方法最适合具有丰富元数据和明确hard constraints的图书/媒体目录；对主要依赖soft taste、read-alikes或开放式对话技巧的场景，迁移性有限。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出τ-Rec-Books：450个任务、150个任务族；每族固定谓词、答案集、persona、阅读历史和可接受格式，只改变需求披露时机（volunteer、mixed、hidden），从而把披露作为受控变量。",
+      "构建并冻结20,000部Wikidata公共领域书目目录，含5k和10k嵌套子集；覆盖19种genre、151个语言标签、166个国家标签和1460–2026年。",
+      "提供规则式模拟用户、无LLM judge的目录谓词评分、五项协议校验、两个脚本参考agent，以及全部32,976次试验的trace和可复现管线。",
+      "系统比较4个模型×2种搜索接口，并加入目录规模、LLM用户和不同提示消融，定位mixed与hidden条件下的主要失败模式。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 The Books Resource"
+      },
+      {
+        "page": 5,
+        "section": "4.1 Experimental Setup"
+      },
+      {
+        "page": 6,
+        "section": "4.2 Outcome Measures and Statistical Analysis"
+      },
+      {
+        "page": 6,
+        "section": "5 Resource Validation"
+      },
+      {
+        "page": 7,
+        "section": "6.1 RQ1: Constraint Disclosure"
+      },
+      {
+        "page": 8,
+        "section": "6.2 RQ2: Retrieval Interface at 20k"
+      },
+      {
+        "page": 8,
+        "section": "6.3 RQ3: Catalog Scale (5k–20k)"
+      },
+      {
+        "page": 9,
+        "section": "6.4 RQ4: Reliability across Models, Trials, and Users"
+      },
+      {
+        "page": 9,
+        "section": "6.5 Agent Failure Modes"
+      },
+      {
+        "page": 11,
+        "section": "8 Bias, Ethics, and Limitations"
+      },
+      {
+        "page": 11,
+        "section": "9 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Scripted popularity agent：问一个覆盖所有字段的问题，按用户所述事实过滤，并持续提议最流行的匹配书",
+        "Scripted eliminating agent：利用被拒绝字段和REJECTED verdict排除可能的隐藏要求",
+        "No-ask floor：从不提问，直接推荐符合开场请求的最流行未读书",
+        "四个LLM agents：DeepSeek V4.1 Flash、GLM 5.3 Flash、Qwen 3.8 27B、GPT-6.1 Sol",
+        "Keyword BM25接口与structured filter接口的对比"
+      ],
+      "datasets": [
+        "Wikidata books catalog：20,000 works，含5,000和10,000嵌套子集",
+        "450 tasks / 150 task families；15个NVR families；13个templates；simple/medium/complex三档",
+        "Panel：51个families（45个satisfiable + 6个NVR），153个tasks，每task 4 trials",
+        "Reliability block：18个families，每task 8 trials",
+        "Scale study：135个families，在5k/10k/20k上运行，仅open-weight agents，覆盖volunteer与mixed",
+        "LLM-user block：18个families，每task 4 trials × 2个LLM users",
+        "总计32,976 trials"
+      ],
+      "findings_zh": [
+        "在satisfiable families上，四个模型与两种接口平均pass^1从volunteer的0.975降到mixed的0.756和hidden的0.283；pass^4分别为0.955、0.582、0.099。",
+        "Mixed−volunteer为−23.3点，hidden−volunteer为−69.3点，均在Holm校正后显著；披露梯度在每个模型、接口、pass^4和两种LLM用户下都成立。",
+        "Structured search在20k上平均比keyword高7.1点；DeepSeek +6.9、Qwen +18.7，GLM +4.2不显著，GPT-6.1 Sol −1.2不显著；Holm校正后仅Qwen和DeepSeek的增益成立。",
+        "目录规模影响远小于披露：keyword从5k到20k下降4.2点，structured仅下降0.8点；interface×scale交互−3.3点不显著。",
+        "Mixed失败主要因为不问：GPT-6.1 Sol在40–49%的mixed trials中没有问出任何askable fact，open-weight agents至多25%；问出全部askable facts的trials成功率98%，其余52%；ask prompt将GPT-6.1 Sol的mixed pass^1提高59.0点，并使所有agent至少达到0.931。",
+        "Hidden失败主要因为未测试就承诺：78%的失败hidden satisfiable trials推荐了从未提议给用户裁决的书，GPT-6.1 Sol为415/416；73%的此类失败发生在一次被拒绝提问之后；ask-and-verify把untested commitments降到hidden失败的至多30%，成功率达到0.483–0.617，与popularity agent的0.600无显著差异。",
+        "Protocol prompt向agent解释decline和rejection的含义后，所有agent平均提高22.5点，hidden成功率达到0.708–0.825，但仍低于eliminating agent的0.956；在hidden NVR上agents仅46–62%弃权，ask-and-verify时至多8%。",
+        "参考agent中，popularity agent解决84/135个hidden satisfiable和2/15个hidden NVR；eliminating agent解决129/135和13/15，hidden pass为0.956、NVR为0.833。",
+        "两个LLM用户使DeepSeek structured pass^1分别下降10.2点（GLM user）和7.4点（Qwen user），主要发生在mixed任务；rule-based user在84.7%的trials中说出全部askable values，LLM users约一半；hidden值泄漏≤1.4%。",
+        "24,644个最终推荐中只有3个命名了搜索从未返回的书，且全部无效；说明agent主要不是靠记忆book IDs绕过搜索。",
+        "答案集随目录增大而增大（5k中位10个答案，20k中位40个）；固定keyword查询在5k能为106/135个satisfiable families找到答案，在20k仅73/135。"
+      ],
+      "metrics": [
+        "pass^1",
+        "pass^4",
+        "Elicitation share：mixed trials中问出全部askable facts的比例",
+        "Hidden success within r rejections",
+        "NVR abstention rate",
+        "五项protocol checks通过率",
+        "Family-bootstrap 95% CI与p值",
+        "Holm多重比较校正",
+        "Exact sign-flip test over templates"
+      ]
+    },
+    "limitations_zh": [
+      "目录覆盖受Wikidata与英文标题要求影响，偏向记录充分的英美作品：英文占83.2%、美国41.5%、英国13.4%；68个国家谓词中51个指向美国或英国；genre偏向science fiction，literary fiction缺失。",
+      "任务仅覆盖四个元数据字段上的hard-filter elicitation；soft preferences、read-alikes和taste等真实图书请求常见内容不在范围内。",
+      "规则式用户用目录标签说话且从不解释拒绝原因，因此基准衡量的是agent可靠地 eliciting 和 verifying requirements，而不是对话技巧。",
+      "Mixed任务只测试agent是否提问，不测试问得有多好，因为一个覆盖所有字段的宽泛问题就能披露全部askable facts。",
+      "用户模型未与真人验证；实验只测试了一个frontier model（GPT-6.1 Sol）。",
+      "Hidden条件把用户设定为始终不说明某些要求，是压力测试；真实用户可能在看到建议后才补充要求（critiquing），论文将其留给后续工作。",
+      "Structured search比keyword search更集中地暴露每个答案集中最流行的书。",
+      "部分失败来自时间、轮数、context overflow或tool budget上限；这些上限可能影响成功率。",
+      "书目格式由Wikidata ID哈希模拟生成，persona为合成；这些设定限制外部效度。"
+    ],
+    "method_zh": "任务用genre、language、country of origin、publication year四类目录字段构造谓词；每个谓词带stated/on ask/hidden标签。Volunteer用户在开场说明全部谓词和可接受格式；mixed用户开场说明一个谓词，其余在被问及对应字段时披露；hidden用户至少保留一个谓词全程不披露，被问及时拒绝，既暴露存在要求又不暴露取值。规则式用户按固定模板回答字段问题、Anything else类问题和带[[candidate_id:...]]标签的单本书提议：满足全部谓词、未读过且格式可接受则ACCEPTED，否则REJECTED且不解释原因。Agent可使用keyword BM25 top-20或structured conjunctive filters（genre、language、country、year range、format），并以recommend(item_id)终止；成功需推荐满足全部谓词的书（或对NVR任务弃权）并通过协议检查。评分直接对目录元数据验证，不用LLM judge；统计使用family bootstrap、pass^k、Holm校正和template sign-flip检验。",
+    "problem_zh": "对话式/agentic推荐系统需要在推荐前逐步发现用户需求。现有评估多关注排序质量，较少在固定同一请求的前提下检验需求披露时机、搜索接口和目录规模对agent成功率的因果影响。论文关注：当用户一开始全部说明、被问才说明、或始终不说明部分需求时，agent能否通过提问和接受/拒绝反馈找到满足条件的书。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.7805000000000001,
+  "id": "arxiv-2611.04459",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-03T07:47:46Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 τ-Rec-Books 基准，通过控制用户需求披露时机来评测对话式推荐智能体的需求挖掘能力，发现智能体在需主动提问或先提案时成功率显著下降。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "$τ$-Rec-Books: A Disclosure-Controlled Benchmark for Requirement Elicitation in Agentic Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.04459v1"
+}

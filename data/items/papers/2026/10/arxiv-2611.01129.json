@@ -1,0 +1,184 @@
+{
+  "abstract": "Generative recommendation promises to simplify conventional multi-stage recommender systems by generating item Semantic IDs (SIDs) autoregressively. However, two obstacles limit its effective- ness in industrial settings: interaction-only supervision underuses the semantic knowledge encoded in pretrained language models, while beam-search likelihood ranks token sequences rather than directly estimating item relevance. To address these limitations, we propose HiGenTrans, a three-level framework that introduces LLM knowledge at the input, representation, and decision levels. First, Global Semantic Priming (GSP) adds an LLM-derived user representation to the beginning-of-sequence embedding, provid- ing a semantic prior before SID generation. Second, Hierarchi- cal Representation Transfer (HRT) aligns intermediate LLM representations with depth-matched GenRec layers through mean- centered projections and gated residual connections. Finally, Multi- Signal Decision Calibration (MDC) uses a lightweight mixture- of-experts calibrator to combine semantic relevance, generation confidence, and candidate-set context when reranking beam-search outputs. All semantic features are computed only from the observ- able interaction prefix, preventing target leakage, and can be cached offline. Experiments on three public benchmarks show that HiGen- Trans improves Recall@10 by up to 12.9% and NDCG@10 by up to 33.7% over the strongest baselines. These results demonstrate the value of transferring LLM knowledge at complementary stages of the generative recommendation pipeline. Generative recommendation promises to simplify conventional multi-stage recommender systems by generating item Semantic IDs (SIDs) autoregressively. However, two obstacles limit its effective- ness in industrial settings: interaction-only supervision underuses the semantic knowledge encoded in pretrained language models, while beam-search likelihood ranks token sequences rather than directly estimating item relevance. To address these limitations, we propose HiGenTrans, a three-level framework that introduces LLM knowledge at the input, representation, and decision levels. First, Global Semantic Priming (GSP) adds an LLM-derived user representation to the beginning-of-sequence embedding, provid- ing a semantic prior before SID generation. Second, Hierarchi- cal Representation Transfer (HRT) aligns intermediate LLM representations with depth-matched GenRec layers through mean- centered projections and gated residual connections. Finally, Multi- Signal Decision Calibration (MDC) uses a lightweight mixture- of-experts calibrator to combine semantic relevance, generation confidence, and candidate-set context when reranking beam-search outputs. All semantic features are computed only from the observ- able interaction prefix, preventing target leakage, and can be cached offline. Experiments on three public benchmarks show that HiGen- Trans improves Recall@10 by up to 12.9% and NDCG@10 by up to 33.7% over the strongest baselines. These results demonstrate the value of transferring LLM knowledge at complementary stages of the generative recommendation pipeline.",
+  "arxiv_id": "2611.01129",
+  "authors": [
+    "Zhuohang Jiang",
+    "Yuxin Chen",
+    "Haohao Qu",
+    "ZeFei luo",
+    "Yunlong Wang",
+    "Xu Yuan",
+    "Haojie Ding",
+    "Boheng Zhang",
+    "Fan Yang",
+    "Hongyang Wang",
+    "Jun Wang",
+    "Zhongbo Sun",
+    "Wenqi Fan",
+    "Li Qing",
+    "Wenwu Ou",
+    "Peng Jiang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可直接落地于工业级生成式推荐：LLM 特征抽取与量化完全离线完成，在线仅做轻量码本查表与投影，无需在线运行 LLM，适合有严格存储与推理成本约束的推荐系统。",
+      "三层迁移是“可拆分上线”的设计：GSP/HRT 作用于生成侧、MDC 作用于重排侧，团队可按收益/成本分阶段上线，MDC 可作为独立重排模块叠加在已有生成器之上。",
+      "对长尾与稀疏场景价值更高：Toys 上长尾物品（流行度 ≤2）NDCG@10 提升 42.8%、中等流行度（3–5）提升 64.1%，适合用语义知识缓解冷启动与物品稀疏问题。",
+      "数据不足时鲁棒：训练用户降至 80% 时相对增益仍达 7.24%，意味着在数据较少的业务线或新场景中迁移语义知识仍有正收益。",
+      "工业跨域结果显示语义迁移对粗粒度 SID（SID_1 提升 48.18/61.98 个百分点）增益最大，可用于跨域/冷启场景的粗筛召回质量改善，细粒度则仍需协同信号补充。",
+      "工程实现需投入多层级特征抽取、量化码本与离线特征缓存管线，并保证前缀安全（仅用预测步之前可观测历史）以避免标签泄漏，这是合规与效果的双重要求。",
+      "评估口径需注意：NDCG 相对增益普遍大于 Recall 相对增益，说明收益部分来自排序位置改善，业务侧应以 top 位置指标（如 top-1/top-5）而非仅召回率来衡量收益。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出 HiGenTrans 三级框架，在生成式推荐的输入层、内部表示层与决策层三个互补阶段迁移 LLM 知识。",
+      "提出全局语义引导（GSP）与分层表示迁移（HRT）：GSP 用仅基于可观测前缀的冻结 LLM 表示为 BOS 嵌入注入语义先验；HRT 通过均值中心化投影、RMSNorm 与可学习标量门控残差，把深度对齐的多层 LLM 表示注入 GenRec 主干。",
+      "提出多信号决策校准（MDC）：用轻量 MoE 校准器融合语义相关性、生成置信度与候选集上下文信号，仅对 beam 生成的候选重排序。",
+      "给出工业部署方案：将多层 LLM 表示量化为紧凑 SID 并通过共享码本重建，LLM 特征抽取与量化离线完成，在线仅需码本查表，无需运行 LLM。",
+      "在三个公开基准与两个工业跨域场景上验证一致提升，并通过消融、数据效率与分群分析刻画各模块贡献。"
+    ],
+    "evidence_quality": 0.74,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2.2 LLM-Enhanced Recommendation"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Global Semantic Priming"
+      },
+      {
+        "page": 4,
+        "section": "3.3 Hierarchical Representation Transfer"
+      },
+      {
+        "page": 5,
+        "section": "3.4 Multi-Signal Decision Calibration"
+      },
+      {
+        "page": 6,
+        "section": "4 Industry Deployment"
+      },
+      {
+        "page": 6,
+        "section": "5.1 Experimental Settings"
+      },
+      {
+        "page": 7,
+        "section": "5.2 Overall Performance (RQ1), Table 2"
+      },
+      {
+        "page": 7,
+        "section": "5.3 Component Analysis (RQ2), Table 3"
+      },
+      {
+        "page": 7,
+        "section": "5.4 Stage-wise Discriminability, Table 4"
+      },
+      {
+        "page": 8,
+        "section": "5.5 Data-Efficiency Analysis, Table 5"
+      },
+      {
+        "page": 8,
+        "section": "5.6 Segment-Level Benefits, Tables 6-7"
+      },
+      {
+        "page": 8,
+        "section": "5.7 Candidate Ranking Correction, Figure 4"
+      },
+      {
+        "page": 8,
+        "section": "5.8 Industrial Evaluation (RQ4), Table 8"
+      },
+      {
+        "page": 9,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRU4Rec",
+        "SASRec",
+        "HSTU",
+        "BERT4Rec",
+        "TIGER",
+        "RPG",
+        "GRLM",
+        "Base LLM4GenRec（消融基线）"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Sports and Outdoors",
+        "Amazon Toys and Games",
+        "两个真实工业跨域电商场景（Domain 1、Domain 2）"
+      ],
+      "findings_zh": [
+        "整体表现：HiGenTrans 在三个数据集全部指标上最优；Beauty R@10=0.0917、N@10=0.0566（较最强基线 +2.7%、+6.8%）；Sports R@10=0.0594、N@10=0.0342（+5.7%、+5.9%）；Toys R@10=0.1047、N@10=0.0674（+12.9%、+33.7%）。",
+        "排名前列收益更明显：Beauty R@1 由 0.0251 提升到 0.0292（+16.3%），N@5 由 0.0447 到 0.0489（+9.4%）；Sports R@5 由 0.0388 到 0.0422（+8.8%）；Toys R@1 由最强基线 0.0241 到 0.0372（+54.4%），R@5 由 0.0630 到 0.0818（+29.8%）。",
+        "消融（Toys）：Base 为 R@10=0.0803、N@10=0.0480；+GSP 达 0.0958/0.0569；+HRT 达 0.0967/0.0577；+MDC 达 0.1010/0.0628（单模块最强）；完整模型 0.1047/0.0674，相对 base 在 R@1/R@5/R@10/N@10 上分别提升 62.4%/40.8%/30.4%/40.4%，并比最强单模块 MDC 在 R@1 高 16.6%、N@10 高 7.3%。",
+        "分层可判别性：以候选-历史余弦相似度的 AUC 衡量，更深阶段总体更强，Stage 3 相对 Stage 1 在 Toys/Beauty/Sports 分别提升 0.0168/0.0041/0.0179，但 Stage 4 未稳定优于 Stage 3，说明语义可判别性在深层趋于饱和。",
+        "数据效率（Beauty）：训练用户从 100% 降到 95%/90%/80% 时 R@10 仅从 0.0917 变为 0.0908/0.0906/0.0903，80% 设置下绝对下降 0.0014，相对 base 仍提升 7.24%，相对增益波动仅 1.62 个百分点。",
+        "分群收益：Toys 上流行度 3–5 的物品 Hit@10 +30.4%、NDCG@10 +64.1%，极长尾（≤2）仍 +21.3%/+42.8%；按历史长度分组 Hit@10 相对增益 10.7%–16.3%，历史 ≥10 的用户 Hit@10 +16.3%，6–9 条交互的用户 NDCG@10 +32.4%。",
+        "MDC 排序纠正：在 Beauty/Toys/Sports 上分别有 53.4%/55.1%/43.5% 原本排名 11–20 的真值物品被提升进 top-10，同时 83–86% 的 top-5 物品保持在 top-5。",
+        "工业评估：两个跨域电商场景中 SID 各层级预测准确率均提升，SID_1 绝对提升 48.18 与 61.98 个百分点，SID_2、SID_3 提升较小但一致，说明 LLM 语义对粗粒度预测帮助更大、细粒度更依赖协同信号。"
+      ],
+      "metrics": [
+        "Recall@1",
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "Hit@10",
+        "候选排序 AUC"
+      ]
+    },
+    "limitations_zh": [
+      "MDC 只能改变 beam 候选集 C_{u,t} 内部的排序与截断，无法召回生成器未生成的物品，因此整体上限受候选生成质量约束。",
+      "分层语义的收益并非随深度单调增加：Stage 4 未稳定优于 Stage 3，语义可判别性在深层饱和，且各数据集增益差异较大（Toys 显著高于 Beauty/Sports）。",
+      "组件消融仅在 Toys 一个数据集上进行，缺少在全部三个公开数据集上的逐模块消融与显著性检验。",
+      "工业部署依赖向量量化压缩多层 LLM 表示，量化会引入重构误差（文中仅以训练时使用重构嵌入来缓解），且码本规模与分层量化器带来额外工程复杂度。",
+      "方法依赖冻结大模型（Qwen3-Embedding-8B）的离线特征与缓存，语义特征质量受所选编码器与层选择（人为选定四层、保序映射到主干深度）影响，缺少层选择的系统性分析。",
+      "MDC 为两阶段训练，需要先用训练好的生成器产出候选集再训练校准器，流程比端到端单阶段更复杂。",
+      "摘要中“Recall@10 最高提升 12.9%、NDCG@10 最高提升 33.7%”为相对提升且主要来自 Toys 数据集，并非所有数据集均有同等幅度增益。",
+      "文档中未报告在线 A/B 指标（如点击率、转化率、延迟与成本），工业验证以离线 SID 各层级预测准确率为主。"
+    ],
+    "method_zh": "框架以 GRLM 为生成主干、Qwen3-Embedding-8B 为冻结语义编码器。GSP 对可观测历史前缀 H_{u,≤t} 做序列池化得到 s_{u,t}，经 W_GSP 投影后加到 BOS 表示上（式 2–3）。HRT 从冻结 LLM 的四个代表性层抽取前缀条件表示 e^{(l)}，用训练前缀统计的均值 μ^{(l)} 做 FP32 均值中心化，再线性投影与 RMSNorm 得 z^{(l)}（式 5–6），并以保序单射 π 将 LLM 层映射到深度匹配的 GenRec 层，通过可训练标量门 g_l 做残差注入 h̃ = h + g_l z^{(l)}（式 7），在每个 SID 解码步施加同一前缀特征；主干与迁移参数以自回归负对数似然联合优化，LLM 保持冻结且不使用额外对齐损失（式 8）。MDC 为每个候选构建包含 LLM 语义信号、GenRec 信号（序列似然、beam 排名、token 级置信度统计）与候选集上下文信号的特征向量，并附加候选集内标准化版本（式 9）；用 J 个 MLP 专家加输入相关 Softmax 门控输出校准分数（式 10），在冻结生成器的前提下以 BCE 训练（式 11），推理时按校准分数取 Top-N（式 12）。部署时用逐层量化器/解码器与共享码本压缩多层表示（式 13）。",
+    "problem_zh": "生成式推荐（GenRec）将推荐建模为基于 Semantic ID 的自回归序列生成，但存在两个限制：一是仅依赖交互监督，未充分利用预训练语言模型中的语义知识，而现有 LLM 增强方法大多只把语义压缩进一个输入嵌入（prompt、prefix 或 BOS token），没有利用 Transformer 不同深度层所编码的互补抽象；二是决策规则问题，beam search 按自回归似然对 SID 序列排序，受分词、前缀概率与解码动态影响，序列级似然并不等于候选物品与用户的相关性，导致相关物品进入候选集却排名靠后。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.9,
+  "id": "arxiv-2611.01129",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T22:33:40.019826Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-31T17:19:23Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 HiGenTrans 三级框架，在输入、表示与决策层面把大模型语义知识引入基于语义 ID 的生成式推荐，并通过多信号校准重排束搜索候选，在多个公开基准上显著提升召回与排序指标。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "HiGenTrans: Hierarchical LLM Knowledge Transfer for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.01129v1"
+}
