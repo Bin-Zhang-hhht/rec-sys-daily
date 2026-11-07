@@ -216,8 +216,16 @@ Stage 1 只传 metadata shortlist、来源游标/validators 和计数；博客 e
 博客深读成功率分别达到该门槛才能整合，不跨类型平均；深读无候选时视为成功。
 
 DeepSeek SDK 请求在既有有界重试结束后，由文本 wrapper 转为不含服务端响应的
-`ModelRequestError`。深读将其计入当前条目的 `deep_read_failed` 并继续处理其他条目，
+`ModelRequestError`。深读将其计入当前条目的稳定失败码并继续处理其他条目，
 最终仍由整合阶段执行 `0.50` 门槛；不让 SDK 异常绕过单条失败隔离。
+
+模型请求失败码区分 `model_rate_limited`、`model_timeout`、`model_connection_failed`、
+`model_access_denied`、`model_service_unavailable` 和通用 `model_request_failed`。
+输出失败码区分 `model_empty_response`、`model_empty_content`、`model_invalid_json`、
+`model_schema_invalid`、`model_output_limit` 和通用 `model_output_invalid`；其他内容校验失败
+仍为 `invalid_deep_reading`，其他读取失败仍为 `deep_read_failed`。`finish_reason=length` 明确
+视为输出不完整，并沿用既有有界重试。深读日志仅记录类型、处理序号、固定失败码及成功/失败
+计数，不记录条目正文、请求/响应、异常文本或异常链。
 
 ### 3.4 Canonical data
 

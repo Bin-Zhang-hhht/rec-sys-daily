@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 import json
+import logging
 from pathlib import Path
 import re
 from typing import Any, Callable, Mapping
@@ -13,8 +14,12 @@ from pydantic import BaseModel
 
 from .collect import Candidate, stable_id
 from .content import ContentServices, arxiv_pdf_url
+from .llm import ModelOutputError, ModelRequestError
 from .mineru import MinerUClient
 from .schemas import BlogReading, PaperReading
+
+
+logger = logging.getLogger(__name__)
 
 
 class DeepReadError(RuntimeError):
@@ -219,14 +224,20 @@ def deep_read(
     candidate_ids = [stable_id(candidate) for candidate in candidates]
     if len(candidate_ids) != len(set(candidate_ids)):
         raise ValueError(f"duplicate {kind} candidate id")
-    for candidate, candidate_id in zip(candidates, candidate_ids, strict=True):
+    for index, (candidate, candidate_id) in enumerate(zip(candidates, candidate_ids, strict=True), 1):
         try:
             reading = deep_read_paper(candidate, services) if kind == "paper" else deep_read_blog(candidate, services)
         except (OSError, RuntimeError, ValueError) as exc:
-            code = "invalid_deep_reading" if isinstance(exc, ValueError) else "deep_read_failed"
+            if isinstance(exc, (ModelOutputError, ModelRequestError)):
+                code = exc.code
+            else:
+                code = "invalid_deep_reading" if isinstance(exc, ValueError) else "deep_read_failed"
             failures.append({"id": candidate_id, "code": code})
+            logger.warning("deep_read_failure kind=%s candidate=%d/%d code=%s", kind, index, len(candidates), code)
             continue
         readings.append({"id": candidate_id, "kind": kind, "deep_reading": reading.model_dump(mode="json")})
+    if failures:
+        logger.warning("deep_read_summary kind=%s successes=%d failures=%d", kind, len(readings), len(failures))
     output_dir.mkdir(parents=True, exist_ok=True)
     destination = output_dir / f"{kind}-deep-readings.json"
     destination.write_text(

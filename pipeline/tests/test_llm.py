@@ -4,10 +4,10 @@ import json
 from types import SimpleNamespace
 
 import pytest
-from openai import AuthenticationError, InternalServerError, RateLimitError
+from openai import APIConnectionError, APITimeoutError, AuthenticationError, InternalServerError, RateLimitError
 
 from recsys_daily.config import load_config
-from recsys_daily.llm import ModelOutputError, TextClient, TokenBudget
+from recsys_daily.llm import ModelOutputError, ModelRequestError, TextClient, TokenBudget
 
 
 SCHEMA = {
@@ -205,10 +205,12 @@ def test_text_client_retries_transient_errors() -> None:
 
 
 @pytest.mark.parametrize(
-    ("error_type", "status", "attempts"),
-    [(RateLimitError, 429, 3), (InternalServerError, 503, 3), (AuthenticationError, 401, 1)],
+    ("error_type", "status", "attempts", "code"),
+    [(RateLimitError, 429, 3, "model_rate_limited"),
+     (InternalServerError, 503, 3, "model_service_unavailable"),
+     (AuthenticationError, 401, 1, "model_access_denied")],
 )
-def test_text_client_isolates_exhausted_sdk_errors_without_provider_details(error_type, status, attempts) -> None:
+def test_text_client_isolates_exhausted_sdk_errors_without_provider_details(error_type, status, attempts, code) -> None:
     response = SimpleNamespace(
         status_code=status,
         headers={"Retry-After": "7"},
@@ -223,13 +225,63 @@ def test_text_client_isolates_exhausted_sdk_errors_without_provider_details(erro
         client=SimpleNamespace(chat=SimpleNamespace(completions=completions)),
     )
 
-    with pytest.raises(RuntimeError, match="text model request failed") as exc_info:
+    with pytest.raises(ModelRequestError, match="text model request failed") as exc_info:
         client.complete_json([{"role": "user", "content": "hello"}], SCHEMA)
 
     assert sleeps == [7.0] * (attempts - 1)
     assert completions.outputs == []
     assert "private provider response" not in str(exc_info.value)
     assert exc_info.value.__suppress_context__
+    assert exc_info.value.code == code
+
+
+@pytest.mark.parametrize("error_type,code", [
+    (APIConnectionError, "model_connection_failed"), (APITimeoutError, "model_timeout"),
+])
+def test_text_client_reports_sanitized_connection_failure_codes(error_type, code) -> None:
+    error = error_type(request=SimpleNamespace())
+    completions = FakeChatCompletions({}, [error])
+    client = TextClient(
+        base_url="https://example.test/v1", api_key="key", model="model", retries=1,
+        client=SimpleNamespace(chat=SimpleNamespace(completions=completions)),
+    )
+    with pytest.raises(ModelRequestError) as exc_info:
+        client.complete_json([], SCHEMA)
+    assert exc_info.value.code == code
+
+
+@pytest.mark.parametrize("content,finish_reason,code", [
+    (None, "stop", "model_empty_content"),
+    ("private invalid output", "stop", "model_invalid_json"),
+    ('{"private_field": true}', "stop", "model_schema_invalid"),
+    ('{"score": 3}', "length", "model_output_limit"),
+])
+def test_text_client_reports_sanitized_output_failure_codes(content, finish_reason, code) -> None:
+    response = _chat_response(content)
+    response.choices[0].finish_reason = finish_reason
+    client = TextClient(
+        base_url="https://example.test/v1", api_key="key", model="model", retries=1,
+        client=SimpleNamespace(chat=SimpleNamespace(completions=FakeChatCompletions({}, [response]))),
+    )
+    with pytest.raises(ModelOutputError) as exc_info:
+        client.complete_json([], SCHEMA)
+    assert exc_info.value.code == code
+    assert "private" not in str(exc_info.value)
+
+
+def test_text_client_retries_output_limit_before_accepting_complete_json() -> None:
+    limited = _chat_response('{"score": 1}')
+    limited.choices[0].finish_reason = "length"
+    sleeps = []
+    completions = FakeChatCompletions({}, [limited, _chat_response('{"score": 0.8}')])
+    client = TextClient(
+        base_url="https://example.test/v1", api_key="key", model="model", retries=2,
+        sleeper=sleeps.append,
+        client=SimpleNamespace(chat=SimpleNamespace(completions=completions)),
+    )
+    assert client.complete_json([], SCHEMA) == {"score": 0.8}
+    assert sleeps == [1.0]
+    assert completions.outputs == []
 
 
 def test_text_client_uses_model_common_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -11,7 +11,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
-from openai import APIConnectionError, APIError, OpenAI
+from openai import APIConnectionError, APIError, APITimeoutError, OpenAI
 
 from .config import ModelConfig
 from .rate_limit import request_with_retries
@@ -20,14 +20,37 @@ from .rate_limit import request_with_retries
 class ModelOutputError(ValueError):
     """A retryable malformed response without retaining provider output."""
 
+    def __init__(self, message: str, *, code: str = "model_output_invalid") -> None:
+        self.code = code
+        super().__init__(message)
+
 
 class ModelRequestError(RuntimeError):
     """A bounded SDK request failure without retaining provider details."""
 
+    def __init__(self, *, code: str = "model_request_failed") -> None:
+        self.code = code
+        super().__init__("text model request failed")
+
+
+def _request_failure_code(error: APIError) -> str:
+    if isinstance(error, APITimeoutError):
+        return "model_timeout"
+    if isinstance(error, APIConnectionError):
+        return "model_connection_failed"
+    status = getattr(error, "status_code", None)
+    if status == 429:
+        return "model_rate_limited"
+    if status in (401, 403):
+        return "model_access_denied"
+    if isinstance(status, int) and 500 <= status <= 599:
+        return "model_service_unavailable"
+    return "model_request_failed"
+
 
 def _json_content(content: Any) -> dict[str, Any]:
     if not isinstance(content, str):
-        raise ModelOutputError("model response content must be JSON text")
+        raise ModelOutputError("model response content must be JSON text", code="model_empty_content")
     text = content.strip()
     if text.startswith("```"):
         lines = text.splitlines()
@@ -35,9 +58,9 @@ def _json_content(content: Any) -> dict[str, Any]:
     try:
         value = json.loads(text)
     except json.JSONDecodeError as exc:
-        raise ModelOutputError("model response is not valid JSON") from exc
+        raise ModelOutputError("model response is not valid JSON", code="model_invalid_json") from exc
     if not isinstance(value, dict):
-        raise ModelOutputError("model response JSON must be an object")
+        raise ModelOutputError("model response JSON must be an object", code="model_invalid_json")
     return value
 
 
@@ -177,13 +200,15 @@ class TextClient:
                 or isinstance(choices, (str, bytes))
                 or not choices
             ):
-                raise ModelOutputError("model response must contain a completion choice")
+                raise ModelOutputError("model response must contain a completion choice", code="model_empty_response")
+            if getattr(choices[0], "finish_reason", None) == "length":
+                raise ModelOutputError("model response reached its output limit", code="model_output_limit")
             message = getattr(choices[0], "message", None)
             value = _json_content(getattr(message, "content", None))
             try:
                 validator.validate(value)
             except JsonSchemaValidationError as exc:
-                raise ModelOutputError("model response does not match the requested schema") from exc
+                raise ModelOutputError("model response does not match the requested schema", code="model_schema_invalid") from exc
             return value
 
         try:
@@ -193,5 +218,5 @@ class TextClient:
                 max_attempts=self.retries,
                 retry_on_exceptions=(APIConnectionError, ModelOutputError),
             )
-        except APIError:
-            raise ModelRequestError("text model request failed") from None
+        except APIError as error:
+            raise ModelRequestError(code=_request_failure_code(error)) from None

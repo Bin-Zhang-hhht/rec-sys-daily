@@ -281,7 +281,7 @@ def test_deep_read_isolates_item_failure_without_persisting_error_text(tmp_path:
     assert "private details" not in json.dumps(payload)
 
 
-def test_deep_read_continues_after_sdk_rate_limit_retries_are_exhausted(tmp_path: Path) -> None:
+def test_deep_read_continues_after_sdk_rate_limit_retries_are_exhausted(tmp_path: Path, caplog) -> None:
     response = SimpleNamespace(status_code=429, headers={}, request=SimpleNamespace())
     error = RateLimitError("private provider response", response=response, body=None)
     outputs = [error, error, error, SimpleNamespace(
@@ -318,9 +318,13 @@ def test_deep_read_continues_after_sdk_rate_limit_retries_are_exhausted(tmp_path
 
     document = json.loads(destination.read_text(encoding="utf-8"))
     assert len(document["items"]) == len(document["failures"]) == 1
-    assert document["failures"][0]["code"] == "deep_read_failed"
+    assert document["failures"][0]["code"] == "model_rate_limited"
     assert document["items"][0]["id"] != document["failures"][0]["id"]
     assert "private provider response" not in destination.read_text(encoding="utf-8")
+    assert "private provider response" not in caplog.text
+    assert "Short excerpt" not in caplog.text
+    assert "candidate=1/2 code=model_rate_limited" in caplog.text
+    assert "kind=blog successes=1 failures=1" in caplog.text
     assert not (tmp_path / "temporary").exists()
     assert outputs == []
 
