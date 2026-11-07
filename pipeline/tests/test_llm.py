@@ -252,6 +252,7 @@ def test_text_client_reports_sanitized_connection_failure_codes(error_type, code
 
 @pytest.mark.parametrize("content,finish_reason,code", [
     (None, "stop", "model_empty_content"),
+    (" \n\t ", "stop", "model_empty_content"),
     ("private invalid output", "stop", "model_invalid_json"),
     ('{"private_field": true}', "stop", "model_schema_invalid"),
     ('{"score": 3}', "length", "model_output_limit"),
@@ -282,6 +283,53 @@ def test_text_client_retries_output_limit_before_accepting_complete_json() -> No
     assert client.complete_json([], SCHEMA) == {"score": 0.8}
     assert sleeps == [1.0]
     assert completions.outputs == []
+
+
+def test_text_client_corrects_output_retries_without_echoing_response_or_growing_feedback() -> None:
+    calls = []
+    outputs = iter([_chat_response('private invalid response'), _chat_response(' \n '), _chat_response('{"score": 0.8}')])
+
+    def create(**kwargs):
+        calls.append(kwargs["messages"])
+        return next(outputs)
+
+    messages = [{"role": "user", "content": "source document"}]
+    client = TextClient(
+        base_url="https://example.test/v1", api_key="key", model="model", retries=3,
+        sleeper=lambda _: None,
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))),
+    )
+    assert client.complete_json(messages, SCHEMA) == {"score": 0.8}
+    assert [len(call) for call in calls] == [2, 3, 3]
+    assert calls[1][-1] == calls[2][-1]
+    assert "JSON-escape" in calls[1][-1]["content"]
+    assert all(call[:2] == calls[0] for call in calls[1:])
+    assert "private invalid response" not in json.dumps(calls)
+    assert messages == [{"role": "user", "content": "source document"}]
+
+
+def test_text_client_does_not_add_output_correction_for_http_retries() -> None:
+    calls = []
+
+    class TransientError(RuntimeError):
+        status_code = 503
+
+    outputs = iter([TransientError(), _chat_response('{"score": 0.8}')])
+
+    def create(**kwargs):
+        calls.append(kwargs["messages"])
+        output = next(outputs)
+        if isinstance(output, Exception):
+            raise output
+        return output
+
+    client = TextClient(
+        base_url="https://example.test/v1", api_key="key", model="model", retries=2,
+        sleeper=lambda _: None,
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))),
+    )
+    assert client.complete_json([], SCHEMA) == {"score": 0.8}
+    assert calls[0] == calls[1]
 
 
 def test_text_client_uses_model_common_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:

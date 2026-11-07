@@ -52,6 +52,8 @@ def _json_content(content: Any) -> dict[str, Any]:
     if not isinstance(content, str):
         raise ModelOutputError("model response content must be JSON text", code="model_empty_content")
     text = content.strip()
+    if not text:
+        raise ModelOutputError("model response content must be JSON text", code="model_empty_content")
     if text.startswith("```"):
         lines = text.splitlines()
         text = "\n".join(lines[1:-1]) if len(lines) >= 3 else ""
@@ -182,11 +184,12 @@ class TextClient:
             ),
         }
         request_messages = [*messages, schema_message]
+        retry_messages: list[dict[str, str]] = []
 
-        def operation() -> dict[str, Any]:
+        def request_once() -> dict[str, Any]:
             response = self._client.chat.completions.create(
                 model=self.model,
-                messages=request_messages,
+                messages=[*request_messages, *retry_messages],
                 # DeepSeek supports JSON mode across both legacy and current
                 # Chat Completions environments. Full schema validation stays
                 # local below because JSON mode only guarantees valid JSON.
@@ -210,6 +213,24 @@ class TextClient:
             except JsonSchemaValidationError as exc:
                 raise ModelOutputError("model response does not match the requested schema", code="model_schema_invalid") from exc
             return value
+
+        def operation() -> dict[str, Any]:
+            try:
+                return request_once()
+            except ModelOutputError:
+                # Change the prompt for the next bounded attempt without copying
+                # any invalid output, source content, or reasoning into feedback.
+                retry_messages[:] = [{
+                    "role": "user",
+                    "content": (
+                        "The previous response was empty, incomplete, invalid JSON, or did not match the schema. "
+                        "Regenerate one complete JSON object matching the original JSON Schema exactly. "
+                        "JSON-escape quotes, backslashes, and control characters inside strings. "
+                        "Do not use Markdown fences or text outside the object. "
+                        "Keep explanations concise, include every required field, and use only claims supported by the source."
+                    ),
+                }]
+                raise
 
         try:
             return request_with_retries(
