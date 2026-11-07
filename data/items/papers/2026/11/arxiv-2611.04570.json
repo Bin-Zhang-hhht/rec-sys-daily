@@ -1,0 +1,144 @@
+{
+  "abstract": "People like to keep their music listening fresh and interesting, but recommender systems often struggle to support this need. Even when a recommended song is potentially refreshing and enriching, listeners may not perceive it as such. Building on Silvia's appraisal theory of interest, this paper studies whether enhancing recommendations with spoken introductions, immersive or informative, can stimulate two distinct flavors of experienced serendipity: taste-broadening (sparking interest in music outside one's typical preferences) and taste-deepening (deepening interest in music within one's typical preferences). Results from a large-scale user study show that both introduction types stimulate taste-broadening and taste-deepening serendipity. Taste-broadening is most effectively stimulated through transportation (absorption in a narrative world), whereas taste-deepening is most effectively stimulated through cognitive elaboration (learning something new about the artist or the social context in which the music emerged). We discuss how these findings could be translated into practice through curated taste-broadening playlists, where both introduction types appear promising, and taste-deepening playlists, where informative introductions seem particularly effective. People like to keep their music listening fresh and interesting, but recommender systems often struggle to support this need. Even when a recommended song is potentially refreshing and enriching, listeners may not perceive it as such. Building on Silvia's appraisal theory of interest, this paper studies whether enhancing recommendations with spoken introductions, immersive or informative, can stimulate two distinct flavors of experienced serendipity: taste-broadening (sparking interest in music outside one's typical preferences) and taste-deepening (deepening interest in music within one's typical preferences). Results from a large-scale user study show that both introduction types stimulate taste-broadening and taste-deepening serendipity. Taste-broadening is most effectively stimulated through transportation (absorption in a narrative world), whereas taste-deepening is most effectively stimulated through cognitive elaboration (learning something new about the artist or the social context in which the music emerged). We discuss how these findings could be translated into practice through curated taste-broadening playlists, where both introduction types appear promising, and taste-deepening playlists, where informative introductions seem particularly effective.",
+  "arxiv_id": "2611.04570",
+  "authors": [
+    "Brett Binst"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可在音乐流媒体、语音 DJ 或推荐播放列表中部署口语介绍，作为推荐增强层，提升用户对“新鲜且丰富”推荐内容的感知。",
+      "面向典型偏好之外的 taste-broadening 播放列表：沉浸式与信息式介绍都值得尝试；若追求更稳定的理解与兴趣激发，信息式介绍表现更强。",
+      "面向典型偏好之内的 taste-deepening 播放列表：优先使用信息式介绍，提供歌曲灵感、社会背景、歌词隐藏含义等可验证事实，以激发 cognitive elaboration。",
+      "介绍应使用自然、可信、类人的声音，并明确内容来源与真实性；避免让用户强烈感知为低质 AI 生成，否则可能引发 affective resistance。",
+      "将介绍主要定位于主动聆听场景（如 curated playlist、深度聆听模式），而非所有被动播放场景。",
+      "可设计“同一歌曲多版本介绍”以支持重复聆听和持续学习，但需平衡人工策展质量与 LLM+TTS 的规模化成本。",
+      "上线前应在真实平台进行 A/B 测试，重点评估介绍对播放完成率、收藏/喜欢、跨流派探索、重复收听和长期留存的影响。",
+      "面向不同用户特征做个性化：高 transportability / openness 的用户可能更受益于沉浸式叙事，高 need for cognition 的用户可能更受益于信息式解释。"
+    ],
+    "business_transferability": 0.84,
+    "contributions_zh": [
+      "区分并同时比较两种偶然发现：taste-broadening（对典型偏好之外的音乐产生情境兴趣）与 taste-deepening（对典型偏好之内的音乐产生更深的个体兴趣）。",
+      "通过大规模用户实验测试三种条件——沉浸式介绍、信息式介绍、无介绍——对两类偶然发现的影响。",
+      "发现两类口语介绍都能激发两种偶然发现，但对 taste-deepening 的效应更大；信息式介绍在两类偶然发现上都显示出更强或更大的优势。",
+      "识别出不同心理路径：transportation 是 taste-broadening 的最强预测因素，cognitive elaboration 是 taste-deepening 的最强预测因素；coping potential 与 perceived complexity 能解释 taste-broadening 的效应，但不能完全解释 taste-deepening。",
+      "将 Silvia 的兴趣评价理论与 Hidi & Renninger 的四阶段兴趣模型进行整合，并提出面向流媒体平台的 taste-broadening / taste-deepening 播放列表实践建议。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 1,
+        "section": "2.3 Transportation and Cognitive Elaboration as Pathways to Taste-Broadening and Taste-Deepening Serendipity"
+      },
+      {
+        "page": 1,
+        "section": "3.1 Implementation"
+      },
+      {
+        "page": 1,
+        "section": "3.2 Experimental Design"
+      },
+      {
+        "page": 1,
+        "section": "3.3 Recruitment and Participants"
+      },
+      {
+        "page": 1,
+        "section": "3.4 Measurement"
+      },
+      {
+        "page": 1,
+        "section": "3.5 Analysis"
+      },
+      {
+        "page": 1,
+        "section": "4.1 Introductions are Effective in Stimulating Taste-Broadening and Taste-Deepening Serendipity"
+      },
+      {
+        "page": 1,
+        "section": "4.2 Coping Potential and Perceived Complexity Account for the Effects of Introductions on Taste-Broadening but not Taste-Deepening Serendipity"
+      },
+      {
+        "page": 1,
+        "section": "4.3 Transportation Drives Taste-Broadening, Cognitive Elaboration Drives Taste-Deepening"
+      },
+      {
+        "page": 1,
+        "section": "5.4 Taste-Broadening and Taste-Deepening Playlists"
+      },
+      {
+        "page": 1,
+        "section": "5.5 Limitations and Future Directions"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "无介绍对照组（control）",
+        "沉浸式介绍与信息式介绍作为两种处理条件相互比较"
+      ],
+      "datasets": [
+        "自制刺激集：6 个流派 × 3 首歌，共 18 首；流派覆盖 reflective/complicated、intense/rebellious、upbeat/conventional、energetic/rhythmic 四类音乐偏好维度",
+        "用户实验样本：最终 N=452（Prolific n=394；滚雪球 n=58），覆盖 39 个国家；within-preference 233 人，outside-preference 219 人"
+      ],
+      "findings_zh": [
+        "相对无介绍，沉浸式介绍提高 taste-broadening 的几率（OR=1.73，95% CrI 1.13–2.65），信息式介绍提高更多（OR=2.61，95% CrI 1.70–4.07）。",
+        "相对无介绍，沉浸式介绍显著提高 taste-deepening 的几率（OR=3.23，95% CrI 1.87–5.83），信息式介绍提高超过八倍（OR=8.36，95% CrI 4.51–16.64）。",
+        "对 taste-broadening，沉浸式与信息式介绍的效应可由 coping potential 与 perceived complexity 的间接路径完全解释，符合 Silvia 兴趣评价理论。",
+        "对 taste-deepening，coping potential 与 perceived complexity 只能部分解释沉浸式介绍的效应，不能解释信息式介绍及整体上的强效应；within-preference 条件下存在 ceiling effect：基线时歌曲已被认为较可理解且较有深度。",
+        "在 taste-broadening 模型中，transportation 是主要驱动机制，cognitive elaboration 也有显著但较小的直接效应；coping potential 在纳入 transportation 后对 taste-broadening 变得冗余。",
+        "在 taste-deepening 模型中，cognitive elaboration 是最强预测因素；transportation 也有强直接效应，但通过 coping potential 的间接效应为负。",
+        "总效应：taste-broadening 中沉浸式为 0.121（p<.001）、信息式为 0.146（p<.001）；taste-deepening 中沉浸式为 0.171（p<.001）、信息式为 0.311（p<.001）。"
+      ],
+      "metrics": [
+        "taste-broadening / taste-deepening serendipity 二元复合指标（基于 unusual、interesting、uncovering、fortuitous 等题项的 5 点 Likert 阈值组合）",
+        "多层贝叶斯 logistic 回归的 odds ratio（OR）与 95% credible interval（CrI）",
+        "SEM 标准化路径效应、间接效应与总效应",
+        "SEM 拟合指标：CFI、TLI、RMSEA、SRMR",
+        "量表信度系数 H（coping potential、perceived complexity、transportation、cognitive elaboration）"
+      ]
+    },
+    "limitations_zh": [
+      "coping potential、perceived complexity、cognitive elaboration 为自行开发量表，虽经预实验优化且 H>.90，但仍需进一步用相关测量验证。",
+      "perceived complexity 量表主要捕捉歌曲意义的深度，概念较“感知复杂性”标签更窄，未来可区分语义复杂性与结构复杂性。",
+      "生态效度受限：为隔离介绍效应，要求听完介绍、至少播放 30 秒歌曲、完成必答题项，且刺激集仅每流派 3 首，听歌体验不够自然。",
+      "刺激变异性限制：歌曲被特意挑选为适合信息式或沉浸式介绍（有背景故事或叙事潜力），对叙事潜力较低歌曲的外推性有限。",
+      "仅测量继续听同流派歌曲的意愿作为长期品味变化的代理，未进行纵向设计验证真实长期兴趣与参与度。",
+      "未检验个人特征（如 transportability、openness、need for cognition、need for affect）如何调节介绍效果。",
+      "人工撰写介绍难以规模化；若用户需要同一歌曲的多种介绍，需探索 LLM 与知识库、TTS 的自动化生成。",
+      "实践层面需注意声音自然度、AI 作者身份引发的抗拒、信息真实性/可信度，以及介绍更适合主动聆听而非被动聆听场景。",
+      "样本来自 Prolific 与滚雪球抽样，并非真实平台用户；未来需在真实平台上做 A/B 测试。"
+    ],
+    "method_zh": "采用自定义 Web 应用开展远程异步用户实验。刺激材料为 6 个音乐流派（Blues、Country、Disco、Heavy Metal、Opera、Reggae）各 3 首歌，共 18 首；每首歌配三种介绍条件之一：信息式、沉浸式或无介绍。参与者被随机分配到“经常听”或“很少听”所选流派的 within-preference / outside-preference 条件，并在歌曲层面用“与我通常听的音乐不同”题项校验。每名参与者听 3 首歌，歌曲顺序与介绍类型组合随机化，因此每名参与者都经历三种介绍类型。介绍由作者撰写，并用 Google Vertex AI Studio 的 Gemini 2.5 TTS 合成，调整语速至 1.25×。听歌后测量两类偶然发现、transportation、cognitive elaboration、coping potential、perceived complexity、介绍质量等；实验后测量总体满意度与继续听该流派的意愿。分析使用 brms 拟合多层贝叶斯 logistic 回归（Bernoulli 似然、logit 链接，session 与 song 交叉随机截距），并用 lavaan 的多层 SEM（MLR 估计）检验中介路径。最终样本 N=452（Prolific 394，滚雪球 58），排除 23 人。",
+    "problem_zh": "音乐推荐系统容易让听众陷入“无聊气泡”，即使推荐了可能带来新鲜感的内容，用户也未必会将其感知为有趣。论文研究：在歌曲推荐中加入口语介绍（沉浸式或信息式），能否激发两种体验性偶然发现——拓宽品味的偶然发现（taste-broadening serendipity）与深化品味的偶然发现（taste-deepening serendipity），并识别其背后的心理机制。",
+    "technical_depth": 0.52
+  },
+  "doi": null,
+  "final_score": 0.8840000000000001,
+  "id": "arxiv-2611.04570",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-03T09:31:18Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文通过大规模用户实验研究语音介绍如何激发音乐推荐中的品味拓展与品味深化两类意外惊喜。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Setting the Stage: Enhancing Music Recommendations with Spoken Introductions to Stimulate Serendipity",
+  "url": "https://arxiv.org/abs/2611.04570v1"
+}

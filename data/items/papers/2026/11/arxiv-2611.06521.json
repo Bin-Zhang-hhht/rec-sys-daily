@@ -1,0 +1,148 @@
+{
+  "abstract": "Sequential recommenders are widely applied in real-world scenarios to model user preferences and behavior patterns based on user interactions. Recent advances in sequential recommendation enhance transformer-based models with latent reasoning to refine user representations by autoregressively generating intermediate reasoning vectors. However, exploring the optimal reasoning depth for diverse user histories remains challenging: existing methods typically employ a fixed number of reasoning steps for all users. This ``one-size-fits-all'' strategy often leads to suboptimal representation learning due to over-thinking in simple histories or under-thinking in complex ones. To address this issue, we propose DESRec, a deliberate latent reasoning framework that performs personalized latent reasoning to learn more informative reasoning states and enhance user modeling for sequential recommendation. Specifically, it designs a reasoning step selection module that identifies the optimal reasoning step for each user sequence during the training phase. Through a self-distillation mechanism, it compresses this most informative state into the final reasoning step, which serves as the final user representation for item ranking during inference. Moreover, it introduces a progressive preference extraction mechanism for personalized reasoning, which dynamically segments a user's history into a variable number of periods and summarizes each into a latent milestone representing the user's preference for that period. It will be used as the input of the subsequent reasoning. The number of milestones varies with the users' history, enabling a personalized reasoning over users' evolving interests. Extensive experimental results on six public datasets and four backbone recommenders demonstrate the superiority of DESRec over eight baseline models. Sequential recommenders are widely applied in real-world scenarios to model user preferences and behavior patterns based on user interactions. Recent advances in sequential recommendation enhance transformer-based models with latent reasoning to refine user representations by autoregressively generating intermediate reasoning vectors. However, exploring the optimal reasoning depth for diverse user histories remains challenging: existing methods typically employ a fixed number of reasoning steps for all users. This ``one-size-fits-all'' strategy often leads to suboptimal representation learning due to over-thinking in simple histories or under-thinking in complex ones. To address this issue, we propose DESRec, a deliberate latent reasoning framework that performs personalized latent reasoning to learn more informative reasoning states and enhance user modeling for sequential recommendation. Specifically, it designs a reasoning step selection module that identifies the optimal reasoning step for each user sequence during the training phase. Through a self-distillation mechanism, it compresses this most informative state into the final reasoning step, which serves as the final user representation for item ranking during inference. Moreover, it introduces a progressive preference extraction mechanism for personalized reasoning, which dynamically segments a user's history into a variable number of periods and summarizes each into a latent milestone representing the user's preference for that period. It will be used as the input of the subsequent reasoning. The number of milestones varies with the users' history, enabling a personalized reasoning over users' evolving interests. Extensive experimental results on six public datasets and four backbone recommenders demonstrate the superiority of DESRec over eight baseline models.",
+  "arxiv_id": "2611.06521",
+  "authors": [
+    "Haobo Zhang",
+    "Qiannan Zhu",
+    "Yutao Zhu",
+    "Zhicheng Dou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "训练时按用户序列选择最优推理步并将信息蒸馏到最终步，可让线上保持固定推理步和简单服务流程，同时获得一定程度的个性化推理收益，适合推荐系统在固定推理预算下部署。",
+      "对长行为序列用户，用滑动窗口生成可变数量里程碑有助于捕捉兴趣演化，可迁移到电商、视频、音乐等长历史场景。",
+      "线上固定推理步可优先考虑中等深度（论文观察峰值多在 6 到 9 步），窗口大小可优先尝试 5 或 10，以兼顾效果和延迟。",
+      "推理带来的单样本时延增加有限，但仍需结合真实 QPS、GPU 预算和响应时间要求评估；论文报告的是离线测试环境结果。",
+      "论文结论来自公开离线数据集，业务落地前应进行线上 A/B 测试，并审查流行度偏差、曝光公平性和用户兴趣漂移等风险。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出 DESRec 的审慎隐式推理框架，通过个性化隐式推理增强序列推荐中的用户偏好建模，并学习更有信息量的推理状态。",
+      "设计推理步选择模块（RESS），在训练阶段为每个用户序列识别最优推理步，并通过自蒸馏把该步信息压缩到最终步表示中，使推理阶段仅用最终步即可推荐。",
+      "提出渐进式偏好提取模块（PPEM），将用户历史动态切分为不同时期并汇总为可变数量的隐式里程碑，再把里程碑渐进融入推理过程，以建模用户演化兴趣并支持个性化推理。"
+    ],
+    "evidence_quality": 0.86,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 4,
+        "section": "3.3 Personalized Training Strategy via Optimal Step Selection and Distillation"
+      },
+      {
+        "page": 5,
+        "section": "3.4 Progressive Preference Extraction for Personalized Reasoning"
+      },
+      {
+        "page": 6,
+        "section": "4.1 Dataset"
+      },
+      {
+        "page": 6,
+        "section": "4.2 Backbone Models and Baselines"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Evaluation Metrics"
+      },
+      {
+        "page": 7,
+        "section": "5.1 Main Results"
+      },
+      {
+        "page": 8,
+        "section": "5.2 Ablation Study"
+      },
+      {
+        "page": 9,
+        "section": "5.3 Parameter Sensitivity Exploration"
+      },
+      {
+        "page": 9,
+        "section": "5.4 Inference Time Analysis"
+      },
+      {
+        "page": 10,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 10,
+        "section": "Ethical Considerations"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Base（SASRec/BERT4Rec/UniSRec/MoRec 未加推理）",
+        "ReaRec-ERL",
+        "ReaRec-PRL",
+        "Recformer",
+        "LRURec",
+        "COT-Rec"
+      ],
+      "datasets": [
+        "Yelp",
+        "Amazon Video & Games",
+        "Amazon Software",
+        "Amazon CDs & Vinyl",
+        "Amazon Baby & Products",
+        "MovieLens-1M"
+      ],
+      "findings_zh": [
+        "DESRec 在六个数据集和四种骨干上均优于所有基线；以 SASRec 为骨干、NDCG@10 为指标，相对最强基线 ReaRec 在六个数据集上分别提升 6.79%、5.91%、5.79%、13.94%、13.33%、5.35%。",
+        "DESRec 在 ID 类骨干（SASRec、BERT4Rec）和文本类骨干（UniSRec、MoRec）上均有提升，说明方法可增强不同 transformer 序列推荐骨干。",
+        "隐式推理方法整体显著优于未加推理的骨干模型；文本类模型通常优于 ID 类模型，因为其利用了物品文本语义信息。",
+        "消融实验显示，移除 PPEM、移除 RESS、移除 KL 蒸馏、用随机步替代最优步选择、以及用最大/平均池化构造里程碑都会导致性能下降；DESRec 的自蒸馏相对损失率低于 w/o RESS，说明最终步更接近最优步。",
+        "在 1 到 10 个推理步范围内，DESRec 持续优于 ERL 和 PRL；DESRec 的峰值多出现在中等深度（约 6 到 9 步），而 ERL/PRL 在较浅步数表现较好、随步数增加可能退化。",
+        "窗口大小实验表明，窗口取 5 或 10 时效果较好；窗口过小会造成相邻窗口冗余和噪声，窗口过大则会模糊不同兴趣时期的边界。",
+        "推理时延随推理步数增加而上升，但由于使用 KV cache，开销有限；Yelp 上 SASRec 为 0.1303 ms/样本，DESRec 在 step-10 为 0.2246 ms/样本。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "Recall@20",
+        "NDCG@10",
+        "NDCG@20",
+        "全排序评估",
+        "单样本推理时延（ms）"
+      ]
+    },
+    "limitations_zh": [
+      "论文没有专门的局限性章节；伦理考虑部分仅指出公开数据可能继承流行度偏差和不均衡曝光等偏差，公平性问题被列为超出本文范围。",
+      "训练阶段的最优推理步选择依赖真实下一物品标签，推理阶段则固定使用最终步表示；这带来训练与推理目标之间的依赖和近似。",
+      "推理步数设置过高时可能出现边际性能波动，论文建议部署时选择适中深度。",
+      "PPEM 对窗口大小敏感：窗口过小会产生冗余或噪声信号，窗口过大则可能把不同时期的兴趣混在一起并模糊兴趣演化边界。",
+      "推理会带来额外时延，虽然论文报告的开销较小，但时延仍随推理步数增加。",
+      "实验覆盖六个公开离线数据集和四种 transformer 骨干，未报告线上 A/B 测试或真实业务部署结果，跨业务泛化仍需验证。"
+    ],
+    "method_zh": "DESRec 在 transformer 序列推荐骨干上做多步隐式推理。给定用户序列，先编码物品与位置得到初始隐藏状态，并把最后位置表示作为初始推理表示；每一步把上一推理状态追加到输入序列并编码，得到下一步推理向量。RESS 在训练时计算各推理步表示与真实下一物品嵌入的余弦相似度，选相似度最高的步作为最优步；随后以最优步对全部物品的软分布为教师，通过 KL 散度蒸馏到最终步，使推理时可直接用最终步表示与物品嵌入做余弦相似度排序。PPEM 用固定窗口和步长把历史序列切分为多个时期，取每个窗口最后隐藏状态作为里程碑；这些里程碑被拼接到推理输入中，并按时间顺序渐进参与后续隐式推理。训练目标为最优步上的推荐交叉熵损失与蒸馏 KL 损失的加权和；推理阶段固定使用最终步表示计算排序分数。",
+    "problem_zh": "现有序列推荐中的隐式推理方法通常对所有用户采用固定推理步数，这种“一刀切”策略会在简单历史上过度推理、在复杂历史上推理不足，导致用户表示学习次优；而直接在推理时动态选择深度又会增加部署端判断和计算成本。论文要解决的是：如何在训练阶段利用不同用户最优推理深度的异质性，学习更有信息量的推理状态，同时保持推理阶段固定步数、部署简单。",
+    "technical_depth": 0.82
+  },
+  "doi": null,
+  "final_score": 0.912,
+  "id": "arxiv-2611.06521",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-04T13:47:30Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出面向序列推荐的个性化潜在推理框架DESRec，通过推理步选择与渐进偏好提取提升用户建模和物品排序。",
+  "targets": [],
+  "tasks": [],
+  "title": "Deliberate Latent Reasoning for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2611.06521v1"
+}

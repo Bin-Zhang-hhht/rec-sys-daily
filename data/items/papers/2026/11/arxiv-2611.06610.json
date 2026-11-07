@@ -1,0 +1,140 @@
+{
+  "abstract": "Collaborative filtering (CF) is a cornerstone of recommender systems and plays a relevant role in many modern applications. CF uses user-item interaction data to discover future preferences. Although deep learning models have shown promise in CF, Embarrassingly Shallow Autoencoders for Sparse Data (EASE) has gained attention for its outstanding ranking accuracy provided by its closed-form solution. EASE relies primarily on relationships among items to fit a full-rank high-dimensional linear mapping. We hypothesize that this design limits its capacity to capture similar but not equivalent fine-grained user relationships, consequently limiting its recommendation accuracy. This paper introduces an alternative formulation based on EASE that takes advantage of user-user information. Furthermore, we propose a hybrid model that combines both user-user and item-item adjacency distributions. Our experiments reveal that the proposed models outperform EASE on well-known recommendation benchmarks, highlighting the significance of including the user alternative in shallow autoencoder studies for CF. Collaborative filtering (CF) is a cornerstone of recommender systems and plays a relevant role in many modern applications. CF uses user-item interaction data to discover future preferences. Although deep learning models have shown promise in CF, Embarrassingly Shallow Autoencoders for Sparse Data (EASE) has gained attention for its outstanding ranking accuracy provided by its closed-form solution. EASE relies primarily on relationships among items to fit a full-rank high-dimensional linear mapping. We hypothesize that this design limits its capacity to capture similar but not equivalent fine-grained user relationships, consequently limiting its recommendation accuracy. This paper introduces an alternative formulation based on EASE that takes advantage of user-user information. Furthermore, we propose a hybrid model that combines both user-user and item-item adjacency distributions. Our experiments reveal that the proposed models outperform EASE on well-known recommendation benchmarks, highlighting the significance of including the user alternative in shallow autoencoder studies for CF.",
+  "arxiv_id": "2611.06610",
+  "authors": [
+    "Mario Mallea",
+    "Angela Nebot",
+    "Francisco Mugica"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "闭式解无需迭代优化，适合快速部署、频繁重训练和资源受限的推荐场景。",
+      "当业务数据用户数多于物品数或用户关系更细粒度时，u-EASE/u-EASE-i 可能提升推荐准确率；当物品侧关系更关键时，EASE 仍可能是合理选择。",
+      "u-EASE 在用户数少于物品数时可降低训练时间与计算资源，适合大规模用户侧建模但算力有限的场景。",
+      "u-EASE-i 可融合用户与物品两侧信息以提升准确率，但需承担更高计算与内存成本，适合离线训练且对精度敏感的业务。",
+      "Gram 矩阵可在训练前通过大数据预处理系统计算，有利于工程化流水线。",
+      "可用 PSP 等指标监控流行度偏置，避免准确率提升以过度推荐热门内容为代价。"
+    ],
+    "business_transferability": 0.68,
+    "contributions_zh": [
+      "提出 u-EASE，即 EASE 的用户中心对称变体，使用用户-用户 Gram 矩阵学习用户空间中的线性映射，并保留闭式解与零对角线约束。",
+      "提出 u-EASE-i 混合模型，联合利用用户-用户和物品-物品邻接分布，闭式解为 W_u,i = W_u R W_i = P_u G_u R G_i P_i。",
+      "给出广义优化问题 min_W ||Y - A W B||_F^2 的闭式解，并将 EASE 与 u-EASE 视为其特例。",
+      "在 Gowalla、Yelp2018、ML-1M 上实验表明，u-EASE 和 u-EASE-i 在 Yelp2018 与 ML-1M 上优于 EASE，并在 ML-1M 上取得短排名和长排名的最先进结果。",
+      "显示 u-EASE 在用户数少于物品数时可快于 EASE，而 u-EASE-i 因需两个 Gram 矩阵计算成本更高。",
+      "强调在浅层自编码器协同过滤研究中纳入用户侧替代方案的重要性。"
+    ],
+    "evidence_quality": 0.82,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Related Work"
+      },
+      {
+        "page": 2,
+        "section": "3 Preliminaries"
+      },
+      {
+        "page": 3,
+        "section": "4.1 u-EASE"
+      },
+      {
+        "page": 4,
+        "section": "4.2 u-EASE-i"
+      },
+      {
+        "page": 4,
+        "section": "4.3 Computational Cost"
+      },
+      {
+        "page": 5,
+        "section": "5 Experimental setting"
+      },
+      {
+        "page": 6,
+        "section": "6 Results and discussion"
+      },
+      {
+        "page": 8,
+        "section": "7 Conclusion and future work"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "EASE",
+        "GF-CF",
+        "∞-AE",
+        "SVD-AE",
+        "MF-BPR",
+        "NeuMF",
+        "LightGCN",
+        "MultVAE"
+      ],
+      "datasets": [
+        "Gowalla",
+        "Yelp2018",
+        "ML-1M"
+      ],
+      "findings_zh": [
+        "在 Yelp2018 上，u-EASE 和 u-EASE-i 相对 EASE 在 nDCG@100 上分别提升 2.5% 和 3.7%。",
+        "在 ML-1M 上，u-EASE 和 u-EASE-i 相对 EASE 在 nDCG@100 上分别提升 6.0% 和 6.3%，并在短排名和长排名上取得 state-of-the-art 结果，优于 ∞-EASE 和 SVD-AE。",
+        "在 Gowalla 上，u-EASE 与 u-EASE-i 未超过 EASE；长排名最佳为 GF-CF，短排名最佳为 SVD-AE。",
+        "在 Yelp2018 上，u-EASE-i 在 HR@10 上优于 EASE，且 u-EASE/u-EASE-i 在长排名上优于 EASE。",
+        "在 ML-1M 上，u-EASE 和 u-EASE-i 的 PSP@10 分别为 3.37 和 3.35，高于 EASE 的 3.16，说明改进并非仅来自流行度偏置过拟合。",
+        "u-EASE 在 ρ<1 时快于 EASE：Gowalla 为 6.8 分钟对 11.3 分钟，Yelp2018 为 8.0 分钟对 9.9 分钟；u-EASE-i 因需两个 Gram 矩阵更慢，Gowalla 为 24.5 分钟，Yelp2018 为 23.7 分钟。",
+        "相对性能增益与分辨率 ρ=|U|/|I| 相关，但 Yelp2018 的 ρ=0.83 仍显示改进，说明 ρ>1 并非唯一必要条件。",
+        "u-EASE 的验证集正则化网格搜索显示 10^3 为最优；u-EASE-i 的最佳 (λ_i, λ_u) 分别为 Gowalla (10^2,10^2)、Yelp2018 (10^3,10^1)、ML-1M (10^2,10^3)。"
+      ],
+      "metrics": [
+        "HR@10",
+        "HR@100",
+        "NDCG@10",
+        "NDCG@100",
+        "PSP@10"
+      ]
+    },
+    "limitations_zh": [
+      "u-EASE 和 u-EASE-i 并非在所有数据集上都优于 EASE；在 Gowalla 上性能低于 EASE。",
+      "u-EASE-i 需要同时计算用户和物品 Gram 矩阵，计算成本高于 EASE 与 u-EASE。",
+      "实验仅覆盖三个超过 100 万交互的数据集，数据稀疏度、分辨率和领域差异对模型选择的影响仍需进一步研究。",
+      "u-EASE 仍需调正则化参数 λ_u，u-EASE-i 需调两个正则化参数 λ_i 与 λ_u。",
+      "可扩展性和内存问题尚未完全解决；论文将截断 SVD、稀疏近似求逆等 EASE 扩展技术列为未来工作。",
+      "如何根据数据特征自动选择 EASE、u-EASE 或 u-EASE-i 尚无稳健策略，论文将其列为未来研究方向。"
+    ],
+    "method_zh": "论文将 EASE 的 item-item 岭回归重构推广为 min_W ||Y - A W B||_F^2，其闭式解为 W=(A^tA)^{-1}A^tY B^t(BB^t)^{-1}。EASE 对应 Y=A=R、B=I；u-EASE 对应 Y=B=R、A=I，即 min_W ||R - W R||_F^2 + λ_u||W||_F^2，约束 diag(W)=0，使用用户 Gram 矩阵 G_u=RR^t，闭式解为 W=I-DiagMat(1 ⊘ Diag(P_u))P_u，其中 P_u=(G_u+λ_u I)^{-1}。u-EASE-i 联合最小化用户侧与物品侧重构误差，正则项为 λ_i||R^tW||_F^2 + λ_u||WR^t||_F^2 + λ_uλ_i||W||_F^2，闭式解为 W_u,i = P_u G_u R G_i P_i。",
+    "problem_zh": "EASE 依赖物品-物品 Gram 矩阵学习全秩高维线性映射，擅长物品共现关系，但可能无法捕捉相似但不完全等价的细粒度用户关系；当用户与物品分布不同时，物品共现可能掩盖用户之间缺乏交互的问题。论文研究是否可通过用户-用户信息及用户-物品混合信息改进 EASE 的推荐准确率。",
+    "technical_depth": 0.86
+  },
+  "doi": "10.1007/978-3-032-02215-8_10",
+  "final_score": 0.88,
+  "id": "arxiv-2611.06610",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-11-04T14:59:03Z",
+  "relevance_score": 0.96,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出基于用户-用户关系的EASE替代方案及融合用户-物品邻接分布的混合模型，在推荐基准上超越EASE，凸显浅层自编码器研究中引入用户侧信息的价值。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Alternatives to Shallow Autoencoders for Collaborative Filtering",
+  "url": "https://arxiv.org/abs/2611.06610v1"
+}

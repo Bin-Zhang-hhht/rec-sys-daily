@@ -1,0 +1,164 @@
+{
+  "abstract": "Generative recommendation (GR) reformulates item retrieval as autoregressive generation of discrete semantic identifiers (SIDs), offering a unified paradigm for personalized recommendation. GR4AD, as an industrial generative recommendation framework, has greatly improved advertising revenue while enabling efficient real-time serving in Kuaishou. However, continued deployment has exposed three limitations: deterministic SID assignment remains sensitive to semantic boundaries; conventional backbone scaling provides diminishing revenue gains under strict serving constraints; and sequence-level value optimization provides limited credit assignment to intermediate SID decisions, causing likelihood-based beam search to prematurely prune potentially high-value candidates. We present GR4AD-X, which addresses these limitations through reliable SID construction, serving-efficient capacity scaling, and unified value alignment. Specifically, GR4AD-X improves SID reliability through Multi-Path assignment. It expands model capacity along multiple complementary dimensions rather than relying solely on wider or deeper backbones, achieving a better effectiveness-efficiency trade-off under strict serving constraints. Finally, Unified Value-Guided Generation and Discrimination (UniVGD) aligns generation with commercial value through prefix-level reward optimization, value-guided beam pruning, and discriminative reranking within a unified model. Large-scale online A/B tests on the Kuaishou advertising platform demonstrate that GR4AD-X achieves a cumulative revenue improvement of 3.07% over the deployed GR4AD baseline while satisfying strict latency and throughput constraints. Generative recommendation (GR) reformulates item retrieval as autoregressive generation of discrete semantic identifiers (SIDs), offering a unified paradigm for personalized recommendation. GR4AD, as an industrial generative recommendation framework, has greatly improved advertising revenue while enabling efficient real-time serving in Kuaishou. However, continued deployment has exposed three limitations: deterministic SID assignment remains sensitive to semantic boundaries; conventional backbone scaling provides diminishing revenue gains under strict serving constraints; and sequence-level value optimization provides limited credit assignment to intermediate SID decisions, causing likelihood-based beam search to prematurely prune potentially high-value candidates. We present GR4AD-X, which addresses these limitations through reliable SID construction, serving-efficient capacity scaling, and unified value alignment. Specifically, GR4AD-X improves SID reliability through Multi-Path assignment. It expands model capacity along multiple complementary dimensions rather than relying solely on wider or deeper backbones, achieving a better effectiveness-efficiency trade-off under strict serving constraints. Finally, Unified Value-Guided Generation and Discrimination (UniVGD) aligns generation with commercial value through prefix-level reward optimization, value-guided beam pruning, and discriminative reranking within a unified model. Large-scale online A/B tests on the Kuaishou advertising platform demonstrate that GR4AD-X achieves a cumulative revenue improvement of 3.07% over the deployed GR4AD baseline while satisfying strict latency and throughput constraints.",
+  "arxiv_id": "2610.38378",
+  "authors": [
+    "Yatong Xiao",
+    "Yibo Sheng",
+    "Lixiang Wang",
+    "Mingjie Sun",
+    "Yunhao Sha",
+    "Pengfei Zhang",
+    "Shengyu Wang",
+    "Peng Wang",
+    "Wenjin Wu",
+    "Peng Jiang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对广告推荐这类收入直接由 eCPM 决定的场景，仅优化 next-token 似然会系统性偏离商业目标；需要把价值信号注入生成前、生成中、生成后三个阶段，而非只做末端重排。",
+      "容量扩展应优先沿输入特征、编码器、词表记忆、残差流、决策深度等互补维度进行，而不是一味放大 dense backbone：在本文配置下前者以约 3.1× 参数换来 +1.41% 收入并保留 85% QPS，后者仅 +0.53% 且 QPS 剩 33%，对强时延约束的在线系统更具可落地性。",
+      "以记忆查找替代部分稠密计算（PCGM）可以同时扩容量与回收吞吐，是服务成本敏感型系统值得优先尝试的扩容手段。",
+      "对语义边界上的标的物保留多条候选编码路径，可在不增加解码深度的前提下提升召回覆盖，适合 SKU/广告量极大、量化码本较粗的工业场景。",
+      "重排阶段用同一骨干网络承担判别式打分，比引入独立精排模型更省资源，但需为每候选多付一步解码成本（本文 QPS 降至 75%），需按流量价值分层决定是否启用。",
+      "排序融合应采用 RRF 这类秩融合而非分数插值，因为生成概率与价值预测不在同一标度上，这一工程经验可直接迁移到多目标融合的在线系统。",
+      "上线节奏上采用逐组件累积 A/B（各 5% 流量、7 天、p<0.05）可清晰归因每个模块的增量收益，适合作为工业界灰度验证的参考范式。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出 Multi-Path SID：保留 top-m 个一级聚类中心，并为每个分支独立执行残差量化，为处于语义边界的广告提供多条可召回路径，且不增加解码深度；m=1 时退化为 GR4AD 的单路径构造。",
+      "设计面向实时服务的容量扩展策略，沿输入信号、编码器容量、词表记忆、残差流、生成决策深度五个互补维度扩展有效容量，在相同服务预算下取得优于朴素 backbone 放大的效果-效率权衡。",
+      "提出 UniVGD 统一价值对齐框架：生成前用 PV-RSPO 将 eCPM 奖励自底向上传播到 SID 前缀树并按层学习前缀价值；生成中用 PV-BeamSearch 以 RRF 融合生成概率与前缀价值进行剪枝；生成后用判别式价值头与行为头重排完整候选，三者共享用户表示并联合优化。",
+      "在快手广告平台的大规模在线 A/B 测试中，完整系统相对已部署 GR4AD 基线取得 3.07% 的累计收入提升，并满足严格的时延与吞吐约束。"
+    ],
+    "evidence_quality": 0.78,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Multi-Path Semantic Identifiers"
+      },
+      {
+        "page": 3,
+        "section": "3.3 Efficient Scaling for Real-Time Serving"
+      },
+      {
+        "page": 4,
+        "section": "3.3.2 Vocabulary Scaling with Prefix-Conditioned Gated Memory"
+      },
+      {
+        "page": 4,
+        "section": "3.3.3 Multi-Stream Residuals with Diagonal Hyper-Connections"
+      },
+      {
+        "page": 4,
+        "section": "3.3.4 Semantically Anchored Reason Prefill"
+      },
+      {
+        "page": 5,
+        "section": "3.4 UniVGD: Unified Value-Guided Generation and Discrimination"
+      },
+      {
+        "page": 6,
+        "section": "4.1 Online A/B Tests (Table 1)"
+      },
+      {
+        "page": 6,
+        "section": "4.2 Evaluation of Multi-Path SIDs (Figure 3)"
+      },
+      {
+        "page": 6,
+        "section": "4.3 Evaluation of Efficient Model Scaling (Table 2)"
+      },
+      {
+        "page": 7,
+        "section": "4.4 Evaluation of Value Alignment (Table 3)"
+      },
+      {
+        "page": 7,
+        "section": "5 Conclusion"
+      },
+      {
+        "page": 8,
+        "section": "A Experimental Setup"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "已部署的 GR4AD 生产系统（Table 1 的统一参照）",
+        "0.16B 的 Multi-Path SID 基线（Table 2 的归一化参照）",
+        "单路径 SID（Single-Path SID，用于一级 Hit@K 对比）",
+        "朴素参数放大到 0.50B 的 dense backbone（同为 Multi-Path SID 变体，QPS 仅 33%）",
+        "Base Model（包含除 UniVGD 外全部 GR4AD-X 优化，用于价值对齐对比）"
+      ],
+      "datasets": [
+        "快手广告平台在线 A/B 测试流量（平台服务 4 亿以上用户，每个变体 5% 随机流量、连续 7 天）",
+        "7.556M 条广告嵌入与 16,384 个一级质心构成的离线语料，用于一级分配距离比 r=d1/d2 的几何分析与一级 Hit@K 评估",
+        "在线日志采样请求（含最终排序阶段的完整候选、eCPM 与各 SID 层级生成分数），用于 HitRate@K 与 eCPM 的对齐评估"
+      ],
+      "findings_zh": [
+        "在线累计消融：Multi-Path SID +0.58%；输入与编码器扩展后 +0.96%；PCGM 词表扩展 +1.43%；对角 Hyper-Connections +1.72%；SARP +2.00%；PV-RSPO +2.28%；PV-BeamSearch +2.49%；判别式重排 +3.07%，即完整系统相对 GR4AD 累计 +3.07%。",
+        "价值对齐组（UniVGD）在容量扩展系统之上再贡献 1.07 个百分点，其中 PV-RSPO 0.28%、PV-BeamSearch 0.21%、判别式重排 0.58%（单项最大增量）。",
+        "服务高效扩展把参数从 0.16B 扩到 0.49B（约 3.1×），相对 Multi-Path 基线 +1.41% 且保留 85% QPS；而把 dense backbone 扩到 0.50B 仅 +0.53% 且只剩 33% QPS，即在可比参数量下相对收益与吞吐均超过两倍。",
+        "PCGM 是扩展组内单项增益最大者（+0.85%），参数量 0.20B→0.46B，同时 QPS 从 90% 回升到 95%，符合用前缀索引记忆查找替代稠密 FFN 门控投影的计算-内存权衡。",
+        "几何分析显示一级分配普遍存在歧义：在 16,384 个一级质心下，48.34%/29.31%/7.21% 的广告满足 r≥0.90/0.95/0.99，约 2.21M 条广告的次近质心距离不超过最近质心的 5.26%。",
+        "Multi-Path SID 提升一级目标保留率：Hit@1 由 14.38% 升至 17.58%（相对 +22.28%），Hit@16 由 51.25% 升至 55.78%（+8.84%），Hit@64 由 72.58% 升至 77.03%（+6.14%）。",
+        "价值对齐显著改善：Full HR@10 由 0.021 升至 0.298（约 14×），即使最保守的 Lvl-1 HR@100 也从 0.216 升到 0.306；Base 在 Lvl-1/Lvl-1&2/Full 三种范围下结果接近，说明失配是全局性的而非集中于某一解码层。",
+        "PV-BeamSearch 在一级刻意不做判别融合，但 Lvl-1 HR@10 仍由 0.017 升到 0.145，说明该提升来自 PV-RSPO 对生成分布的再校准，两个机制可分离且互补。",
+        "UniVGD 复用解码 backbone、参数量基本不变，仅多一步 token 生成用于重排，保留 75% Base QPS。",
+        "SARP 除 +0.31 个百分点的累计收益外，还把一级 SID loss 降低约 3%。"
+      ],
+      "metrics": [
+        "ΔRevenue（相对基线的累计收入提升，p<0.05 双尾 t 检验）",
+        "归一化服务 QPS 与总参数量（效果-效率权衡）",
+        "一级 Hit@K（K∈{1,16,64}，目标广告任一有效一级 SID 是否出现在解码器 top-K）",
+        "HitRate@K（HR@10/50/100）在 Lvl-1、Lvl-1&2、Full 三种 SID 范围下 top-K eCPM 与生成分数的重合率",
+        "一级 SID loss 变化"
+      ]
+    },
+    "limitations_zh": [
+      "实验完全依赖快手广告平台的在线 A/B 与内部日志，没有公开数据集或可复现的离线基准，外部可比性与可复现性受限。",
+      "各组件以累积方式顺序加入（Table 1、Table 2），报告的是条件增益而非隔离的单独贡献，组件间可能存在交互或相互掩盖。",
+      "价值对齐的收益高度依赖广告场景的 eCPM 与转化链路标签；HR@K 衡量的是与 eCPM 排序的重合度，并非直接的长期收入或广告主价值指标。",
+      "UniVGD 需要额外一次解码步骤做重排，QPS 降至 Base 的 75%；前缀价值头的训练依赖对候选广告的 roll-out 与奖励聚合。",
+      "PV-BeamSearch 在 SID 一级不做价值融合，因为实验中发现一级融合会明显降低解码候选的合法性，说明该方法对融合层级敏感。",
+      "关键超参（m=2、L=3、K1=16384、beam width k=512、候选池 2k、κ=k/4、K'=256、n=4、τ=1.0、λ_cos=0.1）为单一生产配置，未给出敏感性分析或跨场景泛化证据。",
+      "未与 GR4AD 之外的其他工业生成式推荐系统进行在线或离线对比，相关工作仅作定性讨论。",
+      "前缀价值由采样后代奖励的均值/加权聚合估计，受日志覆盖与采样偏差影响，文中未分析该估计的偏差与方差。",
+      "论文未讨论冷启动广告、新广告的 SID 分配与多路径索引维护成本，也未报告索引规模增长带来的存储开销。"
+    ],
+    "method_zh": "GR4AD-X 在 GR4AD 基础上做三方面改造。其一，Multi-Path SID：对广告语义嵌入保留距离最近的 m 个一级质心（式2），每个质心初始化一条残差分支（式3），后续层级沿用同一套码本做残差量化，最后一层沿用 GR4AD 的哈希映射，因此每条路径长度为 L 且共享末位 token；训练时把 m 条路径打包为独立 SID 块，用块状因果掩码避免跨块注意，并以权重 α_j 加权多目标似然（式5）；推理时按广告级去重并保留得分最高的路径。其二，服务高效容量扩展：(a) 引入 20+ 用户画像与上下文特征并按重要性重分配序列预算，关键高基数特征 embedding 由 16 扩到 64，FFN 换成 SwiGLU；(b) PCGM 前缀条件门控记忆，纵向上每层独立 SID 记忆表，横向上构建 1/2/3-gram SID 前缀记忆并用多项式哈希索引（式6-8），检索向量替换 FFN 的稠密门控（式9），完整 SID 记忆用于 rank 阶段而非单独预测 eCPM token；(c) 对角 Hyper-Connections，将状态扩展为 n=4 条残差流，用输入相关的 pre/post/res 门控做读-算-写（式10-13），注意与 FFN 子层只计算一次；(d) SARP 在 BOS 与 s1 之间插入连续 reasoning token（式14），并用对冻结一级码本再聚类得到的 K' 个粗原型做原型分类与余弦辅助监督（式15-18）。其三，UniVGD：PV-RSPO 用采样后代平均奖励为每个前缀赋值并自底向上传播（式19-20），每层一个轻量前缀价值头对用户记忆做交叉注意（式21），逐层逐路径施加 listwise RSPO 损失（式22）；PV-BeamSearch 在 l≥2 层保留 top-2k 候选池，用 RRF 融合生成概率排名与预测前缀价值排名选出 top-k（式23-24），一级不做融合以避免破坏解码合法性；重排阶段把完整 SID 嵌入与广告侧特征（含 eCPM 相关信号）拼成 rank token（式25-27），复用用户记忆多跑一步解码，接 eCPM 的 Lambda Loss 价值头与神经有序逻辑回归行为头，两路排名再用 RRF 融合得到最终分数（式28）。",
+    "problem_zh": "已上线的生成式广告推荐框架 GR4AD 在生产部署中暴露三个问题：(1) 确定性的 SID 单路径分配对语义边界敏感，边界广告若其唯一一级前缀在 beam search 中被剪枝便不可召回；(2) 在严格时延与吞吐约束下，单纯扩大 backbone 参数量带来的收入增益递减（QPS 大幅下降、收益趋于边际）；(3) 序列级价值优化对中间 SID 决策的信用分配不足，使基于似然的 beam search 过早剪掉潜在高价值候选，生成概率与商业价值（eCPM）严重不匹配（top-10 eCPM 与 top-10 生成概率的重合率仅约 0.02）。",
+    "technical_depth": 0.86
+  },
+  "doi": null,
+  "final_score": 0.8724999999999999,
+  "id": "arxiv-2610.38378",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-28T07:17:24Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "快手提出GR4AD-X工业生成式推荐框架，通过多路径语义ID构建、多维容量扩展与统一价值对齐，在严格时延约束下实现线上广告收入提升3.07%。",
+  "targets": [],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Towards Reliable, Scalable, and Value-Aligned Generative Recommendation for Large-Scale Advertising",
+  "url": "https://arxiv.org/abs/2610.38378v2"
+}

@@ -1,0 +1,142 @@
+{
+  "abstract": "As recommendation scenarios become increasingly diverse and multimodal information grows more prevalent, effectively modeling cross-scenario user preferences and multimodal semantics has become a critical challenge in recommender systems. When incorporating multimodal information, existing multi-scenario recommendation (MSR) methods typically treat textual and visual representations as generic input features and directly feed them into their original parameter-sharing architectures. However, this extension may not fully accommodate the different modeling requirements of collaborative and multimodal information and may not be the best modeling paradigm. Our controlled experiments show that directly adopting these architectures is not the optimal modeling approach. To this end, we propose Dual-Branch Modeling with Triadic Factorization (DuTri), a framework for multimodal multi-scenario recommendation comprising a collaborative branch and a multimodal branch. Specifically, the collaborative branch learns structured collaborative preference representations through CANDECOMP/PARAFAC (CP) decomposition of user-scenario-item interactions and residual quantization, thereby capturing cross-scenario commonalities and scenario-specific differences. The multimodal branch leverages the learned user and scenario preferences to guide adaptive modality fusion; additionally, item-level contrastive learning aligns collaborative item preference representations with multimodal representations to facilitate effective collaboration between the two branches. Extensive experiments on two real-world datasets, AntM$^2$C and Amazon, demonstrate that DuTri outperforms existing multimodal and multi-scenario recommendation baselines in overall recommendation performance, validating the effectiveness of the proposed framework. As recommendation scenarios become increasingly diverse and multimodal information grows more prevalent, effectively modeling cross-scenario user preferences and multimodal semantics has become a critical challenge in recommender systems. When incorporating multimodal information, existing multi-scenario recommendation (MSR) methods typically treat textual and visual representations as generic input features and directly feed them into their original parameter-sharing architectures. However, this extension may not fully accommodate the different modeling requirements of collaborative and multimodal information and may not be the best modeling paradigm. Our controlled experiments show that directly adopting these architectures is not the optimal modeling approach. To this end, we propose Dual-Branch Modeling with Triadic Factorization (DuTri), a framework for multimodal multi-scenario recommendation comprising a collaborative branch and a multimodal branch. Specifically, the collaborative branch learns structured collaborative preference representations through CANDECOMP/PARAFAC (CP) decomposition of user-scenario-item interactions and residual quantization, thereby capturing cross-scenario commonalities and scenario-specific differences. The multimodal branch leverages the learned user and scenario preferences to guide adaptive modality fusion; additionally, item-level contrastive learning aligns collaborative item preference representations with multimodal representations to facilitate effective collaboration between the two branches. Extensive experiments on two real-world datasets, AntM$^2$C and Amazon, demonstrate that DuTri outperforms existing multimodal and multi-scenario recommendation baselines in overall recommendation performance, validating the effectiveness of the proposed framework.",
+  "arxiv_id": "2610.36836",
+  "authors": [
+    "Jintao Huang",
+    "Chaohua Yang",
+    "Kailiang Hao",
+    "Dugang Liu",
+    "Xing Tang",
+    "Zhong Ming"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对拥有多个业务场景和图文商品内容的平台，可用共享用户/物品偏好因子加场景因子来同时建模跨场景共性与场景差异。",
+      "用户和场景偏好驱动的模态门控适合图文重要性随用户与场景变化的业务场景，可把模态权重做成条件化融合而非固定早融合。",
+      "物品级对比对齐可作为连接协同信号与多模态内容的训练机制，促进两个分支的信息交换。",
+      "落地时需权衡预测收益与额外训练/存储成本；由于推理时间可与AMS相当，适合先离线用WAUC验证再考虑上线。",
+      "论文的受控实验提示，不能默认多场景参数共享骨干在多模态输入下仍最优，架构选择应做离线对照。"
+    ],
+    "business_transferability": 0.74,
+    "contributions_zh": [
+      "指出直接复用现有参数共享架构在多模态多场景推荐中的局限：仅在ID输入下有效的跨场景共享机制，在融合多模态表示后不一定保持优势。",
+      "提出DuTri双分支框架，用CP三分解和残差量化从用户-场景-物品交互中学习结构化协同偏好，捕捉跨场景共性与场景特定差异。",
+      "利用学习到的用户和场景偏好引导物品ID、文本、视觉表示的自适应融合，并通过物品级对比学习对齐协同物品偏好与多模态表示。",
+      "在AntM2C和Amazon上验证DuTri优于所评估的多模态与多场景推荐基线，消融实验支持关键组件的有效性。",
+      "比较多种多模态多场景建模策略，表明用跨场景协同偏好指导多模态建模优于仅将量化多模态表示作为输入等替代方案。"
+    ],
+    "evidence_quality": 0.86,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "4.1 Framework Overview"
+      },
+      {
+        "page": 3,
+        "section": "4.2 Collaborative Branch"
+      },
+      {
+        "page": 4,
+        "section": "4.3 Multimodal Branch"
+      },
+      {
+        "page": 4,
+        "section": "4.4 Optimization"
+      },
+      {
+        "page": 5,
+        "section": "5.2 RQ1: Performance Comparison"
+      },
+      {
+        "page": 6,
+        "section": "5.3 RQ2: Ablation Study"
+      },
+      {
+        "page": 7,
+        "section": "5.5 RQ4: Hyperparameter Analysis"
+      },
+      {
+        "page": 8,
+        "section": "Appendix B.1 Dataset Statistics and Preprocessing"
+      },
+      {
+        "page": 10,
+        "section": "Appendix C.5 Codebook Usage and Discrete Codes"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Diff-MSIN",
+        "LMF",
+        "PSRQ",
+        "SimCEN",
+        "DMF",
+        "STAR",
+        "HMoE",
+        "MMoE",
+        "PLE",
+        "AdaptDHM",
+        "DFFM",
+        "HierRec",
+        "SSIM",
+        "AMS",
+        "Scenario MLP"
+      ],
+      "datasets": [
+        "AntM2C：Alipay五个工业推荐场景，含点击日志和多模态物品信息",
+        "Amazon：Sports and Outdoors、Movies and TV、Books三个类别场景，保留在三个类别均有交互的用户，评分转为二值反馈"
+      ],
+      "findings_zh": [
+        "DuTri在两个数据集上每个场景的平均AUC均高于所评估的多模态基线，WAUC也高于多场景基线、Scenario MLP和AMS；AntM2C的WAUC为0.8632，Amazon的WAUC为0.7437。",
+        "消融显示去掉对齐、CP监督、RQ、门控或任一预测输入都会降低WAUC；去掉MM表示在输入移除中降幅最大；移除整个分支比仅移除其预测输入降幅更大。",
+        "替代策略比较中，Quantized Input的WAUC低于Direct Input；Shared-Specific Quant和Shared-Expert Quant高于Direct Input；DuTri取得最高WAUC，支持用跨场景协同偏好指导多模态建模。",
+        "效率上，DuTri在AntM2C训练时间少于Diff-MSIN和PLE但多于AMS，推理时间与AMS相当；参数量多于多数基线但少于PLE和HierRec，Amazon上参数量最大。",
+        "超参分析显示性能对λ_CP相对不敏感，而对λ_cl和温度τ存在更明显峰值，过大对齐权重及过低或过高温度会降低性能。"
+      ],
+      "metrics": [
+        "AUC",
+        "WAUC"
+      ]
+    },
+    "limitations_zh": [
+      "仅在AntM2C和Amazon两个数据集上做离线评估，未报告在线A/B测试或生产部署结果。",
+      "DuTri需要额外训练时间和模型存储；推理时间与AMS相当，但训练成本高于AMS，参数量也高于多数基线。",
+      "Amazon按每个用户-场景对内部时间顺序切分，未设置跨场景统一时间截断，可能带来评估协议上的差异。",
+      "残差量化器在前向中作为离散瓶颈使用，但码本未用于替换CP因子表或导出索引，未实现压缩表示。",
+      "码本使用计数仅用于监控，未采用dead-code replacement。"
+    ],
+    "method_zh": "DuTri包含协同分支和多模态分支。协同分支对用户-场景-物品交互做CP分解，得到用户因子p_u、场景因子q_k、物品因子r_i，并用其内积作为辅助logit进行BCE监督；随后用三个实体特定的残差量化器将因子量化为偏好表示，经投影和三元调制生成协同表示h_CF。多模态分支将物品ID、文本、视觉表示投影到公共空间，以用户偏好投影e^U和场景偏好投影e^S经门控网络生成模态权重，再加权融合并层归一化得到h_MM。训练时用物品级对比损失对齐协同物品偏好与各模态表示，最终将用户ID表示、h_CF、h_MM拼接后送入场景特定MLP预测。总损失由推荐损失、CP监督、残差量化损失和对比对齐损失组成。",
+    "problem_zh": "多场景推荐需要在统一框架中同时建模跨场景共性与场景差异；引入图文等多模态信息时，现有方法通常把多模态表示当作普通输入并直接复用原参数共享架构。论文的受控实验显示，这种直接复用未必最优：在仅ID输入下MSR骨干优于Scenario MLP，但在多模态输入下Scenario MLP在各场景取得更高平均AUC，说明需要重新组织协同偏好学习与多模态融合。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.899,
+  "id": "arxiv-2610.36836",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-10-27T08:35:11Z",
+  "relevance_score": 0.96,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出双分支框架 DuTri，用 CP 分解与残差量化学习跨场景协同偏好，并以多模态分支和对比学习实现多模态多场景推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "DuTri: Dual-Branch Modeling with Triadic Factorization for Multimodal Multi-Scenario Recommendation",
+  "url": "https://arxiv.org/abs/2610.36836v1"
+}

@@ -1,0 +1,153 @@
+{
+  "abstract": "Generative recommendation is gaining traction in production, retrieving items by generating their identifiers one token at a time. The generated sequences must identify relevant catalog items, so constrained decoding couples relevance scoring with validity filtering. Because most possible sequences are invalid, scoring before filtering wastes computation on candidates that will be discarded. Our evaluation shows that filtering first can avoid this work with negligible impact on recommendation quality. We present ZeroGR, a filtering-first constrained decoding system for generative recommendation. ZeroGR uses a step-sliced filtering index to reduce GPU memory use by tailoring data representations to each decoding step. Its execution engine adopts shared-slot execution to accelerate data exchange across stages and hybrid projection to adapt computation to workload patterns, thereby reducing execution overhead. During index refreshes, ZeroGR applies layout-guided streaming construction to speed up updates and limit serving interference. Extensive evaluation shows that ZeroGR accelerates the filtering and scoring pipeline by up to $9.9\\times$ over representative baselines while reducing GPU index memory use and accelerating index reconstruction. Generative recommendation is gaining traction in production, retrieving items by generating their identifiers one token at a time. The generated sequences must identify relevant catalog items, so constrained decoding couples relevance scoring with validity filtering. Because most possible sequences are invalid, scoring before filtering wastes computation on candidates that will be discarded. Our evaluation shows that filtering first can avoid this work with negligible impact on recommendation quality. We present ZeroGR, a filtering-first constrained decoding system for generative recommendation. ZeroGR uses a step-sliced filtering index to reduce GPU memory use by tailoring data representations to each decoding step. Its execution engine adopts shared-slot execution to accelerate data exchange across stages and hybrid projection to adapt computation to workload patterns, thereby reducing execution overhead. During index refreshes, ZeroGR applies layout-guided streaming construction to speed up updates and limit serving interference. Extensive evaluation shows that ZeroGR accelerates the filtering and scoring pipeline by up to $9.9\\times$ over representative baselines while reducing GPU index memory use and accelerating index reconstruction.",
+  "arxiv_id": "2611.04715",
+  "authors": [
+    "Xiangrui Yang",
+    "Jiawei Yang",
+    "Liang Zeng",
+    "Daqian Ding",
+    "Ziqian Liu",
+    "Bing Tian",
+    "Cheng Peng",
+    "Yunfeng Zhao",
+    "Fangyu Zhang",
+    "Jiaqiang Liu",
+    "Xiao Liang",
+    "Yiming Qiu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对生成式推荐/搜索线上系统，先过滤后打分可把解码算力从全词表投影转向合法候选，直接降低 P99 延迟和 GPU 单位请求成本。",
+      "紧凑的 step-sliced 索引节省显存，可把更多 HBM 留给模型权重、KV/attention cache 和更大 batch，从而提升吞吐或支持更大 catalog/codebook。",
+      "在模型与 SID 同步更新的场景，流式重建能把索引刷新压进更新窗口并控制 H2D 带宽，减少发布期间对在线请求的干扰。",
+      "先过滤引入的 softmax 归一化差异在实验中质量影响很小，使系统可以在不改变召回质量目标的情况下做工程替换；但上线前仍应在本业务数据上验证重叠率/Recall。",
+      "落地需要 GPU 常驻索引、定制 CUDA kernel、按步 warm-up 选型和 SID 表构建流水线，适合已有生成式推荐 serving 平台的团队，而非轻量级改造。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "实证分析合法候选稀疏性，并在 MovieLens-1M 上证明先过滤与先打分返回物品平均重叠 99.90%、Recall@K 几乎一致，说明先过滤可在质量几乎不变的前提下减少打分计算。",
+      "提出 ZeroGR，包含按解码步切分的过滤索引：每步独立维护前缀到合法下一 token 的映射，并按该步合法候选密度选择稠密或稀疏表示。",
+      "设计共享候选槽执行模型和混合投影：过滤、投影、选择、gather 共享固定槽位，按步在 full projection 与 selective projection 之间选择，并用专用过滤/投影 kernel 和两套 top-k kernel 降低不规则执行开销。",
+      "设计 layout-guided streaming construction：两遍 CPU 并行构建、按最终布局分片写入，并通过双缓冲 pinned buffer 将分片异步流式传到 GPU，以在更新窗口内完成索引重建并减少对在线服务的干扰。",
+      "在工业 Search、Watch 和 Synthetic-7 上评估，报告最高 9.9× 端到端解码加速、GPU 索引内存最多降低 74.5%、索引重建快 278×。"
+    ],
+    "evidence_quality": 0.88,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 3,
+        "section": "2.2 Scoring and Filtering in SID Decoding"
+      },
+      {
+        "page": 4,
+        "section": "2.3 Viability of Filtering First"
+      },
+      {
+        "page": 6,
+        "section": "3.2 Index Representation"
+      },
+      {
+        "page": 7,
+        "section": "3.3 Execution Model"
+      },
+      {
+        "page": 10,
+        "section": "3.4 Index Construction"
+      },
+      {
+        "page": 12,
+        "section": "4.1 Experimental Setup"
+      },
+      {
+        "page": 13,
+        "section": "4.2 End-to-End Performance"
+      },
+      {
+        "page": 15,
+        "section": "4.4 Ablation Study"
+      },
+      {
+        "page": 16,
+        "section": "4.5 Memory Footprint"
+      },
+      {
+        "page": 18,
+        "section": "4.6 Index Construction Performance"
+      },
+      {
+        "page": 20,
+        "section": "6 Conclusion"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Unconstrained（无约束全量计算，作为性能参照）",
+        "CPU trie（此前部署的 CPU 前缀树约束解码器）",
+        "FlashTrie（GPU succinct 前缀树/位向量索引）",
+        "STATIC（将前缀树展平为 GPU 稀疏索引，先打分后过滤）",
+        "Naive CPU（串行构建相同 step-sliced 索引的构造基线）",
+        "Full host、Single buffer（索引构建/传输消融变体）"
+      ],
+      "datasets": [
+        "Search：工业生成式搜索数据集，约 10 亿条不同的五 token SID 序列，输出头 18,432 token，各步 token 分属 8,192/4,096/2,048/2,048/2,048 的互不相交区间。",
+        "Watch：约 41.7 亿条不同的三 token SID 序列，每步使用 8,192 token 输出头。",
+        "Synthetic-7：七 token SID 序列的合成数据集，含 2^30 条不同序列，变体改变词表大小 V（2,048–16,384）和分支因子。",
+        "MovieLens-1M：用于比较先过滤与先打分的推荐质量（重叠率和 Recall@K）。"
+      ],
+      "findings_zh": [
+        "先过滤与先打分在 MovieLens-1M 上平均物品重叠 99.90%，各截断 Recall 几乎一致；Search 数据合法候选密度从第 2 步 14.29% 降到第 5 步 0.05%，说明先过滤可跳过大量无效打分。",
+        "在 Search/4090D 上，batch 32 时 ZeroGR 五步解码 9.68 ms（FP32）、1.88 ms（FP16），FP16 相对 Unconstrained 加速 9.1×；相对 CPU trie 的差距随 batch 增大，FP16 下接近两个数量级。",
+        "Search/数据中心 GPU 上，FP16 下 ZeroGR 从 batch 1 到 32 延迟保持在 0.93–1.07 ms，而 Unconstrained 和 CPU trie 随 batch 增大而变慢。",
+        "Watch/4090D 上 STATIC 因显存不足被省略；ZeroGR 相对 CPU trie 最高加速 205×；在数据中心 GPU 上仍比 STATIC 快 2.0–3.2×。",
+        "Synthetic-7 上，beam width 256、batch 32 时相对 Unconstrained 加速 10.7×；V=16,384、batch 32 时加速 19.5×，且 batch 32 延迟在不同 V 下保持在 3.1–4.5 ms。",
+        "Search 上第 2 步最贵，后续步因合法 token 少而接近零成本；过滤+投影是最主要阶段，ZeroGR 在该阶段相对 CPU trie 最高加速 120×。",
+        "消融：第 2 步 selective projection 计算 71,189 个 logits 用时 305.1 μs，naive selective 为 2,594.9 μs，full projection 为 507.8 μs；小 top-k kernel 使第 3–5 步延迟最多降低 21%，投影模式选择使 FP16 总延迟相对仅 selective 降低 27%。",
+        "ZeroGR 索引比 STATIC 分别小 59.1%（Search）和 74.5%（Watch），且在 24GB 4090D 上两个数据集都能放下，STATIC 在 Watch 上放不下。",
+        "索引重建 0.914 s，为 STATIC 时间的 0.36%（约 278× 更快）；60 s 更新窗口下 H2D 带宽需求 0.144 GB/s；比 Full host 快 2.57×、比 Single buffer 快 1.30×。"
+      ],
+      "metrics": [
+        "端到端解码延迟（ms）与相对基线加速比",
+        "各解码步延迟、各阶段（过滤+投影、归一化、选择+更新）加速比",
+        "Recall@K、返回物品重叠率",
+        "GPU 索引内存占用",
+        "索引构建时间、H2D 带宽、staging 时间",
+        "logits 数量、beam width、batch size、FP32/FP16"
+      ]
+    },
+    "limitations_zh": [
+      "推荐质量等价性主要用 MovieLens-1M 上的重叠率和 Recall 验证，未报告大规模在线 A/B 或长期业务指标。",
+      "端到端时延测量明确排除模型推理时间，因此报告的是约束解码/过滤-打分-选择流水线的收益。",
+      "混合投影与 top-k kernel 的选择在每次模型更新前通过 warm-up 固定，解码循环不做逐请求决策；若工作负载分布变化，固定选择可能不是最优。",
+      "部分比较受硬件显存限制：STATIC 在 4090D 的 Watch 数据集上显存不足而被省略，跨 GPU 的基线覆盖并不完全一致。",
+      "索引重建依赖排序后的 SID 表、按步布局预计算和双缓冲 H2D 传输；论文未展示在更复杂请求级约束、多租户或 catalog 频繁小更新下的表现。"
+    ],
+    "method_zh": "ZeroGR 将约束解码改为先过滤后打分。离线阶段把排序后的 SID 表构建为 L 个按步切分的映射 M_1…M_L；每步根据合法候选密度采用稠密后继表或稀疏 SID/边界数组，稀疏映射用条目位置充当后继状态，最后一步不存后继。在线解码时，每个 beam 携带前缀、累计分数和索引状态；每步先从 M_l 读取合法下一 token，再按预热选定的 full/selective projection 计算 logits，将候选写入共享槽位，随后对每行合法槽位做 log-softmax、加累计分数并做 top-k 选择与 gather。索引更新时，两遍扫描 SID 表：第一遍用相邻序列 LCP 统计各步合法续项数量并确定布局，第二遍分块并行填充数组，再通过双缓冲 pinned buffer 分批异步 H2D 传输到 GPU 的最终位置。",
+    "problem_zh": "生成式推荐（GR）用 SID 序列自回归生成物品标识，束搜索的每个解码步既要按相关性打分，又要按目录合法性过滤。由于合法 SID 续项高度稀疏（Search 数据第 2 步合法候选密度为 14.29%，第 5 步仅 0.05%），先打分后过滤会把大量算力浪费在无效续项上；但改为先过滤后打分又会改变束搜索中每个前缀的 softmax 归一化范围，可能影响候选排序。论文要回答两个问题：先过滤能否保持推荐质量，以及如何在 GPU 上以紧凑索引、高效不规则执行和不干扰在线服务的方式实现这一流水线。",
+    "technical_depth": 0.92
+  },
+  "doi": null,
+  "final_score": 0.9410000000000001,
+  "id": "arxiv-2611.04715",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-03T11:36:55Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出ZeroGR，一种面向生成式推荐的过滤优先约束解码系统，加速候选过滤与打分并降低GPU索引内存。",
+  "targets": [],
+  "tasks": [],
+  "title": "ZeroGR: Filtering-First Constrained Decoding for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.04715v1"
+}

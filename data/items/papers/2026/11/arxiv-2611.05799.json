@@ -1,0 +1,135 @@
+{
+  "abstract": "Modern recommender systems rely on generative retrieval techniques to predict the next item either as discrete codes or as a continuous vector. On the one hand, Semantic IDs (SIDs) give discrete models shared parameters and pretrained semantic structure, but discretizing items into hard codes discards some information from the original content embeddings. On the other hand, continuous models avoid quantization, yet typically use flat item lookup tables with no explicit parameter tying across items. We ask whether a continuous recommender can introduce shared structure without making it a discrete bottleneck. We propose CAP-Mix, a flow recommender that represents each item as a soft mixture of shared prototypes plus an item-specific vector. The assignments, prototypes, and item vectors are trained jointly, and the soft representation is retained at inference. Pretrained information is optional: SID responsibilities can serve as a prior over assignments, while a full content embedding can initialize the item-specific vector without changing the initial flat table. In matched comparisons on three datasets, CAP-Mix improves over a flat table on the two sparse Amazon datasets and yields a small gain on Steam when trained without pretrained information. Given only an offline SID, it outperforms a hard table built from the same tokenizer by 4.45-14.90% in HR@5. Given the full content embedding, it matches or improves a strong flat table while hard assignments regress on the sparse Amazon datasets. Overall, averaged across six benchmarks, CAP-Mix improves HR@5 and NDCG@5 by 6.9% and 13.6% relative to the best evaluated baseline for each dataset and metric, while delivering 1.4-161x the inference throughput of the discrete baselines in our experiments. Modern recommender systems rely on generative retrieval techniques to predict the next item either as discrete codes or as a continuous vector. On the one hand, Semantic IDs (SIDs) give discrete models shared parameters and pretrained semantic structure, but discretizing items into hard codes discards some information from the original content embeddings. On the other hand, continuous models avoid quantization, yet typically use flat item lookup tables with no explicit parameter tying across items. We ask whether a continuous recommender can introduce shared structure without making it a discrete bottleneck. We propose CAP-Mix, a flow recommender that represents each item as a soft mixture of shared prototypes plus an item-specific vector. The assignments, prototypes, and item vectors are trained jointly, and the soft representation is retained at inference. Pretrained information is optional: SID responsibilities can serve as a prior over assignments, while a full content embedding can initialize the item-specific vector without changing the initial flat table. In matched comparisons on three datasets, CAP-Mix improves over a flat table on the two sparse Amazon datasets and yields a small gain on Steam when trained without pretrained information. Given only an offline SID, it outperforms a hard table built from the same tokenizer by 4.45-14.90% in HR@5. Given the full content embedding, it matches or improves a strong flat table while hard assignments regress on the sparse Amazon datasets. Overall, averaged across six benchmarks, CAP-Mix improves HR@5 and NDCG@5 by 6.9% and 13.6% relative to the best evaluated baseline for each dataset and metric, while delivering 1.4-161x the inference throughput of the discrete baselines in our experiments.",
+  "arxiv_id": "2611.05799",
+  "authors": [
+    "Vicente Balmaseda",
+    "Dongqi Fu",
+    "Jiarui Feng",
+    "Ren chen",
+    "Hanqing Zeng",
+    "Tianxin Wei",
+    "Yinglong Xia",
+    "Tianbao Yang",
+    "Hong Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "CAP-Mix 在推理时把软混合物品表一次性物化，原型编码器不增加每查询计算，适合以扁平表方式部署并替换离散生成式解码。",
+      "相对离散生成式基线，CAP-Mix 显著降低 MFLOP/query 并提高吞吐，对低延迟、高并发的推荐召回场景有直接吸引力。",
+      "当业务已有内容嵌入或离线 SID 时，可分别用于初始化物品向量或作为软分配先验；若两者都没有，也可仅从交互学习共享原型。",
+      "共享原型可能帮助稀疏目录和冷门/稀有目标，但收益依赖数据与预训练信息质量；上线前需按业务目录和流量做离线验证与信息消融。",
+      "由于硬语义划分在已有内容嵌入时可能限制性能，业务系统应优先保留软分配和物品特定向量，而不是把 SID 直接冻结为硬查表。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出 CAP-Mix：把物品表示建模为共享原型软混合加物品特定向量，使分配、原型和物品向量与推荐目标联合训练，并在推理时保留软表示。",
+      "将扁平表与硬 SID 表统一为 CAP-Mix 的特例：γ=0 退化为扁平表，固定 one-hot 分配并令 r_i=0 可退化为完全量化表。",
+      "支持可选的预训练信息：离线 SID 的后验责任可作为分配先验，完整内容嵌入可初始化物品特定向量，且不改变初始扁平表。",
+      "在六个公开基准上报告 CAP-Mix 相对最强基线的平均 HR@5 和 NDCG@5 提升，并报告相对离散基线的推理吞吐优势。",
+      "通过诊断实验说明：无语料初始化时语义硬分配优于随机分配；有 PCA 内容初始化时冻结语义划分在稀疏 Amazon 数据上反而可能受限。"
+    ],
+    "evidence_quality": 0.84,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "3.1 Prototype-mixture item representations"
+      },
+      {
+        "page": 5,
+        "section": "4.2 RQ1: When do prototype mixtures help?"
+      },
+      {
+        "page": 5,
+        "section": "4.3 RQ2: Comparison with generative recommenders"
+      },
+      {
+        "page": 6,
+        "section": "4.4 RQ3: Robustness and diagnostics"
+      },
+      {
+        "page": 13,
+        "section": "Appendix B Implementation details"
+      },
+      {
+        "page": 14,
+        "section": "Appendix F Diagnostic results"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "FlowRec",
+        "TIGER",
+        "MaskGR"
+      ],
+      "datasets": [
+        "Amazon Beauty",
+        "Amazon Industrial & Scientific",
+        "Amazon Office",
+        "MovieLens-1M",
+        "Yelp-2022",
+        "Steam-2018"
+      ],
+      "findings_zh": [
+        "在六个数据集上，CAP-Mix 的 HR@5 均为最高，NDCG@5 均为最高或并列最高；相对每个数据集和指标的最强基线，平均 HR@5 提升 +6.9%，NDCG@5 提升 +13.6%。",
+        "无语料初始化时，CAP-Mix 相对扁平表的 HR@5 提升为 Beauty +2.08%、Industrial +4.73%、Steam +0.72%，说明共享原型可仅从交互中学习有用的跨物品结构。",
+        "给定同一离线 SID tokenizer，CAP-Mix 相对硬 SID 表的 HR@5 提升为 4.45%–14.90%，说明可微软分配比冻结 one-hot 分配更有效地利用 tokenizer 信息。",
+        "在 PCA 内容初始化下，CAP-Mix 相对内容初始化扁平表在 Beauty 提升 +1.49%、Steam 提升 +2.09%，在 Industrial 为 -0.52%；硬 SID 表在稀疏 Amazon 数据上相对内容初始化扁平表分别变化 -3.89% 和 -7.61%。",
+        "验证集选择显示 CAP-Mix 在六个数据集中的五个选择 PCA-TEXT，在 Steam 选择 OFFLINE SID；无共访先验时，原型共享在两个 Amazon 数据集的所有信息设定下仍有增益，并在 Steam 的 OFFLINE SID 设定下相对硬表保留 +6.91% HR@5 优势。",
+        "推理效率上，CAP-Mix 相对 TIGER 和 MaskGR 的吞吐提升为 1.4–161×；优势在基线生成多码 SID 时最大，在 atomic-token 配置下收窄；参数优势依赖目录规模，在 Yelp 上 CAP-Mix 略大于 TIGER。"
+      ],
+      "metrics": [
+        "HR@5",
+        "NDCG@5",
+        "HR@10",
+        "NDCG@10",
+        "HR@20",
+        "NDCG@20",
+        "推理吞吐 queries/s",
+        "MFLOP/query",
+        "热参数规模",
+        "训练 GPU 小时"
+      ]
+    },
+    "limitations_zh": [
+      "实验均为离线公开数据集上的全目录排序，未包含线上 A/B 测试或生产流量验证。",
+      "FlowRec 没有官方实现，作者按论文自行实现，并用相同编码器、速度场和解码器与 CAP-Mix 对齐。",
+      "Steam 上 PCA 初始化本身会降低性能；无共访先验时，CAP-Mix 在 from-scratch 和 PCA-text 设定下相对基线基本持平。",
+      "From-scratch 频率分层结果混合；只有在提供预训练 tokenizer 或内容信息时，稀有目标相对增益更大这一模式才较稳定。",
+      "参数效率优势依赖目录规模；在 Yelp 上连续物品表使 CAP-Mix 的热参数略大于 TIGER。",
+      "论文报告三随机种子均值与标准差，但未报告显著性检验。"
+    ],
+    "method_zh": "CAP-Mix 使用 FlowRec 式连续流推荐骨干，但替换物品编码器：每个物品 i 的表示为 x_i = r_i + (γ/S) Σ_s A_i^(s) C^(s)，其中 C^(s) 是第 s 个共享码本的 K 个原型，A_i^(s) 是软分配，r_i 是物品特定向量。分配由物品低维特征 f_i 经每码本仿射投影和轻量注意力块生成 softmax logits；不使用 argmax 或直通估计器，训练和推理都保留软分配。若提供离线残差 SID，则用带温度的后验责任作为每层先验，并用因果注意力尊重层序；若提供完整内容嵌入，则用 PCA 投影和标准化后的向量初始化 r_i，并将原型零初始化。训练目标包括 FlowRec 的源端分类损失、条件流匹配损失、一步端点对齐损失，以及代码匹配损失和原型利用率平衡损失。推理时一次性物化物品表 X，再用流积分得到端点并用带共访先验的 log-linear 解码器排序。",
+    "problem_zh": "离散 Semantic ID 通过共享码字带来跨物品参数共享和语义结构，但硬量化会丢失内容嵌入信息并可能发生码元组碰撞；连续生成式推荐避免量化，却通常使用扁平的逐物品查表，缺少显式的跨物品参数共享。论文要回答：连续生成式推荐能否在不把物品转成离散 token 的前提下获得自适应的跨物品参数共享。",
+    "technical_depth": 0.88
+  },
+  "doi": null,
+  "final_score": 0.914,
+  "id": "arxiv-2611.05799",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-04T01:14:01Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出CAP-Mix，用共享原型与物品向量的软混合表示改进生成式检索中的物品表示与推荐效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Item Representations Matter: Bridging Hard Semantic IDs and Soft Prototype Mixtures for Generative Retrieval",
+  "url": "https://arxiv.org/abs/2611.05799v1"
+}

@@ -1,0 +1,161 @@
+{
+  "abstract": "Recommending creators that a user does not yet follow is a cold-start problem: from hundreds of thousands of popular creators and only a short trail of prior engagements, the system must predict the next creator worth surfacing. The prevailing generative recommendation recipe tokenizes each creator into a \\emph{Semantic ID} (SID) by quantizing a frozen embedding and trains a language model to generate SIDs. We show that this SID layer, not the language model, is the binding constraint. The creator-to-SID map is many-to-one, so colliding creators must be resolved by a popularity tie-break that caps creator-level recall and favors already-popular creators, and the frozen quantizer stops the training gradient from reaching the creator representation. We propose Atomic Creator Token (ACT), which gives every creator its own vocabulary token trained end-to-end. The map is bijective, so collisions are impossible and inference is a direct top-$k$ over creator logits. In a controlled comparison on production data in which the token layer is the only variable, ACT improves creator-level Recall@15 by 19.8 points ($1.84\\times$) over a matched SID baseline, still leads when the SID codebook is enlarged $64\\times$, and serves at ${\\sim}2.7\\times$ lower per-user latency. The advantage carries over to the public KuaiRand dataset, where ACT is the only method that beats a global-popularity baseline, provided each creator token sees enough training examples. In a live A/B test, ACT is directionally positive on every reported metric against both the SID-enhanced and the classic production rankers. Recommending creators that a user does not yet follow is a cold-start problem: from hundreds of thousands of popular creators and only a short trail of prior engagements, the system must predict the next creator worth surfacing. The prevailing generative recommendation recipe tokenizes each creator into a \\emph{Semantic ID} (SID) by quantizing a frozen embedding and trains a language model to generate SIDs. We show that this SID layer, not the language model, is the binding constraint. The creator-to-SID map is many-to-one, so colliding creators must be resolved by a popularity tie-break that caps creator-level recall and favors already-popular creators, and the frozen quantizer stops the training gradient from reaching the creator representation. We propose Atomic Creator Token (ACT), which gives every creator its own vocabulary token trained end-to-end. The map is bijective, so collisions are impossible and inference is a direct top-$k$ over creator logits. In a controlled comparison on production data in which the token layer is the only variable, ACT improves creator-level Recall@15 by 19.8 points ($1.84\\times$) over a matched SID baseline, still leads when the SID codebook is enlarged $64\\times$, and serves at ${\\sim}2.7\\times$ lower per-user latency. The advantage carries over to the public KuaiRand dataset, where ACT is the only method that beats a global-popularity baseline, provided each creator token sees enough training examples. In a live A/B test, ACT is directionally positive on every reported metric against both the SID-enhanced and the classic production rankers.",
+  "arxiv_id": "2611.00323",
+  "authors": [
+    "Zhuosheng Liu",
+    "Yihan Wu",
+    "Ziyun Xu",
+    "Xiaoxuan Liu",
+    "Longfei Yun",
+    "Kevin Han",
+    "Mingze Gao",
+    "Pengfei Wang",
+    "Junfeng Pan",
+    "Wenjie Fu",
+    "Haoran Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对头部创作者推荐，可用 per-creator token 替代 SID 层，前提是每 token 有足够训练样本；长尾用传统检索，形成 routed 系统。",
+      "双射 token 消除碰撞税与流行度 tie-break 对已热门创作者的偏置，有利于发现未连接的新创作者；但数据稀疏时全局流行度仍可能更强。",
+      "服务端收益明确：单 token 解码减少 KV cache/beam 解码步数，免去 codebook join 与 popularity rerank，可降低延迟与 GPU 内存并提高并发。",
+      "工程上新增创作者只需加词表行，无需重建 codebook；10Y×3072 bf16 约 0.6GB，30Y 规模可在单主机内存预算内；可用 LoRA + 两阶段训练落地。",
+      "上线评估应同时看 creator-level recall、NDCG、碰撞/覆盖与在线消费/互动；由于线上提升可能较小，应设置充足样本与护栏指标；后训练 RL 可不上服务关键路径。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出 Atomic Creator Token（ACT）：用双射 φ 为每个候选创作者分配独立词表 token，扩展语言模型词表至最多 30Y；创作者嵌入作为模型参数端到端训练，映射无碰撞，推理为创作者 logits 上的直接 top-k 与 O(1) 反查。",
+      "从理论上说明 SID 的创作者级召回可分解为 cluster recall × ρ，碰撞导致 ρ<1 的“碰撞税”；ACT 的 ν≡1、ρ≡1，且由数据处理不等式论证直接 token 的最优 next-token loss 不劣于 SID。",
+      "在生产数据受控比较中，token 层是唯一变量：10Y 规模下 creator-level Recall@15 从 23.58% 提升到 43.41%（+19.83 点，1.84×）；SID 码本扩大到 (4X)^3、30Y 时 ACT 仍以 38.87% 对 30.15% 领先；服务延迟约低 2.7×。",
+      "在 KuaiRand-27K 上复现：ACT 是唯一在所有评估 cutoff 上超过全局流行度基线的方法；并分析 ACT 需要每个创作者 token 有足够训练样本。线上 A/B 中对 SID-enhanced 与 classic ranker 的所有报告指标均为方向性正向。"
+    ],
+    "evidence_quality": 0.85,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "2 Method"
+      },
+      {
+        "page": 3,
+        "section": "2.3 Training Pipeline"
+      },
+      {
+        "page": 4,
+        "section": "4.2 Main Results"
+      },
+      {
+        "page": 5,
+        "section": "4.3 Why Atomic Creator Tokens Beat Semantic IDs"
+      },
+      {
+        "page": 6,
+        "section": "4.4 Vocabulary Size and Coverage"
+      },
+      {
+        "page": 6,
+        "section": "4.5 Public Data: KuaiRand"
+      },
+      {
+        "page": 7,
+        "section": "4.6 Inference Cost"
+      },
+      {
+        "page": 7,
+        "section": "4.7 Ablation Study"
+      },
+      {
+        "page": 8,
+        "section": "4.8 Online Test"
+      },
+      {
+        "page": 8,
+        "section": "5 Conclusion"
+      },
+      {
+        "page": 9,
+        "section": "Appendix A Largest-Scale Codebook Stress Test"
+      },
+      {
+        "page": 11,
+        "section": "Appendix C Post-Training"
+      },
+      {
+        "page": 12,
+        "section": "Appendix D Representation Analysis"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "匹配 SID 基线（OneRec 风格：冻结 GNN 嵌入 + RQ-KMeans L=3, M=X；同骨干；codebook join + popularity rerank）",
+        "全局流行度基线（训练集中点击最多的创作者）",
+        "最近历史基线（用户最近创作者）",
+        "非生成式 C2C 检索源 A、B 及 RRF 集成 C",
+        "线上 classic production ranker（prod）与 SID-enhanced production arm（prod+SID）",
+        "后训练对照：SFT reference、DPO、GRPO、SDPO"
+      ],
+      "datasets": [
+        "生产未连接创作者数据（按天切分；10Y 设置约 10M 训练事件、约 1M 测试；Y/10Y/30Y 三档候选集）",
+        "KuaiRand-27K（top-50k creators，27,065 用户，16.52M 训练、100k 测试）",
+        "KuaiRand-1K（全创作者与 top creators 两种设置，用于样本量分析）"
+      ],
+      "findings_zh": [
+        "生产 10Y/X^3：ACT vs SID，R@15 43.41% vs 23.58%（+19.83 点，1.84×）；R@50 60.27% vs 34.33%；R@200 79.30% vs 47.62%；NDCG@200 0.343 vs 0.187（+83.4%）。",
+        "Y 档 R@15 59.80% vs 40.81%；10Y 下 SID 码本从 X^3 到 (2X)^3 使 SID 升至 29.21%，ACT 仍 43.41%；30Y 下即使 SID (4X)^3 也只有 30.15%，ACT 38.87%。",
+        "增大码本降低碰撞并缩小差距但无法消除；ACT 的 ν≡1、ρ≡1，无碰撞税；碰撞统计表显示 SID 的 mean ν 与 tax 随规模变化。",
+        "KuaiRand-27K：ACT R@5 1.138% vs SID 0.903%，R@15 2.763% vs 1.859%；全局流行度 R@15 2.351%、最近历史 1.982%；ACT 在所有 cutoff 超过全局流行度，SID 从 K=10 起低于全局流行度。",
+        "KuaiRand-1K：全创作者与仅 top creators 时 ACT R@15 0.75%/1.86%，低于最佳启发式 1.76%/3.78%；对应约 5 与 34 个训练样本/token，而 KuaiRand-27K top-50k 约 331 个，说明收益依赖监督量。",
+        "推理：同硬件 32×A100-80GB、beam width 15、约 1M 用户测试下，ACT 每卡 GPU 内存更低、固定内存并发更高、每用户延迟约低 2.7×；原因是单 token 解码 vs SID 五 token block。",
+        "消融：GNN warm-start 仅小幅优于随机初始化（R@15 44.66 vs 43.91）；加 contrastive loss 降到 43.39；DPO/GRPO/SDPO 均未超过 SFT（Δ@15 -0.15/-1.27/-6.77）。",
+        "线上四臂 A/B：ACT 对 prod+SID 与 prod 所有报告指标方向性正向；product engagement +0.29% vs prod+SID、+0.66% vs prod（p≈0.05），其他变化较小。",
+        "表示分析：ACT 与 GNN 先验 largely decoupled：Linear CKA 0.10、kNN@10 overlap 0.07、Procrustes disparity 0.887。"
+      ],
+      "metrics": [
+        "Creator-level Recall@K（K=1,5,10,15,50,200）",
+        "NDCG@200（按 engagement value v(τ) 加权）",
+        "SID cluster-level Recall@15、碰撞统计 mean ν、ρ=R_creator/R_cluster、tax",
+        "推理成本：每卡 GPU 内存、固定内存下并发吞吐、每用户延迟",
+        "线上相对变化（%）与 p 值"
+      ]
+    },
+    "limitations_zh": [
+      "ACT 不适合任意大目录：每个创作者 token 需要足够 engagement 样本；KuaiRand-1K 约 5/34 样本/token 时不如启发式。",
+      "输出 softmax 随词表增长；ACT 定位为 routed recommender 的 head 组件，长尾仍需传统检索。",
+      "线上 A/B 仅方向性正向，多数指标变化小，只有 product engagement vs prod 接近 p≈0.05；不能证明所有指标显著提升。",
+      "生产数据为专有数据，公开数据仅 KuaiRand；SID 在 30Y 压力测试中只在约 76% 有 GNN embedding 的创作者上评分，而 ACT 覆盖全部，比较并非完全同覆盖。",
+      "GNN warm-start 增益有限；contrastive loss 有害；DPO/GRPO/SDPO 未超过 SFT；多兴趣解码、层级 token、on-policy alignment 留作未来工作。"
+    ],
+    "method_zh": "ACT 保留生成式 next-creator 预测但移除 SID 层。设创作者集合 A，双射 φ:A→{0,...,N_A-1}，在基础词表 V 上加入每个创作者一个 token ⟨a_j⟩；Llama-3.2-3B 隐藏维 3072，每个 token 一个普通词嵌入 w_{φ(a)}。上下文 z=(x_u,H_t^u) 序列化为 profile 文本与历史创作者 token，骨干 f_θ 输出预测位置的 h；解码限制在创作者 token 上，P_θ(a|z)=softmax(w_{φ(a)}^T h)。训练目标为 next-token cross-entropy；创作者嵌入在模型内，梯度直接更新。可选 in-batch contrastive loss。训练管线：默认随机初始化（σ0=0.02），可选 GNN 嵌入线性投影 warm-start；Stage 1 冻结骨干只训练新创作者行；Stage 2 用 LoRA（r=64, α=128, dropout=0.05）与创作者行联合 SFT；Stage 3 可选 DPO/GRPO/SDPO 后训练但实验未优于 SFT。推理直接对创作者 logits top-k，O(1) lookup，无 codebook join/popularity rerank；10Y×3072 bf16 嵌入表约 0.6GB。",
+    "problem_zh": "未连接创作者推荐是生态级冷启动问题：候选创作者数十万、用户历史稀疏。主流生成式推荐用 Semantic ID（SID）把冻结嵌入量化成短码，再由语言模型生成 SID。作者论证瓶颈在 SID 层而非语言模型：创作者到 SID 的映射是多对一，碰撞使同一 SID 对应多个创作者，必须用流行度打破平局，从而限制创作者级召回并偏向已热门创作者；冻结量化器还阻断梯度，推理需码本 join 与重排。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.8995,
+  "id": "arxiv-2611.00323",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-30T19:43:04Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出原子创作者Token替代语义ID，实现端到端的大规模生成式创作者推荐并提升召回与延迟表现。",
+  "targets": [],
+  "tasks": [],
+  "title": "Beyond Semantic IDs: Atomic Creator Tokens for Large-Scale Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.00323v1"
+}

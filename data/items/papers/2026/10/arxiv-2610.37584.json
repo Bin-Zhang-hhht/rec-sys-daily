@@ -1,0 +1,220 @@
+{
+  "abstract": "Personalized recommendation depends on learning semantic and collaborative relations among items from online content and user interactions. Generative recommendation (GR) offers a promising paradigm by autoregressively generating discrete semantic IDs (SIDs) of items. However, randomly initialized SID token embeddings and GR models trained from scratch do not directly inherit the semantic relations inherent in items, while inter-item collaborative relations are learned largely implicitly through token-level attention and next-token supervision. To address this limitation, we propose REGER, a unified framework that explicitly incorporates inter-item relations into semantic pretraining, history encoding, and SID generation. We pretrain the GR model through generative semantic retrieval, enabling it to inherit inter-item semantic similarity by learning to generate semantic neighbors' SIDs. We combine global attention with local attention aligned with SID boundaries to capture historical context and directed transitions between adjacent items. We further develop a theoretical framework for hierarchical preference decomposition over the SID prefix tree, proving an exact factorization of collaborative preference distributions and a weighted decomposition of item-level KL divergence into prefix-conditional KL divergences. Building on this analysis, we distill a discriminative teacher's full conditional distributions over all legal next tokens at ground-truth prefixes along the target SID path, jointly optimizing this objective with cross-entropy. Extensive experiments on real-world datasets demonstrate consistent improvements over existing GR baselines and support the effectiveness of the proposed preference distillation. Personalized recommendation depends on learning semantic and collaborative relations among items from online content and user interactions. Generative recommendation (GR) offers a promising paradigm by autoregressively generating discrete semantic IDs (SIDs) of items. However, randomly initialized SID token embeddings and GR models trained from scratch do not directly inherit the semantic relations inherent in items, while inter-item collaborative relations are learned largely implicitly through token-level attention and next-token supervision. To address this limitation, we propose REGER, a unified framework that explicitly incorporates inter-item relations into semantic pretraining, history encoding, and SID generation. We pretrain the GR model through generative semantic retrieval, enabling it to inherit inter-item semantic similarity by learning to generate semantic neighbors' SIDs. We combine global attention with local attention aligned with SID boundaries to capture historical context and directed transitions between adjacent items. We further develop a theoretical framework for hierarchical preference decomposition over the SID prefix tree, proving an exact factorization of collaborative preference distributions and a weighted decomposition of item-level KL divergence into prefix-conditional KL divergences. Building on this analysis, we distill a discriminative teacher's full conditional distributions over all legal next tokens at ground-truth prefixes along the target SID path, jointly optimizing this objective with cross-entropy. Extensive experiments on real-world datasets demonstrate consistent improvements over existing GR baselines and support the effectiveness of the proposed preference distillation.",
+  "arxiv_id": "2610.37584",
+  "authors": [
+    "Yuxi Huang",
+    "Silin Zhou",
+    "Chenhao Wang",
+    "Zihan Li",
+    "Gangming Guo",
+    "Pei Ke",
+    "Shen Gao",
+    "Shuo Shang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "对已有生成式召回/推荐系统的团队，HCPD是「低成本增强」路径：以现有强判别式模型（如双塔/对比学习序列模型）作冻结教师，仅在训练期加蒸馏项，推理仍是原GR的beam search，测试延迟不变（16s），适合在延迟敏感的线上召回链路试点。",
+      "ITSA只改注意力掩码、不增加参数量，可作为对标现有序列编码器的低风险结构升级点，用于强化「上一个物品→当前物品」的短程转移建模，契合会话式、快消、内容流等转移规律强的场景。",
+      "GSR的语义近邻预训练不依赖用户交互日志，可用于缓解长尾/新品冷启动：以物品内容近邻作为监督信号，对交互稀疏物品提供语义先验，适合SKU更新快、新品多的电商与内容平台。",
+      "HCPD把「候选物品之间的相对偏好」显式注入生成器，对排序头部（NDCG@5/Recall@5提升最大）收益更明显，适合以首屏/头部曝光为核心KPI的业务。",
+      "落地成本主要在训练侧（约+4s/epoch、+22MB显存级别）与两阶段流水线，需评估教师模型的维护成本、蒸馏权重λ与注意力头比例的调参预算，建议先在单域离线复现再扩域。",
+      "方法依赖SID前缀树与合法后继集合的维护，工程上需保证tokenizer版本与SID映射在训练/推理/教师打分间一致（论文中SID映射跨种子共享），这对多团队协作的模型资产管理提出要求。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "识别并形式化GR中物品间关系建模的三类挑战（语义相似、转移结构、用户偏好），提出统一框架REGER。",
+      "设计生成式语义检索（GSR）预训练：以物品SID为输入、以其top-k语义近邻的SID为生成目标，使SID token嵌入与编码器-解码器在推荐训练前继承物品间语义相似关系。",
+      "提出物品转移结构注意力（ITSA）：在同一编码层混合token-global与item-local两类头，item-local头仅在「当前物品+其直接前驱」的完整SID窗口内做双向注意力，形成有向短程转移偏置，且不增加参数量。",
+      "建立SID前缀树上的分层偏好分解理论：证明物品偏好可精确分解为各前缀处合法下一token条件分布的乘积（定理4.1），并证明物品级KL可精确分解为按前缀质量加权的条件KL之和（定理4.2）。",
+      "基于该理论提出分层协同偏好蒸馏（HCPD）：用冻结的判别式推荐器（DuoRec）作教师，在目标SID路径的ground-truth前缀上对齐教师与生成器对全部合法下一token的条件分布，并与CE联合优化。",
+      "在6个真实基准上相对现有GR与混合检索基线取得一致提升，并给出HCPD相对TCA/TCA-Aux/APAO/GFlowGR的训练效率与目标函数/梯度层面的分析。"
+    ],
+    "evidence_quality": 0.87,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 2,
+        "section": "1 Introduction (Fig.1 challenges)"
+      },
+      {
+        "page": 3,
+        "section": "3.1 Item Tokenization"
+      },
+      {
+        "page": 3,
+        "section": "3.2 Problem Formulation (Eq.2 CE)"
+      },
+      {
+        "page": 4,
+        "section": "4.1 Generative Semantic Retrieval (Eq.3-4)"
+      },
+      {
+        "page": 5,
+        "section": "4.2 Item Transition Structure Attention (Eq.5-6)"
+      },
+      {
+        "page": 5,
+        "section": "4.3.1 Preference and KL Decomposition (Thm 4.1-4.2)"
+      },
+      {
+        "page": 6,
+        "section": "4.3.2 Distillation and Training Objectives (Eq.10-14)"
+      },
+      {
+        "page": 6,
+        "section": "5.1 Experimental Setting"
+      },
+      {
+        "page": 7,
+        "section": "5.2 Main Results (Table 1)"
+      },
+      {
+        "page": 8,
+        "section": "5.3 Ablation Study (Table 3)"
+      },
+      {
+        "page": 8,
+        "section": "5.4 Comparison of Training Objectives (Tables 2,4)"
+      },
+      {
+        "page": 9,
+        "section": "5.5 In-depth Analysis (Figs.3-4)"
+      },
+      {
+        "page": 9,
+        "section": "5.6 Hyperparameter Analysis (Figs.5-6)"
+      },
+      {
+        "page": 10,
+        "section": "6 Conclusion"
+      },
+      {
+        "page": 11,
+        "section": "A.3 Implementation Details"
+      },
+      {
+        "page": 11,
+        "section": "B Results on Amazon Reviews 2023 (Table 6)"
+      },
+      {
+        "page": 11,
+        "section": "C Effect of the Distillation Teacher (Table 7)"
+      },
+      {
+        "page": 12,
+        "section": "D.3 Full-Tree KL and Ground-Truth Path Distillation"
+      },
+      {
+        "page": 12,
+        "section": "D.4 Comparison with TCA-Aux"
+      },
+      {
+        "page": 13,
+        "section": "E Scope of KL Supervision in HCPD (Table 8)"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "SASRec",
+        "FDSA",
+        "BERT4Rec",
+        "S³-Rec",
+        "DuoRec",
+        "TIGER",
+        "LETTER",
+        "EAGER",
+        "UNGER",
+        "ReSID",
+        "ETEGRec",
+        "DIGER",
+        "ActionPiece",
+        "TIGER-SST",
+        "LIGER",
+        "MemGen-GR",
+        "TCA",
+        "TCA-Aux",
+        "APAO-pointwise",
+        "GFlowGR-DB",
+        "GFlowGR-TB",
+        "DECOR",
+        "Latte",
+        "TIGER-TopoTok"
+      ],
+      "datasets": [
+        "Beauty (Amazon Reviews 2014)",
+        "Sports (Amazon Reviews 2014)",
+        "Toys (Amazon Reviews 2014)",
+        "Instruments (Amazon Reviews 2023)",
+        "Scientific (Amazon Reviews 2023)",
+        "Games (Amazon Reviews 2023)"
+      ],
+      "findings_zh": [
+        "在2014三个数据集上REGER在全部指标上优于所有生成式与混合检索基线，并在多数设置下优于判别式基线DuoRec；仅在Toys上Recall低于DuoRec但NDCG持平或略优。",
+        "在2023三个更大规模数据集上REGER取得最优或次优结果；即使在Scientific上教师DuoRec本身弱于REGER w/o HCPD，HCPD仍带来提升，说明教师top-K性能不能完全代表其偏好分布的监督价值。",
+        "消融显示去掉任一组件均一致降级；去HCPD降幅最大，Recall@5下降10.9%–18.0%，说明在CE的正样本监督之外补充协同偏好监督最为关键。",
+        "将HCPD直接用于TIGER时在三个数据集全部指标上最优，优于TCA、TCA-Aux、APAO-pointwise与GFlowGR两个变体（均使用同一冻结DuoRec），表明「如何监督」比「是否使用协同信号」更重要。",
+        "效率上HCPD显存3094MB、23s/epoch、测试16s（TIGER为3072MB、19s、16s），而GFlowGR-DB/TB需228/239s每epoch；TCA与TCA-Aux因受限解码测试时间升至106s，说明HCPD训练开销适中且不改变推理速度。",
+        "教师选择影响显著：以更弱的SASRec为教师可提升Recall@50但不稳定地损害NDCG@5/Recall@5，DuoRec在全部指标上稳定提升。",
+        "超参分析：GSR近邻数K在{5,10,20,50}中K=10在三个数据集上Recall@10最优；λ从0.1到1.0变化，NDCG@10在Beauty/Sports取0.8、Toys取1.0最佳；ITSA的local:global头比例存在数据集相关的最优值，且优于全local或全global。",
+        "分析显示REGER的物品表示余弦相似度整体更高，且与语义参考的Spearman相关性更一致（SID映射不变），说明GSR让生成器学到更好反映内容关系的SID序列表示；注意力可视化显示local头呈现明显的次对角带（前驱→当前物品）。",
+        "HCPD变体对比（Beauty）：对合法分支重归一化的HCPD优于使用全词表概率的HCPD-Full，NDCG@5/Recall@5相对提升约3.4%/2.4%，差距随列表长度增加而收窄。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "Recall@10",
+        "NDCG@5",
+        "NDCG@10",
+        "Recall@50",
+        "NDCG@50",
+        "Recall@20",
+        "NDCG@20",
+        "训练显存(MB)",
+        "每epoch训练时间(s)",
+        "最佳epoch",
+        "测试推理时间(s)",
+        "Spearman相关系数(物品对相似度)"
+      ]
+    },
+    "limitations_zh": [
+      "依赖一个强判别式教师（DuoRec）：附录C显示换成更弱的SASRec作教师虽提升Recall@50，但会降低NDCG@5与Recall@5，说明蒸馏效果受教师相对偏好刻画能力制约。",
+      "HCPD只是理论最优全树KL的可处理代理：仅在ground-truth SID路径的前缀上计算条件KL，其前缀权重一般不同于教师前缀质量，因此并不等价于按定理4.2加权的全树KL（附录D.3明确说明）。",
+      "在只有一个合法后继token的前缀上HCPD的KL恒为零，即不提供额外监督；蒸馏信号主要作用于存在竞争分支的前缀。",
+      "需要两阶段训练（GSR预训练+推荐训练）与一次额外的近邻检索/预训练流程，工程链路比单阶段TIGER更复杂；论文只给出时间与显存的绝对值，未给出端到端总成本对比。",
+      "多个关键超参（λ、item-local:token-global头比例、K）按数据集分别选取，存在逐数据集调参成本，泛化到新域需重新搜索。",
+      "实验主要与自复现基线对比，部分2023年基线结果取自其他论文（Latte、OMEGA、DECOR、TopoTok原文），存在实现与预处理不完全一致的潜在偏差。",
+      "论文未报告在工业级大规模、冷启动或实时在线A/B场景的验证，也未讨论SID词表规模增长、前缀树约束解码等线上部署细节。"
+    ],
+    "method_zh": "REGER为两阶段训练的编码器-解码器（T5 backbone）生成式推荐框架。阶段一为GSR预训练：用物品文本嵌入做余弦相似度检索top-k近邻，构造（源物品SID → 近邻物品SID）的生成任务，以教师强制的token级CE优化，从而同时更新SID token嵌入与骨干网络；checkpoint按验证集推荐性能选择。阶段二为推荐训练：编码器对展平的历史SID序列编码，每层按给定比例混合token-global头（全历史双向注意力）与item-local头（掩码限定在g(q)∈{g(p)-1, g(p)}，即当前物品与直接前驱的完整SID，窗口内双向、跨物品有向）；解码器自回归生成目标SID。训练目标为L_GR = L_CE + λ·L_HCPD。HCPD先把SID组织为前缀树，定义前缀质量m_P(a)与条件分布P(v|a)；教师分布P_T(i)=softmax(r_u(i))，其前缀条件分布q_T(v|a)由该分支下物品概率质量归一化得到；生成器在同一合法token集合上重归一化得q_θ(v|a)；在目标物品的ground-truth前缀a_ℓ上逐层计算KL并取平均，提供梯度∝q_θ(v|a)-q_T(v|a)的纠正信号。推理时使用全词表softmax累积对数概率的无约束beam search，不使用教师。超参上K=10，λ按数据集在0.8~1.0间选取，item-local:token-global头比例按数据集选取（如2:4、5:1、3:3）。",
+    "problem_zh": "生成式推荐（GR）以离散语义ID（SID）token序列自回归生成物品，但存在三类「物品间关系」建模缺口：(1) SID token embedding 随机初始化、模型从零训练，无法直接继承由物品内容得到的语义相似关系；(2) 历史编码把交互序列展平为SID token序列并用双向自注意力，未显式施加尊重完整SID边界、刻画相邻物品有向转移的局部约束；(3) 生成阶段仅用下一token交叉熵监督正样本SID，未显式对齐用户对候选物品的协同偏好排序关系，导致物品级竞争关系只能隐式学习。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.874,
+  "id": "arxiv-2610.37584",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-10-27T17:25:12Z",
+  "relevance_score": 0.94,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出REGER统一框架，通过生成式语义检索预训练、SID边界对齐的局部注意力以及基于SID前缀树的偏好蒸馏，把物品间语义与协同关系显式注入生成式推荐的各个阶段。",
+  "targets": [],
+  "tasks": [],
+  "title": "REGER: Modeling inter-item Relations with Semantic IDs for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2610.37584v2"
+}

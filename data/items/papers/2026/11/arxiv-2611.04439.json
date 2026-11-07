@@ -1,0 +1,142 @@
+{
+  "abstract": "Recommender systems are widely used in e-commerce and content platforms, where improvement requires repeated model design, training optimization, and experimental validation. Large language model (LLM) agents increasingly automate this development cycle. Sustained autonomous improvement requires agents to improve both recommendation models and their development workflows. However, task-performance-driven approaches select updates mainly by candidates' final scores, without a separate optimization signal for experimentation quality. We therefore present DualEvolve, a dual-level framework that co-evolves recommendation mechanisms and agent orchestration toward recursive self-improvement. Inner evolution revises model and training code using task feedback to improve recommendation performance. Outer evolution scores the inner-loop experimental process, updates harness and skill rules using these scores and execution traces, and adjusts orchestration choices based on next-round scores to improve the quality of subsequent experiments. Experiments on MovieLens-1M and three Amazon Reviews 2023 subsets cover four recommendation methods and 16 settings. DualEvolve achieves higher test means than Base, OpenEvolve, and DeepEvolve in all 64 setting-metric comparisons, with macro-averaged relative gains over DeepEvolve of 7.6% (HR@5) and 9.0% (NDCG@5). Recommender systems are widely used in e-commerce and content platforms, where improvement requires repeated model design, training optimization, and experimental validation. Large language model (LLM) agents increasingly automate this development cycle. Sustained autonomous improvement requires agents to improve both recommendation models and their development workflows. However, task-performance-driven approaches select updates mainly by candidates' final scores, without a separate optimization signal for experimentation quality. We therefore present DualEvolve, a dual-level framework that co-evolves recommendation mechanisms and agent orchestration toward recursive self-improvement. Inner evolution revises model and training code using task feedback to improve recommendation performance. Outer evolution scores the inner-loop experimental process, updates harness and skill rules using these scores and execution traces, and adjusts orchestration choices based on next-round scores to improve the quality of subsequent experiments. Experiments on MovieLens-1M and three Amazon Reviews 2023 subsets cover four recommendation methods and 16 settings. DualEvolve achieves higher test means than Base, OpenEvolve, and DeepEvolve in all 64 setting-metric comparisons, with macro-averaged relative gains over DeepEvolve of 7.6% (HR@5) and 9.0% (NDCG@5).",
+  "arxiv_id": "2611.04439",
+  "authors": [
+    "Tianqi Gao",
+    "Chenxu Wang",
+    "Wenxuan Yang",
+    "Yueqi Mou",
+    "Biao Tang",
+    "Ming Liu",
+    "Peng Yan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "mineru_full_text",
+    "business_implications_zh": [
+      "可用于电商、内容平台等推荐团队的自动化模型与训练代码搜索，把工程师从重复的模型设计、训练调优和实验验证中部分解放出来。",
+      "引入独立的过程质量信号，有助于团队区分“实验设计好但本轮未涨点”和“盲目重试/碰运气”，提升实验预算配置与搜索重定向效率。",
+      "跨设置迁移演化出的harness和skill规则，可在新数据集或新推荐方法上复用实验策略，降低冷启动搜索成本。",
+      "固定评估器、固定准入规则、噪声与成本感知门槛以及静态审计，可作为企业内自动化实验平台的治理基线，但完全披露捷径的实验表明仍需沙箱、权限隔离和人工复核。",
+      "token使用较DeepEvolve低49%–63%，对LLM成本敏感的大规模推荐实验平台有直接降本价值；但单GPU、12小时搜索和离线评估意味着落地前仍需评估基础设施成本与在线收益。"
+    ],
+    "business_transferability": 0.76,
+    "contributions_zh": [
+      "提出DualEvolve双层框架，在固定评估器与准入规则下，联合演化推荐机制和指导机制改进的智能体编排层。",
+      "设计基于过程反馈的自适应编排：用决策质量、实验严谨性、分析深度和搜索新颖性评分更新动作类型效用，用Thompson采样选择harness与skill编辑，并用证据驱动搜索重定向。",
+      "在4个数据集和4种推荐方法共16个设置、64个设置-指标比较中，DualEvolve的测试均值均高于Base、OpenEvolve和DeepEvolve；相对DeepEvolve的宏平均相对增益为HR@5 7.6%、NDCG@5 9.0%。",
+      "通过组件消融、独立重复搜索、跨设置规则迁移、搜索成本与捷径暴露压力测试，分析记忆、动作选择、规则更新、过程反馈和奖励完整性。",
+      "将评估器、成本测量、校准和机制准入置于可编辑范围之外，并用静态审计限制候选代码访问评估数据。"
+    ],
+    "evidence_quality": 0.84,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      },
+      {
+        "page": 1,
+        "section": "1 Introduction"
+      },
+      {
+        "page": 3,
+        "section": "3 Problem Formulation"
+      },
+      {
+        "page": 4,
+        "section": "4 Methodology"
+      },
+      {
+        "page": 7,
+        "section": "5.2 RQ1"
+      },
+      {
+        "page": 8,
+        "section": "5.3 RQ2"
+      },
+      {
+        "page": 9,
+        "section": "5.4 RQ3"
+      },
+      {
+        "page": 9,
+        "section": "5.5 RQ4"
+      },
+      {
+        "page": 11,
+        "section": "Appendix B"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Base（未演化的NCF、NGCF、SASRec、GRU4Rec）",
+        "OpenEvolve (OE)",
+        "DeepEvolve (DE)",
+        "w/o Wiki",
+        "w/o TS",
+        "Fixed Rules",
+        "Task-Gain",
+        "No Transfer（迁移实验对照）"
+      ],
+      "datasets": [
+        "Amazon Reviews 2023 CDs&Vinyl",
+        "Amazon Reviews 2023 Baby",
+        "Amazon Reviews 2023 Software",
+        "MovieLens-1M (ML-1M)"
+      ],
+      "findings_zh": [
+        "主表覆盖4个数据集×4种推荐方法×4个指标，共64个设置-指标比较，DualEvolve测试均值全部高于Base、OE和DE。",
+        "相对Base的宏平均相对增益为HR@5 13.8%、HR@10 10.0%、NDCG@5 17.1%、NDCG@10 14.3%；相对OE为8.5%、6.1%、11.0%、9.1%；相对DE为7.6%、6.8%、9.0%、8.1%。",
+        "在3个代表性设置各独立搜索3次，DualEvolve在全部12个设置-指标比较中重复搜索均值最高，且对更高均值OE/DE比较器的双侧Welch检验p<0.05。",
+        "组件比较中Full在Baby/NGCF和CDs&Vinyl/GRU4Rec两个设置的四项指标上均最高；w/o Wiki、w/o TS、Fixed Rules、Task-Gain均低于Full但仍高于Base。",
+        "跨设置迁移到Software/NGCF时，Baby/NGCF和Baby/NCF演化规则均显著高于No Transfer，并在四项指标上高于目标Base。",
+        "搜索成本为5.2–11.2小时、0.77–1.00百万tokens；DE为10.5–10.9小时、估计1.85–2.29百万tokens，DualEvolve token使用低49%–63%，墙钟时间在3个设置更低。",
+        "捷径暴露压力测试中，未披露和部分披露条件下112个生成机制均未使用捷径；完全披露条件下一个搜索的28个机制中有25个使用捷径，验证分数被抬高到1.6961且无法在干净评估器执行。",
+        "过程评分器与人工标注在3387个准则判断上 pooled agreement 83.1%、Cohen's kappa 0.432。"
+      ],
+      "metrics": [
+        "HR@5",
+        "HR@10",
+        "NDCG@5",
+        "NDCG@10",
+        "验证目标 0.6 HR@5 + 0.4 NDCG@5",
+        "wall-clock hours",
+        "LLM tokens（百万）",
+        "捷径使用机制数/搜索数",
+        "grader-human agreement与Cohen's kappa"
+      ]
+    },
+    "limitations_zh": [
+      "主网格每个框架和设置只运行一次搜索；主表显著性基于三个初始化种子的测试结果，搜索级稳定性只在3个代表性设置上各运行3次。",
+      "显著性检验未做多重比较校正，且比较对象为OE/DE中均值更高者。",
+      "所有实验使用冻结GLM-5.2、单GPU和12小时搜索上限，知识快照只读且在线工具与源摄取被禁用，结论对更强/更新模型和在线环境的泛化未验证。",
+      "评估限于离线数据集和固定负采样评估协议，没有在线A/B测试、真实用户反馈或工业推荐系统部署结果。",
+      "DE的token数为估计值；DualEvolve墙钟时间并非所有设置都更低（ML-1M/SASRec为11.2小时对10.5小时）。",
+      "组件消融只覆盖两个设置，迁移实验只覆盖一个目标设置和两个源设置；低/高保真筛选可能漏掉候选，67个重评估候选中1个在完整预算下反超原搜索赢家。",
+      "过程评分器与人工标注的一致性中等（kappa=0.432），替代评分器的kappa更低；完全披露捷径时仍出现奖励操纵传播，说明仅靠固定边界和静态审计不能完全消除风险。"
+    ],
+    "method_zh": "DualEvolve包含内层机制演化和外层编排演化。内层用冻结LLM的diagnoser、proposer、coder、analyst、refiner角色，基于运行时信号、谱系历史、内外wiki知识生成候选；候选经低/高两档训练预算筛选，最终按噪声与成本感知的固定promotion gate决定是否替换incumbent。外层在每个round结束后由固定GLM-5.2 grader从决策质量、实验严谨性、分析深度和搜索新颖性四维评估实验轨迹，形成R_outer；菜单智能体提出至多一个harness编辑和一个skill编辑，Thompson采样在KEEP与可用编辑类型间选择，下一轮过程奖励作为延迟效用观测，用EMA基线残差更新动作类型后验；停滞检查可追加方向引导。评估器与准入规则固定，过程奖励只指导编排更新。",
+    "problem_zh": "推荐系统迭代依赖反复的模型设计、训练调优与实验验证，LLM智能体虽可自动化这一过程，但现有任务性能驱动方法主要按候选最终分数选择更新，缺少对实验设计、诊断分析和后续决策质量的独立优化信号，难以区分“因实验过程更好而改进”与“仅因任务分数波动而改进”。",
+    "technical_depth": 0.9
+  },
+  "doi": null,
+  "final_score": 0.922,
+  "id": "arxiv-2611.04439",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-07T13:47:53.659393Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-03T07:32:10Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出DualEvolve，用双层自进化框架协同优化推荐机制与LLM智能体编排，提升推荐实验与模型性能。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "DualEvolve: Dual-Level Self-Evolution of Mechanism and Orchestration for Recommendation",
+  "url": "https://arxiv.org/abs/2611.04439v1"
+}

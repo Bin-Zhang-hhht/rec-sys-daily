@@ -1,0 +1,62 @@
+{
+  "blogs": [
+    {
+      "item_id": "url-a1371a21a182863904bffc0f",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该 Pinterest 工程博客介绍通过冻结大 ID 嵌入表实现多轮训练，解决 Homefeed 排序模型多轮微调中的质量退化与 GPU 通信浪费问题。"
+    }
+  ],
+  "date": "2026-11-07",
+  "papers": [
+    {
+      "item_id": "arxiv-2611.04715",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出ZeroGR，一种面向生成式推荐的过滤优先约束解码系统，加速候选过滤与打分并降低GPU索引内存。"
+    },
+    {
+      "item_id": "arxiv-2611.04439",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出DualEvolve，用双层自进化框架协同优化推荐机制与LLM智能体编排，提升推荐实验与模型性能。"
+    },
+    {
+      "item_id": "arxiv-2611.05799",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出CAP-Mix，用共享原型与物品向量的软混合表示改进生成式检索中的物品表示与推荐效果。"
+    },
+    {
+      "item_id": "arxiv-2611.06521",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出面向序列推荐的个性化潜在推理框架DESRec，通过推理步选择与渐进偏好提取提升用户建模和物品排序。"
+    },
+    {
+      "item_id": "arxiv-2611.00323",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出原子创作者Token替代语义ID，实现端到端的大规模生成式创作者推荐并提升召回与延迟表现。"
+    },
+    {
+      "item_id": "arxiv-2610.36836",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出双分支框架 DuTri，用 CP 分解与残差量化学习跨场景协同偏好，并以多模态分支和对比学习实现多模态多场景推荐。"
+    },
+    {
+      "item_id": "arxiv-2611.04570",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文通过大规模用户实验研究语音介绍如何激发音乐推荐中的品味拓展与品味深化两类意外惊喜。"
+    },
+    {
+      "item_id": "arxiv-2611.06610",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出基于用户-用户关系的EASE替代方案及融合用户-物品邻接分布的混合模型，在推荐基准上超越EASE，凸显浅层自编码器研究中引入用户侧信息的价值。"
+    },
+    {
+      "item_id": "arxiv-2610.37584",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出REGER统一框架，通过生成式语义检索预训练、SID边界对齐的局部注意力以及基于SID前缀树的偏好蒸馏，把物品间语义与协同关系显式注入生成式推荐的各个阶段。"
+    },
+    {
+      "item_id": "arxiv-2610.38378",
+      "rank": 10,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：快手提出GR4AD-X工业生成式推荐框架，通过多路径语义ID构建、多维容量扩展与统一价值对齐，在严格时延约束下实现线上广告收入提升3.07%。"
+    }
+  ]
+}
