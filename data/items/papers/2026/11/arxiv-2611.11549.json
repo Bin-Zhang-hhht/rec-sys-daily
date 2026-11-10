@@ -1,0 +1,76 @@
+{
+  "abstract": "Generative recommendation models represent items as sequences of discrete tokens known as semantic IDs. Existing approaches derive these identifiers using residual or hierarchical vector quantization, assuming that tokens carry independent semantic meaning across quantization levels. Revisiting this assumption, we argue that semantic IDs should behave as hierarchical paths where each token's meaning is conditioned on its prefix. This highlights a mismatch between conventional fixed-codebook quantization and the hierarchical structure implicitly learned by generative recommenders. Motivated by this insight, we propose Adaptive Silhouette Tree (AST), a top-down divisive clustering method that constructs semantic IDs as paths within a tree structure. Unlike prior methods with fixed branching factors, AST dynamically determines the number of branches at each node by maximizing the silhouette coefficient, enabling finer partitions in dense regions and compact groupings in homogeneous ones. We further introduce constrained variants that enforce minimum probability mass during splitting to improve supervision for long-tail items. Extensive experiments on five Amazon Review datasets of varying sizes and domains show that AST significantly outperforms strong baselines. These results demonstrate that aligning semantic ID construction with the inherent hierarchical structure of generative recommenders leads to more effective recommendations. Generative recommendation models represent items as sequences of discrete tokens known as semantic IDs. Existing approaches derive these identifiers using residual or hierarchical vector quantization, assuming that tokens carry independent semantic meaning across quantization levels. Revisiting this assumption, we argue that semantic IDs should behave as hierarchical paths where each token's meaning is conditioned on its prefix. This highlights a mismatch between conventional fixed-codebook quantization and the hierarchical structure implicitly learned by generative recommenders. Motivated by this insight, we propose Adaptive Silhouette Tree (AST), a top-down divisive clustering method that constructs semantic IDs as paths within a tree structure. Unlike prior methods with fixed branching factors, AST dynamically determines the number of branches at each node by maximizing the silhouette coefficient, enabling finer partitions in dense regions and compact groupings in homogeneous ones. We further introduce constrained variants that enforce minimum probability mass during splitting to improve supervision for long-tail items. Extensive experiments on five Amazon Review datasets of varying sizes and domains show that AST significantly outperforms strong baselines. These results demonstrate that aligning semantic ID construction with the inherent hierarchical structure of generative recommenders leads to more effective recommendations.",
+  "arxiv_id": "2611.11549",
+  "authors": [
+    "Guy Hadad",
+    "Haggai Roitman",
+    "Bracha Shapira"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可用于电商或内容平台的商品与内容目录语义 ID 构建，以层次路径替代固定码本 token，帮助生成式推荐模型利用前缀条件语义。",
+      "按轮廓系数自适应分支可在密集品类做更细粒度划分，在同质品类保持紧凑分组，有助于平衡目录粒度和表示效率。",
+      "最小概率质量约束为长尾物品提供更强监督信号，可探索用于改善冷门或长尾商品的推荐覆盖。",
+      "落地前需在自有目录数据上验证具体收益，因为摘要未披露指标幅度和基线细节。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "指出固定码本量化与生成式推荐器隐式层次结构之间的不匹配，主张 semantic IDs 应是由前缀条件化的层次路径。",
+      "提出 Adaptive Silhouette Tree（AST）：一种自顶向下分裂聚类方法，将 semantic IDs 构造为树中的路径。",
+      "AST 不使用固定分支因子，而是在每个节点通过最大化轮廓系数动态决定分支数，使密集区域划分更细、同质区域分组更紧凑。",
+      "提出带约束的变体，在分裂时强制最小概率质量，以改善长尾物品的监督。",
+      "在五个不同规模和领域的 Amazon Review 数据集上，AST 显著优于强基线，表明让 semantic ID 构造与生成式推荐器的层次结构对齐可提升推荐效果。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "强基线（摘要未列出具体方法名称）"
+      ],
+      "datasets": [
+        "五个 Amazon Review 数据集（摘要仅说明规模与领域不同，未列出具体名称）"
+      ],
+      "findings_zh": [
+        "AST 在五个不同规模和领域的 Amazon Review 数据集上显著优于强基线。",
+        "作者将效果归因于让 semantic ID 构造与生成式推荐器固有的层次结构对齐。",
+        "带最小概率质量约束的分裂变体旨在改善长尾物品监督，但摘要未给出该变体的单独量化结果。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "摘要未报告具体评测指标、基线名称和提升幅度，无法评估统计显著性与相对增益。",
+      "仅在 Amazon Review 数据集上验证，跨平台、跨品类和其他推荐场景的泛化性未在摘要中说明。",
+      "摘要未提供树深度、分支数、轮廓系数阈值和最小概率质量约束等超参数敏感性或消融细节。"
+    ],
+    "method_zh": "AST 采用自顶向下的分裂聚类构建树：从根节点开始递归分裂，形成层次路径作为 semantic IDs；每个节点通过最大化轮廓系数（silhouette coefficient）动态选择分支数，而非使用固定分支因子；另提供约束变体，在分裂时要求最小概率质量，以增强长尾物品的监督。",
+    "problem_zh": "生成式推荐模型将物品表示为离散 token 序列（semantic IDs）。现有方法多用残差或层次向量量化构造 semantic IDs，并假设各量化层级的 token 语义相互独立；本文认为 semantic IDs 应是由前缀条件化的层次路径，因此固定码本量化与生成式推荐器隐式学习的层次结构存在不匹配。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7360000000000001,
+  "id": "arxiv-2611.11549",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T23:33:31.467840Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-08T18:48:09Z",
+  "relevance_score": 0.92,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文针对生成式推荐提出自适应轮廓树AST，将物品语义ID构建为树上的分层路径以提升推荐效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "Not All Branches Are Equal: Adaptive Semantic ID Construction for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.11549v1"
+}

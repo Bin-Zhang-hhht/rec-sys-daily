@@ -1,0 +1,92 @@
+{
+  "abstract": "Generative recommendation (GR) is moving industrial recommender systems (RecSys) from scoring candidate items to autoregressively generating item identifiers. This shift promises higher recommendation quality, but makes serving substantially harder: each request executes a short sequence of dependent decoding steps that explore a large item space and select promising candidates on the latency-critical path. GR not only creates structural mismatches with conventional RecSys pipelines, but also challenges the architectural and optimization assumptions of LLM serving stacks, making direct adoption of existing systems difficult. We present RecoGEM, our production GR serving system. RecoGEM uses a runtime--engine decoupling architecture to move GR-specific serving responsibilities, such as candidate-state transitions and live artifact updates, to a dedicated runtime. Its execution engine exploits GR's short token sequences, large candidate populations, and predictable step shapes to optimize self-attention, candidate selection, and execution planning. RecoGEM has been deployed for over nine months across our production lines, serving applications with hundreds of millions of users and supporting more than ten GR model families. On our OneModel production workloads, RecoGEM reaches over 1,000 QPS per serving instance with P99 latency below 35 ms and a 2.88$\\times$ throughput improvement over representative baselines. Generative recommendation (GR) is moving industrial recommender systems (RecSys) from scoring candidate items to autoregressively generating item identifiers. This shift promises higher recommendation quality, but makes serving substantially harder: each request executes a short sequence of dependent decoding steps that explore a large item space and select promising candidates on the latency-critical path. GR not only creates structural mismatches with conventional RecSys pipelines, but also challenges the architectural and optimization assumptions of LLM serving stacks, making direct adoption of existing systems difficult. We present RecoGEM, our production GR serving system. RecoGEM uses a runtime--engine decoupling architecture to move GR-specific serving responsibilities, such as candidate-state transitions and live artifact updates, to a dedicated runtime. Its execution engine exploits GR's short token sequences, large candidate populations, and predictable step shapes to optimize self-attention, candidate selection, and execution planning. RecoGEM has been deployed for over nine months across our production lines, serving applications with hundreds of millions of users and supporting more than ten GR model families. On our OneModel production workloads, RecoGEM reaches over 1,000 QPS per serving instance with P99 latency below 35 ms and a 2.88$\\times$ throughput improvement over representative baselines.",
+  "arxiv_id": "2611.12296",
+  "authors": [
+    "Xiangrui Yang",
+    "Yunfeng Zhao",
+    "Jiawei Yang",
+    "Fangyu Zhang",
+    "Enrui Zhao",
+    "Liang Zeng",
+    "Cheng Peng",
+    "Minhui Xie",
+    "Jiaqiang Liu",
+    "Xiao Liang",
+    "Yiming Qiu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对生成式推荐落地而言，服务层需针对短解码序列和大候选空间单独设计，而非直接复用通用 LLM 服务栈。",
+      "将 GR 特有状态管理与执行引擎解耦，有助于支持在线模型/制品更新和多模型族共存。",
+      "超过 1,000 QPS、P99 低于 35 ms 的生产指标表明，在严格延迟约束下部署生成式推荐具备可行性。",
+      "九个月生产部署和数亿用户规模说明该架构已通过较大规模线上验证，但迁移到其他业务仍需验证负载差异和推荐质量收益。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出面向生产环境的生成式推荐服务系统 RecoGEM。",
+      "采用运行时与执行引擎解耦架构，将候选状态迁移、在线制品更新等 GR 特有服务职责移至专用运行时。",
+      "执行引擎利用 GR 的短 token 序列、大候选规模和可预测步骤形状，优化自注意力、候选选择与执行规划。",
+      "报告该系统已在生产环境部署超过九个月，服务数亿用户，支持十余个 GR 模型族。",
+      "在 OneModel 生产负载上报告每服务实例超过 1,000 QPS、P99 延迟低于 35 ms，并相对代表性基线实现 2.88 倍吞吐提升。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "代表性基线（摘要未具体命名）"
+      ],
+      "datasets": [
+        "OneModel 生产负载"
+      ],
+      "findings_zh": [
+        "在 OneModel 生产负载上，RecoGEM 达到每服务实例超过 1,000 QPS。",
+        "在 OneModel 生产负载上，RecoGEM 的 P99 延迟低于 35 ms。",
+        "相对代表性基线，RecoGEM 实现 2.88 倍吞吐提升。",
+        "系统已在多条生产线部署超过九个月，服务数亿用户，并支持十余个 GR 模型族。"
+      ],
+      "metrics": [
+        "每服务实例 QPS",
+        "P99 延迟",
+        "吞吐量提升倍数"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，缺少完整实验设置、基线细节和消融分析。",
+      "未报告推荐质量或在线业务指标，主要证据集中在服务吞吐与延迟。",
+      "生产评估主要基于 OneModel 负载，摘要未说明对其他负载或模型族的泛化程度。",
+      "摘要未披露候选状态迁移、在线制品更新和自注意力优化的具体实现细节。"
+    ],
+    "method_zh": "RecoGEM 采用运行时—执行引擎解耦架构：专用运行时承载 GR 特有的候选状态迁移和在线制品更新等职责；执行引擎针对 GR 短 token 序列、大候选群体和可预测步骤形状，对自注意力、候选选择和执行规划进行优化。",
+    "problem_zh": "生成式推荐（GR）将工业推荐系统从对候选物品打分转向自回归生成物品标识。该转变有望提升推荐质量，但使服务显著变难：每个请求需在延迟关键路径上执行一串依赖的解码步骤，探索大物品空间并选择候选，同时与常规推荐流水线及现有 LLM 服务栈的架构和优化假设不匹配，难以直接采用现有系统。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.7474999999999999,
+  "id": "arxiv-2611.12296",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T23:33:31.467840Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-09T12:20:07Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文介绍生产级生成式推荐服务系统 RecoGEM，通过运行时与引擎解耦架构及针对短序列、大候选空间的执行优化，在 OneModel 线上负载实现单实例超 1000 QPS、P99 低于 35 ms 与 2.88 倍吞吐提升。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "RecoGEM: A Serving System for Production-Scale Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.12296v1"
+}

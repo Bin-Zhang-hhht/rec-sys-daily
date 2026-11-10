@@ -1,0 +1,83 @@
+{
+  "abstract": "Recommender systems are transitioning from static retrieval engines into interactive assistants grounded in physical environments. However, current studies largely neglect the combined complexities of spatial navigation, visual grounding, and multi-turn social interaction. To bridge this gap, we introduce SituRecBench, an interactive benchmark for evaluating frontier vision-language models (VLMs) as situated recommendation assistants within high-fidelity 3D environments. We reformulate recommendation as a situated assistance process in which an assistant interacts with a user while sharing the user's egocentric view. Our benchmark simulates real-world shopping environments (e.g., supermarkets and home furnishings stores), requiring assistants to elicit preferences, ground recommendations in the environment, and guide the user to relevant locations through dialogue. The benchmark evaluates dialogue quality, recommendation utility, and navigation effectiveness through a unified interactive protocol. Extensive experiments reveal persistent challenges in spatial grounding and preference elicitation, highlighting limitations in their ability to integrate global contextual information with local observations. SituRecBench provides a rigorous foundation for advancing the development of situated assistants in the real world. Recommender systems are transitioning from static retrieval engines into interactive assistants grounded in physical environments. However, current studies largely neglect the combined complexities of spatial navigation, visual grounding, and multi-turn social interaction. To bridge this gap, we introduce SituRecBench, an interactive benchmark for evaluating frontier vision-language models (VLMs) as situated recommendation assistants within high-fidelity 3D environments. We reformulate recommendation as a situated assistance process in which an assistant interacts with a user while sharing the user's egocentric view. Our benchmark simulates real-world shopping environments (e.g., supermarkets and home furnishings stores), requiring assistants to elicit preferences, ground recommendations in the environment, and guide the user to relevant locations through dialogue. The benchmark evaluates dialogue quality, recommendation utility, and navigation effectiveness through a unified interactive protocol. Extensive experiments reveal persistent challenges in spatial grounding and preference elicitation, highlighting limitations in their ability to integrate global contextual information with local observations. SituRecBench provides a rigorous foundation for advancing the development of situated assistants in the real world.",
+  "arxiv_id": "2611.10349",
+  "authors": [
+    "Jingtong Yang",
+    "Dongding Lin",
+    "Jian Wang",
+    "Wenjie Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可用于评估面向零售场景的具身/情境化购物助手，而不仅是静态商品排序。",
+      "企业部署此类助手时需重点解决空间定位、偏好 elicitation 和多轮引导能力。",
+      "统一交互协议有助于比较不同视觉语言模型在对话、推荐与导航上的综合表现。",
+      "超市和家居场景的模拟环境可作为零售导航与导购助手的前期测试平台，但需扩展至更多真实业态。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "提出 SituRecBench，一个用于在高保真 3D 环境中评估前沿视觉语言模型作为情境化推荐助手的交互式基准。",
+      "将推荐重新表述为情境化辅助过程：助手与用户交互并共享用户的自我中心视角。",
+      "构建模拟真实购物环境（如超市和家居用品店）的基准，要求助手通过对话 eliciting 偏好、在环境中 grounding 推荐并引导用户到相关位置。",
+      "通过统一交互协议评估对话质量、推荐效用和导航有效性。",
+      "实验揭示空间定位与偏好 elicitation 的持续挑战，以及模型整合全局上下文与局部观察的局限。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "前沿视觉语言模型（VLMs），摘要未列出具体模型名称"
+      ],
+      "datasets": [
+        "模拟超市购物环境",
+        "模拟家居用品商店环境"
+      ],
+      "findings_zh": [
+        "实验显示空间定位与偏好 elicitation 仍存在持续挑战。",
+        "模型在整合全局上下文信息与局部观察方面存在局限。",
+        "基准可为推进真实世界情境化助手发展提供严格基础。"
+      ],
+      "metrics": [
+        "对话质量",
+        "推荐效用",
+        "导航有效性"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供具体数据集规模、场景数量、基线模型列表或定量结果。",
+      "摘要仅说明模拟超市和家居用品店环境，未说明对其他零售或服务场景的覆盖。",
+      "摘要未披露基准构建、评估协议实现或模型接口的技术细节。",
+      "摘要中的结论基于摘要级信息，无法核验实验设置与统计显著性。"
+    ],
+    "method_zh": "SituRecBench 在高保真 3D 环境中模拟超市和家居用品店等真实购物场景，将推荐任务设定为助手共享用户自我中心视角的情境化辅助过程。助手需通过多轮对话 eliciting 用户偏好、将推荐 grounding 到环境中，并引导用户前往相关位置；基准通过统一交互协议评估对话质量、推荐效用与导航有效性。",
+    "problem_zh": "推荐系统正从静态检索引擎转向扎根物理环境的交互式助手，但现有研究大多忽视空间导航、视觉定位与多轮社交交互叠加带来的复杂性。",
+    "technical_depth": 0.48
+  },
+  "doi": null,
+  "final_score": 0.6400000000000001,
+  "id": "arxiv-2611.10349",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T23:33:31.467840Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-07T00:29:02Z",
+  "relevance_score": 0.78,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出SituRecBench，在3D环境中评测视觉语言模型作为具身推荐助手的能力。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SituRecBench: Evaluating Frontier Models as Situated Recommendation Assistants in 3D Environments",
+  "url": "https://arxiv.org/abs/2611.10349v1"
+}

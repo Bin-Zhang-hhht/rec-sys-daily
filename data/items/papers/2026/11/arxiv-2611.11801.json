@@ -1,0 +1,91 @@
+{
+  "abstract": "Implicit feedback in recommender systems contains noisy interactions (e.g., accidental clicks, impulse purchases) that propagate through user-item graphs and contaminate learned representations. Existing explicit denoising methods uniformly rely on training loss to estimate interaction reliability. However, loss is a fundamentally passive signal: it detects noise only after it has caused prediction errors, and it is heavily confounded by training stage, negative sampling, and hard positives. We propose Noise-aware Dimension Learning (NDL), a proactive dimension-adaptive denoising framework. NDL introduces Representation Coherence Detection (RCD), which evaluates the coherence between an interaction representation and the user's historical preference centroid in embedding space, providing an active noise signal independent of loss. RCD and the loss signal are fused via activity-aware weighting (active users rely more on coherence while cold-start users automatically fall back to loss), and the fused estimate drives an interaction-level dimension-adaptive mask that limits the effective representation capacity of unreliable interactions. A lightweight contrastive regularizer further improves embedding uniformity, stabilizing the geometry on which RCD discriminates. On three public benchmarks NDL consistently outperforms state-of-the-art denoising methods, lifting Recall@5 by +17.95% on Amazon-book, +12.33% on Yelp, and +5.63% on MovieLens-1M over the strongest baseline DAR; the core variant without contrastive learning already surpasses DAR on sparser datasets, confirming representation coherence as the primary driver of these gains. NDL is confined to the training loop and is serving-compatible with LightGCN-based production pipelines, adding no online latency or parameters at inference time. Code: https://github.com/GordonDongZHAO/NDL Implicit feedback in recommender systems contains noisy interactions (e.g., accidental clicks, impulse purchases) that propagate through user-item graphs and contaminate learned representations. Existing explicit denoising methods uniformly rely on training loss to estimate interaction reliability. However, loss is a fundamentally passive signal: it detects noise only after it has caused prediction errors, and it is heavily confounded by training stage, negative sampling, and hard positives. We propose Noise-aware Dimension Learning (NDL), a proactive dimension-adaptive denoising framework. NDL introduces Representation Coherence Detection (RCD), which evaluates the coherence between an interaction representation and the user's historical preference centroid in embedding space, providing an active noise signal independent of loss. RCD and the loss signal are fused via activity-aware weighting (active users rely more on coherence while cold-start users automatically fall back to loss), and the fused estimate drives an interaction-level dimension-adaptive mask that limits the effective representation capacity of unreliable interactions. A lightweight contrastive regularizer further improves embedding uniformity, stabilizing the geometry on which RCD discriminates. On three public benchmarks NDL consistently outperforms state-of-the-art denoising methods, lifting Recall@5 by +17.95% on Amazon-book, +12.33% on Yelp, and +5.63% on MovieLens-1M over the strongest baseline DAR; the core variant without contrastive learning already surpasses DAR on sparser datasets, confirming representation coherence as the primary driver of these gains. NDL is confined to the training loop and is serving-compatible with LightGCN-based production pipelines, adding no online latency or parameters at inference time. Code: https://github.com/GordonDongZHAO/NDL",
+  "arxiv_id": "2611.11801",
+  "authors": [
+    "Wenjun Li",
+    "Dong Zhao",
+    "Jiaying Shi",
+    "Juan Zhang",
+    "Zhaoming Pan",
+    "Zhimin Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可用于清洗隐式反馈中的误点击和冲动行为噪声，减少噪声沿用户-物品图传播对表示的污染。",
+      "由于仅作用于训练循环且推理不增加在线延迟或参数，较适合接入现有 LightGCN 类生产推荐流水线。",
+      "活动感知加权为冷启动用户提供回退机制，有利于在用户活跃度差异大的场景中平衡去噪与信号保留。",
+      "在 Amazon-book、Yelp 和 MovieLens-1M 上的 Recall@5 提升说明该方法在电商、本地生活与内容推荐场景具有潜在业务价值。",
+      "上线前仍需在自有数据上验证收益、训练成本、超参数敏感性和线上指标，不能仅依赖公开基准结果。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出 Noise-aware Dimension Learning（NDL），一种主动式、维度自适应去噪框架，用于缓解隐式反馈噪声。",
+      "提出 Representation Coherence Detection（RCD），通过交互表示与用户历史偏好质心在嵌入空间中的一致性提供独立于损失的活动噪声信号。",
+      "设计 activity-aware weighting 融合 RCD 与损失信号：活跃用户更多依赖一致性，冷启动用户自动回退到损失。",
+      "用融合估计驱动交互级维度自适应掩码，限制不可靠交互的有效表示容量。",
+      "加入轻量对比正则项提升嵌入均匀性，稳定 RCD 判别所依赖的几何结构。",
+      "NDL 仅作用于训练循环，与基于 LightGCN 的生产流水线兼容，推理时不增加在线延迟或参数。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "DAR（最强基线）",
+        "其他 state-of-the-art 去噪方法（摘要未列名）"
+      ],
+      "datasets": [
+        "Amazon-book",
+        "Yelp",
+        "MovieLens-1M"
+      ],
+      "findings_zh": [
+        "NDL 在三个公开基准上持续优于 state-of-the-art 去噪方法。",
+        "相对最强基线 DAR，Recall@5 在 Amazon-book 上提升 +17.95%，在 Yelp 上提升 +12.33%，在 MovieLens-1M 上提升 +5.63%。",
+        "不带对比学习的核心变体在更稀疏数据集上已超过 DAR，表明表示一致性是主要增益来源。",
+        "NDL 仅限训练循环，与基于 LightGCN 的生产流水线兼容，推理时无额外在线延迟或参数。"
+      ],
+      "metrics": [
+        "Recall@5"
+      ]
+    },
+    "limitations_zh": [
+      "当前分析仅基于摘要，无法核验完整实验设置、统计显著性和复现细节。",
+      "摘要只报告了 Recall@5，未提供其他排序指标或在线 A/B 结果。",
+      "摘要未给出各模块的完整消融、超参数敏感性及跨领域泛化分析。",
+      "摘要提到冷启动用户回退到损失信号，但未单独报告冷启动场景的量化效果。",
+      "摘要未披露训练开销、掩码计算复杂度或大规模工业部署细节。"
+    ],
+    "method_zh": "NDL 先用 RCD 计算交互表示与用户历史偏好质心之间的一致性，作为不依赖训练损失的主动噪声信号；再以活动感知加权将 RCD 与损失信号融合，活跃用户更多依赖一致性，冷启动用户回退到损失；融合结果驱动交互级维度自适应掩码，降低不可靠交互的有效表示容量；同时使用轻量对比正则项改善嵌入均匀性，稳定 RCD 所依赖的表示几何。",
+    "problem_zh": "推荐系统中的隐式反馈包含误点击、冲动购买等噪声交互，这些噪声会沿用户-物品图传播并污染学习到的表示。现有显式去噪方法普遍依赖训练损失估计交互可靠性，但损失是被动信号，只有在噪声已造成预测误差后才可检测，且受训练阶段、负采样和困难正样本影响。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.743,
+  "id": "arxiv-2611.11801",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T23:33:31.467840Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "collaborative_filtering"
+  ],
+  "published_at": "2026-11-09T02:55:44Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出噪声感知维度学习（NDL），用表示一致性检测与损失信号融合驱动交互级维度自适应掩码，在多个图协同过滤基准上显著提升去噪效果且不增加线上推理开销。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Proactive Dimension-Adaptive Denoising for Graph Collaborative Filtering via Representation Coherence",
+  "url": "https://arxiv.org/abs/2611.11801v1"
+}

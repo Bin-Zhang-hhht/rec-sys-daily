@@ -1,0 +1,79 @@
+{
+  "abstract": "Recommendation systems have become more important since the widespread use of the Internet. The large amount of information means that it is difficult for users to discover they really need. However, users' preferences can change over time because of the age and the impact of social networks. Recommendation systems must capture users' preferences and recommend suitable items, which is a difficult challenge. This study proposes a novel recommendation system that adapts to the changing preferences of users. By learning and adapting to users' changing preferences better recommendations are provided. This study uses context factors as additional information to model users' preferences more precisely. For the proposed recommendation system, the context is based on users' interaction items within each defined time interval. This study proposes two novel attention mechanisms for the recommendation system. The contextual item attention module captures contextual information, changing pattern in users' preference and the importance of items. The multi-head attention module extends the diversity of users' preferences and adapts to changing preferences. The recommendation performance is improved using additional item's temporal information to model the contextual item's representation. Experiments compare the proposed algorithm with several state-of-the-art recommendation methods using three real-world datasets. The experimental results demonstrate that the proposed context-aware recommendation model outperforms traditional methods and demonstrate the effectiveness with which contextual information is captured by the attention mechanism. Recommendation systems have become more important since the widespread use of the Internet. The large amount of information means that it is difficult for users to discover they really need. However, users' preferences can change over time because of the age and the impact of social networks. Recommendation systems must capture users' preferences and recommend suitable items, which is a difficult challenge. This study proposes a novel recommendation system that adapts to the changing preferences of users. By learning and adapting to users' changing preferences better recommendations are provided. This study uses context factors as additional information to model users' preferences more precisely. For the proposed recommendation system, the context is based on users' interaction items within each defined time interval. This study proposes two novel attention mechanisms for the recommendation system. The contextual item attention module captures contextual information, changing pattern in users' preference and the importance of items. The multi-head attention module extends the diversity of users' preferences and adapts to changing preferences. The recommendation performance is improved using additional item's temporal information to model the contextual item's representation. Experiments compare the proposed algorithm with several state-of-the-art recommendation methods using three real-world datasets. The experimental results demonstrate that the proposed context-aware recommendation model outperforms traditional methods and demonstrate the effectiveness with which contextual information is captured by the attention mechanism.",
+  "arxiv_id": "2611.11278",
+  "authors": [
+    "Jung-Hsien Chiang",
+    "Chung-Yao Ma",
+    "Chi-Shiang Wang",
+    "Pei-Yi Hao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可借鉴其按时间区间建模用户交互上下文的方法，用于电商、内容或社交推荐中捕捉用户偏好漂移，提高推荐时效性。",
+      "上下文物品注意力有潜力帮助运营解释哪些历史交互物品影响了当前推荐，从而支持推荐理由和策略调整。",
+      "多头注意力对偏好多兴趣的建模有助于减少推荐结果过度集中于单一兴趣的问题。",
+      "若用于生产环境，需要补充离线指标、线上A/B测试、冷启动处理、隐私合规和系统延迟评估；这些内容摘要未涉及。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出一种能够适应用户偏好变化的新型推荐系统，通过学习和适应用户变化偏好来提供更好的推荐。",
+      "使用上下文因素作为额外信息，更精确地建模用户偏好；上下文基于每个已定义时间区间内用户的交互物品。",
+      "提出两种新的注意力机制：上下文物品注意力模块捕捉上下文信息、用户偏好变化模式和物品重要性；多头注意力模块扩展用户偏好的多样性并适应偏好变化。",
+      "利用物品的时间信息建模上下文物品表示，以提升推荐性能。",
+      "在三个真实世界数据集上与多种最新推荐方法比较，所提上下文感知推荐模型优于传统方法，并证明注意力机制能有效捕捉上下文信息。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "多种最新推荐方法（摘要未给出名称）"
+      ],
+      "datasets": [
+        "三个真实世界数据集（摘要未给出名称）"
+      ],
+      "findings_zh": [
+        "所提上下文感知推荐模型在三个真实世界数据集上优于传统方法。",
+        "实验结果表明注意力机制能够有效捕捉上下文信息。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "仅依据摘要，未提供数据集名称、基线方法名称、评价指标和具体实验数值，无法独立复核实验细节。",
+      "摘要未说明模型在冷启动、数据稀疏、隐私合规或线上部署方面的表现。",
+      "摘要未提供消融实验、计算复杂度或可扩展性分析。",
+      "摘要未说明上下文时间区间如何定义及其对性能的影响。",
+      "摘要未讨论负采样、训练细节和超参数设置。",
+      "摘要未提供与业务落地相关的成本、延迟或可解释性评估。"
+    ],
+    "method_zh": "提出一种上下文感知推荐模型：以用户在每个定义时间区间内的交互物品构造上下文，使用上下文物品注意力捕获上下文信息、偏好变化模式和物品重要性，使用多头注意力扩展偏好多样性并适应偏好变化，同时利用物品时间信息建模上下文物品表示。",
+    "problem_zh": "推荐系统面临信息过载，用户难以发现真正需要的内容；同时用户偏好会随年龄和社交网络影响而变化。推荐系统必须捕捉用户偏好并推荐合适物品，这是一项困难挑战。",
+    "technical_depth": 0.45
+  },
+  "doi": "10.1109/tkde.2022.3140387",
+  "final_score": 0.5725,
+  "id": "arxiv-2611.11278",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T23:33:31.467840Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-08T10:05:12Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出一种自适应上下文感知的堆叠注意力推荐系统，利用上下文物品注意力与多头注意力建模用户随时间变化的偏好，并在三个真实数据集上优于传统方法。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "An Adaptive, Context-Aware, and Stacked Attention Network-Based Recommendation System to Capture Users' Temporal Preference",
+  "url": "https://arxiv.org/abs/2611.11278v1"
+}
