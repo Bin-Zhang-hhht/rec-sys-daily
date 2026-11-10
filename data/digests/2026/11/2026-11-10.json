@@ -1,0 +1,56 @@
+{
+  "blogs": [],
+  "date": "2026-11-10",
+  "papers": [
+    {
+      "item_id": "arxiv-2611.04720",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出 OneTrans-GSR，用单一自回归解码策略统一重排与混排，并通过奖励模型强化学习生成满足业务约束的曝光列表。"
+    },
+    {
+      "item_id": "arxiv-2611.07425",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：BRIDGE 针对生成式推荐中的语义量化鸿沟，注入码本锚点、EMA 自蒸馏与难度感知循环来提升 SID 生成推荐效果。"
+    },
+    {
+      "item_id": "arxiv-2611.08566",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文介绍生产环境中的 CascadeRec 两级 LLM 重排级联，通过路由按需分配推理算力以降低内容推荐成本。"
+    },
+    {
+      "item_id": "arxiv-2611.08804",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文介绍 Shopify 的 SID-LLM，将搜索与推荐统一为语义 ID 生成，并结合强化学习、专家蒸馏和多 token 预测提升线上检索效果。"
+    },
+    {
+      "item_id": "arxiv-2611.05997",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文介绍淘宝信息流推荐中回收高评分但未曝光候选的召回阶段系统URED，并通过线上A/B验证其发现性与参与度效果。"
+    },
+    {
+      "item_id": "arxiv-2611.09728",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出SAGE-PAIR，在目标反馈稀疏的新服务窗口内通过源预训练残差校正和用户条件路由来适配推荐系统，并报告NDCG@10排序提升。"
+    },
+    {
+      "item_id": "arxiv-2611.09294",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文研究统一搜索与推荐中双塔检索的物品向量范数增长机制及其对原始内积召回的影响。"
+    },
+    {
+      "item_id": "arxiv-2611.02019",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出 MRRRec，融合多准则数值评分与多方面文本评论进行评分预测，提升电商推荐准确率。"
+    },
+    {
+      "item_id": "arxiv-2611.07866",
+      "rank": 9,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出 LatentRec，用训练期逐步头监督替代推理期思维链，实现低延迟的 LLM 生成式推荐。"
+    },
+    {
+      "item_id": "arxiv-2611.02457",
+      "rank": 10,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出 MUSE 多教师推理蒸馏框架，利用多教师 LLM 构建推理池并通过学生自探索扩充，配合基于排序增益效用评估的双层对比学习提升推荐效果。"
+    }
+  ]
+}

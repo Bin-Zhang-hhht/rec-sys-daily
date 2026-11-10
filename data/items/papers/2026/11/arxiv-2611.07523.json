@@ -1,0 +1,83 @@
+{
+  "abstract": "Semantic information can enrich the identifiers and structured fields used by recommender systems. Semantic tokenization provides a structured representation of this information by converting LLM-derived user profiles into discrete tokens. In the common two-stage pipeline, the tokenizer is trained before the recommender. Its token assignments are then treated as fixed input features during recommendation training. As a result, the downstream recommender can learn how to use the assigned indices, but it cannot revise the semantic partition that produced them. Making this partition task-aware is difficult because nearest-code assignment is discrete, and unconstrained adaptation may also distort the geometry learned during pretraining. Moreover, a fixed token depth exposes the same semantic resolution to every interaction. We thus propose OptST (Optimizing Semantic Tokenization), which makes a pretrained tokenizer responsive to downstream recommendation. To revise token assignments without directly updating the pretrained encoder or base codebooks, OptST learns a low-rank deformation whose drift is limited by an anchor regularizer. Recommendation supervision reaches this transformation through a straight-through estimator, while prediction retains hard nearest-code assignments. Beyond adapting the assignments themselves, OptST selects an interaction-conditioned prefix to control how much residual detail is exposed to the recommender. Experiments on four public datasets show that OptST achieves the highest AUC among conventional and LLM-enhanced baselines. Its improvements also persist across different recommendation backbones. These results establish task-aware semantic tokenization as an effective interface between LLM-derived profiles and downstream recommendation models. Semantic information can enrich the identifiers and structured fields used by recommender systems. Semantic tokenization provides a structured representation of this information by converting LLM-derived user profiles into discrete tokens. In the common two-stage pipeline, the tokenizer is trained before the recommender. Its token assignments are then treated as fixed input features during recommendation training. As a result, the downstream recommender can learn how to use the assigned indices, but it cannot revise the semantic partition that produced them. Making this partition task-aware is difficult because nearest-code assignment is discrete, and unconstrained adaptation may also distort the geometry learned during pretraining. Moreover, a fixed token depth exposes the same semantic resolution to every interaction. We thus propose OptST (Optimizing Semantic Tokenization), which makes a pretrained tokenizer responsive to downstream recommendation. To revise token assignments without directly updating the pretrained encoder or base codebooks, OptST learns a low-rank deformation whose drift is limited by an anchor regularizer. Recommendation supervision reaches this transformation through a straight-through estimator, while prediction retains hard nearest-code assignments. Beyond adapting the assignments themselves, OptST selects an interaction-conditioned prefix to control how much residual detail is exposed to the recommender. Experiments on four public datasets show that OptST achieves the highest AUC among conventional and LLM-enhanced baselines. Its improvements also persist across different recommendation backbones. These results establish task-aware semantic tokenization as an effective interface between LLM-derived profiles and downstream recommendation models.",
+  "arxiv_id": "2611.07523",
+  "authors": [
+    "Hanchong Chen",
+    "Jie Liu",
+    "Fuyuan Lyu",
+    "Dugang Liu",
+    "Lingjie Li",
+    "Xiuqiang He",
+    "Xing Tang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "将 LLM 派生用户画像转为离散语义 token，可作为连接语义信息与推荐模型的接口。",
+      "低秩形变加锚点正则的思路允许在不重训编码器或码本的情况下做任务适配，有利于降低模型更新成本。",
+      "交互条件前缀提供按交互调节语义分辨率的能力，可用于平衡细节表达与推荐效果。",
+      "在不同推荐骨干上均观察到改进，说明该接口具备一定可移植性，但摘要未提供线上收益或成本数据，业务落地仍需实测。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 OptST，使预训练 tokenizer 能响应下游推荐任务。",
+      "在不直接更新预训练编码器或基础码本的条件下，通过学习低秩形变并配合锚点正则项来修正 token 分配。",
+      "通过 straight-through estimator 将推荐监督传递到该变换，同时在预测阶段保留硬最近码分配。",
+      "引入交互条件前缀，控制向推荐器暴露多少残差细节。",
+      "在四个公开数据集上，OptST 相比传统基线和 LLM 增强基线取得最高 AUC，且改进在不同推荐骨干上持续存在。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "传统基线",
+        "LLM 增强基线"
+      ],
+      "datasets": [
+        "四个公开数据集"
+      ],
+      "findings_zh": [
+        "OptST 在四个公开数据集上相比传统基线和 LLM 增强基线取得最高 AUC。",
+        "OptST 的改进在不同推荐骨干上持续存在。"
+      ],
+      "metrics": [
+        "AUC"
+      ]
+    },
+    "limitations_zh": [
+      "源文档仅为摘要，未给出四个公开数据集的具体名称、基线清单和完整实验设置。",
+      "源文档未报告计算开销、推理延迟或部署成本。",
+      "源文档未讨论统计显著性、消融实验细节或失败案例。",
+      "源文档未说明该方法在工业级规模、数据分布偏移或在线推荐场景中的表现。"
+    ],
+    "method_zh": "OptST 在预训练 tokenizer 之上学习一个低秩形变，用锚点正则限制相对预训练几何的漂移，从而修正 token 分配而不更新预训练编码器或基础码本。推荐监督通过 straight-through estimator 传到该形变，预测时仍使用硬最近码分配；此外，方法为每个交互选择条件前缀，以调节暴露给推荐器的残差细节量。",
+    "problem_zh": "现有语义 tokenization 常采用两阶段流程：先训练 tokenizer，再把离散 token 分配作为固定特征输入推荐模型。下游推荐器只能学习如何使用这些索引，无法修正产生索引的语义划分；同时，最近码分配是离散的，无约束适配可能破坏预训练学到的几何结构，固定 token 深度还会让所有交互暴露相同的语义分辨率。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.7175,
+  "id": "arxiv-2611.07523",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-05T06:34:53Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "OptST 通过低秩变形与交互条件前缀优化预训练语义分词器，使 LLM 用户画像离散令牌能适应下游推荐任务。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "OptST: Optimizing Semantic Tokenization for LLM-Enhanced Recommendation",
+  "url": "https://arxiv.org/abs/2611.07523v1"
+}

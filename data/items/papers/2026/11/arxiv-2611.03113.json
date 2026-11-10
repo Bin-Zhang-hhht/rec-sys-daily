@@ -1,0 +1,96 @@
+{
+  "abstract": "Large language models (LLMs) have introduced a generative approach to recommendation, producing item lists from textual representations of user histories and item information. However, this generative setting raises challenges concerning output validity, prompt consistency, and sensitivity to demographic descriptors. In this work, we investigate how preprocessing choices in fine-tuning data affect recommendation utility and fairness-related behavior in a generative LLM-based recommender system. We first establish a controlled recommendation pipeline that combines supervised fine-tuning, catalog-constrained decoding, and prompt augmentation. We then study three preprocessing choices: item-title representation, demographic balancing, and auxiliary item-knowledge enrichment. Experiments on MovieLens-1M show that the catalog-constrained pipeline eliminates out-of-catalog items and ensures complete ten-item outputs, while prompt augmentation improves prompt consistency and utility. Original MovieLens titles increase HR@10 from 10.67% to 12.47% and Coverage@10 from 41.36% to 47.88%. Fairness-related effects are attribute-dependent: age balancing and knowledge enrichment reduce selected group-level utility gaps while largely preserving utility, whereas gender balancing reduces utility without improving the evaluated gender-related indicators. Overall, preprocessing choices in fine-tuning data should be evaluated jointly in terms of utility, output behavior, and demographic sensitivity. Large language models (LLMs) have introduced a generative approach to recommendation, producing item lists from textual representations of user histories and item information. However, this generative setting raises challenges concerning output validity, prompt consistency, and sensitivity to demographic descriptors. In this work, we investigate how preprocessing choices in fine-tuning data affect recommendation utility and fairness-related behavior in a generative LLM-based recommender system. We first establish a controlled recommendation pipeline that combines supervised fine-tuning, catalog-constrained decoding, and prompt augmentation. We then study three preprocessing choices: item-title representation, demographic balancing, and auxiliary item-knowledge enrichment. Experiments on MovieLens-1M show that the catalog-constrained pipeline eliminates out-of-catalog items and ensures complete ten-item outputs, while prompt augmentation improves prompt consistency and utility. Original MovieLens titles increase HR@10 from 10.67% to 12.47% and Coverage@10 from 41.36% to 47.88%. Fairness-related effects are attribute-dependent: age balancing and knowledge enrichment reduce selected group-level utility gaps while largely preserving utility, whereas gender balancing reduces utility without improving the evaluated gender-related indicators. Overall, preprocessing choices in fine-tuning data should be evaluated jointly in terms of utility, output behavior, and demographic sensitivity.",
+  "arxiv_id": "2611.03113",
+  "authors": [
+    "Furkan Yasir Goksu",
+    "Yaren Yilmaz",
+    "Sule Gunduz Oguducu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在生成式推荐落地时，应优先部署目录约束解码：以工程手段保证推荐结果可被商品/内容库承接，避免目录外或长度不足的输出造成展示与转化损失。",
+      "数据预处理（尤其是标题等物品文本表示）是低成本高回报的杠杆：保留业务侧原始、用户熟悉的标题可同时提升点击命中与目录覆盖。",
+      "公平性干预不能一概而论：年龄维度的平衡与知识增强可能兼顾效用与公平，而性别平衡在本研究中以牺牲效用为代价却未见指标改善，需按属性做A/B验证后再上线。",
+      "建议在离线评估规范中同时纳入效用、输出有效性与群体敏感性三类指标，避免仅以单一准确率指标决策微调数据方案。",
+      "提示增强可提升线上提示一致性与效果稳定性，适合作为LLM推荐服务的基础工程实践。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "构建了一个受控的生成式LLM推荐流水线，将监督微调、目录约束解码（catalog-constrained decoding）与提示增强（prompt augmentation）三部分结合。",
+      "系统研究了三类微调数据预处理选择：物品标题表示方式、人口统计学平衡（年龄/性别）、以及辅助物品知识增强。",
+      "实证表明目录约束解码可消除目录外物品并保证完整的十条输出，提示增强则提升提示一致性与效用。",
+      "量化了标题表示的影响：使用原始MovieLens标题使HR@10从10.67%提升至12.47%，Coverage@10从41.36%提升至47.88%。",
+      "揭示公平性效应依赖具体属性：年龄平衡与知识增强在基本保持效用的同时缩小了所选群体层面的效用差距，而性别平衡降低效用却未改善所评估的性别相关指标。",
+      "提出应在效用、输出行为与人口统计学敏感性三个维度上联合评估微调数据的预处理选择。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "未在摘要中列出外部对比模型；对比主要为预处理配置之间的对照，例如原始MovieLens标题与替代标题表示的对比",
+        "无目录约束解码 vs 目录约束解码（输出有效性对照）",
+        "无提示增强 vs 提示增强（提示一致性对照）",
+        "无人口统计学平衡 vs 年龄平衡 / 性别平衡",
+        "无辅助物品知识 vs 知识增强"
+      ],
+      "datasets": [
+        "MovieLens-1M"
+      ],
+      "findings_zh": [
+        "目录约束解码消除了目录外物品，并保证每次都生成完整的十条推荐列表。",
+        "提示增强改善了提示一致性并提升了推荐效用。",
+        "使用原始MovieLens标题显著优于替代标题表示：HR@10由10.67%升至12.47%，Coverage@10由41.36%升至47.88%。",
+        "公平性相关效果取决于属性：年龄平衡与辅助知识增强在基本保持效用的同时降低了所选群体层面的效用差距。",
+        "性别平衡降低了效用，且没有改善所评估的性别相关指标。",
+        "结论是微调数据的预处理选择应同时在效用、输出行为和人口统计学敏感性三个方面联合评估。"
+      ],
+      "metrics": [
+        "HR@10",
+        "Coverage@10",
+        "目录外物品比例（out-of-catalog items）",
+        "十条输出的完整性（complete ten-item outputs）",
+        "提示一致性（prompt consistency）",
+        "群体层面效用差距（selected group-level utility gaps）",
+        "性别相关公平性指标"
+      ]
+    },
+    "limitations_zh": [
+      "证据仅来自摘要，缺少模型规模、微调细节、解码参数与统计显著性检验等信息。",
+      "实验仅在MovieLens-1M单一数据集上完成，跨域与跨数据集泛化性未知。",
+      "公平性分析只覆盖年龄与性别两个属性，且性别平衡未带来改善，说明公平性干预手段仍有限。",
+      "摘要未报告外部基线模型对比，难以判断该方法相对现有生成式或传统推荐方法的绝对水平。",
+      "目录约束解码可能掩盖模型自身的物品幻觉能力差异，其收益与代价（如多样性、候选集合规模）未在摘要中讨论。",
+      "未说明长期在线效果或真实业务场景下用户满意度的影响。"
+    ],
+    "method_zh": "作者先建立一个受控的生成式推荐流水线：以用户历史与物品信息的文本表示作为输入，对LLM进行监督微调，在解码阶段施加目录约束以保证输出物品均来自候选目录，并采用提示增强提升提示一致性。在该流水线固定后，作者以消融/对照方式改变微调数据的预处理方式，包括物品标题的表示（如是否使用原始MovieLens标题）、按人口统计学属性进行训练数据平衡、以及引入辅助物品知识，并在MovieLens-1M上比较效用指标、输出有效性与群体层面的公平性指标。",
+    "problem_zh": "生成式LLM推荐系统直接以文本形式描述用户历史与物品信息并生成物品列表，但这种生成范式带来三类问题：输出可能包含目录外物品或长度不足（输出有效性）、对提示词表述敏感（提示一致性），以及对人口统计学描述符敏感（公平性相关行为）。作者关注的核心问题是：微调数据中的预处理选择会如何影响推荐效用与公平性表现，以及这些影响能否被系统地评估与权衡。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.7100000000000001,
+  "id": "arxiv-2611.03113",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-02T13:32:28Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文分析LLM生成式推荐中微调数据预处理对推荐效用与人口属性敏感性的影响。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Preprocessing Choices in Fine-Tuning Data Matter: Utility and Demographic Sensitivity in LLM-Based Recommendation",
+  "url": "https://arxiv.org/abs/2611.03113v1"
+}

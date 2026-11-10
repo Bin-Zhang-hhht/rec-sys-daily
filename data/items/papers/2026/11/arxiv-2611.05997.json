@@ -1,0 +1,91 @@
+{
+  "abstract": "Helping users discover new interests is vital to the long-term health of industrial recommender systems, yet the usual remedy, boosting exposure of under-explored (discovery) content, often backfires in production. We report URED (Unexposed Recycling for Efficient Discovery), a training-free recall-stage system serving Taobao feed recommendation at Alibaba for over six months to tens of millions of daily active users. It rests on a production-validated insight: naive boosting fails because it injects cold, information-poor candidates that rankers systematically over-estimate, buying no discovery gain while risking engagement. Items scored highly but never exposed (signals industrial pipelines routinely discard) form a pool that is both relevant and reliably predictable. Over a 30-day horizon URED aggregates them and re-injects at recall time through a lightweight pipeline spanning offline storage, distributed aggregation, and low-latency online serving, adding under 1% latency via a single O(1) lookup per request with no model retraining. Online A/B tests show +3.47% discovered categories and +8.47% content richness with engagement preserved: completion video views rise significantly (+2.62%) and total views move positive (+0.36%, not significant). Ablations confirm both design pillars are necessary: a one-day window collapses the discovery gain to +0.55% (not significant), and random injection without score filtering yields no gain while trending negative on engagement (-0.17%). Across production recall channels, URED reaches 13.9x the platform-average discovery rate (6.3x the strongest nearline baseline) at engagement quality on par with the platform average. We share deployment details and lessons for practitioners facing the exploration-exploitation dilemma under tight resource constraints. Helping users discover new interests is vital to the long-term health of industrial recommender systems, yet the usual remedy, boosting exposure of under-explored (discovery) content, often backfires in production. We report URED (Unexposed Recycling for Efficient Discovery), a training-free recall-stage system serving Taobao feed recommendation at Alibaba for over six months to tens of millions of daily active users. It rests on a production-validated insight: naive boosting fails because it injects cold, information-poor candidates that rankers systematically over-estimate, buying no discovery gain while risking engagement. Items scored highly but never exposed (signals industrial pipelines routinely discard) form a pool that is both relevant and reliably predictable. Over a 30-day horizon URED aggregates them and re-injects at recall time through a lightweight pipeline spanning offline storage, distributed aggregation, and low-latency online serving, adding under 1% latency via a single O(1) lookup per request with no model retraining. Online A/B tests show +3.47% discovered categories and +8.47% content richness with engagement preserved: completion video views rise significantly (+2.62%) and total views move positive (+0.36%, not significant). Ablations confirm both design pillars are necessary: a one-day window collapses the discovery gain to +0.55% (not significant), and random injection without score filtering yields no gain while trending negative on engagement (-0.17%). Across production recall channels, URED reaches 13.9x the platform-average discovery rate (6.3x the strongest nearline baseline) at engagement quality on par with the platform average. We share deployment details and lessons for practitioners facing the exploration-exploitation dilemma under tight resource constraints.",
+  "arxiv_id": "2611.05997",
+  "authors": [
+    "Ge Fan",
+    "Kai Meng",
+    "Huiping Chu",
+    "Yuning Jiang",
+    "Han Zhu",
+    "Bo Zheng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "无需重训模型即可在召回阶段提升发现性，适合资源受限、迭代成本高的生产推荐系统。",
+      "应重视被工业流水线丢弃的高分未曝光信号，将其作为相关且可预测的探索候选池，而非盲目提升冷启动物品曝光。",
+      "短窗口聚合可能不足以形成有效候选池；随机注入缺少分数过滤会损害互动，落地时需保留 30 天级窗口与质量筛选。",
+      "低于 1% 的延迟和 O(1) 查询使方案较易嵌入现有召回链路，但迁移到其他平台前需验证候选池覆盖、偏差与长期生态影响。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出生产验证洞察：高分但从未曝光的物品构成既相关又可可靠预测的候选池，可缓解释放探索—利用困境。",
+      "提出 URED（Unexposed Recycling for Efficient Discovery），一个无需模型重训的召回阶段系统，已在阿里巴巴淘宝 feed 推荐服务超过六个月。",
+      "设计轻量级流水线，涵盖离线存储、分布式聚合和低延迟在线服务，每次请求仅一次 O(1) 查询，增加低于 1% 的延迟。",
+      "通过在线 A/B 测试和消融实验验证发现收益与互动保持，并证明 30 天聚合窗口与分数过滤两个设计支柱均必要。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "平台平均发现率",
+        "最强近线基线（strongest nearline baseline）",
+        "朴素曝光提升/随机注入（消融）"
+      ],
+      "datasets": [
+        "淘宝 feed 推荐生产环境（Alibaba，数千万日活用户）",
+        "在线 A/B 测试流量"
+      ],
+      "findings_zh": [
+        "在线 A/B 测试显示发现类目数提升 3.47%，内容丰富度提升 8.47%，同时互动保持：完播视频观看量显著提升 2.62%，总观看量正向变化 0.36%（不显著）。",
+        "消融实验表明两个设计支柱都必要：一天窗口使发现收益降至 0.55%（不显著）；无分数过滤的随机注入没有收益，且互动趋势为负（-0.17%）。",
+        "在生产召回渠道中，URED 的发现率达到平台平均的 13.9 倍，是最强近线基线的 6.3 倍，同时互动质量与平台平均相当。",
+        "系统通过一次 O(1) 查询实现每次请求注入，延迟增加低于 1%，且无需模型重训。"
+      ],
+      "metrics": [
+        "发现类目数",
+        "内容丰富度",
+        "完播视频观看量",
+        "总观看量",
+        "延迟开销",
+        "发现率",
+        "互动/参与度"
+      ]
+    },
+    "limitations_zh": [
+      "所给材料为摘要，未披露 URED 的完整算法细节、存储结构、聚合策略与在线服务实现。",
+      "摘要未提供离线评估、统计显著性细节、不同用户群体或业务场景的细分结果。",
+      "摘要未讨论长期用户满意度、生态健康等更长期影响，也未说明在淘宝之外平台的可迁移性。",
+      "方法依赖“高分但未曝光”物品池的存在与质量，摘要未分析该池在不同推荐系统中的覆盖与偏差风险。"
+    ],
+    "method_zh": "URED 在 30 天时间窗内聚合“高分但从未曝光”的物品，并在召回阶段重新注入这些候选。系统由离线存储、分布式聚合和低延迟在线服务组成，每次请求通过一次 O(1) 查询完成注入，无需模型重训，延迟增加低于 1%。",
+    "problem_zh": "工业推荐系统需要帮助用户发现新兴趣，但常见的做法是提升探索内容曝光，这在生产环境中常常适得其反：会注入冷启动、信息不足的候选，排序模型系统性高估它们，既没有带来发现收益，又可能损害互动。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7875,
+  "id": "arxiv-2611.05997",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-04T05:45:30Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文介绍淘宝信息流推荐中回收高评分但未曝光候选的召回阶段系统URED，并通过线上A/B验证其发现性与参与度效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "From Waste to Discovery: Recycling High-Scored Unexposed Candidates in Taobao Feed Recommendation",
+  "url": "https://arxiv.org/abs/2611.05997v1"
+}

@@ -1,0 +1,86 @@
+{
+  "abstract": "These days, due to the advancement of information technology, recommendation system has become one of the key tools for e-commerce business. E-commerce platforms allow users to provide feedback in both written comments and numerical ratings. Recommendation systems are utilized to recommend users to new or unseen items based on these previously collected comments or ratings. In recent years, multi-aspect or multi-criteria based recommendation systems have been studied a lot by the recommendation research community. However, these research works are conducted either with reviews or ratings, not with both. In this project, we argue that integrating both textual reviews (with multiple aspects) and numerical multi-criteria ratings can further enhance the overall rating prediction accuracy. We propose a Multi-criteria Rating and Review based Recommendation model (MRRRec). We show that incorporating multi-criteria ratings into multi-aspect ratings from reviews has a great impact on performance. Our proposed model outperforms several state-of-the-art models such as ANR, DeepCoNN, and Deep Multi-criteria Recommendation System in terms of MSE, MAE, precision, recall, and F1. We show that our proposed model achieves an average of 19% and 23.0% lower MSE and MAE respectively and 7.0%, 1.0% and 3.8% higher precision, recall, and F1 score respectively. We further show that our model performs significantly better with Word2Vec word embedding than the GloVe word embedding method. These days, due to the advancement of information technology, recommendation system has become one of the key tools for e-commerce business. E-commerce platforms allow users to provide feedback in both written comments and numerical ratings. Recommendation systems are utilized to recommend users to new or unseen items based on these previously collected comments or ratings. In recent years, multi-aspect or multi-criteria based recommendation systems have been studied a lot by the recommendation research community. However, these research works are conducted either with reviews or ratings, not with both. In this project, we argue that integrating both textual reviews (with multiple aspects) and numerical multi-criteria ratings can further enhance the overall rating prediction accuracy. We propose a Multi-criteria Rating and Review based Recommendation model (MRRRec). We show that incorporating multi-criteria ratings into multi-aspect ratings from reviews has a great impact on performance. Our proposed model outperforms several state-of-the-art models such as ANR, DeepCoNN, and Deep Multi-criteria Recommendation System in terms of MSE, MAE, precision, recall, and F1. We show that our proposed model achieves an average of 19% and 23.0% lower MSE and MAE respectively and 7.0%, 1.0% and 3.8% higher precision, recall, and F1 score respectively. We further show that our model performs significantly better with Word2Vec word embedding than the GloVe word embedding method.",
+  "arxiv_id": "2611.02019",
+  "authors": [
+    "Emrul Hasan",
+    "Chen Ding",
+    "Alfredo Cuzzocrea"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "电商平台可同时利用数值评分与文本评论中的多方面的信息来提升评分预测，从而改善商品推荐。",
+      "在部署此类模型时，词嵌入方法的选择会影响效果；摘要显示 Word2Vec 优于 GloVe。",
+      "若要将该方法用于业务，需要补充摘要未给出的数据集与实验设置信息，以评估跨平台迁移和上线风险。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 Multi-criteria Rating and Review based Recommendation model（MRRRec），同时整合文本评论中的多方面的信息与数值多准则评分。",
+      "表明将多准则评分纳入来自评论的多方面评分对性能有显著影响。",
+      "在 MSE、MAE、precision、recall 和 F1 上优于 ANR、DeepCoNN 和 Deep Multi-criteria Recommendation System 等对比模型。",
+      "报告平均 MSE 降低 19%、MAE 降低 23.0%，precision、recall 和 F1 分别提高 7.0%、1.0% 和 3.8%。",
+      "发现 Word2Vec 词嵌入在该模型上显著优于 GloVe 词嵌入。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "ANR",
+        "DeepCoNN",
+        "Deep Multi-criteria Recommendation System"
+      ],
+      "datasets": [
+        "来源摘要未提供具体数据集名称"
+      ],
+      "findings_zh": [
+        "MRRRec 在 MSE、MAE、precision、recall 和 F1 上优于 ANR、DeepCoNN 和 Deep Multi-criteria Recommendation System。",
+        "相较对比模型，MRRRec 平均取得 19% 更低的 MSE 和 23.0% 更低的 MAE。",
+        "相较对比模型，MRRRec 平均取得 7.0% 更高的 precision、1.0% 更高的 recall 和 3.8% 更高的 F1。",
+        "将多准则评分与来自评论的多方面评分结合对性能有显著影响。",
+        "Word2Vec 词嵌入在该模型上的表现显著优于 GloVe。"
+      ],
+      "metrics": [
+        "MSE",
+        "MAE",
+        "precision",
+        "recall",
+        "F1"
+      ]
+    },
+    "limitations_zh": [
+      "提供的来源仅为摘要，未给出数据集、数据规模、预处理和实验设置细节。",
+      "未提供模型架构、融合机制和训练细节，难以判断技术新颖性与可复现性。",
+      "未报告统计显著性检验、消融实验或误差分析。",
+      "摘要仅讨论整体评分预测，未说明对其他推荐任务或业务指标的适用性。"
+    ],
+    "method_zh": "提出 MRRRec，将数值多准则评分与文本评论中的多方面的信息进行融合，用于整体评分预测，并与多种基线模型进行比较。",
+    "problem_zh": "现有基于多方面或多准则的推荐研究通常只使用评论文本或数值评分中的一种，而没有同时利用二者；论文关注如何联合文本评论中的多方面的信息与数值多准则评分，以提升总体评分预测准确率。",
+    "technical_depth": 0.45
+  },
+  "doi": "10.1109/bigdata55660.2022.10020741",
+  "final_score": 0.7350000000000001,
+  "id": "arxiv-2611.02019",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-01T16:07:04Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 MRRRec，融合多准则数值评分与多方面文本评论进行评分预测，提升电商推荐准确率。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Multi-criteria Rating and Review based Recommendation Model",
+  "url": "https://arxiv.org/abs/2611.02019v1"
+}

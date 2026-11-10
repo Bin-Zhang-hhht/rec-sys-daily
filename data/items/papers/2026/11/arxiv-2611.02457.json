@@ -1,0 +1,75 @@
+{
+  "abstract": "Reasoning-augmented recommender systems (RecSys) enhance user preference modeling by generating reasoning trajectories over historical interactions before making recommendations. Knowledge distillation provides a practical paradigm for transferring such reasoning capabilities from powerful large language models to lightweight RecSys. However, existing methods typically rely on a single fixed teacher, remain constrained by the teacher knowledge ceiling, and indiscriminately distill teacher-generated trajectories without assessing their actual utility for downstream recommendation. To address these limitations, we propose MUSE (Multi-Teacher Utility-guided Selection with Self-Exploration), an adaptive reasoning distillation framework that jointly improves reasoning generation and reasoning utilization. MUSE first constructs a diverse reasoning pool using multiple teacher LLMs and progressively augments it via student self-exploration, enabling the student to leverage the strengths of different teachers and gradually explore reasoning strategies beyond teacher imitation. We then develop Rank-Gain Utility Assessment (RGUA), which evaluates each candidate according to the normalized full-catalog rank improvement of the ground-truth item and identifies the most and least recommendation-beneficial trajectories. Based on these utility-aware trajectory pairs, we introduce dual-level contrastive learning objectives that guide the student generator to prefer beneficial reasoning while training the recommendation encoder to more effectively exploit recommendation-relevant preference evidence. Extensive experiments on three real-world datasets demonstrate the effectiveness and robustness of the proposed framework. Reasoning-augmented recommender systems (RecSys) enhance user preference modeling by generating reasoning trajectories over historical interactions before making recommendations. Knowledge distillation provides a practical paradigm for transferring such reasoning capabilities from powerful large language models to lightweight RecSys. However, existing methods typically rely on a single fixed teacher, remain constrained by the teacher knowledge ceiling, and indiscriminately distill teacher-generated trajectories without assessing their actual utility for downstream recommendation. To address these limitations, we propose MUSE (Multi-Teacher Utility-guided Selection with Self-Exploration), an adaptive reasoning distillation framework that jointly improves reasoning generation and reasoning utilization. MUSE first constructs a diverse reasoning pool using multiple teacher LLMs and progressively augments it via student self-exploration, enabling the student to leverage the strengths of different teachers and gradually explore reasoning strategies beyond teacher imitation. We then develop Rank-Gain Utility Assessment (RGUA), which evaluates each candidate according to the normalized full-catalog rank improvement of the ground-truth item and identifies the most and least recommendation-beneficial trajectories. Based on these utility-aware trajectory pairs, we introduce dual-level contrastive learning objectives that guide the student generator to prefer beneficial reasoning while training the recommendation encoder to more effectively exploit recommendation-relevant preference evidence. Extensive experiments on three real-world datasets demonstrate the effectiveness and robustness of the proposed framework.",
+  "arxiv_id": "2611.02457",
+  "authors": [
+    "Liangbo Ning",
+    "Siyuan Liang",
+    "Yi Zhou",
+    "Yifeng Zhang",
+    "Qing Li",
+    "Wenqi Fan",
+    "Dacheng Tao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对轻量推荐系统而言，多教师蒸馏可降低对单一模型供应商或单一教师能力上限的依赖。",
+      "按推荐效用筛选推理轨迹，有助于避免把看似合理但对排序无益的推理灌入线上模型，提升蒸馏数据使用效率。",
+      "学生自探索机制为在有限标注和固定教师条件下持续改进推理策略提供潜在路径。",
+      "由于摘要未给出线上 A/B、延迟、成本或具体指标，商业落地前仍需补充离线与在线验证。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 MUSE 自适应推理蒸馏框架，联合提升推理生成与推理利用。",
+      "构建多教师 LLM 的多样化推理池，并通过学生自探索逐步扩充，使学生利用不同教师优势并探索超越教师模仿的推理策略。",
+      "提出 Rank-Gain Utility Assessment（RGUA），按真实项在全目录排序中的归一化排名提升评估候选轨迹，识别最有推荐收益和最无收益的推理轨迹。",
+      "基于效用感知的轨迹对引入双层对比学习目标，引导学生生成器偏好有益推理，并训练推荐编码器更有效利用推荐相关偏好证据。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "三个真实世界数据集（摘要未披露名称）"
+      ],
+      "findings_zh": [
+        "在三个真实世界数据集上的实验表明该框架具有有效性和鲁棒性。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "当前仅能依据摘要判断，摘要未披露具体数据集名称、基线、评价指标和实验数值。",
+      "摘要未报告计算成本、教师数量选择、自探索稳定性或实际部署约束等局限性。",
+      "RGUA 依赖真实项的全目录排名提升作为效用信号，但摘要未说明离线评估偏差或排序噪声的处理方式。"
+    ],
+    "method_zh": "MUSE 先用多个教师 LLM 构建多样化推理池，并用学生自探索逐步增强该池；随后用 RGUA 根据真实物品的归一化全目录排名提升评估每条候选推理轨迹的推荐效用，选出最有推荐收益和最无收益的轨迹对；最后采用双层对比学习，引导学生生成器偏向有益推理，同时让推荐编码器更好利用与推荐相关的偏好证据。",
+    "problem_zh": "现有推理增强推荐系统依赖知识蒸馏把大模型的推理能力迁移到轻量推荐模型，但通常只使用单一固定教师，受教师知识上限约束，并且不加评估地蒸馏教师生成的推理轨迹，未判断这些轨迹对下游推荐是否真正有益。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.73,
+  "id": "arxiv-2611.02457",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-02T03:20:28Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 MUSE 多教师推理蒸馏框架，利用多教师 LLM 构建推理池并通过学生自探索扩充，配合基于排序增益效用评估的双层对比学习提升推荐效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Multi-Teacher Reasoning Distillation for LLM Recommendation with Self-Exploration",
+  "url": "https://arxiv.org/abs/2611.02457v1"
+}

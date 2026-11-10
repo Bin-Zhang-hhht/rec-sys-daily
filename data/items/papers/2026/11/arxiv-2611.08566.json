@@ -1,0 +1,105 @@
+{
+  "abstract": "Large language models (LLMs) are attractive rerankers for recommendation. Running an expensive model on every request is costly, and for users with sparse interaction histories it often lowers quality. We present CascadeRec, a two-tier LLM reranking cascade deployed in production at a large financial planning and analysis (FP&A) SaaS provider. It serves content recommendations to enterprise tenants on AWS EKS and GKE. A lightweight Tier-1 model reranks every request. A router escalates only the requests where extra inference-time compute is likely to help, and sends them to a more expensive Tier-2 procedure (self-consistency sampling, multi-path reasoning, or a larger model). The system has run in a production A/B experiment for over a month. Compared with uniform use of the expensive tier, CascadeRec has reduced inference cost by about 10%, with minimal latency impact and no quality regression observed to date. Tenant data cannot be released, so we also evaluate the pipeline on public benchmarks (MovieLens-1M and Amazon-Electronics). Segment-level analysis with paired-bootstrap confidence intervals shows that uniform LLM reranking lowers NDCG@10 for sparse-history users by up to 30%, and its only statistically significant gain appears on the segment with the longest histories. Escalating cold users can make the loss larger instead of repairing it. Which segments benefit from escalation depends on the domain, and this motivates the segment-gated rollout we use in production. We describe the deployment architecture, the measured benefits, and lessons learned, including inter-tenant load imbalance as a driver for cascading and the handling of LLM output-parsing failures at the serving layer. Large language models (LLMs) are attractive rerankers for recommendation. Running an expensive model on every request is costly, and for users with sparse interaction histories it often lowers quality. We present CascadeRec, a two-tier LLM reranking cascade deployed in production at a large financial planning and analysis (FP&A) SaaS provider. It serves content recommendations to enterprise tenants on AWS EKS and GKE. A lightweight Tier-1 model reranks every request. A router escalates only the requests where extra inference-time compute is likely to help, and sends them to a more expensive Tier-2 procedure (self-consistency sampling, multi-path reasoning, or a larger model). The system has run in a production A/B experiment for over a month. Compared with uniform use of the expensive tier, CascadeRec has reduced inference cost by about 10%, with minimal latency impact and no quality regression observed to date. Tenant data cannot be released, so we also evaluate the pipeline on public benchmarks (MovieLens-1M and Amazon-Electronics). Segment-level analysis with paired-bootstrap confidence intervals shows that uniform LLM reranking lowers NDCG@10 for sparse-history users by up to 30%, and its only statistically significant gain appears on the segment with the longest histories. Escalating cold users can make the loss larger instead of repairing it. Which segments benefit from escalation depends on the domain, and this motivates the segment-gated rollout we use in production. We describe the deployment architecture, the measured benefits, and lessons learned, including inter-tenant load imbalance as a driver for cascading and the handling of LLM output-parsing failures at the serving layer.",
+  "arxiv_id": "2611.08566",
+  "authors": [
+    "Kai Zhao",
+    "Guilin Zhang",
+    "Xiang Cheng",
+    "Xiquan Cui",
+    "Henry Heng",
+    "Xu Chu",
+    "Alet Blanken"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对多租户 SaaS 推荐系统，两层级联可在已观测范围内不牺牲质量地降低昂贵 LLM 推理成本，适合作为成本控制架构。",
+      "不应默认对所有用户升级；应按历史长度等分段门控，尤其避免对冷或稀疏用户盲目升级。",
+      "上线前应使用公开基准和分段置信区间评估领域差异，不能直接假定某分段会从升级中受益。",
+      "运营上需监控租户间负载不均衡，并将 LLM 输出解析失败纳入服务层容错与降级设计。",
+      "由于租户数据不可发布，对外沟通或审计需准备可复现的公开基准评估与内部监控证据。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出 CascadeRec：两层 LLM 重排级联，轻量 Tier-1 模型处理所有请求，路由器仅将可能从额外推理算力受益的请求升级到 Tier-2（自一致性采样、多路径推理或更大模型）。",
+      "在某大型 FP&A SaaS 提供商的生产环境部署，服务企业租户的内容推荐，运行在 AWS EKS 与 GKE 上，并进行了超过一个月的生产 A/B 实验。",
+      "相对统一使用昂贵层级，报告推理成本降低约 10%，延迟影响很小，且截至报告时未观察到质量回退。",
+      "在 MovieLens-1M 与 Amazon-Electronics 上做分段分析，使用配对 bootstrap 置信区间：统一 LLM 重排使稀疏历史用户 NDCG@10 最多下降 30%，唯一统计显著增益出现在历史最长分段。",
+      "指出升级冷用户可能扩大损失，且受益分段依领域而异，因此采用分段门控上线；总结租户间负载不均衡与 LLM 输出解析失败处理等部署经验。"
+    ],
+    "evidence_quality": 0.52,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract — deployment and production A/B results"
+      },
+      {
+        "page": 1,
+        "section": "Abstract — public benchmark segment analysis"
+      },
+      {
+        "page": 1,
+        "section": "Abstract — lessons learned"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "统一使用昂贵 Tier-2 层级（生产 A/B 对照）"
+      ],
+      "datasets": [
+        "生产 A/B 实验（企业租户数据，未公开）",
+        "MovieLens-1M",
+        "Amazon-Electronics"
+      ],
+      "findings_zh": [
+        "生产 A/B 中，相对统一使用昂贵层级，CascadeRec 推理成本降低约 10%，延迟影响很小，截至报告时未观察到质量回退。",
+        "公开基准分段分析中，统一 LLM 重排使稀疏历史用户 NDCG@10 最多下降 30%。",
+        "公开基准分段分析中，唯一统计显著增益出现在交互历史最长的用户分段。",
+        "将冷用户升级到更高成本推理可能使损失更大，而非修复稀疏历史用户的质量问题。",
+        "哪些分段从升级中受益依领域而异，这支持生产中的分段门控上线。",
+        "租户间负载不均衡是采用级联的驱动因素之一，服务层需要处理 LLM 输出解析失败。"
+      ],
+      "metrics": [
+        "推理成本",
+        "延迟",
+        "排序质量回退",
+        "NDCG@10",
+        "配对 bootstrap 置信区间",
+        "统计显著性"
+      ]
+    },
+    "limitations_zh": [
+      "租户数据不能发布，生产结果无法用原始业务数据复现或独立审计。",
+      "公开评估仅使用 MovieLens-1M 与 Amazon-Electronics 两个数据集。",
+      "升级冷用户可能扩大损失，且受益分段依领域而异，说明不存在通用的升级策略。",
+      "生产质量结论基于超过一个月的 A/B 实验，报告为截至当时未观察到质量回退。",
+      "所给摘要未展开路由阈值、模型身份、成本与延迟分布等实现细节。"
+    ],
+    "method_zh": "采用两层级联重排：Tier-1 轻量模型对每个请求重排；路由器判断额外推理算力是否可能带来收益，仅对这部分请求调用 Tier-2，Tier-2 可选自一致性采样、多路径推理或更大模型。生产上用超过一个月的 A/B 实验对比统一使用昂贵层级；因租户数据不可发布，另在公开基准上按用户分段评估，并用配对 bootstrap 置信区间分析 NDCG@10。生产上线采用分段门控策略。",
+    "problem_zh": "LLM 作为推荐重排器有吸引力，但对每个请求都运行昂贵模型成本高；对交互历史稀疏的用户，统一使用 LLM 重排还可能降低质量。系统需要在多租户生产环境中平衡推理成本、延迟与排序质量，并判断哪些请求值得升级到更昂贵的推理过程。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.8190000000000001,
+  "id": "arxiv-2611.08566",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-05T17:30:58Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文介绍生产环境中的 CascadeRec 两级 LLM 重排级联，通过路由按需分配推理算力以降低内容推荐成本。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "CascadeRec: Deployed Adaptive LLM Compute Allocation for Multi-Tenant Content Recommendation",
+  "url": "https://arxiv.org/abs/2611.08566v1"
+}

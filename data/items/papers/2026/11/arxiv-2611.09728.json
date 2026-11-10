@@ -1,0 +1,88 @@
+{
+  "abstract": "Recommendation systems often enter a new serving window before enough outcomes are available to retrain the deployed model. We study this regime with 0.05-1.0% target feedback, a range that spans our stress tests while keeping supervision far below the degrees of freedom of the source recommender. At this scale, existing fine-tuning and meta-learning methods still estimate target-specific updates from extremely sparse feedback, leaving the update direction weakly identified. SAGE-PAIR instead transfers a source-supported residual correction space and only calibrates this space using target outcomes. We introduce SAGE-PAIR, a staged adapter that pretrains a low-dimensional global residual on an adjacent source period and adds a soft router over residual experts conditioned on source user profiles. Target feedback then calibrates this residual state rather than relearning the recommender. On a locked test split of KuaiSAR-v2, SAGE-PAIR (Full) achieves a 1.77% relative improvement in NDCG@10, while a core-protocol comparison shows a further 0.25% gain from routed experts beyond source-pretrained PAIR. Matched source-pretrained LoRA and Adapter-Tuning baselines remain near the source model, supporting the need for a different adaptation space. Thus, SAGE-PAIR improves ranking quality with millisecond-scale adaptation and inference costs. Sparse-feedback adaptation is fundamentally governed by the identifiability of the update space rather than by label count alone. Source pretraining supplies estimable correction directions for scarce labels, while user-conditioned routing contributes a consistent, differentiated cross-user correction on top of the global correction. Our code is available at https://anonymous.4open.science/r/SAGE-PAIR-610E/. Recommendation systems often enter a new serving window before enough outcomes are available to retrain the deployed model. We study this regime with 0.05-1.0% target feedback, a range that spans our stress tests while keeping supervision far below the degrees of freedom of the source recommender. At this scale, existing fine-tuning and meta-learning methods still estimate target-specific updates from extremely sparse feedback, leaving the update direction weakly identified. SAGE-PAIR instead transfers a source-supported residual correction space and only calibrates this space using target outcomes. We introduce SAGE-PAIR, a staged adapter that pretrains a low-dimensional global residual on an adjacent source period and adds a soft router over residual experts conditioned on source user profiles. Target feedback then calibrates this residual state rather than relearning the recommender. On a locked test split of KuaiSAR-v2, SAGE-PAIR (Full) achieves a 1.77% relative improvement in NDCG@10, while a core-protocol comparison shows a further 0.25% gain from routed experts beyond source-pretrained PAIR. Matched source-pretrained LoRA and Adapter-Tuning baselines remain near the source model, supporting the need for a different adaptation space. Thus, SAGE-PAIR improves ranking quality with millisecond-scale adaptation and inference costs. Sparse-feedback adaptation is fundamentally governed by the identifiability of the update space rather than by label count alone. Source pretraining supplies estimable correction directions for scarce labels, while user-conditioned routing contributes a consistent, differentiated cross-user correction on top of the global correction. Our code is available at https://anonymous.4open.science/r/SAGE-PAIR-610E/.",
+  "arxiv_id": "2611.09728",
+  "authors": [
+    "Weiqing Zeng",
+    "Zida Yang",
+    "Guquan You",
+    "Jiexin Zheng",
+    "Cong Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "适用于新服务窗口、冷启动或反馈极稀疏时对已部署推荐模型做快速校准，降低全量重训成本。",
+      "毫秒级适配与推理成本有利于在线或近线部署。",
+      "基于源用户画像的软路由可对不同用户群体施加差异化残差校正，适合需要分群运营的推荐场景。",
+      "上线前需用自有数据复现，并通过A/B验证离线NDCG提升能否转化为点击、转化等业务指标。",
+      "由于仅验证单一数据集，建议先在低风险流量桶试点并监控效果衰减。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出SAGE-PAIR分阶段适配器：在相邻源周期预训练低维全局残差，并加入基于源用户画像条件化的残差专家软路由。",
+      "目标反馈仅用于校准残差状态，而非重新学习整个推荐模型，从而利用源预训练提供的可估计校正方向。",
+      "在KuaiSAR-v2锁定测试集上，SAGE-PAIR (Full) 取得NDCG@10相对提升1.77%；核心协议下路由专家相较source-pretrained PAIR再带来0.25%增益。",
+      "提出稀疏反馈适配根本上受更新空间可识别性约束，而不仅由标签数量决定；用户条件路由在全局校正上提供一致且差异化的跨用户校正。",
+      "实现毫秒级适配与推理成本。"
+    ],
+    "evidence_quality": 0.38,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "source model",
+        "Matched source-pretrained LoRA",
+        "Matched source-pretrained Adapter-Tuning",
+        "Source-pretrained PAIR"
+      ],
+      "datasets": [
+        "KuaiSAR-v2（锁定测试集）"
+      ],
+      "findings_zh": [
+        "SAGE-PAIR (Full) 在KuaiSAR-v2锁定测试集上取得NDCG@10相对提升1.77%。",
+        "核心协议比较中，路由专家在source-pretrained PAIR基础上再带来0.25%增益。",
+        "匹配的source-pretrained LoRA与Adapter-Tuning基线仍接近源模型，支持需要不同适配空间的论点。",
+        "作者结论认为，稀疏反馈适配由更新空间可识别性而非仅标签数量决定；源预训练提供可估计校正方向，用户条件路由提供一致且差异化的跨用户校正。",
+        "方法报告毫秒级适配与推理成本。"
+      ],
+      "metrics": [
+        "NDCG@10相对提升",
+        "毫秒级适配与推理成本"
+      ]
+    },
+    "limitations_zh": [
+      "证据仅来自摘要，缺少完整方法、实验设置、超参数与统计显著性细节。",
+      "仅在KuaiSAR-v2单一数据集的锁定测试集上报告结果，跨数据集与跨领域泛化能力未知。",
+      "摘要未报告在线A/B、长期部署或不同反馈率下的完整敏感性分析。",
+      "NDCG@10相对提升1.77%，幅度有限，实际业务收益仍需进一步验证。"
+    ],
+    "method_zh": "SAGE-PAIR是一种分阶段adapter：先在相邻源周期上预训练低维全局残差，再加入以源用户画像为条件的残差专家软路由；目标阶段用目标反馈校准该残差状态，而不是重新学习推荐器。",
+    "problem_zh": "推荐系统常在新服务窗口缺乏足够结果数据重训模型时上线；在0.05–1.0%目标反馈下，现有微调和元学习方法仍从极稀疏反馈估计目标特定更新，导致更新方向弱可识别。",
+    "technical_depth": 0.58
+  },
+  "doi": null,
+  "final_score": 0.7645,
+  "id": "arxiv-2611.09728",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-06T17:06:10Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出SAGE-PAIR，在目标反馈稀疏的新服务窗口内通过源预训练残差校正和用户条件路由来适配推荐系统，并报告NDCG@10排序提升。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SAGE-PAIR: Source-Pretrained Routed Residual Adaptation for Sparse-Feedback Recommendation",
+  "url": "https://arxiv.org/abs/2611.09728v1"
+}

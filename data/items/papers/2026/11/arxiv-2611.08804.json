@@ -1,0 +1,103 @@
+{
+  "abstract": "Search and recommendation at Shopify require retrieving relevant products from a changing catalog of billions of products under strict latency constraints. We present SID-LLM, which casts both tasks as generating semantic IDs: short sequences of content-derived tokens representing products. We jointly pre-train SID-LLM on catalog and behavioral data, giving search and recommendation a shared representation and training objective. We show that reinforcement learning further improves judged search relevance. Furthermore, distillation from task-specific experts improves recommendation quality over joint supervised fine-tuning without a statistically detected loss in search quality. Finally, for efficient serving, we pair multi-token prediction with a lightweight ranker, improving retrieval quality over our autoregressive baseline while reducing latency. We evaluate SID-LLM both as a standalone retriever and as a component of Shopify's production search and recommendation systems. As a standalone search system, SID-LLM achieves quality comparable to Shopify's existing multi-model search stack while meeting production latency requirements. Integrating SID-LLM into the search and recommendation stacks provides significant gains in both offline evaluations and online A/B tests. Together, these results demonstrate the practical value of semantic-ID generation as a unified approach to product discovery at scale. Search and recommendation at Shopify require retrieving relevant products from a changing catalog of billions of products under strict latency constraints. We present SID-LLM, which casts both tasks as generating semantic IDs: short sequences of content-derived tokens representing products. We jointly pre-train SID-LLM on catalog and behavioral data, giving search and recommendation a shared representation and training objective. We show that reinforcement learning further improves judged search relevance. Furthermore, distillation from task-specific experts improves recommendation quality over joint supervised fine-tuning without a statistically detected loss in search quality. Finally, for efficient serving, we pair multi-token prediction with a lightweight ranker, improving retrieval quality over our autoregressive baseline while reducing latency. We evaluate SID-LLM both as a standalone retriever and as a component of Shopify's production search and recommendation systems. As a standalone search system, SID-LLM achieves quality comparable to Shopify's existing multi-model search stack while meeting production latency requirements. Integrating SID-LLM into the search and recommendation stacks provides significant gains in both offline evaluations and online A/B tests. Together, these results demonstrate the practical value of semantic-ID generation as a unified approach to product discovery at scale.",
+  "arxiv_id": "2611.08804",
+  "authors": [
+    "Juhana Kangaspunta",
+    "Khalil Hajji",
+    "Darshan Fofadiya",
+    "Kyumin Park",
+    "Michael Garner",
+    "Anthony Maltsev",
+    "Ryan Synk",
+    "Jose Sepulveda",
+    "Joshua Crisologo",
+    "Shuying Sun",
+    "Akshay Soni"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "统一语义 ID 生成可让搜索与推荐共享表示和训练目标，降低多模型栈的维护复杂度。",
+      "在数十亿商品目录和严格延迟约束下达到生产可用，说明语义 ID 生成可作为大规模商品发现的核心检索方案。",
+      "强化学习适合用于提升搜索相关性等可判定质量指标，蒸馏适合在不明显损害搜索的情况下增强推荐。",
+      "多 token 预测加轻量排序器的服务方案对延迟敏感型推荐系统具有直接借鉴价值。",
+      "在线 A/B 测试增益表明该方案不仅改善离线指标，也可能带来真实业务收益，适合在电商检索与推荐场景试点。",
+      "对拥有大规模动态商品目录的平台，可考虑将语义 ID 作为搜索和推荐之间的统一商品表示层。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出 SID-LLM，将搜索和推荐统一建模为生成语义 ID：用内容衍生的短 token 序列表示商品。",
+      "在商品目录数据和行为数据上联合预训练，使搜索与推荐共享表示和训练目标。",
+      "使用强化学习进一步提升人工判定的搜索相关性。",
+      "通过任务特定专家蒸馏提升推荐质量，且未检测到搜索质量的统计显著损失。",
+      "在服务端将多 token 预测与轻量级排序器结合，在降低延迟的同时提升检索质量。",
+      "在 Shopify 生产搜索与推荐系统中评估， standalone 搜索质量可比现有多模型搜索栈并满足生产延迟，集成后离线评估和在线 A/B 测试均有显著增益。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Shopify 现有多模型搜索栈",
+        "自回归基线",
+        "联合监督微调（joint supervised fine-tuning）"
+      ],
+      "datasets": [
+        "Shopify 商品目录数据",
+        "Shopify 行为数据",
+        "Shopify 生产搜索与推荐系统（离线评估与在线 A/B 测试）"
+      ],
+      "findings_zh": [
+        "作为独立搜索系统，SID-LLM 的质量与 Shopify 现有多模型搜索栈相当，并满足生产延迟要求。",
+        "将 SID-LLM 集成到搜索和推荐栈后，离线评估与在线 A/B 测试均取得显著增益。",
+        "强化学习进一步提升人工判定的搜索相关性。",
+        "从任务特定专家蒸馏可提升推荐质量，相比联合监督微调未检测到搜索质量的统计显著下降。",
+        "多 token 预测配合轻量级排序器，相比自回归基线提升检索质量并降低延迟。"
+      ],
+      "metrics": [
+        "检索质量",
+        "人工判定的搜索相关性",
+        "推荐质量",
+        "延迟",
+        "离线评估增益",
+        "在线 A/B 测试增益"
+      ]
+    },
+    "limitations_zh": [
+      "仅基于摘要，未披露具体数据集规模、基线实现、指标数值和统计显著性细节。",
+      "摘要未说明模型规模、语义 ID 构造方式、训练成本及生产部署的具体工程细节。",
+      "摘要未讨论冷启动、目录动态变化、公平性、鲁棒性等潜在限制。",
+      "无法从摘要判断方法在 Shopify 之外电商场景或其他推荐任务上的泛化能力。"
+    ],
+    "method_zh": "SID-LLM 将商品表示为内容衍生的语义 ID 短序列，并把搜索与推荐都转化为语义 ID 生成任务。模型在商品目录和行为数据上进行联合预训练，以获得共享表示与训练目标；随后用强化学习优化搜索相关性，并通过任务特定专家蒸馏提升推荐质量。服务阶段采用多 token 预测配合轻量级排序器，以改善检索质量并降低延迟。",
+    "problem_zh": "Shopify 的搜索与推荐需要在数十亿级、持续变化的商品目录中，以严格延迟约束检索相关商品。论文关注如何用统一方法同时服务搜索和推荐，并在生产环境中满足延迟与质量要求。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.795,
+  "id": "arxiv-2611.08804",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-11-05T23:56:02Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文介绍 Shopify 的 SID-LLM，将搜索与推荐统一为语义 ID 生成，并结合强化学习、专家蒸馏和多 token 预测提升线上检索效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Generative Search and Recommendation at Shopify",
+  "url": "https://arxiv.org/abs/2611.08804v1"
+}

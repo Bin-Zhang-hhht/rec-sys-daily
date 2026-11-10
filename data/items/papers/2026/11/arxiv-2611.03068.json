@@ -1,0 +1,85 @@
+{
+  "abstract": "Large language model (LLM) embeddings have been increasingly adopted in sequential recommendation to encode static item attributes and alleviate the limitations of item ID embeddings under sparse interactions. However, these embeddings typically capture only static content similarity while neglecting sequential transitions, and since their adaptation quality relies on sparse per-item updates or global geometric calibration, existing methods still struggle to explicitly transfer preceding interaction contexts from frequent to long-tail items under unevenly distributed behavioral evidence, limiting recommendation effectiveness across the catalog. To address this challenge, we propose PACERec, an ID-free progressive adaptation framework that incorporates preceding interaction contexts into semantic representation adaptation by learning a shared velocity field from items with sufficient interactions via frequency-weighted flow matching. In this way, PACERec progressively guides static LLM embeddings toward collaborative behavioral targets while preserving original item semantics, overcoming sparse per-item updates to effectively generalize sequential transition patterns to long-tail items for both user modeling and candidate scoring. Extensive experiments on three real-world datasets across three sequential backbones demonstrate the superiority of our method over competitive baselines in both overall and long-tail recommendation. Large language model (LLM) embeddings have been increasingly adopted in sequential recommendation to encode static item attributes and alleviate the limitations of item ID embeddings under sparse interactions. However, these embeddings typically capture only static content similarity while neglecting sequential transitions, and since their adaptation quality relies on sparse per-item updates or global geometric calibration, existing methods still struggle to explicitly transfer preceding interaction contexts from frequent to long-tail items under unevenly distributed behavioral evidence, limiting recommendation effectiveness across the catalog. To address this challenge, we propose PACERec, an ID-free progressive adaptation framework that incorporates preceding interaction contexts into semantic representation adaptation by learning a shared velocity field from items with sufficient interactions via frequency-weighted flow matching. In this way, PACERec progressively guides static LLM embeddings toward collaborative behavioral targets while preserving original item semantics, overcoming sparse per-item updates to effectively generalize sequential transition patterns to long-tail items for both user modeling and candidate scoring. Extensive experiments on three real-world datasets across three sequential backbones demonstrate the superiority of our method over competitive baselines in both overall and long-tail recommendation.",
+  "arxiv_id": "2611.03068",
+  "authors": [
+    "Junzhao Huang",
+    "Xi Wu",
+    "Zihan Wang",
+    "Zijing Wang",
+    "Ming Wang",
+    "Kang Liu",
+    "Xiaocui Yang",
+    "Shi Feng",
+    "Daling Wang",
+    "Yifei Zhang",
+    "Ting Yang",
+    "Xurui Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "适合商品目录长尾严重、ID 嵌入难以训练的电商/内容推荐场景：用共享速度场把头部物品的交互模式迁移到长尾物品，有望提升目录覆盖率与长尾曝光效率。",
+      "复用现成 LLM 语义嵌入并以行为目标做渐进校准，可减少对海量交互与逐物品训练的依赖，降低新品与冷启动物品的上线门槛。",
+      "同时服务用户建模与候选打分，意味着可在召回/排序链路中统一使用同一套自适应语义表示，简化特征与模型维护。",
+      "落地前需在自有数据上验证增益幅度、推理延迟与训练成本，并与现有 ID 嵌入方案做在线 A/B 对照。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 PACERec：一个无 ID（ID-free）的渐进式自适应框架，将前序交互上下文注入 LLM 语义表示的自适应过程。",
+      "设计基于频率加权 flow matching 的机制，从交互充足的物品中学习一个共享速度场，从而绕开稀疏的逐物品更新。",
+      "在保持物品原始语义的同时，将静态 LLM 嵌入渐进引导至协同行为目标，使序列转移模式能够泛化到长尾物品，并同时服务于用户建模与候选打分。",
+      "在三个真实数据集、三种序列骨干网络上验证方法在整体推荐与长尾推荐上均优于竞争基线。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "竞争性基线方法（摘要未列出具体名称）"
+      ],
+      "datasets": [
+        "三个真实世界数据集（摘要未给出具体名称）"
+      ],
+      "findings_zh": [
+        "在三个真实数据集与三种序列骨干网络上，PACERec 的整体推荐效果优于所比较的竞争基线。",
+        "在长尾推荐场景下同样优于竞争基线，说明序列转移模式的迁移对长尾物品有效。",
+        "摘要未披露具体指标数值、提升幅度、消融结果与效率数据。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "仅有摘要可用，缺少数据集名称、基线清单、评价指标与具体数值，无法核验提升幅度与统计显著性。",
+      "摘要未披露频率加权 flow matching 的计算与推理开销，也未说明其对头部物品覆盖度与交互分布的敏感性。",
+      "未报告冷启动/极端长尾、跨域或在线 A/B 场景下的表现，实际业务落地风险未知。",
+      "共享速度场假设头部物品所学转移模式可迁移至长尾物品，摘要未给出该假设失效条件的分析。"
+    ],
+    "method_zh": "PACERec 采用无 ID 的渐进式自适应思路：不依赖逐物品的独立参数更新，而是借助频率加权 flow matching，从交互数量充足的物品中学习一个共享的速度场（velocity field）；随后用该速度场把静态 LLM 语义嵌入沿连续变换逐步推向协同行为目标，在保留原始物品语义的前提下注入前序交互上下文，从而在用户建模和候选物品打分两个环节上，把学到的序列转移模式推广到证据稀疏的长尾物品。",
+    "problem_zh": "在序列推荐中，LLM 嵌入被用来编码静态物品属性，以缓解交互稀疏时物品 ID 嵌入的不足；但这类嵌入通常只刻画静态内容相似度，忽略了序列转移信息。其自适应质量依赖稀疏的逐物品更新或全局几何校准，因此在行为证据分布不均的情况下，难以把前序交互上下文从交互频繁的物品显式迁移到长尾物品，从而限制了全目录范围内的推荐效果。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.6925000000000001,
+  "id": "arxiv-2611.03068",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-02T12:55:49Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出PACERec，利用频率加权流匹配将LLM物品嵌入渐进适配到协同行为目标，以提升序贯推荐及长尾效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "PACERec: Progressive Adaptation of LLM Item Embeddings with Collaborative Evidence for Recommendation",
+  "url": "https://arxiv.org/abs/2611.03068v1"
+}

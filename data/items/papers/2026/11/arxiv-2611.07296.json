@@ -1,0 +1,94 @@
+{
+  "abstract": "When a tropical cyclone (TC) threatens several ports, preparedness planning depends on anticipating which ports are likely to be affected and where disruptions may last longest. Limited historical observations at individual ports and uncertainty in landfall location make these relative impacts difficult to estimate. We use a two-stage recommendation framework that first selects candidate ports based on their proximity to the expected landfall location and then ranks them by their estimated number of impact days. Using AIS-derived impact days for 37 ports and 31 TCs in the Gulf of Mexico study region, we compare three ways of representing port--cyclone interactions: pairwise feature interactions, tree-based feature combinations, and explicit feature crosses combined with learned embeddings. In tests on Hurricanes Nicole and Ian, the retrieval stage consistently identifies all observed affected ports under landfall uncertainty. Among the ranking models, Wide & Deep Learning achieves the closest agreement with the observed port rankings. Its mean ranking agreement exceeds that of the distance-based baseline by 85.5% for Nicole and 55.5% for Ian and is less sensitive to uncertainty in the landfall location. These rankings could help port authorities prioritize post-cyclone inspections and allocate recovery resources across ports threatened by the same event. When a tropical cyclone (TC) threatens several ports, preparedness planning depends on anticipating which ports are likely to be affected and where disruptions may last longest. Limited historical observations at individual ports and uncertainty in landfall location make these relative impacts difficult to estimate. We use a two-stage recommendation framework that first selects candidate ports based on their proximity to the expected landfall location and then ranks them by their estimated number of impact days. Using AIS-derived impact days for 37 ports and 31 TCs in the Gulf of Mexico study region, we compare three ways of representing port--cyclone interactions: pairwise feature interactions, tree-based feature combinations, and explicit feature crosses combined with learned embeddings. In tests on Hurricanes Nicole and Ian, the retrieval stage consistently identifies all observed affected ports under landfall uncertainty. Among the ranking models, Wide & Deep Learning achieves the closest agreement with the observed port rankings. Its mean ranking agreement exceeds that of the distance-based baseline by 85.5% for Nicole and 55.5% for Ian and is less sensitive to uncertainty in the landfall location. These rankings could help port authorities prioritize post-cyclone inspections and allocate recovery resources across ports threatened by the same event.",
+  "arxiv_id": "2611.07296",
+  "authors": [
+    "Chenchen Kuai",
+    "Shixuan Tang",
+    "Chaolun Ma",
+    "Xiaoqiang Kong",
+    "Xiubin Bruce Wang",
+    "Yunlong Zhang",
+    "Zihao Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "港口管理机构可据此对受同一气旋威胁的多个港口做优先级排序，优先安排风后检查。",
+      "排序结果有助于在多个受威胁港口之间分配恢复资源。",
+      "两阶段设计（先按邻近度检索、再按影响天数排序）可直接映射到应急响应的分流与调度流程。",
+      "对登陆位置不确定性的稳健性，使该框架适合在预报尚不确定的预警早期使用。",
+      "该建模范式可迁移到其他多站点受同一外部冲击影响的资源优先级排序场景。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出一个两阶段推荐框架：第一阶段依据港口与预期登陆点的邻近度检索候选港口，第二阶段按预估影响天数对候选港口排序。",
+      "基于墨西哥湾研究区37个港口、31个热带气旋的AIS衍生影响天数构建评估数据。",
+      "系统比较三种港口—气旋交互表示方式：成对特征交互、基于树的特征组合、显式特征交叉结合学习到的嵌入表示。",
+      "在飓风Nicole与Ian的测试中，检索阶段在登陆位置不确定的情况下稳定识别出全部实际受影响港口。",
+      "Wide & Deep Learning在排序模型中最接近观测到的港口排序，平均排序一致度相对距离基线分别提升85.5%（Nicole）与55.5%（Ian），且对登陆位置不确定性更不敏感。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "基于距离的基线（distance-based baseline）",
+        "成对特征交互表示模型",
+        "基于树的特征组合模型",
+        "显式特征交叉结合学习嵌入的模型"
+      ],
+      "datasets": [
+        "墨西哥湾研究区37个港口的AIS衍生影响天数数据",
+        "31个热带气旋事件",
+        "飓风Nicole测试案例",
+        "飓风Ian测试案例"
+      ],
+      "findings_zh": [
+        "检索阶段在登陆位置不确定的条件下，对Nicole与Ian均能一致地识别出全部观测到的受影响港口。",
+        "在参评排序模型中，Wide & Deep Learning与观测港口排序的一致度最高。",
+        "其平均排序一致度相对距离基线在Nicole上高出85.5%，在Ian上高出55.5%。",
+        "该模型对登陆位置不确定性较不敏感。"
+      ],
+      "metrics": [
+        "平均排序一致度（mean ranking agreement）",
+        "相对距离基线的排序一致度提升百分比",
+        "检索阶段对实际受影响港口的覆盖情况"
+      ]
+    },
+    "limitations_zh": [
+      "仅能依据摘要分析，缺少全文的方法细节、超参数与完整实验结果。",
+      "作者指出单港口历史观测有限，是影响估计的根本困难之一。",
+      "登陆位置不确定性仍是影响相对影响估计的重要因素。",
+      "实证范围限于墨西哥湾的37个港口与31个气旋，泛化性未在摘要中验证。",
+      "摘要仅给出相对提升百分比，未报告绝对指标数值与统计显著性。"
+    ],
+    "method_zh": "两阶段推荐框架：先用基于预期登陆点邻近度的检索阶段筛出候选港口，再用排序模型估计各港口的受影响天数并排序；排序阶段对比了成对特征交互、树模型特征组合、以及显式特征交叉加学习嵌入三种交互表示，其中Wide & Deep Learning表现最佳。",
+    "problem_zh": "当热带气旋（TC）同时威胁多个港口时，港口应急准备需要预判哪些港口可能受影响、以及哪些港口的中断持续时间最长。由于单个港口的历史观测有限、且登陆位置存在不确定性，估计港口之间的相对影响程度十分困难。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.6825000000000001,
+  "id": "arxiv-2611.07296",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-05T01:19:53Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文将两阶段推荐框架用于热带气旋影响下的港口检索与排序，以预估受影响港口及其影响天数。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Robust Ranking of Port Impacts from Impending Tropical Cyclones: A Two-Stage Recommendation System",
+  "url": "https://arxiv.org/abs/2611.07296v1"
+}

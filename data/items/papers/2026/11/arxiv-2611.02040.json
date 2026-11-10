@@ -1,0 +1,73 @@
+{
+  "abstract": "Data sparsity, a long-standing problem in the recommendation system, occurs when the user-item utility matrix is sparse. For years, many approaches have been experimented with, including utilizing user's textual reviews and multiple criteria ratings. In a review-based recommendation system, user preferences and item attributes are learned from reviews, while in multi-criteria recommendation systems, criteria ratings are used for the recommendation task. Multi-criteria are domain-specific pre-defined explicit criteria and users are bound to provide feedback only on these criteria with discrete values. On the contrary, users are free to express their opinions through textual reviews, which can cover multiple perspectives or aspects. It is possible that these pre-defined, domain-specific explicit criteria are not enough to fully capture the multi-faceted user preferences. To this end, we propose a novel multi-criteria recommendation model that utilizes predefined, implicit, and undefined criteria. We use a semantic similarity-based sentence clustering method to identify the predefined and implicit criteria and a sentiment analyzer to estimate their ratings. The criteria that are extracted from the review and are aligned with predefined criteria are referred to as implicit criteria. A sentence is considered as expressing opinions on an undefined criterion if the similarity score between this sentence and all the predefined criteria is lower than a predefined threshold. Ratings are computed for each extracted implicit criterion and the undefined criterion based on the review content. Finally, we use all three types of criteria and an aggregation model to make the final rating prediction for the recommendation system. Our proposed method demonstrates the superiority compared to several baselines on TripAdvisor and Beer Advocate datasets. Data sparsity, a long-standing problem in the recommendation system, occurs when the user-item utility matrix is sparse. For years, many approaches have been experimented with, including utilizing user's textual reviews and multiple criteria ratings. In a review-based recommendation system, user preferences and item attributes are learned from reviews, while in multi-criteria recommendation systems, criteria ratings are used for the recommendation task. Multi-criteria are domain-specific pre-defined explicit criteria and users are bound to provide feedback only on these criteria with discrete values. On the contrary, users are free to express their opinions through textual reviews, which can cover multiple perspectives or aspects. It is possible that these pre-defined, domain-specific explicit criteria are not enough to fully capture the multi-faceted user preferences. To this end, we propose a novel multi-criteria recommendation model that utilizes predefined, implicit, and undefined criteria. We use a semantic similarity-based sentence clustering method to identify the predefined and implicit criteria and a sentiment analyzer to estimate their ratings. The criteria that are extracted from the review and are aligned with predefined criteria are referred to as implicit criteria. A sentence is considered as expressing opinions on an undefined criterion if the similarity score between this sentence and all the predefined criteria is lower than a predefined threshold. Ratings are computed for each extracted implicit criterion and the undefined criterion based on the review content. Finally, we use all three types of criteria and an aggregation model to make the final rating prediction for the recommendation system. Our proposed method demonstrates the superiority compared to several baselines on TripAdvisor and Beer Advocate datasets.",
+  "arxiv_id": "2611.02040",
+  "authors": [
+    "Emrul Hasan",
+    "Chen Ding"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可将用户评论文本作为显式多准则评分之外的补充信号，提取隐式偏好与未被预定义准则覆盖的偏好，用于改进评分预测。",
+      "适用于同时拥有评论文本和多维评分数据的场景，如酒店/餐饮点评和商品评论平台。",
+      "落地时需要定义领域预定义准则，并配置语义聚类、情感分析和评分聚合流程。",
+      "该思路有望提升稀疏评分场景下的推荐覆盖与个性化程度，但需结合实际数据评估阈值设置与计算成本。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出一种同时利用预定义准则、隐式准则和未定义准则的多准则推荐模型。",
+      "使用基于语义相似度的句子聚类方法识别预定义准则与隐式准则，并用情感分析器估计其评分。",
+      "将与所有预定义准则相似度均低于阈值的句子视为表达未定义准则的意见，并基于评论内容计算相应评分。",
+      "聚合三类准则进行最终评分预测，并在 TripAdvisor 和 Beer Advocate 数据集上优于多个基线。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "多个基线（摘要未具体命名）"
+      ],
+      "datasets": [
+        "TripAdvisor",
+        "Beer Advocate"
+      ],
+      "findings_zh": [
+        "所提方法在 TripAdvisor 和 Beer Advocate 数据集上相较多个基线表现出优越性。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "所给材料仅为摘要，未提供基线名称、评价指标和具体实验数值，无法核验性能提升幅度。",
+      "摘要未说明语义相似度阈值的选取方式、模型复杂度或计算成本。",
+      "摘要未报告对数据稀疏问题的定量缓解效果。"
+    ],
+    "method_zh": "从用户评论文本出发，先用语义相似度对句子进行聚类，以识别预定义准则和与预定义准则对齐的隐式准则；再用情感分析估计这些准则的评分。若句子与所有预定义准则的相似度均低于设定阈值，则将其归为未定义准则并计算评分。最后，将预定义准则、隐式准则和未定义准则的评分输入聚合模型，生成最终评分预测。",
+    "problem_zh": "推荐系统长期面临用户-物品效用矩阵稀疏的问题；仅依赖领域内预定义、离散的多准则评分，可能无法充分刻画用户多方面的偏好。",
+    "technical_depth": 0.55
+  },
+  "doi": "10.1007/978-3-031-78538-2_6",
+  "final_score": 0.7100000000000001,
+  "id": "arxiv-2611.02040",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-01T16:37:49Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文利用评论中的预定义、隐含和未定义准则构建多准则推荐模型，以缓解用户-物品矩阵稀疏问题。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Multicriteria Recommendation System by Leveraging Predefined, Implicit, and Undefined Criteria",
+  "url": "https://arxiv.org/abs/2611.02040v1"
+}

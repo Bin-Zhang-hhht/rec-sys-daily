@@ -1,0 +1,87 @@
+{
+  "abstract": "Semantic-ID-based (SID) generative recommendation (GR) represents each item as a sequence of discrete tokens and predicts the next item through autoregressive SID generation. However, existing methods face two challenges. First, insufficient shared context modeling for user sequences: full-history and recent behaviors provide overlapping yet complementary evidence, but modeling them within a single sequence may dilute current cues, whereas processing them through separate streams may fail to coordinate them. Second, insufficient personalized adaptation in progressive SID decisions: although decoder states evolve with generated prefixes, existing models typically use a shared output-side transformation across recommendation instances, without explicitly selecting a transformation suited to the current user need. To address these challenges, we propose Multi-View Thinking with Adaptive Generation (MV-Thinker), a framework that Thinks Globally and Generates Personally. First, Multi-View Temporal Thinking uses view-specific thinking queries and readers over overlapping full-history and recent-history views, coordinating both sources into complementary user-conditioned contexts before SID generation. Second, Hierarchical Residual Adaptation organizes lightweight adapters into nested residual paths before a shared vocabulary projection, adaptively transforming context-bearing decoder states for SID decisions. Extensive experiments on four public datasets demonstrate that MV-Thinker consistently outperforms strong discriminative and generative recommendation baselines across multiple ranking metrics. The implementation code and datasets are available on: https://anonymous.4open.science/r/MV-Thinker Semantic-ID-based (SID) generative recommendation (GR) represents each item as a sequence of discrete tokens and predicts the next item through autoregressive SID generation. However, existing methods face two challenges. First, insufficient shared context modeling for user sequences: full-history and recent behaviors provide overlapping yet complementary evidence, but modeling them within a single sequence may dilute current cues, whereas processing them through separate streams may fail to coordinate them. Second, insufficient personalized adaptation in progressive SID decisions: although decoder states evolve with generated prefixes, existing models typically use a shared output-side transformation across recommendation instances, without explicitly selecting a transformation suited to the current user need. To address these challenges, we propose Multi-View Thinking with Adaptive Generation (MV-Thinker), a framework that Thinks Globally and Generates Personally. First, Multi-View Temporal Thinking uses view-specific thinking queries and readers over overlapping full-history and recent-history views, coordinating both sources into complementary user-conditioned contexts before SID generation. Second, Hierarchical Residual Adaptation organizes lightweight adapters into nested residual paths before a shared vocabulary projection, adaptively transforming context-bearing decoder states for SID decisions. Extensive experiments on four public datasets demonstrate that MV-Thinker consistently outperforms strong discriminative and generative recommendation baselines across multiple ranking metrics. The implementation code and datasets are available on: https://anonymous.4open.science/r/MV-Thinker",
+  "arxiv_id": "2611.02463",
+  "authors": [
+    "Yuxuan Hu",
+    "Yingyi Zhang",
+    "Wenlin Zhang",
+    "Chao Zhang",
+    "Haotian Nan",
+    "Ziwei Liu",
+    "Jiancheng Dong",
+    "Tongzhou Wu",
+    "Beibei Kong",
+    "Lei Cheng",
+    "Chengxiang Zhuo",
+    "Zang Li",
+    "Wanyu Wang",
+    "Xiangyu Zhao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对推荐系统而言，同时建模完整历史与近期行为有望缓解单一序列中当前兴趣被稀释的问题，并保留长期偏好与短期意图的互补信息。",
+      "在共享词表投影前使用轻量适配器进行个性化变换，可能为个性化SID决策提供参数效率较高的实现路径，但是否降低服务成本需进一步验证。",
+      "摘要中的收益仅来自离线排序指标，业务落地前仍需验证在线点击、转化、多样性和延迟等指标。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出MV-Thinker框架，目标是在SID生成前进行多视角思考，并在生成时进行个性化适配。",
+      "提出多视角时间思考：在重叠的完整历史视图与近期历史视图上使用视图特定的思考查询和读取器，将两类来源协调为用户条件化的互补上下文。",
+      "提出分层残差适配：在共享词表投影之前，将轻量适配器组织为嵌套残差路径，对携带上下文的解码器状态进行自适应变换以支持SID决策。",
+      "在四个公开数据集上实验，摘要称MV-Thinker在多个排序指标上持续优于强判别式与生成式推荐基线。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "强判别式推荐基线",
+        "强生成式推荐基线"
+      ],
+      "datasets": [
+        "四个公开数据集（摘要未给出具体名称）"
+      ],
+      "findings_zh": [
+        "MV-Thinker在四个公开数据集上于多个排序指标上持续优于强判别式和生成式推荐基线。",
+        "摘要仅给出总体实验结论，未提供具体数据集、基线名称、指标数值或消融结果。"
+      ],
+      "metrics": [
+        "多种排序指标（摘要未给出具体名称）"
+      ]
+    },
+    "limitations_zh": [
+      "当前仅能依据摘要分析，无法核验具体数据集、基线、指标数值、消融实验和统计显著性。",
+      "摘要未讨论方法局限性、失败场景、计算开销或线上部署约束。",
+      "多视角时间思考与分层残差适配的具体结构、超参数和训练细节未在摘要中展开。"
+    ],
+    "method_zh": "MV-Thinker采用“全局思考、个性化生成”的思路。第一阶段是多视角时间思考：针对完整历史与近期历史两个重叠视图，分别使用视图特定的思考查询和读取器，在SID生成前将两类历史协调为互补的用户条件化上下文。第二阶段是分层残差适配：将轻量适配器组织成嵌套残差路径，置于共享词表投影之前，对承载上下文的解码器状态进行自适应变换，用于渐进式SID决策。",
+    "problem_zh": "基于语义ID（SID）的生成式推荐将物品表示为离散token序列，并通过自回归SID生成预测下一个物品。现有方法面临两个问题：其一，用户序列的共享上下文建模不足，完整历史与近期行为既重叠又互补，放在单一序列中可能稀释当前线索，分流水建模又可能无法协同；其二，渐进式SID决策中的个性化适配不足，解码器状态虽随已生成前缀演化，但现有模型通常对所有推荐实例共用输出侧变换，未显式选择适合当前用户需求的变换。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7224999999999999,
+  "id": "arxiv-2611.02463",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-02T03:26:15Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出MV-Thinker，通过多视角时序思考与分层残差适配改进基于语义ID的生成式推荐。",
+  "targets": [],
+  "tasks": [],
+  "title": "Think Globally, Generate Personally: Multi-View Thinking with Adaptive Generation for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.02463v1"
+}

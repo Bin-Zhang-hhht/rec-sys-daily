@@ -1,0 +1,95 @@
+{
+  "abstract": "LLM-based recommender systems increasingly generate chain-of-thought (CoT) text before each item prediction to activate the LLM's reasoning capacity, costing tens to hundreds of extra tokens per recommendation at inference. We ask whether inference-time reasoning artifacts (textual or latent) can be replaced by training-time supervision alone, without loss of accuracy. We propose LatentRec, a framework for LLM-based generative recommendation that replaces inference-time reasoning artifacts with training-time per-step head supervision. LatentRec has three components. A 2.5M-parameter Continuous Thought Module iterates K latent reasoning steps over the LLM's hidden state during training. Soft Token Selection bridges the ~14x norm gap between hidden states and input embeddings. A Per-step Reasoning Loss (PRL) supervises every intermediate state through the LLM's prediction head against the first token of the target Semantic ID. The trained LLM retains this accuracy without the module at inference, so the module can be discarded at deployment. On three Amazon benchmarks, LatentRec improves HR@10 by 4.0-5.0% (relative) over a CoT-distilled baseline at 18.3x lower latency (batch=1). Per-step training supervision consistently improves accuracy across three datasets, paid once at training rather than at every recommendation. LLM-based recommender systems increasingly generate chain-of-thought (CoT) text before each item prediction to activate the LLM's reasoning capacity, costing tens to hundreds of extra tokens per recommendation at inference. We ask whether inference-time reasoning artifacts (textual or latent) can be replaced by training-time supervision alone, without loss of accuracy. We propose LatentRec, a framework for LLM-based generative recommendation that replaces inference-time reasoning artifacts with training-time per-step head supervision. LatentRec has three components. A 2.5M-parameter Continuous Thought Module iterates K latent reasoning steps over the LLM's hidden state during training. Soft Token Selection bridges the ~14x norm gap between hidden states and input embeddings. A Per-step Reasoning Loss (PRL) supervises every intermediate state through the LLM's prediction head against the first token of the target Semantic ID. The trained LLM retains this accuracy without the module at inference, so the module can be discarded at deployment. On three Amazon benchmarks, LatentRec improves HR@10 by 4.0-5.0% (relative) over a CoT-distilled baseline at 18.3x lower latency (batch=1). Per-step training supervision consistently improves accuracy across three datasets, paid once at training rather than at every recommendation.",
+  "arxiv_id": "2611.07866",
+  "authors": [
+    "Hongyang Su",
+    "Beibei Kong",
+    "Lei Cheng",
+    "Chengxiang Zhuo",
+    "Zang Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在不增加推理token的前提下获得精度提升，可直接降低单次推荐的计算成本与响应时间。",
+      "18.3倍的延迟下降（batch=1）对实时推荐、低延迟在线服务以及高并发小批量推理场景具有直接价值。",
+      "“训练时一次性付费、推理时零额外开销”的模式契合离线训练加在线服务的工程架构，有利于控制长期运营成本。",
+      "仅2.5M参数的模块可插拔且部署时可丢弃，便于与现有LLM推荐栈集成，不改变线上推理链路。",
+      "节省CoT token也意味着更低的显存占用与更长上下文预算，可用于其他特征或更多候选物品。",
+      "由于验证仅限Amazon三个基准，迁移到自有业务数据前需重新训练与A/B验证，不能直接假设同等增益。",
+      "若业务高度依赖推理文本进行审计或解释，丢弃显式推理产物会削弱可解释性，需要额外机制补偿。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出LatentRec框架：用训练阶段的逐步预测头监督替代推理阶段的推理产物，从而在部署时省去推理开销。",
+      "设计了一个仅2.5M参数的Continuous Thought Module（连续思维模块），在训练时于LLM隐状态上迭代K步潜在推理。",
+      "提出Soft Token Selection，用于弥合隐状态与输入embedding之间约14倍的范数差距。",
+      "提出Per-step Reasoning Loss（PRL），通过LLM的预测头对每个中间状态进行监督，监督目标为目标Semantic ID的第一个token。",
+      "训练后的LLM在推理时不带该模块仍能保持精度，因此模块可在部署阶段直接丢弃。",
+      "在三个Amazon基准上，相对CoT蒸馏基线HR@10相对提升4.0–5.0%，同时在batch=1下延迟降低18.3倍。",
+      "验证了逐步训练监督在三个数据集上均能稳定提升精度，且该成本只在训练时支付一次，而非每次推荐都支付。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "CoT-distilled baseline（思维链蒸馏基线）"
+      ],
+      "datasets": [
+        "三个Amazon基准数据集（摘要未给出具体类别名称）"
+      ],
+      "findings_zh": [
+        "相对CoT蒸馏基线，HR@10相对提升4.0–5.0%。",
+        "在batch=1条件下，延迟比CoT蒸馏基线低18.3倍。",
+        "逐步（per-step）训练监督在三个数据集上均一致提升精度。",
+        "监督成本只在训练阶段支付一次，而不是在每次推荐时重复支付。",
+        "移除该模块后，训练好的LLM在推理阶段仍能保持上述精度。"
+      ],
+      "metrics": [
+        "HR@10",
+        "推理延迟（batch=1）"
+      ]
+    },
+    "limitations_zh": [
+      "证据仅来自摘要，缺少数据集具体名称、数据规模、超参数（如K的取值）与统计显著性检验等细节。",
+      "实验仅在三个Amazon基准上完成，跨域、跨平台与跨语言的可迁移性未被验证。",
+      "方法依赖Semantic ID的构造，并要求以目标Semantic ID的首token作为每步监督信号，其适用性受语义ID体系约束。",
+      "训练阶段需额外迭代K步潜在推理并引入额外模块，训练开销增加，但摘要未量化该成本。",
+      "延迟对比仅在batch=1下报告，未给出更大batch、吞吐或生产环境下的表现。",
+      "摘要未报告“有模块”与“丢弃模块后”的精度差异幅度，仅声称精度得以保留。",
+      "缺少与未使用CoT的普通LLM推荐基线、以及其他推理压缩方法的对比信息。",
+      "摘要未讨论潜在推理步骤的可解释性损失，而CoT文本本身具备一定可解释价值。"
+    ],
+    "method_zh": "LatentRec由三个组件构成：（1）Continuous Thought Module，约2.5M参数，在训练阶段对LLM的隐状态迭代K步潜在推理，以潜在的逐步计算替代显式CoT文本；（2）Soft Token Selection，用于处理隐状态与输入embedding之间约14倍的范数差异，使潜在状态能与之衔接；（3）Per-step Reasoning Loss，用LLM自身的预测头对每一步中间状态进行监督，标签为目标Semantic ID的第一个token。训练完成后，模型无需在推理时执行这些潜在推理步骤或携带该模块，即可保持精度，因此模块在部署时可被移除，推理路径回到标准的下一个token预测。",
+    "problem_zh": "基于LLM的推荐系统在每次物品预测前生成思维链（CoT）文本以激活模型的推理能力，导致每次推荐在推理阶段额外消耗数十到数百个token，延迟与成本显著上升。本文要回答的核心问题是：推理阶段产生的推理产物（无论文本形式还是潜在形式）能否仅靠训练阶段的监督来替代，而不损失推荐精度。",
+    "technical_depth": 0.4
+  },
+  "doi": "10.1145/3799682.3840048",
+  "final_score": 0.7325000000000002,
+  "id": "arxiv-2611.07866",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-05T11:43:45Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 LatentRec，用训练期逐步头监督替代推理期思维链，实现低延迟的 LLM 生成式推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Do Recommenders Need to Think in Words? Latent Reasoning for Efficient LLM-Based Recommendation",
+  "url": "https://arxiv.org/abs/2611.07866v1"
+}

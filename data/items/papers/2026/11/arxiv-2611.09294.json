@@ -1,0 +1,82 @@
+{
+  "abstract": "Unified search and recommendation systems may update the same item vectors from both interaction streams. We study how repeated updates can increase an item vector's norm and affect retrieval under an unnormalized dot product. A cosine-only loss makes the output gradient perpendicular to the current item vector - tangent to its constant-norm sphere. Training changes encoder parameters, however, so the realized item-vector movement need not remain tangent. We derive sufficient conditions under which it does; every nonzero update then increases squared norm by its squared length. When the tasks share an item encoder, sequential updates from both can accumulate in the same norm, which raw-inner-product serving can expose for either task. This conditional result is not a theorem about joint SGD. Controlled ablations test these conditions. On MovieLens 32M and Amazon Books, accumulated tangent movement accompanies frequency-norm association and additional head-item exposure under raw-dot rather than normalized-item ranking. In a nonlinear tower combining a per-item ID vector with a shared content encoding, active item movement remains near-tangent. We separate its norm change into the ID-update contribution and other output changes, then use a matched training intervention that removes immediate norm growth caused by the ID-row update. The intervention reduces norm-related exposure but also recommendation utility, so it is diagnostic rather than a proposed mitigation. Our logs are recommendation-only: the formulation supplies a shared-representation audit, while prevalence in joint traffic remains open. Unified search and recommendation systems may update the same item vectors from both interaction streams. We study how repeated updates can increase an item vector's norm and affect retrieval under an unnormalized dot product. A cosine-only loss makes the output gradient perpendicular to the current item vector - tangent to its constant-norm sphere. Training changes encoder parameters, however, so the realized item-vector movement need not remain tangent. We derive sufficient conditions under which it does; every nonzero update then increases squared norm by its squared length. When the tasks share an item encoder, sequential updates from both can accumulate in the same norm, which raw-inner-product serving can expose for either task. This conditional result is not a theorem about joint SGD. Controlled ablations test these conditions. On MovieLens 32M and Amazon Books, accumulated tangent movement accompanies frequency-norm association and additional head-item exposure under raw-dot rather than normalized-item ranking. In a nonlinear tower combining a per-item ID vector with a shared content encoding, active item movement remains near-tangent. We separate its norm change into the ID-update contribution and other output changes, then use a matched training intervention that removes immediate norm growth caused by the ID-row update. The intervention reduces norm-related exposure but also recommendation utility, so it is diagnostic rather than a proposed mitigation. Our logs are recommendation-only: the formulation supplies a shared-representation audit, while prevalence in joint traffic remains open.",
+  "arxiv_id": "2611.09294",
+  "authors": [
+    "Andrei Atamaniuk"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "统一搜索与推荐共享物品表示时，应监控物品向量范数、频率-范数关联以及raw inner product服务下的曝光分布。",
+      "raw-dot排序可能让高频或头部物品获得额外曝光，形成曝光偏差；上线前应评估归一化物品排序或范数审计。",
+      "直接移除ID行更新造成的即时范数增长虽可降低范数相关曝光，但可能损害推荐效用，不能未经权衡作为线上缓解措施。",
+      "由于现有证据仅来自推荐侧日志，搜索侧或联合流量中的业务影响需在联合流量中进一步验证。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "分析余弦-only损失使输出梯度垂直于当前物品向量，即位于其等范数球切平面；但训练会改变编码器参数，因此实际物品向量移动不一定保持切向。",
+      "推导实际物品向量移动保持切向的充分条件；在该条件下，每个非零更新会按其平方长度增加平方范数。",
+      "指出当任务共享物品编码器时，来自两个任务流的顺序更新可能在同一范数中累积，而未归一化内积服务可能对任一任务暴露该范数。",
+      "明确该结论是条件性结果，不是关于联合SGD的定理。",
+      "在MovieLens 32M与Amazon Books上进行受控消融，发现累积切向移动伴随频率-范数关联，并在raw-dot而非归一化物品排序下带来额外头部物品曝光。",
+      "在由每物品ID向量与共享内容编码组合的非线性塔中，活跃物品移动仍接近切向；将范数变化拆分为ID更新贡献与其他输出变化，并用匹配训练干预移除ID行更新造成的即时范数增长。",
+      "该干预降低范数相关曝光，但也降低推荐效用，因此被定位为诊断手段而非提出的缓解方案；日志仅来自推荐侧，联合流量中的普遍性仍开放。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "MovieLens 32M",
+        "Amazon Books"
+      ],
+      "findings_zh": [
+        "在MovieLens 32M与Amazon Books上，累积的切向移动伴随频率-范数关联，并在raw-dot而非归一化物品排序下带来额外头部物品曝光。",
+        "在由每物品ID向量与共享内容编码组合的非线性塔中，活跃物品移动仍接近切向。",
+        "将范数变化拆分为ID更新贡献与其他输出变化后，匹配训练干预移除了ID行更新导致的即时范数增长；该干预降低范数相关曝光，但也降低推荐效用，因此是诊断性而非缓解方案。",
+        "日志仅覆盖推荐侧；该现象在联合搜索与推荐流量中的普遍性仍未确定。"
+      ],
+      "metrics": [
+        "item-vector norm（物品向量范数）",
+        "frequency-norm association（频率-范数关联）",
+        "head-item exposure under raw-dot ranking（raw-dot排序下的头部物品曝光）",
+        "recommendation utility（推荐效用）"
+      ]
+    },
+    "limitations_zh": [
+      "论文明确说明其条件性结果不是关于联合SGD的定理。",
+      "实验日志仅来自推荐侧，无法据此判断搜索侧或联合流量中的普遍性。",
+      "移除ID行更新即时范数增长的干预会同时降低推荐效用，因此不是可直接采用的缓解方案。",
+      "供分析材料仅为摘要，缺少完整实验设置、基线名称和指标定义等细节。"
+    ],
+    "method_zh": "论文先用梯度分析说明余弦-only损失在当前物品向量处产生切向更新，再推导实际物品向量移动保持切向的充分条件，并分析共享编码器下顺序更新造成范数累积的条件。实验采用受控消融，比较raw-dot与归一化物品排序下的范数关联和头部物品曝光；在非线性塔中分解ID更新与其他输出变化，并使用匹配训练干预移除ID行更新造成的即时范数增长，以诊断范数相关曝光与推荐效用的关系。",
+    "problem_zh": "统一搜索与推荐系统可能从两个交互流更新同一批物品向量。论文研究重复更新如何增大物品向量范数，并在未归一化点积检索下影响召回；核心问题是余弦损失在局部给出切向梯度，但编码器参数训练后，实际物品向量移动未必保持切向。",
+    "technical_depth": 0.72
+  },
+  "doi": null,
+  "final_score": 0.7395,
+  "id": "arxiv-2611.09294",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-06T10:47:38Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究统一搜索与推荐中双塔检索的物品向量范数增长机制及其对原始内积召回的影响。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Orthogonal Norm Growth in Two-Tower Retrieval: A Popularity Mechanism for Unified Discovery",
+  "url": "https://arxiv.org/abs/2611.09294v1"
+}

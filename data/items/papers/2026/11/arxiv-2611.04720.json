@@ -1,0 +1,107 @@
+{
+  "abstract": "Industrial recommender systems allocate substantial computation to pointwise candidate scoring, yet separate reranking and mix-ranking stages still assemble the final exposure slate using hand-crafted rules and specialized low-capacity models. Mix-ranking combines product cards, short videos, livestreams, and advertising cards supplied by distinct upstream business channels. Although these rules and models encode valuable domain knowledge, they are inherently limited in leveraging additional data and computation. They constrain the combinatorial space of candidate slates and determine objective trade-offs through manual tuning. To enable scalable and effective slate generation, we reformulate reranking and mix-ranking as a unified learning problem whose performance can improve with computation. Specifically, we instantiate this formulation across the reranking and mix-ranking stages and propose OneTrans-GSR, a single decoder-only policy that extends our deployed OneTrans backbone to generate the exposure slate end-to-end. During training, a reward model evaluates complete slates and guides reinforcement learning toward slate-level and long-term objectives. During decoding, business constraints are explicitly enforced. Offline evaluation shows that slate quality consistently improves as reward-model and policy compute increase. Deployed in a large-scale industrial recommendation system, OneTrans-GSR mixes heterogeneous content types within a unified slate. In online A/B tests, it improves GMV/u by 2.63%, advertiser value by 2.06%, and repurchase rate by 2.03%, while reducing end-to-end latency across the reranking and mix-ranking stages by 13%. These results mark a paradigm shift in slate generation: moving beyond human-engineered heuristics toward a general learned policy creates a scalable path for further algorithmic optimization and compute-driven improvement. Industrial recommender systems allocate substantial computation to pointwise candidate scoring, yet separate reranking and mix-ranking stages still assemble the final exposure slate using hand-crafted rules and specialized low-capacity models. Mix-ranking combines product cards, short videos, livestreams, and advertising cards supplied by distinct upstream business channels. Although these rules and models encode valuable domain knowledge, they are inherently limited in leveraging additional data and computation. They constrain the combinatorial space of candidate slates and determine objective trade-offs through manual tuning. To enable scalable and effective slate generation, we reformulate reranking and mix-ranking as a unified learning problem whose performance can improve with computation. Specifically, we instantiate this formulation across the reranking and mix-ranking stages and propose OneTrans-GSR, a single decoder-only policy that extends our deployed OneTrans backbone to generate the exposure slate end-to-end. During training, a reward model evaluates complete slates and guides reinforcement learning toward slate-level and long-term objectives. During decoding, business constraints are explicitly enforced. Offline evaluation shows that slate quality consistently improves as reward-model and policy compute increase. Deployed in a large-scale industrial recommendation system, OneTrans-GSR mixes heterogeneous content types within a unified slate. In online A/B tests, it improves GMV/u by 2.63%, advertiser value by 2.06%, and repurchase rate by 2.03%, while reducing end-to-end latency across the reranking and mix-ranking stages by 13%. These results mark a paradigm shift in slate generation: moving beyond human-engineered heuristics toward a general learned policy creates a scalable path for further algorithmic optimization and compute-driven improvement.",
+  "arxiv_id": "2611.04720",
+  "authors": [
+    "Feng Cheng",
+    "Yu-Hsuan Huang",
+    "Fengyi Wang",
+    "Chaofan Zhou",
+    "Zhennan Zhu",
+    "Huan He",
+    "Bo Zhang",
+    "Ruoqi Zhang",
+    "Zhanfeng Mo",
+    "Ziwei Liu",
+    "Lanyi Li",
+    "Yifeng Pan",
+    "Junhua Long",
+    "Ziqiu Zhou",
+    "Yue Lin",
+    "Shaowei Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "将reranking与mix-ranking统一为可学习slate生成，可减少对手工规则和人工目标调参的依赖。",
+      "端到端生成统一slate有望同时服务商品、短视频、直播和广告等多业务渠道，并改善多目标权衡。",
+      "在线结果显示该方法可提升GMV/u、广告主价值和复购率，同时降低两阶段端到端时延，具备直接业务价值。",
+      "解码阶段显式执行业务约束对落地关键，说明生成式slate方法需与业务规则引擎结合。",
+      "性能随算力提升的趋势为后续持续投入训练与推理算力提供可扩展路径。",
+      "迁移时应重点验证reward model与长期目标设计、约束体系以及跨内容类型的校准。"
+    ],
+    "business_transferability": 0.82,
+    "contributions_zh": [
+      "将reranking与mix-ranking重新表述为统一的、可随算力提升而改进的学习问题。",
+      "提出OneTrans-GSR：基于已部署OneTrans骨干扩展而来的单一decoder-only策略，端到端生成曝光slate。",
+      "训练阶段使用reward model评估完整slate，并通过强化学习引导策略优化slate级和长期目标。",
+      "解码阶段显式执行业务约束。",
+      "离线评估显示slate质量随reward-model和policy算力增加而持续提升。",
+      "在大规模工业推荐系统部署后，统一slate混合异构内容类型，并在在线A/B测试中提升GMV/u、广告主价值和复购率，同时降低reranking与mix-ranking端到端时延。"
+    ],
+    "evidence_quality": 0.48,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "手工规则与专用低容量模型（摘要所述现有方案，未给出具体基线名称）"
+      ],
+      "datasets": [
+        "大规模工业推荐系统在线A/B测试环境"
+      ],
+      "findings_zh": [
+        "在线A/B测试中GMV/u提升2.63%。",
+        "在线A/B测试中advertiser value提升2.06%。",
+        "在线A/B测试中repurchase rate提升2.03%。",
+        "reranking与mix-ranking端到端时延降低13%。",
+        "离线评估中slate质量随reward-model和policy算力增加而持续提升。",
+        "部署系统能够在统一slate中混合异构内容类型。"
+      ],
+      "metrics": [
+        "GMV/u",
+        "advertiser value",
+        "repurchase rate",
+        "reranking与mix-ranking端到端时延",
+        "slate quality随reward-model和policy算力变化"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未披露离线评估所用数据集、具体基线、统计显著性和完整实验设置。",
+      "摘要未给出reward model结构、强化学习算法细节、业务约束类型及约束解码实现。",
+      "在线收益来自单一大型工业推荐系统，跨业务/跨平台泛化性需进一步验证。",
+      "摘要未说明长期目标的具体定义及可能的目标冲突或安全性风险。",
+      "摘要未提供与人工规则或低容量模型之外的其他强基线对比。"
+    ],
+    "method_zh": "把reranking和mix-ranking统一为slate生成学习问题，并用OneTrans-GSR实现：一个decoder-only策略在OneTrans骨干上端到端生成曝光slate；训练时由reward model评价完整slate，指导强化学习面向slate级与长期目标；解码时显式施加业务约束。",
+    "problem_zh": "工业推荐系统在pointwise候选打分上投入大量计算，但reranking与mix-ranking仍依赖手工规则和专用低容量模型来组装最终曝光slate；mix-ranking还需混合商品卡、短视频、直播和广告卡等不同上游渠道内容。这些规则和模型难以充分利用更多数据和算力，并限制候选slate的组合空间，目标权衡也依赖人工调参。",
+    "technical_depth": 0.58
+  },
+  "doi": null,
+  "final_score": 0.827,
+  "id": "arxiv-2611.04720",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-11-03T11:42:02Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 OneTrans-GSR，用单一自回归解码策略统一重排与混排，并通过奖励模型强化学习生成满足业务约束的曝光列表。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "OneTrans-GSR: A Generative Slate Ranking Paradigm Unifying Reranking and Mix-Ranking with One Autoregressive Transformer",
+  "url": "https://arxiv.org/abs/2611.04720v1"
+}

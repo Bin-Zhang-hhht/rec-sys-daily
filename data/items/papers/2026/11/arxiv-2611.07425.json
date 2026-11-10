@@ -1,0 +1,82 @@
+{
+  "abstract": "Generative recommendation retrieves items by autoregressively generating Semantic IDs(SIDs), where an RQ-VAE quantizes each item into a hierarchical SID sequence that the decoder generates level by level. We identify an overlooked bottleneck in this paradigm: the Semantic Quantization Gap(SQG). Quantization derives SIDs from rich continuous signals, including codebook centroids, local neighborhood geometry, and level-wise entropy. However, the decoder receives only discrete identifiers and loses the semantic structure that shaped them. This mismatch manifests in three ways: a grounding gap, where the decoder lacks semantic anchors when target-side information is limited; a neighborhood gap, where token-level supervision discards inter-item similarity and exacerbates exposure bias; and a difficulty gap, where computation is allocated uniformly despite generation difficulty diminishing with depth. To bridge the SQG, we propose BRIDGE. Codebook-grounded latent reasoning injects frozen quantizer centroids as semantic anchors before SID generation. Privileged EMA self-distillation transfers neighborhood-aware knowledge from a teacher to an on-policy student, preserving inter-item geometry while mitigating exposure bias. Effort-aware recurrence allocates more computation to the challenging early levels and progressively reduces it with depth. Across three Amazon benchmarks, BRIDGE improves Recall@10 and NDCG@10 by 10.9% and 9.7% on average over the strongest baseline (up to 12.6% and 10.7%). In a one-week online A/B experiment on a large-scale e-commerce advertising platform with 5% traffic, BRIDGE improves eCPM by 0.65%. Generative recommendation retrieves items by autoregressively generating Semantic IDs(SIDs), where an RQ-VAE quantizes each item into a hierarchical SID sequence that the decoder generates level by level. We identify an overlooked bottleneck in this paradigm: the Semantic Quantization Gap(SQG). Quantization derives SIDs from rich continuous signals, including codebook centroids, local neighborhood geometry, and level-wise entropy. However, the decoder receives only discrete identifiers and loses the semantic structure that shaped them. This mismatch manifests in three ways: a grounding gap, where the decoder lacks semantic anchors when target-side information is limited; a neighborhood gap, where token-level supervision discards inter-item similarity and exacerbates exposure bias; and a difficulty gap, where computation is allocated uniformly despite generation difficulty diminishing with depth. To bridge the SQG, we propose BRIDGE. Codebook-grounded latent reasoning injects frozen quantizer centroids as semantic anchors before SID generation. Privileged EMA self-distillation transfers neighborhood-aware knowledge from a teacher to an on-policy student, preserving inter-item geometry while mitigating exposure bias. Effort-aware recurrence allocates more computation to the challenging early levels and progressively reduces it with depth. Across three Amazon benchmarks, BRIDGE improves Recall@10 and NDCG@10 by 10.9% and 9.7% on average over the strongest baseline (up to 12.6% and 10.7%). In a one-week online A/B experiment on a large-scale e-commerce advertising platform with 5% traffic, BRIDGE improves eCPM by 0.65%.",
+  "arxiv_id": "2611.07425",
+  "authors": [
+    "Yatong Xiao",
+    "Mingjie Sun",
+    "Peng Wang",
+    "Wenjin Wu",
+    "Peng Jiang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "SQG 框架可用于诊断生成式推荐中离散 SID 与连续语义结构之间的信息损失，帮助推荐/广告系统定位生成式召回瓶颈。",
+      "码本锚定潜在推理、邻域感知自蒸馏和难度感知计算分配可迁移到基于 Semantic ID 的生成式召回链路，用于提升候选生成质量。",
+      "线上 eCPM 提升 0.65% 表明方法在真实广告平台具备一定业务价值，但提升幅度较温和，落地前需结合流量规模、收入影响和实验周期评估。",
+      "引入额外潜在推理、蒸馏和递归计算后，工程团队需重点评估训练成本、推理延迟与 serving 资源开销；摘要未给出相关量化结果。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "识别并定义生成式推荐中的 Semantic Quantization Gap（SQG），并拆解为 grounding gap、neighborhood gap 和 difficulty gap 三类表现。",
+      "提出 BRIDGE 方法：用码本锚定的潜在推理在 SID 生成前注入冻结量化器中心；用 privileged EMA 自蒸馏从教师向 on-policy 学生迁移邻域感知知识；用 effort-aware recurrence 将更多计算分配给更困难的早期层级并随深度递减。",
+      "在三个 Amazon 基准上，相较最强基线，Recall@10 和 NDCG@10 平均提升 10.9% 和 9.7%，最高提升 12.6% 和 10.7%。",
+      "在大型电商广告平台 5% 流量、为期一周的线上 A/B 实验中，eCPM 提升 0.65%。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "最强基线（摘要未具名）"
+      ],
+      "datasets": [
+        "三个 Amazon 基准数据集（摘要未列具体名称）"
+      ],
+      "findings_zh": [
+        "在三个 Amazon 基准上，BRIDGE 相较最强基线将 Recall@10 和 NDCG@10 平均提升 10.9% 和 9.7%。",
+        "最高提升分别达到 Recall@10 12.6% 和 NDCG@10 10.7%。",
+        "在大型电商广告平台 5% 流量、为期一周的线上 A/B 实验中，BRIDGE 将 eCPM 提升 0.65%。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "NDCG@10",
+        "eCPM"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未披露三个 Amazon 基准数据集的具体名称、最强基线细节和消融结果，无法判断各方法组件的独立贡献。",
+      "摘要未讨论方法在冷启动、长尾物品、跨领域迁移或长期线上效果方面的局限。",
+      "线上 A/B 仅报告 eCPM 提升 0.65%，摘要未提供统计显著性、置信区间或更细粒度的业务指标。",
+      "方法包含潜在推理、自蒸馏和按难度分配计算，摘要未量化训练与推理开销及其对线上部署的影响。"
+    ],
+    "method_zh": "BRIDGE 针对 SQG 设置三个组件：第一，codebook-grounded latent reasoning 在生成 SID 前注入冻结的量化器码本中心，作为语义锚点；第二，privileged EMA self-distillation 将教师模型的邻域感知知识迁移到 on-policy 学生模型，以保留物品间几何关系并缓解曝光偏差；第三，effort-aware recurrence 根据层级生成难度分配计算，对更困难的早期层级分配更多计算，并随深度逐渐减少。",
+    "problem_zh": "论文指出现有生成式推荐通过 RQ-VAE 将物品量化为层级 Semantic ID（SID），再由解码器逐层自回归生成；但量化过程依赖码本中心、局部邻域几何和层级熵等丰富连续信号，解码器却只接收离散标识，导致语义结构丢失。作者将这一瓶颈称为 Semantic Quantization Gap（SQG），并归纳为三类：目标侧信息有限时缺乏语义锚点的 grounding gap、 token 级监督丢弃物品间相似性并加剧曝光偏差的 neighborhood gap，以及生成难度随深度下降但计算均匀分配的 difficulty gap。",
+    "technical_depth": 0.72
+  },
+  "doi": null,
+  "final_score": 0.8244999999999999,
+  "id": "arxiv-2611.07425",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-10T01:47:04.448933Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-05T04:20:01Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "BRIDGE 针对生成式推荐中的语义量化鸿沟，注入码本锚点、EMA 自蒸馏与难度感知循环来提升 SID 生成推荐效果。",
+  "targets": [],
+  "tasks": [],
+  "title": "BRIDGE: Bridging the Semantic Quantization Gap for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.07425v1"
+}
