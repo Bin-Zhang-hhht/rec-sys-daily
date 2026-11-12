@@ -1,0 +1,80 @@
+{
+  "abstract": "We study how to adapt an existing distributed recommendation controller when local dynamics or objective weights change. Starting from a quadratic stability and cost certificate, we construct positive semidefinite corrections with finite spatial support and an explicit residual. A joint admission test allocates the available dissipation margin to these residuals and to interactions among changes and corrections, including pending updates. The test covers complete declared parameter ranges, allowing different operators to progress independently. For a fixed compatible batch, the corrections define a common storage that guarantees exponential stability and bounds the cost accumulated throughout deployment. When the admitted collection evolves, a reservation protocol preserves the certificate and a rate bound on storage increases ensures exponential convergence. Regional linear-quadratic regulator (LQR) design proposes new gain rows for the operators' own users, and a separate residual-based calculation can certify that the final gain lowers the expected cost. A recommendation-network example illustrates the tradeoff between repair depth, data access, and the benefits of deploying an update. We study how to adapt an existing distributed recommendation controller when local dynamics or objective weights change. Starting from a quadratic stability and cost certificate, we construct positive semidefinite corrections with finite spatial support and an explicit residual. A joint admission test allocates the available dissipation margin to these residuals and to interactions among changes and corrections, including pending updates. The test covers complete declared parameter ranges, allowing different operators to progress independently. For a fixed compatible batch, the corrections define a common storage that guarantees exponential stability and bounds the cost accumulated throughout deployment. When the admitted collection evolves, a reservation protocol preserves the certificate and a rate bound on storage increases ensures exponential convergence. Regional linear-quadratic regulator (LQR) design proposes new gain rows for the operators' own users, and a separate residual-based calculation can certify that the final gain lowers the expected cost. A recommendation-network example illustrates the tradeoff between repair depth, data access, and the benefits of deploying an update.",
+  "arxiv_id": "2611.11462",
+  "authors": [
+    "Simone Mariano",
+    "Paolo Frasca"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "分布式推荐系统可由不同操作方在联合准入条件下独立推进控制器更新，有利于分批发布和局部适配。",
+      "待处理更新纳入准入测试，可支持灰度或分阶段上线时的稳定性与成本风险控制。",
+      "修复深度、数据访问与更新收益的权衡可用于制定更新审批、数据共享和回滚策略。",
+      "共同存储与成本上界为部署期间的风险监测提供理论依据，但摘要缺少实证，业务采用前需补充离线与线上验证。",
+      "区域LQR增益行和残差认证可用于按操作方或用户群体进行局部优化，但需评估计算与运维复杂度。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出从二次稳定性与成本证书出发的控制器适配框架，用具有有限空间支撑的半正定修正项和显式残差处理局部动态或目标权重变化。",
+      "设计联合准入测试，将可用耗散裕度分配给修正残差以及变化与修正之间的交互项，并覆盖待处理更新和完整声明参数范围。",
+      "允许不同操作方在准入测试下独立推进更新；对于固定兼容批次，修正项定义共同存储，保证指数稳定性并给出部署期间累积成本上界。",
+      "当已准入集合演化时，使用预留协议保持证书，并通过存储增长率的速率界保证指数收敛。",
+      "区域LQR设计为操作方自己的用户提出新的增益行，另用基于残差的计算认证最终增益降低期望成本。",
+      "通过推荐网络示例说明修复深度、数据访问与部署更新收益之间的权衡。"
+    ],
+    "evidence_quality": 0.25,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "摘要中的推荐网络示例用于说明修复深度、数据访问和部署更新收益之间的权衡。",
+        "摘要未报告定量实验结果、基线比较或具体数据集。"
+      ],
+      "metrics": [
+        "指数稳定性",
+        "累积成本上界",
+        "残差",
+        "耗散裕度",
+        "存储增长率"
+      ]
+    },
+    "limitations_zh": [
+      "仅能依据摘要进行分析，未包含完整论文、证明细节或附录。",
+      "摘要未给出定量实验、基线、具体数据集或线上部署结果，经验有效性无法判断。",
+      "方法依赖二次稳定性与成本证书、有限空间支撑、完整声明参数范围和兼容批次等假设，摘要未讨论这些假设失效时的表现。",
+      "推荐网络示例仅用于说明权衡，摘要未提供修复深度、数据访问和更新收益的具体量化关系。",
+      "摘要未说明大规模推荐系统中的计算开销、通信开销、隐私约束或工程落地成本。"
+    ],
+    "method_zh": "论文从已有的二次稳定性与成本证书出发，为局部动态或目标权重变化构造具有有限空间支撑的半正定修正项，并显式计算残差。联合准入测试把可用耗散裕度分配给这些残差，以及变化与修正之间的交互项（包括待处理更新），并覆盖声明的完整参数范围。对于固定兼容批次，修正项定义共同存储，以证明指数稳定性并界定部署期间的累积成本；当准入集合演化时，预留协议保持证书，存储增长率的速率界保证指数收敛。区域LQR设计为各操作方自己的用户提出新的增益行，并用独立的残差计算认证最终增益降低期望成本。",
+    "problem_zh": "当分布式推荐控制器的局部动态或目标权重发生变化时，如何调整已有控制器，并在参数变化和更新逐步推进的过程中维持稳定性与成本保证。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.6425,
+  "id": "arxiv-2611.11462",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-12T00:53:33.216866Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-08T15:49:32Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究推荐系统分布式控制器异步更新时的局部证书修复与稳定性保障。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Local Certificate Repair for Asynchronous Controller Updates in Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.11462v1"
+}

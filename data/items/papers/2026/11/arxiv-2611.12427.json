@@ -1,0 +1,78 @@
+{
+  "abstract": "Multi-armed bandits are a natural framework for many real-world sequential decision problems, from recommender systems and clinical trials to educational test recommendation and online advertising. The performance of these algorithms depends on how they explore different arms, and exploration strategies range from variance-independent (e.g., UCB1) to variance-aware (e.g., UCB-V). In practice the reward variance of each arm is rarely known and varies widely across arms, and the reward support is often underspecified. In these cases no single rule is uniformly best: variance-independent methods are robust but loose when variances are small, while variance-aware methods are tight only when their variance estimates and the assumed support bound are reliable. Such heterogeneous, unknown variances arise in many settings, for instance when multiple objectives are scalarized into a single reward. We propose UCB-min, a per-arm adaptive meta-algorithm that selects, for each arm, the tighter of a variance-independent and a variance-aware exploration bonus, without prior knowledge of the variance regime and without reward normalization. We prove that, with UCB-V as variance-aware base, its regret is bounded by the sum of the two base bounds at the standard exploration constant, and by their per-arm minimum, up to a constant, for a larger one. We validate it on synthetic data, an educational tutoring task, and two group-recommendation benchmarks (MovieLens, Steam), showing that UCB-min consistently tracks the best base algorithm across diverse variance regimes and datasets. Multi-armed bandits are a natural framework for many real-world sequential decision problems, from recommender systems and clinical trials to educational test recommendation and online advertising. The performance of these algorithms depends on how they explore different arms, and exploration strategies range from variance-independent (e.g., UCB1) to variance-aware (e.g., UCB-V). In practice the reward variance of each arm is rarely known and varies widely across arms, and the reward support is often underspecified. In these cases no single rule is uniformly best: variance-independent methods are robust but loose when variances are small, while variance-aware methods are tight only when their variance estimates and the assumed support bound are reliable. Such heterogeneous, unknown variances arise in many settings, for instance when multiple objectives are scalarized into a single reward. We propose UCB-min, a per-arm adaptive meta-algorithm that selects, for each arm, the tighter of a variance-independent and a variance-aware exploration bonus, without prior knowledge of the variance regime and without reward normalization. We prove that, with UCB-V as variance-aware base, its regret is bounded by the sum of the two base bounds at the standard exploration constant, and by their per-arm minimum, up to a constant, for a larger one. We validate it on synthetic data, an educational tutoring task, and two group-recommendation benchmarks (MovieLens, Steam), showing that UCB-min consistently tracks the best base algorithm across diverse variance regimes and datasets.",
+  "arxiv_id": "2611.12427",
+  "authors": [
+    "Lilia Izri",
+    "Benoit Groz",
+    "Silviu Maniu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在推荐系统或群组推荐中，当不同物品或群体的奖励方差未知且异质时，UCB-min 可减少手工选择 UCB1 或 UCB-V 以及做奖励归一化的需求。",
+      "当多目标被标量化为单一奖励、导致方差差异明显时，逐臂选择更紧的探索奖励可能更适合不同臂的方差状态。",
+      "由于验证主要来自合成数据和教育、群组推荐基准，实际业务落地前仍需在自有数据上验证遗憾表现、方差估计可靠性和线上业务指标。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 UCB-min：一种逐臂自适应元算法，为每个臂在方差无关与方差感知探索奖励之间选择更紧者，无需先验知道方差状态，也无需奖励归一化。",
+      "以 UCB-V 作为方差感知基算法进行理论分析：在标准探索常数下，遗憾上界为两个基算法上界之和；在更大探索常数下，可达逐臂最小值上界（至多相差常数因子）。",
+      "在合成数据、教育辅导任务以及 MovieLens、Steam 两个群组推荐基准上验证 UCB-min 能在不同方差状态和数据集中持续跟踪最佳基算法。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "UCB1",
+        "UCB-V"
+      ],
+      "datasets": [
+        "合成数据",
+        "教育辅导任务",
+        "MovieLens",
+        "Steam"
+      ],
+      "findings_zh": [
+        "在合成数据、教育辅导任务以及 MovieLens、Steam 群组推荐基准上，UCB-min 在不同方差状态和数据集中持续跟踪最佳基算法。",
+        "理论结果表明，在标准探索常数下，UCB-min 的遗憾上界为两个基算法上界之和；在更大探索常数下，可达逐臂最小值上界（至多相差常数因子）。"
+      ],
+      "metrics": [
+        "regret"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法核验完整实验设置、具体数值结果、统计显著性和实现细节。",
+      "方差感知方法的紧致性依赖方差估计和奖励支撑上界的可靠性。",
+      "标准探索常数下的理论保证是两个基上界之和；逐臂最小值的保证需要更大探索常数，且仅到常数因子。"
+    ],
+    "method_zh": "UCB-min 是一种逐臂自适应元算法：对每个臂分别计算方差无关的探索奖励和方差感知的探索奖励，并选用更紧的那个探索奖励；该方法不需要预先知道各臂方差所处的状态，也不需要奖励归一化。理论分析中以 UCB-V 作为方差感知基算法。",
+    "problem_zh": "多臂老虎机广泛用于推荐系统、临床试验、教育测试推荐和在线广告等顺序决策问题。实际中每个臂的奖励方差通常未知且差异很大，奖励支撑也常未被明确指定；方差无关方法（如 UCB1）稳健但在方差小时界较松，方差感知方法（如 UCB-V）只有在方差估计和支撑上界可靠时才紧。因此不存在一个在所有方差状态下都最优的探索规则。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.5875,
+  "id": "arxiv-2611.12427",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-12T00:53:33.216866Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-09T13:52:07Z",
+  "relevance_score": 0.65,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出UCB-min自适应bandit算法，并在推荐系统与MovieLens、Steam群组推荐基准上验证其在方差异质性下的表现。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "UCB-min: Combining Bandits Under Variance Heterogeneity (Extended Version)",
+  "url": "https://arxiv.org/abs/2611.12427v1"
+}

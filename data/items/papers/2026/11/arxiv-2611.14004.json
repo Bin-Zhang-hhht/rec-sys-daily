@@ -1,0 +1,78 @@
+{
+  "abstract": "As multimodal tourism-related information collected from heterogeneous data sources has become increasingly available, learning effective representations has attracted attention for improving recommendation performance. Existing approaches often tightly couple multimodal fusion with the architecture and optimization objective of a specific downstream model, which limits the generality and reusability of the learned representations. To address these limitations, we propose LUMIR, a decoupled multimodal representation learning framework based on contrastive learning. Multimodal information collected from heterogeneous data sources is first semantically unified into a shared textual representation space using large language models (LLMs). An interaction-aware fusion mechanism is then designed to model cross-modal interactions, while sequential signals are incorporated as a structural constraint to guide representation learning. To evaluate the learned representations, experiments are conducted on a multimodal point-of-interest (POI) dataset under the next-POI recommendation setting across multiple sequential recommendation backbones. The results show that LUMIR consistently outperforms existing multimodal fusion baselines in both accuracy-oriented and beyond-accuracy metrics, demonstrating that decoupling representation learning from downstream optimization provides an effective paradigm for learning reusable multimodal representations. The code is publicly available at https://github.com/wzehui/LUMIR. As multimodal tourism-related information collected from heterogeneous data sources has become increasingly available, learning effective representations has attracted attention for improving recommendation performance. Existing approaches often tightly couple multimodal fusion with the architecture and optimization objective of a specific downstream model, which limits the generality and reusability of the learned representations. To address these limitations, we propose LUMIR, a decoupled multimodal representation learning framework based on contrastive learning. Multimodal information collected from heterogeneous data sources is first semantically unified into a shared textual representation space using large language models (LLMs). An interaction-aware fusion mechanism is then designed to model cross-modal interactions, while sequential signals are incorporated as a structural constraint to guide representation learning. To evaluate the learned representations, experiments are conducted on a multimodal point-of-interest (POI) dataset under the next-POI recommendation setting across multiple sequential recommendation backbones. The results show that LUMIR consistently outperforms existing multimodal fusion baselines in both accuracy-oriented and beyond-accuracy metrics, demonstrating that decoupling representation learning from downstream optimization provides an effective paradigm for learning reusable multimodal representations. The code is publicly available at https://github.com/wzehui/LUMIR.",
+  "arxiv_id": "2611.14004",
+  "authors": [
+    "Zehui Wang",
+    "Wolfram Höpken",
+    "Dietmar Jannach"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可复用的多模态表示可服务多个下游推荐模型，减少为每个模型重复设计多模态融合模块的成本。",
+      "在旅游和兴趣点推荐场景中，将异构多模态信息统一到共享表示空间，有望同时改善准确率类和非准确率类业务指标。",
+      "表示学习与下游优化解耦后，业务方更容易替换或升级序列推荐与排序模型，而不必重新耦合多模态融合逻辑。",
+      "实际落地时仍需额外评估大语言模型统一表示带来的计算成本、延迟和模态信息损失，摘要未提供相关证据。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "提出 LUMIR，一个基于对比学习的解耦多模态表示学习框架，用于缓解多模态融合与下游模型紧耦合的问题。",
+      "使用大语言模型将来自异构数据源的多模态信息语义统一到共享文本表示空间。",
+      "设计交互感知融合机制来建模跨模态交互，并将序列信号作为结构约束来指导表示学习。",
+      "在下一次兴趣点（next-POI）推荐设定下，跨多个序列推荐骨干模型评估所学表示，并报告其在面向准确率和超越准确率指标上优于现有多模态融合基线。"
+    ],
+    "evidence_quality": 0.42,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "现有多模态融合基线（摘要未列出具体名称）"
+      ],
+      "datasets": [
+        "多模态兴趣点（POI）数据集（摘要未给出具体名称）"
+      ],
+      "findings_zh": [
+        "LUMIR 在多个序列推荐骨干模型上持续优于现有多模态融合基线。",
+        "LUMIR 在面向准确率和超越准确率的指标上均取得更好的结果。",
+        "结果表明，将表示学习与下游优化解耦，是学习可复用多模态表示的一种有效范式。"
+      ],
+      "metrics": [
+        "面向准确率的指标（摘要未列出具体指标名）",
+        "超越准确率的指标（摘要未列出具体指标名）"
+      ]
+    },
+    "limitations_zh": [
+      "摘要仅说明在单一多模态 POI 数据集和 next-POI 推荐设定下进行评估，未展示其他领域或推荐任务上的结果。",
+      "摘要未给出具体基线名称、指标数值、消融实验或统计显著性信息，难以判断提升幅度及各组件贡献。",
+      "方法依赖大语言模型将异构模态统一到文本表示空间，但摘要未讨论该过程的成本、误差或潜在模态信息损失。"
+    ],
+    "method_zh": "LUMIR 先利用大语言模型将异构数据源的多模态信息语义统一到共享文本表示空间；随后通过交互感知融合机制建模跨模态交互，并把序列信号作为结构约束指导基于对比学习的表示学习；最终将表示学习与特定下游模型的优化解耦，并在多个序列推荐骨干上评估表示的可复用性。",
+    "problem_zh": "多模态旅游相关信息来自异构数据源且日益丰富，学习有效表示对提升推荐性能很重要；但现有方法通常将多模态融合与特定下游模型的架构和优化目标紧耦合，限制了所学表示的通用性和可复用性。",
+    "technical_depth": 0.48
+  },
+  "doi": null,
+  "final_score": 0.7200000000000001,
+  "id": "arxiv-2611.14004",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-12T00:53:33.216866Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-10T12:45:09Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 LUMIR 解耦式多模态表示学习框架，用大语言模型将异构多模态信息统一到文本空间并结合对比学习，在下一兴趣点推荐任务上优于现有融合基线。",
+  "targets": [],
+  "tasks": [],
+  "title": "LUMIR: Decoupled Multimodal Representation Learning from Heterogeneous Data for Next-POI Recommendation",
+  "url": "https://arxiv.org/abs/2611.14004v1"
+}

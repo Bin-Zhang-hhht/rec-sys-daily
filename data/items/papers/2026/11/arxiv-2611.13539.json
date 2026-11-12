@@ -1,0 +1,85 @@
+{
+  "abstract": "Researchers and engineers improve recommendation systems by performing A/B experiments with new model architectures, optimization methods, and data features. However, running full-scale experiments (e.g., full-model training with online data) for every feature change is prohibitively computationally intensive, while the result from a single small-scale experiment is often misleading. To address this challenge, we show that modern recommendation models exhibit feature-invariant scaling: the change of a model's performance follows a predictable scaling-law even when different feature changes are applied to the baseline model. We introduce an efficient method that exploits scaling-laws and uses statistical inference to predict (with confidence intervals) the full-scale effect of an A/B experiment in recommendation systems. This enables practitioners to efficiently filter out neutral or regressive feature changes with only small-scale experimentation. We validate our method on three distinct recommendation model families---Wukong, HSTU, and LLM-based recommendation models---across more than 40 architectural, optimization, and data changes. Our method accurately distinguishes beneficial feature changes from neutral and regressive ones while using only a fraction of the compute required for full-scale evaluation. It also identifies several changes that improve HSTU's state-of-the-art performance on MovieLens-20M. Our results demonstrate that scaling laws can be practically exploited to make compute-efficient decisions for improving industrial-scale recommendation systems. Researchers and engineers improve recommendation systems by performing A/B experiments with new model architectures, optimization methods, and data features. However, running full-scale experiments (e.g., full-model training with online data) for every feature change is prohibitively computationally intensive, while the result from a single small-scale experiment is often misleading. To address this challenge, we show that modern recommendation models exhibit feature-invariant scaling: the change of a model's performance follows a predictable scaling-law even when different feature changes are applied to the baseline model. We introduce an efficient method that exploits scaling-laws and uses statistical inference to predict (with confidence intervals) the full-scale effect of an A/B experiment in recommendation systems. This enables practitioners to efficiently filter out neutral or regressive feature changes with only small-scale experimentation. We validate our method on three distinct recommendation model families---Wukong, HSTU, and LLM-based recommendation models---across more than 40 architectural, optimization, and data changes. Our method accurately distinguishes beneficial feature changes from neutral and regressive ones while using only a fraction of the compute required for full-scale evaluation. It also identifies several changes that improve HSTU's state-of-the-art performance on MovieLens-20M. Our results demonstrate that scaling laws can be practically exploited to make compute-efficient decisions for improving industrial-scale recommendation systems.",
+  "arxiv_id": "2611.13539",
+  "authors": [
+    "Zhiliang Chen",
+    "Sammy Nammari",
+    "Jiahao Su",
+    "Xiaoqiang Luo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可用小规模实验加统计推断预测全规模A/B效应，降低推荐系统模型迭代的实验计算成本。",
+      "置信区间输出有助于业务团队在信息不完全时判断特征变更是否值得推进全量实验或上线。",
+      "可优先过滤中性或退化变更，把昂贵全量实验资源集中在更有潜力的架构、优化和数据特征上。",
+      "对工业级推荐系统具有应用潜力，但摘要层面尚未提供在线生产部署和收益量化证据。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "提出并展示了现代推荐模型具有特征不变缩放（feature-invariant scaling）：即使对基线模型应用不同的特征变更，模型性能变化仍遵循可预测的缩放规律。",
+      "提出一种高效方法，利用缩放规律和统计推断，以置信区间预测推荐系统A/B实验的全规模效应。",
+      "使实践者仅通过小规模实验即可过滤掉中性或退化的特征变更。",
+      "在Wukong、HSTU和基于LLM的推荐模型三类模型家族、40多项架构/优化/数据变更上验证了方法。",
+      "方法仅需全规模评估所需计算量的一小部分，就能准确区分有益、中性和退化的特征变更，并发现可提升HSTU在MovieLens-20M上当前最优性能的若干变更。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "Wukong",
+        "HSTU",
+        "基于LLM的推荐模型"
+      ],
+      "datasets": [
+        "MovieLens-20M"
+      ],
+      "findings_zh": [
+        "在Wukong、HSTU和基于LLM的推荐模型三类模型家族、40多项架构、优化和数据变更上验证了方法。",
+        "方法能够准确区分有益特征变更与中性或退化变更，同时只使用全规模评估所需计算量的一小部分。",
+        "方法识别出若干可提升HSTU在MovieLens-20M上当前最优性能的变更。",
+        "结果表明缩放规律可被实际用于为工业级推荐系统做出计算高效的改进决策。"
+      ],
+      "metrics": [
+        "全规模效应预测及置信区间",
+        "有益、中性、退化特征变更的区分能力",
+        "相对全规模评估所需计算量"
+      ]
+    },
+    "limitations_zh": [
+      "当前分析仅基于摘要，未包含方法细节、统计推断假设、置信区间覆盖率或误差分析。",
+      "摘要仅说明在Wukong、HSTU和基于LLM的推荐模型三类模型家族及40多项变更上验证，未给出更多模型家族或在线生产环境验证细节。",
+      "摘要未披露具体实验指标数值、计算节省比例或失败案例。",
+      "摘要未讨论缩放规律在何种特征变更或数据分布条件下可能不成立。"
+    ],
+    "method_zh": "利用现代推荐模型表现出的特征不变缩放规律，结合统计推断，在小规模实验基础上预测特征变更在全规模A/B实验中的效应，并给出置信区间，从而以较低计算成本筛选有益、中性或退化的变更。",
+    "problem_zh": "推荐系统需要通过A/B实验评估新模型架构、优化方法和数据特征，但对每个特征变更都进行全规模实验（如使用在线数据进行全模型训练）计算成本过高，而单次小规模实验的结果往往具有误导性。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.803,
+  "id": "arxiv-2611.13539",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-12T00:53:33.216866Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-10T04:02:31Z",
+  "relevance_score": 1.0,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究推荐系统中基于特征不变缩放律的高效A/B实验方法，以少量小规模实验预测全规模特征改动效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Exploiting Feature-invariant Scaling Laws for Efficient A/B Experimentation in Recommendation Systems",
+  "url": "https://arxiv.org/abs/2611.13539v1"
+}

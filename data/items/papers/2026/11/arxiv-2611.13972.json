@@ -1,0 +1,73 @@
+{
+  "abstract": "Modern recommender systems increasingly consider diverse data modalities to enhance model performance. However, the quality of the underlying multimodal data (e.g. data from social media platforms) has received limited attention so far. Focusing on tourism recommendation, we examine real-world challenges encountered when using datasets from Yelp and Instagram. Issues include noise from fake reviews, hallucinated content from LLMs, modality contradictions, and demographic bias. We outline future directions such as quality-aware fusion, structured and controlled LLM-based content generation to reduce hallucinations, and user group differentiation to improve the robustness and reliability of multimodal recommendation systems. Modern recommender systems increasingly consider diverse data modalities to enhance model performance. However, the quality of the underlying multimodal data (e.g. data from social media platforms) has received limited attention so far. Focusing on tourism recommendation, we examine real-world challenges encountered when using datasets from Yelp and Instagram. Issues include noise from fake reviews, hallucinated content from LLMs, modality contradictions, and demographic bias. We outline future directions such as quality-aware fusion, structured and controlled LLM-based content generation to reduce hallucinations, and user group differentiation to improve the robustness and reliability of multimodal recommendation systems.",
+  "arxiv_id": "2611.13972",
+  "authors": [
+    "Zehui Wang",
+    "Wolfram Höpken",
+    "Dietmar Jannach"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "业务方在多模态推荐中应建立数据质量治理机制，识别假评论、模态冲突与人口统计偏差。",
+      "引入LLM生成内容时需采用结构化、受控生成流程以降低幻觉风险。",
+      "可探索质量感知融合策略，使不同模态数据按可靠性参与推荐。",
+      "针对不同用户群体进行差异化建模，有助于降低偏差并提升推荐可靠性。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "聚焦旅游推荐场景，分析使用Yelp与Instagram数据时遇到的真实数据质量挑战。",
+      "归纳出假评论噪声、LLM生成内容幻觉、模态间矛盾以及人口统计偏差等关键问题。",
+      "提出质量感知融合、结构化且受控的LLM内容生成以降低幻觉、以及用户群体区分等未来研究方向。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "Yelp",
+        "Instagram"
+      ],
+      "findings_zh": [
+        "旅游推荐中使用Yelp和Instagram数据会面临假评论噪声、LLM生成内容幻觉、模态矛盾与人口统计偏差等问题。",
+        "摘要提出质量感知融合、结构化受控的LLM内容生成、用户群体区分等方向，以提升多模态推荐系统的鲁棒性与可靠性。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "仅基于摘要，缺少具体方法、模型架构与实验细节。",
+      "未提供定量实验结果、基线对比或评价指标。",
+      "讨论范围限定于旅游推荐及Yelp、Instagram数据，外部泛化性未验证。",
+      "提出的未来方向尚未在摘要中给出实证验证。"
+    ],
+    "method_zh": "摘要未描述具体模型或实验方法，仅概述真实数据挑战与未来研究方向。",
+    "problem_zh": "现有多模态推荐系统虽引入社交媒体等多源数据提升性能，但其底层多模态数据质量关注不足；本文聚焦旅游推荐，考察使用Yelp和Instagram真实数据时遇到的数据质量问题。",
+    "technical_depth": 0.2
+  },
+  "doi": null,
+  "final_score": 0.6725000000000001,
+  "id": "arxiv-2611.13972",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-12T00:53:33.216866Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-10T12:08:40Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文聚焦旅游推荐场景，指出多模态数据（Yelp、Instagram）存在虚假评论、LLM 幻觉内容、模态矛盾与人口统计偏差等质量问题，并提出质量感知融合等未来方向。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Data Quality Challenges in Multimodal Tourism Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.13972v1"
+}

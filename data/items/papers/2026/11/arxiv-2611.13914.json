@@ -1,0 +1,87 @@
+{
+  "abstract": "Recommender systems increasingly influence what users discover and consume online, yet the decision logic behind their outputs often remains opaque. Counterfactual explanation (CFX) methods provide an effective way to show which changes to a user's interaction history would alter a recommendation. In recommendation settings, however, CFXs often require many edits, producing long, low-level lists that are hard for users to interpret. Moreover, most evaluations emphasize edit counts while largely overlooking whether the resulting CFXs are coherent and actionable for users. We argue that this gap between generating valid CFXs and communicating model behavior stems from the lack of user-centered abstraction and limited qualitative evaluation. To bridge this gap, we investigate large language models as mediators that summarize raw CFX interaction edit lists into concise natural language explanations describing higher-level preference patterns. We optimize these mediators for correctness, informativeness, and linguistic quality through preference optimization, and evaluate the resulting explanations with human-calibrated metrics derived from separate human-labeled datasets. On the MovieLens-1M dataset, across multiple counterfactual generators and language models, the resulting summaries achieve high overall linguistic quality, while the strongest semantic results are obtained with high-success CFX methods such as ACCENT and SPINRec. Direct Preference Optimization improves the semantic metrics in almost all evaluated settings. Recommender systems increasingly influence what users discover and consume online, yet the decision logic behind their outputs often remains opaque. Counterfactual explanation (CFX) methods provide an effective way to show which changes to a user's interaction history would alter a recommendation. In recommendation settings, however, CFXs often require many edits, producing long, low-level lists that are hard for users to interpret. Moreover, most evaluations emphasize edit counts while largely overlooking whether the resulting CFXs are coherent and actionable for users. We argue that this gap between generating valid CFXs and communicating model behavior stems from the lack of user-centered abstraction and limited qualitative evaluation. To bridge this gap, we investigate large language models as mediators that summarize raw CFX interaction edit lists into concise natural language explanations describing higher-level preference patterns. We optimize these mediators for correctness, informativeness, and linguistic quality through preference optimization, and evaluate the resulting explanations with human-calibrated metrics derived from separate human-labeled datasets. On the MovieLens-1M dataset, across multiple counterfactual generators and language models, the resulting summaries achieve high overall linguistic quality, while the strongest semantic results are obtained with high-success CFX methods such as ACCENT and SPINRec. Direct Preference Optimization improves the semantic metrics in almost all evaluated settings.",
+  "arxiv_id": "2611.13914",
+  "authors": [
+    "Vojtech Cahlik",
+    "Amir Reza Mohammadi",
+    "Rodrigo Alves",
+    "Pavel Kordik",
+    "Eva Zangerle"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可将冗长的反事实编辑列表转化为面向用户的高层偏好解释，用于推荐理由展示与透明度提升。",
+      "偏好优化结合人工校准指标，可作为解释质量评估流程，帮助产品团队平衡正确性、信息量和语言质量。",
+      "由于证据仅来自 MovieLens-1M 离线实验，业务落地前需在目标场景验证解释正确性与用户收益。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出将大语言模型作为中介，把原始反事实交互编辑列表总结为简洁的自然语言解释，描述更高层的偏好模式。",
+      "通过偏好优化提升中介模型在正确性、信息量和语言质量方面的表现。",
+      "使用由独立人工标注数据集推导并经人工校准的指标评估生成解释。",
+      "在 MovieLens-1M 上跨多种反事实生成器和语言模型验证，发现摘要整体语言质量较高，且 ACCENT、SPINRec 等高成功率 CFX 方法获得最强语义结果。",
+      "Direct Preference Optimization 在几乎所有评估设置中提升语义指标。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "多种反事实生成器",
+        "ACCENT",
+        "SPINRec",
+        "多种语言模型"
+      ],
+      "datasets": [
+        "MovieLens-1M"
+      ],
+      "findings_zh": [
+        "生成的解释摘要整体语言质量较高。",
+        "语义结果最强的设置来自 ACCENT、SPINRec 等高成功率 CFX 方法。",
+        "Direct Preference Optimization 在几乎所有评估设置中提升语义指标。"
+      ],
+      "metrics": [
+        "正确性（correctness）",
+        "信息量（informativeness）",
+        "语言质量（linguistic quality）",
+        "语义指标（semantic metrics）",
+        "人工校准指标"
+      ]
+    },
+    "limitations_zh": [
+      "摘要仅报告 MovieLens-1M 上的结果，跨数据集与跨领域泛化性未说明。",
+      "摘要未给出具体指标数值、统计显著性或完整实验配置，效果幅度难以判断。",
+      "从摘要可见评估集中在离线数据集，未呈现在线用户理解、行动转化或部署成本。",
+      "方法依赖反事实编辑列表与人工校准指标，摘要未讨论其标注成本与可扩展性。"
+    ],
+    "method_zh": "将大语言模型作为中介，把原始反事实解释中的交互编辑列表总结为简洁的自然语言解释，以描述更高层偏好模式；通过偏好优化（包括 Direct Preference Optimization）针对正确性、信息量和语言质量优化中介模型；再用由独立人工标注数据集推导的人工校准指标评估解释质量。",
+    "problem_zh": "推荐系统的决策逻辑通常不透明，反事实解释（CFX）虽能展示哪些交互历史改动会改变推荐，但在推荐场景中往往需要大量编辑，形成冗长、低层且难以理解的列表；现有评估又偏重编辑次数，较少关注解释是否连贯、可操作。",
+    "technical_depth": 0.45
+  },
+  "doi": "10.1145/3799682.3839968",
+  "final_score": 0.665,
+  "id": "arxiv-2611.13914",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-12T00:53:33.216866Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-10T11:05:19Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文用大语言模型作为中介，将推荐系统反事实解释中的底层交互编辑列表总结为自然语言解释，并通过偏好优化提升其正确性、信息量与语言质量。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "From Counterfactual Edits to Human Narratives: LLM-Driven Interpretations for Recommender System Explanations",
+  "url": "https://arxiv.org/abs/2611.13914v1"
+}
