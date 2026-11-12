@@ -1,0 +1,65 @@
+{
+  "abstract": "This research involved the study of an application of Case-Based Reasoning (CBR) in the field of academic advising. Academic advisement has been recognised as an important function of higher education. However, there is a widespread desire to improve the advisement services provided by many educational institutions (e.g., colleges and universities) around the world. In the last ten years, CBR expert systems have made important contributions in many domains by applying CBR methodology to a variety of areas of human problem solving. However, to date, expert advisement systems have not been successfully applied to academic advisement, which seems to be a very appropriate domain for this technology. Academic advising is an important and time consuming task, and different tools and techniques must be used to make it an effective and efficient process. This thesis describes the design, development, and validation of a prototype case-based academic advisement recommender system that supplements the conventional advising process, and could eventually evolve to replace human academic advisors when its full potential is realised. This research involved the study of an application of Case-Based Reasoning (CBR) in the field of academic advising. Academic advisement has been recognised as an important function of higher education. However, there is a widespread desire to improve the advisement services provided by many educational institutions (e.g., colleges and universities) around the world. In the last ten years, CBR expert systems have made important contributions in many domains by applying CBR methodology to a variety of areas of human problem solving. However, to date, expert advisement systems have not been successfully applied to academic advisement, which seems to be a very appropriate domain for this technology. Academic advising is an important and time consuming task, and different tools and techniques must be used to make it an effective and efficient process. This thesis describes the design, development, and validation of a prototype case-based academic advisement recommender system that supplements the conventional advising process, and could eventually evolve to replace human academic advisors when its full potential is realised.",
+  "arxiv_id": "2611.08572",
+  "authors": [
+    "Tanat Tonguthaisri"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可面向高校学术咨询场景，作为传统人工咨询流程的辅助推荐工具。",
+      "针对学术咨询重要且耗时的痛点，提供提升咨询流程效率的产品化机会。",
+      "若后续验证充分，可能降低人工顾问负担，但需配套效果评估与人机责任治理。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "设计、开发并验证了一个基于案例推理（CBR）的学术咨询推荐系统原型。",
+      "该系统定位为补充传统学术咨询流程，而非直接替代人工顾问。",
+      "摘要声称该系统在潜力充分发挥后可能演化为替代人类学术顾问的方案。"
+    ],
+    "evidence_quality": 0.2,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "摘要声称原型系统经过验证，但未报告具体数据集、基线、指标或量化验证结果。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "仅有摘要，缺少方法细节、系统架构、案例库规模与检索机制等信息。",
+      "未提供数据集、基线、评估指标或验证结果，无法判断推荐效果。",
+      "未提供实际部署证据；“替代人类学术顾问”仅为未来可能性，并非已验证结论。"
+    ],
+    "method_zh": "采用案例推理（CBR）方法构建学术咨询推荐系统原型，用于补充传统学术咨询流程；摘要未披露案例表示、检索、匹配或评估的具体技术细节。",
+    "problem_zh": "高等教育中的学术咨询是一项重要且耗时的任务，教育机构普遍希望改进咨询服务；案例推理（CBR）专家系统已在多个领域取得贡献，但此前尚未成功应用于学术咨询。",
+    "technical_depth": 0.25
+  },
+  "doi": "10.25439/rmt.34846194",
+  "final_score": 0.5175000000000001,
+  "id": "arxiv-2611.08572",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-12T23:45:04.961105Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-05T18:25:36Z",
+  "relevance_score": 0.7,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文设计并验证基于案例推理的学术咨询推荐系统原型，以辅助传统学术指导流程。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Enhancing Academic Advisement with Case-Based Reasoning",
+  "url": "https://arxiv.org/abs/2611.08572v1"
+}
