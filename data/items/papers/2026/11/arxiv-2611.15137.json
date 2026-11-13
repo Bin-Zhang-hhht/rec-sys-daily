@@ -1,0 +1,82 @@
+{
+  "abstract": "Recommendation systems may use predicted click-through conversion rate (pCTCVR), the product of predicted click-through rate (pCTR) and post-click conversion rate (pCVR), to guide ranking decisions. Many pCVR models build on the Entire Space Multi-Task Model (ESMM), which jointly trains pCVR and auxiliary pCTR towers using pCTR and pCTCVR losses, but deploys only the pCVR tower. At serving time, this tower may be paired with a separately trained pCTR model, creating a training-serving mismatch in pCTCVR when its predictions differ from those of the auxiliary pCTR tower. In this paper, we use knowledge distillation (KD) from logged serving pCTR scores to supervise ESMM's auxiliary pCTR tower and improve training-serving pCTCVR alignment. We denote variants by KD-$α$, where $α$ controls the hard-label loss weight. On the Ali-CCP dataset, KD-0.3, the best variant on serving pCTCVR, increases ROC-AUC not only for serving pCTCVR but also for pCVR by 2.1% and 1.6%, respectively, and PR-AUC by 9.9% and 8.8%, respectively, relative to the ESMM baseline. We also test negative downsampling with 5% nonclick retention. Downsampled KD-0.3 increases mean AUC for serving pCTCVR and pCVR by 1.2% and 0.9%, respectively, -and PR-AUC by 8.5% and 4.5%, respectively, relative to downsampled ESMM. Recommendation systems may use predicted click-through conversion rate (pCTCVR), the product of predicted click-through rate (pCTR) and post-click conversion rate (pCVR), to guide ranking decisions. Many pCVR models build on the Entire Space Multi-Task Model (ESMM), which jointly trains pCVR and auxiliary pCTR towers using pCTR and pCTCVR losses, but deploys only the pCVR tower. At serving time, this tower may be paired with a separately trained pCTR model, creating a training-serving mismatch in pCTCVR when its predictions differ from those of the auxiliary pCTR tower. In this paper, we use knowledge distillation (KD) from logged serving pCTR scores to supervise ESMM's auxiliary pCTR tower and improve training-serving pCTCVR alignment. We denote variants by KD-$α$, where $α$ controls the hard-label loss weight. On the Ali-CCP dataset, KD-0.3, the best variant on serving pCTCVR, increases ROC-AUC not only for serving pCTCVR but also for pCVR by 2.1% and 1.6%, respectively, and PR-AUC by 9.9% and 8.8%, respectively, relative to the ESMM baseline. We also test negative downsampling with 5% nonclick retention. Downsampled KD-0.3 increases mean AUC for serving pCTCVR and pCVR by 1.2% and 0.9%, respectively, -and PR-AUC by 8.5% and 4.5%, respectively, relative to downsampled ESMM.",
+  "arxiv_id": "2611.15137",
+  "authors": [
+    "Pavel Dolin",
+    "Xun Zou",
+    "Jiatian Wu",
+    "Deguang Kong"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对于采用 ESMM 且服务端另配 pCTR 模型的推荐系统，可用日志中的服务端 pCTR 分数监督辅助塔，以缓解 pCTCVR 的训练-服务不一致。",
+      "离线 AUC 与 PR-AUC 提升说明该方案可能改善排序质量，但上线前仍需在线实验验证业务收益。",
+      "负采样场景下仍有提升，表明方法可能适用于点击稀疏或负样本下采样的大规模推荐场景。",
+      "实现上可复用已有服务端 pCTR 日志作为蒸馏信号，但需评估额外训练复杂度和系统改造成本。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出使用日志中的服务端 pCTR 分数对 ESMM 辅助 pCTR 塔进行知识蒸馏，以改善训练与服务阶段 pCTCVR 的一致性。",
+      "定义 KD-α 变体，其中 α 控制硬标签损失权重。",
+      "在 Ali-CCP 上报告 KD-0.3 相对 ESMM 基线提升服务端 pCTCVR 与 pCVR 的 ROC-AUC 和 PR-AUC。",
+      "验证 5% 非点击保留的负采样设置下，KD-0.3 相对负采样 ESMM 仍有提升。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "ESMM baseline",
+        "downsampled ESMM"
+      ],
+      "datasets": [
+        "Ali-CCP"
+      ],
+      "findings_zh": [
+        "在 Ali-CCP 上，KD-0.3 是服务端 pCTCVR 表现最好的变体；相对 ESMM 基线，服务端 pCTCVR 的 ROC-AUC 提升 2.1%，pCVR 的 ROC-AUC 提升 1.6%。",
+        "相对 ESMM 基线，KD-0.3 将服务端 pCTCVR 的 PR-AUC 提升 9.9%，将 pCVR 的 PR-AUC 提升 8.8%。",
+        "在 5% 非点击保留的负采样设置下，downsampled KD-0.3 相对 downsampled ESMM 将服务端 pCTCVR 与 pCVR 的平均 AUC 分别提升 1.2% 和 0.9%。",
+        "在同一负采样设置下，downsampled KD-0.3 相对 downsampled ESMM 将服务端 pCTCVR 与 pCVR 的 PR-AUC 分别提升 8.5% 和 4.5%。"
+      ],
+      "metrics": [
+        "ROC-AUC",
+        "PR-AUC",
+        "mean AUC"
+      ]
+    },
+    "limitations_zh": [
+      "摘要仅报告 Ali-CCP 数据集上的离线结果，未提供在线 A/B 测试或生产部署证据。",
+      "摘要未说明知识蒸馏的温度、损失组合细节、模型结构或计算开销。",
+      "摘要未讨论除 5% 非点击保留之外的负采样比例或其他数据分布下的稳健性。"
+    ],
+    "method_zh": "从已记录的服务端 pCTR 分数向 ESMM 的辅助 pCTR 塔做知识蒸馏，以监督该塔；KD-α 中的 α 控制硬标签损失权重，并在 Ali-CCP 上评估不同变体及负采样场景。",
+    "problem_zh": "采用 ESMM 的 pCVR 模型在训练时联合训练 pCVR 塔与辅助 pCTR 塔，但部署时只使用 pCVR 塔，并可能与单独训练的 pCTR 模型配对；当服务端 pCTR 预测与辅助 pCTR 塔不一致时，会导致 pCTCVR 的训练-服务不匹配。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7484999999999999,
+  "id": "arxiv-2611.15137",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-11T07:25:25Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文面向推荐系统，利用服务端点击率分数的知识蒸馏监督ESMM辅助pCTR塔，以缓解pCTCVR训练-服务不一致并提升排序效果。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Serving-Aligned Entire-Space Conversion Modeling via Click-Through Rate Knowledge Distillation",
+  "url": "https://arxiv.org/abs/2611.15137v1"
+}

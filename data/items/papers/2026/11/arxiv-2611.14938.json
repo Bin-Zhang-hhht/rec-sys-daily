@@ -1,0 +1,88 @@
+{
+  "abstract": "Curiosity, the drive to close the gap between what one knows and what one wants to know, pulls consumers beyond their familiar content, sustains engagement, and breaks them out of the filter bubbles of repetitive, relevance-only recommendations. Despite its importance, curiosity is hardly incorporated into modern recommender systems for lack of a formal measure. The information-gap theory of curiosity provides no formal quantitative model that a recommender system can operate on, and existing proxy metrics do not accurately measure the curiosity that a recommended item evokes. To fill this research gap, we formalize the information-gap theory into five axioms of curiosity and construct the canonical formulation of a computational measure of the curiosity that a recommended item evokes in a consumer. We validate our curiosity measure through a survey-based study, in which it matches consumers' self-reported curiosity and outperforms alternative proxy metrics. We subsequently build a curiosity-aware recommender system that incorporates this measure into the utility function design, and we show through offline experiments on three real-world datasets that it significantly outperforms the state-of-the-art methods. Furthermore, we conduct a large-scale online controlled experiment at a major video-streaming platform in Asia, where we show that our method significantly increases click-through rate, video views, and time spent over the latest production system, leading to tangible economic impact for the company. Our method has since been deployed on the platform and remains in operation. Our findings establish consumer curiosity as a measurable and actionable objective for recommender systems, with important managerial implications for digital platforms to recommend what consumers wonder about. Curiosity, the drive to close the gap between what one knows and what one wants to know, pulls consumers beyond their familiar content, sustains engagement, and breaks them out of the filter bubbles of repetitive, relevance-only recommendations. Despite its importance, curiosity is hardly incorporated into modern recommender systems for lack of a formal measure. The information-gap theory of curiosity provides no formal quantitative model that a recommender system can operate on, and existing proxy metrics do not accurately measure the curiosity that a recommended item evokes. To fill this research gap, we formalize the information-gap theory into five axioms of curiosity and construct the canonical formulation of a computational measure of the curiosity that a recommended item evokes in a consumer. We validate our curiosity measure through a survey-based study, in which it matches consumers' self-reported curiosity and outperforms alternative proxy metrics. We subsequently build a curiosity-aware recommender system that incorporates this measure into the utility function design, and we show through offline experiments on three real-world datasets that it significantly outperforms the state-of-the-art methods. Furthermore, we conduct a large-scale online controlled experiment at a major video-streaming platform in Asia, where we show that our method significantly increases click-through rate, video views, and time spent over the latest production system, leading to tangible economic impact for the company. Our method has since been deployed on the platform and remains in operation. Our findings establish consumer curiosity as a measurable and actionable objective for recommender systems, with important managerial implications for digital platforms to recommend what consumers wonder about.",
+  "arxiv_id": "2611.14938",
+  "authors": [
+    "Pan Li",
+    "Alexander Tuzhilin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可将好奇心作为可测量、可优化的推荐目标，补充单纯相关性优化。",
+      "通过效用函数整合好奇心测度，平台有望提升点击率、观看量和停留时长，并产生经济价值。",
+      "好奇心导向推荐可帮助消费者跳出熟悉内容和过滤气泡，缓解重复性推荐。",
+      "上线前应通过用户调查验证测度，并通过离线与在线对照实验评估业务效果。",
+      "对数字平台的管理启示是推荐消费者“想知道”的内容，而不仅是“已知相关”的内容。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "将信息缺口理论形式化为五条好奇心公理，并构建推荐项唤起好奇心的规范计算测度。",
+      "通过问卷调查验证该测度与消费者自报好奇心一致，并优于替代代理指标。",
+      "将好奇心测度嵌入推荐系统效用函数，构建好奇心感知推荐系统。",
+      "在三个真实世界数据集上进行离线实验，显示方法显著优于现有最先进方法。",
+      "在亚洲某大型视频流媒体平台开展大规模在线对照实验，显示相比最新生产系统显著提升点击率、视频观看量和停留时长，并带来可量化经济影响；方法已部署并持续运行。",
+      "将消费者好奇心确立为推荐系统中可测量、可操作的目标，并给出数字平台管理启示。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "现有最先进方法（state-of-the-art methods，摘要未列具体方法）",
+        "该平台最新生产系统"
+      ],
+      "datasets": [
+        "三个真实世界数据集（摘要未披露名称）",
+        "亚洲某大型视频流媒体平台的在线实验环境"
+      ],
+      "findings_zh": [
+        "调查研究中，该好奇心测度与消费者自报好奇心匹配，并优于替代代理指标。",
+        "三个真实世界数据集的离线实验显示，好奇心感知推荐系统显著优于现有最先进方法。",
+        "亚洲大型视频流媒体平台的在线对照实验显示，相较最新生产系统显著提升点击率、视频观看量和停留时长。",
+        "在线实验带来可量化的经济影响，方法已部署在平台并持续运行。",
+        "研究结果表明消费者好奇心可作为推荐系统中可测量且可操作的目标。"
+      ],
+      "metrics": [
+        "消费者自报好奇心（survey-based study）",
+        "点击率（CTR）",
+        "视频观看量（video views）",
+        "停留时长（time spent）"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法获得五条公理的具体内容、计算测度的数学形式及效用函数整合细节。",
+      "离线实验未披露三个数据集的名称、具体基线、离线指标和效应量。",
+      "在线实验未披露平台名称、实验周期、样本量、统计显著性或经济影响的量化细节。",
+      "调查验证未披露问卷设计、样本构成及与代理指标比较的具体结果。",
+      "摘要未讨论冷启动、多样性、公平性、长期生态影响及跨平台泛化等问题。"
+    ],
+    "method_zh": "论文把信息缺口理论形式化为五条好奇心公理，构建推荐项唤起好奇心的规范计算测度；用问卷调查验证测度与消费者自报好奇心的一致性及其相对代理指标的优势；再将测度纳入推荐系统效用函数设计，构建好奇心感知推荐系统，并通过三个真实数据集的离线实验和大型视频流媒体平台在线对照实验评估。",
+    "problem_zh": "现代推荐系统难以纳入好奇心：信息缺口理论缺乏可供系统操作的正式定量模型，现有代理指标不能准确衡量推荐项唤起的好奇心；仅按相关性推荐还会导致重复内容和过滤气泡。论文要解决如何形式化、测量并在推荐系统中优化消费者好奇心的问题。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7875000000000002,
+  "id": "arxiv-2611.14938",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-11T02:39:23Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文将信息缺口理论形式化为五条公理并构造可计算的好奇心度量，构建好奇心感知推荐系统并在亚洲大型视频平台的在线实验中显著提升点击率与时长。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "When Does a Recommendation Spark Curiosity? Theory, Measurement, and Field Evidence",
+  "url": "https://arxiv.org/abs/2611.14938v1"
+}

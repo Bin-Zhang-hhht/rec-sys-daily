@@ -1,0 +1,84 @@
+{
+  "abstract": "Recommender systems help users navigate vast amounts of information by filtering content according to their historical behaviors. As these systems increasingly shape everyday information access, they largely determine the content users are exposed to. However, current research typically prioritizes catering to user interest, while overlooking the existence and propagation of harmful content, such as violence, hate speech, and pornography. In this work, we take a systematic step toward investigating harmful content in recommender systems from three aspects: measuring, revealing, and mitigating. First, we construct datasets with harmfulness-related annotations and present new evaluation metrics to quantitatively measure the harmfulness of recommendation results. Second, our empirical analysis reveals that users tend to engage with harmful content and prevailing recommendation methods often contribute to the proliferation of such content. Third, to address this issue, we introduce a generic framework, MitiHarm, which integrates harmfulness-related signals into both item and user representation learning. Experiments show that MitiHarm can significantly mitigate the propagation of harmful content while preserving user satisfaction. Resources of this work are available at https://github.com/Zhang-xiaokun/MitiHarm. Recommender systems help users navigate vast amounts of information by filtering content according to their historical behaviors. As these systems increasingly shape everyday information access, they largely determine the content users are exposed to. However, current research typically prioritizes catering to user interest, while overlooking the existence and propagation of harmful content, such as violence, hate speech, and pornography. In this work, we take a systematic step toward investigating harmful content in recommender systems from three aspects: measuring, revealing, and mitigating. First, we construct datasets with harmfulness-related annotations and present new evaluation metrics to quantitatively measure the harmfulness of recommendation results. Second, our empirical analysis reveals that users tend to engage with harmful content and prevailing recommendation methods often contribute to the proliferation of such content. Third, to address this issue, we introduce a generic framework, MitiHarm, which integrates harmfulness-related signals into both item and user representation learning. Experiments show that MitiHarm can significantly mitigate the propagation of harmful content while preserving user satisfaction. Resources of this work are available at https://github.com/Zhang-xiaokun/MitiHarm.",
+  "arxiv_id": "2611.15160",
+  "authors": [
+    "Xiaokun Zhang",
+    "Youlin Wu",
+    "Junyu Lu",
+    "Jiamin Chen",
+    "Zhaochun Ren",
+    "Hongfei Lin",
+    "Fenglong Ma",
+    "Xue Liu",
+    "Chen Ma"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "平台可将有害性相关信号纳入推荐表示学习，在优化互动指标的同时降低暴力、仇恨言论和色情内容的扩散风险。",
+      "企业需要建立带有害性标注的数据资产和量化评估指标，以支持推荐系统安全审计与持续监控。",
+      "MitiHarm强调在保持用户满意度的同时缓解有害传播，适合作为内容平台信任与安全团队与推荐算法团队协同的框架参考。",
+      "业务落地需关注标注质量、误伤成本和合规要求；摘要未提供线上部署证据，实施前应进行离线评估与小流量验证。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "构建带有害性相关标注的数据集，并提出新的评估指标，用于定量衡量推荐结果的有害性。",
+      "通过实证分析揭示用户倾向于与有害内容互动，且主流推荐方法往往会助长此类内容的扩散。",
+      "提出通用框架MitiHarm，将有害性相关信号融入物品表示学习和用户表示学习，在保持用户满意度的同时显著缓解有害内容传播。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "现有主流推荐方法（摘要未给出具体名称）"
+      ],
+      "datasets": [
+        "带有害性相关标注的数据集（摘要未给出具体名称）"
+      ],
+      "findings_zh": [
+        "用户倾向于与有害内容发生互动。",
+        "主流推荐方法常常助长有害内容的扩散。",
+        "MitiHarm能够显著缓解有害内容传播，同时保持用户满意度。"
+      ],
+      "metrics": [
+        "新提出的有害性量化评估指标（摘要未给出具体名称）",
+        "用户满意度（摘要提及）"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要分析，缺少具体数据集、基线、指标定义和实验设置，无法核验实验充分性。",
+      "摘要未讨论有害性标注偏差、误伤良性内容、审核成本与线上部署风险等潜在问题。",
+      "MitiHarm的通用性和跨场景有效性仅由摘要声明，缺少消融实验与跨域验证细节。",
+      "摘要未说明有害内容类别覆盖范围及不同平台、语言和文化语境下的适用边界。"
+    ],
+    "method_zh": "MitiHarm是一个通用框架，核心做法是将有害性相关信号同时整合到物品表示学习和用户表示学习中，以缓解推荐系统中的有害内容传播；摘要未披露具体模型结构、损失函数或训练细节。",
+    "problem_zh": "推荐系统通常优先迎合用户兴趣，却忽视暴力、仇恨言论和色情等有害内容的存在与传播；本文旨在从测量、揭示和缓解三个层面系统研究推荐系统中的有害内容问题。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.7025000000000001,
+  "id": "arxiv-2611.15160",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-11T07:57:00Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "从测量、揭示与缓解三方面系统研究推荐系统中的有害内容，并提出MitiHarm框架将危害信号融入物品与用户表示学习以抑制其传播。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Measuring, Revealing and Mitigating Harmful Content Propagation in Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.15160v1"
+}

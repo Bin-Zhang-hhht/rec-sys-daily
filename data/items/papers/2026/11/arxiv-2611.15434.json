@@ -1,0 +1,73 @@
+{
+  "abstract": "Re-ranking is a crucial stage in recommender systems, yet existing evaluators oversimplify user browsing assumptions and collapse multi-objective signals into a single scalar, limiting their ability to reflect true listwise utility. We propose \\textbf{SurvEval}, a listwise evaluator that jointly models user exposure and item value for re-ranking evaluation. We formalize the sequential browsing process as a discrete-time survival model, deriving monotonically decreasing reaching probabilities that capture the cascading structure of user browsing. We further introduce a multi-objective value estimation module with dedicated per-objective prediction heads and uncertainty-based loss weighting to adaptively balance objectives of varying scales and noise levels. Both components are jointly optimized via a unified transformer backbone, and the listwise utility is obtained by summing the position-wise products of reaching probabilities and conditional item value estimates. Extensive experiments on KuaiRand and Avito demonstrate that SurvEval achieves superior performance over state-of-the-art baselines. Re-ranking is a crucial stage in recommender systems, yet existing evaluators oversimplify user browsing assumptions and collapse multi-objective signals into a single scalar, limiting their ability to reflect true listwise utility. We propose \\textbf{SurvEval}, a listwise evaluator that jointly models user exposure and item value for re-ranking evaluation. We formalize the sequential browsing process as a discrete-time survival model, deriving monotonically decreasing reaching probabilities that capture the cascading structure of user browsing. We further introduce a multi-objective value estimation module with dedicated per-objective prediction heads and uncertainty-based loss weighting to adaptively balance objectives of varying scales and noise levels. Both components are jointly optimized via a unified transformer backbone, and the listwise utility is obtained by summing the position-wise products of reaching probabilities and conditional item value estimates. Extensive experiments on KuaiRand and Avito demonstrate that SurvEval achieves superior performance over state-of-the-art baselines.",
+  "arxiv_id": "2611.15434",
+  "authors": [
+    "YaChen Yan",
+    "Liubo Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可用于更贴近真实浏览级联的列表级重排序离线评估，帮助业务减少对简化点击假设的依赖。",
+      "多目标价值估计与不确定性加权有助于在重排序评估中同时考虑不同业务目标，并按噪声与尺度自适应平衡。",
+      "若在生产环境验证有效，可辅助重排序策略选择与上线前评估，但摘要未提供在线收益或部署成本证据。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 SurvEval，一种同时建模用户曝光与物品价值的列表级重排序评估器。",
+      "将顺序浏览过程形式化为离散时间生存模型，并推导出单调递减的到达概率，以刻画用户浏览的级联结构。",
+      "引入带独立逐目标预测头与基于不确定性的损失加权的多目标价值估计模块，以自适应平衡不同尺度和噪声水平的目标。",
+      "通过统一 Transformer 骨干联合优化两个组件，并以到达概率与条件物品价值估计的逐位置乘积求和得到列表级效用。"
+    ],
+    "evidence_quality": 0.25,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "state-of-the-art baselines（摘要未列具体名称）"
+      ],
+      "datasets": [
+        "KuaiRand",
+        "Avito"
+      ],
+      "findings_zh": [
+        "在 KuaiRand 和 Avito 上的广泛实验表明，SurvEval 相比最先进基线取得更优性能。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法确认具体基线、评估指标、实验设置与统计显著性。",
+      "摘要未给出模型复杂度、训练成本、超参数敏感性或消融实验细节。",
+      "摘要仅报告在 KuaiRand 与 Avito 上优于最先进基线，未说明在其他领域或数据分布上的泛化能力。",
+      "摘要未讨论生存模型假设、多目标价值估计误差或不确定性加权在极端场景下的失效风险。"
+    ],
+    "method_zh": "SurvEval 将用户顺序浏览建模为离散时间生存模型以得到单调递减的到达概率，并使用多目标价值估计模块通过独立预测头和不确定性损失加权估计条件物品价值；两个组件由统一 Transformer 骨干联合优化，最终列表级效用为各位置到达概率与条件物品价值估计乘积之和。",
+    "problem_zh": "现有重排序评估器对用户浏览行为的假设过于简化，并将多目标信号压缩为单一标量，难以反映真实的列表级效用。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.6985000000000001,
+  "id": "arxiv-2611.15434",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-11T13:05:16Z",
+  "relevance_score": 0.92,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出SurvEval列表级重排评估器，用离散时间生存模型刻画浏览到达概率并结合多目标价值估计计算列表整体效用。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SurvEval: Listwise Re-Ranking Evaluator via Survival-Based Exposure and Multi-Objective Value Modeling",
+  "url": "https://arxiv.org/abs/2611.15434v1"
+}

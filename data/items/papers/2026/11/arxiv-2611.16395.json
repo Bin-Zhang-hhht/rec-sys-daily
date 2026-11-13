@@ -1,0 +1,81 @@
+{
+  "abstract": "Generative recommendation typically operates under the User-Induced Recommendation (UIR) setting, predicting target items by autoregressively generating semantic IDs as a passive continuation of long-term user history. However, this paradigm overlooks Trigger-Induced Recommendation (TIR), an essential industrial scenario where a user click triggers an immediate follow-up feed. In TIR, recommendations must dynamically align with the instant trigger intent without compromising historical preference continuity. Traditional TIR methods rely on discriminative scoring and cannot guide token-level generation, while existing generative models lack mechanisms to reconcile this structural tension. To address this challenge, we propose TriGen, establishing a tailored generative paradigm for trigger-induced recommendation. TriGen introduces calibrated tail injection to re-encode local history, adaptively arbitrates between persistent tastes and immediate impulses via dynamic gating, and applies position-specific transformations to sustain level-aware trigger guidance across decoding steps. Extensive offline evaluations confirm consistent gains over competitive baselines. Furthermore, online A/B tests across six country markets demonstrate significant revenue and GMV improvements, leading to the full production deployment of TriGen. Generative recommendation typically operates under the User-Induced Recommendation (UIR) setting, predicting target items by autoregressively generating semantic IDs as a passive continuation of long-term user history. However, this paradigm overlooks Trigger-Induced Recommendation (TIR), an essential industrial scenario where a user click triggers an immediate follow-up feed. In TIR, recommendations must dynamically align with the instant trigger intent without compromising historical preference continuity. Traditional TIR methods rely on discriminative scoring and cannot guide token-level generation, while existing generative models lack mechanisms to reconcile this structural tension. To address this challenge, we propose TriGen, establishing a tailored generative paradigm for trigger-induced recommendation. TriGen introduces calibrated tail injection to re-encode local history, adaptively arbitrates between persistent tastes and immediate impulses via dynamic gating, and applies position-specific transformations to sustain level-aware trigger guidance across decoding steps. Extensive offline evaluations confirm consistent gains over competitive baselines. Furthermore, online A/B tests across six country markets demonstrate significant revenue and GMV improvements, leading to the full production deployment of TriGen.",
+  "arxiv_id": "2611.16395",
+  "authors": [
+    "Muyu Zou",
+    "Haibo Xing",
+    "Shunye Tang",
+    "Liyan Tie",
+    "Lingyu Mu",
+    "Yandong Wang",
+    "Jinxin Hu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "TIR 是用户点击后即时信息流的重要工业场景，生成式方法可直接服务该触发式推荐链路。",
+      "动态门控兼顾长期偏好与即时意图，有助于在点击后的即时推荐中平衡探索即时需求与维持历史兴趣连续性。",
+      "位置特定变换面向多步解码提供触发引导，适合需要对生成过程进行细粒度控制的推荐系统。",
+      "六个国家市场 A/B 与全量生产部署表明该方法具备实际业务落地价值。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出 TriGen，为触发诱导推荐建立专门的生成式范式。",
+      "引入 calibrated tail injection 对局部历史重新编码。",
+      "通过动态门控在长期稳定偏好与即时冲动之间自适应仲裁。",
+      "应用位置特定变换，在解码步骤中持续提供层级感知的触发引导。",
+      "离线评估相较竞争性基线取得一致增益；六个国家市场的线上 A/B 测试显示收入和 GMV 显著提升，并实现全量生产部署。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "竞争性基线（摘要未列名）"
+      ],
+      "datasets": [],
+      "findings_zh": [
+        "离线评估显示 TriGen 相较竞争性基线取得一致增益。",
+        "线上 A/B 测试覆盖六个国家市场，报告显著的收入与 GMV 提升。",
+        "TriGen 已实现全量生产部署。"
+      ],
+      "metrics": [
+        "Revenue",
+        "GMV"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法核验 calibrated tail injection、动态门控和位置特定变换的具体实现与消融贡献。",
+      "摘要未披露离线评估所用数据集、基线名称和具体离线指标。",
+      "线上 A/B 仅说明六个国家市场的收入与 GMV 显著提升，未给出具体提升幅度或统计细节。"
+    ],
+    "method_zh": "TriGen 是面向 TIR 的生成式推荐范式：用 calibrated tail injection 重新编码局部历史，用动态门控在持久偏好与即时触发意图之间自适应权衡，并通过位置特定变换在多个解码步骤中维持层级感知的触发引导。",
+    "problem_zh": "生成式推荐通常面向 User-Induced Recommendation（UIR），把目标物品预测建模为对长期用户历史的自回归语义 ID 生成，属于被动延续。该范式忽略了 Trigger-Induced Recommendation（TIR）：用户点击会触发即时后续信息流，推荐既要动态对齐即时触发意图，又不能破坏历史偏好的连续性。传统 TIR 方法依赖判别式打分，无法指导 token 级生成；现有生成式模型也缺少调和这一结构张力的机制。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7785,
+  "id": "arxiv-2611.16395",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-12T07:07:10Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出TriGen生成式推荐范式，通过校准尾部注入、动态门控与位置相关变换在逐token解码中兼顾即时触发意图与长期偏好，并在六国线上A/B中显著提升收入与GMV。",
+  "targets": [],
+  "tasks": [],
+  "title": "TriGen: A Generative Paradigm for Trigger-Induced Recommendation",
+  "url": "https://arxiv.org/abs/2611.16395v1"
+}

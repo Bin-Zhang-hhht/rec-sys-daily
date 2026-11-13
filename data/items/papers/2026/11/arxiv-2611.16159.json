@@ -1,0 +1,87 @@
+{
+  "abstract": "User behavior trajectory prediction (UBTP) aims to capture how a user's needs evolve over time by predicting the sequence of future interactions from that user's interaction history. Recent generative recommendation (GR) methods address this task through autoregressive generation of semantic IDs (SIDs). However, serial SID decoding couples token generation with behavior state transitions and requires multiple dependent steps per interaction. Discrete item feedback overlooks predictive uncertainty, and teacher-forced training leaves a training-inference gap in trajectory generation. To address these limitations, we propose TraGR, a behavior-aware generative recommendation framework that aligns generation, feedback, and learning with successive user behaviors. Its behavior-level architecture predicts SID tokens in parallel within each interaction and models behavioral transitions through recurrent state updates, with joint SID and item-level supervision. Probability feedback combines the selected behavior with a probability-weighted summary of alternatives to guide subsequent predictions. Relation-aware trajectory learning incorporates collaborative transition signals and later credit assignment into training on model-generated trajectories. Experiments on four public datasets demonstrate that TraGR consistently outperforms state-of-the-art baselines across different prediction horizons. Code: https://github.com/CalmaQi/GR4UBT. User behavior trajectory prediction (UBTP) aims to capture how a user's needs evolve over time by predicting the sequence of future interactions from that user's interaction history. Recent generative recommendation (GR) methods address this task through autoregressive generation of semantic IDs (SIDs). However, serial SID decoding couples token generation with behavior state transitions and requires multiple dependent steps per interaction. Discrete item feedback overlooks predictive uncertainty, and teacher-forced training leaves a training-inference gap in trajectory generation. To address these limitations, we propose TraGR, a behavior-aware generative recommendation framework that aligns generation, feedback, and learning with successive user behaviors. Its behavior-level architecture predicts SID tokens in parallel within each interaction and models behavioral transitions through recurrent state updates, with joint SID and item-level supervision. Probability feedback combines the selected behavior with a probability-weighted summary of alternatives to guide subsequent predictions. Relation-aware trajectory learning incorporates collaborative transition signals and later credit assignment into training on model-generated trajectories. Experiments on four public datasets demonstrate that TraGR consistently outperforms state-of-the-art baselines across different prediction horizons. Code: https://github.com/CalmaQi/GR4UBT.",
+  "arxiv_id": "2611.16159",
+  "authors": [
+    "Jiaqi Wang",
+    "Hanchen Yang",
+    "Hengyu Zhang",
+    "Hongxu Ma",
+    "Wenqi Rao",
+    "Hongyang Wang",
+    "Zhongbo Sun",
+    "Renliang Qian",
+    "Weixin Chen",
+    "Wengen Li",
+    "Jihong Guan",
+    "Shuigeng Zhou",
+    "Qingpeng Cai",
+    "Peng Jiang",
+    "Hong Cheng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "适用于需要预测用户多步行为轨迹的推荐场景，如序列推荐、会话式推荐和用户意图演化建模。",
+      "交互内并行SID解码有望减少每步生成的依赖步骤，对低延迟在线推荐有潜在价值，但需实测延迟与吞吐。",
+      "概率反馈机制可在用户选择不确定时保留候选项信息，可能提升后续推荐的稳健性。",
+      "关系感知轨迹学习利用协同转移信号，适合存在丰富用户-物品交互日志的平台；上线前需用自有数据验证收益与成本。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "提出TraGR行为感知生成式推荐框架，使生成、反馈与学习同连续用户行为对齐。",
+      "行为级架构在每个交互内并行预测SID token，并通过循环状态更新建模行为转移，同时使用SID与物品级联合监督。",
+      "提出概率反馈，将所选行为与候选项的概率加权摘要结合，以指导后续预测。",
+      "提出关系感知轨迹学习，将协同转移信号与后续信用分配纳入模型生成轨迹的训练。",
+      "在四个公开数据集上跨不同预测时域持续优于最先进基线，并提供代码链接。"
+    ],
+    "evidence_quality": 0.38,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "state-of-the-art baselines（摘要未列具体名称）"
+      ],
+      "datasets": [
+        "四个公开数据集（摘要未列具体名称）"
+      ],
+      "findings_zh": [
+        "在四个公开数据集上，TraGR在不同预测时域均持续优于最先进基线。",
+        "摘要提供了代码链接，但未给出具体数据集名称、基线名称、评价指标或数值结果。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "摘要未给出具体数据集、基线、评价指标和数值结果，实验可复现性与比较细节无法从摘要判断。",
+      "摘要未讨论模型的计算开销、在线推理延迟、冷启动或生产部署限制。",
+      "摘要未报告消融实验、超参数敏感性或误差分析。"
+    ],
+    "method_zh": "TraGR采用行为级生成架构：在每个用户行为内并行生成SID token，并用循环状态更新刻画行为间转移；训练时联合SID与物品级监督；后续预测使用概率反馈，将已选行为与候选项的概率加权摘要结合；关系感知轨迹学习利用协同转移信号和后续信用分配，在模型生成轨迹上训练。",
+    "problem_zh": "用户行为轨迹预测（UBTP）需要根据用户交互历史预测未来交互序列，以刻画用户需求如何随时间演化。现有生成式推荐（GR）方法通过自回归生成语义ID（SID）处理该任务，但串行SID解码将token生成与行为状态转移耦合，每个交互需要多个依赖步骤；离散物品反馈忽略预测不确定性；教师强制训练在轨迹生成中造成训练-推理差距。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.7505000000000001,
+  "id": "arxiv-2611.16159",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-12T01:42:27Z",
+  "relevance_score": 0.93,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出行为感知生成式推荐框架TraGR，在每个交互内并行预测语义ID、以概率反馈和关系感知轨迹学习对齐用户未来行为轨迹预测。",
+  "targets": [],
+  "tasks": [],
+  "title": "From Tokens to Behaviors: Rethinking Generative Recommendation for User Trajectory Prediction",
+  "url": "https://arxiv.org/abs/2611.16159v1"
+}

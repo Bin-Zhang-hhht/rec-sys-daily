@@ -1,0 +1,95 @@
+{
+  "abstract": "Recommender systems, which retrieve items of interest to users based on their interaction histories, have recently witnessed several key technological advancements, benefiting from the semantic representation space and model-data scaling. Nevertheless, practitioners and researchers have frequently encountered critical inconsistencies between simple offline evaluations and complex online results, and this gap still exists in the era of large models. In this work, we address several key factors that contribute to this inconsistency: 1) the \\textit{large-scale continual learning challenge} that assumes a practical demand to maintain long-term model effectiveness under dynamic item pools and distributional shifts; 2) the \\textit{combinatorial diversity challenge} that requires the generation strategy to solve the accuracy-diversity trade-off in both the finer token level and the holistic item level; and 3) the \\textit{multi-task reward balancing challenge}, which is particularly critical for modern generative models that can accurately model the sequence distribution but are less controllable for the multi-task demands. To address these challenges and further pave the way for the development of more realistic recommendation solutions, we introduce KuaiRecV2, a deliberately constructed benchmark with industrial-level datasets from Kuaishou. Specifically, we provide a large-scale interaction dataset with million-scale multi-modal item information and long-term interaction records across 30 days, with a dynamic video candidate pool. Additionally, we provide a rigorous benchmark that evaluates retrieval accuracy, diversity, and multi-task performance in one rubric system, where an effective advancement occurs if and only if the new method improves all metrics. The code is available at https://github.com/cxli2333/KuaiRecV2 Recommender systems, which retrieve items of interest to users based on their interaction histories, have recently witnessed several key technological advancements, benefiting from the semantic representation space and model-data scaling. Nevertheless, practitioners and researchers have frequently encountered critical inconsistencies between simple offline evaluations and complex online results, and this gap still exists in the era of large models. In this work, we address several key factors that contribute to this inconsistency: 1) the \\textit{large-scale continual learning challenge} that assumes a practical demand to maintain long-term model effectiveness under dynamic item pools and distributional shifts; 2) the \\textit{combinatorial diversity challenge} that requires the generation strategy to solve the accuracy-diversity trade-off in both the finer token level and the holistic item level; and 3) the \\textit{multi-task reward balancing challenge}, which is particularly critical for modern generative models that can accurately model the sequence distribution but are less controllable for the multi-task demands. To address these challenges and further pave the way for the development of more realistic recommendation solutions, we introduce KuaiRecV2, a deliberately constructed benchmark with industrial-level datasets from Kuaishou. Specifically, we provide a large-scale interaction dataset with million-scale multi-modal item information and long-term interaction records across 30 days, with a dynamic video candidate pool. Additionally, we provide a rigorous benchmark that evaluates retrieval accuracy, diversity, and multi-task performance in one rubric system, where an effective advancement occurs if and only if the new method improves all metrics. The code is available at https://github.com/cxli2333/KuaiRecV2",
+  "arxiv_id": "2611.16795",
+  "authors": [
+    "Chenxu Li",
+    "Shuchang Liu",
+    "Hantao Shu",
+    "Wei Yuan",
+    "Zhe Xu",
+    "Guoqing Hu",
+    "Yan Wang",
+    "Biao Yang",
+    "Xiang Li",
+    "Cheng Ling",
+    "Fan Yang",
+    "Yongqi Liu",
+    "Lantao Hu",
+    "Han Li",
+    "Kaiqiao Zhan",
+    "Kun Gai",
+    "An Zhang",
+    "Xiang Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "该基准强调离线指标与线上效果不一致，提示业务方在推荐系统评估中不应只依赖单一离线准确性指标。",
+      "动态视频候选池和 30 天长期交互记录对应真实业务中的物品池变化与持续学习需求，可用于评估模型长期有效性。",
+      "统一考察准确性、多样性和多任务表现，有助于业务团队在增长目标、用户体验和多目标约束之间做更全面的权衡。",
+      "由于摘要未提供实验数值和线上验证，实际业务迁移前仍需在自有数据上验证其评测体系与指标口径。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 KuaiRecV2，一个基于快手工业级数据构建的推荐系统基准，用于更真实地评估推荐方法。",
+      "提供大规模交互数据集，包含百万级多模态物品信息、覆盖 30 天的长期交互记录，以及动态视频候选池。",
+      "建立统一评测体系，同时评估检索准确性、多样性和多任务表现；只有新方法在所有指标上均取得提升，才被视为有效进展。",
+      "公开代码仓库以支持复现和使用。"
+    ],
+    "evidence_quality": 0.32,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "KuaiRecV2（来自快手的工业级数据集）"
+      ],
+      "findings_zh": [
+        "所提供摘要未报告具体实验数值、基线对比或消融结果。",
+        "可确认的结论是：KuaiRecV2 的评测规则要求方法同时改善准确性、多样性和多任务指标，而非仅优化单一指标。",
+        "该基准旨在暴露离线评估与线上结果不一致所涉及的关键挑战，但摘要未给出线上验证结果。"
+      ],
+      "metrics": [
+        "检索准确性",
+        "多样性",
+        "多任务表现"
+      ]
+    },
+    "limitations_zh": [
+      "所提供材料仅为摘要，无法评估论文的实验完整性、统计显著性和复现细节。",
+      "摘要未给出具体基线、指标定义、数据集规模数值、候选池更新机制及线上验证结果。",
+      "摘要未讨论方法或基准在快手之外平台上的泛化能力。",
+      "因此，对该工作的技术深度和业务可迁移性的判断证据有限。"
+    ],
+    "method_zh": "该工作不是提出单一推荐算法，而是构建面向真实推荐挑战的数据集与基准：用动态物品池和长期交互数据模拟持续学习场景，并在同一评测体系中联合考察准确性、多样性与多任务表现。",
+    "problem_zh": "推荐系统在离线评估与线上结果之间长期存在不一致；该问题在大模型时代仍然存在，并受到大规模持续学习、组合多样性（ token 级与物品级的准确性-多样性权衡）以及多任务奖励平衡三类挑战影响。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.7140000000000001,
+  "id": "arxiv-2611.16795",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "multi_task_learning"
+  ],
+  "published_at": "2026-11-12T13:39:12Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文发布基于快手工业数据的KuaiRecV2基准，覆盖长时间连续学习、动态候选池与准确性-多样性-多任务统一评测，用于弥合离线与线上推荐效果差距。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "KuaiRecV2: Benchmarking Large-Scale Continual Learning for Diversified and Multi-task Recommendation",
+  "url": "https://arxiv.org/abs/2611.16795v1"
+}

@@ -1,0 +1,86 @@
+{
+  "abstract": "Generative recommendation (GR) represents items with discrete Semantic IDs (SIDs) and casts retrieval as sequence generation. Under skewed interaction distributions and tight serving budgets, GR struggles to retrieve long-tail items. In this work, we are the first to study long-tail reachability across the complete pipeline of SID construction, decoding, and matching. We find that under equal code lengths, parallel SID construction consistently outperforms sequential SIDs on tail items. Moreover, even when full generation fails, decoded sequences carry locally consistent information that retrieves relevant tail items via partial matching. Yet this recovery is bounded by upstream search, failing once beam search prunes all prefixes completable within a fixed mismatch tolerance. Motivated by these findings, we propose ReSID to jointly preserve and recover tail candidates. Built on long parallel SIDs, ReSID pairs popularity-debiased and user-semantic-aware beam search to keep promising paths alive with partial SID matching to recover items from surviving tokens. ReSID achieves state-of-the-art long-tail retrieval while maintaining competitive overall accuracy, with lower latency and higher throughput under narrow beams. ReSID is deployed in our production system, serving main user traffic with substantial business gains. We release our complete code and model checkpoints to support full reproducibility and real-world deployment at https://github.com/Gabriel-reina/ReSID. Generative recommendation (GR) represents items with discrete Semantic IDs (SIDs) and casts retrieval as sequence generation. Under skewed interaction distributions and tight serving budgets, GR struggles to retrieve long-tail items. In this work, we are the first to study long-tail reachability across the complete pipeline of SID construction, decoding, and matching. We find that under equal code lengths, parallel SID construction consistently outperforms sequential SIDs on tail items. Moreover, even when full generation fails, decoded sequences carry locally consistent information that retrieves relevant tail items via partial matching. Yet this recovery is bounded by upstream search, failing once beam search prunes all prefixes completable within a fixed mismatch tolerance. Motivated by these findings, we propose ReSID to jointly preserve and recover tail candidates. Built on long parallel SIDs, ReSID pairs popularity-debiased and user-semantic-aware beam search to keep promising paths alive with partial SID matching to recover items from surviving tokens. ReSID achieves state-of-the-art long-tail retrieval while maintaining competitive overall accuracy, with lower latency and higher throughput under narrow beams. ReSID is deployed in our production system, serving main user traffic with substantial business gains. We release our complete code and model checkpoints to support full reproducibility and real-world deployment at https://github.com/Gabriel-reina/ReSID.",
+  "arxiv_id": "2611.16404",
+  "authors": [
+    "Muyu Zou",
+    "Shunye Tang",
+    "Yi Xu",
+    "Haibo Xing",
+    "Yandong Wang",
+    "Lingyu Mu",
+    "Jinxin Hu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在服务预算紧张且使用窄beam的场景中，ReSID的更低延迟和更高吞吐有利于线上生成式推荐检索落地。",
+      "ReSID已在生产系统承载主要用户流量并产生可观业务收益，表明其具备较强的业务迁移与部署可行性。",
+      "通过并行长SID与部分匹配提升长尾物品可达性，可改善推荐系统对长尾供给的覆盖与检索能力。",
+      "公开完整代码与模型检查点有助于降低复现和二次部署成本。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "首次系统研究长尾可达性在SID构造、解码与匹配完整流水线中的表现。",
+      "发现在等码长条件下，并行SID构造在长尾物品上持续优于顺序SID。",
+      "发现即使完整生成失败，解码序列仍携带局部一致信息，可通过部分SID匹配召回相关长尾物品。",
+      "指出部分匹配恢复受上游搜索限制：当beam search剪掉所有在固定不匹配容忍度内可完成的prefix时，恢复会失败。",
+      "提出ReSID，基于长并行SID，联合流行度去偏与用户语义感知的beam search保留有希望的路径，并用部分SID匹配从存活token中恢复物品。",
+      "ReSID在保持有竞争力整体准确率的同时取得最先进的长尾检索效果，并在窄beam下具有更低延迟和更高吞吐。",
+      "ReSID已部署于生产系统并承载主要用户流量，带来可观业务收益，同时发布完整代码与模型检查点。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "在等码长条件下，并行SID构造在长尾物品上持续优于顺序SID。",
+        "即使完整生成失败，解码序列仍携带局部一致信息，可通过部分匹配召回相关长尾物品。",
+        "部分匹配恢复受上游搜索边界限制：一旦beam search剪掉所有在固定不匹配容忍度内可完成的prefix，就无法恢复。",
+        "ReSID取得最先进的长尾检索效果，同时保持有竞争力的整体准确率，并在窄beam下实现更低延迟和更高吞吐。",
+        "ReSID已部署于生产系统，服务主要用户流量并带来可观业务收益。"
+      ],
+      "metrics": [
+        "长尾检索效果",
+        "整体准确率",
+        "延迟",
+        "吞吐"
+      ]
+    },
+    "limitations_zh": [
+      "缓解长尾检索的部分匹配恢复仍受上游beam search剪枝边界限制。",
+      "摘要未提供具体数据集、基线设置和指标数值，实验细节与可复现性无法仅凭摘要核验。",
+      "摘要未披露生产环境中业务收益的具体量级和实验设计。",
+      "摘要仅说明在偏斜交互分布与紧张服务预算下长尾检索困难，未展开其他失败模式。"
+    ],
+    "method_zh": "ReSID建立在长并行SID之上，联合使用流行度去偏且用户语义感知的beam search来保留有希望的生成路径，并通过部分SID匹配从存活token中恢复长尾候选物品，从而同时实现长尾候选的保留与恢复。",
+    "problem_zh": "生成式推荐（GR）用离散语义ID（SID）表示物品，并将检索转化为序列生成。在交互分布偏斜且服务预算紧张时，GR难以召回长尾物品。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.7725,
+  "id": "arxiv-2611.16404",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-12T07:12:15Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究生成式推荐中语义ID构建、解码与匹配全链路的长尾可达性，提出ReSID以并行SID、去偏束搜索与部分匹配恢复长尾候选项，并已在生产系统部署。",
+  "targets": [],
+  "tasks": [],
+  "title": "ReSID: Rethinking Long-Tail Retrieval in Generative Recommendation through Item Reachability",
+  "url": "https://arxiv.org/abs/2611.16404v1"
+}

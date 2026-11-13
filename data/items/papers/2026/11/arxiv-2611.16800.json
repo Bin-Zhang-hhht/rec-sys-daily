@@ -1,0 +1,84 @@
+{
+  "abstract": "The transparency regime of recommender systems on Very Large Online Platforms (VLOPs) is undergoing significant change under the EU Digital Services Act (DSA). The DSA requires platforms to disclose information about their recommendation pipelines and grants vetted researchers access to non-public data, which may extend to recommender code. However, it is not known to what extent such code releases enable substantive and meaningful third-party auditing of a production recommender system. We address this question by proposing a code-level audit methodology for recommender systems and applying it to the X platform, which has voluntarily open-sourced its recommender pipeline. Our methodology is a backwards-walk traversal of the repository, tracing each decision-relevant component from the user-facing timeline back to its upstream producers, checking that it is reachable from the served pipeline, and classifying each under a four-tier inspectability scheme. Applying this procedure, we identify 13 transparency dead-ends on the live serving path: models, services, label lists, and configuration values that the public code depends on but the release does not contain. We find that the components that decide which posts are filtered and how they are ranked fall into the two least inspectable tiers, a pattern that intensifies with the 2025 integration of the proprietary Grok language model into moderation, annotation, and ranking. We further show that the release keeps 2023 code that the 2025 pipeline no longer reaches, with 36 parameter references that would pass for dead-ends without a reachability check. Finally, we discuss which additional artifacts would be required for meaningful auditing. The transparency regime of recommender systems on Very Large Online Platforms (VLOPs) is undergoing significant change under the EU Digital Services Act (DSA). The DSA requires platforms to disclose information about their recommendation pipelines and grants vetted researchers access to non-public data, which may extend to recommender code. However, it is not known to what extent such code releases enable substantive and meaningful third-party auditing of a production recommender system. We address this question by proposing a code-level audit methodology for recommender systems and applying it to the X platform, which has voluntarily open-sourced its recommender pipeline. Our methodology is a backwards-walk traversal of the repository, tracing each decision-relevant component from the user-facing timeline back to its upstream producers, checking that it is reachable from the served pipeline, and classifying each under a four-tier inspectability scheme. Applying this procedure, we identify 13 transparency dead-ends on the live serving path: models, services, label lists, and configuration values that the public code depends on but the release does not contain. We find that the components that decide which posts are filtered and how they are ranked fall into the two least inspectable tiers, a pattern that intensifies with the 2025 integration of the proprietary Grok language model into moderation, annotation, and ranking. We further show that the release keeps 2023 code that the 2025 pipeline no longer reaches, with 36 parameter references that would pass for dead-ends without a reachability check. Finally, we discuss which additional artifacts would be required for meaningful auditing.",
+  "arxiv_id": "2611.16800",
+  "authors": [
+    "Luka Bekavac",
+    "Simon Mayer"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对平台而言，单纯开源推荐管线代码不足以满足实质性透明度要求；监管与研究者审计还依赖模型、服务、标签列表和配置值等配套制品。",
+      "平台应提供从实际服务管线到各组件的可达性信息，避免陈旧代码与不可达引用干扰审计结论。",
+      "将专有语言模型集成到审核、标注和排序会显著降低外部可检查性，平台需设计相应的审计接口或披露机制。",
+      "监管者和受审核研究者应把“代码是否可到达、依赖是否完整、关键决策组件处于何种可检查层级”作为推荐系统透明度评估的核心指标。",
+      "对推荐系统从业者而言，代码级反向遍历与四级可检查性分类可作为内部治理和第三方审计准备工作的实用框架。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "提出一种面向推荐系统的代码级审计方法：从用户可见时间线反向遍历仓库，追踪每个决策相关组件至其上游生产者，并检查其是否可从实际服务管线到达。",
+      "提出四级可检查性分类方案，用于评估公开代码中各组件的可审计程度。",
+      "将方法应用于自愿开源推荐管线的 X 平台，识别出实际服务路径上的 13 个“透明性死胡同”：公开代码依赖但发布内容未包含的模型、服务、标签列表和配置值。",
+      "发现决定帖子过滤与排序方式的组件落入两个最难检查的层级，且该问题在 2025 年专有 Grok 语言模型被集成到审核、标注和排序后加剧。",
+      "指出该发布仍保留 2025 年管线不再可达的 2023 年代码，并显示若不进行可达性检查，将有 36 个参数引用被误判为死胡同。",
+      "讨论为实现有意义的审计还需要哪些额外制品。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "X 平台公开开源的推荐管线代码仓库（包含 2023 年与 2025 年代码）"
+      ],
+      "findings_zh": [
+        "在实际服务路径上识别出 13 个透明性死胡同，包括公开代码依赖但未发布的模型、服务、标签列表和配置值。",
+        "决定哪些帖子被过滤以及如何排序的组件属于两个最难检查的层级。",
+        "2025 年将专有 Grok 语言模型集成到审核、标注和排序中，使上述不可检查模式加剧。",
+        "发布内容保留了 2025 年管线已不再可达的 2023 年代码；若不进行可达性检查，36 个参数引用会被误认为死胡同。",
+        "有意义的审计需要公开代码之外的额外制品。"
+      ],
+      "metrics": [
+        "四级可检查性分类",
+        "透明性死胡同数量",
+        "从服务管线的可达性检查",
+        "参数引用数量"
+      ]
+    },
+    "limitations_zh": [
+      "审计仅应用于 X 平台的开源推荐管线，摘要未说明在其他平台或推荐系统上的验证。",
+      "公开代码依赖但未发布的模型、服务、标签列表和配置值构成透明性死胡同，限制第三方审计能力。",
+      "专有 Grok 模型被集成到审核、标注和排序后，相关组件的可检查性进一步降低。",
+      "要实现有意义的审计，仅有当前代码发布还不够，还需要额外的制品。",
+      "由于仅依据摘要，无法获得完整实验细节、具体分类标准和可复现性信息。"
+    ],
+    "method_zh": "采用对代码仓库的反向遍历审计方法：从用户面向的时间线出发，逐个追踪决策相关组件到其上游生产者；检查组件是否能从实际服务管线到达；并依据四级可检查性方案对每个组件进行分类。",
+    "problem_zh": "在欧盟《数字服务法》要求超大型在线平台提升推荐系统透明度的背景下，平台被要求披露推荐管线信息，并向受审核研究者开放可能包括推荐代码在内的非公开数据。但现有代码公开是否足以支持对生产级推荐系统进行实质性的第三方审计仍不清楚。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.66,
+  "id": "arxiv-2611.16800",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-13T18:29:52.288796Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-12T13:42:14Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出一种代码级审计方法，对X平台开源推荐流水线做反向可达性遍历，发现13处透明性断点，且决定内容过滤与排序的组件处于最不可审查的层级。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "A Code-Level Audit of X",
+  "url": "https://arxiv.org/abs/2611.16800v1"
+}
