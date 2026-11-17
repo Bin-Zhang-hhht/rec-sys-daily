@@ -1,0 +1,140 @@
+{
+  "authors": [
+    "Netflix Technology Blog"
+  ],
+  "deep_reading": {
+    "analysis_basis": "rss_full_content",
+    "architecture_zh": "TV 应用将请求发给 Page Server，Page Server 再异步交给智能层。智能层由 controller 和 executor 组成：controller 收集请求上下文（包括时段等实时信号），确定计划（既有计划或由 planner 草拟的新计划），验证计划，并只从 Memory Hub 获取该计划所需的会员信息；计划是由已批准 step 组成的图，每个 step 运行一个 capability，capability 声明输入输出、可访问上下文、所属族（检索、排序、生成、打包）以及失败时的行为。验证包括每步已批准、每个输入都有生产者、无循环、计划最终恰好产出一个页面。executor 按类型契约执行步骤，独立步骤并行运行，各自有 deadline 和 fallback，LLM step 通常只做单一任务；controller 在结果被服务前再做检查。controller 与 executor 都写入 request records，供离线评估。Memory Hub 存储 MemberLLM 生成的 taste summary 与会员反馈。涉及生成的请求采用异步路径：按键立即确认并进入 thinking 状态，后台执行计划，完成后通知 TV 拉取结果。",
+    "business_implications_zh": [
+      "对已有推荐系统的企业，可复用“计划—验证—执行”的 agent harness 模式，将 LLM 限制在受治理的 capability 图中。",
+      "异步生成模式适合电视、语音等低输入带宽且用户期待即时反馈的界面，可把慢生成与主服务路径解耦。",
+      "将既有搜索、排序、目录等系统封装为语义化 capability，可在不完全替换现有推荐栈的情况下引入生成式 AI。",
+      "显式会员调控与持久记忆可创造观看行为之外的新偏好信号，并影响后续推荐。",
+      "把安全、隐私和合规规则放在代码层执行，比依赖 prompt 更可控，适合规模化消费产品。",
+      "请求级结构化记录和 replay 能力可同时服务故障归因、离线评估和实验治理。",
+      "按任务路由模型与 capability，并用统一接口和切换前评估，可降低模型迭代带来的迁移成本。",
+      "该架构的代价是更高的系统复杂度、异步状态管理和 capability 设计成本，适合生成式体验确有价值的场景。"
+    ],
+    "business_transferability": 0.77,
+    "evidence_quality": 0.86,
+    "evidence_refs": [
+      {
+        "heading": "Why an intelligence layer?",
+        "section": null
+      },
+      {
+        "heading": "System Architecture",
+        "section": null
+      },
+      {
+        "heading": "1. Design the product and architecture around LLMs",
+        "section": "Key Decisions"
+      },
+      {
+        "heading": "2. Make existing systems composable",
+        "section": "Key Decisions"
+      },
+      {
+        "heading": "3. Plan first, then execute",
+        "section": "Key Decisions"
+      },
+      {
+        "heading": "4. Stay model and capability agnostic",
+        "section": "Key Decisions"
+      },
+      {
+        "heading": "5. Make page generation asynchronous",
+        "section": "Key Decisions"
+      },
+      {
+        "heading": "6. Enforce safety in code",
+        "section": "Key Decisions"
+      },
+      {
+        "heading": "7. Remember what members tell us",
+        "section": "Key Decisions"
+      },
+      {
+        "heading": "The member holds the remote",
+        "section": null
+      },
+      {
+        "heading": "What’s next",
+        "section": null
+      }
+    ],
+    "implementation_zh": "capability 封装 Netflix 既有搜索、大规模排序、目录元数据等系统，并提供语义接口供运行时组合；planner 只能使用这些块，因此即使动态生成的计划也仍受目录和会员品味约束。所有 LLM 位于统一接口之后，按任务分配模型或 capability 版本，并可在线上覆盖；切换前会用自动检查和 LLM judges 在相同任务上评分。大量行为放在服务端 prompt 与配置中，因此切换模型、工具和 capability 不需要新代码或 TV 应用发版。计划来自已测试计划或 LLM 即时草拟计划，由可控 router 决定使用哪一种；若 planner 慢或计划未通过检查，则回退到已测试计划。安全规则在代码中执行：生成文本上屏前清洗，planner 只看到精简后的请求，会员信息按已验证计划最小化；planner 使用占位符而不是直接写参数值，验证后由 controller 按声明类型填入请求中的值，这也用于防 prompt injection。系统通过 replay 过去请求来评估新 prompt、模型或规则，并结合自动检查、LLM judges 和人工评估。",
+    "lessons_zh": [
+      "不要把整个请求直接交给 LLM；应让 LLM 在受验证的计划和受控 capability 内工作。",
+      "推荐必须 grounded 在真实、可用的目录标题上，检索和 ranker 要与 LLM 协同。",
+      "应把 LLM 输出视为不可信输入，并在上屏前清洗生成文本。",
+      "硬性安全、成熟度、访问范围和会员选择应在代码中执行，而不是只写在 prompt 里。",
+      "先规划再执行，并在运行前验证计划，有助于控制 LLM 延迟、错误和不可预测路径。",
+      "异步服务适合多步生成：按键立即反馈，后台执行，完成后通知客户端。",
+      "capability 的粒度设计是关键：既要给 planner 足够组合空间，又要避免组合爆炸和出错路径。",
+      "通过统一 LLM 接口、按任务分配模型和切换前评估，可以让系统不绑定单一模型、工具或 prompt。",
+      "显式会员反馈和偏好记忆可作为观看行为之外的新信号，用于后续请求的个性化。"
+    ],
+    "limitations_zh": [
+      "当前版本只支持选择主题和使用“don’t recommend”等 tuning 选项，没有自由文本输入或开放式聊天。",
+      "AI Discover 目前只面向小范围会员测试。",
+      "文章没有给出延迟、成本、成功率、质量提升或会员行为变化的量化结果。",
+      "MemberLLM 的更多细节被留到后续文章，本文只说明其用于预生成 taste summary。",
+      "长期目标中的自我改进系统尚未实现；当前仍是通过 replay、自动检查、LLM judges 和人工评估来评估变更。",
+      "多轮会话的评估与可观测性仍是需要回答的问题。",
+      "文章提出会员愿意多大程度塑造推荐、成本与延迟在生产流量下如何表现等问题，尚未给出结论。"
+    ],
+    "production_constraints_zh": [
+      "TV 端输入困难，会员主要使用遥控器，因此交互围绕主题选择而非打字。",
+      "TV 应用更新慢，模型、工具和 capability 的变更必须能通过服务端配置完成，而不能依赖应用发版。",
+      "TV 硬件差异大，应用需要对每次按键立即反馈；典型 TV 请求很快返回，而多步生成可能需要数秒。",
+      "LLM 调用是系统中最慢、最贵的部分，尾延迟可能尖峰，输出也可能不符合要求，因此只能选择性使用并视为不可信输入。",
+      "规模化后即使罕见失败也会每天发生多次，会员会看到慢调用、不可用标题或不合品牌文案。",
+      "每个请求都必须最终给会员一个页面，即使 LLM 调用失败或结果质量差。",
+      "内容与成熟度标准、会员已表达的“不推荐”选择，以及每一步可访问的数据范围，都必须在每次请求中成立。",
+      "生成式请求若保持同步会占用过多线程，因此需要异步服务路径。",
+      "多轮会话需要不同于单请求的评估与可观测性。"
+    ],
+    "results_zh": [
+      "Netflix 已推出 AI Discover，作为 TV 应用中的新标签页，先向小范围会员开放。",
+      "会员可以选择主题，获得匹配标题行、简短匹配理由以及可继续尝试的更窄主题，并可继续收窄、转向新方向或调整所见内容。",
+      "会员可以使用“don’t recommend”等 tuning 选项，这些选择立即生效并跨访问保留。",
+      "生成型请求按下后立即得到确认，TV 进入解释正在准备内容的 thinking 状态，结果准备好后再拉取。",
+      "生成文本在发布前经过安全评估，覆盖主题标签、行标题和解释文案。",
+      "每个请求留下结构化记录，包含计划、各步骤及结果、适用的规则，可用于判断页面失败来自计划、数据、规则还是模型。",
+      "该智能层支持自适应规划、按任务切换模型或 capability，以及通过 Memory Hub 记住会员偏好和反馈。"
+    ],
+    "system_context_zh": "Netflix 在 TV 应用中推出 AI Discover，面向小范围会员测试可操控的发现体验。它从过去后台隐式排序转向会员选择主题、查看匹配片单及推荐理由，并可继续收窄或调整推荐。为在电视端以生成式 AI 提供更快、可靠且安全的体验，Netflix 构建了一个连接 LLM 与既有推荐系统的智能层，其核心是 agent harness。",
+    "technical_depth": 0.84,
+    "tradeoffs_zh": [
+      "最简单做法是把整个请求交给 LLM，让它选标题、写标签并决定下一步，但这会把需要受治理结果的地方交给概率性输出；Netflix 选择用智能层和代码约束 LLM。",
+      "把 LLM 仅作为 ranker 插入可保留既有延迟预算并做预计算，但无法充分利用 LLM 理解请求和规划的能力；AI Discover 选择围绕 LLM 重新设计产品与架构。",
+      "capability 划分过细会给 planner 更多出错方式，过粗则会失去组合更丰富计划的空间。",
+      "plan-and-execute 比“推理—调用工具—再推理”的循环更可预测、可在运行前验证，但牺牲了一部分开放式循环的灵活性。",
+      "模型与 capability 无关化带来统一接口和切换前评估的成本，但换模型、ranker 或检索系统时可以变成计划或设置变更，而非迁移。",
+      "异步生成增加了通知与状态管理复杂度，但避免慢生成拖慢其他请求，并让每次按键仍有即时反馈。",
+      "把安全规则放进 prompt 会使其变成概率性约束；在代码中执行更可靠，但需要额外的验证、清洗和最小化数据设计。",
+      "当前版本不支持自由文本输入或开放式聊天，这会限制 LLM 的任务范围，但换来了更窄、更可控的交互面。"
+    ]
+  },
+  "final_score": 0.8664999999999999,
+  "id": "url-e9660b224dd9b7af27d599da",
+  "kind": "blog",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-17T18:39:28.752627Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-17T17:01:02Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "netflix_techblog",
+  "summary_zh": "该 Netflix 工程博客介绍 AI Discover 的智能体编排层，将 LLM 与既有推荐系统结合，实现可控的电视内容发现。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Engineering AI Discover",
+  "url": "https://netflixtechblog.com/engineering-ai-discover-e244944cdc38?source=rss----2615bd06b42e---4"
+}

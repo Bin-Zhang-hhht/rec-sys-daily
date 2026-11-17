@@ -1,0 +1,81 @@
+{
+  "abstract": "This paper investigates human-in-the-loop recommendation systems, where effectiveness relies on human compliance and privacy concerns restrict the use of historical response data. The pro posed framework models the implemented action as a random response to the recommendation and formulates the recommendation mechanism as a decision-dependent optimisation problem under an unknown compliance distribution. A batched Gaussian process upper confidence bound algorithm is then adapted to learn from locally perturbed historical actions, providing privacy for individual raw records. The analysis establishes record-level differential privacy and derives high-probability simple regret bounds when the compliance distribution is unknown. These bounds characterise how privacy noise, batch size, and behavioural information affect the guaranteed quality of the learned recommendation. In particular, a known upper bound on the non-compliance rate enables the rec ommendation space to be screened before any private data are queried. Simulations of a fixed-state car-following problem with synthetic historical driver responses demonstrate the effectiveness of the proposed algorithm and verify the theoretical findings. This paper investigates human-in-the-loop recommendation systems, where effectiveness relies on human compliance and privacy concerns restrict the use of historical response data. The pro posed framework models the implemented action as a random response to the recommendation and formulates the recommendation mechanism as a decision-dependent optimisation problem under an unknown compliance distribution. A batched Gaussian process upper confidence bound algorithm is then adapted to learn from locally perturbed historical actions, providing privacy for individual raw records. The analysis establishes record-level differential privacy and derives high-probability simple regret bounds when the compliance distribution is unknown. These bounds characterise how privacy noise, batch size, and behavioural information affect the guaranteed quality of the learned recommendation. In particular, a known upper bound on the non-compliance rate enables the rec ommendation space to be screened before any private data are queried. Simulations of a fixed-state car-following problem with synthetic historical driver responses demonstrate the effectiveness of the proposed algorithm and verify the theoretical findings.",
+  "arxiv_id": "2611.17490",
+  "authors": [
+    "Yuwen Ma",
+    "Nicola Bastianello",
+    "Sarah Spurgeon",
+    "Boli Chen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可用于对隐私敏感的人在回路推荐场景，例如向驾驶员提供建议时，在不直接使用原始历史记录的情况下学习推荐策略。",
+      "记录级差分隐私和局部扰动历史动作的设计，有助于降低个体响应数据泄露风险，支持合规的数据使用。",
+      "若业务能获得不遵从率上界，可在查询私有数据前缩小推荐候选空间，降低数据查询和试验成本。",
+      "批量学习方式适合分批次获取用户响应的业务环境，可在隐私噪声、批次大小与推荐质量之间做权衡。",
+      "该方法强调人类遵从行为对推荐效果的影响，业务评估应把遵从率及行为信息纳入推荐系统指标，而非只看离线点击或预测准确率。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "将实施动作建模为对推荐结果的随机响应，并把推荐机制表述为未知遵从分布下的决策依赖优化问题。",
+      "提出适配的批量高斯过程上置信界算法，从局部扰动后的历史动作中学习，为个体原始记录提供隐私保护。",
+      "建立记录级差分隐私，并在遵从分布未知时推导高概率简单遗憾界。",
+      "分析隐私噪声、批量大小和行为信息如何影响所学推荐的可保证质量。",
+      "指出已知的不遵从率上界可在查询任何私有数据前用于筛选推荐空间。",
+      "通过固定状态跟驰问题与合成历史驾驶员响应的仿真验证算法有效性和理论发现。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "合成历史驾驶员响应"
+      ],
+      "findings_zh": [
+        "固定状态跟驰问题与合成历史驾驶员响应的仿真表明所提算法有效。",
+        "仿真验证了理论发现。",
+        "已知的不遵从率上界可在查询任何私有数据前用于筛选推荐空间。"
+      ],
+      "metrics": [
+        "简单遗憾（理论界）",
+        "记录级差分隐私"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要分析，无法核实全文中的实验细节、基线设置和完整理论假设。",
+      "实验使用固定状态跟驰问题与合成历史驾驶员响应，摘要未说明真实数据或在线部署验证。",
+      "摘要未列出对比基线，算法相对其他隐私保护推荐方法的优势无法从所给材料判断。",
+      "分析依赖遵从分布未知但存在已知不遵从率上界等设定，实际业务中该上界未必可得或准确。"
+    ],
+    "method_zh": "将实施动作视为对推荐的随机响应，在未知遵从分布下构建决策依赖优化问题；采用批量高斯过程上置信界算法，从局部扰动的历史动作中学习，并进行记录级差分隐私分析与简单遗憾界推导；利用不遵从率上界在查询私有数据前筛选推荐空间。",
+    "problem_zh": "研究人在回路推荐系统中，推荐效果依赖人对推荐结果的遵从程度，而隐私顾虑限制历史响应数据的使用；在遵从分布未知的条件下，如何学习推荐机制并保证隐私与推荐质量。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.755,
+  "id": "arxiv-2611.17490",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-17T18:39:28.752627Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-12T20:24:52Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文研究人类合规性不完美且需记录级差分隐私保护下的推荐学习，采用批量高斯过程置信上界方法并给出简单遗憾界。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Learning Recommendations under Imperfect Human Compliance with Record-Level Differential Privacy",
+  "url": "https://arxiv.org/abs/2611.17490v1"
+}

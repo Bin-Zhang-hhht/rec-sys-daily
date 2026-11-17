@@ -1,0 +1,92 @@
+{
+  "abstract": "Traditional cascaded recommender systems balance accuracy and efficiency over large item spaces, but misaligned stage-wise objectives hinder end-to-end optimization. Generative recommendation unifies these stages in an autoregressive framework, providing a natural interface for reinforcement learning (RL) to optimize the entire generation process. However, directly applying RL often leads to unstable optimization and degraded recommendation quality. We revisit Group Relative Policy Optimization (GRPO) and other ratio-based objectives through a unified logit-gradient view. We identify three issues: (i) clipped surrogates create dead-gradient regions, under-utilizing samples; (ii) negative-advantage updates can become effectively unbounded as importance ratios grow, allowing a small subset of negatives to dominate optimization; and (iii) ratio-based control lacks sensitivity to absolute policy confidence, so updates on high-confidence cases may fail to vanish. Motivated by this diagnosis, we propose \\emph{Gradient-Bounded Policy Optimization} (GBPO), a simple objective with stop-gradient normalization that is simultaneously (a) fully gradient-active, (b) sign-symmetrically bounded for both positive and negative updates, and (c) explicitly confidence-weighted under current policy probabilities. This ensures that updates gracefully vanish for $π\\!\\to\\!1$ positives and $π\\!\\to\\!0$ negatives. Across the evaluated settings, GBPO achieves competitive recommendation performance with more stable training than competing RL methods. Traditional cascaded recommender systems balance accuracy and efficiency over large item spaces, but misaligned stage-wise objectives hinder end-to-end optimization. Generative recommendation unifies these stages in an autoregressive framework, providing a natural interface for reinforcement learning (RL) to optimize the entire generation process. However, directly applying RL often leads to unstable optimization and degraded recommendation quality. We revisit Group Relative Policy Optimization (GRPO) and other ratio-based objectives through a unified logit-gradient view. We identify three issues: (i) clipped surrogates create dead-gradient regions, under-utilizing samples; (ii) negative-advantage updates can become effectively unbounded as importance ratios grow, allowing a small subset of negatives to dominate optimization; and (iii) ratio-based control lacks sensitivity to absolute policy confidence, so updates on high-confidence cases may fail to vanish. Motivated by this diagnosis, we propose \\emph{Gradient-Bounded Policy Optimization} (GBPO), a simple objective with stop-gradient normalization that is simultaneously (a) fully gradient-active, (b) sign-symmetrically bounded for both positive and negative updates, and (c) explicitly confidence-weighted under current policy probabilities. This ensures that updates gracefully vanish for $π\\!\\to\\!1$ positives and $π\\!\\to\\!0$ negatives. Across the evaluated settings, GBPO achieves competitive recommendation performance with more stable training than competing RL methods.",
+  "arxiv_id": "2611.19742",
+  "authors": [
+    "Pengfei Zheng",
+    "Wuchao Li",
+    "Shiyao Wang",
+    "Honghui Bao",
+    "Hongyi Xie",
+    "Jiaxin Deng",
+    "Xingmei Wang",
+    "Jinghao Zhang",
+    "Yufei Ye",
+    "Ruiming Tang",
+    "Guorui Zhou",
+    "Han Li",
+    "Kun Gai",
+    "Defu Lian"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "GBPO 针对生成式推荐中 RL 训练不稳定的问题，可能降低训练调参和监控成本。",
+      "对负优势更新进行有界控制，可能减少少数负样本主导优化的风险，有利于训练过程可控性。",
+      "置信度加权使高置信度样本的更新衰减，可能帮助避免过度优化已学好的推荐模式。",
+      "由于摘要缺少数据集、指标和线上实验，业务落地前仍需在自有推荐场景中验证性能、稳定性和成本。",
+      "该方法面向生成式推荐的端到端 RL 优化，适合作为现有级联推荐向生成式推荐迁移时的训练稳定性候选方案。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "从统一的 logit-gradient 视角重新审视 GRPO 及其他基于比率的目标。",
+      "识别出三类问题：裁剪代理目标产生死梯度区域；负优势更新在重要性比率增大时可能无界；基于比率的控制对绝对策略置信度不敏感。",
+      "提出 Gradient-Bounded Policy Optimization（GBPO），一种带 stop-gradient normalization 的简单目标。",
+      "GBPO 同时具备三点性质：梯度完全活跃、正负更新符号对称有界、按当前策略概率显式置信度加权，使 π→1 的正样本和 π→0 的负样本更新平滑消失。",
+      "在评估设置中，GBPO 取得有竞争力的推荐性能，且训练比竞争性 RL 方法更稳定。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "GRPO",
+        "其他竞争性 RL 方法（摘要未具体命名）"
+      ],
+      "datasets": [],
+      "findings_zh": [
+        "在评估设置中，GBPO 取得有竞争力的推荐性能。",
+        "相比竞争性 RL 方法，GBPO 的训练更稳定。",
+        "摘要未报告具体数据集、评价指标或数值结果，因此无法核验性能提升幅度与统计显著性。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "当前分析仅基于摘要，未包含完整实验设置、数据集、基线细节、指标和数值结果。",
+      "摘要只称“在评估设置中”表现有竞争力，未给出具体提升幅度、方差或显著性检验。",
+      "未讨论计算开销、超参数敏感性、模型规模影响及线上部署约束。",
+      "作者未在摘要中明确列出方法局限性或失败场景。",
+      "无法从摘要判断 GBPO 在不同物品空间规模、不同生成式推荐架构或不同 RL 训练阶段中的泛化性。"
+    ],
+    "method_zh": "提出 GBPO：通过 stop-gradient normalization 构造梯度有界的策略优化目标，替代或改进 GRPO 等基于比率的目标。其设计目标是避免裁剪造成的死梯度，使正负优势更新在符号上对称有界，并按当前策略概率对更新进行置信度加权，从而在正样本概率趋近 1、负样本概率趋近 0 时让更新平滑衰减。",
+    "problem_zh": "传统级联推荐系统虽能在大物品空间上平衡准确率与效率，但各阶段目标不一致，阻碍端到端优化。生成式推荐用自回归框架统一这些阶段，为强化学习优化整个生成过程提供接口；但直接应用 RL 会导致优化不稳定和推荐质量下降。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.7205000000000001,
+  "id": "arxiv-2611.19742",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-17T18:39:28.752627Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "reinforcement_learning",
+    "large_language_model"
+  ],
+  "published_at": "2026-11-15T03:01:14Z",
+  "relevance_score": 0.96,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文从 logit 梯度视角分析生成式推荐中的强化学习目标，提出 GBPO 以稳定训练并保持有竞争力的推荐性能。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Exploration of Reinforcement Learning in Generative Recommendation Models",
+  "url": "https://arxiv.org/abs/2611.19742v1"
+}

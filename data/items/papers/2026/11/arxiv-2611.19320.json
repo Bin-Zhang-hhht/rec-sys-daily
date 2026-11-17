@@ -1,0 +1,79 @@
+{
+  "abstract": "Sequential recommendation has recently witnessed growing interest in generative retrieval. One of the most popular approaches is to autoregressively generate the semantic identifiers (SIDs) of items as recommendations. Existing efforts mainly rely on semantic alignment, sophisticated architectural designs, and extensive hyperparameter tuning. However, the conventional learning framework for generative models could have foundational limitations. Specifically, most generative models directly predict target items without explicitly learning negative compositions and relative ranking signals. This is not well aligned with the philosophy of Bayesian personalized ranking (BPR), which emphasizes the importance of relative rankings between positive and negative samples. In this paper, we show that adding a simple multiple-choice auxiliary task into the learning objective can effectively address this issue. With minimal adaptation, we introduce Task Identifiers and Candidate Constructions to synthesize training data for the multiple-choice auxiliary task. In addition, we provide theoretical analysis of the fundamental benefits of the multiple-choice auxiliary task from the perspectives of information theory and compositional generalization. Extensive experiments on four publicly available benchmark datasets show that our approach can improve TIGER, a conventional generative recommendation model, by 4.9% to 79% in NDCG@10. Sequential recommendation has recently witnessed growing interest in generative retrieval. One of the most popular approaches is to autoregressively generate the semantic identifiers (SIDs) of items as recommendations. Existing efforts mainly rely on semantic alignment, sophisticated architectural designs, and extensive hyperparameter tuning. However, the conventional learning framework for generative models could have foundational limitations. Specifically, most generative models directly predict target items without explicitly learning negative compositions and relative ranking signals. This is not well aligned with the philosophy of Bayesian personalized ranking (BPR), which emphasizes the importance of relative rankings between positive and negative samples. In this paper, we show that adding a simple multiple-choice auxiliary task into the learning objective can effectively address this issue. With minimal adaptation, we introduce Task Identifiers and Candidate Constructions to synthesize training data for the multiple-choice auxiliary task. In addition, we provide theoretical analysis of the fundamental benefits of the multiple-choice auxiliary task from the perspectives of information theory and compositional generalization. Extensive experiments on four publicly available benchmark datasets show that our approach can improve TIGER, a conventional generative recommendation model, by 4.9% to 79% in NDCG@10.",
+  "arxiv_id": "2611.19320",
+  "authors": [
+    "Wei-Hsiang Huang",
+    "Jyun-Yu Jiang",
+    "Pu-Jen Cheng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "相对排序和负样本组合信号对推荐排序很关键，多选辅助任务可作为现有生成式推荐训练目标的轻量增强方案。",
+      "若该方法能以较小改动提升 NDCG@10，则可能适合作为排序优化试点，但摘要中的 4.9% 至 79% 提升需在自有数据上复现验证。",
+      "业务落地前应补充评估训练/推理成本、数据构造复杂度和线上 A/B 效果，不能仅凭摘要中的离线提升直接推广。",
+      "该方法面向序列推荐场景，可探索用于电商、内容等有用户行为序列的业务，但摘要未提供行业落地证据。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "指出传统生成式推荐学习框架可能缺乏显式的负样本组合和相对排序信号，并认为这与 BPR 的核心思想不一致。",
+      "提出在学习目标中加入简单的多选辅助任务（multiple-choice auxiliary task），以缓解上述问题。",
+      "通过 Task Identifiers 和 Candidate Constructions 以较小改动合成多选辅助任务的训练数据。",
+      "从信息论和组合泛化角度提供多选辅助任务基础收益的理论分析。",
+      "在四个公开基准数据集上验证方法可提升传统生成式推荐模型 TIGER 的 NDCG@10，提升幅度为 4.9% 至 79%。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "TIGER（传统生成式推荐模型）"
+      ],
+      "datasets": [
+        "四个公开基准数据集（摘要未给出具体名称）"
+      ],
+      "findings_zh": [
+        "在四个公开基准数据集上，所提方法将 TIGER 的 NDCG@10 提升 4.9% 至 79%。",
+        "摘要称大量实验表明该方法能够改进传统生成式推荐模型。"
+      ],
+      "metrics": [
+        "NDCG@10"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法获得方法的具体实现细节、Task Identifiers 与 Candidate Constructions 的完整设计。",
+      "摘要未列出四个公开基准数据集的具体名称，也未给出基线、消融实验和统计显著性细节。",
+      "摘要未报告训练与推理开销、超参数敏感性或线上部署成本。",
+      "摘要未明确说明方法本身的适用边界或失败场景；理论分析的具体证明也未在摘要中展开。"
+    ],
+    "method_zh": "在生成式推荐模型的学习目标中加入多选辅助任务；通过 Task Identifiers 和 Candidate Constructions 合成该辅助任务的训练数据，并以较小适配成本增强模型对负样本组合和相对排序信号的学习。摘要还称从信息论与组合泛化角度对该辅助任务进行了理论分析。",
+    "problem_zh": "生成式序列推荐通常自回归生成物品的语义标识符（SID）作为推荐结果，但现有生成模型的学习框架直接预测目标物品，没有显式学习负样本组合与相对排序信号，这与强调正负样本相对排序的 Bayesian personalized ranking（BPR）思想不一致。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.6875000000000001,
+  "id": "arxiv-2611.19320",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-17T18:39:28.752627Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling",
+    "large_language_model"
+  ],
+  "published_at": "2026-11-14T10:32:37Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文在生成式推荐中加入多项选择辅助任务，让模型学习负样本构成与相对排序信号，从而提升 TIGER 等模型的 NDCG。",
+  "targets": [],
+  "tasks": [],
+  "title": "Keep it Simple! A Multiple-Choice Task can Benefit Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.19320v1"
+}

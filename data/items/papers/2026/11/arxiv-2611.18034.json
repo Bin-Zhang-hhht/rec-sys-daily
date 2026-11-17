@@ -1,0 +1,84 @@
+{
+  "abstract": "Debate has intensified over how algorithmic recommendations shape news visibility, particularly regarding structural and ideological bias. This study examines YouTube's News Recommender System (NRS) in the French ``News'' section, using a large-scale audit based on automated browsing agents operating under cold-start conditions, without prior viewing history, to isolate the algorithm's structural baseline independently of user preferences. Our results reveal that YouTube's NRS operates within a structurally asymmetric visibility regime: even in the absence of prior user behaviour, recommendation outputs disproportionately privilege platform-native creators and politically engaged content over established journalism. Television channels retain some relative advantage, but institutional news outlets, particularly press and radio, are systematically marginalised across recommendation sequences. Among political content, figures affiliated with far-left and far-right movements occupy a disproportionately visible position in recommendation outputs. Rather than correcting this asymmetry, continuity effects reproduce and stabilise it across recommendation sequences. These results show that visibility in YouTube's News section cannot be reduced to accumulated user preferences alone, but is also shaped by a structural bias embedded in the platform's recommendation system, which plays an important role in sustaining the prominence of political actors affiliated with the far left and far right. Debate has intensified over how algorithmic recommendations shape news visibility, particularly regarding structural and ideological bias. This study examines YouTube's News Recommender System (NRS) in the French ``News'' section, using a large-scale audit based on automated browsing agents operating under cold-start conditions, without prior viewing history, to isolate the algorithm's structural baseline independently of user preferences. Our results reveal that YouTube's NRS operates within a structurally asymmetric visibility regime: even in the absence of prior user behaviour, recommendation outputs disproportionately privilege platform-native creators and politically engaged content over established journalism. Television channels retain some relative advantage, but institutional news outlets, particularly press and radio, are systematically marginalised across recommendation sequences. Among political content, figures affiliated with far-left and far-right movements occupy a disproportionately visible position in recommendation outputs. Rather than correcting this asymmetry, continuity effects reproduce and stabilise it across recommendation sequences. These results show that visibility in YouTube's News section cannot be reduced to accumulated user preferences alone, but is also shaped by a structural bias embedded in the platform's recommendation system, which plays an important role in sustaining the prominence of political actors affiliated with the far left and far right.",
+  "arxiv_id": "2611.18034",
+  "authors": [
+    "Julien Figeac",
+    "Erwan Le Merrer",
+    "Marie Neihouser",
+    "Gilles Tr{é}dan"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "平台治理应把冷启动推荐输出作为独立审计对象，因为即使没有用户历史行为，推荐系统也可能产生结构性可见性偏差。",
+      "新闻机构应评估自身在平台新闻推荐中的结构性劣势，尤其是报刊和广播媒体相对于平台原生创作者与电视渠道的可见性差距。",
+      "推荐系统设计与监管需要关注连续性效应，因为该效应可能放大并稳定特定政治人物或内容的可见性优势。",
+      "对新闻推荐产品的评估不应只依赖用户偏好或互动指标，还应纳入结构性基线审计，以识别平台原生内容和政治参与型内容的系统性优势。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "在冷启动、无先前观看历史的条件下，使用自动化浏览代理对法国 YouTube“新闻”板块进行大规模审计，以隔离推荐系统的结构性基线。",
+      "发现推荐输出存在结构性不对称的可见性机制：平台原生创作者和政治参与型内容获得不成比例的可见性，而传统新闻机构被系统性边缘化。",
+      "发现电视渠道仍保留一定相对优势，但报刊和广播等机构新闻媒体在推荐序列中被系统性边缘化。",
+      "发现极左和极右政治人物在推荐输出中占据不成比例的可见位置。",
+      "提出连续性效应会复制并稳定这种不对称，而非纠正它；因此新闻可见性不能仅归因于用户偏好累积，也受到平台推荐系统内嵌结构性偏见的影响。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "冷启动、无先前观看历史作为隔离用户偏好的结构性基线"
+      ],
+      "datasets": [
+        "法国 YouTube“新闻”板块的推荐输出",
+        "冷启动、无先前观看历史条件下由自动化浏览代理产生的审计数据"
+      ],
+      "findings_zh": [
+        "即使在无用户历史行为时，推荐输出仍不成比例地偏向平台原生创作者和政治参与型内容，而非传统新闻机构。",
+        "电视渠道保留一定相对优势，但报刊和广播等机构新闻媒体在推荐序列中被系统性边缘化。",
+        "极左和极右政治人物在推荐输出中占据不成比例的可见位置。",
+        "连续性效应会复制并稳定这种不对称可见性，而不是纠正它。",
+        "法国 YouTube“新闻”板块的可见性不能仅由用户偏好累积解释，也受到推荐系统内嵌结构性偏见的影响。"
+      ],
+      "metrics": [
+        "不同创作者类型在推荐输出中的可见性",
+        "机构新闻媒体在推荐序列中的边缘化程度",
+        "政治人物所属政治倾向的可见位置占比",
+        "推荐序列中的连续性效应"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供样本规模、审计时间窗口、具体指标定义或统计检验细节，因此无法评估结论的稳健性。",
+      "研究仅覆盖法国 YouTube“新闻”板块的冷启动场景，摘要未说明对其他地区、其他板块或存在用户历史行为场景的外推能力。"
+    ],
+    "method_zh": "采用基于自动化浏览代理的大规模审计方法，在冷启动条件下运行，不使用先前观看历史，以隔离算法结构性基线并独立于用户偏好；审计对象为法国 YouTube“新闻”板块的推荐输出与推荐序列。",
+    "problem_zh": "研究关注算法推荐如何塑造新闻可见性，尤其是结构性偏见与意识形态偏见问题。论文要回答：在排除用户历史偏好影响的情况下，YouTube 法国“新闻”板块的推荐系统是否存在独立于用户行为的结构性可见性偏差。",
+    "technical_depth": 0.25
+  },
+  "doi": null,
+  "final_score": 0.6285000000000001,
+  "id": "arxiv-2611.18034",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-17T18:39:28.752627Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-13T11:05:04Z",
+  "relevance_score": 0.82,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该研究通过冷启动自动化浏览审计 YouTube 法国新闻推荐系统，发现其结构性偏向平台原生创作者和政治极端内容。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "From institutional journalism to political extremes: Structural asymmetries in YouTube's news recommender during the 2022 French presidential campaign",
+  "url": "https://arxiv.org/abs/2611.18034v1"
+}

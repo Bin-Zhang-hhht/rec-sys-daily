@@ -1,0 +1,91 @@
+{
+  "abstract": "Reasoning-enhanced generative recommendation (GR) has attracted increasing attention for leveraging the reasoning capabilities of large language models (LLMs) to improve next-item prediction. However, existing methods primarily optimize reasoning through Group Relative Policy Optimization (GRPO) with rule-based rewards determined by final recommendation performance, which faces two key limitations: (i) unmeasured predictive contributions within reasoning, where the predictive contributions of individual reasoning steps are not directly reflected in optimization signals, and (ii) weakly discriminative learning signals within groups, where different reasoning trajectories within the group often receive indistinguishable rewards, limiting effective policy optimization. In this paper, we propose GainReason, a simple yet effective training framework that optimizes reasoning through Predictive Gain (PG). Specifically, PG measures changes in target Semantic ID (SID) log-likelihood induced by individual reasoning sentences, providing contribution-aware and discriminative rewards. We further theoretically establish the alignment between expected PG and the recommendation ranking objective. Building on this signal, we develop PG-based Reasoning Optimization (PGRO) to optimize reasoning generation with sentence-level rewards, supported by a custom causal attention mechanism for efficient PG computation. Additionally, an auxiliary PG-based Reasoning Utilization (PGRU) task adaptively strengthens reasoning-conditioned prediction to complement PGRO. Extensive experiments on three public benchmarks demonstrate that GainReason consistently outperforms competitive baselines and achieves substantial performance gains from reasoning. Reasoning-enhanced generative recommendation (GR) has attracted increasing attention for leveraging the reasoning capabilities of large language models (LLMs) to improve next-item prediction. However, existing methods primarily optimize reasoning through Group Relative Policy Optimization (GRPO) with rule-based rewards determined by final recommendation performance, which faces two key limitations: (i) unmeasured predictive contributions within reasoning, where the predictive contributions of individual reasoning steps are not directly reflected in optimization signals, and (ii) weakly discriminative learning signals within groups, where different reasoning trajectories within the group often receive indistinguishable rewards, limiting effective policy optimization. In this paper, we propose GainReason, a simple yet effective training framework that optimizes reasoning through Predictive Gain (PG). Specifically, PG measures changes in target Semantic ID (SID) log-likelihood induced by individual reasoning sentences, providing contribution-aware and discriminative rewards. We further theoretically establish the alignment between expected PG and the recommendation ranking objective. Building on this signal, we develop PG-based Reasoning Optimization (PGRO) to optimize reasoning generation with sentence-level rewards, supported by a custom causal attention mechanism for efficient PG computation. Additionally, an auxiliary PG-based Reasoning Utilization (PGRU) task adaptively strengthens reasoning-conditioned prediction to complement PGRO. Extensive experiments on three public benchmarks demonstrate that GainReason consistently outperforms competitive baselines and achieves substantial performance gains from reasoning.",
+  "arxiv_id": "2611.21441",
+  "authors": [
+    "Zhuoyang Li",
+    "Teng Shi",
+    "Jiakai Tang",
+    "Weijie Yu",
+    "Guofu Xie",
+    "Xiao Zhang",
+    "Lei Kou",
+    "Yang Yu",
+    "Lei Shen",
+    "Xin Chen",
+    "Bing Wang",
+    "Xiaoyi Zeng",
+    "Jun Xu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "句子级预测增益奖励可让推荐系统更精细地优化推理链，有望把推理质量与下一项预测效果更直接地关联起来。",
+      "自定义因果注意力用于高效PG计算，为降低推理奖励计算的工程成本提供了潜在路径，但需在真实流量和延迟约束下验证。",
+      "PGRO与PGRU组合可同时优化推理生成和推理条件预测，适合需要兼顾推荐效果与可解释推理过程的业务场景。",
+      "上线前需验证公开基准到业务数据的迁移性、奖励信号稳定性、推理时延以及错误推理对推荐结果的负面影响。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出GainReason训练框架，用Predictive Gain（PG）衡量单句推理对目标Semantic ID（SID）对数似然的变化，从而构造贡献感知且更具判别性的奖励。",
+      "从理论上建立期望PG与推荐排序目标之间的对齐关系。",
+      "提出基于PG的推理优化PGRO，以句子级奖励优化推理生成，并设计自定义因果注意力机制以高效计算PG。",
+      "引入辅助的基于PG的推理利用任务PGRU，自适应增强推理条件预测，与PGRO互补。",
+      "在三个公开基准上实验，声称持续优于竞争基线，并从推理中获得显著性能提升。"
+    ],
+    "evidence_quality": 0.5,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "竞争性基线（摘要未具名）",
+        "现有基于GRPO的推理增强生成推荐方法"
+      ],
+      "datasets": [
+        "三个公开基准数据集（摘要未给出名称）"
+      ],
+      "findings_zh": [
+        "GainReason在三个公开基准上持续优于竞争基线。",
+        "作者报告从推理中获得显著性能提升。"
+      ],
+      "metrics": [
+        "下一项推荐/预测性能（摘要未列具体指标）"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法核实具体数据集、基线、评价指标、统计显著性和实现细节。",
+      "摘要未报告PG计算的实际开销、超参数敏感性及在线部署延迟。",
+      "摘要未讨论方法在噪声推理、错误句子或长尾/冷启动场景下的稳健性。",
+      "摘要未说明三个公开基准的领域覆盖范围及向真实业务场景迁移的效果。"
+    ],
+    "method_zh": "GainReason以Predictive Gain为核心奖励信号：对推理中的每个句子，计算其引起的目标SID对数似然变化，作为句子级贡献感知奖励；理论上说明期望PG与推荐排序目标对齐；再用PGRO按句子级奖励优化推理生成，并用自定义因果注意力支持高效PG计算；同时加入PGRU辅助任务，自适应强化推理条件预测。",
+    "problem_zh": "现有推理增强生成推荐方法主要用GRPO和基于最终推荐性能的规则奖励来优化推理，但存在两个问题：推理过程中各步骤的预测贡献未被直接反映到优化信号中；同一组内不同推理轨迹常获得难以区分的奖励，导致学习信号判别性弱。",
+    "technical_depth": 0.72
+  },
+  "doi": null,
+  "final_score": 0.7844999999999999,
+  "id": "arxiv-2611.21441",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-17T18:39:28.752627Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-16T17:28:45Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出 GainReason，用预测增益作为句子级奖励来优化 LLM 的推荐推理，并辅以推理利用任务提升下一物品预测。",
+  "targets": [],
+  "tasks": [
+    "ranking"
+  ],
+  "title": "Learning to Reason with Predictive Gains for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.21441v1"
+}
