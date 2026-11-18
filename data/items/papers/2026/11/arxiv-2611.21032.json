@@ -1,0 +1,73 @@
+{
+  "abstract": "Music listening is intrinsically tied to emotion, which drifts continuously within a single session. Although modern browsers interface with wearable brain-computer interfaces, recommendation systems remain structured around discrete logs and lack the infrastructure to integrate continuous physiological signals. Furthermore, existing affect-aware models rely on static user profiles and offline training, failing to serve anonymous newcomers without model retraining. We present a web platform that resolves both challenges. Pairing with a consumer electroencephalogram (EEG) headband over Web Bluetooth, the system captures live EEG, mapping frontal alpha asymmetry and arousal index to normalized valence-arousal proxy coordinates on Russell's circumplex plane. Driven by these coordinates, an affective adapter unifies structurally diverse recommendation backbones under a shared live scoring mechanism. By parameterizing anonymous visitors through a few favorite tracks, the module recommends tracks conditioned on live proxy coordinates. This demonstrates that real-time EEG-derived control signals can steer recommendations without persistent user tables or model retraining. Music listening is intrinsically tied to emotion, which drifts continuously within a single session. Although modern browsers interface with wearable brain-computer interfaces, recommendation systems remain structured around discrete logs and lack the infrastructure to integrate continuous physiological signals. Furthermore, existing affect-aware models rely on static user profiles and offline training, failing to serve anonymous newcomers without model retraining. We present a web platform that resolves both challenges. Pairing with a consumer electroencephalogram (EEG) headband over Web Bluetooth, the system captures live EEG, mapping frontal alpha asymmetry and arousal index to normalized valence-arousal proxy coordinates on Russell's circumplex plane. Driven by these coordinates, an affective adapter unifies structurally diverse recommendation backbones under a shared live scoring mechanism. By parameterizing anonymous visitors through a few favorite tracks, the module recommends tracks conditioned on live proxy coordinates. This demonstrates that real-time EEG-derived control signals can steer recommendations without persistent user tables or model retraining.",
+  "arxiv_id": "2611.21032",
+  "authors": [
+    "Sabino Roccotelli",
+    "Potito Aghilar",
+    "Vito Walter Anelli",
+    "Alejandro Bellogín",
+    "Tommaso Colafiglio",
+    "Michelantonio Trizio",
+    "Tommaso Di Noia"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可支持浏览器端、低部署门槛的情感自适应音乐推荐产品或插件，降低对专用客户端和后端重训练流程的依赖。",
+      "通过少量喜爱曲目服务匿名新用户，适合冷启动场景和隐私敏感型服务，可减少注册与长期画像采集摩擦。",
+      "消费级 EEG 头带与 Web Bluetooth 的结合为可穿戴情感交互提供商业化试验方向，但需先验证信号稳定性、用户接受度和真实推荐收益。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出一个通过 Web Bluetooth 连接消费级脑电头带并实时采集 EEG 的网页平台。",
+      "将额叶 alpha 不对称性与唤醒指数映射为 Russell 环形情感平面上的归一化 valence-arousal 代理坐标。",
+      "设计情感适配器，在共享实时打分机制下统一结构不同的推荐骨干。",
+      "通过少量喜爱曲目参数化匿名访客，并基于实时代理坐标进行曲目推荐，展示无需持久用户表或模型重训练即可用实时 EEG 控制信号引导推荐。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "摘要称平台演示表明，实时 EEG 衍生控制信号可在不依赖持久用户表或模型重训练的情况下引导推荐。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "来源仅为摘要，未报告数据集、基线、量化指标或用户研究细节，无法评估推荐效果与统计显著性。",
+      "使用消费级 EEG 并将生理信号映射为情感代理坐标，摘要未说明该映射的效度、噪声鲁棒性和个体差异处理。",
+      "未说明设备兼容性、实时延迟、隐私保护及匿名参数化在冷启动场景中的稳定性。",
+      "“无持久用户表”可能限制跨会话长期画像与持续个性化，但摘要未展开讨论。"
+    ],
+    "method_zh": "系统在浏览器端通过 Web Bluetooth 配对消费级 EEG 头带，实时采集脑电信号，计算额叶 alpha 不对称性和唤醒指数，并映射为归一化 valence-arousal 代理坐标；情感适配器以这些坐标驱动统一实时打分，将多种推荐骨干接入同一机制；匿名用户仅通过少量喜爱曲目完成参数化，随后推荐结果随实时代理坐标变化。",
+    "problem_zh": "音乐收听中的情绪会在单次会话内持续漂移，但推荐系统仍主要依赖离散日志，缺乏接入连续生理信号的基础设施；同时，现有情感感知模型依赖静态用户画像与离线训练，难以为匿名新用户服务且需要模型重训练。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.6950000000000001,
+  "id": "arxiv-2611.21032",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-18T18:30:51.140198Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-16T12:52:08Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出基于脑电头环和Web蓝牙的实时情感音乐推荐平台，利用价效-唤醒坐标驱动曲目推荐。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "EE-Motion: An EEG-based Web Architecture for Live Affective Music Recommendation",
+  "url": "https://arxiv.org/abs/2611.21032v2"
+}

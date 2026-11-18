@@ -1,0 +1,82 @@
+{
+  "abstract": "Large language models (LLMs) are increasingly deployed as recommenders in e-commerce and conversational shopping systems, where they select a product from a set of retrieved candidates described in natural language. Their decisions should depend on relevance to the user query, but may also be influenced by surface-level properties of the descriptions, such as their length. Detecting such structural biases is difficult because relevance labels are rarely available. We propose a label-free framework to audit LLM-based recommender systems for structural bias. Candidate descriptions are rewritten by randomly assigned paraphrasing models and presented in random order. We prove that, if the recommender's choice is invariant to these rewritings, every paraphraser is selected with equal probability, yielding a statistical test that requires no relevance labels. A four-step statistical pipeline tests this property and quantifies the contribution of each description feature while controlling for query-product relevance. We apply the framework to verbosity bias on 20{,}000 product queries and nine recommender LLMs from five model families. After controlling for the measured relevance signals, description length has a positive effect on selection in all nine models, increasing the odds of selection by up to 38% per standard deviation of length. Relevance remains the primary driver of recommendations, while verbosity acts as a consistent secondary signal whose strength depends on the model family. Since the framework needs only black-box access and no annotations, it can be run as a routine audit of deployed shopping assistants, and we provide an auditing protocol with cost and sample-size guidance. Large language models (LLMs) are increasingly deployed as recommenders in e-commerce and conversational shopping systems, where they select a product from a set of retrieved candidates described in natural language. Their decisions should depend on relevance to the user query, but may also be influenced by surface-level properties of the descriptions, such as their length. Detecting such structural biases is difficult because relevance labels are rarely available. We propose a label-free framework to audit LLM-based recommender systems for structural bias. Candidate descriptions are rewritten by randomly assigned paraphrasing models and presented in random order. We prove that, if the recommender's choice is invariant to these rewritings, every paraphraser is selected with equal probability, yielding a statistical test that requires no relevance labels. A four-step statistical pipeline tests this property and quantifies the contribution of each description feature while controlling for query-product relevance. We apply the framework to verbosity bias on 20{,}000 product queries and nine recommender LLMs from five model families. After controlling for the measured relevance signals, description length has a positive effect on selection in all nine models, increasing the odds of selection by up to 38% per standard deviation of length. Relevance remains the primary driver of recommendations, while verbosity acts as a consistent secondary signal whose strength depends on the model family. Since the framework needs only black-box access and no annotations, it can be run as a routine audit of deployed shopping assistants, and we provide an auditing protocol with cost and sample-size guidance.",
+  "arxiv_id": "2611.18878",
+  "authors": [
+    "Carlos Peláez-González",
+    "David Herrera-Poyatos",
+    "Francisco Herrera",
+    "Andrés Herrera-Poyatos"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "该审计框架只需黑盒访问且不需要人工相关性标注，适合作为部署中购物助手的常规监测手段。",
+      "企业可用随机改写与随机排序实验检测推荐器是否偏好更长或特定表述的商品描述，从而识别潜在的结构性偏置。",
+      "由于相关性仍是主要驱动因素，冗长偏置更可能作为次要信号影响边缘选择，适合纳入持续监控而非仅做一次性评估。",
+      "不同模型家族的冗长偏置强度不同，模型选型和供应商评估应纳入偏置审计结果。",
+      "论文提供的成本与样本量指导有助于业务团队规划审计实验的资源投入。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "提出一个无需相关性标签的框架，用于审计 LLM 推荐系统中的结构性偏置。",
+      "通过随机分配改写模型并随机呈现候选描述，证明若推荐器选择对这些改写不变，则每个改写模型被选中的概率相等，从而形成无需标签的统计检验。",
+      "提出四步统计流程，在控制查询-商品相关性的同时检验该性质并量化各描述特征的贡献。",
+      "将框架应用于描述冗长偏置，覆盖 20,000 个商品查询和来自五个模型家族的九个推荐 LLM。",
+      "提供仅需黑盒访问、无需标注的审计协议，并给出成本与样本量指导，可用于部署中的购物助手常规审计。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "20,000 个商品查询"
+      ],
+      "findings_zh": [
+        "在控制已测量的相关性信号后，描述长度对全部九个模型的选择均有正向影响。",
+        "描述长度每增加一个标准差，选择几率最多提高 38%。",
+        "相关性仍是推荐的主要驱动因素。",
+        "冗长偏置是持续存在的次要信号，其强度取决于模型家族。"
+      ],
+      "metrics": [
+        "选择概率",
+        "选择几率（odds）",
+        "每标准差描述长度对应的选择几率变化",
+        "控制相关性信号后的特征贡献"
+      ]
+    },
+    "limitations_zh": [
+      "所提供的摘要未报告具体局限性。",
+      "摘要仅报告了描述长度这一结构性偏置的实证结果，未说明其他表面特征是否被系统评估。",
+      "摘要未给出各模型、各模型家族的完整细粒度结果或失败案例分析。"
+    ],
+    "method_zh": "候选描述由随机分配的改写模型重写，并以随机顺序呈现。若推荐器的选择对这些改写不敏感，则每个改写模型被选中的概率应相等，据此构造无需相关性标签的统计检验。四步统计流程进一步在控制查询-商品相关性的条件下，量化描述特征对选择的影响。论文将该方法用于审计描述长度带来的冗长偏置。",
+    "problem_zh": "LLM 正被用作电商和对话式购物系统中的推荐器，需要从自然语言描述的商品候选中选择商品。其选择应基于与用户查询的相关性，但可能受到描述长度等表层属性的影响。由于相关性标签通常不可得，检测此类结构性偏置很困难。",
+    "technical_depth": 0.62
+  },
+  "doi": null,
+  "final_score": 0.7545000000000002,
+  "id": "arxiv-2611.18878",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-18T18:30:51.140198Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-13T19:33:33Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出基于随机改写的无标签审计框架，检测大语言模型推荐系统中的描述长度等结构性偏差。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Label-Free Detection of Structural Bias in LLM-Based Recommender Systems via Randomized Paraphrasing: The Case of Verbosity",
+  "url": "https://arxiv.org/abs/2611.18878v1"
+}

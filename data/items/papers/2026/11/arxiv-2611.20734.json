@@ -1,0 +1,81 @@
+{
+  "abstract": "Evaluating product advice from a language model requires assessing whether the recommendation meets the user's needs and identifying where the model falls short when it does not. However, matching a product mentioned in an online reply cannot answer either question on its own: several products may be suitable, and the recorded answer may itself be poor advice. When shown a community-listed alternative alongside their own sampled car recommendation, six models prefer the alternative in 1.9 to 6.5 percent of eligible disagreements, consistently across both source-blind presentation orders. We propose a diagnostic framework that separates the user's stated needs, the model's added assumptions, candidate generation, filtering, and final choice, with 19 possible failure modes and the evidence needed to assess them. We apply this framework to product-advice data and to a separate product-selection task with externally assigned relevance labels. The experiments distinguish naming a community-listed product from selecting it and show how answer extraction and candidate-list construction affect the outcome. Evaluating product advice from a language model requires assessing whether the recommendation meets the user's needs and identifying where the model falls short when it does not. However, matching a product mentioned in an online reply cannot answer either question on its own: several products may be suitable, and the recorded answer may itself be poor advice. When shown a community-listed alternative alongside their own sampled car recommendation, six models prefer the alternative in 1.9 to 6.5 percent of eligible disagreements, consistently across both source-blind presentation orders. We propose a diagnostic framework that separates the user's stated needs, the model's added assumptions, candidate generation, filtering, and final choice, with 19 possible failure modes and the evidence needed to assess them. We apply this framework to product-advice data and to a separate product-selection task with externally assigned relevance labels. The experiments distinguish naming a community-listed product from selecting it and show how answer extraction and candidate-list construction affect the outcome.",
+  "arxiv_id": "2611.20734",
+  "authors": [
+    "Assaf Hallak",
+    "Yftah Ziser",
+    "Gal Chechik"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "企业评估产品推荐助手时，不应只检查是否提到某个产品，而应按需求理解、模型假设、候选生成、过滤和最终选择进行分环节诊断。",
+      "可将19种失败模式用于构建推荐质量检查与错误归因体系，定位失败发生在需求理解、候选覆盖还是最终选择环节。",
+      "在线评估或A/B测试中需要控制答案抽取和候选列表构建，避免这些流程因素影响对模型推荐能力的判断。",
+      "对社区或专家替代方案进行盲测配对，可衡量模型是否真正选择更合适产品，而不仅是复述已见产品名称。"
+    ],
+    "business_transferability": 0.75,
+    "contributions_zh": [
+      "提出一个诊断框架，将用户明确需求、模型额外假设、候选生成、候选过滤和最终选择分开，并列出19种可能失败模式及评估所需证据。",
+      "将该框架应用于产品建议数据，以及一个带有外部分配相关性标签的独立产品选择任务。",
+      "实验区分“提到社区列出的产品”与“选择该产品”，并展示答案抽取和候选列表构建如何影响评估结果。",
+      "报告六个模型在符合条件的意见分歧中，对社区列出替代品的偏好比例为1.9%至6.5%，且在两种 source-blind 呈现顺序下保持一致。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "社区列出的替代产品作为对照候选",
+        "模型自身采样的汽车推荐作为被比较建议"
+      ],
+      "datasets": [
+        "产品建议数据（product-advice data）",
+        "带有外部分配相关性标签的独立产品选择任务（product-selection task）"
+      ],
+      "findings_zh": [
+        "六个模型在 eligible disagreements 中偏好社区列出替代品的比例为1.9%至6.5%，且在两种 source-blind 呈现顺序下一致。",
+        "仅匹配产品名称不能回答建议是否满足用户需求，也不能判断记录答案本身是否良好。",
+        "诊断框架可区分模型只是提到社区列出的产品，还是实际选择该产品。",
+        "答案抽取和候选列表构建会影响产品建议评估的结果。"
+      ],
+      "metrics": [
+        "eligible disagreements 中模型偏好社区列出替代品的比例",
+        "两种 source-blind 呈现顺序下偏好结果的一致性"
+      ]
+    },
+    "limitations_zh": [
+      "来源仅为摘要，未提供完整数据规模、具体模型列表、统计显著性或人工评估细节，无法确认更细的结论。",
+      "仅靠产品匹配无法判断建议质量，且记录的社区答案本身可能不佳，这会限制以匹配作为评价标准的有效性。",
+      "替代品偏好比例仅在 eligible disagreements 上报告，不能直接外推到所有产品建议场景。"
+    ],
+    "method_zh": "采用诊断式评估框架，把产品建议过程拆分为用户陈述需求、模型添加假设、候选生成、候选过滤和最终选择，并为19种失败模式规定所需证据；在评估中，将模型自身采样的汽车推荐与社区列出的替代品并置展示，使用两种 source-blind 呈现顺序比较模型偏好，并分析答案抽取与候选列表构建对结果的影响。",
+    "problem_zh": "评估语言模型给出的产品建议时，需要判断推荐是否满足用户需求，并识别模型在哪些环节失败；仅判断回复中是否提到某个线上产品，无法单独回答这两个问题，因为可能有多个合适产品，且被记录的社区答案本身也可能是差建议。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.725,
+  "id": "arxiv-2611.20734",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-18T18:30:51.140198Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-16T08:39:16Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出诊断大语言模型产品建议失败模式的框架，区分用户需求、模型假设、候选生成、过滤与最终选择。",
+  "targets": [],
+  "tasks": [
+    "retrieval"
+  ],
+  "title": "Can LLMs Give Good Product Advice? A Framework for Diagnosing Failures",
+  "url": "https://arxiv.org/abs/2611.20734v1"
+}

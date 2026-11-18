@@ -1,0 +1,71 @@
+{
+  "abstract": "Human-centric artificial intelligence and data science (HCAD) systems increasingly involve human-in-the-loop (HITL) interventions to overcome the limitations of fully automated machine learning algorithms, such as automation bias and the inability to incorporate tacit domain knowledge, and continuously improve predictive performance. Data transformations, feature selection, feature weighting, and model selection usually require laborious human involvement across iterations of artificial intelligence and data science (AI&DS) pipelines, making development a challenging and time-consuming process. The Cognitive Pairwise Comparison (CPC) framework is proposed as a human-centric methodology to elicit preferences and priorities in a structured format. To establish essential facets of human-centricity, this research advances the CPC methodology so that user preference elicitation can be systematically quantified in these challenging AI&DS tasks. To demonstrate the usability and validity of these facets, this study presents several applications within movie recommender systems using the MovieLens dataset. It exemplifies how the extended CPC framework can facilitate interactions between human judgments and data across supervised learning, dimensionality reduction, and unsupervised learning algorithms. Human-centric artificial intelligence and data science (HCAD) systems increasingly involve human-in-the-loop (HITL) interventions to overcome the limitations of fully automated machine learning algorithms, such as automation bias and the inability to incorporate tacit domain knowledge, and continuously improve predictive performance. Data transformations, feature selection, feature weighting, and model selection usually require laborious human involvement across iterations of artificial intelligence and data science (AI&DS) pipelines, making development a challenging and time-consuming process. The Cognitive Pairwise Comparison (CPC) framework is proposed as a human-centric methodology to elicit preferences and priorities in a structured format. To establish essential facets of human-centricity, this research advances the CPC methodology so that user preference elicitation can be systematically quantified in these challenging AI&DS tasks. To demonstrate the usability and validity of these facets, this study presents several applications within movie recommender systems using the MovieLens dataset. It exemplifies how the extended CPC framework can facilitate interactions between human judgments and data across supervised learning, dimensionality reduction, and unsupervised learning algorithms.",
+  "arxiv_id": "2611.20926",
+  "authors": [
+    "Kevin Kam Fung Yuen"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可将结构化成对比较用于需要专家判断的业务流水线，如特征选择、特征加权和模型选择，把隐性领域知识转化为可量化偏好。",
+      "在推荐系统场景中，人类中心偏好 elicitation 有助于让业务专家参与模型迭代，而不仅依赖全自动算法。",
+      "若迁移到企业应用，需要补充业务指标、成本收益和跨领域验证；摘要本身未提供这些证据。"
+    ],
+    "business_transferability": 0.45,
+    "contributions_zh": [
+      "提出认知成对比较（CPC）框架，作为一种以结构化格式 elicitation 人类偏好与优先级的人类中心方法。",
+      "推进 CPC 方法，使其用户偏好 elicitation 能在具有挑战性的 AI&DS 任务中被系统化量化。",
+      "在基于 MovieLens 数据集的电影推荐系统中展示该扩展框架的可用性与有效性。",
+      "示例说明扩展 CPC 框架如何促进人类判断与数据在监督学习、降维和无监督学习算法中的交互。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "MovieLens"
+      ],
+      "findings_zh": [
+        "摘要称研究展示了扩展 CPC 框架在电影推荐系统中的若干应用，以证明相关人类中心特性的可用性和有效性。",
+        "这些应用覆盖监督学习、降维和无监督学习算法，体现人类判断与数据之间的交互。",
+        "摘要未报告具体基线、评价指标或定量实验结果。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "当前分析仅基于摘要，缺少方法细节、实验设置和定量结果。",
+      "摘要中的验证场景限于使用 MovieLens 数据集的电影推荐系统，未说明对其他业务领域或数据规模的泛化能力。",
+      "摘要未给出基线方法、评价指标、用户研究规模或统计显著性等信息。",
+      "摘要未量化 CPC 偏好 elicitation 对模型性能或人工成本的实际提升幅度。"
+    ],
+    "method_zh": "论文以认知成对比较（CPC）框架为核心，通过结构化成对比较来 elicitation 用户偏好和优先级，并推进该框架以系统化量化用户偏好；随后在电影推荐系统场景中，将人类判断与数据交互应用于监督学习、降维和无监督学习算法。",
+    "problem_zh": "面向人类中心的人工智能与数据科学（HCAD）系统需要在人工智能与数据科学流水线中引入人在回路干预，以缓解自动化偏差、难以纳入隐性领域知识等问题；但数据变换、特征选择、特征加权和模型选择等环节通常需要大量人工参与，导致开发困难且耗时。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.525,
+  "id": "arxiv-2611.20926",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-18T18:30:51.140198Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-16T11:36:13Z",
+  "relevance_score": 0.65,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文扩展认知成对比较方法，以人机回环方式在MovieLens电影推荐系统中量化用户偏好。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Advancing Cognitive Pairwise Comparisons for Human-Centric Artificial Intelligence and Data Science: A Human-in-the-Loop Framework",
+  "url": "https://arxiv.org/abs/2611.20926v1"
+}

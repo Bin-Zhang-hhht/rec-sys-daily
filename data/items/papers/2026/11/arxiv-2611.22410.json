@@ -1,0 +1,88 @@
+{
+  "abstract": "Large language models (LLMs) are increasingly used for generative recommendation, where recommended items are generated directly from users' interaction histories. To further improve recommendation quality, reinforcement learning (RL) has been applied to align these models with recommendation objectives. However, existing RL methods rely on scalar rewards to implicitly guide exploration. These rewards do not specify which aspects of a candidate conflict with the user's preferences or how the next candidate should differ. To address this gap, we propose VerRec, a verbalized feedback-guided RL framework for generative recommendation. Specifically, a user simulator generates personalized verbalized feedback based on the user's historical preferences and the candidate item profile. The policy uses this feedback to produce refined recommendations. Original and refined candidates form an expanded group and are jointly optimized with group relative policy optimization. The user simulator is only required during training and is removed at inference time. Experiments on three Amazon review datasets with two generative recommendation backbones demonstrate that VerRec improves recommendation accuracy and ranking quality. Further analyses show that verbalized guidance encourages exploration of more diverse candidates and helps the policy discover more rewarding recommendations during training. Large language models (LLMs) are increasingly used for generative recommendation, where recommended items are generated directly from users' interaction histories. To further improve recommendation quality, reinforcement learning (RL) has been applied to align these models with recommendation objectives. However, existing RL methods rely on scalar rewards to implicitly guide exploration. These rewards do not specify which aspects of a candidate conflict with the user's preferences or how the next candidate should differ. To address this gap, we propose VerRec, a verbalized feedback-guided RL framework for generative recommendation. Specifically, a user simulator generates personalized verbalized feedback based on the user's historical preferences and the candidate item profile. The policy uses this feedback to produce refined recommendations. Original and refined candidates form an expanded group and are jointly optimized with group relative policy optimization. The user simulator is only required during training and is removed at inference time. Experiments on three Amazon review datasets with two generative recommendation backbones demonstrate that VerRec improves recommendation accuracy and ranking quality. Further analyses show that verbalized guidance encourages exploration of more diverse candidates and helps the policy discover more rewarding recommendations during training.",
+  "arxiv_id": "2611.22410",
+  "authors": [
+    "Zipeng Chen",
+    "Xinyu Lin",
+    "Yuliang Sun",
+    "Sheng Zhang",
+    "Zeyu Wang",
+    "Xiaowen Shi",
+    "Junwei Pan",
+    "Chengguo Yin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对电商或内容推荐团队，言语化反馈可作为比单一标量奖励更可解释的训练信号，用于指导候选物品的定向修正。",
+      "由于用户模拟器只在训练期使用，推理期不增加模拟器调用，适合对线上延迟敏感的推荐系统做训练侧增强，但仍需实测验证。",
+      "方法在 Amazon 评论数据上显示准确度与排序质量提升，可优先在已有生成式推荐或 LLM 推荐链路的场景试点。",
+      "落地时需控制模拟器反馈的质量与偏差，并评估训练成本、反馈安全性和探索多样性带来的实际业务收益。"
+    ],
+    "business_transferability": 0.62,
+    "contributions_zh": [
+      "提出 VerRec，一种以言语化反馈引导强化学习的生成式推荐框架，用于弥补标量奖励信息不足的问题。",
+      "设计用户模拟器，基于用户历史偏好和候选物品画像生成个性化言语化反馈；策略模型据此生成细化推荐。",
+      "将原始候选与细化候选组成扩展候选组，并使用组相对策略优化（GRPO）联合优化。",
+      "用户模拟器仅在训练阶段需要，推理阶段被移除。",
+      "在三个 Amazon 评论数据集和两个生成式推荐骨干上验证，推荐准确度和排序质量得到提升，并观察到更多样化的候选探索和更有奖励的推荐发现。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "摘要未列出具体基线；仅提及现有方法依赖标量奖励的强化学习设定"
+      ],
+      "datasets": [
+        "三个 Amazon 评论数据集（摘要未给出具体名称）"
+      ],
+      "findings_zh": [
+        "VerRec 在三个 Amazon 评论数据集和两个生成式推荐骨干上提升了推荐准确度。",
+        "VerRec 提升了排序质量。",
+        "言语化引导鼓励探索更多样化的候选。",
+        "言语化引导帮助策略在训练中发现更有奖励的推荐。",
+        "用户模拟器在推理阶段被移除，不参与推理。"
+      ],
+      "metrics": [
+        "推荐准确度（摘要未给出具体指标名称）",
+        "排序质量（摘要未给出具体指标名称）"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未提供具体数据集名称、基线、评价指标数值和统计显著性，难以判断提升幅度与可复现性。",
+      "摘要未说明用户模拟器的构建方式、质量、偏差及训练成本。",
+      "摘要未报告推理延迟、部署成本、冷启动或跨域泛化等实际约束。",
+      "实验仅覆盖 Amazon 评论数据和两个生成式推荐骨干，摘要不足以评估更广泛场景的适用性。"
+    ],
+    "method_zh": "VerRec 在训练时引入用户模拟器：给定用户历史偏好与候选物品画像，模拟器生成个性化言语化反馈；策略模型读取该反馈并产出细化候选。原始候选与细化候选构成扩展候选组，通过 GRPO 进行组内相对优化。模拟器只用于训练，推理阶段移除，最终由策略模型直接生成推荐。",
+    "problem_zh": "生成式推荐中，现有强化学习方法仅依赖标量奖励来隐式引导探索；这种奖励无法说明候选物品的哪些方面与用户偏好冲突，也无法指出下一个候选应如何调整。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7404999999999999,
+  "id": "arxiv-2611.22410",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-18T18:30:51.140198Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model",
+    "reinforcement_learning"
+  ],
+  "published_at": "2026-11-17T08:47:30Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出VerRec，利用用户模拟器生成语言化反馈并配合组相对策略优化来改进生成式推荐，训练时使用模拟器而推理时移除。",
+  "targets": [],
+  "tasks": [],
+  "title": "More Than a Score: Reinforcement Learning with Verbalized Feedback for Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.22410v1"
+}

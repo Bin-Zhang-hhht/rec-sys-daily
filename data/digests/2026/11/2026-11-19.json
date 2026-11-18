@@ -1,0 +1,46 @@
+{
+  "blogs": [],
+  "date": "2026-11-19",
+  "papers": [
+    {
+      "item_id": "arxiv-2611.22838",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文揭示生成式推荐模型经强化学习后训练后出现“排序更强、召回更差”的隐藏代价，并提出out-of-rollout锚定损失以保留Top-K收益并恢复候选列表召回。"
+    },
+    {
+      "item_id": "arxiv-2611.18244",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出RACE框架，面向高效序列推荐，根据排序不确定性动态调整模型容量与输入序列。"
+    },
+    {
+      "item_id": "arxiv-2611.18878",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出基于随机改写的无标签审计框架，检测大语言模型推荐系统中的描述长度等结构性偏差。"
+    },
+    {
+      "item_id": "arxiv-2611.22410",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出VerRec，利用用户模拟器生成语言化反馈并配合组相对策略优化来改进生成式推荐，训练时使用模拟器而推理时移除。"
+    },
+    {
+      "item_id": "arxiv-2611.20734",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出诊断大语言模型产品建议失败模式的框架，区分用户需求、模型假设、候选生成、过滤与最终选择。"
+    },
+    {
+      "item_id": "arxiv-2611.21032",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出基于脑电头环和Web蓝牙的实时情感音乐推荐平台，利用价效-唤醒坐标驱动曲目推荐。"
+    },
+    {
+      "item_id": "arxiv-2611.22274",
+      "rank": 7,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该论文提出GuardAgent，用具备感知—行动—反思—记忆循环的LLM智能体检测LLM推荐系统中的推广型对抗攻击，并强调可解释与自适应。"
+    },
+    {
+      "item_id": "arxiv-2611.20926",
+      "rank": 8,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文扩展认知成对比较方法，以人机回环方式在MovieLens电影推荐系统中量化用户偏好。"
+    }
+  ]
+}

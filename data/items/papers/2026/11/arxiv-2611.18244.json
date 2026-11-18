@@ -1,0 +1,86 @@
+{
+  "abstract": "Efficient sequential recommendation has emerged as a promising paradigm for providing real-time personalized service. To deploy models under resource-constrained environment, model compression becomes a necessity, yet existing methods typically apply uniform compression ratios, overlooking the heterogeneity in user intent complexity. This \"one-size-fits-all\" approach leads to a fundamental Capacity-Complexity Mismatch, where computational resources are either wasted on simple instances or insufficient for complex ones. To address this, we propose RACE (Ranking-uncertainty Aware Capacity-Adaptive Customization for Efficient Sequential Recommendation), a framework that dynamically adapts both model structures and input sequences with uncertainty-aware compression ratios. To ensure capacity-adaptive inference, RACE captures the model's intrinsic uncertainty of its predictions and transforms it into a proactive resource allocator. Specifically, we derive a list-wise ranking-uncertainty metric from the distributional stability of top-$K$ predictions, which serves as a measurable proxy for instance complexity. A lightweight predictor is then trained via self-supervision to anticipate this uncertainty from early-layer features. Guided by this signal, RACE performs instance-specific slimming in two dimensions: a hypernetwork-style channel sensitivity extractor identifies parameter redundancy, while importance-aware progressive sequence filtering mitigates data redundancy. Extensive experiments on four popular datasets demonstrate that RACE outperforms state-of-the-art baselines on accuracy, efficiency, and adaptability. Efficient sequential recommendation has emerged as a promising paradigm for providing real-time personalized service. To deploy models under resource-constrained environment, model compression becomes a necessity, yet existing methods typically apply uniform compression ratios, overlooking the heterogeneity in user intent complexity. This \"one-size-fits-all\" approach leads to a fundamental Capacity-Complexity Mismatch, where computational resources are either wasted on simple instances or insufficient for complex ones. To address this, we propose RACE (Ranking-uncertainty Aware Capacity-Adaptive Customization for Efficient Sequential Recommendation), a framework that dynamically adapts both model structures and input sequences with uncertainty-aware compression ratios. To ensure capacity-adaptive inference, RACE captures the model's intrinsic uncertainty of its predictions and transforms it into a proactive resource allocator. Specifically, we derive a list-wise ranking-uncertainty metric from the distributional stability of top-$K$ predictions, which serves as a measurable proxy for instance complexity. A lightweight predictor is then trained via self-supervision to anticipate this uncertainty from early-layer features. Guided by this signal, RACE performs instance-specific slimming in two dimensions: a hypernetwork-style channel sensitivity extractor identifies parameter redundancy, while importance-aware progressive sequence filtering mitigates data redundancy. Extensive experiments on four popular datasets demonstrate that RACE outperforms state-of-the-art baselines on accuracy, efficiency, and adaptability.",
+  "arxiv_id": "2611.18244",
+  "authors": [
+    "Tianqi Liu",
+    "Kaipu Sun",
+    "Kairui Fu",
+    "Wenkai Wang",
+    "Sihao Liu",
+    "Hui Zang",
+    "Ran Chen",
+    "Tao Wang",
+    "Shengyu Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "面向资源受限的实时个性化服务，按实例复杂度分配计算资源可在简单请求上节省算力，并把更多容量留给复杂请求。",
+      "以预测不确定性作为主动资源分配信号，可用于在线推荐系统的延迟-成本-效果权衡。",
+      "实例级模型瘦身与序列过滤有望降低推理成本，但业务落地前需核验其额外预测器开销和端到端延迟。",
+      "该方法适合需要实时响应且用户意图复杂度差异明显的推荐场景，但摘要未给出生产环境验证。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 RACE 框架，面向高效序列推荐，动态调整模型结构与输入序列，并使用不确定性感知的压缩比例。",
+      "提出从 top-K 预测分布稳定性推导列表级排序不确定性指标，作为实例复杂度的可测代理。",
+      "训练轻量级预测器，以自监督方式从早期层特征预测该不确定性，用作主动资源分配信号。",
+      "在实例级执行两个维度的瘦身：超网络式通道敏感性提取器识别参数冗余，重要性感知渐进式序列过滤缓解数据冗余。",
+      "在四个常用数据集上实验，摘要声称 RACE 在准确率、效率和适应性上优于最先进基线。"
+    ],
+    "evidence_quality": 0.38,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "最先进基线（摘要未具名）"
+      ],
+      "datasets": [
+        "四个常用数据集（摘要未具名）"
+      ],
+      "findings_zh": [
+        "摘要称在四个常用数据集上，RACE 在准确率、效率和适应性方面优于最先进基线。",
+        "实验覆盖四个流行数据集，但摘要未给出数据集名称、基线明细或具体数值。"
+      ],
+      "metrics": [
+        "准确率",
+        "效率",
+        "适应性"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法核验数据集名称、基线列表、评价指标定义和定量结果。",
+      "摘要未说明不确定性预测器、通道敏感性提取器和序列过滤器的具体计算开销与延迟影响。",
+      "摘要未讨论失败案例、冷启动、分布偏移或跨域泛化等限制。",
+      "摘要声称优于最先进基线，但未提供消融实验、显著性检验或误差分析细节。"
+    ],
+    "method_zh": "RACE 将模型预测的内在不确定性转化为实例级资源分配器。具体地，它基于 top-K 预测的分布稳定性构造列表级排序不确定性指标，并用轻量级预测器从早期层特征自监督预测该指标。推理时，依据该信号进行实例特定压缩：一方面通过超网络式通道敏感性提取器识别并削减参数冗余，另一方面通过重要性感知渐进式序列过滤削减输入序列冗余，从而动态适配模型容量与输入长度。",
+    "problem_zh": "现有高效序列推荐模型压缩方法通常采用统一压缩比例，忽视了用户意图复杂度的异质性，导致“容量-复杂度失配”：简单样本浪费计算资源，复杂样本资源不足。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.7635000000000001,
+  "id": "arxiv-2611.18244",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-18T18:30:51.140198Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-13T14:40:26Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出RACE框架，面向高效序列推荐，根据排序不确定性动态调整模型容量与输入序列。",
+  "targets": [],
+  "tasks": [],
+  "title": "RACE: Ranking-Uncertainty Aware Capacity-Adaptive Customization for Efficient Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2611.18244v2"
+}

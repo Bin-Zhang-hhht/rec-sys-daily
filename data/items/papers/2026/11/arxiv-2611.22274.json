@@ -1,0 +1,80 @@
+{
+  "abstract": "In traditional recommender systems (RSs), textual information typically serves as auxiliary signals for representation learning. In contrast, in LLM-based RSs, textual information becomes the primary medium for recommendation generation through semantic understanding and reasoning. This shift fundamentally changes the attack surface, making promotion-driven manipulations more feasible, effective, and harder to detect. However, effectively detecting such attacks remains largely unexplored. To fill this gap, we present the first systematic study on detecting promotion-driven attacks against LLM-based RSs, aiming to safeguard next-generation recommendation platforms. Specifically, we propose GuardAgent, a novel LLM-powered agentic detection framework that operates through a loop of Perception, Action, Reflection and Memory. In contrast to conventional LLM-based detectors that function in a static, one-off, and opaque fashion, GuardAgent continually learns and self-evolves to adapt to unseen threat patterns while generating explainable reasoning traces and outcomes. Extensive experiments on real-world datasets demonstrate that GuardAgent achieves state-of-the-art generalization performance, laying the foundation for robust and trustworthy recommendation in practical settings. In traditional recommender systems (RSs), textual information typically serves as auxiliary signals for representation learning. In contrast, in LLM-based RSs, textual information becomes the primary medium for recommendation generation through semantic understanding and reasoning. This shift fundamentally changes the attack surface, making promotion-driven manipulations more feasible, effective, and harder to detect. However, effectively detecting such attacks remains largely unexplored. To fill this gap, we present the first systematic study on detecting promotion-driven attacks against LLM-based RSs, aiming to safeguard next-generation recommendation platforms. Specifically, we propose GuardAgent, a novel LLM-powered agentic detection framework that operates through a loop of Perception, Action, Reflection and Memory. In contrast to conventional LLM-based detectors that function in a static, one-off, and opaque fashion, GuardAgent continually learns and self-evolves to adapt to unseen threat patterns while generating explainable reasoning traces and outcomes. Extensive experiments on real-world datasets demonstrate that GuardAgent achieves state-of-the-art generalization performance, laying the foundation for robust and trustworthy recommendation in practical settings.",
+  "arxiv_id": "2611.22274",
+  "authors": [
+    "Shiyi Yang",
+    "Xinshu Li",
+    "Chen Wang",
+    "Xiwei Xu",
+    "Liming Zhu",
+    "Lina Yao"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对采用LLM推荐系统的平台而言，推广驱动文本操纵是需纳入风控与内容治理的专门风险。",
+      "可解释的推理轨迹与检测结果有助于审核、申诉和合规审计，但实际落地仍需人工复核与治理流程配合。",
+      "持续学习与自我演化思路适合应对不断变化的推广操纵模式，但上线前需评估稳定性、成本与误报影响。",
+      "该工作目前仅提供摘要级证据，业务部署前应要求完整实验报告和真实业务场景验证。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出首个针对LLM-based推荐系统中推广驱动攻击检测的系统性研究。",
+      "提出GuardAgent，一个由LLM驱动的智能体检测框架，围绕Perception、Action、Reflection和Memory循环运行。",
+      "区别于静态、一次性且不透明的传统LLM检测器，GuardAgent能够持续学习与自我演化，以适应未见威胁模式，并生成可解释的推理轨迹和结果。",
+      "在真实世界数据集上的实验表明，GuardAgent取得state-of-the-art泛化性能。"
+    ],
+    "evidence_quality": 0.25,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "摘要未明确列出对比基线"
+      ],
+      "datasets": [
+        "真实世界数据集（摘要未给出具体数据集名称）"
+      ],
+      "findings_zh": [
+        "在真实世界数据集上，GuardAgent取得state-of-the-art泛化性能。",
+        "摘要声称GuardAgent能够适应未见威胁模式并生成可解释的推理轨迹和检测结果。"
+      ],
+      "metrics": [
+        "摘要未明确列出具体评价指标"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，缺少具体数据集、基线、评价指标和量化实验结果，无法核验实验细节与统计显著性。",
+      "摘要未说明GuardAgent的计算开销、误报率、对抗鲁棒性及实际部署约束。",
+      "研究范围聚焦于LLM-based推荐系统中的推广驱动攻击检测，摘要未覆盖其他攻击类型或更广泛推荐场景。",
+      "自我演化与记忆机制的具体实现、更新策略及潜在安全风险未在摘要中展开。"
+    ],
+    "method_zh": "GuardAgent采用LLM驱动的智能体式检测框架，通过Perception、Action、Reflection和Memory构成的循环进行检测，并强调持续学习、自我演化以及可解释推理轨迹与结果输出。",
+    "problem_zh": "在LLM-based推荐系统中，文本信息从辅助信号变成推荐生成的主要媒介，这改变了攻击面，使推广驱动的操纵更可行、更有效且更难检测；但如何有效检测此类攻击仍缺乏系统研究。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.6325000000000001,
+  "id": "arxiv-2611.22274",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-18T18:30:51.140198Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-17T06:20:53Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该论文提出GuardAgent，用具备感知—行动—反思—记忆循环的LLM智能体检测LLM推荐系统中的推广型对抗攻击，并强调可解释与自适应。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "GuardAgent: A Memory-Augmented Agentic Framework for Adaptive Detection of Adversarial Promotions in LLM-Based Recommendation",
+  "url": "https://arxiv.org/abs/2611.22274v1"
+}
