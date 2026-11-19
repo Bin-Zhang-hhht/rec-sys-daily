@@ -1,0 +1,92 @@
+{
+  "abstract": "Multimodal generative recommendation with discrete semantic identifiers (SIDs) requires distinguishing historical modalities that merely alter token predictions from those that genuinely reduce catalog-level ambiguity. When audiovisual, visual, or textual streams are missing, degraded, or semantically conflicting, uniform fusion and unconstrained token gates can propagate misleading content across iterative denoising steps. We propose CONCORD-Rec, a reliability-conditioned discrete diffusion recommender supervised by counterfactual catalog-partition utility. Given a fixed tokenizer and a partially masked SID state, CONCORD-Rec evaluates out-of-fold teacher coalitions over the exact feasible catalog support and aggregates item posteriors across the target code partition at each unresolved position. Rather than distilling raw token probabilities directly, the resulting counterfactual loss differences supervise an availability-masked tokenwise gate that allocates bounded modality residuals around a behavioral denoiser while retaining an exact behavioral fallback slot. We establish theoretical fixed-support ranking stability bounds under gate perturbations and evaluate position-level and code-conditional allocation across audiovisual and image-text recommendation benchmarks under controlled missingness, signal degradation, and semantic conflict. Across 20 source-compatible protocol-dataset rows, CONCORD-Rec improves NDCG by 4%; under matched 30% conflict it improves NDCG by 14.63%. The full-vs-uniform-T=16 sweep improves quality by 2.00-3.58% while reducing p95 latency by up to 86.89%. Multimodal generative recommendation with discrete semantic identifiers (SIDs) requires distinguishing historical modalities that merely alter token predictions from those that genuinely reduce catalog-level ambiguity. When audiovisual, visual, or textual streams are missing, degraded, or semantically conflicting, uniform fusion and unconstrained token gates can propagate misleading content across iterative denoising steps. We propose CONCORD-Rec, a reliability-conditioned discrete diffusion recommender supervised by counterfactual catalog-partition utility. Given a fixed tokenizer and a partially masked SID state, CONCORD-Rec evaluates out-of-fold teacher coalitions over the exact feasible catalog support and aggregates item posteriors across the target code partition at each unresolved position. Rather than distilling raw token probabilities directly, the resulting counterfactual loss differences supervise an availability-masked tokenwise gate that allocates bounded modality residuals around a behavioral denoiser while retaining an exact behavioral fallback slot. We establish theoretical fixed-support ranking stability bounds under gate perturbations and evaluate position-level and code-conditional allocation across audiovisual and image-text recommendation benchmarks under controlled missingness, signal degradation, and semantic conflict. Across 20 source-compatible protocol-dataset rows, CONCORD-Rec improves NDCG by 4%; under matched 30% conflict it improves NDCG by 14.63%. The full-vs-uniform-T=16 sweep improves quality by 2.00-3.58% while reducing p95 latency by up to 86.89%.",
+  "arxiv_id": "2611.23710",
+  "authors": [
+    "Haopeng Jin",
+    "Bingkang Shi",
+    "Tao Yu",
+    "Yifei Ma",
+    "Hao Liu",
+    "Hongzhu Yi",
+    "Jinwen Luo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对多模态推荐系统，可靠性条件门控可用于在模态缺失、退化或冲突时抑制误导信号，提升目录级消歧能力。",
+      "保留行为回退槽意味着系统可在多模态信号不可靠时退回到较稳定的行为信号，有利于线上鲁棒性设计。",
+      "报告的质量提升与 p95 延迟降低表明该方向可能兼顾效果与推理效率，但需在自有目录与流量上复现验证。",
+      "反事实目录划分效用可作为训练监督信号，用于评估不同模态对降低候选集歧义的真实贡献。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "提出 CONCORD-Rec：一种由反事实目录划分效用监督的可靠性条件离散扩散推荐器。",
+      "在固定 tokenizer 与部分掩码 SID 状态下，对精确可行目录支持评估 out-of-fold teacher coalitions，并在每个未解决位置聚合目标码划分上的物品后验。",
+      "不直接蒸馏原始 token 概率，而是用反事实损失差监督可用性掩码的 tokenwise gate，在行为去噪器周围分配有界模态残差，并保留精确的行为回退槽。",
+      "建立门控扰动下固定支持排序稳定性的理论界。",
+      "在受控缺失、信号退化和语义冲突下，评估音视频与图文推荐基准中的位置级和码条件分配。",
+      "报告 NDCG 与延迟收益：20 个来源兼容协议-数据集行上 NDCG 提升 4%，匹配 30% 冲突下 NDCG 提升 14.63%，full-vs-uniform-T=16 扫描质量提升 2.00-3.58% 且 p95 延迟最多降低 86.89%。"
+    ],
+    "evidence_quality": 0.4,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "uniform fusion",
+        "unconstrained token gates",
+        "uniform-T=16"
+      ],
+      "datasets": [
+        "音视频推荐基准",
+        "图文推荐基准",
+        "20 个来源兼容的协议-数据集行"
+      ],
+      "findings_zh": [
+        "在 20 个来源兼容的协议-数据集行上，CONCORD-Rec 将 NDCG 提升 4%。",
+        "在匹配的 30% 冲突条件下，NDCG 提升 14.63%。",
+        "full-vs-uniform-T=16 扫描显示质量提升 2.00-3.58%，同时 p95 延迟最多降低 86.89%。",
+        "评估覆盖受控缺失、信号退化和语义冲突，并考察位置级与码条件分配。",
+        "论文建立了门控扰动下固定支持排序稳定性的理论界。"
+      ],
+      "metrics": [
+        "NDCG",
+        "p95 latency",
+        "质量提升百分比"
+      ]
+    },
+    "limitations_zh": [
+      "仅基于摘要，无法核实完整实验设置、统计显著性和具体数据集名称。",
+      "摘要未披露完整基线清单与详细消融结果。",
+      "摘要未报告训练成本、显存开销或线上部署约束。",
+      "摘要未说明方法在真实生产流量和长期反馈下的表现。"
+    ],
+    "method_zh": "CONCORD-Rec 使用可靠性条件离散扩散框架。给定固定 tokenizer 和部分掩码 SID 状态，它在精确可行目录支持上评估 out-of-fold teacher coalitions，并在每个未解决位置聚合目标码划分上的物品后验。该方法不直接蒸馏原始 token 概率，而是利用反事实损失差监督一个可用性掩码的 tokenwise gate；该 gate 在行为去噪器周围分配有界模态残差，同时保留精确的行为回退槽。论文还给出 gate 扰动下固定支持排序稳定性的理论界。",
+    "problem_zh": "多模态生成式推荐使用离散语义标识符（SID）时，需要区分哪些历史模态只是改变 token 预测、哪些真正降低目录级歧义。当音视频、视觉或文本流缺失、退化或语义冲突时，统一融合与无约束 token 门控可能在迭代去噪过程中传播误导性内容。",
+    "technical_depth": 0.75
+  },
+  "doi": null,
+  "final_score": 0.7709999999999999,
+  "id": "arxiv-2611.23710",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-19T18:32:09.838928Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-18T02:09:51Z",
+  "relevance_score": 0.97,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出CONCORD-Rec，一种以反事实目录划分效用监督的可靠性条件离散扩散生成式推荐模型，通过可用性掩码的逐token门控分配多模态残差，在缺失、退化与语义冲突下提升NDCG。",
+  "targets": [],
+  "tasks": [],
+  "title": "CONCORD-Rec: Catalog-Conditioned Modality Utility for Semantic-ID Diffusion Recommendation",
+  "url": "https://arxiv.org/abs/2611.23710v1"
+}

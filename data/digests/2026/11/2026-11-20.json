@@ -1,0 +1,31 @@
+{
+  "blogs": [],
+  "date": "2026-11-20",
+  "papers": [
+    {
+      "item_id": "arxiv-2611.24006",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文介绍面向淘宝多阶段级联推荐系统的MARS智能体编排方案，利用LLM生成用户级配置并覆盖召回、排序与重排。"
+    },
+    {
+      "item_id": "arxiv-2611.23710",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出CONCORD-Rec，一种以反事实目录划分效用监督的可靠性条件离散扩散生成式推荐模型，通过可用性掩码的逐token门控分配多模态残差，在缺失、退化与语义冲突下提升NDCG。"
+    },
+    {
+      "item_id": "arxiv-2611.23910",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文构建人在回路的大规模推荐与搜索排序模型自动机器学习工程智能体，用LLM代理提出、实现、训练并评估模型改动。"
+    },
+    {
+      "item_id": "arxiv-2611.17921",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：提出RecMem循环记忆压缩框架，用固定记忆槽与槽级遗忘门压缩长交互历史，使记忆与解码上下文长度无关，在MerRec上以216 token上下文保留HSTU-1200大部分召回。"
+    },
+    {
+      "item_id": "arxiv-2611.23339",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：面向生成式推荐推理的工程优化工作，利用Tree Attention、静态KV缓存与图编译等手段消除宽束搜索中的冗余KV访问与主机端开销，在Ascend NPU上端到端时延较vLLM最高降低25倍。"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "abstract": "The typical workflow for improving large-scale ranking and recommendation models is slow and tedious: an engineer forms a hypothesis, implements it as a code change, trains a model, and evaluates it both offline and online, often relying on their own intuition and experience along the way. Autonomous LLM agents promise to speed this up by running the loop on their own, but it is still unclear whether they can do this in industry-scale systems rather than on benchmarks or small proxy tasks. We build human-on-the-loop machine learning engineer (MLE) agents that propose, implement, train, and evaluate model changes on large-scale search rankers. Engineers retain control over objective design, search direction, and final-model review. We identify three obstacles that make this industry setting challenging: feedback takes hours per experiment, offline metrics do not always predict online impact, and improvements saturate after the early wins. We address these with parallel training runs, an objective calibrated to match online impact, and careful context engineering. In one campaign, the system ran 1,097 completed candidate experiments and accepted 325, a 29.6\\% acceptance rate compared with 15.6\\% in the earlier campaign under a different objective and search constraint. Its best model increases search volume by 0.23\\% in an A/B test of large scale. Several improvements were architectural changes the team had never tried, drawn from the broader industry and literature, suggesting that MLE agents can explore regions of the design space that human intuition overlooks. We find that the design of the harness around the model matters: intuition suggests that a stronger underlying model is enough, but in our experience, the design of the loop around it is just as critical. More broadly, our work shows that autonomous agents can do real machine-learning engineering in industry-scale systems. The typical workflow for improving large-scale ranking and recommendation models is slow and tedious: an engineer forms a hypothesis, implements it as a code change, trains a model, and evaluates it both offline and online, often relying on their own intuition and experience along the way. Autonomous LLM agents promise to speed this up by running the loop on their own, but it is still unclear whether they can do this in industry-scale systems rather than on benchmarks or small proxy tasks. We build human-on-the-loop machine learning engineer (MLE) agents that propose, implement, train, and evaluate model changes on large-scale search rankers. Engineers retain control over objective design, search direction, and final-model review. We identify three obstacles that make this industry setting challenging: feedback takes hours per experiment, offline metrics do not always predict online impact, and improvements saturate after the early wins. We address these with parallel training runs, an objective calibrated to match online impact, and careful context engineering. In one campaign, the system ran 1,097 completed candidate experiments and accepted 325, a 29.6\\% acceptance rate compared with 15.6\\% in the earlier campaign under a different objective and search constraint. Its best model increases search volume by 0.23\\% in an A/B test of large scale. Several improvements were architectural changes the team had never tried, drawn from the broader industry and literature, suggesting that MLE agents can explore regions of the design space that human intuition overlooks. We find that the design of the harness around the model matters: intuition suggests that a stronger underlying model is enough, but in our experience, the design of the loop around it is just as critical. More broadly, our work shows that autonomous agents can do real machine-learning engineering in industry-scale systems.",
+  "arxiv_id": "2611.23910",
+  "authors": [
+    "Matthew Li",
+    "Albert Liang",
+    "Dilip Raj"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对于大规模推荐与搜索系统，自主 MLE 智能体可加速假设验证、代码实现、训练和评估闭环，减少人工迭代成本。",
+      "落地时需要配套并行训练基础设施，以缩短每次实验数小时的反馈周期。",
+      "目标函数应尽量与在线业务影响对齐，而不能只依赖离线指标。",
+      "上下文工程和 harness 设计是决定智能体效果的关键工程投入，不应只关注底层模型能力。",
+      "human-on-the-loop 治理模式较现实：工程师保留目标、搜索方向和最终评审控制权。",
+      "智能体可能发现人类团队未尝试的架构改进，对推荐系统设计空间探索有业务价值。",
+      "29.6% 的接受率和 0.23% 的搜索量提升表明收益存在，但幅度有限，企业需评估实验成本、上线风险和长期影响。",
+      "该方法更适合已有大规模训练与 A/B 测试能力的组织，直接迁移到小规模或缺乏在线实验平台的团队存在限制。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "构建了 human-on-the-loop 的机器学习工程师（MLE）智能体，可在大规模搜索排序器上提出、实现、训练并评估模型改动。",
+      "工程师保留对目标设计、搜索方向和最终模型评审的控制权。",
+      "针对工业场景的三个障碍，采用并行训练运行、与在线影响对齐的目标函数以及细致的上下文工程。",
+      "在一次 campaign 中完成 1,097 个候选实验并接受 325 个，接受率为 29.6%，高于另一 campaign 在 different objective and search constraint 下的 15.6%。",
+      "最佳模型在大规模 A/B 测试中将搜索量提升 0.23%。",
+      "若干改进是团队从未尝试过的架构改动，来自更广泛的行业与文献，说明 MLE 智能体可探索人类直觉忽视的设计空间。",
+      "研究发现模型周围 harness 的设计同样关键：更强的底层模型并不足够，循环设计至少同等重要。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "另一 campaign 在不同目标函数和搜索约束下的 15.6% 接受率",
+        "团队此前未尝试过的架构改动所对应的既有设计空间（作为探索对比，而非严格基线）"
+      ],
+      "datasets": [
+        "大规模搜索排序器（large-scale search rankers）",
+        "一次 campaign 中的 1,097 个已完成候选实验",
+        "大规模 A/B 测试"
+      ],
+      "findings_zh": [
+        "一次 campaign 完成 1,097 个候选实验，接受 325 个，接受率为 29.6%。",
+        "另一 campaign 在不同目标函数和搜索约束下接受率为 15.6%。",
+        "最佳模型在大规模 A/B 测试中将搜索量提升 0.23%。",
+        "若干被接受的改进是团队从未尝试过的架构改动，来自更广泛的行业与文献。",
+        "MLE 智能体可探索人类直觉容易忽视的设计空间。",
+        "harness 的设计很关键；更强的底层模型本身并不足够，模型周围循环的设计同样关键。"
+      ],
+      "metrics": [
+        "候选实验接受率",
+        "大规模 A/B 测试中的搜索量提升",
+        "离线指标（摘要提及但未给出具体指标）",
+        "在线影响（摘要提及但未给出具体指标）"
+      ]
+    },
+    "limitations_zh": [
+      "仅基于摘要，缺少模型结构、训练细节、统计显著性和完整实验设置的说明。",
+      "工业场景中每次实验反馈耗时数小时，实验迭代成本高。",
+      "离线指标并不总能预测在线影响。",
+      "改进在早期收益后会饱和。",
+      "摘要只报告了一次 campaign 的接受率对比和单个最佳模型的在线提升，泛化性与长期效果尚不明确。",
+      "系统仍需要工程师控制目标设计、搜索方向和最终模型评审，并非完全无人监督。",
+      "摘要未说明 0.23% 搜索量提升的置信区间、持续时间或对用户体验等其他指标的影响。"
+    ],
+    "method_zh": "论文构建了 human-on-the-loop 的 MLE 智能体系统，让智能体在大规模搜索排序模型上自动提出假设、实现代码改动、训练模型并进行评估；工程师负责目标设计、搜索方向与最终模型评审。系统通过并行训练运行缓解每次实验反馈耗时数小时的问题，通过校准目标函数使其更匹配在线影响，并通过上下文工程提升智能体循环效果。",
+    "problem_zh": "大规模排序与推荐模型的传统改进流程缓慢且繁琐：工程师提出假设、修改代码、训练模型，再进行离线和在线评估，过程中高度依赖直觉与经验。自主 LLM 智能体有望自动运行这一闭环，但其能否在工业级系统中奏效，而不仅是在基准或小规模代理任务上奏效，仍不明确。该工业场景还面临三个障碍：每次实验反馈耗时数小时、离线指标并不总能预测在线影响、早期收益后改进会饱和。",
+    "technical_depth": 0.5
+  },
+  "doi": null,
+  "final_score": 0.7510000000000001,
+  "id": "arxiv-2611.23910",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-19T18:32:09.838928Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-18T06:00:43Z",
+  "relevance_score": 0.92,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文构建人在回路的大规模推荐与搜索排序模型自动机器学习工程智能体，用LLM代理提出、实现、训练并评估模型改动。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MLE Agents: Autonomous ML Engineering in Large-scale Recommendation Systems",
+  "url": "https://arxiv.org/abs/2611.23910v1"
+}

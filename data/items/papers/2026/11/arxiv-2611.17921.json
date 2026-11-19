@@ -1,0 +1,89 @@
+{
+  "abstract": "Generative recommendation benefits from long interaction histories, but the cost of processing them directly grows with history length. We propose RecMem, a recurrent memory compression framework guided by three desiderata: space invariance, semantic fidelity, and lifelong evolvability. RecMem compresses historical segments into a fixed set of memory slots using a bifurcated encoder-decoder with shared lower layers and slot-wise forget-gated updates. Recommendation supervision trains the memory to preserve predictive information, while stream-consistency training aligns predictions from sequential and packed processing. By construction, the memory state and decoder context are independent of history length; under contraction and approximate semigroup consistency, we further derive a horizon-independent bound on the state discrepancy between these two processing orders. On MerRec, RecMem uses 16 memory slots and a 216-token decoder context, compared with 1,200 tokens for HSTU-1200, while retaining 87.9% of HSTU-1200's Recall@10 and 97.0% of its Recall@200. It outperforms PHSTU and the evaluated recent-only and retrieval baselines, and analyses of distant history show that archived interactions contribute predictive signal. Generative recommendation benefits from long interaction histories, but the cost of processing them directly grows with history length. We propose RecMem, a recurrent memory compression framework guided by three desiderata: space invariance, semantic fidelity, and lifelong evolvability. RecMem compresses historical segments into a fixed set of memory slots using a bifurcated encoder-decoder with shared lower layers and slot-wise forget-gated updates. Recommendation supervision trains the memory to preserve predictive information, while stream-consistency training aligns predictions from sequential and packed processing. By construction, the memory state and decoder context are independent of history length; under contraction and approximate semigroup consistency, we further derive a horizon-independent bound on the state discrepancy between these two processing orders. On MerRec, RecMem uses 16 memory slots and a 216-token decoder context, compared with 1,200 tokens for HSTU-1200, while retaining 87.9% of HSTU-1200's Recall@10 and 97.0% of its Recall@200. It outperforms PHSTU and the evaluated recent-only and retrieval baselines, and analyses of distant history show that archived interactions contribute predictive signal.",
+  "arxiv_id": "2611.17921",
+  "authors": [
+    "Haoyi Hu",
+    "Gaoyang Guo",
+    "Yunjia Xi",
+    "Wen Chen",
+    "Weiwen Liu",
+    "Jian Wu",
+    "Yuning Jiang",
+    "Weinan Zhang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "固定记忆槽与短解码器上下文可降低长历史推荐的在线服务成本，适合历史很长的推荐场景。",
+      "保留大部分 Recall 性能说明压缩历史可能在不显著损失召回的情况下减少上下文长度。",
+      "归档交互仍有预测价值，产品侧不应简单丢弃远距离行为，而可将其纳入压缩记忆。",
+      "落地前需在自有数据上验证召回损失、时延收益和长期记忆更新稳定性。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出 RecMem，一个面向生成式推荐的循环记忆压缩框架，以空间不变性、语义保真和终身可演化为设计目标。",
+      "使用共享底层与逐槽遗忘门更新的分叉编码器-解码器，将历史片段压缩到固定数量的记忆槽中。",
+      "通过推荐监督让记忆保留预测信息，并用流一致性训练对齐顺序处理与打包处理的预测。",
+      "在收缩性与近似半群一致性条件下，推导出两种处理顺序之间状态差异与历史跨度无关的界。",
+      "在 MerRec 上以 16 个记忆槽和 216 token 解码器上下文运行，同时保留 HSTU-1200 的大部分召回性能。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "HSTU-1200",
+        "PHSTU",
+        "recent-only baselines",
+        "retrieval baselines"
+      ],
+      "datasets": [
+        "MerRec"
+      ],
+      "findings_zh": [
+        "RecMem 使用 16 个记忆槽和 216 token 解码器上下文，而 HSTU-1200 使用 1,200 token。",
+        "RecMem 保留 HSTU-1200 的 87.9% Recall@10 和 97.0% Recall@200。",
+        "RecMem 优于 PHSTU 以及所评估的 recent-only 和 retrieval 基线。",
+        "对远距离历史的分析显示，归档交互仍贡献预测信号。"
+      ],
+      "metrics": [
+        "Recall@10",
+        "Recall@200"
+      ]
+    },
+    "limitations_zh": [
+      "当前证据仅来自摘要，缺少完整实验设置、统计显著性和实现细节。",
+      "摘要只报告了 MerRec 上的结果，未说明在其他数据集或业务场景中的泛化性。",
+      "摘要未量化训练与推理的时延、吞吐、内存占用或工程复杂度。",
+      "摘要未讨论失败模式、超参数敏感性或长期演化中的记忆退化风险。"
+    ],
+    "method_zh": "RecMem 将历史分段压缩为固定记忆槽，采用共享下层和槽级遗忘门的分叉编码器-解码器；用推荐监督训练记忆保留预测信息，并通过流一致性训练对齐顺序与打包两种处理方式的预测。其记忆状态和解码器上下文按构造不依赖历史长度，并在收缩性与近似半群一致性假设下给出状态差异的与历史跨度无关的界。",
+    "problem_zh": "生成式推荐能从长交互历史中获益，但直接处理历史会使计算成本随历史长度增长。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.72,
+  "id": "arxiv-2611.17921",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-19T18:32:09.838928Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-13T08:59:44Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "提出RecMem循环记忆压缩框架，用固定记忆槽与槽级遗忘门压缩长交互历史，使记忆与解码上下文长度无关，在MerRec上以216 token上下文保留HSTU-1200大部分召回。",
+  "targets": [],
+  "tasks": [],
+  "title": "RecMem: Recurrent Memory Compression for Long-Sequence Generative Recommendation",
+  "url": "https://arxiv.org/abs/2611.17921v1"
+}

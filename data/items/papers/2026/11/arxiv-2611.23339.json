@@ -1,0 +1,80 @@
+{
+  "abstract": "Generative recommendation (GR) inference differs substantially from conventional LLM serving, featuring long input sequences, wide beam search, and only a few fixed output tokens. Existing LLM serving engines such as vLLM process beams as batched independent sequences, causing redundant KV cache accesses over the shared prompt prefix. Furthermore, vLLM executes each beam search generation step as a separate engine invocation, incurring host-side beam processing overhead between decoding steps and substantial runtime KV block management in PagedAttention. Using Tree Attention, we concatenate beams along the sequence dimension to eliminate redundant KV accesses, and further optimize execution through pre-generated partial-attention masks, static KV cache allocation, loop-unrolled generation dispatch, TorchAir graph compilation, automatic operator fusion, and vocabulary-constrained decoding. Without the use of custom kernels, our approach reduces end-to-end latency by up to 25x over vLLM on Ascend NPUs, and achieves generation latency comparable to a SOTA solution using custom kernels, showing that the generation pipeline should be optimized holistically before resorting to custom kernel development. Generative recommendation (GR) inference differs substantially from conventional LLM serving, featuring long input sequences, wide beam search, and only a few fixed output tokens. Existing LLM serving engines such as vLLM process beams as batched independent sequences, causing redundant KV cache accesses over the shared prompt prefix. Furthermore, vLLM executes each beam search generation step as a separate engine invocation, incurring host-side beam processing overhead between decoding steps and substantial runtime KV block management in PagedAttention. Using Tree Attention, we concatenate beams along the sequence dimension to eliminate redundant KV accesses, and further optimize execution through pre-generated partial-attention masks, static KV cache allocation, loop-unrolled generation dispatch, TorchAir graph compilation, automatic operator fusion, and vocabulary-constrained decoding. Without the use of custom kernels, our approach reduces end-to-end latency by up to 25x over vLLM on Ascend NPUs, and achieves generation latency comparable to a SOTA solution using custom kernels, showing that the generation pipeline should be optimized holistically before resorting to custom kernel development.",
+  "arxiv_id": "2611.23339",
+  "authors": [
+    "Shing Wai Pun",
+    "Kai Wu",
+    "Pengfei Xia",
+    "Hui Zang",
+    "Wei Guo",
+    "Yong Liu"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对生成式推荐在线服务，Tree Attention 复用共享前缀 KV 可降低宽束搜索带来的重复访存和推理延迟。",
+      "静态 KV cache 分配、循环展开调度、图编译与算子融合可减少主机侧与运行时管理开销，适合在生产推理引擎中优先落地。",
+      "在未开发自定义 kernel 前先整体优化生成流水线，可降低工程成本并提升部署效率。",
+      "在 Ascend NPU 等国产硬件上，该方案可提升 GR 推理服务的吞吐与响应能力，但需结合业务数据验证推荐效果。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出使用 Tree Attention 沿序列维度拼接 beam，以消除共享前缀上的冗余 KV 访问。",
+      "结合预生成部分注意力掩码、静态 KV cache 分配、循环展开的生成调度、TorchAir 图编译、自动算子融合和词表约束解码来优化执行。",
+      "在不使用自定义 kernel 的情况下，于 Ascend NPU 上将端到端延迟相较 vLLM 最多降低 25 倍。",
+      "生成延迟达到使用自定义 kernel 的 SOTA 方案可比水平，说明应先整体优化生成流水线，再考虑自定义 kernel 开发。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "vLLM",
+        "使用自定义 kernel 的 SOTA 方案"
+      ],
+      "datasets": [],
+      "findings_zh": [
+        "在 Ascend NPU 上，不使用自定义 kernel 时端到端延迟相较 vLLM 最多降低 25 倍。",
+        "生成延迟达到使用自定义 kernel 的 SOTA 方案可比水平。",
+        "结果表明生成流水线应在开发自定义 kernel 之前进行整体优化。"
+      ],
+      "metrics": [
+        "端到端延迟",
+        "生成延迟"
+      ]
+    },
+    "limitations_zh": [
+      "当前仅有摘要信息，未提供数据集、模型规模、beam 宽度和硬件配置等实验细节。",
+      "摘要未报告推荐质量或精度相关指标。",
+      "延迟结果仅在 Ascend NPU 上报告，未说明在其他硬件平台上的泛化表现。"
+    ],
+    "method_zh": "使用 Tree Attention 将多个 beam 沿序列维度拼接，复用共享提示前缀的 KV 访问；并通过预生成部分注意力掩码、静态 KV cache 分配、循环展开的生成调度、TorchAir 图编译、自动算子融合和词表约束解码优化 GR 推理生成流水线。",
+    "problem_zh": "生成式推荐（GR）推理具有长输入序列、宽束搜索和少量固定输出 token 的特点，与传统 LLM 服务差异显著。vLLM 等现有引擎将各 beam 当作批内独立序列处理，导致共享提示前缀上的 KV cache 访问冗余；同时每个 beam search 生成步骤都作为独立引擎调用执行，带来解码步骤间的主机侧 beam 处理开销和 PagedAttention 中大量运行时 KV 块管理开销。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.6910000000000001,
+  "id": "arxiv-2611.23339",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-19T18:32:09.838928Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-17T07:14:52Z",
+  "relevance_score": 0.82,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "面向生成式推荐推理的工程优化工作，利用Tree Attention、静态KV缓存与图编译等手段消除宽束搜索中的冗余KV访问与主机端开销，在Ascend NPU上端到端时延较vLLM最高降低25倍。",
+  "targets": [],
+  "tasks": [],
+  "title": "Optimize the Cob, Then the Kernel: Optimizing Beam Search for Generative Recommendation Inference",
+  "url": "https://arxiv.org/abs/2611.23339v1"
+}

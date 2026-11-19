@@ -1,0 +1,100 @@
+{
+  "abstract": "Modern industrial recommender systems use multi-stage cascades--retrieval, pre-ranking, ranking, and re-ranking--to narrow millions of candidates to a personalized list. While each stage deploys sophisticated models, pipeline-level decisions on channel activation, quotas, model selection, and score fusion remain engineer-tuned and user-agnostic within each scenario. This report presents MARS (Multi-stage Agentic Recommendation System), extending personalization from individual-stage predictions to full pipeline orchestration. A near-line agent built on fine-tuned Qwen3-0.6B generates per-user configurations--a seven-dimensional action covering pipeline mode, retrieval quotas, model selection, fusion weights, and reranker settings--from a constrained action space. Configurations are validated, cached, and consumed asynchronously; the cascade never waits for LLM inference. Schema checks, fallbacks, and a kill switch ensure serving safety. The policy is trained in three stages: Confidence-aware SFT distills schema-valid generation from a teacher model; Format-Anchored Preference Optimization (FAPO) learns action preferences via ActionMask with posterior weighting; Group Relative Policy Optimization (GRPO) refines the policy through Sandbox replay with a frozen reward model, without exposing exploratory actions to live traffic. Two-week A/B tests across five Taobao scenarios with over ten million daily users show positive gains on all key metrics. The largest reach +5.22% V2P and +7.34% GMV, with positive CTR lifts on both click surfaces. About 20% of requests use a lightweight Minimal mode, and deployment shows 12 ms lower mean serving latency versus production. Modern industrial recommender systems use multi-stage cascades--retrieval, pre-ranking, ranking, and re-ranking--to narrow millions of candidates to a personalized list. While each stage deploys sophisticated models, pipeline-level decisions on channel activation, quotas, model selection, and score fusion remain engineer-tuned and user-agnostic within each scenario. This report presents MARS (Multi-stage Agentic Recommendation System), extending personalization from individual-stage predictions to full pipeline orchestration. A near-line agent built on fine-tuned Qwen3-0.6B generates per-user configurations--a seven-dimensional action covering pipeline mode, retrieval quotas, model selection, fusion weights, and reranker settings--from a constrained action space. Configurations are validated, cached, and consumed asynchronously; the cascade never waits for LLM inference. Schema checks, fallbacks, and a kill switch ensure serving safety. The policy is trained in three stages: Confidence-aware SFT distills schema-valid generation from a teacher model; Format-Anchored Preference Optimization (FAPO) learns action preferences via ActionMask with posterior weighting; Group Relative Policy Optimization (GRPO) refines the policy through Sandbox replay with a frozen reward model, without exposing exploratory actions to live traffic. Two-week A/B tests across five Taobao scenarios with over ten million daily users show positive gains on all key metrics. The largest reach +5.22% V2P and +7.34% GMV, with positive CTR lifts on both click surfaces. About 20% of requests use a lightweight Minimal mode, and deployment shows 12 ms lower mean serving latency versus production.",
+  "arxiv_id": "2611.24006",
+  "authors": [
+    "Tong Liu",
+    "Chaoqun Hou",
+    "Longxiang Xiong",
+    "Junhong Lou",
+    "Jiaqi Zheng",
+    "Qixin Li",
+    "Zixin Zhao",
+    "Yong Duan",
+    "Xiannian Hu",
+    "Fengze Jiang",
+    "Yu Zhu",
+    "Cheng Guo",
+    "Xinyuan Qi",
+    "Zi Zhuang",
+    "Ping Liu",
+    "Lv Shao",
+    "Zongwei Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "将个性化从单阶段模型预测扩展到整条推荐流水线的通道、配额、模型选择、融合与重排配置，可能为提升用户级适配和业务指标提供新抓手。",
+      "近线异步生成配置、缓存校验与 kill switch 的设计，使级联服务不等待 LLM 推理，对延迟敏感的在线推荐系统具有工程借鉴意义。",
+      "淘宝五场景 A/B 中 V2P、GMV 和 CTR 的正向结果，以及平均延迟降低 12 ms，显示该方法在业务收益与服务效率之间具备潜在平衡。",
+      "约 20% 请求使用 Minimal 模式，提示按请求复杂度动态选择轻量配置可兼顾效果与推理成本。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出 MARS（Multi-stage Agentic Recommendation System），将个性化从单阶段预测扩展到完整推荐流水线编排。",
+      "使用基于微调 Qwen3-0.6B 的近线智能体，为每个用户生成七维动作配置，覆盖流水线模式、检索配额、模型选择、融合权重和重排设置。",
+      "设计异步配置消费机制：配置经过校验、缓存后异步使用，级联服务不等待 LLM 推理，并通过 schema 检查、回退和 kill switch 保障服务安全。",
+      "提出三阶段策略训练：Confidence-aware SFT、Format-Anchored Preference Optimization（FAPO）和基于 Sandbox replay 与冻结奖励模型的 GRPO。",
+      "在淘宝五个场景、日活超千万用户的线上 A/B 测试中报告关键指标正向收益，并显示部署后平均服务延迟低于生产系统。"
+    ],
+    "evidence_quality": 0.38,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "线上生产系统（摘要用于延迟对比，未列出具体基线模型）"
+      ],
+      "datasets": [
+        "淘宝五个场景的线上 A/B 测试流量",
+        "日活用户超过一千万的线上用户"
+      ],
+      "findings_zh": [
+        "两周 A/B 测试覆盖淘宝五个场景和超过一千万日活用户，所有关键指标均为正向收益。",
+        "最大触达场景取得 V2P +5.22% 和 GMV +7.34%，两个点击面均有 CTR 正提升。",
+        "约 20% 的请求使用轻量 Minimal 模式。",
+        "部署后平均服务延迟较生产系统低 12 ms。"
+      ],
+      "metrics": [
+        "V2P",
+        "GMV",
+        "CTR",
+        "平均服务延迟",
+        "Minimal 模式请求占比"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，缺少离线实验、具体基线、消融实验、统计显著性和置信区间等信息。",
+      "摘要未说明奖励模型、约束动作空间、七维配置的具体取值与调参细节，复现性证据不足。",
+      "未提供不同用户群体、冷启动、分布漂移或长期收益的详细分析。",
+      "安全机制仅被概括为 schema 检查、回退和 kill switch，缺少故障率与线上异常案例的量化。",
+      "A/B 结果集中在淘宝场景，跨业务、跨平台泛化能力尚无法从摘要判断。"
+    ],
+    "method_zh": "MARS 在近线使用微调后的 Qwen3-0.6B 智能体，从受限动作空间中为每个用户生成七维配置，涵盖流水线模式、检索配额、模型选择、融合权重与重排器设置。配置经验证、缓存后异步消费，推荐级联不等待 LLM 推理；系统包含 schema 检查、回退和 kill switch。策略训练分三阶段：先用教师模型进行置信度感知 SFT，使输出符合 schema；再用 ActionMask 与后验加权的 FAPO 学习动作偏好；最后通过 Sandbox replay 和冻结奖励模型用 GRPO 优化策略，避免将探索动作暴露给线上流量。",
+    "problem_zh": "现代工业推荐系统通常采用检索、粗排、精排、重排的多阶段级联，但通道激活、配额、模型选择、分数融合等流水线级决策仍依赖工程师调参，并在同一场景内对用户无差别，缺乏面向用户的整链路编排。",
+    "technical_depth": 0.7
+  },
+  "doi": null,
+  "final_score": 0.8049999999999999,
+  "id": "arxiv-2611.24006",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-19T18:32:09.838928Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-18T07:56:58Z",
+  "relevance_score": 0.98,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文介绍面向淘宝多阶段级联推荐系统的MARS智能体编排方案，利用LLM生成用户级配置并覆盖召回、排序与重排。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MARS Technical Report",
+  "url": "https://arxiv.org/abs/2611.24006v1"
+}
