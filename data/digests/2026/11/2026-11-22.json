@@ -1,0 +1,21 @@
+{
+  "blogs": [],
+  "date": "2026-11-22",
+  "papers": [
+    {
+      "item_id": "arxiv-2611.25606",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文分析生成式新闻推荐中训练数据记忆如何放大热门文章并降低信息多样性，并探索目标级去重的影响。"
+    },
+    {
+      "item_id": "arxiv-2611.25288",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出用特征重要性指导训练中嵌入表剪枝的FI-ITEP方法，在大规模推荐模型上降低内存和GPU训练成本。"
+    },
+    {
+      "item_id": "arxiv-2611.26096",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文介绍Autodesk内容推荐系统中的LSER，将LLM会话与历史嵌入作为召回阶段用户侧特征，并通过近线服务保持实时更新。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "abstract": "Personalized content recommendation on large marketplace websites must reconcile heterogeneous candidate content (e.g., customer stories, product pages, industry pages, and learning content) with sparse, fast-changing user behavior, placing increasing demands on the retrieval stage to represent user interest well, not just the downstream ranking stage. We present LSER (LLM Session Embedding Retrieval), a production content recommendation system for autodesk.com that derives session- and history-level embeddings from a pretrained large language model (LLM) and adds them as auxiliary user-side features in the retrieval-stage user tower alongside existing learned sequence encoders. To keep user-side embeddings fresh under real-time behavior, we build a nearline serving path that asynchronously refreshes sequential and LLM-derived user vectors for our main content recommendation server. We validate the incremental value of the LLM features through an ablation study across our full multi-content-type catalog. Our results indicate that integrating LLM-derived embeddings as additional retrieval signals, together with production-grade nearline serving, is technically feasible and can improve model performances. Personalized content recommendation on large marketplace websites must reconcile heterogeneous candidate content (e.g., customer stories, product pages, industry pages, and learning content) with sparse, fast-changing user behavior, placing increasing demands on the retrieval stage to represent user interest well, not just the downstream ranking stage. We present LSER (LLM Session Embedding Retrieval), a production content recommendation system for autodesk.com that derives session- and history-level embeddings from a pretrained large language model (LLM) and adds them as auxiliary user-side features in the retrieval-stage user tower alongside existing learned sequence encoders. To keep user-side embeddings fresh under real-time behavior, we build a nearline serving path that asynchronously refreshes sequential and LLM-derived user vectors for our main content recommendation server. We validate the incremental value of the LLM features through an ablation study across our full multi-content-type catalog. Our results indicate that integrating LLM-derived embeddings as additional retrieval signals, together with production-grade nearline serving, is technically feasible and can improve model performances.",
+  "arxiv_id": "2611.26096",
+  "authors": [
+    "Zhixiong Hu",
+    "Meng Li",
+    "Maggie Zhang",
+    "Deborshi Goswami",
+    "David Bailey",
+    "James Bradley"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对内容类型多、用户行为稀疏且变化快的市场平台，召回阶段的用户表示与排序阶段同样重要。",
+      "LLM 派生用户嵌入可作为现有序列编码器的补充信号，而不是完全替代已有召回特征。",
+      "生产级近线异步刷新机制是保持实时行为下用户向量新鲜度的关键工程能力。",
+      "该方法已在 autodesk.com 的生产内容推荐场景中验证可行性，对类似 B2B 或内容市场平台具有参考价值。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出 LSER（LLM Session Embedding Retrieval），一个面向 autodesk.com 的生产内容推荐系统。",
+      "从预训练大语言模型（LLM）中生成会话级和历史级嵌入，并将其作为辅助用户侧特征加入召回阶段的用户塔，与已有的学习型序列编码器并行使用。",
+      "构建近线服务路径，异步刷新序列向量和 LLM 派生用户向量，以在实时行为下保持用户侧嵌入的新鲜度。",
+      "通过覆盖全量多内容类型目录的消融实验，验证 LLM 派生嵌入带来的增量价值。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "已有的学习型序列编码器",
+        "不使用 LLM 派生嵌入的消融变体"
+      ],
+      "datasets": [
+        "autodesk.com 全量多内容类型目录，包括客户故事、产品页、行业页和学习内容"
+      ],
+      "findings_zh": [
+        "将 LLM 派生嵌入作为额外召回信号，并结合生产级近线服务，在技术上可行。",
+        "消融实验表明，引入 LLM 特征可以提升模型表现。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "摘要未报告具体量化指标、提升幅度或统计显著性。",
+      "摘要未说明 LLM 的选型、嵌入维度、训练/推理成本及近线刷新延迟。",
+      "摘要未给出线上 A/B 测试、长期业务收益或与其他召回模型的详细对比。",
+      "由于仅依据摘要，无法核验实验设置、基线细节和复现条件。"
+    ],
+    "method_zh": "LSER 使用预训练 LLM 生成会话级与历史级用户嵌入，并将这些嵌入作为辅助用户侧特征加入召回阶段用户塔，与现有学习型序列编码器共同表示用户兴趣。系统另设近线服务路径，异步刷新序列向量与 LLM 派生用户向量，供主内容推荐服务器使用。摘要称通过全量多内容类型目录上的消融实验评估 LLM 特征的增量效果。",
+    "problem_zh": "大型市场网站的内容推荐需要同时处理异构候选内容（如客户故事、产品页、行业页和学习内容）与稀疏且快速变化的用户行为。摘要指出，这不仅对下游排序阶段提出要求，也对召回阶段的用户兴趣表示能力提出更高要求。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.76,
+  "id": "arxiv-2611.26096",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-21T18:28:24.981521Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-19T13:31:04Z",
+  "relevance_score": 0.96,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文介绍Autodesk内容推荐系统中的LSER，将LLM会话与历史嵌入作为召回阶段用户侧特征，并通过近线服务保持实时更新。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "From Sessions to Serving: Integrating LLM-Based Embeddings into Retrieval for Production Content Recommendation",
+  "url": "https://arxiv.org/abs/2611.26096v1"
+}

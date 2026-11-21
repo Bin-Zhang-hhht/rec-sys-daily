@@ -1,0 +1,93 @@
+{
+  "abstract": "Modern recommendation systems face substantial memory pressure, largely from the sparse embedding layer that maps high-cardinality categorical features into dense vectors. In-training embedding pruning (ITEP) removes less important embedding rows during training, yielding end-to-end memory savings but sometimes degrading accuracy because per-table pruning ratios are set by size-based heuristics. We use feature importance (FI) to guide these ratios (FI-ITEP), assigning higher pruning to tables tied to less important features. Across three large-scale recommendation models, FI-ITEP achieves 20--40% total memory reduction while matching or improving accuracy relative to percentile-based ITEP. Because the feature-importance signal requires minimal resources to compute, these memory savings translate into concrete systems benefits: the same models train on fewer GPU trainers (e.g., 112 to 80) with higher per-GPU throughput, saving 1,000+ GPU-hours per model launch. We reproduce these trends on the open-source DLRM (Criteo 1TB) and quantify the end-to-end training-time and GPU-cost tradeoff---including the burden of computing FI---offering practical guidance for embedding pruning in real-world systems. Modern recommendation systems face substantial memory pressure, largely from the sparse embedding layer that maps high-cardinality categorical features into dense vectors. In-training embedding pruning (ITEP) removes less important embedding rows during training, yielding end-to-end memory savings but sometimes degrading accuracy because per-table pruning ratios are set by size-based heuristics. We use feature importance (FI) to guide these ratios (FI-ITEP), assigning higher pruning to tables tied to less important features. Across three large-scale recommendation models, FI-ITEP achieves 20--40% total memory reduction while matching or improving accuracy relative to percentile-based ITEP. Because the feature-importance signal requires minimal resources to compute, these memory savings translate into concrete systems benefits: the same models train on fewer GPU trainers (e.g., 112 to 80) with higher per-GPU throughput, saving 1,000+ GPU-hours per model launch. We reproduce these trends on the open-source DLRM (Criteo 1TB) and quantify the end-to-end training-time and GPU-cost tradeoff---including the burden of computing FI---offering practical guidance for embedding pruning in real-world systems.",
+  "arxiv_id": "2611.25288",
+  "authors": [
+    "Anish Khazane",
+    "Alex Saad-Falcon",
+    "Guanchu Wu",
+    "Marcio Porto",
+    "Jasper Shan",
+    "Fei Yu",
+    "Eugene Shulga",
+    "Intaik Park",
+    "Yongzhe Zhang",
+    "Xiaoyu Deng",
+    "Sheng Luo",
+    "Xiaoya Wang"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "通过按特征重要性分配嵌入表剪枝比例，可在保持或提升准确率的同时显著降低嵌入层内存占用，适合内存瓶颈明显的推荐训练系统。",
+      "更少 GPU 训练器与更高单 GPU 吞吐可直接降低训练基础设施成本和排队时间，摘要中给出的 112 至 80 台及 1000+ GPU 小时节省表明收益可量化。",
+      "特征重要性信号计算成本低，使该方法相对容易嵌入现有训练流水线，但实际部署仍需评估 FI 计算开销与剪枝调参成本。",
+      "该工作为容量规划提供依据：内存节省可转化为 GPU 数量、吞吐和发布周期方面的运营优化。"
+    ],
+    "business_transferability": 0.78,
+    "contributions_zh": [
+      "提出 FI-ITEP：利用特征重要性（FI）指导每张嵌入表的剪枝比例，对与较不重要特征关联的表施加更高剪枝。",
+      "在三个大规模推荐模型上，FI-ITEP 实现 20%–40% 的总内存降低，同时相对基于百分位的 ITEP 保持或提升准确率。",
+      "由于特征重要性信号计算资源需求很小，内存节省可转化为系统收益：相同模型可在更少 GPU 训练器上训练（例如从 112 台降至 80 台），并具有更高的单 GPU 吞吐，每次模型发布节省 1000+ GPU 小时。",
+      "在开源 DLRM（Criteo 1TB）上复现相关趋势，并量化端到端训练时间与 GPU 成本权衡，包括计算 FI 的负担，为真实系统中的嵌入剪枝提供实践指导。"
+    ],
+    "evidence_quality": 0.58,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "基于百分位/基于大小启发式的 ITEP"
+      ],
+      "datasets": [
+        "Criteo 1TB（用于开源 DLRM 复现）"
+      ],
+      "findings_zh": [
+        "在三个大规模推荐模型上，FI-ITEP 实现 20%–40% 的总内存降低，并相对基于百分位的 ITEP 保持或提升准确率。",
+        "内存节省带来系统级收益：相同模型可从 112 台 GPU 训练器降至 80 台，且单 GPU 吞吐更高，每次模型发布节省 1000+ GPU 小时。",
+        "在开源 DLRM（Criteo 1TB）上复现了相关趋势，并对端到端训练时间与 GPU 成本权衡进行了量化，包括计算特征重要性的负担。"
+      ],
+      "metrics": [
+        "总内存降低比例",
+        "准确率",
+        "GPU 训练器数量",
+        "单 GPU 吞吐",
+        "节省的 GPU 小时",
+        "端到端训练时间",
+        "GPU 成本"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未披露三个大规模推荐模型的具体名称、结构或业务场景，外部泛化证据有限。",
+      "摘要仅给出内存降低区间和准确率方向性结论，未报告具体准确率指标数值或统计显著性。",
+      "摘要提到量化计算 FI 的负担，但未给出其具体开销数值或与剪枝收益的详细分解。",
+      "公开复现仅提及开源 DLRM 与 Criteo 1TB，尚不清楚在其他数据集或模型规模上的表现。"
+    ],
+    "method_zh": "FI-ITEP 在训练中嵌入剪枝流程中引入特征重要性信号来设定每张嵌入表的剪枝比例，而非仅依赖基于大小的启发式规则；与较不重要特征关联的嵌入表被分配更高的剪枝比例，以在降低内存占用的同时尽量保持或提升模型准确率。",
+    "problem_zh": "推荐系统面临显著内存压力，主要来自将高基数类别特征映射为稠密向量的稀疏嵌入层。训练中嵌入剪枝（ITEP）可在训练过程中删除不重要的嵌入行以节省内存，但其按表剪枝比例依赖基于大小的启发式规则，可能导致准确率下降。",
+    "technical_depth": 0.62
+  },
+  "doi": null,
+  "final_score": 0.768,
+  "id": "arxiv-2611.25288",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-21T18:28:24.981521Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-18T23:26:49Z",
+  "relevance_score": 0.86,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出用特征重要性指导训练中嵌入表剪枝的FI-ITEP方法，在大规模推荐模型上降低内存和GPU训练成本。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Intelligent Embedding Pruning for Large-Scale Recommendation Models",
+  "url": "https://arxiv.org/abs/2611.25288v1"
+}

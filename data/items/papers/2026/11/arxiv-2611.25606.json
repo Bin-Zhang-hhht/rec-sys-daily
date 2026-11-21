@@ -1,0 +1,83 @@
+{
+  "abstract": "Text-based generative recommenders can go beyond ranking existing items by directly generating item titles or other textual representations. In the news domain, this raises a societal concern that models may repeatedly surface already popular articles and thereby narrow the diversity of information to which users are exposed. We investigate training-data memorization as one mechanism behind this concentration. Using approximately 20 million browsing sessions from a Japanese news service, we continually trained an instruction-tuned Llama 3 8B model to generate the next article title in a session. The generated-title distribution was more concentrated and less diverse than the distribution of titles observed in the browsing logs. Frequently repeated target titles exhibited greater verbatim and approximate memorization, and more strongly memorized titles were generated in response to a wider range of prompts. These findings support a pathway in which popularity in behavioral logs becomes repeated training text, is preferentially memorized, and is subsequently reproduced by a generative recommender. An exploratory target-level deduplication condition reduced both memorization and output concentration, while substantially reducing the training-set size and recommendation accuracy. Our results suggest that popularity bias in generative recommendation may arise not only from user preferences or ranking objectives, but also from the model's tendency to reproduce frequently encountered strings, with important implications for information diversity on news platforms. Text-based generative recommenders can go beyond ranking existing items by directly generating item titles or other textual representations. In the news domain, this raises a societal concern that models may repeatedly surface already popular articles and thereby narrow the diversity of information to which users are exposed. We investigate training-data memorization as one mechanism behind this concentration. Using approximately 20 million browsing sessions from a Japanese news service, we continually trained an instruction-tuned Llama 3 8B model to generate the next article title in a session. The generated-title distribution was more concentrated and less diverse than the distribution of titles observed in the browsing logs. Frequently repeated target titles exhibited greater verbatim and approximate memorization, and more strongly memorized titles were generated in response to a wider range of prompts. These findings support a pathway in which popularity in behavioral logs becomes repeated training text, is preferentially memorized, and is subsequently reproduced by a generative recommender. An exploratory target-level deduplication condition reduced both memorization and output concentration, while substantially reducing the training-set size and recommendation accuracy. Our results suggest that popularity bias in generative recommendation may arise not only from user preferences or ranking objectives, but also from the model's tendency to reproduce frequently encountered strings, with important implications for information diversity on news platforms.",
+  "arxiv_id": "2611.25606",
+  "authors": [
+    "Shotaro Ishihara"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "新闻和内容平台在采用生成式推荐时，应监控输出标题的集中度和记忆迹象，尤其是高频热门内容。",
+      "数据治理中需要管理重复文本，因为训练数据频率可能直接塑造生成式推荐器的输出偏好。",
+      "目标级去重可缓解记忆和输出集中，但可能牺牲推荐准确率，业务上需在多样性、覆盖和准确性之间做显式权衡。",
+      "生成式推荐系统的评估不应只看准确率，还应加入信息多样性、流行度偏差和记忆审计指标。",
+      "对推荐系统团队而言，流行度偏差不仅来自用户偏好或排序目标，也可能来自模型复现高频字符串的倾向。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "将生成式新闻推荐中的信息集中问题与训练数据记忆机制联系起来，提出“行为日志中的流行度变成重复训练文本、被优先记忆、再被生成式推荐器复现”的路径。",
+      "基于日本新闻服务约2000万次浏览会话，持续训练指令微调的 Llama 3 8B 模型生成会话中的下一篇文章标题，并比较生成标题分布与浏览日志中的标题分布。",
+      "发现高频重复的目标标题具有更强的逐字记忆和近似记忆，且记忆更强的标题可在更广泛的提示范围内被生成。",
+      "探索目标级去重条件，发现其降低记忆和输出集中度，但同时显著缩小训练集并降低推荐准确率。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [
+        "日本新闻服务约2000万次浏览会话"
+      ],
+      "findings_zh": [
+        "生成标题分布比浏览日志中观察到的标题分布更集中、更多样性不足。",
+        "频繁重复的目标标题表现出更强的逐字记忆和近似记忆。",
+        "记忆更强的标题会在更广泛的提示范围内被生成。",
+        "目标级去重条件降低了记忆和输出集中度，但大幅减少训练集规模并降低推荐准确率。",
+        "结果支持一条路径：行为日志中的流行度成为重复训练文本，被优先记忆，并随后被生成式推荐器复现。"
+      ],
+      "metrics": [
+        "生成标题分布的集中度/多样性",
+        "逐字记忆（verbatim memorization）",
+        "近似记忆（approximate memorization）",
+        "记忆强度对应的提示覆盖范围",
+        "训练集规模",
+        "推荐准确率"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，缺少完整实验设置、基线、指标定义和统计检验细节。",
+      "研究基于单一日本新闻服务的浏览会话，跨平台、跨语言和跨内容领域的外部有效性有限。",
+      "去重条件是探索性的，且存在降低记忆/集中度与损失训练集规模、推荐准确率之间的权衡。",
+      "研究聚焦训练数据记忆作为机制之一，不能解释生成式推荐中流行度偏差的全部来源。",
+      "摘要未报告线上部署、真实用户长期曝光多样性或业务指标影响。"
+    ],
+    "method_zh": "使用约2000万次日本新闻服务浏览会话，对指令微调的 Llama 3 8B 进行持续训练，任务是生成会话中的下一篇文章标题；随后比较生成标题分布与浏览日志标题分布的集中度和多样性，并按目标标题频率分析逐字记忆、近似记忆以及不同提示下的生成范围；另设置探索性的目标级去重条件。",
+    "problem_zh": "文本生成式推荐器可直接生成文章标题等物品表示，但在新闻场景中可能反复推荐已热门文章，收窄用户接触的信息多样性。论文研究训练数据记忆是否是造成这种输出集中的机制之一。",
+    "technical_depth": 0.62
+  },
+  "doi": null,
+  "final_score": 0.7915000000000001,
+  "id": "arxiv-2611.25606",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-21T18:28:24.981521Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "large_language_model"
+  ],
+  "published_at": "2026-11-19T06:54:22Z",
+  "relevance_score": 0.93,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文分析生成式新闻推荐中训练数据记忆如何放大热门文章并降低信息多样性，并探索目标级去重的影响。",
+  "targets": [],
+  "tasks": [],
+  "title": "Generative News Recommendation Reproduces Popularity: A Memorization-Based Analysis",
+  "url": "https://arxiv.org/abs/2611.25606v1"
+}
