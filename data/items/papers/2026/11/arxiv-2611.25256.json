@@ -1,0 +1,80 @@
+{
+  "abstract": "Generative retrieval (GR) for sequential recommendation compresses each item into a short semantic ID and trains an autoregressive decoder to generate next-item codes from a user history. While appealing for cold-start handling and storage, au- toregressive GR suffers a structural scaling limit: typically, longer semantic IDs reduce quantization error in principle but degrade ranking quality and quadratic memory usage against semantic ID length. We propose Late Quantization (LQ), a non-autoregressive paradigm that confines discretization to the output (item) side of the pipeline. The encoder and scoring rule operate in continuous space, while items are stored and matched as semantic IDs produced by an end-to-end-trained residual quantizer. This architectural shift permits an additive error decomposition and a pairwise ordering theorem that jointly bound the quantization- induced ranking drop, a structural guarantee absent in prior semantic-ID recommenders. Across four public benchmarks, the resulting recommender, LQ-Rec, delivers three capabilities simultaneously: ranking quality improves monotonically with the semantic-ID length and outperforms existing baselines; a single trained model supports anytime compression, tuning ranking quality against inference cost without retraining; and LQ-Rec shows superior generalization on a memorization/generalization partition. Generative retrieval (GR) for sequential recommendation compresses each item into a short semantic ID and trains an autoregressive decoder to generate next-item codes from a user history. While appealing for cold-start handling and storage, au- toregressive GR suffers a structural scaling limit: typically, longer semantic IDs reduce quantization error in principle but degrade ranking quality and quadratic memory usage against semantic ID length. We propose Late Quantization (LQ), a non-autoregressive paradigm that confines discretization to the output (item) side of the pipeline. The encoder and scoring rule operate in continuous space, while items are stored and matched as semantic IDs produced by an end-to-end-trained residual quantizer. This architectural shift permits an additive error decomposition and a pairwise ordering theorem that jointly bound the quantization- induced ranking drop, a structural guarantee absent in prior semantic-ID recommenders. Across four public benchmarks, the resulting recommender, LQ-Rec, delivers three capabilities simultaneously: ranking quality improves monotonically with the semantic-ID length and outperforms existing baselines; a single trained model supports anytime compression, tuning ranking quality against inference cost without retraining; and LQ-Rec shows superior generalization on a memorization/generalization partition.",
+  "arxiv_id": "2611.25256",
+  "authors": [
+    "Satoshi Koide",
+    "Yueqi Wang",
+    "Julian McAuley"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "语义 ID 存储与匹配可支持成本敏感的推荐检索部署，但需在实际业务数据上验证收益。",
+      "单一模型无需重训即可调节排序质量与推理成本，有利于按场景或流量分层配置计算预算。",
+      "若记忆/泛化划分上的优势可复现，可能对长尾或冷启动相关场景有业务价值，但摘要未给出直接业务验证。",
+      "量化导致的排序下降有理论约束，可能降低采用语义 ID 压缩时的质量风险，但仍需线上 A/B 与延迟评估。"
+    ],
+    "business_transferability": 0.56,
+    "contributions_zh": [
+      "提出 Late Quantization（LQ）非自回归范式，将离散化限制在流程的输出（物品）侧，编码器与评分规则在连续空间中工作。",
+      "物品以端到端训练的残差量化器产生的语义 ID 进行存储和匹配。",
+      "给出加性误差分解与成对排序定理，共同约束量化导致的排序下降，这是此前语义 ID 推荐器所缺乏的结构性保证。",
+      "在四个公开基准上提出 LQ-Rec，并报告三项能力：排序质量随语义 ID 长度单调提升且优于现有基线；单一训练模型支持 anytime compression，无需重训即可在排序质量与推理成本间调节；在记忆/泛化划分上表现更优。"
+    ],
+    "evidence_quality": 0.32,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "现有基线（摘要未列出具体名称）"
+      ],
+      "datasets": [
+        "四个公开基准（摘要未列出具体名称）"
+      ],
+      "findings_zh": [
+        "在四个公开基准上，排序质量随语义 ID 长度增加而单调提升，并优于现有基线。",
+        "单一训练模型支持 anytime compression，可在不重新训练的情况下调节排序质量与推理成本。",
+        "在记忆/泛化划分上表现出更好的泛化能力。"
+      ],
+      "metrics": [
+        "排序质量（摘要未给出具体指标名称）"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未列出四个公开基准的具体名称、数据规模或预处理方式。",
+      "摘要未给出具体排序指标、基线名称或定量结果，无法核验提升幅度。",
+      "anytime compression 的实际推理成本、延迟与内存收益未在摘要中量化。",
+      "加性误差分解与成对排序定理的假设、证明条件和适用边界未在摘要中展开。",
+      "摘要未说明在线工业场景、冷启动专项实验或生产部署验证。",
+      "摘要未提供与自回归 GR 在相同条件下的完整消融与失败案例分析。"
+    ],
+    "method_zh": "LQ 将量化推迟到物品输出侧：用户历史编码与物品打分在连续空间完成，物品侧通过端到端训练的残差量化器生成语义 ID 并用于存储与匹配；该结构支持加性误差分解和成对排序定理，用于界定量化引起的排序损失。LQ-Rec 是采用该范式的推荐模型。",
+    "problem_zh": "面向序列推荐的生成式检索（GR）将每个物品压缩为较短的语义 ID，并训练自回归解码器根据用户历史生成下一物品编码。该范式在冷启动处理和存储方面有吸引力，但存在结构性扩展限制：更长的语义 ID 原则上可降低量化误差，却会损害排序质量，并使内存开销随语义 ID 长度呈二次增长。",
+    "technical_depth": 0.74
+  },
+  "doi": null,
+  "final_score": 0.6895,
+  "id": "arxiv-2611.25256",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-22T18:28:19.316149Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-18T22:41:09Z",
+  "relevance_score": 0.85,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出非自回归的 Late Quantization 范式与 LQ-Rec 模型，用于序列推荐中的生成式检索并随语义 ID 长度单调提升排序质量。",
+  "targets": [],
+  "tasks": [],
+  "title": "LQ-Rec: Late Quantization for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2611.25256v1"
+}

@@ -1,0 +1,11 @@
+{
+  "blogs": [],
+  "date": "2026-11-23",
+  "papers": [
+    {
+      "item_id": "arxiv-2611.25256",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出非自回归的 Late Quantization 范式与 LQ-Rec 模型，用于序列推荐中的生成式检索并随语义 ID 长度单调提升排序质量。"
+    }
+  ]
+}
