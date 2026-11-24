@@ -1,0 +1,89 @@
+{
+  "abstract": "Sequential recommender systems aim to predict a user's next interaction by modeling temporal dependencies in historical behavior sequences. To capture such dependencies, recent approaches increasingly rely on attention-based architectures, particularly transformers. While effective at modeling long-range sequential patterns, these models apply a fixed computation depth to all interaction items, treating them as equally complex. However, user behavior is inherently heterogeneous, with many interactions following simple repetitive patterns, whereas others require modeling higher-order dependencies. This mismatch leads to inefficient utilization of model capacity and unnecessary computational overhead, particularly in deep transformer-based architectures. To address this issue, we propose MoR4Rec, a sequential recommendation framework based on a Mixture-of-Recursion paradigm, which enables item-wise adaptive computation through a shared transformer backbone. A learned routing mechanism dynamically assigns each item to an appropriate recursion depth, allocating deeper computation to complex interactions while processing simpler patterns more efficiently. To improve computational efficiency, we develop a cascade-based strategy with key-value sharing across recursion steps. We further introduce a gated attention mechanism that adaptively regulates contextual information during recursive sequence modeling. Extensive experiments on three benchmark datasets show that MoR4Rec consistently outperforms strong transformer-based baselines, achieving average gains of 2.28% in Recall@5, 2.50% in NDCG@5, and 2.0% in MRR@5 over the strongest baseline. The improvements remain consistent across top-10 and top-20 recommendation cutoffs, while comparisons with vanilla transformers demonstrate the computational efficiency of adaptive recursive processing. Sequential recommender systems aim to predict a user's next interaction by modeling temporal dependencies in historical behavior sequences. To capture such dependencies, recent approaches increasingly rely on attention-based architectures, particularly transformers. While effective at modeling long-range sequential patterns, these models apply a fixed computation depth to all interaction items, treating them as equally complex. However, user behavior is inherently heterogeneous, with many interactions following simple repetitive patterns, whereas others require modeling higher-order dependencies. This mismatch leads to inefficient utilization of model capacity and unnecessary computational overhead, particularly in deep transformer-based architectures. To address this issue, we propose MoR4Rec, a sequential recommendation framework based on a Mixture-of-Recursion paradigm, which enables item-wise adaptive computation through a shared transformer backbone. A learned routing mechanism dynamically assigns each item to an appropriate recursion depth, allocating deeper computation to complex interactions while processing simpler patterns more efficiently. To improve computational efficiency, we develop a cascade-based strategy with key-value sharing across recursion steps. We further introduce a gated attention mechanism that adaptively regulates contextual information during recursive sequence modeling. Extensive experiments on three benchmark datasets show that MoR4Rec consistently outperforms strong transformer-based baselines, achieving average gains of 2.28% in Recall@5, 2.50% in NDCG@5, and 2.0% in MRR@5 over the strongest baseline. The improvements remain consistent across top-10 and top-20 recommendation cutoffs, while comparisons with vanilla transformers demonstrate the computational efficiency of adaptive recursive processing.",
+  "arxiv_id": "2611.29462",
+  "authors": [
+    "Tiwari Ankit Satyaprakash",
+    "Adamya Shyam",
+    "Vikas Kumar",
+    "Bharti Rana",
+    "Venkateswara Rao Kagita"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "按item自适应递归深度可把更深计算集中到复杂交互，对简单重复行为使用更少计算，有助于在推荐系统中平衡效果与算力成本。",
+      "跨递归步key-value共享的级联策略可能降低深层递归的在线推理开销，适合对延迟敏感的推荐场景。",
+      "门控注意力对上下文的自适应调节可能提升复杂序列的推荐相关性，但需在真实业务数据上验证增益是否稳定。",
+      "由于摘要仅报告离线基准结果，落地前应补充线上A/B测试、延迟/吞吐评估及冷启动与稀疏用户场景验证。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出MoR4Rec，将Mixture-of-Recursion范式用于序列推荐，在共享Transformer骨干上实现按item自适应计算。",
+      "设计学习型路由机制，为每个item动态分配合适的递归深度，把更深计算分配给复杂交互、更高效处理简单模式。",
+      "提出带跨递归步key-value共享的级联策略，以提升递归计算效率。",
+      "引入门控注意力机制，在递归序列建模中自适应调节上下文信息。",
+      "在三个基准数据集上验证MoR4Rec优于强Transformer基线，并在Top-10、Top-20截断下保持提升，同时展示自适应递归处理相对vanilla Transformer的计算效率。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "强Transformer基线（摘要未具名）",
+        "vanilla Transformer"
+      ],
+      "datasets": [
+        "三个基准数据集（摘要未具名）"
+      ],
+      "findings_zh": [
+        "MoR4Rec在三个基准数据集上持续优于强Transformer基线。",
+        "相对最强基线，平均提升为Recall@5 2.28%、NDCG@5 2.50%、MRR@5 2.0%。",
+        "在Top-10和Top-20推荐截断下，提升保持一致。",
+        "与vanilla Transformer比较表明自适应递归处理具有计算效率优势。"
+      ],
+      "metrics": [
+        "Recall@5",
+        "NDCG@5",
+        "MRR@5",
+        "Top-10推荐截断指标",
+        "Top-20推荐截断指标"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未披露三个基准数据集的具体名称和强基线清单，复现与横向比较细节不足。",
+      "摘要未给出计算开销、延迟或吞吐的绝对数值，效率优势仅有相对性描述。",
+      "仅提供摘要，无法评估冷启动、稀疏序列、分布漂移等边界条件下的表现。",
+      "未提供线上A/B测试或真实生产环境验证信息。"
+    ],
+    "method_zh": "MoR4Rec基于Mixture-of-Recursion范式，在共享Transformer骨干上为每个item进行自适应递归计算；学习型路由机制决定各item的递归深度；采用跨递归步共享key-value的级联策略降低计算开销；并使用门控注意力机制自适应调节上下文信息。",
+    "problem_zh": "序列推荐模型（尤其是Transformer）对所有交互项采用固定计算深度，但用户行为异质：简单重复模式与需要高阶依赖的复杂交互被同等处理，导致模型容量利用低和计算开销不必要。",
+    "technical_depth": 0.6
+  },
+  "doi": null,
+  "final_score": 0.7574999999999998,
+  "id": "arxiv-2611.29462",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-24T18:31:15.379797Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-22T13:02:59Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 MoR4Rec，以混合递归和自适应路由为序列推荐中的每个物品分配合适的计算深度，并在多个基准上提升 Recall、NDCG 与 MRR。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "MoR4Rec: Mixture-of-Recursion for Sequential Recommendation",
+  "url": "https://arxiv.org/abs/2611.29462v1"
+}

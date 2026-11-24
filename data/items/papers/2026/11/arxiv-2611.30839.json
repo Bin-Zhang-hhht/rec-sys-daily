@@ -1,0 +1,85 @@
+{
+  "abstract": "Auditing corporate sustainability reports requires assurance professionals to map a company-specific checklist drawn from roughly 1,700 regulatory requirements onto the relevant passages of lengthy, repeatedly revised draft reports and to judge compliance. We present SARA (Sustainability Reporting Assistant), a human-in-the-loop recommender system delivered as a Microsoft Word add-in that recommends, for each requirement, the passages addressing it and predicts a compliance verdict while keeping the auditor in full control. SARA casts auditing as content-based recommendation over a fixed regulatory taxonomy and makes per-requirement large language model (LLM) matching cheaper, faster, and more accurate through topic-prediction filtering: on expert-annotated reports, it reduces matching cost about sixfold and runtime by 42% versus feeding the full report to the LLM. It is in production use across PwC Germany's sustainability-assurance practice. Auditing corporate sustainability reports requires assurance professionals to map a company-specific checklist drawn from roughly 1,700 regulatory requirements onto the relevant passages of lengthy, repeatedly revised draft reports and to judge compliance. We present SARA (Sustainability Reporting Assistant), a human-in-the-loop recommender system delivered as a Microsoft Word add-in that recommends, for each requirement, the passages addressing it and predicts a compliance verdict while keeping the auditor in full control. SARA casts auditing as content-based recommendation over a fixed regulatory taxonomy and makes per-requirement large language model (LLM) matching cheaper, faster, and more accurate through topic-prediction filtering: on expert-annotated reports, it reduces matching cost about sixfold and runtime by 42% versus feeding the full report to the LLM. It is in production use across PwC Germany's sustainability-assurance practice.",
+  "arxiv_id": "2611.30839",
+  "authors": [
+    "Lars Hillebrand",
+    "Thiago B. F. de Oliveira",
+    "Tim Dilmaghani",
+    "Mohamed Khaled",
+    "Writwick Das",
+    "Rafet Sifa"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可显著降低审计师将监管要求映射到报告段落的匹配成本和处理时间。",
+      "人在回路设计有助于在提升效率的同时保留审计师对合规判断的控制。",
+      "Word 插件形态贴近审计工作流，有利于在鉴证业务中落地。",
+      "该方法可复用到其他需要将固定法规清单映射到长篇文档并判断合规的业务场景。"
+    ],
+    "business_transferability": 0.85,
+    "contributions_zh": [
+      "提出 SARA（Sustainability Reporting Assistant），一个以 Microsoft Word 插件形式交付的人在回路推荐系统，针对每条要求推荐相关段落并预测合规结论，同时保持审计师完全控制。",
+      "将审计任务建模为固定监管分类体系上的基于内容的推荐问题。",
+      "通过主题预测过滤，使逐条要求的 LLM 匹配相比将完整报告输入 LLM 更便宜、更快、更准确。",
+      "在专家标注报告上，匹配成本约降低六倍，运行时间减少42%。",
+      "系统已在 PwC Germany 的可持续发展鉴证业务中投入生产使用。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "将完整报告输入 LLM 进行逐条要求匹配"
+      ],
+      "datasets": [
+        "专家标注的报告"
+      ],
+      "findings_zh": [
+        "相比将完整报告输入 LLM，SARA 在专家标注报告上将匹配成本约降低六倍。",
+        "相比将完整报告输入 LLM，SARA 将运行时间减少42%。",
+        "摘要声称主题预测过滤使逐条要求的 LLM 匹配更便宜、更快、更准确。",
+        "系统已在 PwC Germany 的可持续发展鉴证实践中生产使用。"
+      ],
+      "metrics": [
+        "匹配成本",
+        "运行时间",
+        "匹配准确性"
+      ]
+    },
+    "limitations_zh": [
+      "仅依据摘要，无法评估完整实验设计、数据规模和统计显著性。",
+      "摘要只给出成本约六倍和运行时间42%的降幅，未给出准确性提升的具体数值。",
+      "摘要未说明专家标注报告的规模、标注一致性或评估细节。",
+      "生产使用范围仅提及 PwC Germany 的可持续发展鉴证业务，外部泛化性证据有限。"
+    ],
+    "method_zh": "SARA 是 Microsoft Word 插件中的人在回路推荐系统，将审计视为固定监管分类体系上的基于内容推荐；对每条监管要求，先用主题预测过滤缩小候选范围，再调用 LLM 匹配相关段落并预测合规结论，最终由审计师控制。",
+    "problem_zh": "企业可持续发展报告审计需要 assurance professionals 将约1700条监管要求构成的公司特定检查清单映射到冗长且反复修订的草稿报告的相关段落，并判断合规性，工作量大且复杂。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.7375000000000002,
+  "id": "arxiv-2611.30839",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-24T18:31:15.379797Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-23T15:23:50Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 SARA，一个面向可持续性报告审计的 LLM 推荐系统，按监管要求推荐相关段落并预测合规结论。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "SARA: An Auditor-in-the-Loop LLM Recommender for Sustainability Reports",
+  "url": "https://arxiv.org/abs/2611.30839v1"
+}

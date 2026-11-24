@@ -1,0 +1,87 @@
+{
+  "abstract": "Learning effective feature interactions is essential for industrial recommender systems. DCN and DCNv2 efficiently automate polynomial feature crossing. However, their cross layers construct interactions using only non-negative integer powers of the input features, with the maximum degree controlled by network depth. Consequently, they cannot directly represent the reciprocal terms required for ratios, rates, and normalized counts unless such features are explicitly provided as inputs. We introduce DCDN, a Deep Cross-Division Network that augments a DCNv2-style cross layer with a division branch. DCDN jointly learns product, ratio, and mixed product-ratio interactions. We characterize the representable interactions as multivariate Laurent polynomials and show that a $K$-layer DCDN generates Laurent monomials of $\\ell_1$-order up to $K+1$, with signed degree between $-K$ and $K+1$. We evaluate DCDN against a production-optimized neural-ranking baseline built around DCNv2 and supplied with manually engineered ratio features. Replacing the DCNv2 block with DCDN allowed us to eliminate the entire class of manually engineered ratio features from the model input, reducing the number of input features by $40.1\\%$. DCDN is deployed in the production ranking stack of a major short-video service. In a live A/B test on this service, DCDN increased likes by $3.25\\%$, shares by $16.26\\%$, total view time (TVT) by $0.33\\%$, and clicks to open fullscreen by $0.38\\%$; all changes were statistically significant. The number of shown videos decreased slightly ($-0.24\\%$). These results demonstrate that DCDN can improve user engagement while eliminating reliance on manually engineered ratio features. Our code is publicly released at https://github.com/rw404/DCDN. Learning effective feature interactions is essential for industrial recommender systems. DCN and DCNv2 efficiently automate polynomial feature crossing. However, their cross layers construct interactions using only non-negative integer powers of the input features, with the maximum degree controlled by network depth. Consequently, they cannot directly represent the reciprocal terms required for ratios, rates, and normalized counts unless such features are explicitly provided as inputs. We introduce DCDN, a Deep Cross-Division Network that augments a DCNv2-style cross layer with a division branch. DCDN jointly learns product, ratio, and mixed product-ratio interactions. We characterize the representable interactions as multivariate Laurent polynomials and show that a $K$-layer DCDN generates Laurent monomials of $\\ell_1$-order up to $K+1$, with signed degree between $-K$ and $K+1$. We evaluate DCDN against a production-optimized neural-ranking baseline built around DCNv2 and supplied with manually engineered ratio features. Replacing the DCNv2 block with DCDN allowed us to eliminate the entire class of manually engineered ratio features from the model input, reducing the number of input features by $40.1\\%$. DCDN is deployed in the production ranking stack of a major short-video service. In a live A/B test on this service, DCDN increased likes by $3.25\\%$, shares by $16.26\\%$, total view time (TVT) by $0.33\\%$, and clicks to open fullscreen by $0.38\\%$; all changes were statistically significant. The number of shown videos decreased slightly ($-0.24\\%$). These results demonstrate that DCDN can improve user engagement while eliminating reliance on manually engineered ratio features. Our code is publicly released at https://github.com/rw404/DCDN.",
+  "arxiv_id": "2611.27514",
+  "authors": [
+    "Mikhail Trapeznikov",
+    "Sofia Gulevskaia",
+    "Maksim Utushkin",
+    "Aleksandr Poslavsky",
+    "Alexander D'yakonov"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可用模型内生的除法分支替代人工比例特征，减少特征工程负担和输入维度。",
+      "比值与混合交互建模可能提升点赞、分享、观看时长和全屏点击等互动指标。",
+      "生产部署和线上 A/B 结果说明该方案具备进入真实推荐排序栈的可行性。",
+      "展示视频数小幅下降提示需同时监控内容供给/消费量指标，避免单一互动指标优化带来副作用。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出 DCDN（Deep Cross-Division Network），在 DCNv2 风格交叉层上增加除法分支，联合学习乘积、比值以及乘积-比值混合交互。",
+      "将可表示交互刻画为多元 Laurent 多项式，并表明 K 层 DCDN 能生成 ℓ1 阶至多 K+1、符号次数在 -K 到 K+1 之间的 Laurent 单项式。",
+      "在基于 DCNv2 并加入人工比例特征的生产优化神经排序基线中，用 DCDN 替换 DCNv2 块后，可移除整类人工比例特征，使输入特征数减少 40.1%。",
+      "DCDN 已部署在大型短视频服务的生产排序栈中；线上 A/B 测试显示点赞提升 3.25%、分享提升 16.26%、总观看时长提升 0.33%、点击进入全屏提升 0.38%，且这些变化统计显著；展示视频数小幅下降 0.24%。",
+      "公开了代码链接。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "生产优化的神经排序基线（基于 DCNv2，并加入人工构造的比例特征）"
+      ],
+      "datasets": [
+        "大型短视频服务的生产排序流量（线上 A/B 测试）"
+      ],
+      "findings_zh": [
+        "用 DCDN 替换 DCNv2 块后，移除了人工构造的比例特征，输入特征数减少 40.1%。",
+        "线上 A/B 测试中，点赞提升 3.25%、分享提升 16.26%、总观看时长提升 0.33%、点击进入全屏提升 0.38%，这些变化统计显著。",
+        "展示视频数小幅下降 0.24%。",
+        "结果表明 DCDN 可在消除对人工比例特征依赖的同时提升用户互动。"
+      ],
+      "metrics": [
+        "点赞率",
+        "分享率",
+        "总观看时长（TVT）",
+        "点击进入全屏率",
+        "展示视频数",
+        "输入特征数量"
+      ]
+    },
+    "limitations_zh": [
+      "当前证据仅来自摘要，缺少离线数据集、模型配置、训练细节、置信区间和统计检验细节。",
+      "线上评估只涉及一个大型短视频服务的生产排序场景，跨业务泛化性仍需更多验证。",
+      "摘要未提供推理延迟、训练成本、系统开销或收益持续时间的分析。",
+      "仅与一个生产优化的 DCNv2 基线比较，未展示与其他特征交叉方法的对比。"
+    ],
+    "method_zh": "在 DCNv2 风格交叉层之外增加除法分支，使模型同时学习乘积、比值和混合乘积-比值交互；理论分析将可表示交互视为多元 Laurent 多项式。",
+    "problem_zh": "DCN 和 DCNv2 的交叉层只用输入特征的非负整数次幂构造交互，最大次数受网络深度控制，因此不能直接表示比值、比率和归一化计数所需的倒数项，除非这些特征被人工显式输入。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.7750000000000001,
+  "id": "arxiv-2611.27514",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-24T18:31:15.379797Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-20T12:06:35Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出DCDN，在DCNv2交叉层中加入除法分支以学习乘积与比值特征交互，并部署于短视频推荐排序。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Deep Cross-Division Network for Product-and-Ratio Feature Interactions in Industrial Ranking",
+  "url": "https://arxiv.org/abs/2611.27514v1"
+}

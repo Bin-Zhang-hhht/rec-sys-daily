@@ -1,0 +1,92 @@
+{
+  "abstract": "Recommender systems exhibit popularity bias, often under-serving long-tail and cold-start items with sparse interaction data. We propose a group-specific data augmentation approach that leverages LLMs to generate synthetic interactions, formulated as a constrained optimization problem, maximizing group-specific NDCG@20 and coverage while bounding overall NDCG@20 degradation within an acceptable threshold. Items are partitioned by interaction frequency to find the optimal augmentation strategy for each group. We further study combining the augmentation across groups simultaneously and find that while individual optimal strategies navigate the multi-group augmentation design, they are not simply additive. We further ablate on the LLM-based augmentation itself, comparing LLM scales, augmentation configuration under token constraints, finding that augmentation quality scales with contextual richness, albeit at a proportionally higher cost. Experiments with SASRec demonstrate the effectiveness of the proposed approach, achieving over 100% and 60% improvement in group-specific NDCG@20 for extreme and regular long-tail items, respectively, on our industrial dataset, and 40%, 25% for MovieLens-32M, while increasing their coverage without significant overall degradation. Recommender systems exhibit popularity bias, often under-serving long-tail and cold-start items with sparse interaction data. We propose a group-specific data augmentation approach that leverages LLMs to generate synthetic interactions, formulated as a constrained optimization problem, maximizing group-specific NDCG@20 and coverage while bounding overall NDCG@20 degradation within an acceptable threshold. Items are partitioned by interaction frequency to find the optimal augmentation strategy for each group. We further study combining the augmentation across groups simultaneously and find that while individual optimal strategies navigate the multi-group augmentation design, they are not simply additive. We further ablate on the LLM-based augmentation itself, comparing LLM scales, augmentation configuration under token constraints, finding that augmentation quality scales with contextual richness, albeit at a proportionally higher cost. Experiments with SASRec demonstrate the effectiveness of the proposed approach, achieving over 100% and 60% improvement in group-specific NDCG@20 for extreme and regular long-tail items, respectively, on our industrial dataset, and 40%, 25% for MovieLens-32M, while increasing their coverage without significant overall degradation.",
+  "arxiv_id": "2611.31052",
+  "authors": [
+    "Adeep Hande",
+    "Shaghayegh Agah",
+    "Neeraj Sharma",
+    "Karina Halevy",
+    "Sardar Hamidian"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对长尾与冷启动物品供给较多的电商、内容平台，可利用 LLM 合成交互缓解稀疏性，提升长尾商品的曝光与转化机会。",
+      "把“组内效果提升 + 整体效果不退化”写成带阈值的约束优化目标，便于业务方设定可接受的效果红线，把实验接入线上优化目标。",
+      "按交互频率分组、并按组配置增强强度，可在预算有限时把增强资源优先投向极端长尾组，取得更高的边际收益。",
+      "LLM 增强的成本随上下文丰富度成比例上升，落地时需按 token 预算做成本-收益评估，避免无节制地增加上下文。",
+      "多组增强不可简单叠加，实际部署需在组合策略上做联合调优与线上 A/B 验证，而不是把各组的最优方案直接拼接。",
+      "覆盖率的提升有助于改善供给端生态与新品冷启动，但需同时监控整体 NDCG 等核心指标是否需要设置退化阈值。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出按组（group-specific）的数据增强方法，利用大语言模型（LLM）生成合成交互数据。",
+      "将增强策略的选取形式化为约束优化问题：最大化各物品组的 NDCG@20 与覆盖率，同时把整体 NDCG@20 的下降限制在可接受阈值内。",
+      "按交互频率对物品进行分组，并为每个组寻找最优增强策略。",
+      "研究了多组增强策略同时组合使用的情形，发现单组最优策略虽能为多组设计提供指引，但各组效果并非简单可加。",
+      "对 LLM 增强本身进行了消融，比较不同 LLM 规模以及在 token 约束下的增强配置，发现增强质量随上下文丰富度提升，但成本也成比例增加。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "摘要未明确列出对比基线；仅说明以 SASRec 作为实验所用推荐模型"
+      ],
+      "datasets": [
+        "工业数据集（industrial dataset）",
+        "MovieLens-32M"
+      ],
+      "findings_zh": [
+        "在工业数据集上，极端长尾物品组的 NDCG@20 提升超过 100%，常规长尾物品组提升约 60%，同时覆盖率提升且整体效果没有显著退化。",
+        "在 MovieLens-32M 上，极端长尾组与常规长尾组的 NDCG@20 分别提升约 40% 与 25%，覆盖率同样提升。",
+        "多组增强策略组合使用并非简单可加，单组最优策略只能为多组增强设计提供方向性参考。",
+        "LLM 增强质量随上下文丰富度提升，但成本也按比例上升；在 token 约束下需要权衡增强配置。"
+      ],
+      "metrics": [
+        "group-specific NDCG@20",
+        "overall NDCG@20",
+        "coverage"
+      ]
+    },
+    "limitations_zh": [
+      "摘要未给出具体对比基线、实现细节与超参数设置，约束阈值的选择依据不明确。",
+      "实验仅报告了以 SASRec 为推荐模型的结果，尚未验证该方法在其他推荐架构上的泛化性。",
+      "多组增强策略不可简单叠加，意味着当组数增多时策略组合搜索的成本与复杂度可能上升。",
+      "LLM 生成合成交互的质量依赖上下文丰富度，而更高上下文会带来成比例增加的成本，存在成本与效果之间的权衡。",
+      "整体 NDCG@20 的退化以阈值为界，但摘要未说明该约束在极端情形下的稳健性。",
+      "以上结论仅基于摘要，缺少完整的实验协议、统计显著性与误差分析。",
+      "覆盖率提升可能伴随推荐多样性或相关性方面的副作用，摘要未讨论。"
+    ],
+    "method_zh": "方法分为三步：（1）按交互频率把物品划分为不同组（其中包含极端长尾组、常规长尾组等）；（2）用 LLM 为各组生成合成交互，以缓解交互稀疏问题；（3）把各组增强策略的选择建模为约束优化问题，目标为最大化组内 NDCG@20 与覆盖率，约束为整体 NDCG@20 的退化不超过给定阈值；在此基础上进一步考察多组增强策略同时组合时的效果，并对 LLM 规模与 token 预算下的增强配置做消融分析。实验使用 SASRec 作为推荐模型。",
+    "problem_zh": "推荐系统存在流行度偏差，对交互数据稀疏的长尾物品和冷启动物品服务不足。论文要解决的问题是：在不显著损害整体推荐效果的前提下，提升长尾/冷启动物品组的推荐质量与覆盖度。",
+    "technical_depth": 0.55
+  },
+  "doi": null,
+  "final_score": 0.7525,
+  "id": "arxiv-2611.31052",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-24T18:31:15.379797Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-23T17:15:58Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文利用 LLM 生成合成交互并按物品频次分组做数据增强，以约束优化在提升长尾推荐 NDCG 与覆盖率的同时控制整体性能退化。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "From Head to Tail: LLM-Augmented Sequential Recommendation and Trade-off Optimization",
+  "url": "https://arxiv.org/abs/2611.31052v1"
+}

@@ -1,0 +1,79 @@
+{
+  "abstract": "Large language models (LLMs) have emerged as promising rerankers for recommendation, yet most existing approaches rely on textual item descriptions and primarily focus on relevance. In visually oriented domains such as video streaming, item images provide complementary signals that may also inform recommendation diversity. This raises two questions: when does visual information improve recommendation quality, and can multimodal LLMs (MLLMs) enhance relevance and diversity simultaneously? We investigate these questions through a training-free, diversity-aware multimodal reranking framework that jointly incorporates item images, textual metadata, and user interaction histories. We conduct an empirical study across three public Amazon Review datasets and an industrial Amazon Prime Video dataset, using both open-source and proprietary MLLMs. Our results reveal substantial domain-dependent effects: adding visual information yields up to 121.9% relative improvement in NDCG@5 on Prime Video, while producing limited or inconsistent gains on product recommendation datasets. Furthermore, MLLM-based reranking improves both relevance and category-diversity-sensitive ranking quality over a sequential recommendation baseline, achieving up to 71.0% improvement in NDCG@5 and 14.1% in $α$-NDCG@5 on Prime Video. These findings highlight the conditional value of visual information and the potential of training-free MLLMs for relevance- and diversity-aware recommendation reranking. Large language models (LLMs) have emerged as promising rerankers for recommendation, yet most existing approaches rely on textual item descriptions and primarily focus on relevance. In visually oriented domains such as video streaming, item images provide complementary signals that may also inform recommendation diversity. This raises two questions: when does visual information improve recommendation quality, and can multimodal LLMs (MLLMs) enhance relevance and diversity simultaneously? We investigate these questions through a training-free, diversity-aware multimodal reranking framework that jointly incorporates item images, textual metadata, and user interaction histories. We conduct an empirical study across three public Amazon Review datasets and an industrial Amazon Prime Video dataset, using both open-source and proprietary MLLMs. Our results reveal substantial domain-dependent effects: adding visual information yields up to 121.9% relative improvement in NDCG@5 on Prime Video, while producing limited or inconsistent gains on product recommendation datasets. Furthermore, MLLM-based reranking improves both relevance and category-diversity-sensitive ranking quality over a sequential recommendation baseline, achieving up to 71.0% improvement in NDCG@5 and 14.1% in $α$-NDCG@5 on Prime Video. These findings highlight the conditional value of visual information and the potential of training-free MLLMs for relevance- and diversity-aware recommendation reranking.",
+  "arxiv_id": "2611.28379",
+  "authors": [
+    "Chengkai Liu",
+    "Yan Fu",
+    "Huiyuan Chen",
+    "Sheikh Sarwar",
+    "Qilin Qi"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "在视频流媒体等视觉导向场景，可优先试点多模态 MLLM 重排，以利用图像信号提升相关性。",
+      "可将类别多样性敏感的 α-NDCG 纳入线上重排评估，以同时关注相关性和内容多样性。",
+      "商品推荐场景不应默认假设图像信息有效，需按领域做 A/B 测试后再决定是否引入视觉信号。",
+      "无需训练的重排框架适合作为现有推荐系统的低成本试验层，但仍需评估线上延迟与推理成本。",
+      "工业级 Prime Video 的结果支持在视频业务中开展进一步验证，但不能直接外推到所有推荐业务。"
+    ],
+    "business_transferability": 0.7,
+    "contributions_zh": [
+      "提出一种无需训练的、多样性感知的多模态重排框架，联合利用物品图像、文本元数据和用户交互历史。",
+      "在三个公开 Amazon Review 数据集和一个工业级 Amazon Prime Video 数据集上，使用开源与专有 MLLM 进行实证研究。",
+      "发现视觉信息的效果具有显著领域依赖性：在 Prime Video 上使 NDCG@5 最高相对提升 121.9%，但在商品推荐数据集上提升有限或不一致。",
+      "表明基于 MLLM 的重排相较序列推荐基线可同时改善相关性和类别多样性敏感的排序质量，在 Prime Video 上 NDCG@5 最高提升 71.0%，α-NDCG@5 提升 14.1%。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [],
+    "experiments": {
+      "baselines": [
+        "序列推荐基线"
+      ],
+      "datasets": [
+        "三个公开 Amazon Review 数据集",
+        "工业级 Amazon Prime Video 数据集"
+      ],
+      "findings_zh": [
+        "加入视觉信息在 Prime Video 上带来最高 121.9% 的 NDCG@5 相对提升。",
+        "视觉信息在商品推荐数据集上的收益有限或不一致。",
+        "MLLM 重排相较序列推荐基线在 Prime Video 上使 NDCG@5 最高提升 71.0%。",
+        "MLLM 重排在 Prime Video 上使 α-NDCG@5 最高提升 14.1%，说明类别多样性敏感的排序质量也得到改善。"
+      ],
+      "metrics": [
+        "NDCG@5",
+        "α-NDCG@5"
+      ]
+    },
+    "limitations_zh": [
+      "视觉信息的收益具有明显领域依赖性，在商品推荐数据集上提升有限或不一致。",
+      "实证范围主要覆盖 Amazon Review 数据集与 Amazon Prime Video，其他业务领域的泛化性尚未由摘要材料证明。",
+      "摘要未提供推理成本、延迟、提示设计、模型规模及统计显著性等实现细节。",
+      "摘要未给出训练-free 方法在更大规模或实时工业系统中的部署评估。"
+    ],
+    "method_zh": "采用无需训练、多样性感知的多模态重排框架，将物品图像、文本元数据和用户交互历史共同输入多模态大模型进行重排；通过公开 Amazon Review 数据集与工业 Amazon Prime Video 数据集，比较开源和专有 MLLM 在有/无视觉信息以及不同排序目标下的表现。",
+    "problem_zh": "现有基于大语言模型的推荐重排方法多依赖文本物品描述并主要关注相关性；在视频流媒体等视觉导向场景中，物品图像可能提供补充信号并影响推荐多样性。论文聚焦两个问题：视觉信息何时能提升推荐质量，以及多模态大模型能否同时提升相关性与多样性。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.7424999999999999,
+  "id": "arxiv-2611.28379",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-24T18:31:15.379797Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-20T22:37:29Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文研究多模态 LLM 在视频流推荐重排中联合利用图像、文本与交互历史，以同时提升相关性和类别多样性。",
+  "targets": [],
+  "tasks": [
+    "reranking"
+  ],
+  "title": "Beyond Relevance: An Empirical Study of Multimodal LLMs for Diversity-Aware Recommendation Reranking",
+  "url": "https://arxiv.org/abs/2611.28379v1"
+}

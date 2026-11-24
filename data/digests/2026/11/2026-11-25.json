@@ -1,0 +1,36 @@
+{
+  "blogs": [],
+  "date": "2026-11-25",
+  "papers": [
+    {
+      "item_id": "arxiv-2611.27514",
+      "rank": 1,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出DCDN，在DCNv2交叉层中加入除法分支以学习乘积与比值特征交互，并部署于短视频推荐排序。"
+    },
+    {
+      "item_id": "arxiv-2611.29462",
+      "rank": 2,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出 MoR4Rec，以混合递归和自适应路由为序列推荐中的每个物品分配合适的计算深度，并在多个基准上提升 Recall、NDCG 与 MRR。"
+    },
+    {
+      "item_id": "arxiv-2611.31052",
+      "rank": 3,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文利用 LLM 生成合成交互并按物品频次分组做数据增强，以约束优化在提升长尾推荐 NDCG 与覆盖率的同时控制整体性能退化。"
+    },
+    {
+      "item_id": "arxiv-2611.28379",
+      "rank": 4,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文研究多模态 LLM 在视频流推荐重排中联合利用图像、文本与交互历史，以同时提升相关性和类别多样性。"
+    },
+    {
+      "item_id": "arxiv-2611.30839",
+      "rank": 5,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出 SARA，一个面向可持续性报告审计的 LLM 推荐系统，按监管要求推荐相关段落并预测合规结论。"
+    },
+    {
+      "item_id": "arxiv-2611.28604",
+      "rank": 6,
+      "recommendation_reason_zh": "与推荐系统研究方向相关：该文提出MADRec，通过多智能体辩论、证据增强检索推理和裁判排序校准提升推荐可靠性。"
+    }
+  ]
+}
