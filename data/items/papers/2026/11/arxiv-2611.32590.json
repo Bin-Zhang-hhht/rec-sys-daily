@@ -1,0 +1,85 @@
+{
+  "abstract": "Modern industrial recommendation systems typically divide retrieval and ranking into two separate cascaded stages, leading to inconsistent optimization objectives, redundant encoding of user sequences, and a waste of computational resources. Previous efforts have investigated using Transformers to model both retrieval and ranking simultaneously. However, these studies still face two major limitations: (1) Since retrieval and ranking share a single Transformer backbone, the gradient conflict arises when the gradient directions of the two tasks are inconsistent. (2) When gradient conflict occurs, the model cannot determine a reliable direction for gradient updates. To this end, we propose a Unified Retrieval and Ranking approach for Multi-scenario Industrial Recommendation, termed as LazUnirec. Specifically, we construct task-shared and task-private parameters on the Transformer backbone to mitigate the gradient conflict. Wherein, for the attention components, we propose LoRA-modulated attention, enabling retrieval and ranking to share attention parameters while preserving task-private parameters. For the feed-forward networks (FFN), we present task-adaptive sparse mixture-of-experts (MoE) to mitigate gradient conflict by constructing task-shared and task-private experts. Moreover, we propose an uncertainty estimation that evaluates the gradient reliability of the retrieval and ranking, thereby guiding the model toward a more reliable gradient update direction when gradient conflict occurs. In addition, knowledge distillation from ranking to retrieval further enables cross-task knowledge transfer. Extensive offline experiments and online A/B testing demonstrate the effectiveness and superiority of LazUnirec. LazUnirec has been deployed in online multi-scenario industrial recommendation system and currently delivers significant gains for the platform. Modern industrial recommendation systems typically divide retrieval and ranking into two separate cascaded stages, leading to inconsistent optimization objectives, redundant encoding of user sequences, and a waste of computational resources. Previous efforts have investigated using Transformers to model both retrieval and ranking simultaneously. However, these studies still face two major limitations: (1) Since retrieval and ranking share a single Transformer backbone, the gradient conflict arises when the gradient directions of the two tasks are inconsistent. (2) When gradient conflict occurs, the model cannot determine a reliable direction for gradient updates. To this end, we propose a Unified Retrieval and Ranking approach for Multi-scenario Industrial Recommendation, termed as LazUnirec. Specifically, we construct task-shared and task-private parameters on the Transformer backbone to mitigate the gradient conflict. Wherein, for the attention components, we propose LoRA-modulated attention, enabling retrieval and ranking to share attention parameters while preserving task-private parameters. For the feed-forward networks (FFN), we present task-adaptive sparse mixture-of-experts (MoE) to mitigate gradient conflict by constructing task-shared and task-private experts. Moreover, we propose an uncertainty estimation that evaluates the gradient reliability of the retrieval and ranking, thereby guiding the model toward a more reliable gradient update direction when gradient conflict occurs. In addition, knowledge distillation from ranking to retrieval further enables cross-task knowledge transfer. Extensive offline experiments and online A/B testing demonstrate the effectiveness and superiority of LazUnirec. LazUnirec has been deployed in online multi-scenario industrial recommendation system and currently delivers significant gains for the platform.",
+  "arxiv_id": "2611.32590",
+  "authors": [
+    "Xiaodong Li",
+    "Junfeng Zhang",
+    "Shichao Nie",
+    "Ziyue Guo",
+    "Yiming Liu",
+    "Xinxin Xu",
+    "Xurong Li",
+    "Jinyuan Dang",
+    "Zhanming Ou",
+    "Jianan Yan",
+    "Tao Luo",
+    "Xiaoyi Zeng"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "统一召回与排序可减少用户序列重复编码和级联阶段带来的计算浪费，对大规模推荐平台有成本优化潜力。",
+      "任务共享加任务私有的结构适合多业务场景平台，在共享表征的同时保留场景或任务特化能力。",
+      "梯度冲突缓解和可靠性估计有助于联合优化召回与排序目标，减少多任务训练中的方向不稳定。",
+      "排序到召回的知识蒸馏可把精排知识迁移到召回侧，可能提升召回质量而无需完全独立建模。",
+      "虽已在线部署并报告收益，但企业落地仍需验证延迟、算力成本、A/B收益持续性和多场景迁移成本。"
+    ],
+    "business_transferability": 0.66,
+    "contributions_zh": [
+      "提出面向多场景工业推荐的统一召回与排序方法LazUnirec，用同一Transformer主干同时建模召回和排序。",
+      "在Transformer主干上构建任务共享参数与任务私有参数，以缓解召回和排序之间的梯度冲突。",
+      "在注意力组件中提出LoRA-modulated attention，使召回与排序共享注意力参数的同时保留任务私有参数。",
+      "在前馈网络中提出任务自适应稀疏MoE，通过任务共享专家与任务私有专家缓解梯度冲突。",
+      "提出不确定性估计来评估召回与排序梯度的可靠性，并在梯度冲突时引导更可靠的更新方向。",
+      "引入从排序到召回的知识蒸馏，实现跨任务知识迁移。",
+      "摘要称离线实验和在线A/B测试验证了方法的有效性与优越性，并已部署到在线多场景工业推荐系统，带来显著收益。"
+    ],
+    "evidence_quality": 0.28,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "摘要报告大量离线实验和在线A/B测试表明LazUnirec有效且优于对比方案。",
+        "LazUnirec已部署于在线多场景工业推荐系统，并称当前为平台带来显著收益。",
+        "摘要未给出具体数据集、基线名称、评价指标和实验数值。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "摘要未披露具体数据集、基线、评价指标和离线/在线实验细节，难以判断结论的统计显著性与可复现性。",
+      "摘要未说明LoRA调制注意力、任务自适应稀疏MoE和不确定性估计各自的独立贡献及额外计算或延迟成本。",
+      "摘要未讨论方法在更多场景、冷启动或不同推荐域上的泛化边界。",
+      "仅依据摘要，无法核验部署收益的规模、持续性和线上对照设置。"
+    ],
+    "method_zh": "LazUnirec在Transformer主干上同时进行召回与排序，通过任务共享/任务私有参数隔离部分梯度；注意力层采用LoRA调制以共享注意力参数并保留任务私有参数；FFN采用任务自适应稀疏MoE，由共享专家和私有专家组成；再用不确定性估计判断召回与排序梯度的可靠性，以指导冲突时的梯度更新；最后通过排序到召回的知识蒸馏进行跨任务知识迁移。",
+    "problem_zh": "工业推荐系统通常将召回与排序拆成两阶段级联，导致优化目标不一致、用户序列重复编码和计算资源浪费；已有用单一Transformer同时建模召回与排序的方案仍面临两个问题：共享主干造成任务梯度冲突，以及冲突发生时难以确定可靠的梯度更新方向。",
+    "technical_depth": 0.56
+  },
+  "doi": null,
+  "final_score": 0.7335,
+  "id": "arxiv-2611.32590",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-26T18:32:08.952654Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-24T13:26:54Z",
+  "relevance_score": 0.95,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 LazUnirec，在多场景工业推荐中统一召回与排序，通过任务共享/私有参数、LoRA 注意力、稀疏 MoE 和不确定性估计缓解梯度冲突。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "LazUnirec: Unifying Retrieval and Ranking in Multi-scenario Industrial Recommendation",
+  "url": "https://arxiv.org/abs/2611.32590v1"
+}

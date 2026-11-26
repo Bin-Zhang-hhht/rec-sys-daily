@@ -1,0 +1,82 @@
+{
+  "abstract": "Can recommender systems benefit from combining a collection of foundation models within and across modalities? While different foundation models may capture complementary aspects of item metadata, we find that naively combining their representations yields only marginal gains over using a single foundation model. We make a key observation: the users who benefit vary across foundation models. Motivated by this observation, we introduce UF2O, a user-adaptive approach for fusing multiple foundation models for recommendation. In a nutshell, UF2O models the contribution of each foundation model as user-specific by maintaining separate recommendation views and adaptively combining their scores for each user. By performing fusion at the score level, UF2O can also fuse heterogeneous foundation models without directly aligning their representation spaces. Extensive experiments that jointly combine four foundation models on four datasets show that UF2O outperforms existing fusion approaches in both static and sequential recommendation settings, with improvements of up to 7% over the strongest fusion baseline. The code, datasets, and supplementary materials for our work are available at https://github.com/kswoo97/UFFO. Can recommender systems benefit from combining a collection of foundation models within and across modalities? While different foundation models may capture complementary aspects of item metadata, we find that naively combining their representations yields only marginal gains over using a single foundation model. We make a key observation: the users who benefit vary across foundation models. Motivated by this observation, we introduce UF2O, a user-adaptive approach for fusing multiple foundation models for recommendation. In a nutshell, UF2O models the contribution of each foundation model as user-specific by maintaining separate recommendation views and adaptively combining their scores for each user. By performing fusion at the score level, UF2O can also fuse heterogeneous foundation models without directly aligning their representation spaces. Extensive experiments that jointly combine four foundation models on four datasets show that UF2O outperforms existing fusion approaches in both static and sequential recommendation settings, with improvements of up to 7% over the strongest fusion baseline. The code, datasets, and supplementary materials for our work are available at https://github.com/kswoo97/UFFO.",
+  "arxiv_id": "2611.31951",
+  "authors": [
+    "Sunwoo Kim",
+    "Hyunjin Hwang",
+    "Geon Lee",
+    "Kyungho Kim",
+    "Kijung Shin"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对拥有多种内容理解模型或多模态信号的推荐平台，可按用户动态选择模型贡献，而非统一拼接所有表示。",
+      "分数级融合允许接入异构基础模型，可能降低表示空间对齐和模型改造的工程成本。",
+      "静态与序列推荐均可受益，但业务落地需通过A/B测试验证摘要中最高约7%的相对提升能否转化为点击、转化或留存等业务指标。",
+      "多模型并行会带来推理成本和延迟，需结合摘要未披露的效率信息做成本收益评估。"
+    ],
+    "business_transferability": 0.55,
+    "contributions_zh": [
+      "观察到不同用户从不同基础模型中获益，这是用户自适应融合的动机。",
+      "提出 UF2O：为每个基础模型维护独立推荐视图，并按用户自适应组合各视图分数。",
+      "在分数级进行融合，从而可融合异构基础模型而无需直接对齐其表示空间。",
+      "在四个数据集上联合四个基础模型进行实验，静态与序列推荐均优于现有融合方法，最高较最强融合基线提升约7%。"
+    ],
+    "evidence_quality": 0.35,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "现有融合方法（摘要未列出具体名称）",
+        "最强融合基线（摘要未列出具体名称）"
+      ],
+      "datasets": [
+        "四个数据集（摘要未列出具体名称）"
+      ],
+      "findings_zh": [
+        "简单组合多个基础模型的表示相较使用单一基础模型仅带来边际收益。",
+        "UF2O 在静态推荐和序列推荐设置下均优于现有融合方法。",
+        "在四个数据集上联合四个基础模型的实验中，UF2O 相较最强融合基线最高提升约7%。"
+      ],
+      "metrics": [
+        "摘要未报告具体评价指标名称"
+      ]
+    },
+    "limitations_zh": [
+      "所供摘要未列出具体数据集、基线名称和评价指标，无法核验实验细节。",
+      "摘要未报告统计显著性、计算成本、推理延迟或多模型部署开销。",
+      "摘要未讨论冷启动、跨模态异构性、可扩展性与在线生产环境中的表现。"
+    ],
+    "method_zh": "UF2O 为每个基础模型维护单独的推荐视图，将各基础模型的贡献建模为用户特定，并在分数层面按用户自适应组合各视图的推荐分数；该设计避免了对异构基础模型表示空间的直接对齐。",
+    "problem_zh": "多基础模型（含跨模态）融合用于推荐时，简单组合其表示相较单一基础模型仅带来边际收益；不同用户受益于不同基础模型，因此需要按用户自适应地融合多个模型。",
+    "technical_depth": 0.4
+  },
+  "doi": null,
+  "final_score": 0.6875000000000001,
+  "id": "arxiv-2611.31951",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-26T18:32:08.952654Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-24T04:57:30Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 UF2O，在推荐系统中按用户自适应融合多个基础模型的分数，以结合多模态与多模型信息。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "User-Adaptive Fusion of Multiple Foundation Models for Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.31951v1"
+}

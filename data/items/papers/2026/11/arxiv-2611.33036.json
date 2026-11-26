@@ -1,0 +1,89 @@
+{
+  "abstract": "Large language models (LLMs) provide a flexible interface for recommendation systems. However, their issued rankings require reliable instance-level uncertainty monitoring. In this scenario, comparing uncertainty quantification (UQ) methods becomes challenging because LLM rankers lack a standard item-classification head. Their scores may depend on option labels, prompts, generation procedures, and the available user and item evidence. Existing methods derive uncertainty from different sources and apply it at different stages of the recommendation process. Some methods evaluate an issued ranking, whereas others use uncertainty to change the ranking itself, making direct comparison difficult. Here we introduce a fixed-ranking benchmark which evaluates eight heterogeneous UQ signals as record-level monitors under a shared output contract. We evaluate these signals across four recommendation datasets and two LLM backbones under a shared fixed-ranking protocol. From the results, we draw three main observations. First, UQ method ordering changes across backbones even on the same reference instances. Second, ranking-aligned Top10Mass provides the strongest scalar Error@10 detection in several evaluation conditions, reflecting effective cutoff-aligned monitoring, while its advantage narrows for popularity-tail targets. Third, scalar UQ signals are weak at identifying which control has the larger clipped NDCG@10 difference, whereas source-specific signals, including Perturbation Rank Instability and simple listwise distances, provide stronger paired-control agreement, reflecting their sensitivity to the two controlled evidence sources. These findings motivate us to evaluate ranking-failure detection, robustness across recommendation conditions, and responses to controlled evidence changes as distinct properties of UQ. Large language models (LLMs) provide a flexible interface for recommendation systems. However, their issued rankings require reliable instance-level uncertainty monitoring. In this scenario, comparing uncertainty quantification (UQ) methods becomes challenging because LLM rankers lack a standard item-classification head. Their scores may depend on option labels, prompts, generation procedures, and the available user and item evidence. Existing methods derive uncertainty from different sources and apply it at different stages of the recommendation process. Some methods evaluate an issued ranking, whereas others use uncertainty to change the ranking itself, making direct comparison difficult. Here we introduce a fixed-ranking benchmark which evaluates eight heterogeneous UQ signals as record-level monitors under a shared output contract. We evaluate these signals across four recommendation datasets and two LLM backbones under a shared fixed-ranking protocol. From the results, we draw three main observations. First, UQ method ordering changes across backbones even on the same reference instances. Second, ranking-aligned Top10Mass provides the strongest scalar Error@10 detection in several evaluation conditions, reflecting effective cutoff-aligned monitoring, while its advantage narrows for popularity-tail targets. Third, scalar UQ signals are weak at identifying which control has the larger clipped NDCG@10 difference, whereas source-specific signals, including Perturbation Rank Instability and simple listwise distances, provide stronger paired-control agreement, reflecting their sensitivity to the two controlled evidence sources. These findings motivate us to evaluate ranking-failure detection, robustness across recommendation conditions, and responses to controlled evidence changes as distinct properties of UQ.",
+  "arxiv_id": "2611.33036",
+  "authors": [
+    "Hao Wu",
+    "Sipeng Chen",
+    "Weikai Li",
+    "Tianyi Chen",
+    "Qiancheng Yang",
+    "Hang Zhou",
+    "Yizhou Sun",
+    "Wei Wang",
+    "Xiao Luo"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "线上推荐可部署记录级不确定性监控，对 LLM 生成的排序结果做逐条风险标记，用于人工复核或降级兜底。",
+      "选型 UQ 方法不能跨模型直接套用，模型或骨干更换后需重新校准与复测监控效果。",
+      "截断对齐类指标（如 Top10Mass）适合 Top-K 场景的失败检测，但对长尾商品/内容的监控需额外手段。",
+      "若业务需要判断某次证据或策略变更带来的实际收益差异，应优先采用对证据来源敏感的扰动类或 listwise 距离类信号，而非单一标量不确定性。",
+      "应将失败检测、跨场景鲁棒性与证据变化响应分别纳入监控看板与验收标准，而非合并为单一 UQ 分数。"
+    ],
+    "business_transferability": 0.5,
+    "contributions_zh": [
+      "提出一个固定排序（fixed-ranking）基准，在共享输出契约下将八种异构 UQ 信号作为记录级（record-level）监控器进行评估。",
+      "在四个推荐数据集和两个 LLM 骨干模型上，以共享的固定排序协议对这些信号进行评测。",
+      "给出三点主要观察：UQ 方法排序会随骨干模型变化；与排序对齐的 Top10Mass 在多种评测条件下给出最强的标量 Error@10 检测，但其优势在长尾（popularity-tail）目标上收窄；标量 UQ 信号难以判断哪个对照产生更大的 clipped NDCG@10 差异，而来源特定信号（如 Perturbation Rank Instability 与简单 listwise 距离）在成对对照一致性上更强。",
+      "提出应将排序失败检测、跨推荐条件的鲁棒性、以及对受控证据变化的响应，作为 UQ 的三个独立属性来评估。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "八种异构 UQ 信号（摘要仅点名 Top10Mass、Perturbation Rank Instability 与简单 listwise 距离，其余未列出）",
+        "两个 LLM 骨干模型（摘要未给出具体名称）"
+      ],
+      "datasets": [
+        "四个推荐数据集（摘要未给出具体名称）"
+      ],
+      "findings_zh": [
+        "UQ 方法的优劣排序会随骨干模型改变，即使面对同一批参考实例也是如此。",
+        "与排序对齐的 Top10Mass 在多种评测条件下取得最强的标量 Error@10 检测效果，体现有效的截断对齐监控，但其优势在长尾目标上收窄。",
+        "标量 UQ 信号在识别哪个对照具有更大的 clipped NDCG@10 差异方面表现较弱。",
+        "来源特定信号（Perturbation Rank Instability 与简单 listwise 距离）在成对对照一致性上更强，说明其对两类受控证据来源更敏感。"
+      ],
+      "metrics": [
+        "Error@10",
+        "clipped NDCG@10",
+        "成对对照一致性（paired-control agreement）"
+      ]
+    },
+    "limitations_zh": [
+      "仅基于摘要，缺少数据集名称、骨干模型、八种 UQ 信号的完整清单与实现细节。",
+      "评测被限定在固定排序协议下，摘要未说明该协议之外（如用不确定性改变排序）的方法如何比较。",
+      "标量 UQ 信号在成对对照判别任务上表现偏弱，说明单一标量监控不足以刻画证据层面的差异。",
+      "Top10Mass 的优势在长尾目标上收窄，表明截断对齐监控的收益并非在所有目标分布上都稳定。"
+    ],
+    "method_zh": "采用固定排序基准：在统一输出契约与共享固定排序协议下，把八种异构 UQ 信号作为记录级监控器进行横向评测，并结合成对对照（paired-control）设置检验各信号对两种受控证据来源的敏感性。",
+    "problem_zh": "LLM 作为推荐系统的排序器时，其输出的排序结果需要可靠的实例级不确定性监控；但 LLM ranker 缺少标准的 item-classification head，其分数可能受选项标签、提示词、生成过程以及可用用户/物品证据影响。现有不确定性量化（UQ）方法来源不同、作用于推荐流程的不同阶段（有的评估已发布排序，有的用不确定性改变排序本身），导致难以直接比较。",
+    "technical_depth": 0.45
+  },
+  "doi": null,
+  "final_score": 0.675,
+  "id": "arxiv-2611.33036",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-26T18:32:08.952654Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-24T17:48:54Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出固定排序基准，评估八种不确定性量化信号作为 LLM 推荐排序的实例级监控器，并在多数据集和多骨干模型上分析其表现。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Towards Realistic Evaluation of Uncertainty Quantification for LLM-Based Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.33036v1"
+}

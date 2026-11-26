@@ -1,0 +1,84 @@
+{
+  "abstract": "Research on serendipity-oriented recommender systems has focused on algorithms that recommend unexpected yet useful items. However, serendipity is increasingly viewed as a user experience shaped by both algorithmic outputs and system features. This study positions recommendations not as the primary goal users pursue but as an environmental affordance that creates opportunities for discovery during other activities. We propose RecField, a spatial movie organization interface where users freely arrange movies into collection zones. For each collection, RecField provides attribute-based recommendation lists labeled according to their recommendation perspectives. A between-subjects experiment ($N$ = 57) examined the effects of recommendations on discoveries made during a foreground task of creating and organizing personal movie profiles. Although recommendations did not significantly affect environment-level perceived serendipity, ratings of encounter-related aspects tended to be higher, with small effect sizes. At the individual-movie level, favorites in the recommendation condition received significantly higher ratings for stimulating the desire to watch and broadening preferences, but not for novelty or unexpectedness. Notably, only 14\\% of evaluated favorites in the recommendation condition were added directly from recommendation lists. Differences in ratings showed similar effect sizes even when the analysis was restricted to favorites added through other routes. These findings suggest that embedded recommendations can contribute to serendipitous experiences both directly through item acceptance and indirectly by prompting users' own exploration and re-evaluation. They also highlight the value of evaluating serendipity at both the environment and item levels and the limitations of relying solely on direct recommendation acceptance rates. Research on serendipity-oriented recommender systems has focused on algorithms that recommend unexpected yet useful items. However, serendipity is increasingly viewed as a user experience shaped by both algorithmic outputs and system features. This study positions recommendations not as the primary goal users pursue but as an environmental affordance that creates opportunities for discovery during other activities. We propose RecField, a spatial movie organization interface where users freely arrange movies into collection zones. For each collection, RecField provides attribute-based recommendation lists labeled according to their recommendation perspectives. A between-subjects experiment ($N$ = 57) examined the effects of recommendations on discoveries made during a foreground task of creating and organizing personal movie profiles. Although recommendations did not significantly affect environment-level perceived serendipity, ratings of encounter-related aspects tended to be higher, with small effect sizes. At the individual-movie level, favorites in the recommendation condition received significantly higher ratings for stimulating the desire to watch and broadening preferences, but not for novelty or unexpectedness. Notably, only 14\\% of evaluated favorites in the recommendation condition were added directly from recommendation lists. Differences in ratings showed similar effect sizes even when the analysis was restricted to favorites added through other routes. These findings suggest that embedded recommendations can contribute to serendipitous experiences both directly through item acceptance and indirectly by prompting users' own exploration and re-evaluation. They also highlight the value of evaluating serendipity at both the environment and item levels and the limitations of relying solely on direct recommendation acceptance rates.",
+  "arxiv_id": "2611.34330",
+  "authors": [
+    "Kenta Oku"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "可将推荐嵌入用户正在进行的组织、收藏或内容管理任务中，作为环境中的探索入口，而非要求用户直接以推荐为主任务。",
+      "按推荐视角提供带标签的推荐列表，并结合用户自建收藏区域，有助于支持自主探索和再评估。",
+      "推荐系统评估不应只关注点击或直接采纳率，还应关注单品评价和整体环境体验。",
+      "较低的直接采纳率不一定意味着推荐无价值，间接探索和偏好拓宽也应纳入业务指标。"
+    ],
+    "business_transferability": 0.6,
+    "contributions_zh": [
+      "提出RecField空间化电影组织界面，用户可自由将电影安排到收藏区域，每个收藏获得按推荐视角标注的属性推荐列表。",
+      "将推荐定位为环境可供性而非用户主任务目标，考察其在用户创建和组织个人电影画像时促成发现的作用。",
+      "通过N=57的组间实验，从环境层面和单品层面评估嵌入式推荐对偶然发现体验的影响，并指出仅依赖直接推荐采纳率的局限。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "未明确报告基线；组间实验用于考察推荐条件的影响"
+      ],
+      "datasets": [
+        "未提及公开数据集；采用N=57的组间用户实验，场景为电影收藏与组织"
+      ],
+      "findings_zh": [
+        "推荐未显著影响环境层面感知serendipity，但遭遇相关方面评分有更高趋势，效应量较小。",
+        "单品层面，推荐条件下的收藏在刺激观看欲望和拓宽偏好上评分显著更高，但在新颖性和意外性上不显著更高。",
+        "推荐条件下仅14%的被评估收藏直接来自推荐列表。",
+        "即使仅分析通过其他路径添加的收藏，评分差异仍呈现相似效应量。",
+        "嵌入式推荐既可能通过物品直接接受，也可能通过促使用户自主探索和再评估来贡献偶然发现体验。",
+        "应在环境层面和单品层面同时评估serendipity，不能仅依赖直接推荐采纳率。"
+      ],
+      "metrics": [
+        "环境层面感知serendipity评分",
+        "遭遇相关方面评分",
+        "单品层面刺激观看欲望评分",
+        "单品层面拓宽偏好评分",
+        "新颖性评分",
+        "意外性评分",
+        "直接来自推荐列表的收藏比例"
+      ]
+    },
+    "limitations_zh": [
+      "当前分析仅基于摘要，缺少完整方法、统计细节、效应量数值和基线说明。",
+      "实验样本量N=57，环境层面主要结果未达到显著。",
+      "直接推荐采纳率仅14%，说明仅用直接接受率评估推荐价值可能不足。",
+      "摘要未报告推荐算法细节、长期影响和外部推广性证据。"
+    ],
+    "method_zh": "采用组间用户实验（N=57），前景任务为创建和组织个人电影档案；RecField提供可自由安排的收藏区域，并针对每个收藏提供带推荐视角标签的属性推荐列表，比较推荐条件对用户发现体验的影响。",
+    "problem_zh": "现有偶然发现（serendipity）推荐研究多聚焦于算法推荐意外但有用的物品，但较少将推荐视为由算法输出和系统功能共同塑造的用户体验，也缺少把推荐嵌入用户其他活动并从环境层面和单品层面同时评估的研究。",
+    "technical_depth": 0.35
+  },
+  "doi": null,
+  "final_score": 0.655,
+  "id": "arxiv-2611.34330",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-26T18:32:08.952654Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-25T13:09:49Z",
+  "relevance_score": 0.8,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 RecField 空间电影组织界面，将推荐作为环境可供性嵌入用户的收藏整理活动，并实验评估其对偶然发现体验的影响。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "RecField: Embedding Recommendations into Spatial Movie Organization as Affordances for Serendipitous Encounters",
+  "url": "https://arxiv.org/abs/2611.34330v1"
+}

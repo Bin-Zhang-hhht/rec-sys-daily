@@ -1,0 +1,85 @@
+{
+  "abstract": "Modern music platforms expose users to heterogeneous audio content domains such as songs, playlists, and podcasts. Multi-domain sequential recommendation (MDSR) seeks to exploit such cross-domain behavior, yet two obstacles persist in practice. First, joint optimization across heterogeneous domains is prone to negative transfer, with high-traffic domains dominating the shared parameter space and suppressing weaker domains. Second, conventional ID-based collaborative signals fail to bridge domains that are semantically related but exhibit little behavioral overlap. This paper presents CAMAR, a multi-modal causal disentanglement framework for multi-domain audio recommendation. From a causal perspective, user behavior is modeled as the joint outcome of a domain-invariant preference and domain-specific preferences. Guided by this view, CAMAR factorizes user representations into domain-invariant and domain-specific components and enforces domain adversarial invariance together with orthogonality, restricting cross-domain interaction to the invariant subspace and suppressing harmful transfer paths. To strengthen cross-domain semantic coupling, CAMAR derives trainable semantic-ID embeddings from pre-trained text, vision, and audio features through residual quantization, yielding an end-to-end multi-modal adaptation tailored to recommendation. A transfer network imputes user representations for inactive domains, mitigating cross-domain cold start. Experiments on both public and industrial datasets demonstrate consistent gains over strong baselines. In online A/B tests on NetEase Cloud Music, one of China's largest music streaming platforms, CAMAR delivers consistent gains across all three domains in their main traffic scenarios, validating its effectiveness in multi-domain audio recommendation at scale. Modern music platforms expose users to heterogeneous audio content domains such as songs, playlists, and podcasts. Multi-domain sequential recommendation (MDSR) seeks to exploit such cross-domain behavior, yet two obstacles persist in practice. First, joint optimization across heterogeneous domains is prone to negative transfer, with high-traffic domains dominating the shared parameter space and suppressing weaker domains. Second, conventional ID-based collaborative signals fail to bridge domains that are semantically related but exhibit little behavioral overlap. This paper presents CAMAR, a multi-modal causal disentanglement framework for multi-domain audio recommendation. From a causal perspective, user behavior is modeled as the joint outcome of a domain-invariant preference and domain-specific preferences. Guided by this view, CAMAR factorizes user representations into domain-invariant and domain-specific components and enforces domain adversarial invariance together with orthogonality, restricting cross-domain interaction to the invariant subspace and suppressing harmful transfer paths. To strengthen cross-domain semantic coupling, CAMAR derives trainable semantic-ID embeddings from pre-trained text, vision, and audio features through residual quantization, yielding an end-to-end multi-modal adaptation tailored to recommendation. A transfer network imputes user representations for inactive domains, mitigating cross-domain cold start. Experiments on both public and industrial datasets demonstrate consistent gains over strong baselines. In online A/B tests on NetEase Cloud Music, one of China's largest music streaming platforms, CAMAR delivers consistent gains across all three domains in their main traffic scenarios, validating its effectiveness in multi-domain audio recommendation at scale.",
+  "arxiv_id": "2611.33628",
+  "authors": [
+    "Yu Ren",
+    "Pengcheng Li",
+    "Weijun Xu",
+    "Hengzhong Zhou",
+    "Shufeng Ye",
+    "Qiang Xiao",
+    "Dongjing Wang",
+    "Chuanjiang Luo",
+    "Yong Li"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "对音乐流媒体平台，可将歌曲、歌单、播客等异质内容域统一建模，提升跨域推荐与多场景个性化能力。",
+      "域不变/域特定解耦与对抗约束有助于降低高流量域对弱域的压制，适合存在流量不均衡的业务组合。",
+      "语义ID嵌入可利用多模态内容特征连接行为重叠少但语义相关的域，降低对纯ID协同信号的依赖。",
+      "迁移网络可为不活跃域补全用户表示，对跨域冷启动和新业务冷启动有潜在价值。",
+      "网易云音乐在线A/B测试显示主流量场景三个域均有一致收益，说明该方法具备规模化生产验证信号；但落地前仍需评估训练与推理成本、工程复杂度和收益持续性。"
+    ],
+    "business_transferability": 0.8,
+    "contributions_zh": [
+      "提出CAMAR多模态因果解耦框架，用于多域音频推荐。",
+      "从因果视角将用户行为建模为域不变偏好与域特定偏好的联合结果，并将用户表示分解为域不变和域特定分量。",
+      "通过域对抗不变性与正交约束，将跨域交互限制在不变子空间，抑制有害迁移路径。",
+      "利用预训练文本、视觉和音频特征，通过残差量化构建可训练的语义ID嵌入，实现面向推荐的多模态端到端适配。",
+      "设计迁移网络为不活跃域补全用户表示，缓解跨域冷启动。",
+      "在公开和工业数据集上相较强基线取得一致提升，并在网易云音乐三个域的主流量场景在线A/B测试中取得一致收益。"
+    ],
+    "evidence_quality": 0.45,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "强基线（摘要未具体列出）"
+      ],
+      "datasets": [
+        "公开数据集",
+        "工业数据集",
+        "网易云音乐在线A/B测试（歌曲、歌单、播客三个域）"
+      ],
+      "findings_zh": [
+        "在公开数据集和工业数据集上，CAMAR相较强基线取得一致提升。",
+        "在网易云音乐三个域的主流量场景在线A/B测试中，CAMAR均取得一致收益，验证其在大规模多域音频推荐中的有效性。"
+      ],
+      "metrics": []
+    },
+    "limitations_zh": [
+      "摘要未披露具体数据集名称、基线方法、评估指标和消融结果，无法判断各模块的独立贡献。",
+      "摘要未讨论模型计算开销、训练与在线部署成本，也未讨论失败案例或负迁移未被完全消除的情形。",
+      "验证范围限于公开数据集、工业数据集和网易云音乐在线A/B测试，跨平台泛化能力尚不明确。"
+    ],
+    "method_zh": "CAMAR将多域音频推荐中的用户行为视为域不变偏好与域特定偏好的联合结果，据此把用户表示分解为域不变分量和域特定分量，并施加域对抗不变性与正交约束，使跨域交互主要发生在不变子空间，从而抑制负迁移。为增强跨域语义耦合，方法从预训练文本、视觉和音频特征出发，通过残差量化得到可训练的语义ID嵌入，形成面向推荐任务的端到端多模态适配。另设迁移网络，在不活跃域中补全用户表示，以缓解跨域冷启动。",
+    "problem_zh": "多域音频推荐（歌曲、歌单、播客）面临两个实际问题：异质域联合优化容易发生负迁移，高流量域主导共享参数空间并压制弱域；传统基于ID的协同信号难以连接语义相关但行为重叠很少的域。此外，不活跃域还存在跨域冷启动问题。",
+    "technical_depth": 0.65
+  },
+  "doi": null,
+  "final_score": 0.77,
+  "id": "arxiv-2611.33628",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-26T18:32:08.952654Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [
+    "sequence_modeling"
+  ],
+  "published_at": "2026-11-25T01:57:30Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文提出 CAMAR，面向多域音频推荐，以多模态因果解耦分离域不变与域特定偏好，并缓解负迁移和跨域冷启动。",
+  "targets": [],
+  "tasks": [],
+  "title": "Multi-Modal Causal Disentanglement for Multi-Domain Sequential Audio Recommendation",
+  "url": "https://arxiv.org/abs/2611.33628v1"
+}
