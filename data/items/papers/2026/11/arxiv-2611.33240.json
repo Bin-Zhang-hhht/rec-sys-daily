@@ -1,0 +1,90 @@
+{
+  "abstract": "Educational recommenders are usually compared offline, by how well they predict the next activity in logs of tutoring systems, learning applications and MOOCs, where the next activity is largely decided by the platform: teachers assign problem sets, tutors draw problems until mastery, engines select questions. On eight public datasets from five platforms, we compare four structural predictors, which use nothing about the learner beyond the last activity, with ten personalised recommenders and with open-weight LLM rankers from 0.5 to 7 billion parameters, under two protocols. The structural predictors reach between 0.81 and 1.00 of the best accuracy of any method (median 0.95), mostly through population transitions rather than the course order; the best personalised recommender is significantly better on five datasets, by 0.007 to 0.102 NDCG@10, and on Eedi in three of four training runs. Every method is far less accurate on steps along transitions never seen in training and on steps chosen by learners. LLM rankers look competent with random negatives but are never much better than a word-matching baseline, and with negatives that are plausible under the course structure they stay close to random or well behind the transition heuristic, whatever their size. In a simulation with known learner needs, the structural share tracks the share of steps decided by the platform, and offline accuracy ranks an oracle of the learners' needs below imitators of the platform. Weighting test steps by how unlikely the structure makes them restores much of the link with usefulness and, on the real data, reveals a significant personalisation signal on seven of the eight datasets. We propose a syllabus-aware evaluation checklist and release a Python package that reports the lift of any recommender over the structure. Educational recommenders are usually compared offline, by how well they predict the next activity in logs of tutoring systems, learning applications and MOOCs, where the next activity is largely decided by the platform: teachers assign problem sets, tutors draw problems until mastery, engines select questions. On eight public datasets from five platforms, we compare four structural predictors, which use nothing about the learner beyond the last activity, with ten personalised recommenders and with open-weight LLM rankers from 0.5 to 7 billion parameters, under two protocols. The structural predictors reach between 0.81 and 1.00 of the best accuracy of any method (median 0.95), mostly through population transitions rather than the course order; the best personalised recommender is significantly better on five datasets, by 0.007 to 0.102 NDCG@10, and on Eedi in three of four training runs. Every method is far less accurate on steps along transitions never seen in training and on steps chosen by learners. LLM rankers look competent with random negatives but are never much better than a word-matching baseline, and with negatives that are plausible under the course structure they stay close to random or well behind the transition heuristic, whatever their size. In a simulation with known learner needs, the structural share tracks the share of steps decided by the platform, and offline accuracy ranks an oracle of the learners' needs below imitators of the platform. Weighting test steps by how unlikely the structure makes them restores much of the link with usefulness and, on the real data, reveals a significant personalisation signal on seven of the eight datasets. We propose a syllabus-aware evaluation checklist and release a Python package that reports the lift of any recommender over the structure.",
+  "arxiv_id": "2611.33240",
+  "authors": [
+    "Youssef Jdidou"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "教育科技平台应把结构/课程迁移基线作为最低比较基线，并报告个性化推荐器相对该基线的增益。",
+      "采用syllabus-aware评估清单和配套Python包，重点关注学习者选择步骤和训练中未见的迁移步骤。",
+      "评估LLM排序器时不应只使用随机负样本，应加入符合课程结构的合理负样本。",
+      "个性化收益可能较小且依赖场景，产品投入前应按数据集和训练运行验证显著性。",
+      "对结构上意外或由学习者选择的步骤进行加权评估，可更贴近真实有用性并辅助产品决策。"
+    ],
+    "business_transferability": 0.72,
+    "contributions_zh": [
+      "在来自五个平台的八个公开数据集上，比较四个仅依赖最近活动的结构预测器、十个个性化推荐器和0.5–7B开源权重LLM排序器。",
+      "发现结构预测器可达到最佳方法准确率的0.81–1.00（中位数0.95），且主要依赖群体迁移而非课程顺序。",
+      "揭示最佳个性化推荐器仅在部分数据集和训练运行中显著优于结构预测器，提升幅度为0.007–0.102 NDCG@10。",
+      "指出所有方法在训练中未见的迁移步骤和学习者选择的步骤上准确率明显下降，并发现LLM排序器在合理课程结构负样本下表现接近随机或弱于迁移启发式。",
+      "通过已知学习者需求的模拟和按结构意外程度加权重，说明离线准确率可能错误排序有用性，并提出syllabus-aware评估清单和报告推荐器相对结构提升的Python包。"
+    ],
+    "evidence_quality": 0.55,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "四个结构预测器（仅使用最近活动）",
+        "十个个性化推荐器",
+        "0.5–7B开源权重LLM排序器",
+        "词匹配基线",
+        "迁移启发式（transition heuristic）",
+        "学习者需求oracle与平台模仿者（模拟）"
+      ],
+      "datasets": [
+        "八个公开数据集（来自五个平台）",
+        "Eedi"
+      ],
+      "findings_zh": [
+        "结构预测器达到最佳方法准确率的0.81–1.00（中位数0.95），主要通过群体迁移而非课程顺序实现。",
+        "最佳个性化推荐器在五个数据集上显著更优，NDCG@10提升0.007–0.102；在Eedi的四个训练运行中有三个显著更优。",
+        "所有方法在训练中未见的迁移步骤和学习者选择的步骤上准确率都明显更低。",
+        "LLM排序器在随机负样本下看起来表现可用，但不明显优于词匹配基线；在符合课程结构的合理负样本下，它们接近随机或明显落后于迁移启发式，且规模大小不改变这一结论。",
+        "在已知学习者需求的模拟中，结构预测器的占比跟踪平台决定步骤的占比；离线准确率将学习者需求oracle排在平台模仿者之后。",
+        "按结构对测试步骤的意外程度加权，可恢复大部分与有用性的联系，并在八个数据集中的七个上揭示显著个性化信号。"
+      ],
+      "metrics": [
+        "NDCG@10",
+        "准确率（相对最佳方法的结构预测器准确率比）",
+        "相对结构预测器的个性化提升"
+      ]
+    },
+    "limitations_zh": [
+      "离线日志中的下一个活动主要由平台决定，因此离线准确率不一定代表学习者需求被满足。",
+      "个性化推荐器的显著提升幅度有限，并且依赖数据集和训练运行。",
+      "方法在训练中未见的迁移步骤和学习者选择的步骤上表现明显下降。",
+      "LLM排序器在合理课程结构负样本下并不强，规模增大也未解决该问题。",
+      "所给材料仅为摘要，缺少模型细节、协议细节和完整实验设置的复现信息。"
+    ],
+    "method_zh": "在八个公开数据集、两个协议下进行离线比较：四个仅使用最近活动的结构预测器、十个个性化推荐器和0.5–7B开源权重LLM排序器；用已知学习者需求的模拟分析结构占比；按测试步骤在结构下的意外程度加权；提出syllabus-aware评估清单并发布报告推荐器相对结构提升的Python包。",
+    "problem_zh": "教育推荐系统通常用日志中的“下一个活动”预测做离线评估，但下一个活动很大程度上由平台决定，例如教师布置习题、导师按掌握度抽题、引擎选题。论文研究在这种评估方式下，结构预测器、个性化推荐器和LLM排序器的表现，以及离线准确率是否能反映学习者真实需求。",
+    "technical_depth": 0.58
+  },
+  "doi": null,
+  "final_score": 0.6719999999999999,
+  "id": "arxiv-2611.33240",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-27T18:29:57.314324Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-24T13:48:16Z",
+  "relevance_score": 0.72,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文在八个教育数据集上比较结构预测器、个性化推荐器与大模型排序器，指出离线评测易受平台选序捷径影响并给出教材感知的评测清单与工具包。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Learning the Platform, Not the Learner: Sequencing Shortcuts in the Offline Evaluation of Educational Recommender Systems and LLM Rankers",
+  "url": "https://arxiv.org/abs/2611.33240v1"
+}

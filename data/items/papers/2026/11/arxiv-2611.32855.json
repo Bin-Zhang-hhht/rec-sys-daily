@@ -1,0 +1,78 @@
+{
+  "abstract": "Generative recommender systems with Semantic IDs (SIDs) represent each item as a short sequence of $L$ discrete tokens and use a sequence model to predict the next item's tokens from a user's history. Industry-scale deployments typically use these models to retrieve multiple candidates per request with constrained beam search. However, this incurs a fixed cost of $L$ sequential model calls per request, and accuracy degrades as the SID generator becomes less sharp, without a guarantee on how close the output is to the exact top-$K$. Production systems therefore cannot detect degraded retrieval for individual requests. We propose SIDECAR, which uses approximate draft candidates and a tree-attention pass to score the entire draft in a single model call, memory permitting. This pass bounds the probability of every unexplored SID prefix and certifies the exact top-$K$ if the draft contains them. Otherwise, a branch-and-bound fallback expands only the parts of the trie that can still change the output, reaching certification within at most $L$ calls for any draft. Moreover, under a budget of $M$ tokens per call and $Y$ calls, which for $Y = L$ matches the resources of a beam search of width $M$, SIDECAR announces a factor $1 + δ$ within which its list will be exact at every rank. Depending on model sharpness, SIDECAR returns the exact top-$K$ using a fraction of beam search's calls or memory. Even when the budget is too small to recover the exact top-$K$, SIDECAR, unlike beam search, reports the announced factor, allowing the serving system to stop early once a quality target or latency limit is reached. Generative recommender systems with Semantic IDs (SIDs) represent each item as a short sequence of $L$ discrete tokens and use a sequence model to predict the next item's tokens from a user's history. Industry-scale deployments typically use these models to retrieve multiple candidates per request with constrained beam search. However, this incurs a fixed cost of $L$ sequential model calls per request, and accuracy degrades as the SID generator becomes less sharp, without a guarantee on how close the output is to the exact top-$K$. Production systems therefore cannot detect degraded retrieval for individual requests. We propose SIDECAR, which uses approximate draft candidates and a tree-attention pass to score the entire draft in a single model call, memory permitting. This pass bounds the probability of every unexplored SID prefix and certifies the exact top-$K$ if the draft contains them. Otherwise, a branch-and-bound fallback expands only the parts of the trie that can still change the output, reaching certification within at most $L$ calls for any draft. Moreover, under a budget of $M$ tokens per call and $Y$ calls, which for $Y = L$ matches the resources of a beam search of width $M$, SIDECAR announces a factor $1 + δ$ within which its list will be exact at every rank. Depending on model sharpness, SIDECAR returns the exact top-$K$ using a fraction of beam search's calls or memory. Even when the budget is too small to recover the exact top-$K$, SIDECAR, unlike beam search, reports the announced factor, allowing the serving system to stop early once a quality target or latency limit is reached.",
+  "arxiv_id": "2611.32855",
+  "authors": [
+    "Harshal A. Chaudhari"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "面向基于 SID 的生成式推荐检索，可把逐请求的 top-K 认证和退化检测纳入服务保障。",
+      "服务系统可根据 1+δ 质量因子与延迟限制做提前停止，而不必固定执行 L 次 beam search 调用。",
+      "在模型较尖锐时可节省调用或内存；在质量要求高时可使用 fallback 换取精确性。",
+      "适合需要可观测检索质量与预算控制的工业级候选生成场景。"
+    ],
+    "business_transferability": 0.65,
+    "contributions_zh": [
+      "提出 SIDECAR：用近似 draft 候选和 tree-attention 一次调用为整个 draft 打分（内存允许时）。",
+      "该 pass 为每个未探索的 SID 前缀给出概率上界，并在 draft 包含精确 top-K 时完成认证。",
+      "若不包含，则用 branch-and-bound fallback 只扩展仍可能改变输出的 trie 部分，并声称任意 draft 至多 L 次调用内完成认证。",
+      "在每次调用 M 个 token、共 Y 次调用的预算下（Y=L 时与宽度 M 的 beam search 资源相当），给出列表在每个排名上都精确的 1+δ 因子。",
+      "取决于模型尖锐度，SIDECAR 可用 beam search 的一部分调用或内存返回精确 top-K；预算过小时也能报告 1+δ 因子以支持提前停止。"
+    ],
+    "evidence_quality": 0.3,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [
+        "beam search"
+      ],
+      "datasets": [],
+      "findings_zh": [
+        "摘要称 SIDECAR 在模型较尖锐时可用少于 beam search 的调用或内存返回精确 top-K。",
+        "摘要称预算不足时 SIDECAR 仍会报告 1+δ 因子，而 beam search 不提供该信息，因此服务系统可据此提前停止。",
+        "摘要未提供具体数据集、实验设置或数值结果，无法核验上述效果。"
+      ],
+      "metrics": [
+        "exact top-K",
+        "model calls",
+        "memory",
+        "1+δ exactness factor"
+      ]
+    },
+    "limitations_zh": [
+      "单次调用为整个 draft 打分受内存限制。",
+      "精确 top-K 认证依赖 draft 是否包含目标，否则需走 branch-and-bound fallback。",
+      "认证最坏需要至多 L 次调用；预算过小时只能给出 1+δ 因子，不能保证精确 top-K。",
+      "提供的材料仅为摘要，缺少数据集、基线实现、数值实验和部署细节。"
+    ],
+    "method_zh": "SIDECAR 先生成近似 draft 候选，再用一次 tree-attention pass 对整个 draft 打分，并计算所有未探索 SID 前缀的概率上界；若 draft 已含精确 top-K 则直接认证，否则进入 branch-and-bound fallback，仅展开仍可能影响结果的 trie 分支，直到认证或达到预算。",
+    "problem_zh": "基于 Semantic ID 的生成式推荐系统通常用受限 beam search 一次请求检索多个候选，但每个请求固定需要 L 次顺序模型调用；当 SID 生成器不够尖锐时准确率下降，且系统无法保证输出接近精确 top-K，也无法逐请求检测检索退化。",
+    "technical_depth": 0.8
+  },
+  "doi": null,
+  "final_score": 0.7325000000000002,
+  "id": "arxiv-2611.32855",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-27T18:29:57.314324Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-24T15:57:21Z",
+  "relevance_score": 0.9,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文针对基于语义ID的生成式推荐系统提出SIDECAR，用草稿候选加树注意力单次打分并对精确top-K进行认证，显著减少束搜索的调用开销。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "Speculative Decoding for Semantic-ID-Based Generative Recommendations",
+  "url": "https://arxiv.org/abs/2611.32855v1"
+}

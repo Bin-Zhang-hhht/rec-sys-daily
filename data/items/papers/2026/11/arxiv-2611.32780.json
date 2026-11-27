@@ -1,0 +1,80 @@
+{
+  "abstract": "Multimodal large language models (MLLMs) are transforming recommender systems into content-aware decision systems. In these systems, multimodal compression and cross-modal fusion are often viewed as robustness-enhancing mechanisms against content manipulation, as compression can filter noisy signals and cross-modal consensus can suppress inconsistent anomalies. We challenge this assumption by showing that the same process can expose a compression-to-consensus (C2C) bias in ranking decisions. Signals that remain salient after compression and receive consistent support across modalities can gain disproportionate influence in candidate comparison, offering an exploitable direction for content manipulation. In this paper, we introduce C3H, a novel inference-time attack that exploits this vulnerability. Rather than relying on noisy perturbations or training-time poisoning, C3H promotes a target item by tailoring its multimodal content to align with the decision criteria implicitly expressed by the recommender. Extensive experiments demonstrate that C3H substantially increases target-item exposure while maintaining overall recommendation utility. Code is available at https://github.com/GuoweiGuan666/C3H. Multimodal large language models (MLLMs) are transforming recommender systems into content-aware decision systems. In these systems, multimodal compression and cross-modal fusion are often viewed as robustness-enhancing mechanisms against content manipulation, as compression can filter noisy signals and cross-modal consensus can suppress inconsistent anomalies. We challenge this assumption by showing that the same process can expose a compression-to-consensus (C2C) bias in ranking decisions. Signals that remain salient after compression and receive consistent support across modalities can gain disproportionate influence in candidate comparison, offering an exploitable direction for content manipulation. In this paper, we introduce C3H, a novel inference-time attack that exploits this vulnerability. Rather than relying on noisy perturbations or training-time poisoning, C3H promotes a target item by tailoring its multimodal content to align with the decision criteria implicitly expressed by the recommender. Extensive experiments demonstrate that C3H substantially increases target-item exposure while maintaining overall recommendation utility. Code is available at https://github.com/GuoweiGuan666/C3H.",
+  "arxiv_id": "2611.32780",
+  "authors": [
+    "Guowei Guan",
+    "Yurong Hao",
+    "Jiaming Zhang",
+    "Fuyao Zhang",
+    "Wei Yang Bryan Lim"
+  ],
+  "deep_reading": {
+    "analysis_basis": "abstract_fallback",
+    "business_implications_zh": [
+      "内容侧：卖家或内容运营方可能通过定制多模态素材（图文、视频封面等）在不修改模型的情况下提升商品曝光，平台需将其视为新型作弊流量来源并进行识别。",
+      "平台风控：MLLM 推荐系统中的压缩与跨模态一致性并不能自动等同于安全性，需在排序链路中加入对“压缩后高显著且跨模态一致”信号的反向审计。",
+      "算法设计：跨模态融合模块应引入对共识信号的权重校准或对抗性评估，避免一致性成为可被操纵的单一通道。",
+      "评估体系：除准确性指标外，应加入目标物品曝光提升幅度、效用保持度等攻防指标，作为上线前的常规红队测试项。",
+      "商业决策：该结果表明推荐系统的“鲁棒性设计”可能带来虚假安全感，投入内容治理与推理阶段防护的优先级应相应提高。"
+    ],
+    "business_transferability": 0.35,
+    "contributions_zh": [
+      "揭示了多模态推荐系统中被忽视的“压缩到共识”（C2C）偏差，说明压缩与跨模态一致性既是鲁棒性来源，也是可利用的脆弱点。",
+      "提出 C3H，一种在推理阶段实施的攻击方法，通过调整目标物品的多模态内容，使其与推荐系统隐式表达的决策标准对齐，从而提升该目标物品的排名。",
+      "与噪声扰动或训练阶段投毒不同，C3H 不依赖训练阶段的数据污染，而是单纯在推理阶段通过内容定制实施操纵。",
+      "实验表明 C3H 显著提升了目标物品的曝光度，同时维持了整体推荐效用。",
+      "公开了代码仓库（https://github.com/GuoweiGuan666/C3H）。"
+    ],
+    "evidence_quality": 0.2,
+    "evidence_refs": [
+      {
+        "page": 1,
+        "section": "Abstract"
+      }
+    ],
+    "experiments": {
+      "baselines": [],
+      "datasets": [],
+      "findings_zh": [
+        "C3H 能够显著提升目标物品的曝光度。",
+        "在提升目标曝光的同时，整体推荐效用得以维持。",
+        "摘要以“大量实验”概括验证结果，但未给出具体数据集、对比基线与数值。"
+      ],
+      "metrics": [
+        "目标物品曝光度（target-item exposure）",
+        "整体推荐效用（overall recommendation utility）"
+      ]
+    },
+    "limitations_zh": [
+      "当前证据仅来自摘要，缺少数据集、基线、指标数值与消融实验等细节，无法评估结论的稳健性。",
+      "摘要未说明 C2C 偏差的形式化定义与度量方式，也未给出压缩、融合模块的具体设计。",
+      "摘要未讨论防御措施或缓解策略，攻击的可检测性与代价未知。",
+      "摘要未说明实验覆盖的推荐场景、模态组合与模型规模，外部有效性尚不明确。",
+      "攻击依赖对推荐系统隐式决策标准的推断，摘要未说明该推断的可得性与准确性。"
+    ],
+    "method_zh": "C3H 是一种推理阶段攻击：不注入噪声扰动，也不做训练阶段投毒；它针对目标物品的多模态内容进行定制，使这些内容对齐推荐系统在排序决策中隐式表达的偏好与决策标准，从而利用压缩后仍然显著、且在跨模态上保持一致支持的信号，在候选比较中获得不成比例的影响力，最终提升目标物品的曝光。摘要未披露具体的内容生成方式、优化目标与模型细节。",
+    "problem_zh": "多模态大语言模型（MLLM）正在把推荐系统转变为内容感知的决策系统。在这类系统中，多模态压缩与跨模态融合常被视为抵御内容操纵的鲁棒性机制：压缩可以过滤噪声信号，跨模态一致性可以抑制不一致的异常。该文指出这一假设并不成立，同样的过程会带来“压缩到共识”（compression-to-consensus, C2C）偏差：经过压缩后仍然显著、且在各模态上获得一致支持的信号，会在候选比较中获得不成比例的影响力，从而形成可被内容操纵利用的入口。",
+    "technical_depth": 0.3
+  },
+  "doi": null,
+  "final_score": 0.5735,
+  "id": "arxiv-2611.32780",
+  "kind": "paper",
+  "llm": {
+    "degraded": false,
+    "generated_at": "2026-11-27T18:29:57.314324Z",
+    "model": "deepseek-flash"
+  },
+  "methods": [],
+  "published_at": "2026-11-24T15:10:20Z",
+  "relevance_score": 0.82,
+  "scenarios": [],
+  "source": "arxiv",
+  "summary_zh": "该文揭示多模态大模型推荐系统中压缩到共识偏差可被利用，并提出推理时攻击C3H通过定制目标物品的多模态内容提升其曝光与排序位置。",
+  "targets": [
+    "content"
+  ],
+  "tasks": [],
+  "title": "C3H: Compression-to-Consensus Criteria Hijacking in Multimodal LLM Recommender Systems",
+  "url": "https://arxiv.org/abs/2611.32780v2"
+}
